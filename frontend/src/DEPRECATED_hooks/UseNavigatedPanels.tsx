@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import NavSelect from "../DEPRECATED_components/common/NavSelect/NavSelect";
 import { NavigatedPanel } from "../DEPRECATED_common/DEPRECATED_interfaces/NavigatedPanels";
 import { useNodeInfoContext } from "../modules/Experiments/GraphModule/utils/NodeInfoContext";
-import { useMQTTContext } from "../modules/MQTT/MQTTContext";
+// import { useMQTTContext } from "../modules/MQTT/MQTTContext";
 import Status from "../modules/Experiments/GraphModule/nodeInfo/Status/Status";
 import { NodeData } from "../modules/Experiments/types";
 
@@ -21,16 +21,16 @@ const UseNavigatedPanels = (elements: NavigatedPanel[], className?: string, isAd
     const { selectedNode } = useNodeInfoContext();
     _selectedNode = selectedNode;
   }
-  const { nodesStatus } = useMQTTContext();
+  // const { nodesStatus } = useMQTTContext();
 
   /***
    * Add status panel as a first tab
    */
-  useEffect(() => {
-    if (!isAdminPage && nodesStatus[_selectedNode?.id || ""] && !panels.find((panel) => panel.nav.name === statusPanel.nav.name)) {
-      setPanels([statusPanel, ...panels]);
-    }
-  }, [nodesStatus]);
+  // useEffect(() => {
+  //   if (!isAdminPage && nodesStatus[_selectedNode?.id || ""] && !panels.find((panel) => panel.nav.name === statusPanel.nav.name)) {
+  //     setPanels([statusPanel, ...panels]);
+  //   }
+  // }, [nodesStatus]);
 
   const openPanel = (panelName: number | string) => {
     setPanels((panels) => {

@@ -7,16 +7,16 @@ import PopupItems from "../../../DEPRECATED_components/Popup/PopupItems";
 import styles from "./styles/RunJobPopup.module.scss";
 import cyKeys from "../../../utils/cyKeys";
 import { PopupProps } from "../../../DEPRECATED_common/DEPRECATED_interfaces/Popup";
-import { useMQTTContext } from "../../MQTT/MQTTContext";
+// import { useMQTTContext } from "../../MQTT/MQTTContext";
 
 type Props = PopupProps<{ description: string }>;
 const RunJobPopup: React.FC<Props> = ({ onSubmit, onClose }) => {
   const [description, setDescription] = useState<string>("");
-  const { setStatusFromNode, setStatusFromNodeArray } = useMQTTContext();
+  // const { setStatusFromNode, setStatusFromNodeArray } = useMQTTContext();
   const handleSubmit = useCallback(() => {
     onSubmit && onSubmit({ description });
-    setStatusFromNodeArray([]);
-    setStatusFromNode(undefined);
+    // setStatusFromNodeArray([]);
+    // setStatusFromNode(undefined);
   }, [onSubmit, description]);
 
   return (

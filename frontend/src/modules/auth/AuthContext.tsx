@@ -21,28 +21,28 @@ export const useAuthContext = (): IAuthContext => useContext<IAuthContext>(AuthC
 
 export function AuthContextProvider(props: PropsWithChildren<void>): React.ReactElement {
   const { children } = props;
-  const [isVerifying, setIsVerifying] = useState(true);
+  // const [isVerifying, setIsVerifying] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | undefined>(undefined);
   const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined);
   const navigate = useNavigate();
 
-  const verify = useCallback(async () => {
-    const { isOk } = await AuthApi.verify();
+  // const verify = useCallback(async () => {
+  //   const { isOk } = await AuthApi.verify();
+  //
+  //   setIsAuthorized(isOk);
+  //   setIsVerifying(false);
+  // }, [setIsAuthorized, setIsVerifying]);
 
-    setIsAuthorized(isOk);
-    setIsVerifying(false);
-  }, [setIsAuthorized, setIsVerifying]);
+  // useEffect(() => {
+  //   verify();
+  // }, []);
 
-  useEffect(() => {
-    verify();
-  }, []);
-
-  useEffect(() => {
-    if (isAuthorized) {
-      getUserInfo();
-    }
-  }, [isAuthorized]);
+  // useEffect(() => {
+  //   if (isAuthorized) {
+  //     getUserInfo();
+  //   }
+  // }, [isAuthorized]);
 
   const login = useCallback(
     async (data: LoginData) => {
@@ -76,7 +76,7 @@ export function AuthContextProvider(props: PropsWithChildren<void>): React.React
         isAuthorized,
         authError,
         logout,
-        isVerifying,
+        // isVerifying,
         userInfo,
       }}
     >

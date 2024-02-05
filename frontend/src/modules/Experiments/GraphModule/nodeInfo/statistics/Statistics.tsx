@@ -5,11 +5,11 @@ import { TableItemProps } from "../../../../../DEPRECATED_common/DEPRECATED_inte
 import cyKeys from "../../../../../utils/cyKeys";
 import { useNodeInfoContext } from "../../utils/NodeInfoContext";
 import ContentBox from "../common/ContentBox";
-import { useMQTTContext } from "../../../../MQTT/MQTTContext";
+// import { useMQTTContext } from "../../../../MQTT/MQTTContext";
 
 const Statistics = () => {
   const { nodeInfo, selectedNode } = useNodeInfoContext();
-  const { nodesStatus } = useMQTTContext();
+  // const { nodesStatus } = useMQTTContext();
 
   const tableItems: TableItemProps[] = [
     {
@@ -22,11 +22,13 @@ const Statistics = () => {
     },
     {
       rowName: "CPU (%)",
-      rowValue: (nodesStatus[selectedNode?.ident || ""] as any)?.resources?.cpu,
+      // rowValue: (nodesStatus[selectedNode?.ident || ""] as any)?.resources?.cpu,
+      rowValue: 'Node status',
     },
     {
       rowName: "Memory (MB)",
-      rowValue: Math.round(((nodesStatus[selectedNode?.ident || ""] as any)?.resources?.ram || 0) * 1000) / 1000,
+      // rowValue: Math.round(((nodesStatus[selectedNode?.ident || ""] as any)?.resources?.ram || 0) * 1000) / 1000,
+      rowValue: 999,
     },
   ];
 

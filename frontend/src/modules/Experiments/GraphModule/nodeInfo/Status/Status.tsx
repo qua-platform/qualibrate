@@ -5,7 +5,7 @@ import Plotly from "plotly.js/dist/plotly";
 import { JSONEditor } from "vanilla-jsoneditor";
 
 import styles from "./Status.module.scss";
-import { useMQTTContext } from "../../../../MQTT/MQTTContext";
+// import { useMQTTContext } from "../../../../MQTT/MQTTContext";
 import { useNodeInfoContext } from "../../utils/NodeInfoContext";
 
 export type DataDictionary = {
@@ -91,24 +91,24 @@ const Status = () => {
     }
   };
 
-  const { statusFromNode, statusFromNodeArray } = useMQTTContext();
+  // const { statusFromNode, statusFromNodeArray } = useMQTTContext();
   const { selectedNode } = useNodeInfoContext();
 
-  useEffect(() => {
-    if (statusFromNode && selectedNode) {
-      if (statusFromNode.eui === selectedNode.id) {
-        clearDataDiv(dataDivId);
-        updateStatusData(statusFromNode.msg, dataDivId, refEditor.current);
-      } else {
-        clearDataDiv(dataDivId);
-        refEditor.current?.update({ json: {} });
-        const statusValue = statusFromNodeArray.find((one) => one.eui === selectedNode.id);
-        if (statusValue) {
-          updateStatusData(statusValue?.msg ?? "", dataDivId, refEditor.current);
-        }
-      }
-    }
-  }, [statusFromNode, selectedNode]);
+  // useEffect(() => {
+  //   if (statusFromNode && selectedNode) {
+  //     if (statusFromNode.eui === selectedNode.id) {
+  //       clearDataDiv(dataDivId);
+  //       updateStatusData(statusFromNode.msg, dataDivId, refEditor.current);
+  //     } else {
+  //       clearDataDiv(dataDivId);
+  //       refEditor.current?.update({ json: {} });
+  //       const statusValue = statusFromNodeArray.find((one) => one.eui === selectedNode.id);
+  //       if (statusValue) {
+  //         updateStatusData(statusValue?.msg ?? "", dataDivId, refEditor.current);
+  //       }
+  //     }
+  //   }
+  // }, [statusFromNode, selectedNode]);
 
   return (
     <div className={styles.statusTabWrapper} ref={refContainer}>

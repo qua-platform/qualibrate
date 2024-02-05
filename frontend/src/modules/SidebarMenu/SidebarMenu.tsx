@@ -16,7 +16,7 @@ import { useActiveProjectContext } from "../ActiveProject/ActiveProjectContext";
 import { ADMIN_PANEL_URL } from "../../DEPRECATED_common/modules";
 import { useNavigate } from "react-router-dom";
 import { SettingIcon } from "../../ui-lib/Icons/SettingsIcon";
-import { useAuthContext } from "../auth/AuthContext";
+// import { useAuthContext } from "../auth/AuthContext";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext);
@@ -26,7 +26,7 @@ const SidebarMenu: React.FunctionComponent = () => {
   const containerClassName = classNames(styles.sidebarMenu, !minify && styles.opened);
   const hideSideMenuItems = !activeProject;
   const navigate = useNavigate();
-  const { userInfo } = useAuthContext();
+  // const { userInfo } = useAuthContext();
 
   useEffect(() => {
     setMinify(!pinSideMenu);
@@ -49,16 +49,16 @@ const SidebarMenu: React.FunctionComponent = () => {
               {hideSideMenuItems ? [] : menuItems.map((item, index) => <MenuItem {...item} key={index} hideText={minify} />)}
             </div>
             <div className={styles.menuBottomContent}>
-              {userInfo?.is_admin && (
+              {/*{userInfo?.is_admin && (*/}
                 <div onClick={() => navigate(ADMIN_PANEL_URL)}>
                   <MenuItem key={"admin-settings"} menuItem={{ icon: SettingIcon, title: "Settings" }} hideText={minify} />
                 </div>
-              )}
+              {/*)}*/}
               {bottomMenuItems.map((item) => (
                 <MenuItem {...item} key={item.keyId} hideText={minify} />
               ))}
-              {THEME_TOGGLE_VISIBLE && <ThemeToggle showText={!minify} />}
-              {<LogoutButton hideText={minify} />}
+              {/*{THEME_TOGGLE_VISIBLE && <ThemeToggle showText={!minify} />}*/}
+              {/*{<LogoutButton hideText={minify} />}*/}
             </div>
           </div>
         </div>

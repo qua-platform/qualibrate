@@ -6,7 +6,7 @@ import styles from "./GraphModule.module.scss";
 import cyKeys from "../../../utils/cyKeys";
 import { useGraphContext } from "./utils/GraphContext";
 import { getGraphElements } from "./utils/graph";
-import { useMQTTContext } from "../../MQTT/MQTTContext";
+// import { useMQTTContext } from "../../MQTT/MQTTContext";
 import { isError, isPending } from "../../../utils/statusHelpers";
 import { ElementDefinition } from "cytoscape";
 import CytoscapeGraph from "./CytoscapeGraph";
@@ -20,13 +20,19 @@ type Props = { active?: boolean };
 const GraphModule = () => {
   const { graphData, graphDataStatus, loadGraph } = useGraphContext();
   const { selectNode, selectedNode } = useNodeInfoContext();
-  const { nodesStatus } = useMQTTContext();
+  // const { nodesStatus } = useMQTTContext();
 
   useOnProjectUpdate(loadGraph);
 
   const graphElements: ElementDefinition[] = useMemo(() => {
-    return getGraphElements(graphData, nodesStatus);
-  }, [graphData, nodesStatus]);
+    return getGraphElements(graphData, {nodeName: {
+        node: 'string',
+        msg: 'SOME MESSAGE',
+        // resources?: { cpu: string | number; ram: string | number };
+        style: "initialised",
+      }});
+  }, [graphData]);
+  // }, [graphData, nodesStatus]);
 
   const handleNodeClick = useCallback(
     (node: NodeData) => {

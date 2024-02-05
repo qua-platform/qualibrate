@@ -9,7 +9,7 @@ import { AuthContextProvider } from "./modules/auth/AuthContext";
 import { BrowserRouter } from "react-router-dom";
 import { FlexLayoutContextProvider } from "./routing/flexLayout/FlexLayoutContext";
 import { InterfaceContextProvider } from "./DEPRECATED_context/InterfaceContext";
-import { MQTTContextProvider } from "./modules/MQTT/MQTTContext";
+// import { MQTTContextProvider } from "./modules/MQTT/MQTTContext";
 import { ProjectsContextProvider } from "./modules/WelcomePage/utils/ProjectsContext";
 import { UserContextProvider } from "./DEPRECATED_context/UserContext";
 import { WorkflowContextProvider } from "./modules/Experiments/context/WorkflowContext";
@@ -34,7 +34,7 @@ const Application: React.FunctionComponent = () => {
   useEffect(updateColorTheme, []);
   return (
     <GlobalThemeContextProvider>
-      <MQTTContextProvider>
+      {/*<MQTTContextProvider>*/}
         <ActiveProjectContextContextProvider>
           <CheckoutContextProvider>
             {/*// todo make local for modules or split into simple functions*/}
@@ -48,7 +48,7 @@ const Application: React.FunctionComponent = () => {
             </JobActionsContextContainer>
           </CheckoutContextProvider>
         </ActiveProjectContextContextProvider>
-      </MQTTContextProvider>
+      {/*</MQTTContextProvider>*/}
     </GlobalThemeContextProvider>
   );
 };

@@ -17,11 +17,11 @@ const AppRoutes = () => {
   const { activeProject } = useActiveProjectContext();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isVerifying && !isAuthorized) {
-      navigate(LOGIN_URL);
-    }
-  }, [isAuthorized, isVerifying]);
+  // useEffect(() => {
+  //   if (!isVerifying && !isAuthorized) {
+  //     navigate(LOGIN_URL);
+  //   }
+  // }, [isAuthorized, isVerifying]);
 
   useEffect(() => {
     if (activeProject) {
