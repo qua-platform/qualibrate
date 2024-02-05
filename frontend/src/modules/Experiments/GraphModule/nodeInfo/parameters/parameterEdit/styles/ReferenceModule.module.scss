@@ -1,0 +1,78 @@
+.module {
+  width: 300px;
+  background-color: var(--layout-background);
+  box-sizing: border-box;
+  padding: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.referenceInput {
+  width: 100%;
+
+  input {
+    padding: 6px 10px;
+    font-size: 14px;
+    height: 30px;
+  }
+}
+
+.previewTitle {
+  font-size: 12px;
+  opacity: 0.8;
+  color: var(--body-font);
+
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--border-color);
+
+  margin-bottom: 20px;
+}
+
+.previewJSON {
+  max-height: 450px;
+  overflow-y: auto;
+  flex: 1;
+  word-break: break-word;
+}
+
+.control {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 10px 24px;
+
+  border-top: 1px solid var(--border-color);
+}
+
+.controlButton {
+  background-color: transparent;
+  border: none;
+  color: var(--secondary-blue-button);
+  padding: 0;
+  height: 24px;
+}
+
+.content {
+  display: flex;
+}
+
+.panelsExtended {
+  float: left;
+}
+
+.inputField {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.infoBtn {
+  margin-left: 0.5rem;
+}

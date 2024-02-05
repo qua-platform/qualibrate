@@ -1,0 +1,33 @@
+@import "../../../assets/styles/_base.scss";
+.container {
+  position: relative;
+  width: 760px;
+  height: 618px;
+  max-height: 90vh;
+  box-sizing: border-box;
+  padding: 38px 40px;
+
+  background: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+.closeIcon {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+
+.title {
+  font-family: var(--font-family-cond);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+
+  color: var(--font);
+}
+
+.content {
+  @include yScroll();
+  height: calc(100% - 28px);
+}

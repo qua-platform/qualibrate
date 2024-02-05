@@ -1,0 +1,38 @@
+@import "../../../../../../../assets/styles/_base.scss";
+.list {
+  position: absolute;
+  @include popupStyle();
+  border-radius: 4px;
+  padding: 0 13px 15px 13px;
+  z-index: 10;
+  width: calc(100% - 32px);
+  top: 36px;
+  margin: unset;
+
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.item {
+  font-size: 14px;
+  margin-top: 12px;
+  transition: all 0.05s ease-in;
+  cursor: pointer;
+
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  .matched {
+    color: var(--active-text);
+  }
+}
+
+.item__active {
+  color: var(--blue);
+
+  .matched {
+    color: var(--blue);
+  }
+}

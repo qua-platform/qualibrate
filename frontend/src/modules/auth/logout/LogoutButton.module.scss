@@ -1,0 +1,28 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 14px;
+  color: var(--secondary-blue-button);
+
+  padding-left: 24px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.userThumb {
+  border: 2px solid var(--secondary-blue-button);
+  border-radius: 50px;
+
+  height: 28px;
+  min-width: 28px;
+
+  text-align: center;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: relative;
+  right: 4px;
+}

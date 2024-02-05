@@ -1,0 +1,30 @@
+@import "src/assets/styles/variables";
+@import "src/assets/styles/base";
+
+.itemWrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  height: 45px;
+  width: 100%;
+  box-sizing: border-box;
+  white-space: pre;
+
+  padding-left: $sidebar_padding !important;
+  border-right: 2px solid transparent;
+
+  font-size: 18px;
+  color: var(--menu-text-color);
+
+  &:hover {
+    background-color: var(--menu-hover-text);
+    border-right: 2px solid var(--menu-accent-color);
+  }
+
+  svg {
+    height: 24px;
+    width: 24px;
+    min-width: 24px;
+  }
+}

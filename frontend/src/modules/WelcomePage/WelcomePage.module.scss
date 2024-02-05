@@ -1,0 +1,67 @@
+.welcomePageLayout {
+  position: relative;
+  background-color: var(--background-color);
+  padding: 50px 70px;
+
+  @media (max-width: 900px) {
+    padding: 40px 30px;
+  }
+  @media (max-width: 700px) {
+    padding: 30px 20px;
+  }
+}
+
+.pageWrapper {
+  position: relative;
+  display: flex;
+  flex: 1;
+  gap: 70px;
+}
+
+.selectProjectFrame {
+  flex: 0.6;
+
+  height: calc(100% - 125px);
+  overflow-y: scroll;
+}
+
+.entropyGuideFrame {
+  flex: 0.4;
+}
+
+.bannerList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mightBeInterestingFrame {
+  margin-top: 50px;
+}
+
+.pageActions {
+  display: flex;
+  column-gap: 30px;
+  position: absolute;
+  bottom: 50px;
+  left: 70px;
+}
+.settingsIcon {
+  display: flex;
+  column-gap: 30px;
+  position: absolute;
+  bottom: 0;
+  left: 266px;
+  cursor: pointer;
+}
+
+.searchJobField {
+  margin-bottom: 18px;
+}
+
+.actionButton {
+  width: 172px;
+  justify-content: center;
+  padding: 0;
+  gap: 8px;
+}

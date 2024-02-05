@@ -1,0 +1,48 @@
+.blueButton {
+  display: flex;
+  justify-content: center;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 45px;
+  font-weight: 500;
+  font-family: var(--font-family);
+  font-style: normal;
+  font-size: 14px;
+
+  &.big {
+    height: 38px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &.isCircle {
+    width: 28px;
+    padding: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.primary {
+  background: var(--blue-button);
+  color: var(--blue-button-text);
+
+  &:disabled {
+    background: var(--blue-button-disabled);
+    color: var(--blue-button-disabled-text);
+  }
+}
+
+.secondary {
+  background: none;
+  border: 1px solid var(--secondary-blue-button);
+  color: var(--secondary-blue-button);
+
+  &:disabled {
+    border: 1px solid var(--secondary-blue-button-disabled);
+    color: var(--secondary-blue-button-disabled);
+  }
+}

@@ -1,0 +1,15 @@
+.code {
+  height: 100%;
+  width: 100%;
+  border: none;
+}
+
+.codeView {
+  height: 100%;
+  width: 100%;
+  display: none;
+
+  &.moduleActive {
+    display: block;
+  }
+}

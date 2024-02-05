@@ -1,0 +1,21 @@
+.content {
+  color: var(--sub-text-color);
+  white-space: break-spaces;
+  word-break: break-all;
+  text-align: start;
+  text-decoration: underline dotted;
+
+  &.highlight {
+    background: var(--table-active-background);
+    color: var(--active-text);
+  }
+
+  &:disabled {
+    text-decoration: unset;
+    cursor: default;
+  }
+
+  &:hover:not(:disabled) {
+    color: var(--active-text);
+  }
+}

@@ -1,0 +1,97 @@
+@mixin fullPage {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+@mixin fullIframe {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+@mixin popupStyle {
+  background: var(--popup-background);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+  color: var(--font);
+  padding: 30px 40px;
+}
+@mixin popup {
+  @include popupStyle();
+  position: absolute;
+  height: 100vh;
+  right: 0;
+  top: 0;
+  width: 480px;
+
+  z-index: 1;
+}
+// todo remove
+@mixin module_page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+  @include colGap(10px);
+  box-sizing: border-box;
+  background-color: var(--background-color);
+  padding: 25px 40px;
+  color: var(--font);
+}
+
+@mixin input {
+  height: 40px;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  background: var(--input-background);
+  color: var(--font);
+  outline: none;
+  width: 100%;
+  letter-spacing: 0.05em;
+  &:focus {
+    border: 1px solid var(--input-outline);
+  }
+}
+
+@mixin yScroll {
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--background-color);
+    width: 8px;
+    box-shadow: inset 0 0 5px transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--popup-background);
+    width: 4px;
+    border-radius: 10px;
+  }
+}
+
+@mixin colGap($value) {
+  & > * + * {
+    margin-top: $value;
+  }
+}
+
+@mixin rowGap($value) {
+  & > * + * {
+    margin-left: $value;
+  }
+}

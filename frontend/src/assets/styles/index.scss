@@ -1,0 +1,484 @@
+@import "base";
+
+/* latin-ext */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url("/assets/fonts/Roboto-Thin.ttf") format("opentype");
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url("/assets/fonts/Roboto-Thin.ttf") format("opentype");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/fonts/Roboto-Light.ttf") format("opentype");
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/fonts/Roboto-Light.ttf") format("opentype");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/Roboto-Regular.ttf") format("opentype");
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/Roboto-Regular.ttf") format("opentype");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/fonts/Roboto-Medium.ttf") format("opentype");
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: "Roboto";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/assets/fonts/Roboto-Medium.ttf") format("opentype");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/fonts/RobotoCondensed-Light.ttf") format("opentype");
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/assets/fonts/RobotoCondensed-Light.ttf") format("opentype");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/RobotoCondensed-Regular.ttf") format("opentype");
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/assets/fonts/RobotoCondensed-Regular.ttf") format("opentype");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/fonts/RobotoCondensed-Bold.ttf") format("opentype");
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: "Roboto Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/assets/fonts/RobotoCondensed-Bold.ttf") format("opentype");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+html,
+body,
+div#root {
+  @include fullPage;
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+}
+
+iframe {
+  border: none;
+}
+
+a {
+  text-decoration: none;
+  color: unset;
+}
+
+button {
+  outline: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  padding: unset;
+  font-family: var(--font-family);
+
+  &:disabled,
+  .disabled {
+    cursor: not-allowed;
+  }
+}
+
+:root {
+  // common
+  --background-color: #2b2c32;
+  --font: #ffffff;
+  --body-font: #a5abb3;
+  --sub-text-color: #a5abb3;
+  --hover-grey: rgba(198, 205, 214, 0.03);
+  --border-color: #42424c;
+  --box-background: rgba(36, 36, 41, 0.4);
+  --error: #ff2463;
+  --warning-bright: #ffdb2c;
+  --warning: #ac9730;
+  --warning-border: #ffdb2c33;
+  --font-family: "Roboto", sans-serif;
+  --font-family-cond: "Roboto Condensed", Monospace, serif;
+
+  --code-background: #2b2c32;
+  --code-background-hover: #36383e;
+
+  --active-text: #2ccbe5;
+  --active-hover: #2ccbe51a;
+  --copy-field: #c6cdd626;
+
+  // button
+  --blue-button: #05869c;
+  --blue-button-text: #ffffff;
+
+  --blue-button-disabled: #42424c;
+  --blue-button-disabled-text: rgba(255, 255, 255, 0.6);
+
+  --secondary-blue-button: #2ccbe5;
+  --secondary-blue-button-disabled: #c6cdd6;
+
+  --outline-button: #323339;
+  --outline-button-border: #42424c;
+  --outline-button-text: #ffffff;
+  --outline-button-disabled-text: #a5abb3;
+
+  --outline-button-active: rgba(44, 203, 229, 0.1);
+  --outline-button-active-border: #2b5964;
+  --outline-button-active-text: #2ccbe5;
+
+  --blue-icon-button-text: #2ccbe5;
+  --blue-icon-button-hover-text: #94e5f2;
+
+  // tabs
+  --disabled-tab: rgba(43, 44, 50, 0.5);
+  --selected-tab: #2b2c32;
+  --layout-background: #212125;
+
+  // input
+  --input-background: #2a2b31;
+  --input-border: #42424c;
+  --input-border-active: #c6cdd6;
+  --dropdown-item-hover: #2ccbe51a;
+
+  // checkbox
+  --checkbox-background: #c6cdd60d;
+  --checkbox-border: #42424c;
+  --checkbox-hover-border: #94e5f2;
+  --checkbox-active-background: #2bcbe4;
+
+  // menu
+  --menu-background: #212125;
+  --menu-text-color: #c6cdd6;
+  --menu-hover-text: #242c32;
+  --menu-accent-color: #2ccbe5;
+
+  // admin
+  --admin-header-background: #242429;
+  --icon-thumbnail: #42424c;
+
+  // logs
+  --log-background: #1e1e1e;
+  --log-color: #fff;
+
+  //popup
+  --popup-background: #323339;
+  --overlay-background: #212125cc;
+  --overlay-background-blocking: #212125;
+
+  // label
+  --label-background: #484a50;
+
+  // tooltip
+  --tooltip: #2a2b31;
+  --tooltip-border: #42424c;
+  --tooltip-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+
+  // table
+  --table-header: #323339;
+  --table-background: #2b2c32;
+  --table-hover: #2b2c32;
+  --table-active-background: rgba(44, 203, 229, 0.05);
+
+  // experiments
+  --job-list-header: #212125;
+  --job-list-background: #242429;
+
+  // welcome page
+  --selection-color: rgba(198, 205, 214, 0.03);
+
+  // jobs
+  --grouping-border: rgba(198, 205, 214, 0.6);
+  --grouping-border-hover: rgba(198, 205, 214, 1);
+  --grouping-border-active: #fff;
+
+  // statuses
+  --green: #bdff94;
+  --green-light: #2e392d;
+
+  --yellow: #fed465;
+  --yellow-light: #403931;
+
+  --blue: #81e1ff;
+  --blue-light: #2e3846;
+
+  --red: #ff8484;
+  --red-light: #40333a;
+
+  --grey: #c6cdd6;
+  --grey-light: #37393f;
+
+  --tag-hover-color: #2b444d;
+
+  --popup-fade-wrapper: rgba(33, 33, 37, 0.8);
+
+  --action-button-hover: #31424a;
+
+  --action-button-hover-border: #2f7988;
+
+  // flex layout
+  --color-splitter: #212125;
+  --color-splitter-hover: #2b444d;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+  font-size: 1em;
+  font-weight: normal;
+  line-height: normal;
+}
+
+p {
+  font-weight: normal;
+  margin: unset;
+}
+
+button {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  background-color: unset;
+  color: unset;
+  border: unset;
+}
+
+input::placeholder {
+  color: var(--sub-text-color);
+  letter-spacing: 0.06em;
+}
+
+select {
+  color: var(--sub-text-color);
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  width: 100%;
+}
+
+input[type="checkbox"] {
+  background: var(--checkbox-background);
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+  border-radius: 2px;
+  height: 18px;
+  width: 18px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+  box-shadow: none;
+  font-size: 1.4em;
+  line-height: 1.5em;
+  cursor: pointer;
+  position: relative;
+}
+
+input[type="checkbox"]:checked {
+  background: var(--secondary-blue-button);
+  position: relative;
+
+  &::after {
+    height: 100%;
+    width: 100%;
+    content: "✓";
+    color: var(--popup-background);
+    font-size: 0.6em;
+    position: absolute;
+    top: -6px;
+    left: 3px;
+    font-weight: 700;
+  }
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+}
+
+/*  Calendar  */
+.react-datepicker-popper .react-datepicker {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 10px;
+}
+.react-datepicker__month-container {
+  .react-datepicker__header {
+    background-color: var(--input-background);
+    border: none;
+  }
+
+  .react-datepicker__current-month {
+    color: var(--sub-text-color);
+    font-family: var(--font-family);
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .react-datepicker__day-names {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  .react-datepicker__day-name {
+    color: var(--sub-text-color);
+    opacity: 0.6;
+  }
+
+  .react-datepicker__navigation--previous {
+    right: 0;
+  }
+
+  .react-datepicker__day--in-selecting-range {
+    border-radius: 50px;
+  }
+  .react-datepicker__day--in-selecting-range:hover {
+    border-radius: 50px;
+  }
+
+  .react-datepicker__day {
+    border: 1px solid transparent;
+    margin: 0;
+    border-radius: 50px;
+    // border-radius: 0px;
+    background-color: transparent;
+    color: var(--font) !important;
+  }
+
+  .react-datepicker__day--in-range:not(.react-datepicker__day--in-selecting-range) {
+    background-color: transparent !important;
+  }
+
+  .react-datepicker__day--in-selecting-range {
+    border: none;
+    border-radius: 0;
+    background-color: var(--active-hover);
+    color: var(--blue-button);
+    font-weight: 600;
+    position: relative;
+  }
+
+  .react-datepicker__day--selected {
+    border-radius: 50px;
+    background-color: var(--blue-button);
+    color: var(--font);
+  }
+
+  .react-datepicker__day--range-end {
+    border-radius: 50px;
+    background: transparent;
+    border: 1px solid var(--secondary-blue-button);
+  }
+
+  .react-datepicker__day:hover {
+    border: 1px solid var(--secondary-blue-button);
+    background: transparent;
+  }
+
+  .react-datepicker__day--selected:hover {
+    border-radius: 50px;
+  }
+}

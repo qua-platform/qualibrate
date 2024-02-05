@@ -1,0 +1,8 @@
+@import "src/assets/styles/variables";
+@import "src/assets/styles/_base.scss";
+
+.headerInfo {
+  display: flex;
+  align-items: center;
+  @include rowGap(0.5rem);
+}

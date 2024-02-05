@@ -1,0 +1,55 @@
+@import "../../../../../assets/styles/base";
+.commonActions {
+  height: 45px;
+  //width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  @include rowGap(10px);
+}
+
+.hidden > * {
+  display: none !important;
+}
+
+.scheduledAction {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.minifiedContainer {
+  position: relative;
+  width: 45px;
+}
+
+.threeDots {
+  height: 45px;
+  width: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popupList {
+  width: 156px;
+  position: absolute;
+  z-index: 10;
+  top: 45px;
+  right: 0;
+  padding: 15px 0;
+  border: 1px solid var(--tooltip-border);
+  background: var(--tooltip);
+  box-shadow: var(--tooltip-shadow);
+  border-radius: 4px;
+
+  & > button {
+    width: 100% !important;
+    padding: 0 15px;
+
+    &:hover {
+      background: var(--active-hover);
+    }
+  }
+}

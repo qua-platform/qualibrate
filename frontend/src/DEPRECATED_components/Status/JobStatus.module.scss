@@ -1,0 +1,18 @@
+$statusWidth: 110px;
+
+.jobStatus {
+  border: unset;
+  height: 22px;
+  padding: 4px 18px;
+  border-radius: 12px;
+  text-align: center;
+  justify-content: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 110px;
+  box-sizing: border-box;
+  display: block;
+  cursor: auto;
+  font-size: 12px;
+}

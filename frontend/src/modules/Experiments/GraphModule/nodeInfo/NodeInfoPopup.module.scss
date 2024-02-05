@@ -1,0 +1,26 @@
+@import "src/assets/styles/variables";
+@import "src/assets/styles/base";
+
+.experimentInfo {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: var(--popup-background);
+  border-left: 1px solid var(--border-color);
+  z-index: 2;
+  color: var(--font);
+  height: 100%;
+  width: 704px;
+  display: flex;
+  flex-direction: column;
+  &.extended {
+    width: 1080px;
+  }
+}
+
+.panels {
+  position: relative;
+  display: flex;
+  height: calc(100% - 62px);
+  min-width: 480px;
+}

@@ -1,0 +1,19 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+
+  cursor: pointer;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+
+  justify-content: space-between;
+}
+
+.subHeader {
+  font-weight: 600;
+  color: var(--menu-text-color);
+  padding: 28px 0;
+}

@@ -1,0 +1,47 @@
+.calendarInput {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 5px;
+
+  padding: 12px 14px;
+  font-size: 14px;
+
+  margin-bottom: 30px;
+
+  background-color: var(--input-background);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+}
+
+.calendar {
+  height: 40px;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  background: var(--input-background);
+  color: var(--font);
+  outline: none;
+  width: 100%;
+  letter-spacing: 0.05em;
+}
+
+.calendarBody {
+  background-color: var(--input-background);
+}
+
+.calendarDay {
+  color: var(--font);
+  padding: 10px;
+
+  border-radius: 4px;
+}
+
+.react-datepicker__header {
+  display: none;
+}

@@ -1,0 +1,77 @@
+@import "../../../assets/styles/base";
+
+.container {
+  @include popup;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  font-size: 1.5rem;
+  font-family: var(--font-family-cond);
+  color: var(--sub-text-color);
+  margin-bottom: 30px;
+  text-align: start;
+}
+
+.actions {
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  column-gap: 20px;
+  width: calc(100% - 80px);
+
+  button {
+    width: 170px;
+    height: 40px;
+    font-size: 0.876em;
+    justify-content: center;
+  }
+}
+
+.closePopupButton {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+}
+
+.popupNotification {
+  background-color: var(--icon-thumbnail);
+  padding: 12px 20px;
+  color: var(--font);
+}
+
+.text {
+  text-align: center;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--sub-text-color);
+}
+
+.popup_center_view_wrapper {
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: var(--popup-fade-wrapper);
+
+  height: 100vh;
+  width: 100vw;
+
+  & > form {
+    position: relative;
+    height: 240px;
+    min-width: 440px;
+  }
+}
+
+.popup_center_view {
+  border-radius: 10px;
+}

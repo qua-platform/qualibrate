@@ -1,0 +1,25 @@
+.pageName {
+  font-size: 36px;
+  color: var(--font);
+  font-family: var(--font-family-cond);
+
+  padding-bottom: 40px;
+}
+
+.pageSection {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  column-gap: 20px;
+}
+
+.sectionName {
+  font-size: 16px;
+  color: var(--sub-text-color);
+  margin-bottom: 24px;
+}
+
+.sectionContent {
+  height: 100%;
+}

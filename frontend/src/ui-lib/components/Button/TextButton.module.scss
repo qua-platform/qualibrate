@@ -1,0 +1,12 @@
+.textButton {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+
+  color: var(--secondary-blue-button);
+
+  &:disabled {
+    cursor: not-allowed;
+    color: var(--secondary-blue-button-disabled);
+  }
+}

@@ -1,0 +1,18 @@
+.container {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+.viewer {
+  position: relative;
+  width: 100%;
+  max-height: calc(100% - 50px);
+  height: calc(100% - 50px);
+
+  box-sizing: border-box;
+  overflow: hidden;
+
+  display: flex;
+  flex: 1;
+}

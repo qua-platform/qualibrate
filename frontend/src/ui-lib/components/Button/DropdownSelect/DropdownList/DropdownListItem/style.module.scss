@@ -1,0 +1,15 @@
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 6px 0;
+
+  font-size: 14px;
+  color: var(--body-font);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--active-text);
+  }
+}

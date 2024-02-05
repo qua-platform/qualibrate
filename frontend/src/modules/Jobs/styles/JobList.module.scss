@@ -1,0 +1,15 @@
+@import "../../../assets/styles/base";
+
+.wrapper {
+  @include module_page;
+}
+
+.jobList {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+
+  height: calc(100% - 50px);
+  overflow-y: scroll;
+  box-sizing: border-box;
+}

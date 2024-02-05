@@ -1,0 +1,47 @@
+@import "../../../../../assets/styles/_base.scss";
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+
+  width: 340px;
+}
+
+.list {
+  @include yScroll;
+  position: absolute;
+  z-index: 2;
+  top: 45px;
+  width: 100%;
+  box-sizing: border-box;
+  max-height: 196px;
+  font-size: 14px;
+  color: var(--body-font);
+  padding: 20px 0;
+
+  background: #323339;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.item {
+  height: 38px;
+  width: 100%;
+  padding: 2px 14px;
+
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  cursor: pointer;
+  color: var(--body-font);
+  font-size: 14px;
+
+  &:hover {
+    background: var(--dropdown-item-hover);
+  }
+}
+
+.subText {
+  color: var(--sub-text-color);
+}

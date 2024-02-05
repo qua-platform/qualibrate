@@ -1,0 +1,45 @@
+.wrapper {
+  h5 {
+    color: var(--sub-text-color);
+    font-weight: 600;
+  }
+}
+
+.tableContent {
+  padding-top: 15px;
+  margin-bottom: 32px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px 0;
+
+  &:first-child {
+    border-top: 1px solid var(--border-color);
+  }
+
+  .name {
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+    color: var(--sub-text-color);
+    width: 220px;
+  }
+
+  .value {
+    color: var(--font);
+    flex: 1;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .itemActions {
+    display: flex;
+    align-items: center;
+    column-gap: 25px;
+  }
+}

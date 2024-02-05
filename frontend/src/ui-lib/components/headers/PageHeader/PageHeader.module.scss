@@ -1,0 +1,7 @@
+@import "src/assets/styles/variables";
+@import "src/assets/styles/base";
+
+.withBorder {
+  box-sizing: border-box;
+  border-bottom: 2px solid var(--layout-background);
+}

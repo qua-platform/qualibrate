@@ -1,0 +1,22 @@
+@import "../../assets/styles/variables";
+@import "../../assets/styles/base";
+
+.wrapper {
+  height: 100%;
+}
+
+.data {
+  width: 390px;
+}
+
+.explorer {
+  height: calc(100% - 50px);
+  display: flex;
+  box-sizing: border-box;
+}
+
+.viewer {
+  flex: 1;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}

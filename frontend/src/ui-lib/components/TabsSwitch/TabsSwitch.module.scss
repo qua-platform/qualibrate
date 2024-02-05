@@ -1,0 +1,49 @@
+@import "src/assets/styles/base";
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+
+  & button:first-child {
+    border-radius: 4px 0 0 4px;
+  }
+
+  & button:last-child {
+    border-radius: 0 4px 4px 0;
+  }
+
+  & button:first-child:last-child {
+    border-radius: 4px 4px 4px 4px;
+  }
+}
+
+.button {
+  padding: 6px 12px;
+  height: 28px;
+  background-color: var(--box-background);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+  color: var(--font);
+  opacity: 0.5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font-weight: 500;
+  font-size: 16px;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.active {
+  opacity: 1;
+  color: var(--outline-button-active-text);
+  background: var(--outline-button-active);
+  border: 1px solid var(--outline-button-active-border);
+}

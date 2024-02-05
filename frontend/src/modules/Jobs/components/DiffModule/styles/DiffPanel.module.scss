@@ -1,0 +1,11 @@
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  height: 36px;
+  background-color: var(--table-header);
+  color: var(--body-font);
+  padding: 0 40px;
+  border-bottom: 2px solid var(--layout-background);
+}

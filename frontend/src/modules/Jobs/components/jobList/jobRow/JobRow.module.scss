@@ -1,0 +1,192 @@
+@import "../../../../../assets/styles/variables";
+@import "../../../../../assets/styles/base";
+
+@mixin pipelineDot {
+  content: "";
+  background-color: var(--font);
+  height: 8px;
+  width: 8px;
+  border-radius: 8px;
+
+  color: var(--green);
+  position: absolute;
+}
+
+@mixin pipelineLine {
+  content: "";
+  width: 3px;
+  position: absolute;
+  left: 3px;
+  top: 18.5px;
+  height: calc(100% - 44px);
+}
+
+.jobStep {
+  display: grid;
+  grid-template-columns: auto 60px 270px 110px 66px;
+  align-items: flex-start;
+  box-sizing: border-box;
+  gap: 8px;
+  min-height: 45px;
+  color: var(--sub-text-color);
+  width: 100%;
+  border-bottom: 1px solid var(--border-color);
+
+  padding: 0 12px;
+
+  &.minified {
+    padding: 0 0 0 12px;
+    grid-template-columns: auto 45px 45px;
+  }
+
+  &.withCheckBox {
+    grid-template-columns: 50px auto 45px 205px 110px 66px;
+
+    &.minified {
+      grid-template-columns: 50px auto 45px 45px;
+    }
+  }
+  &:hover,
+  &.isSelected {
+    background: var(--table-hover);
+  }
+
+  &:hover .hiddenAction {
+    visibility: visible;
+  }
+}
+
+.checkBox {
+  margin: auto;
+}
+.cell {
+  height: 45px;
+  display: flex;
+  align-items: center;
+}
+
+.jobPipeline {
+  position: relative;
+  padding-left: 22px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  text-align: start;
+
+  &.expanded {
+    &::before {
+      @include pipelineLine;
+    }
+    .jobStepName {
+      font-weight: 500;
+    }
+  }
+}
+
+.jobContext {
+  position: relative;
+  margin-bottom: 14px;
+  @include colGap(8px);
+
+  &::before {
+    @include pipelineDot;
+    left: -22px;
+    bottom: 4px;
+  }
+}
+
+.jobContextResult {
+  display: flex;
+  flex-direction: column;
+
+  color: var(--sub-text-color);
+  font-size: 0.875em;
+  width: fit-content;
+  @include colGap(5px);
+}
+
+.jobStepName {
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  color: var(--body-font);
+
+  &::before {
+    @include pipelineDot;
+    left: 0;
+    top: 18.5px;
+  }
+}
+
+.jobLink {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+}
+
+.jobActions {
+  display: flex;
+  justify-content: space-between;
+  > button {
+    align-items: unset;
+  }
+}
+
+.hiddenAction {
+  visibility: hidden;
+}
+
+.jobCreationInfo {
+  font-weight: 400;
+  font-size: 14px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jobStatus {
+  column-gap: 16px;
+}
+
+.redPipeline {
+  &::before,
+  .jobContext::before,
+  .jobStepName::before {
+    background-color: var(--red);
+  }
+}
+
+.yellowPipeline {
+  &::before,
+  .jobContext::before,
+  .jobStepName::before {
+    background-color: var(--yellow);
+  }
+}
+
+.greyPipeline {
+  &::before,
+  .jobContext::before,
+  .jobStepName::before {
+    background-color: var(--grey);
+  }
+}
+
+.greenPipeline {
+  &::before,
+  .jobContext::before,
+  .jobStepName::before {
+    background-color: var(--green);
+  }
+}
+
+.bluePipeline {
+  &::before,
+  .jobContext::before,
+  .jobStepName::before {
+    background-color: var(--blue);
+  }
+}
