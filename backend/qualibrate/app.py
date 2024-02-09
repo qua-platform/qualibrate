@@ -1,21 +1,25 @@
-from pathlib import Path
-
 import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from qualibrate.api.__main__ import api_router
-
+from qualibrate.config import get_settings
 
 app = FastAPI()
 
-app.include_router(api_router)
+app.include_router(api_router, prefix="/api/local")
 
-static_dir = Path(__file__).parents[2] / "static"
+# Directory should exist
+app.mount(
+    "/",
+    StaticFiles(directory=get_settings().static_site_files, html=True),
+    name="static",
+)
 
-if static_dir.is_dir():
-    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
+
+def main() -> None:
+    uvicorn.run("qualibrate.app:app", reload=True)
 
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", reload=True)
+    main()
