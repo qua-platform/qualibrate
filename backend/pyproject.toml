@@ -17,6 +17,9 @@ include = [
 python = "^3.9"
 fastapi = "^0.109.0"
 uvicorn = "^0.27.0.post1"
+pydantic-settings = "^2.1.0"
+# local
+qualibrate-api-base = { path = "../api_base" }
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
