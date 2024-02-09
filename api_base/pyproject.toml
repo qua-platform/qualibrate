@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "qualibrate-api-base"
+version = "0.1.0"
+description = ""
+authors = ["Maxim V4S <maxim.d@v4scale.com>"]
+readme = "README.md"
+
+packages = [
+    { include = "qualibrate_api_base" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
