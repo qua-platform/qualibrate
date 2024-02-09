@@ -12,7 +12,10 @@ from qualibrate.api.core.utils.find_utils import (
     get_subpath_value_on_any_depth,
 )
 from qualibrate.api.core.utils.common_utils import id_type_str
-from qualibrate.api.models.snapshot_file import SnapshotFile, SnapshotFileWithData
+from qualibrate.api.models.snapshot_file import (
+    SnapshotFile,
+    SnapshotFileWithData,
+)
 
 
 class Snapshot(SnapshotBase):
@@ -27,7 +30,7 @@ class Snapshot(SnapshotBase):
             id=file.name,
             created_at=datetime.fromtimestamp(file.stat().st_ctime),
             modified_at=datetime.fromtimestamp(file.stat().st_mtime),
-            data=json.loads(file.read_text())
+            data=json.loads(file.read_text()),
         ).model_dump()
 
     @id_type_str
@@ -42,7 +45,9 @@ class Snapshot(SnapshotBase):
 
     @id_type_str
     def search_data_values_any_depth(
-        self, id: Union[int, str], target_key: str,
+        self,
+        id: Union[int, str],
+        target_key: str,
     ) -> DocumentsSequence:
         file = resolve_and_check_relative(self.base_path, Path(str(id)))
         data = json.loads(file.read_text())

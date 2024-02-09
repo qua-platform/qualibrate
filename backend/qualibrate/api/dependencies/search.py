@@ -21,7 +21,7 @@ def check_path(value: str) -> str:
     if not all(check_path_item(subpath) for subpath in value.split(".")):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid mongo search path '{value}'"
+            detail=f"Invalid mongo search path '{value}'",
         )
     return value
 

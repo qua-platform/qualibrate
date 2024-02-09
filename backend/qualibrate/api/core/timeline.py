@@ -3,10 +3,19 @@ from datetime import datetime
 from pathlib import Path
 from typing import Union
 
-from qualibrate_api_base.api_bases import Branch, Snapshot, Root, DocumentType, DocumentsSequence
+from qualibrate_api_base.api_bases import (
+    Branch,
+    Snapshot,
+    Root,
+    DocumentType,
+    DocumentsSequence,
+)
 
 from qualibrate.api.core.utils.find_utils import get_subpath_value
-from qualibrate.api.models.snapshot_file import SnapshotFileWithData, SnapshotFile
+from qualibrate.api.models.snapshot_file import (
+    SnapshotFileWithData,
+    SnapshotFile,
+)
 
 
 class Timeline(Branch):
@@ -28,7 +37,7 @@ class Timeline(Branch):
             id=latest_file.name,
             created_at=datetime.fromtimestamp(latest_file.stat().st_ctime),
             modified_at=datetime.fromtimestamp(latest_file.stat().st_mtime),
-            data=json.loads(latest_file.read_text())
+            data=json.loads(latest_file.read_text()),
         )
         return snapshot.model_dump()
 

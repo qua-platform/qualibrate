@@ -9,8 +9,8 @@ class QualibrateSettings(BaseSettings):
     static_site_files: DirectoryPath = Field(
         default=Path(__file__).parents[1] / "qualibrate_static"
     )
-    user_storage: DirectoryPath = Field(default=Path().home() / '.qualibrate')
-    model_config = SettingsConfigDict(env_prefix='qualibrate_')
+    user_storage: DirectoryPath = Field(default=Path().home() / ".qualibrate")
+    model_config = SettingsConfigDict(env_prefix="qualibrate_")
 
 
 @lru_cache

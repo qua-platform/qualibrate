@@ -12,10 +12,7 @@ def _get_subpath_value_wildcard(
     if len(target_path) == 1:
         if isinstance(obj, Sequence):
             return [
-                {
-                    "key": current_path + [i],
-                    "value": val
-                }
+                {"key": current_path + [i], "value": val}
                 for i, val in enumerate(obj)
             ]
         elif isinstance(obj, Mapping):
@@ -30,13 +27,11 @@ def _get_subpath_value_wildcard(
         return []
     iter_function = cast(
         Callable[..., tuple[Union[str, int], Any]],
-        enumerate if isinstance(obj, Sequence) else dict.items
+        enumerate if isinstance(obj, Sequence) else dict.items,
     )
     return list(
         chain.from_iterable(
-            get_subpath_value(
-                value, target_path[1:], current_path + [idx]
-            )
+            get_subpath_value(value, target_path[1:], current_path + [idx])
             for idx, value in iter_function(obj)
         )
     )
@@ -59,7 +54,9 @@ def get_subpath_value(
             and isinstance(key, int)
             and key >= len(obj)
         )
-        or isinstance(obj, Mapping) and isinstance(key, str) and key not in obj
+        or (
+            isinstance(obj, Mapping) and isinstance(key, str) and key not in obj
+        )
     ):
         return []
     cast_f = str if isinstance(obj, Mapping) else int
