@@ -9,6 +9,10 @@ packages = [
 ]
 readme = "README.md"
 
+include = [
+    { path = "qualibrate_static", format = ["sdist", "wheel"] }
+]
+
 [tool.poetry.dependencies]
 python = "^3.9"
 fastapi = "^0.109.0"
@@ -17,7 +21,6 @@ uvicorn = "^0.27.0.post1"
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
 ruff = "^0.1.15"
-
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
