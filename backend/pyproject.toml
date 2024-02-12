@@ -9,19 +9,38 @@ packages = [
 ]
 readme = "README.md"
 
+include = [
+    { path = "qualibrate_static", format = ["sdist", "wheel"] }
+]
+
 [tool.poetry.dependencies]
 python = "^3.9"
 fastapi = "^0.109.0"
 uvicorn = "^0.27.0.post1"
+pydantic-settings = "^2.1.0"
+# local
+qualibrate-api-base = { path = "../api_base" }
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
 ruff = "^0.1.15"
 
-
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
 pytest-mock = "^3.12.0"
+
+[tool.poetry.scripts]
+qualibrate = "qualibrate.app:main"
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_return_any = true
+exclude = ['tests/']
+
+[tool.ruff]
+line-length = 80
+target-version = "py39"
 
 [build-system]
 requires = ["poetry-core"]
