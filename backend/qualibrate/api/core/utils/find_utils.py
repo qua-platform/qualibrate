@@ -37,6 +37,14 @@ def _get_subpath_value_wildcard(
     )
 
 
+def _check_key_valid(obj: Any, key: Union[str, int]) -> bool:
+    if isinstance(obj, Sequence):
+        return isinstance(key, int) and 0 < key < len(obj)
+    if isinstance(obj, Mapping):
+        return isinstance(key, str) and key in obj
+    return False
+
+
 def get_subpath_value(
     obj: Union[Mapping[str, Any], Sequence[Any]],
     target_path: list[Union[str, int]],
@@ -44,20 +52,12 @@ def get_subpath_value(
 ) -> DocumentsSequence:
     if current_path is None:
         current_path = []
+    if len(target_path) == 0:
+        return []
     key = target_path[0]
     if key == "*":
-        return _get_subpath_value_wildcard(obj, target_path[1:], current_path)
-    if (
-        not isinstance(obj, (Sequence, Mapping))
-        or (
-            isinstance(obj, Sequence)
-            and isinstance(key, int)
-            and key >= len(obj)
-        )
-        or (
-            isinstance(obj, Mapping) and isinstance(key, str) and key not in obj
-        )
-    ):
+        return _get_subpath_value_wildcard(obj, target_path, current_path)
+    if not _check_key_valid(obj, key):
         return []
     cast_f = str if isinstance(obj, Mapping) else int
     if len(target_path) == 1:
