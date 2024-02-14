@@ -1,5 +1,4 @@
 from functools import wraps
-from inspect import ismethod
 from typing import Any, Callable, TypeVar, cast
 
 Function = TypeVar("Function", bound=Callable[..., Any])
@@ -13,13 +12,8 @@ def id_type_str(func: Function) -> Function:
             if not isinstance(kwargs["id"], str):
                 raise err
         elif len(args) > 0:
-            if (
-                ismethod(func)
-                and len(args) > 1
-                and not isinstance(args[1], str)
-            ):
-                raise err
-            elif len(args) > 0 and not isinstance(args[0], str):
+            # temporary only for methods
+            if len(args) > 1 and not isinstance(args[1], str):
                 raise err
         return func(*args, **kwargs)
 
