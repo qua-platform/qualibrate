@@ -60,7 +60,7 @@ class Snapshot(SnapshotBase):
         files = list(
             filter(
                 lambda item: (
-                    item.is_file() and item.stat().st_mtime_ns > file_m_ts
+                    item.is_file() and item.stat().st_mtime_ns <= file_m_ts
                 ),
                 self.base_path.iterdir(),
             )
