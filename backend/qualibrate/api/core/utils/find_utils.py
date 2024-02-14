@@ -39,7 +39,7 @@ def _get_subpath_value_wildcard(
 
 def _check_key_valid(obj: Any, key: Union[str, int]) -> bool:
     if isinstance(obj, Sequence):
-        return isinstance(key, int) and 0 < key < len(obj)
+        return isinstance(key, int) and 0 <= key < len(obj)
     if isinstance(obj, Mapping):
         return isinstance(key, str) and key in obj
     return False
@@ -86,7 +86,7 @@ def get_subpath_value_on_any_depth(
                 get_subpath_value_on_any_depth(
                     v, key, current_path + [k], paths
                 )
-    elif isinstance(obj, Sequence):
+    elif isinstance(obj, Sequence) and not isinstance(obj, str):
         for i, item in enumerate(obj):
             get_subpath_value_on_any_depth(item, key, current_path + [i], paths)
     return paths
