@@ -2,17 +2,17 @@ import React, { useContext } from "react";
 import { RequestStatus } from "../../../types";
 import { JobDTO } from "../../../DEPRECATED_common/DEPRECATED_dtos/job.dto";
 import { AbstractContextWithProjectProvider } from "../../../utils/contexts/AbstractContextWithProject";
-import { JobApi } from "../../../DEPRECATED_common/DEPRECATED_api/job";
+// import { JobApi } from "../../../DEPRECATED_common/DEPRECATED_api/job";
 import { withActiveProjectContext } from "../../ActiveProject/ActiveProjectContext";
-import imc from "../../../interModulesCommunicator/InterModulesCommunicator";
-import { withJobsListContext, WithJobsListProps } from "./JobsListContext";
+// import imc from "../../../interModulesCommunicator/InterModulesCommunicator";
+// import { withJobsListContext, WithJobsListProps } from "./JobsListContext";
 import { toast } from "react-toastify";
 import Api from "../../../utils/api";
 import { H5_URL } from "../../../DEPRECATED_common/modules";
 
-export type JobDeleteOperationType = [boolean, string];
+// export type JobDeleteOperationType = [boolean, string];
 
-export type JobDeleteOperation = Record<number, JobDeleteOperationType>;
+// export type JobDeleteOperation = Record<number, JobDeleteOperationType>;
 
 type RequestsState = {
   listStatus?: RequestStatus;
@@ -27,12 +27,12 @@ interface JobsSelectionFuncs {
   unselectJob: (id: number) => void;
   selectJobsByWorkflow: (id: number) => void;
   unselectAllJobs: () => void;
-  deleteSelectedJobs: (ids: number[]) => void;
+  // deleteSelectedJobs: (ids: number[]) => void;
   setIsActive: (val: boolean) => void;
   exportSelected: () => void;
 }
 
-type Props = WithJobsListProps;
+// type Props = WithJobsListProps;
 
 type IJobsSelectionContext = JobsSelectionState & JobsSelectionFuncs & RequestsState;
 
@@ -41,7 +41,7 @@ const JobsSelectionContext = React.createContext<IJobsSelectionContext | any>(nu
 export const useJobsSelectionContext = (): IJobsSelectionContext => useContext<IJobsSelectionContext>(JobsSelectionContext);
 
 class JobsSelectionContextContainerComp extends AbstractContextWithProjectProvider<
-  Props,
+  any,
   JobsSelectionState,
   RequestsState,
   JobsSelectionFuncs
@@ -53,7 +53,7 @@ class JobsSelectionContextContainerComp extends AbstractContextWithProjectProvid
 
   selectJob = (id: number) => {
     const { selectedJobs } = this.state;
-    const selectedJob = this.props.list?.find((x) => x.id === id);
+    const selectedJob = this.props.list?.find((x: any) => x.id === id);
     const alreadyExist = selectedJobs?.find((x) => x.id === id);
 
     if (!selectedJob || alreadyExist) {
@@ -81,7 +81,7 @@ class JobsSelectionContextContainerComp extends AbstractContextWithProjectProvid
   };
 
   selectJobsByWorkflow = (id: number) => {
-    const selectedJobs = this.props.list?.filter((x) => x.workflow_id === id);
+    const selectedJobs = this.props.list?.filter((x: any) => x.workflow_id === id);
 
     if (!selectedJobs) {
       return;
@@ -103,41 +103,42 @@ class JobsSelectionContextContainerComp extends AbstractContextWithProjectProvid
     });
   };
 
-  deleteSelectedJobs = async () => {
-    const ids = this.state.selectedJobs?.map((j) => j.id);
-
-    if (!ids) {
-      return;
-    }
-
-    const { result, error }: { result: JobDeleteOperation; error: string } = await JobApi.deleteJobsByIds(ids);
-
-    if (error) {
-      toast.error(error);
-      return;
-    }
-
-    const deletedJobs = Object.entries(result)
-      .filter(([, record]) => record[0])
-      .map(([id]) => +id);
-
-    toast(`${deletedJobs.length} /${this.state.selectedJobs?.length} jobs were deleted`);
-
-    this.unselectAllJobs();
-    imc.emitJobsUpdate();
-    this.setIsActive(false);
-  };
+  // deleteSelectedJobs = async () => {
+  //   const ids = this.state.selectedJobs?.map((j) => j.id);
+  //
+  //   if (!ids) {
+  //     return;
+  //   }
+  //
+  //   const { result, error }: any = await JobApi.deleteJobsByIds(ids);
+  //
+  //   if (error) {
+  //     toast.error(error);
+  //     return;
+  //   }
+  //
+  //   const deletedJobs = Object.entries(result)
+  //     .filter(([, record]) => (record as any)[0])
+  //     .map(([id]) => +id);
+  //
+  //   toast(`${deletedJobs.length} /${this.state.selectedJobs?.length} jobs were deleted`);
+  //
+  //   this.unselectAllJobs();
+  //   imc.emitJobsUpdate();
+  //   this.setIsActive(false);
+  // };
 
   protected funcs = {
     selectJob: this.selectJob,
     unselectJob: this.unselectJob,
     selectJobsByWorkflow: this.selectJobsByWorkflow,
     unselectAllJobs: this.unselectAllJobs,
-    deleteSelectedJobs: this.deleteSelectedJobs,
+    // deleteSelectedJobs: this.deleteSelectedJobs,
     setIsActive: this.setIsActive,
     exportSelected: this.exportSelected,
   };
 }
 
-const JobsSelectionContextContainer = withActiveProjectContext(withJobsListContext(JobsSelectionContextContainerComp));
+const JobsSelectionContextContainer = withActiveProjectContext(JobsSelectionContextContainerComp);
+// const JobsSelectionContextContainer = withActiveProjectContext(withJobsListContext(JobsSelectionContextContainerComp));
 export default JobsSelectionContextContainer;

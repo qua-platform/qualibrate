@@ -28,7 +28,8 @@ export interface ListProps {
 const List = ({ listLabel, placeholder = "Select item", items, listItems, selectIcon, customField, customArray }: ListProps) => {
   const optionsList = listItems ? useMemo(() => [placeholder, ...listItems.map((i) => i.title)], [listItems]) : [];
   const [selectedOption, setSelectedOption] = useState<string>(placeholder);
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(-1);
+  const [selectedOptionIndex] = useState<number>(-1);
+  // const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(-1);
   return (
     <div className={styles.list}>
       <div className={styles.actionName}>{listLabel}</div>

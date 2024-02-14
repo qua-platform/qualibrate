@@ -1,6 +1,6 @@
-type formatOptionsType = {
-  onlyTime?: boolean;
-};
+// type formatOptionsType = {
+//   onlyTime?: boolean;
+// };
 
 export const formatDate = (receivedDate?: string | Date, onlyTime?: boolean) => {
   if (!receivedDate) {

@@ -4,14 +4,14 @@ import styles from "../styles/ProjectsPage.module.scss";
 import UserContext, { UserDTO } from "../../DEPRECATED_context/UserContext";
 import { useProjectsContext } from "../../modules/WelcomePage/utils/ProjectsContext";
 import SelectorList from "../../DEPRECATED_components/SelectorList";
-import { ProjectDTO } from "../../DEPRECATED_common/DEPRECATED_dtos/project/project.dto";
+// import { ProjectDTO } from "../../DEPRECATED_common/DEPRECATED_dtos/project/project.dto";
 import Project from "../../modules/WelcomePage/components/Project";
 
 const Users = () => {
   const { getUsers, users } = useContext(UserContext);
   const { userProjects, allProjects, fetchUserProjects } = useProjectsContext();
   const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null);
-  const [projectDifferance, setProjectDifference] = useState<ProjectDTO[] | []>([]);
+  // const [projectDifferance, setProjectDifference] = useState<ProjectDTO[] | []>([]);
 
   useEffect(() => {
     getUsers();
@@ -28,7 +28,7 @@ const Users = () => {
   const handleOnClick = (user: UserDTO) => {
     setSelectedUser(user);
     fetchUserProjects(user.username);
-    setProjectDifference(calculateDropDownListOfProjects());
+    // setProjectDifference(calculateDropDownListOfProjects());
   };
 
   return (

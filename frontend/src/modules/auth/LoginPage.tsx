@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
-import EntropyLogoIcon from "../../ui-lib/Icons/EntropyLogoIcon";
 import InputField from "../../DEPRECATED_components/common/Input/InputField";
 import cyKeys from "../../utils/cyKeys";
 import styles from "./LoginPage.module.scss";
 import { useAuthContext } from "./AuthContext";
 import useLoginValidation from "./useLoginValidator";
 import welcomeWaves from "./welcomeWaves.png";
+import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 
 export default function LoginPage(): React.ReactElement {
   const [username, setUsername] = useState("");
@@ -61,7 +61,7 @@ export default function LoginPage(): React.ReactElement {
               inputClassName={styles.input}
               className={styles.inputWrapper}
               onChange={setPassword}
-              type="password"
+              typeOfField="password"
               label={"Password"}
               error={response.errors["password"]}
               value={password}
@@ -93,8 +93,8 @@ function WelcomeInfo(): React.ReactElement {
     <div className={styles.welcomeInfo}>
       <img src={welcomeWaves} alt={""} className={styles.wave} />
       <div className={styles.welcomeContent}>
-        <EntropyLogoIcon />
-        <div>Welcome to EntropyLab!</div>
+        <QUAlibrateLogoIcon />
+        <div>Welcome to QUAlibrate!</div>
       </div>
     </div>
   );

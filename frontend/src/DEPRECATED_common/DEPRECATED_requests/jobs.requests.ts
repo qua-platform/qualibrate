@@ -1,7 +1,7 @@
 import { API_METHODS } from "../DEPRECATED_enum/Api";
 import { RequestEntry } from "../../utils/api/types";
 
-export const GET_ALL_JOBS = "database/jobs/all";
+// export const GET_ALL_JOBS = "database/jobs/all";
 export const GET_ALL_JOBS_FILTER = "database/jobs/filter";
 export const GET_JOB_BY_ID = (id: number | string) => `database/jobs/${id}`;
 export const GET_JOB_BY_EUI_FILTER = "database/search/outputs";

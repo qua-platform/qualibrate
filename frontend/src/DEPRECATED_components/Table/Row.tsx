@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-
 import { classNames } from "../../utils/classnames";
 import styles from "./Table.module.scss";
 
@@ -27,16 +26,16 @@ const Row = ({ icon, editable = false, children, controls, type = RowTypes.VALUE
     }
   }, [type]);
 
-  const positionStyle = useMemo(() => {
-    switch (position) {
-      case "left":
-        return {
-          justifyContent: "",
-        };
-      case "right":
-        return {};
-    }
-  }, [position]);
+  // const positionStyle = useMemo(() => {
+  //   switch (position) {
+  //     case "left":
+  //       return {
+  //         justifyContent: "",
+  //       };
+  //     case "right":
+  //       return {};
+  //   }
+  // }, [position]);
 
   return (
     <div className={classNames(styles.row, classNameForType)} {...restProps}>

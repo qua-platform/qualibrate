@@ -1,11 +1,11 @@
 import React, { PropsWithChildren, useContext } from "react";
 import { RequestStatus } from "../../../../types";
-import { WorkflowApi } from "../../api/WorkflowApi";
+// import { WorkflowApi } from "../../api/WorkflowApi";
 import { WorkflowGraphDTO } from "../../types";
 import { withActiveProjectContext, WithProjectProps } from "../../../ActiveProject/ActiveProjectContext";
 import { AbstractContextWithProjectProvider } from "../../../../utils/contexts/AbstractContextWithProject";
 
-const DEFAULT_WORKFLOW_FILE = "workflow.py";
+// const DEFAULT_WORKFLOW_FILE = "workflow.py";
 interface RequestsState {
   graphDataStatus?: RequestStatus;
 }
@@ -34,17 +34,18 @@ class GraphContextContainer extends AbstractContextWithProjectProvider<Props, Gr
   }
 
   loadGraph = async () => {
-    const { result, isOk } = await this._fetchWithStatus(
-      ({ project_id }) =>
-        WorkflowApi.getWorkflowGraph({
-          workflow_path: DEFAULT_WORKFLOW_FILE,
-          runtimeId: 1,
-          project_id,
-        }),
-      "graphDataStatus"
-    );
-
-    this.setState({ graphData: isOk ? result : undefined });
+    // const { result, isOk } = await this._fetchWithStatus(
+    //   ({ project_id }) =>
+    //     WorkflowApi.getWorkflowGraph({
+    //       workflow_path: DEFAULT_WORKFLOW_FILE,
+    //       runtimeId: 1,
+    //       project_id,
+    //     }),
+    //   "graphDataStatus"
+    // );
+    //
+    // this.setState({ graphData: isOk ? result : undefined });
+    // this.setState({ graphData: undefined });
   };
 
   protected funcs = {

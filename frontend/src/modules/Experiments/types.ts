@@ -121,7 +121,7 @@ export type ReferenceType = {
   parsedType: ParameterValueType;
 };
 
-export type ErrorType = string | null;
+// export type ErrorType = string | null;
 
 export type ParsedJson = Record<string, unknown> | Array<unknown> | string | number | boolean | null;
 export type ReferencePreview = {

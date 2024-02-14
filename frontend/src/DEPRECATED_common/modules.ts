@@ -5,7 +5,7 @@ export const ADMIN_PANEL_URL = "/admin/";
 
 export const APP_HOST = process.env.API_URL || window.location.origin + "/";
 export const NOTEBOOK_URL = APP_HOST + "notebook/";
-export const DASHBOARD_URL = APP_HOST + "dashboard/";
+// export const DASHBOARD_URL = APP_HOST + "dashboard/";
 
 export const CODE_URL = (userId: string | number) => {
   return `${APP_HOST}codeserver/${userId}/?workspace=%2Fconfig%2Fdata%2FUser%2FWorkspaces%2Fruntime_1.code-workspace`;

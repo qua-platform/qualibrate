@@ -10,7 +10,7 @@ import styles from "./components/jobPage/Job.module.scss";
 import { GroupType } from "../../DEPRECATED_common/DEPRECATED_enum/JobsSortTypes";
 import { useCheckoutContext } from "../Checkout/CheckoutContext";
 import { WorkflowDTO } from "../Experiments/types";
-import { useJobsListContext } from "./context/JobsListContext";
+// import { useJobsListContext } from "./context/JobsListContext";
 import { useJobsSelectionContext } from "./context/JobsSelectionContext";
 import { classNames } from "../../utils/classnames";
 
@@ -28,9 +28,9 @@ const WorkflowHeader = ({ workflow, onClickCallback, showInfo, headerName }: Pro
 
   const { selectedJobs, selectJobsByWorkflow, unselectAllJobs, isActive: isSelectionActive } = useJobsSelectionContext();
 
-  const { list: jobs } = useJobsListContext();
+  // const { list: jobs } = useJobsListContext();
 
-  const { group } = useJobsListContext();
+  // const { group } = useJobsListContext();
 
   const handleCheckout = useCallback(() => checkoutWorkflow(workflow), [checkoutWorkflow, workflow]);
 
@@ -38,21 +38,23 @@ const WorkflowHeader = ({ workflow, onClickCallback, showInfo, headerName }: Pro
     workflow?.id && selectJobsByWorkflow(workflow?.id);
   };
 
-  const currentWorkflowJobs = jobs?.filter((job) => job.workflow_id === workflow?.id);
+  // const currentWorkflowJobs = jobs?.filter((job) => job.workflow_id === workflow?.id);
 
-  const workflowDate =
-    group === GroupType.BY_WORKFLOW
-      ? currentWorkflowJobs?.find((j) => j.id === Math.max(...currentWorkflowJobs.map((j) => j.id)))?.submit
-      : workflow?.time_created;
+  const workflowDate = workflow?.time_created;
+  // const workflowDate =
+  //   group === GroupType.BY_WORKFLOW
+  //     ? currentWorkflowJobs?.find((j) => j.id === Math.max(...currentWorkflowJobs.map((j) => j.id)))?.submit
+  //     : workflow?.time_created;
 
   const WorkflowActionButton = useMemo(() => {
     const selectedJobsFromThisWorkflow = selectedJobs?.filter((job) => job.workflow_id === workflow?.id);
 
-    const allJobsSelected = selectedJobsFromThisWorkflow?.length === currentWorkflowJobs?.length;
+    // const allJobsSelected = selectedJobsFromThisWorkflow?.length === currentWorkflowJobs?.length;
 
     const SelectAllJobsButton = (
       <Checkbox
-        checked={Boolean(selectedJobsFromThisWorkflow?.length && allJobsSelected)}
+        // checked={Boolean(selectedJobsFromThisWorkflow?.length && allJobsSelected)}
+        checked={Boolean(selectedJobsFromThisWorkflow?.length)}
         onChange={(val) => (val ? selectAllJobs() : unselectAllJobs())}
       />
     );

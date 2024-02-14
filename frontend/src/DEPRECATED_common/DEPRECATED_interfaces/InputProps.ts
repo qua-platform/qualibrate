@@ -3,16 +3,16 @@ import { InputTypes } from "./InputTypes";
 
 export enum IconType {
   INNER = "INNER",
-  UPPER = "UPPER",
+  // UPPER = "UPPER",
 }
 
 export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> & {
-  lockedValue?: string | null;
-  onChange: (val: string, e: ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (val: string, e: ChangeEvent<HTMLInputElement>) => void;
   name?: string;
   inputClassName?: string;
   icon?: React.ReactElement;
   type?: InputTypes;
+  typeOfField?: string;
   error?: string | undefined;
   label?: string;
   fieldName?: string;

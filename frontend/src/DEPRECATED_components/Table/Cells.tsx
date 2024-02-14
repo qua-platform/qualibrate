@@ -6,7 +6,7 @@ import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconPro
 import TargetButton from "../DEPRECATED_Buttons/TargetButton";
 import TweakIcon from "../../ui-lib/Icons/TweakIcon";
 import { CopyButton } from "../../ui-lib/components/Button/CopyButton";
-import { HIDE_NOT_IMPLEMENTED, SHOW_NOT_IMPLEMENTED } from "../../dev.config";
+import { SHOW_NOT_IMPLEMENTED } from "../../dev.config";
 
 export function TitleWithIcon({ title, icon: Icon, isActive }: { title: string; icon: React.FC<IconProps>; isActive?: boolean }) {
   return (

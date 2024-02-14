@@ -30,7 +30,9 @@ export function FlexLayoutContextProvider(props: Props): React.ReactElement {
   const LayoutBuilder = useRef(new FlexLayoutBuilder());
   const [model, setModel] = useState(LayoutBuilder.current.model);
   const [activeTab, setActiveTab] = useState<null | ModuleKey>(null);
+  const [activeTabsetName, setActiveTabsetName] = useState(null);
   useEffect(() => {
+    openTab("data");
     localStorage.setItem("flexModel", JSON.stringify(model.toJson()));
   }, [model]);
 
@@ -45,10 +47,9 @@ export function FlexLayoutContextProvider(props: Props): React.ReactElement {
     LayoutBuilder.current.openNewTab(tab);
     setModel(LayoutBuilder.current.model);
     setActiveTab(tab);
-    setActiveTabsetName(activeTab);
+    setActiveTabsetName(activeTab as any);
   }, []);
 
-  const [activeTabsetName, setActiveTabsetName] = useState(null);
   const [activeTabsetId, setActiveTabsetId] = useState(null);
 
   const flexLayoutListener = useCallback(
@@ -56,6 +57,7 @@ export function FlexLayoutContextProvider(props: Props): React.ReactElement {
       const tabName = model
         .getActiveTabset()
         ?.getChildren()
+        // @ts-ignore TODO Fix this
         .find(({ _attributes }) => _attributes.id === props.data.tabNode)?._renderedName;
 
       setActiveTabsetId(props.data.tabNode);

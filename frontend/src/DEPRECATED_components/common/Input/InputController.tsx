@@ -24,7 +24,7 @@ interface Props extends InputProps, SelectProps {
 // use InputField this component is overcomplicated
 const InputController = (props: Props) => {
   const { lockValueDescription, fieldName, fieldIcon, newLineBetween } = props;
-  const [isLocked, toggleLock] = useSwitch(props.inputIsLocked);
+  const [isLocked] = useSwitch(props.inputIsLocked);
 
   const getControllerStyles = () => {
     const classNames = [styles.inputField];

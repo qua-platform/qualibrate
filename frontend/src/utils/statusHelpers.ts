@@ -9,10 +9,10 @@ export function formRequestStatus(data: { isOk: boolean; success?: string; error
   return isOk ? { value: OK, message: success || undefined } : { value: ERROR, message: error || "Something went wrong" };
 }
 
-export function formShowMsgStatus(data: { isOk: boolean; success?: string; error?: string }): [string | undefined, StatusType] {
-  const { isOk, error, success } = data;
-  return isOk ? [success || undefined, OK] : [error || "Something went wrong", ERROR];
-}
+// export function formShowMsgStatus(data: { isOk: boolean; success?: string; error?: string }): [string | undefined, StatusType] {
+//   const { isOk, error, success } = data;
+//   return isOk ? [success || undefined, OK] : [error || "Something went wrong", ERROR];
+// }
 
 export function setPending(message?: string): RequestStatus {
   return { value: PENDING, message };

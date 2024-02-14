@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import Table from "../../../../../DEPRECATED_components/common/Table";
 import { TableItemProps } from "../../../../../DEPRECATED_common/DEPRECATED_interfaces/TableItemsProps";
@@ -8,7 +8,8 @@ import ContentBox from "../common/ContentBox";
 // import { useMQTTContext } from "../../../../MQTT/MQTTContext";
 
 const Statistics = () => {
-  const { nodeInfo, selectedNode } = useNodeInfoContext();
+  const { nodeInfo} = useNodeInfoContext();
+  // const { nodeInfo, selectedNode } = useNodeInfoContext();
   // const { nodesStatus } = useMQTTContext();
 
   const tableItems: TableItemProps[] = [

@@ -7,7 +7,7 @@ import cyKeys from "../../../utils/cyKeys";
 import { useDiffVisibilityContext } from "../context/DiffVisibilityContext";
 import { useJobsSelectionContext } from "../context/JobsSelectionContext";
 
-const CompareButton = ({ minify, ...props }: ButtonProps) => {
+const CompareButton = ({ minify }: ButtonProps) => {
   const { selectedJobs } = useJobsSelectionContext();
 
   const { setDiffIsShown } = useDiffVisibilityContext();

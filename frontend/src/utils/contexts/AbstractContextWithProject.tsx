@@ -12,7 +12,7 @@ export abstract class AbstractContextWithProjectProvider<
 > extends React.Component<AProps & Props, State & RequestsState> {
   protected abstract funcs: Funcs;
   abstract readonly Context: React.Context<any>;
-  private timeout: number | undefined;
+  // private timeout: number | undefined;
 
   constructor(props: Readonly<AProps & Props>) {
     super(props);

@@ -8,13 +8,13 @@ import { DriverIcon } from "../../../ui-lib/Icons/DriverIcon";
 import { GREY_FONT } from "../../../utils/colors";
 import useOnClickOutside from "../../../ui-lib/hooks/useOnClickOutside";
 import { classNames } from "../../../utils/classnames";
-import useJobData from "../../../utils/api/useJobData";
+// import useJobData from "../../../utils/api/useJobData";
 import { getStyleByStatus } from "../../../DEPRECATED_components/Status/JobStatus";
 const JobWorkflowLabel: React.FC = () => {
   const { projectUserState } = useActiveProjectContext();
   const labelRef = useRef<HTMLDivElement | null>(null);
   const [showPopup, setShowPopup] = useState(false);
-  const jobData = useJobData(projectUserState?.job);
+  // const jobData = useJobData(projectUserState?.job);
   useOnClickOutside(labelRef, () => setShowPopup(false));
 
   const activeExperimentStateKey: string = projectUserState?.job_eui || projectUserState?.workflow_eui || "-";
@@ -22,7 +22,7 @@ const JobWorkflowLabel: React.FC = () => {
   return (
     <div className={styles.wrapper} ref={labelRef}>
       <button className={classNames(styles.label)} onClick={() => setShowPopup((p) => !p)}>
-        <SingleDotIcon color={getStyleByStatus("" + jobData?.current_status).color} />
+        {/*<SingleDotIcon color={getStyleByStatus("" + jobData?.current_status).color} />*/}
         <span>{activeExperimentStateKey}</span>
       </button>
       {showPopup && (

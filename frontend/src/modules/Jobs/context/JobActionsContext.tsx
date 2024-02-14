@@ -42,7 +42,7 @@ class JobActionsContextContainerComp extends AbstractContextWithProjectProvider<
 
     if (isOk) {
       imc.emitJobsUpdate();
-      this.props.fetchProjectState();
+      // this.props.fetchProjectState();
     }
   };
 

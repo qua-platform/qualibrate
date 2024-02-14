@@ -10,6 +10,7 @@ const InputField = (props: InputProps) => {
     newLineBetween,
     value,
     onChange,
+    typeOfField,
     className,
     error,
     icon,
@@ -20,7 +21,9 @@ const InputField = (props: InputProps) => {
     ...restProps
   } = props;
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    onChange(event.target.value, event);
+    if(onChange) {
+      onChange(event.target.value, event);
+    }
   };
 
   const inputClassName = classNames(styles.input, error && styles.error, inputCN, disabled && styles.disabledInput);
@@ -38,7 +41,7 @@ const InputField = (props: InputProps) => {
         className={inputClassName}
         value={value}
         onChange={handleChange}
-        type={props.type === "password" ? "password" : "text"}
+        type={typeOfField === "password" ? "password" : "text"}
         placeholder={props.placeholder ?? "Enter a value"}
         disabled={props.disabled}
         {...restProps}

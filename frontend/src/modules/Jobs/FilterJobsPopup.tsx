@@ -4,7 +4,7 @@ import InputField from "../../DEPRECATED_components/common/Input/InputField";
 import { JobStatuses } from "../../DEPRECATED_common/DEPRECATED_enum/JobStatuses";
 import PopupHeader from "../../DEPRECATED_components/Popup/PopupHeader";
 import cyKeys from "../../utils/cyKeys";
-import { useJobsListContext } from "./context/JobsListContext";
+// import { useJobsListContext } from "./context/JobsListContext";
 import { JobsFilter } from "./types";
 import useOnFieldChange from "../../ui-lib/hooks/useOnFieldChange";
 import RightPopupContainer from "../../ui-lib/components/RightPopup/RightPopupContainer";
@@ -31,8 +31,9 @@ const FilterJobsPopup = ({
 }) => {
   const [, setShowFilter] = useShowFilterContext();
 
-  const { filter, setFiltering } = useJobsListContext();
-  const [newFilter, setNewFilter] = useState<JobsFilter>(filter || ({ statuses: [] } as JobsFilter));
+  // const { filter, setFiltering } = useJobsListContext();
+  // const [newFilter, setNewFilter] = useState<JobsFilter>(filter || ({ statuses: [] } as JobsFilter));
+  const [newFilter, setNewFilter] = useState<JobsFilter>( ({ statuses: [] } as JobsFilter));
 
   const isChecked = useCallback(
     (name: JobStatuses) => {
@@ -57,22 +58,24 @@ const FilterJobsPopup = ({
       onFieldChange("statuses")([...stats].filter((s) => s !== val));
     }
   };
-
-  const handleSubmit = useCallback(() => {
-    setFiltering(newFilter);
-    setShowFilter(false);
-  }, [setFiltering, newFilter]);
-
-  const handleReset = useCallback(() => {
-    setFiltering(undefined);
-    setShowFilter(false);
-  }, [setFiltering, setShowFilter]);
+  //
+  // const handleSubmit = useCallback(() => {
+  //   setFiltering(newFilter);
+  //   setShowFilter(false);
+  // }, [setFiltering, newFilter]);
+  //
+  // const handleReset = useCallback(() => {
+  //   setFiltering(undefined);
+  //   setShowFilter(false);
+  // }, [setFiltering, setShowFilter]);
 
   return (
     <RightPopupContainer
       onClose={() => setShowFilter(false)}
-      onCancel={handleReset}
-      onSubmit={handleSubmit}
+      onCancel={() => {}}
+      onSubmit={() => {}}
+      // onCancel={handleReset}
+      // onSubmit={handleSubmit}
       cancelText="Reset"
       submitText="Apply"
       data-cy={cyKeys.jobs.FILTER_JOBS_POPUP}

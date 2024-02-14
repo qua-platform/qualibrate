@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { bottomMenuItems, menuItems } from "../../routing/ModulesRegistry";
 
-import EntropyLogoIcon from "../../ui-lib/Icons/EntropyLogoIcon";
 import EntropyLogoSmallIcon from "../../ui-lib/Icons/EntropyLogoSmall";
-import LogoutButton from "../auth/logout/LogoutButton";
+// import LogoutButton from "../auth/logout/LogoutButton";
 import MenuItem from "./MenuItem";
 import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
 import ThemeToggle from "../themeModule/ThemeToggle";
@@ -13,9 +12,10 @@ import cyKeys from "../../utils/cyKeys";
 import ProjectPopup from "./projectPopup/ProjectPopup";
 import GlobalThemeContext from "../themeModule/GlobalThemeContext";
 import { useActiveProjectContext } from "../ActiveProject/ActiveProjectContext";
-import { ADMIN_PANEL_URL } from "../../DEPRECATED_common/modules";
-import { useNavigate } from "react-router-dom";
-import { SettingIcon } from "../../ui-lib/Icons/SettingsIcon";
+// import { ADMIN_PANEL_URL } from "../../DEPRECATED_common/modules";
+// import { useNavigate } from "react-router-dom";
+// import { SettingIcon } from "../../ui-lib/Icons/SettingsIcon";
+import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 // import { useAuthContext } from "../auth/AuthContext";
 
 const SidebarMenu: React.FunctionComponent = () => {
@@ -25,7 +25,7 @@ const SidebarMenu: React.FunctionComponent = () => {
   const [minify, setMinify] = React.useState(true);
   const containerClassName = classNames(styles.sidebarMenu, !minify && styles.opened);
   const hideSideMenuItems = !activeProject;
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   // const { userInfo } = useAuthContext();
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const SidebarMenu: React.FunctionComponent = () => {
       >
         <div className={containerClassName}>
           <button onClick={() => setShowPopup(true)} className={styles.entropyLogo} data-cy={cyKeys.HOME_PAGE}>
-            {minify ? <EntropyLogoSmallIcon /> : <EntropyLogoIcon />}
+            {minify ? <EntropyLogoSmallIcon /> : <QUAlibrateLogoIcon />}
           </button>
           <div className={styles.menuContent}>
             <div className={styles.menuUpperContent}>
@@ -50,14 +50,19 @@ const SidebarMenu: React.FunctionComponent = () => {
             </div>
             <div className={styles.menuBottomContent}>
               {/*{userInfo?.is_admin && (*/}
-                <div onClick={() => navigate(ADMIN_PANEL_URL)}>
-                  <MenuItem key={"admin-settings"} menuItem={{ icon: SettingIcon, title: "Settings" }} hideText={minify} />
-                </div>
+              {/*<div onClick={() => navigate(ADMIN_PANEL_URL)}>*/}
+              {/*  <MenuItem*/}
+              {/*    keyId={ADMIN_SETTINGS_KEY}*/}
+              {/*    key={"admin-settings"}*/}
+              {/*    menuItem={{ icon: SettingIcon, title: "Settings" }}*/}
+              {/*    hideText={minify}*/}
+              {/*  />*/}
+              {/*</div>*/}
               {/*)}*/}
               {bottomMenuItems.map((item) => (
-                <MenuItem {...item} key={item.keyId} hideText={minify} />
+                <MenuItem {...item} key={item.keyId} hideText={minify} onClick={item.onClick ? item.onClick : () => {}} />
               ))}
-              {/*{THEME_TOGGLE_VISIBLE && <ThemeToggle showText={!minify} />}*/}
+              {THEME_TOGGLE_VISIBLE && <ThemeToggle showText={!minify} />}
               {/*{<LogoutButton hideText={minify} />}*/}
             </div>
           </div>

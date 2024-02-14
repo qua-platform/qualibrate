@@ -6,15 +6,15 @@ import React from "react";
 import { UserIcon } from "../../../ui-lib/Icons/UserIcon";
 import styles from "./SearchResult.module.scss";
 
-interface Props {
-  title: string;
-  titleIcon?: React.ReactElement;
-  description?: string | React.ReactElement;
-  date?: Date;
-  user?: string;
-}
+// interface Props {
+//   title: string;
+//   titleIcon?: React.ReactElement;
+//   description?: string | React.ReactElement;
+//   date?: Date;
+//   user?: string;
+// }
 
-const SearchResult = (props: Props) => {
+const SearchResult = () => {
   return (
     <div className={styles.result}>
       <div className={styles.resultDescription}>

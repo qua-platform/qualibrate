@@ -71,7 +71,8 @@ class NodeInfoContextContainer extends AbstractContextWithProjectProvider<unknow
       return;
     }
 
-    const { isOk, result } = await this._fetchWithStatus(
+    const { isOk } = await this._fetchWithStatus(
+    // const { isOk, result } = await this._fetchWithStatus(
       ({ project_id }) =>
         NodeApi.patchParameters({
           payload,

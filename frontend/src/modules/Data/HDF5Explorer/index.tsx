@@ -27,6 +27,6 @@ const HDF5Explorer: React.FunctionComponent<Props> = React.memo(({ selectedPath 
 });
 
 export default () => {
-  const { currentHDF5File } = useContext(DataViewContext);
-  return <HDF5Explorer selectedPath={currentHDF5File} />;
+  // const { currentHDF5File } = useContext(DataViewContext);
+  return <HDF5Explorer selectedPath={"currentHDF5File"} />;
 };

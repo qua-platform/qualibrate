@@ -5,5 +5,5 @@ import Users from "./Users";
 
 export const GeneralPage = General;
 export const UsersPage = Users;
-export const ProjectsPage = Projects;
-export const RuntimesPages = Runtimes;
+// export const ProjectsPage = Projects;
+// export const RuntimesPages = Runtimes;

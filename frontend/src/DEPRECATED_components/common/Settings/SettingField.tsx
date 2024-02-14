@@ -9,7 +9,7 @@ type SettingValue = string | number | React.ReactElement;
 
 export enum Size {
   SMALL = "small",
-  LARGE = "large",
+  // LARGE = "large",
 }
 
 interface Props {

@@ -43,7 +43,8 @@ export class NodeApi extends Api {
     runtime_id,
     project_id,
   }: ProjectParams & {
-    payload: { [key: string]: any };
+    payload: any;
+    // payload: { [key: string]: any };
     parameters_node: string;
   }) {
     return this.fetch(paths.PATCH_PARAMS(runtime_id), {

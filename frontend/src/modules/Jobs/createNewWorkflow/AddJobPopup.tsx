@@ -29,7 +29,7 @@ type DefaultValueCheckbox = {
 const AddJobPopup = ({ onClose }: PopupProps) => {
   const { runJob } = useJobActionsContext();
 
-  const handleJobAdding = (data) => {
+  const handleJobAdding = (data: any) => {
     runJob(data);
     onClose();
   };
@@ -64,16 +64,17 @@ const AddJobPopup = ({ onClose }: PopupProps) => {
     >
       <PopupHeader headerName="Add Job" />
       <PopupItems className={styles.popupWrapper}>
-        <InputField icon={<TargetIcon />} label="Run target" options={["Localhost"]} />
+        {/*<InputField icon={<TargetIcon />} label="Run target" options={["Localhost"]} />*/}
+        <InputField icon={<TargetIcon />} label="Run target" />
         {DRIVER_FIELDS_VISIBLE && (
-          <InputField icon={<DriverIcon />} label="Drivers" placeholder="Add commit ID #driver" lockOnValue="#124bfd" />
-        )}
+          <InputField icon={<DriverIcon />} label="Drivers" placeholder="Add commit ID #driver" />
+        ) ? <InputField icon={<DriverIcon />} label="Drivers" placeholder="Add commit ID #driver" />: <></>}
         <InputField
           icon={<WorkflowCircleIcon />}
           label="Workflow"
           placeholder="Add commit ID"
           name="workflow_id"
-          disabled={getCheckboxPropsByName("workflow").isChecked}
+          disabled={Boolean(getCheckboxPropsByName("workflow")?.isChecked)}
           className={styles.inputWithCheckbox}
         />
         <WithLabel label="Use current workflow" className={styles.checkboxLabel}>
@@ -85,14 +86,14 @@ const AddJobPopup = ({ onClose }: PopupProps) => {
           label="Parameters"
           placeholder="Add commit ID #parameter"
           name="parameters_id"
-          disabled={getCheckboxPropsByName("parameters").isChecked}
+          disabled={Boolean(getCheckboxPropsByName("parameters").isChecked)}
           className={styles.inputWithCheckbox}
         />
         <WithLabel label="Use current parameters" className={styles.checkboxLabel}>
           <DEPRECATEDCheckbox onChange={handleDefaultValuesChange} {...getCheckboxPropsByName("parameters")} />
         </WithLabel>
 
-        <InputController placeholder="Job description" name="description" />
+        <InputController placeholder="Job description" name="description" onChange={() => {}}/>
         {/* <DEPRECATEDCheckbox description="Don't schedule, just checkout configuration" /> */}
       </PopupItems>
       <PopupActions>

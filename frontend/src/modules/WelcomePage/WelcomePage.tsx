@@ -18,24 +18,39 @@ import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
 import WithTooltip from "../../DEPRECATED_components/wrappers/withTooltip";
 import styles from "./WelcomePage.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
-import { useProjectsContext } from "./utils/ProjectsContext";
+// import { useProjectsContext } from "./utils/ProjectsContext";
 import cyKeys from "../../utils/cyKeys";
-import { useActiveProjectContext } from "../ActiveProject/ActiveProjectContext";
+// import { useActiveProjectContext } from "../ActiveProject/ActiveProjectContext";
 import { SettingIcon } from "../../ui-lib/Icons/SettingsIcon";
 import { ADMIN_PANEL_URL } from "../../DEPRECATED_common/modules";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../auth/AuthContext";
+import { ProjectDTO } from "../../DEPRECATED_common/DEPRECATED_dtos/project/project.dto";
 
 const WelcomePage = () => {
   const { openTab } = useFlexLayoutContext();
-  const { activeProject, userProjects } = useProjectsContext();
-  const { enterProject } = useActiveProjectContext();
+  // const { activeProject, userProjects } = useProjectsContext();
+  const activeProject: ProjectDTO[] = [
+    {
+      id: 1,
+      name: "Project 1",
+      prefix: "Prefix",
+    },
+  ];
+  const userProjects: ProjectDTO[] = [
+    {
+      id: 1,
+      name: "Project 1",
+      prefix: "Prefix",
+    },
+  ];
+  // const { enterProject } = useActiveProjectContext();
   const { userInfo } = useAuthContext();
   const navigate = useNavigate();
 
   return (
     <MainLayout className={styles.welcomePageLayout}>
-      <PageName>Welcome to EntropyLab</PageName>
+      <PageName>Welcome to QUAlibrate</PageName>
       <div className={styles.pageWrapper}>
         <PageSection className={styles.selectProjectFrame} sectionName="Please select a Project">
           <InputField
@@ -47,11 +62,11 @@ const WelcomePage = () => {
           />
           <ProjectList projects={userProjects} />
         </PageSection>
-        <PageSection className={styles.entropyGuideFrame} sectionName="New to EntropyLab?">
+        <PageSection className={styles.entropyGuideFrame} sectionName="New to QUAlibrate?">
           <div className={styles.bannerList}>
             <BannerGuide
-              name="See what EntropLab is"
-              description="EntropyLab Hub & Flame Overview"
+              name="See what QUAlibrate is"
+              description="QUAlibrate Hub & Flame Overview"
               onClick={() => openTab("docs")}
               icon={<CircleListIcon />}
             />
@@ -81,7 +96,7 @@ const WelcomePage = () => {
       <div className={styles.pageActions}>
         <WithTooltip name="Open experiment tab">
           <BlueButton
-            onClick={() => activeProject && enterProject(activeProject)}
+            onClick={() => openTab("experiments")}
             className={styles.actionButton}
             disabled={activeProject === undefined}
             data-cy={cyKeys.projects.LETS_START_BUTTON}

@@ -16,11 +16,11 @@ const DeleteSelectedJobsPopup = () => {
     actions: { closeCurrentPopup },
   } = useContext(InterfaceContext);
 
-  const { deleteSelectedJobs } = useJobsSelectionContext();
+  // const { deleteSelectedJobs } = useJobsSelectionContext();
 
   const handleDeletion = () => {
     closeCurrentPopup(PopupTypes.DELETE_SELECTED_JOBS);
-    deleteSelectedJobs();
+    // deleteSelectedJobs();
   };
 
   return (

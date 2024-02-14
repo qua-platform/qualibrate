@@ -18,7 +18,7 @@ const MainModularPage = () => {
         classNameMapper={flexClassNameMapper}
         onModelChange={checkIsEmpty}
         model={model}
-        onAction={flexLayoutListener}
+        onAction={flexLayoutListener as any}
       />
     </MainLayout>
   );

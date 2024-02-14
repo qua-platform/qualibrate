@@ -33,19 +33,19 @@ export class JobApi extends Api {
       queryParams: options,
     });
   }
-  static getFilteredJobsByEUI(options?: JobListOptions): Promise<Res<DTOResponse>> {
-    return this._fetch(this.api(GET_JOB_BY_EUI_FILTER), API_METHODS.GET, {
-      queryParams: options,
-    });
-  }
+  // static getFilteredJobsByEUI(options?: JobListOptions): Promise<Res<DTOResponse>> {
+  //   return this._fetch(this.api(GET_JOB_BY_EUI_FILTER), API_METHODS.GET, {
+  //     queryParams: options,
+  //   });
+  // }
 
-  static getJobById(id: string): Promise<Res<JobDTO>> {
-    return this._fetch(this.api(GET_JOB_BY_ID(id)), API_METHODS.GET);
-  }
+  // static getJobById(id: string): Promise<Res<JobDTO>> {
+  //   return this._fetch(this.api(GET_JOB_BY_ID(id)), API_METHODS.GET);
+  // }
 
-  static getJobsByWorkflowId(id: number): Promise<Res<WorkflowDTO>> {
-    return this._fetch(this.api(GET_JOBS_BY_WORKFLOW_ID(id)), API_METHODS.GET);
-  }
+  // static getJobsByWorkflowId(id: number): Promise<Res<WorkflowDTO>> {
+  //   return this._fetch(this.api(GET_JOBS_BY_WORKFLOW_ID(id)), API_METHODS.GET);
+  // }
 
   static runJob(data: JobRunRequestDTO, runtimeId: number, project_id: number): Promise<Res<JobDTO>> {
     return this._fetch(this.api(RUN_JOB(runtimeId)), API_METHODS.POST, {
@@ -98,15 +98,15 @@ export class JobApi extends Api {
       },
     });
   }
-  static getJobDateRanges(date_order: "ascending" | "descending") {
-    return this._fetch(this.api(GROUP_JOBS_BY_DATE), API_METHODS.GET, {
-      queryParams: { date_order },
-    });
-  }
+  // static getJobDateRanges(date_order: "ascending" | "descending") {
+  //   return this._fetch(this.api(GROUP_JOBS_BY_DATE), API_METHODS.GET, {
+  //     queryParams: { date_order },
+  //   });
+  // }
 
-  static deleteJobsByIds(ids: number[]) {
-    return this._fetch(this.api(DELETE_JOBS_BY_IDS), API_METHODS.POST, {
-      body: JSON.stringify(ids),
-    });
-  }
+  // static deleteJobsByIds(ids: number[]) {
+  //   return this._fetch(this.api(DELETE_JOBS_BY_IDS), API_METHODS.POST, {
+  //     body: JSON.stringify(ids),
+  //   });
+  // }
 }

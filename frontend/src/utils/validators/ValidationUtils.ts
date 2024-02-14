@@ -1,6 +1,6 @@
 import isEmpty from "../isEmpty";
 
-export type ValidateFunc<V> = (val: V, validator?: Validator) => Validator;
+// export type ValidateFunc<V> = (val: V, validator?: Validator) => Validator;
 
 export type ValidatorResponse = {
   isOk: boolean;
@@ -16,12 +16,12 @@ export const OK_RESPONSE: ValidatorResponse = {
 export class Validator {
   private result: ValidatorResponse = { isOk: true, errors: {} };
 
-  checkTrue = (value: boolean, field: string, error?: string): void => {
-    if (!value) {
-      this.result.isOk = false;
-      this.setError(field, error);
-    }
-  };
+  // checkTrue = (value: boolean, field: string, error?: string): void => {
+  //   if (!value) {
+  //     this.result.isOk = false;
+  //     this.setError(field, error);
+  //   }
+  // };
 
   checkMinLength = (value: string | undefined, minLength: number, field: string): void => {
     if ((value?.length || 0) < minLength) {
@@ -43,9 +43,9 @@ export class Validator {
     }
   };
 
-  forceSetError = (field: string, err?: string): void => {
-    this.result.errors[field] = err || "Error";
-  };
+  // forceSetError = (field: string, err?: string): void => {
+  //   this.result.errors[field] = err || "Error";
+  // };
 
   checkEmpty = (value: string | undefined, field: string): void => {
     if (isEmpty(value)) {
@@ -54,14 +54,14 @@ export class Validator {
     }
   };
 
-  checkJsonSyntax = (value: string): void => {
-    try {
-      JSON.parse(value);
-    } catch (err) {
-      this.result.isOk = false;
-      this.setError(value, "Incorrect JSON");
-    }
-  };
+  // checkJsonSyntax = (value: string): void => {
+  //   try {
+  //     JSON.parse(value);
+  //   } catch (err) {
+  //     this.result.isOk = false;
+  //     this.setError(value, "Incorrect JSON");
+  //   }
+  // };
 
   getResponse = (): ValidatorResponse => {
     return this.result;

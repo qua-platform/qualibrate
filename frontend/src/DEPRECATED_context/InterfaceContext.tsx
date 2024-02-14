@@ -11,7 +11,7 @@ interface InterfaceContextProps {
     openPopup: (id: PopupTypes) => void;
     closeCurrentPopup: (id: PopupTypes) => void;
     toggleSystemInfoVisibility: () => void;
-    getPopup: (id: PopupTypes) => void;
+    getPopup: (id: PopupTypes) => any;
     getActivePopup: () => JSX.Element | null | undefined;
   };
 

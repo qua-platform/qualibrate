@@ -20,3 +20,10 @@
   border: 1px solid var(--border-color);
   overflow: hidden;
 }
+.timelineGraphWrapper {
+  svg {
+    scale: 0.7;
+    max-width: 540px;
+    //translate: -83px -80px;
+  }
+}

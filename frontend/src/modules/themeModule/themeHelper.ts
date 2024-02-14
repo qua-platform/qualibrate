@@ -168,6 +168,6 @@ const colors: Colors = {
   },
 };
 
-export const colorAliases = {
-  BACKGROUND_COLOR: "var(--background-color)",
-};
+// export const colorAliases = {
+//   BACKGROUND_COLOR: "var(--background-color)",
+// };

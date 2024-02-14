@@ -32,9 +32,9 @@ export class AuthApi extends Api {
     });
   }
 
-  static getUserInfo(): Promise<Res<UserInfo>> {
-    return this._fetch(this.api(AUTH_INFO), API_METHODS.GET, {
-      headers: BASIC_HEADERS,
-    });
-  }
+  // static getUserInfo(): Promise<Res<UserInfo>> {
+  //   return this._fetch(this.api(AUTH_INFO), API_METHODS.GET, {
+  //     headers: BASIC_HEADERS,
+  //   });
+  // }
 }

@@ -13,7 +13,7 @@ export default function useAddEmptyWorkflow(cb?: (isOk?: boolean) => void): [() 
   const addEmptyWorkflow = useCallback(async () => {
     setStatus(setPending());
     const res = await WorkflowApi.createEmptyWorkflow(activeProject?.id || -1, 1);
-    setStatus(formRequestStatus(res));
+    setStatus(formRequestStatus(res as any));
     if (res.isOk) {
       toast("Empty workflow was created");
       openTab("experiments");

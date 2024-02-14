@@ -3,7 +3,7 @@ import { AbstractContextProvider } from "../../utils/contexts/AbstractContext";
 import { RequestStatus } from "../../types";
 import { ProjectDTO } from "../../DEPRECATED_common/DEPRECATED_dtos/project/project.dto";
 import { ProjectUserState } from "./types";
-import { ActiveProjectApi } from "./ActiveProjectApi";
+// import { ActiveProjectApi } from "./ActiveProjectApi";
 import withMQTTContext from "../MQTT/utils/withMQTTContext";
 import LSManager from "../localStorage/LSManager";
 
@@ -56,10 +56,10 @@ class ActiveProjectContextContextProvider extends AbstractContextProvider<
     };
   }
 
-  componentDidMount() {
-    this.fetchProjectState();
-    this.interval = window.setInterval(this.fetchProjectState, 5000);
-  }
+  // componentDidMount() {
+  //   this.fetchProjectState();
+  //   this.interval = window.setInterval(this.fetchProjectState, 5000);
+  // }
 
   componentWillUnmount() {
     window.clearInterval(this.interval);
@@ -71,20 +71,20 @@ class ActiveProjectContextContextProvider extends AbstractContextProvider<
   };
 
   fetchProjectState = async () => {
-    const { activeProject, projectUserState } = this.state;
-    if (!activeProject) {
-      return this.setState({ projectUserState: undefined });
-    }
-    // TODO This was refactor due to constant rerendering
+    // const { activeProject, projectUserState } = this.state;
+    // if (!activeProject) {
+    //   return this.setState({ projectUserState: undefined });
+    // }
+    // TODO This was refactor due to constant rerender
     // const { isOk, result } = await this._fetchWithStatus(
     //   () => ActiveProjectApi.getCurrentState(activeProject?.id || -1),
     //   "fetchInfoStatus"
     // );
-    const { isOk, result } = await ActiveProjectApi.getCurrentState(activeProject?.id || -1);
-    if (!projectUserState || JSON.stringify(projectUserState) !== JSON.stringify(result)) {
-      this.setState({ projectUserState: isOk ? result : undefined });
-      this.props.subscribeToJob((isOk && result?.job_eui) || undefined);
-    }
+    // const { isOk, result } = await ActiveProjectApi.getCurrentState(activeProject?.id || -1);
+    // if (!projectUserState || JSON.stringify(projectUserState) !== JSON.stringify(result)) {
+    //   this.setState({ projectUserState: isOk ? result : undefined });
+    //   this.props.subscribeToJob((isOk && result?.job_eui) || undefined);
+    // }
   };
 
   protected funcs = {

@@ -4,14 +4,15 @@ import JobItems from "./components/jobPage/JobItems";
 import WorkflowContext from "../Experiments/context/WorkflowContext";
 import WorkflowHeader from "./WorkflowHeader";
 import styles from "./components/jobPage/Job.module.scss";
-import { useJobsListContext } from "./context/JobsListContext";
+// import { useJobsListContext } from "./context/JobsListContext";
 import { groupJobsByDate } from "./components/jobList/utils/jobsGrouping";
 import { classNames } from "../../utils/classnames";
 
 const GroupedByDateJobs = () => {
   const { currentWorkflow } = useContext(WorkflowContext);
-  const { list } = useJobsListContext();
-  const groupedByDatesJobs = useMemo(() => groupJobsByDate(list), [list]);
+  // const { list } = useJobsListContext();
+  // const groupedByDatesJobs = useMemo(() => groupJobsByDate(list), [list]);
+  const groupedByDatesJobs = useMemo(() => groupJobsByDate([]), []);
 
   const [expandedGroups, setExpandedGroups] = useState<{
     [key: string]: boolean;
@@ -35,7 +36,8 @@ const GroupedByDateJobs = () => {
               headerName={dateName}
               workflow={currentWorkflow}
             />
-            {expandedGroups[dateName] && <JobItems jobs={groupedByDatesJobs[dateName]} />}
+            {expandedGroups[dateName] && <JobItems jobs={[]} />}
+            {/*{expandedGroups[dateName] && <JobItems jobs={groupedByDatesJobs[dateName]} />}*/}
           </div>
         ))}
     </>

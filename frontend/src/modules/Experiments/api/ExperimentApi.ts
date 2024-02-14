@@ -18,9 +18,9 @@ export class ExperimentApi extends Api {
     return this._fetch(this.api(CODE_SERVER_PING), API_METHODS.GET);
   }
 
-  static initCodeServer(): Promise<Res<boolean>> {
-    return this._fetch(this.api(CODE_SERVER_INIT), API_METHODS.GET);
-  }
+  // static initCodeServer(): Promise<Res<boolean>> {
+  //   return this._fetch(this.api(CODE_SERVER_INIT), API_METHODS.GET);
+  // }
 
   static getAutoCompleteByEUI(job_eui: string) {
     const queryParams = { job_eui };

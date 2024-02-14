@@ -4,6 +4,6 @@ export const log = (...message: any[]) => {
   SHOW_DEBUG && console.log(...message);
 };
 
-export const logError = (...message: any[]) => {
-  SHOW_DEBUG && console.error(...message);
-};
+// export const logError = (...message: any[]) => {
+//   SHOW_DEBUG && console.error(...message);
+// };

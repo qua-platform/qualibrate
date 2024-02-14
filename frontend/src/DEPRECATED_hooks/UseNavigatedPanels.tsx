@@ -1,26 +1,25 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useState } from "react";
 import NavSelect from "../DEPRECATED_components/common/NavSelect/NavSelect";
 import { NavigatedPanel } from "../DEPRECATED_common/DEPRECATED_interfaces/NavigatedPanels";
 import { useNodeInfoContext } from "../modules/Experiments/GraphModule/utils/NodeInfoContext";
 // import { useMQTTContext } from "../modules/MQTT/MQTTContext";
-import Status from "../modules/Experiments/GraphModule/nodeInfo/Status/Status";
-import { NodeData } from "../modules/Experiments/types";
+// import Status from "../modules/Experiments/GraphModule/nodeInfo/Status/Status";
+// import { NodeData } from "../modules/Experiments/types";
 
-const statusPanel: NavigatedPanel = {
-  nav: { name: "Status" },
-  panel: <Status />,
-};
+// const statusPanel: NavigatedPanel = {
+//   nav: { name: "Status" },
+//   panel: <Status />,
+// };
 
 const UseNavigatedPanels = (elements: NavigatedPanel[], className?: string, isAdminPage = false): [React.ReactElement, any] => {
   // TODO Fix this
   const [panels, setPanels] = useState<NavigatedPanel[]>(elements);
   const [activePanelIndex, setActivePanelIndex] = useState<number>(0);
-  let _selectedNode: NodeData | undefined = undefined;
-  if (!isAdminPage) {
-    const { selectedNode } = useNodeInfoContext();
-    _selectedNode = selectedNode;
-  }
+  // let _selectedNode: NodeData | undefined = undefined;
+  // if (!isAdminPage) {
+  //   const { selectedNode } = useNodeInfoContext();
+  //   _selectedNode = selectedNode;
+  // }
   // const { nodesStatus } = useMQTTContext();
 
   /***

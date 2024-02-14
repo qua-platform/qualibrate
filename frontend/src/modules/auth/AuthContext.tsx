@@ -1,7 +1,7 @@
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useState } from "react";
+import React, { PropsWithChildren, useCallback, useContext, useState } from "react";
 
 import { AuthApi } from "./AuthApi";
-import { HOME_URL } from "../../DEPRECATED_common/modules";
+import {  HOME_URL } from "../../DEPRECATED_common/modules";
 import { useNavigate } from "react-router-dom";
 import { OFFLINE_MODE } from "../../dev.config";
 import { LoginData, UserInfo } from "./types";
@@ -64,10 +64,10 @@ export function AuthContextProvider(props: PropsWithChildren<void>): React.React
     setIsAuthorized(false);
   }, [setIsAuthorized]);
 
-  const getUserInfo = useCallback(async () => {
-    const res = await AuthApi.getUserInfo();
-    setUserInfo(res.isOk ? res.result : undefined);
-  }, [setUserInfo]);
+  // const getUserInfo = useCallback(async () => {
+  //   const res = await AuthApi.getUserInfo();
+  //   setUserInfo(res.isOk ? res.result : undefined);
+  // }, [setUserInfo]);
 
   return (
     <AuthContext.Provider

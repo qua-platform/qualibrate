@@ -8,8 +8,8 @@ export type ProjectUserState = {
   job_description: string | null;
 };
 
-export type CurrentRuntime = {
-  name: string;
-  details: object;
-  id: number;
-};
+// export type CurrentRuntime = {
+//   name: string;
+//   details: object;
+//   id: number;
+// };

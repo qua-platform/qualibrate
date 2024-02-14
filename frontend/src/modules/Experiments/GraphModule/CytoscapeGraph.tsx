@@ -31,7 +31,7 @@ export default function CytoscapeGraph({ elements, onNodeClick, onClickOutside }
         wheelSensitivity: 0.1,
       });
     } else {
-      // update style around node if it status is changed
+      // update style around node if its status is changed
       cy.current.batch(() => {
         const allElements = cy.current?.elements() ?? [];
         allElements.forEach((element) => {

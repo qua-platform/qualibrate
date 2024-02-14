@@ -58,22 +58,22 @@ const parseValue = (ref: string): ParsedValue => {
   };
 };
 
-const DEBOUNCE_TIMEOUT = 500;
+// const DEBOUNCE_TIMEOUT = 500;
 
-const useReferenceValue = (value: Props): ReferenceType => {
-  const debouncedValue = useDebounce(value, DEBOUNCE_TIMEOUT);
-
-  useEffect(() => {}, [debouncedValue]);
-
-  const printedValue = debouncedValue;
-
-  const { value: parsedValue, endSymbols, startSymbols } = parseValue(printedValue);
-
-  const context = { startSymbols, endSymbols };
-
-  const parsedType = getReferenceType(printedValue);
-
-  return { printedValue, parsedValue, context, parsedType };
-};
-
-export default useReferenceValue;
+// const useReferenceValue = (value: Props): ReferenceType => {
+//   const debouncedValue = useDebounce(value, DEBOUNCE_TIMEOUT);
+//
+//   useEffect(() => {}, [debouncedValue]);
+//
+//   const printedValue = debouncedValue;
+//
+//   const { value: parsedValue, endSymbols, startSymbols } = parseValue(printedValue);
+//
+//   const context = { startSymbols, endSymbols };
+//
+//   const parsedType = getReferenceType(printedValue);
+//
+//   return { printedValue, parsedValue, context, parsedType };
+// };
+//
+// export default useReferenceValue;

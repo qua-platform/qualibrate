@@ -28,11 +28,12 @@ export const useCheckoutContext = (): ICheckoutContext => useContext<ICheckoutCo
 class CheckoutContextProvider extends AbstractContextWithProjectProvider<any, CheckoutState, RequestsState, CheckoutFuncs> {
   Context = CheckoutContext;
 
-  _refreshProject = (isOk: boolean) => {
-    const { fetchProjectState } = this.props;
-    if (isOk) {
-      fetchProjectState();
-    }
+  _refreshProject = (isOk?: boolean) => {
+    // _refreshProject = (isOk: boolean) => {
+    // const { fetchProjectState } = this.props;
+    // if (isOk) {
+    //   fetchProjectState();
+    // }
   };
   checkoutJob = async (job: JobDTO) => {
     const { isOk } = await this._fetchWithStatus(

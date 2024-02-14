@@ -21,10 +21,10 @@ const NavSelect = ({ items, activeItemIndex, isShown = true, className, actions 
     return actions;
   }, [actions]);
 
-  const searchResults = (resultsNumber: number | null | undefined) =>
-    useMemo(() => {
-      return resultsNumber ? <div className={styles.resultsNumber}>{resultsNumber}</div> : null;
-    }, [resultsNumber]);
+  // const searchResults = (resultsNumber: number | null | undefined) =>
+  //   useMemo(() => {
+  //     return resultsNumber ? <div className={styles.resultsNumber}>{resultsNumber}</div> : null;
+  //   }, [resultsNumber]);
 
   return isShown ? (
     <div className={classNames(styles.wrapper, className)}>

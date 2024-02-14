@@ -12,18 +12,19 @@ import SystemModule from "./SystemModule/SystemModule";
 import { useOnProjectUpdate } from "../ActiveProject/utils";
 
 const ExperimentPage = () => {
-  const { setActivePanel, activePanel } = useExperimentModulesContext();
-  const { loadGraph } = useGraphContext();
-  useOnProjectUpdate(loadGraph);
+  const { setActivePanel } = useExperimentModulesContext();
+  // const { setActivePanel, activePanel } = useExperimentModulesContext();
+  // const { loadGraph } = useGraphContext();
+  // useOnProjectUpdate(loadGraph);
   const [ref, , minify] = useModuleStyle<HTMLDivElement>();
 
   return (
     <div ref={ref} className={styles.container}>
       <ExperimentHeader minify={minify} onChangeModule={(id) => setActivePanel(id)} />
       <div className={styles.viewer}>
-        <GraphModule active={activePanel === PanelsEnum.WORKFLOW} />
-        <CodeModule active={activePanel === PanelsEnum.CODE} />
-        <SystemModule active={activePanel === PanelsEnum.SYSTEM} />
+        {/*<GraphModule active={activePanel === PanelsEnum.WORKFLOW} />*/}
+        {/*<CodeModule active={activePanel === PanelsEnum.CODE} />*/}
+        {/*<SystemModule active={activePanel === PanelsEnum.SYSTEM} />*/}
       </div>
     </div>
   );

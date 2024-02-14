@@ -16,7 +16,7 @@ type ICodeModuleContext = CodeModuleState & CodeModuleFuncs;
 
 const CodeModuleContext = React.createContext<ICodeModuleContext | any>(null);
 
-export const useCodeModuleContext = (): ICodeModuleContext => useContext<ICodeModuleContext>(CodeModuleContext);
+// export const useCodeModuleContext = (): ICodeModuleContext => useContext<ICodeModuleContext>(CodeModuleContext);
 
 export default class CodeModuleContextContainer extends React.Component<any, CodeModuleState> {
   private readonly funcs: CodeModuleFuncs;
@@ -54,7 +54,7 @@ export default class CodeModuleContextContainer extends React.Component<any, Cod
   };
 
   initServer = async (): Promise<void> => {
-    const res = await ExperimentApi.initCodeServer();
+    // const res = await ExperimentApi.initCodeServer();
   };
 
   fetchCodeUrl = async (): Promise<void> => {

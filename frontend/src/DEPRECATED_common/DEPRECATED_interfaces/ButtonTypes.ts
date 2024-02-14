@@ -1,6 +1,6 @@
 export enum ButtonTypes {
   ACTION = "ACTION",
-  DROPDOWN = "DROPDOWN",
+  // DROPDOWN = "DROPDOWN",
   PLAIN = "PLAIN",
-  BORDER = "BORDER",
+  // BORDER = "BORDER",
 }

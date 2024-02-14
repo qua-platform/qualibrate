@@ -172,7 +172,7 @@ export default class Api {
   }
 
   static async downloadFile(fullPath: string, defaultFileName: string, options: { [key: string]: any } = {}): Promise<Res> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       let fileName = defaultFileName;
       fetch(fullPath, {
         method: API_METHODS.GET,
@@ -202,9 +202,9 @@ export default class Api {
     });
   }
 
-  static fetchFunc = <Data, Args>(req: (args: Args) => RequestEntry) => {
-    return (args: Args): Promise<Res<Data>> => {
-      return this.fetch(req(args));
-    };
-  };
+  // static fetchFunc = <Data, Args>(req: (args: Args) => RequestEntry) => {
+  //   return (args: Args): Promise<Res<Data>> => {
+  //     return this.fetch(req(args));
+  //   };
+  // };
 }

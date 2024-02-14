@@ -22,7 +22,8 @@ export function ExperimentModulesContextProvider(props: PropsWithChildren<void>)
   } = useContext(InterfaceContext);
 
   useEffect(() => {
-    if (activePanel === PanelsEnum.SYSTEM) toggleSystemInfoVisibility.on();
+    // if (activePanel === PanelsEnum.SYSTEM) toggleSystemInfoVisibility.on();
+    if (activePanel === PanelsEnum.SYSTEM) toggleSystemInfoVisibility();
   }, [activePanel]);
 
   return <ExperimentModulesContext.Provider value={{ activePanel, setActivePanel }}>{children}</ExperimentModulesContext.Provider>;

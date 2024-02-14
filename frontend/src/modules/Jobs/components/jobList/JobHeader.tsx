@@ -14,19 +14,20 @@ import OutlineButton from "../../../../ui-lib/components/Button/OutlineButton";
 import { DownloadIcon } from "../../../../ui-lib/Icons/DownloadIcon";
 import { OUTLINE_BUTTON_TEXT } from "../../../../utils/colors";
 import cyKeys from "../../../../utils/cyKeys";
-import { useJobsListContext } from "../../context/JobsListContext";
+// import { useJobsListContext } from "../../context/JobsListContext";
 import { useJobsSelectionContext } from "../../context/JobsSelectionContext";
 import { useShowFilterContext } from "../jobPage/layoutContexts";
 
 function DefaultActions({ minify }: MinifyProp): React.ReactElement {
-  const { filter } = useJobsListContext();
+  // const { filter } = useJobsListContext();
   const [, setShowFilter] = useShowFilterContext();
 
   return (
     <div className={styles.actions}>
       <GroupJobButton key={1} minify={minify} />
       <OrderSortButton key={2} minify={minify} />
-      <FilterButton key={3} isApplied={Boolean(filter)} onClick={() => setShowFilter((f) => !f)} dataCy={cyKeys.jobs.FILTER_BUTTON} />
+      {/*<FilterButton key={3} isApplied={Boolean(filter)} onClick={() => setShowFilter((f) => !f)} dataCy={cyKeys.jobs.FILTER_BUTTON} />*/}
+      <FilterButton key={3} isApplied={Boolean(false)} onClick={() => setShowFilter((f) => !f)} dataCy={cyKeys.jobs.FILTER_BUTTON} />
       <SelectJobButton key={4} />
       <AddJobButton key={5} />
     </div>
@@ -51,9 +52,10 @@ function SelectActions({ minify }: MinifyProp): React.ReactElement {
 const JobHeader: React.FunctionComponent<MinifyProp> = ({ minify }) => {
   const { isActive: isSelectionActive } = useJobsSelectionContext();
 
-  const { jobsData } = useJobsListContext();
+  // const { jobsData } = useJobsListContext();
   return (
-    <PageHeader title="Job list" subTitle={`Running jobs ${jobsData?.running}/${jobsData?.total}`} withBorder>
+    // <PageHeader title="Job list" subTitle={`Running jobs ${jobsData?.running}/${jobsData?.total}`} withBorder>
+    <PageHeader title="Job list" subTitle={`Running jobs TOTAL ??`} withBorder>
       {isSelectionActive ? <SelectActions minify={minify} /> : <DefaultActions minify={minify} />}
     </PageHeader>
   );
