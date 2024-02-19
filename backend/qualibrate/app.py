@@ -17,9 +17,9 @@ app.mount(
 )
 
 
-def main() -> None:
-    uvicorn.run("qualibrate.app:app", reload=True)
+def main(reload: bool) -> None:
+    uvicorn.run("qualibrate.app:app", reload=reload)
 
 
 if __name__ == "__main__":
-    main()
+    main(reload=False)

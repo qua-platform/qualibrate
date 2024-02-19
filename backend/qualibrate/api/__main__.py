@@ -12,5 +12,5 @@ def ping() -> str:
     return "pong"
 
 
-api_router.include_router(snapshot_router)
 api_router.include_router(timeline_router)
+api_router.include_router(snapshot_router)

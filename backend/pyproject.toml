@@ -18,6 +18,9 @@ python = "^3.9"
 fastapi = "^0.109.0"
 uvicorn = "^0.27.0.post1"
 pydantic-settings = "^2.1.0"
+click = "^8.1.7"
+tomli = { version = "^2.0.1", python = "<3.11" }
+tomli-w = "^1.0.0"
 # local
 qualibrate-api-base = { path = "../api_base" }
 
@@ -30,7 +33,7 @@ pytest = "^8.0.0"
 pytest-mock = "^3.12.0"
 
 [tool.poetry.scripts]
-qualibrate = "qualibrate.app:main"
+qualibrate = "qualibrate.__main__:main"
 
 [tool.mypy]
 python_version = "3.9"
