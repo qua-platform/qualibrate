@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from qualibrate.api.__main__ import api_router
 from qualibrate.config import get_settings
 
-app = FastAPI()
+app = FastAPI(title="Qualibrate")
 
 app.include_router(api_router, prefix="/api/local")
 
@@ -17,9 +17,9 @@ app.mount(
 )
 
 
-def main(reload: bool) -> None:
-    uvicorn.run("qualibrate.app:app", reload=reload)
+def main(port: int, reload: bool) -> None:
+    uvicorn.run("qualibrate.app:app", port=port, reload=reload)
 
 
 if __name__ == "__main__":
-    main(reload=False)
+    main(port=8000, reload=False)

@@ -2,7 +2,7 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import DirectoryPath, field_serializer
+from pydantic import DirectoryPath, field_serializer, HttpUrl
 from pydantic_core.core_schema import FieldSerializationInfo
 from pydantic_settings import BaseSettings
 
@@ -21,12 +21,21 @@ CONFIG_PATH_ENV_NAME = "QUALIBRATE_CONFIG_FILE"
 class _QualibrateSettingsBase(BaseSettings):
     static_site_files: Path
     user_storage: Path
+    timeline_db_address: HttpUrl
+    timeline_db_timeout: float
+    timeline_db_name: str
 
 
 class QualibrateSettingsSetup(_QualibrateSettingsBase):
     @field_serializer("static_site_files", "user_storage")
     def serialize_path(self, path: Path, _info: FieldSerializationInfo) -> str:
         return str(path)
+
+    @field_serializer("timeline_db_address")
+    def serialize_http_url(
+        self, url: HttpUrl, _info: FieldSerializationInfo
+    ) -> str:
+        return str(url)
 
 
 class QualibrateSettings(_QualibrateSettingsBase):
