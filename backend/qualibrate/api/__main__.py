@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from qualibrate.api.routes.json_db.branch import json_db_branch_router
 from qualibrate.api.routes.json_db.snapshot import json_db_snapshot_router
 
 
@@ -11,4 +12,5 @@ def ping() -> str:
     return "pong"
 
 
+api_router.include_router(json_db_branch_router)
 api_router.include_router(json_db_snapshot_router)
