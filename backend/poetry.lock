@@ -430,13 +430,13 @@ typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
 name = "pydantic-settings"
-version = "2.2.0"
+version = "2.2.1"
 description = "Settings management using Pydantic"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pydantic_settings-2.2.0-py3-none-any.whl", hash = "sha256:5f7bcaf9ad4419559dc5ac155c0324a9aeb2547c60471ee7c7d026f467a6b515"},
-    {file = "pydantic_settings-2.2.0.tar.gz", hash = "sha256:648d0a76673e69c51278979cba2e83cf16a23d57519bfd7e553d1c3f37db5560"},
+    {file = "pydantic_settings-2.2.1-py3-none-any.whl", hash = "sha256:0235391d26db4d2190cb9b31051c4b46882d28a51533f97440867f012d4da091"},
+    {file = "pydantic_settings-2.2.1.tar.gz", hash = "sha256:00b9f6a5e95553590434c0fa01ead0b216c3e10bc54ae02e37f359948643c5ed"},
 ]
 
 [package.dependencies]
@@ -444,7 +444,7 @@ pydantic = ">=2.3.0"
 python-dotenv = ">=0.21.0"
 
 [package.extras]
-toml = ["tomlkit (>=0.12)"]
+toml = ["tomli (>=2.0.1)"]
 yaml = ["pyyaml (>=6.0.1)"]
 
 [[package]]
@@ -499,22 +499,6 @@ files = [
 
 [package.extras]
 cli = ["click (>=5.0)"]
-
-[[package]]
-name = "qualibrate-api-base"
-version = "0.1.0"
-description = ""
-optional = false
-python-versions = "^3.9"
-files = []
-develop = false
-
-[package.dependencies]
-pydantic = "^2.6.1"
-
-[package.source]
-type = "directory"
-url = "../api_base"
 
 [[package]]
 name = "requests"
@@ -678,4 +662,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "823923791b58558f79243e04e1eca24a15f529426897b0772c844e6c04038519"
+content-hash = "da1896ee1fa16c07e43319efa482872bafcf0a8e3edf8a015a3869a6f10c877d"
