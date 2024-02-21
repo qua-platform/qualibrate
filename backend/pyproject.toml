@@ -10,7 +10,7 @@ packages = [
 readme = "README.md"
 
 include = [
-    { path = "qualibrate_static", format = ["sdist", "wheel"] }
+    { path = "qualibrate_static/**/*", format = ["sdist", "wheel"] },
 ]
 
 [tool.poetry.dependencies]
