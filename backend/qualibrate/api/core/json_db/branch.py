@@ -49,13 +49,14 @@ class BranchJsonDb:
             str(settings.timeline_db_address), f"branch/{self._name}/"
         )
         result = get_with_db(req_url)
+        # TODO: wrap ex
+        no_branch_ex = ConnectionError("Branch data wasn't retrieved.")
         if result.status_code != 200:
-            raise ConnectionError("Branch data wasn't retrieved.")
+            raise no_branch_ex
         content = result.json()
         if self.content is None:
-            self.content = content
-        else:
-            self.content.update(content)
+            raise no_branch_ex
+        self.content.update(content)
         self._load_type = BranchLoadType.Full
 
     def get_last_snapshots(self, num_snapshots: int = -1) -> list[DocumentType]:

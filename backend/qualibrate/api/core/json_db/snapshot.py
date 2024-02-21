@@ -66,9 +66,13 @@ class SnapshotJsonDb:
             str(settings.timeline_db_address), f"snapshot/{self.id}/"
         )
         result = get_with_db(req_url, params=params)
+        # TODO: wrap ex
+        no_snapshot_ex = ConnectionError("Snapshot data wasn't retrieved.")
         if result.status_code != 200:
-            raise ConnectionError("Snapshot data wasn't retrieved.")
+            raise no_snapshot_ex
         content = result.json()
+        if content is None:
+            raise no_snapshot_ex
         if fields is None or "metadata" in fields:  # metadata was requested
             content["metadata"] = content.get("metadata", {})
         if fields is None:  # data was requested
