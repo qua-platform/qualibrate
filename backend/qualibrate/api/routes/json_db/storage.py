@@ -1,10 +1,10 @@
-import base64
-from typing import Annotated, Sequence, Mapping
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Path
 
+from qualibrate.api.core.types import DocumentType
 from qualibrate.api.core.json_db.node import NodeJsonDb, NodeLoadType
-from qualibrate.api.core.json_db.storage import StorageJsonDb
+from qualibrate.api.core.json_db.storage import StorageJsonDb, StorageLoadType
 from qualibrate.api.core.utils.request_utils import HTTPException422
 
 json_db_storage_router = APIRouter(
@@ -33,22 +33,6 @@ def get_node_storage(
 @json_db_storage_router.get("/content")
 def get_node_storage_content(
     storage: Annotated[StorageJsonDb, Depends(_get_storage_instance)],
-) -> Sequence[str]:
-    return list(map(str, storage.list_elements()))
-
-
-@json_db_storage_router.get("/images")
-def get_node_storage_images_list(
-    storage: Annotated[StorageJsonDb, Depends(_get_storage_instance)],
-) -> Sequence[str]:
-    return list(map(str, storage.list_typed_elements("*.png")))
-
-
-@json_db_storage_router.get("/images/content")
-def get_node_storage_images(
-    storage: Annotated[StorageJsonDb, Depends(_get_storage_instance)],
-) -> Mapping[str, str]:
-    m = storage.get_images_content("*.png")
-    return {
-        name: base64.b64encode(content).decode() for name, content in m.items()
-    }
+) -> Optional[DocumentType]:
+    storage.load(StorageLoadType.Full)
+    return storage.data
