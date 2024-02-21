@@ -25,6 +25,8 @@ class _QualibrateSettingsBase(BaseSettings):
     timeline_db_timeout: float
     timeline_db_name: str
 
+    timeline_db_metadata_out_path: str
+
 
 class QualibrateSettingsSetup(_QualibrateSettingsBase):
     @field_serializer("static_site_files", "user_storage")

@@ -40,14 +40,18 @@ class NodeJsonDb:
         self._fill_storage()
 
     def _fill_storage(self) -> None:
+        settings = get_settings()
         metadata = self._snapshot.metadata
-        if metadata is None or not isinstance(metadata.get("output_path"), str):
+        if metadata is None or not isinstance(
+            metadata.get(settings.timeline_db_metadata_out_path), str
+        ):
             self._storage = None
             self._load_type = NodeLoadType.Snapshot
             return
-        rel_output_path = metadata["output_path"]
+        rel_output_path = metadata[settings.timeline_db_metadata_out_path]
         abs_output_path = resolve_and_check_relative(
-            get_settings().user_storage, metadata["output_path"]
+            settings.user_storage,
+            metadata[settings.timeline_db_metadata_out_path],
         )
         if not abs_output_path.is_dir():
             raise NotADirectoryError(f"{rel_output_path} is not a directory")
