@@ -6,6 +6,7 @@ from urllib.parse import urljoin
 from qualibrate.api.core.types import DocumentType
 from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.core.json_db.snapshot import SnapshotJsonDb
+from qualibrate.api.exceptions.classes.json_db import QJsonDbException
 from qualibrate.config import get_settings
 
 
@@ -49,8 +50,7 @@ class BranchJsonDb:
             str(settings.timeline_db_address), f"branch/{self._name}/"
         )
         result = get_with_db(req_url)
-        # TODO: wrap ex
-        no_branch_ex = ConnectionError("Branch data wasn't retrieved.")
+        no_branch_ex = QJsonDbException("Branch data wasn't retrieved.")
         if result.status_code != 200:
             raise no_branch_ex
         content = result.json()
@@ -69,7 +69,7 @@ class BranchJsonDb:
         )
         result = get_with_db(req_url, params={"metadata": True})
         if result.status_code != 200:
-            raise ConnectionError("Branch history wasn't retrieved.")
+            raise QJsonDbException("Branch history wasn't retrieved.")
         return list(result.json())
 
     def get_snapshot(self, id: int) -> SnapshotJsonDb:

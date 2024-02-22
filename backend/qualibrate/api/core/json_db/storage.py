@@ -4,6 +4,8 @@ from base64 import b64encode
 from typing import Mapping, Any, Optional
 from pathlib import Path
 
+from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.api.exceptions.classes.values import QValueException
 from qualibrate.config import get_settings
 
 
@@ -21,7 +23,7 @@ class StorageJsonDb:
     def __init__(self, path: Path):
         if not path.is_dir():
             rel_path = path.relative_to(get_settings().user_storage)
-            raise FileNotFoundError(f"{rel_path} does not exist.")
+            raise QFileNotFoundException(f"{rel_path} does not exist.")
         self._path = path
         self._load_type = StorageLoadType.Empty
         self._data: Optional[Mapping[str, Any]] = None
@@ -61,7 +63,7 @@ class StorageJsonDb:
         with data_file.open("r") as file:
             content = json.load(file)
         if not isinstance(content, Mapping):
-            raise ValueError("Unexpected data format.")
+            raise QValueException("Unexpected data format.")
         content = dict(content)
         for key, value in content.items():
             if isinstance(value, str) and Path(value).suffix == ".png":

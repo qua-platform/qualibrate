@@ -10,6 +10,7 @@ from qualibrate.api.core.utils.find_utils import (
     get_subpath_value_on_any_depth,
 )
 from qualibrate.api.core.utils.request_utils import get_with_db
+from qualibrate.api.exceptions.classes.json_db import QJsonDbException
 from qualibrate.config import get_settings
 
 
@@ -66,8 +67,7 @@ class SnapshotJsonDb:
             str(settings.timeline_db_address), f"snapshot/{self.id}/"
         )
         result = get_with_db(req_url, params=params)
-        # TODO: wrap ex
-        no_snapshot_ex = ConnectionError("Snapshot data wasn't retrieved.")
+        no_snapshot_ex = QJsonDbException("Snapshot data wasn't retrieved.")
         if result.status_code != 200:
             raise no_snapshot_ex
         content = result.json()
@@ -140,7 +140,7 @@ class SnapshotJsonDb:
         )
         result = get_with_db(req_url)
         if result.status_code != 200:
-            raise ConnectionError("Snapshot history wasn't retrieved.")
+            raise QJsonDbException("Snapshot history wasn't retrieved.")
         return list(result.json())
 
     def compare_with(self, other_snapshot: "SnapshotJsonDb") -> bool:

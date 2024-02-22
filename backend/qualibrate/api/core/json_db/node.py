@@ -7,7 +7,10 @@ from qualibrate.api.core.json_db.snapshot import (
     SnapshotLoadType,
 )
 from qualibrate.api.core.utils.path_utils import resolve_and_check_relative
+from qualibrate.api.exceptions.classes.values import QValueException
+from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
 from qualibrate.config import get_settings
+
 
 __all__ = ["NodeJsonDb", "NodeLoadType"]
 
@@ -25,7 +28,7 @@ class NodeJsonDb:
         snapshot: Optional[SnapshotJsonDb] = None,
     ):
         if sum(item is None for item in (snapshot_id, snapshot)) != 1:
-            raise ValueError("Must provide either snapshot_id or snapshot")
+            raise QValueException("Must provide either snapshot_id or snapshot")
         self._storage: Optional[StorageJsonDb] = None
         if snapshot_id is not None:
             self._snapshot = SnapshotJsonDb(snapshot_id)
@@ -54,7 +57,9 @@ class NodeJsonDb:
             metadata[settings.timeline_db_metadata_out_path],
         )
         if not abs_output_path.is_dir():
-            raise NotADirectoryError(f"{rel_output_path} is not a directory")
+            raise QNotADirectoryException(
+                f"{rel_output_path} is not a directory"
+            )
         self._storage = StorageJsonDb(abs_output_path)
         self._load_type = NodeLoadType.Full
 

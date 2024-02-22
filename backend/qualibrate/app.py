@@ -4,11 +4,14 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 from qualibrate.api.__main__ import api_router
+from qualibrate.api.exceptions.middleware import QualibrateCatchExcMiddleware
 from qualibrate.config import get_settings
 
 app = FastAPI(title="Qualibrate")
 
 origins = ["http://localhost:8002", "http://localhost:8001"]
+
+app.add_middleware(QualibrateCatchExcMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

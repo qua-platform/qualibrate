@@ -1,6 +1,10 @@
 import os
 from pathlib import Path
 
+from qualibrate.api.exceptions.classes.storage import (
+    QRelativeNotSubpathException,
+)
+
 
 def resolve_and_check_relative(
     base_path: Path, subpath: os.PathLike[str]
@@ -14,5 +18,5 @@ def resolve_and_check_relative(
     """
     full = (base_path / Path(subpath)).resolve()
     if not full.is_relative_to(base_path):
-        raise ValueError("Subpath isn't relative to base.")
+        raise QRelativeNotSubpathException("Subpath isn't relative to base.")
     return full

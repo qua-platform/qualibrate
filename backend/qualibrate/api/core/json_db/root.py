@@ -11,6 +11,7 @@ from qualibrate.api.core.json_db.snapshot import SnapshotJsonDb
 __all__ = ["RootJsonDb"]
 
 from qualibrate.api.core.utils.request_utils import get_with_db
+from qualibrate.api.exceptions.classes.json_db import QJsonDbException
 
 from qualibrate.config import get_settings
 
@@ -42,5 +43,5 @@ class RootJsonDb:
         )
         result = get_with_db(req_url, params={"data_path": data_path})
         if result.status_code != 200:
-            raise ConnectionError("Branch history wasn't retrieved.")
+            raise QJsonDbException("Branch history wasn't retrieved.")
         return result.json()
