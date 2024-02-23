@@ -59,15 +59,17 @@ class BranchJsonDb:
         self.content.update(content)
         self._load_type = BranchLoadType.Full
 
-    def get_last_snapshots(self, num_snapshots: int = -1) -> list[DocumentType]:
+    def get_last_snapshots(self, num_snapshots: int = 50) -> list[DocumentType]:
         """Retrieve last num_snapshots from this branch"""
-        # TODO: num snapshots
         settings = get_settings()
         req_url = urljoin(
             str(settings.timeline_db_address),
             f"branch/{self._name}/history",
         )
-        result = get_with_db(req_url, params={"metadata": True})
+        result = get_with_db(
+            req_url,
+            params={"metadata": True, "num_snapshots": num_snapshots},
+        )
         if result.status_code != 200:
             raise QJsonDbException("Branch history wasn't retrieved.")
         return list(result.json())

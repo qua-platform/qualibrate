@@ -1,7 +1,7 @@
 from typing import Annotated, Optional
 from qualibrate.api.core.types import DocumentType, DocumentSequenceType
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, Query
 
 from qualibrate.api.core.json_db.branch import BranchJsonDb
 
@@ -24,6 +24,7 @@ def get(
 @json_db_branch_router.get("/history")
 def get_history(
     branch: Annotated[BranchJsonDb, Depends(_get_branch_instance)],
+    num_snapshots: int = Query(50, gt=0)
 ) -> DocumentSequenceType:
     # TODO: add num snapshots arg
-    return branch.get_last_snapshots()
+    return branch.get_last_snapshots(num_snapshots)
