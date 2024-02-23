@@ -19,8 +19,9 @@ from qualibrate.config import CONFIG_PATH_ENV_NAME, DEFAULT_CONFIG_PATH
 @click.option(
     "--reload", is_flag=True, hidden=True
 )  # env QUALIBRATE_START_RELOAD
-def start_command(config_file: Path, reload: bool) -> None:
+@click.option("--port", type=int, default=8000)  # env QUALIBRATE_START_PORT
+def start_command(config_file: Path, port: int, reload: bool) -> None:
     from qualibrate.app import main as app_main
 
     os.environ[CONFIG_PATH_ENV_NAME] = str(config_file)
-    app_main(reload)
+    app_main(port=port, reload=reload)

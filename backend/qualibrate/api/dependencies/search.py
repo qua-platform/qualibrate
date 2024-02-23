@@ -1,7 +1,8 @@
 from typing import Annotated, Union
-from fastapi import Query, HTTPException, status
+from fastapi import Query
 
 from qualibrate.api.core.types import AllowedSearchKeys
+from qualibrate.api.core.utils.request_utils import HTTPException422
 
 
 def check_path_item(item: str) -> bool:
@@ -19,10 +20,7 @@ def check_path(value: str) -> str:
         Passed path
     """
     if not all(check_path_item(subpath) for subpath in value.split(".")):
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid mongo search path '{value}'",
-        )
+        raise HTTPException422(detail=f"Invalid mongo search path '{value}'")
     return value
 
 

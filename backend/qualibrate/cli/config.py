@@ -3,6 +3,8 @@ import click
 import tomli_w
 from pathlib import Path
 
+from pydantic_core import Url
+
 from qualibrate.config import QualibrateSettingsSetup
 
 
@@ -17,6 +19,7 @@ __all__ = ["config_command"]
         path_type=Path,
     ),
     default=Path().home().joinpath(".qualibrate", "config.toml"),
+    show_default=True,
 )
 @click.option(
     "--static-site-files",
@@ -37,14 +40,54 @@ __all__ = ["config_command"]
         path_type=Path,
     ),
     default=Path().home() / ".qualibrate" / "user_storage",
-    help="Path to user storage directory with qualibrate data. Default: ~/.qualibrate",
+    help="Path to user storage directory with qualibrate data.",
+    show_default=True,
+)
+@click.option(
+    "--timeline-db-address",
+    type=str,  # TODO: add type check for addr
+    default="http://localhost:8000/",
+    show_default=True,
+)
+@click.option(
+    "--timeline-db-timeout",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+# TODO: remove this when multi db will work
+@click.option(
+    "--timeline-db-name",
+    type=str,
+    default="new_db",
+    show_default=True,
+)
+@click.option(
+    "--timeline-db-metadata-out-path",
+    type=str,
+    default="data_path",
+    show_default=True,
 )
 def config_command(
-    config_file: Path, static_site_files: Path, user_storage: Path
+    config_file: Path,
+    static_site_files: Path,
+    user_storage: Path,
+    timeline_db_address: str,
+    timeline_db_timeout: float,
+    timeline_db_name: str,
+    timeline_db_metadata_out_path: str,
 ) -> None:
+    # TODO: read from config file if exists
+    #   get source of value
+    #       (ParameterSource.COMMANDLINE, ParameterSource.DEFAULT, ...)
+    #   {k: ctx.get_parameter_source(k) for k in ctx.params.keys()}
     qs = QualibrateSettingsSetup(
         static_site_files=static_site_files,
         user_storage=user_storage,
+        timeline_db_address=Url(timeline_db_address),
+        timeline_db_timeout=timeline_db_timeout,
+        timeline_db_name=timeline_db_name,
+        timeline_db_metadata_out_path=timeline_db_metadata_out_path,
     )
     exported_data = qs.model_dump()
     click.echo(f"Config file path: {config_file}")

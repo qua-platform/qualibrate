@@ -10,7 +10,7 @@ packages = [
 readme = "README.md"
 
 include = [
-    { path = "qualibrate_static", format = ["sdist", "wheel"] }
+    { path = "qualibrate_static/**/*", format = ["sdist", "wheel"] },
 ]
 
 [tool.poetry.dependencies]
@@ -21,12 +21,12 @@ pydantic-settings = "^2.1.0"
 click = "^8.1.7"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
-# local
-qualibrate-api-base = { path = "../api_base" }
+requests = "^2.31.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
 ruff = "^0.1.15"
+types-requests = "^2.31.0.20240218"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"

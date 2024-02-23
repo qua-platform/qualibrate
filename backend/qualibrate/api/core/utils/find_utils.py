@@ -1,14 +1,14 @@
 from itertools import chain
 from typing import Mapping, Optional, Any, Sequence, Union, Callable, cast
 
-from qualibrate_api_base.api_bases import DocumentsSequence
+from qualibrate.api.core.types import DocumentSequenceType
 
 
 def _get_subpath_value_wildcard(
     obj: Union[Mapping[str, Any], Sequence[Any]],
     target_path: list[Union[str, int]],
     current_path: list[Union[str, int]],
-) -> DocumentsSequence:
+) -> DocumentSequenceType:
     if len(target_path) == 1:
         if isinstance(obj, Sequence):
             return [
@@ -49,7 +49,7 @@ def get_subpath_value(
     obj: Union[Mapping[str, Any], Sequence[Any]],
     target_path: list[Union[str, int]],
     current_path: Optional[list[Union[str, int]]] = None,
-) -> DocumentsSequence:
+) -> DocumentSequenceType:
     if current_path is None:
         current_path = []
     if len(target_path) == 0:

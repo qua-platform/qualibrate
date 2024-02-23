@@ -1,13 +1,15 @@
 from functools import wraps
 from typing import Any, Callable, TypeVar, cast
 
+from qualibrate.api.exceptions.classes.types import QInvalidIdTypeException
+
 Function = TypeVar("Function", bound=Callable[..., Any])
 
 
 def id_type_str(func: Function) -> Function:
     @wraps(func)
     def wrapper(*args, **kwargs):  # type: ignore
-        err = TypeError("id should be str")
+        err = QInvalidIdTypeException("id should be str")
         if "id" in kwargs:
             if not isinstance(kwargs["id"], str):
                 raise err
