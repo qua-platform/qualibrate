@@ -23,7 +23,7 @@ const config = {
     main: [inProjectSrc("index")],
   },
   output: {
-    path: inProject("dist/static"),
+    path: inProject("dist"),
     publicPath: public_path,
     filename: "bundle.[fullhash].js",
   },

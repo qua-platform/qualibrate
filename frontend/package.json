@@ -8,7 +8,7 @@
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "homepage": "/",
   "scripts": {
-    "build": "PUBLIC_PATH='/static/' webpack",
+    "build": "webpack",
     "build:inside-docker": "PUBLIC_PATH='/static/' webpack",
     "start": "webpack serve --open",
     "start:local:dev": "env-cmd -f .env webpack serve --open",
