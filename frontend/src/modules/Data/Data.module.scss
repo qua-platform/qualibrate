@@ -7,6 +7,7 @@
 
 .data {
   width: 390px;
+  min-width: 390px;
 }
 
 .explorer {
@@ -16,14 +17,16 @@
 }
 
 .viewer {
-  flex: 1;
+  display: flex;
   border: 1px solid var(--border-color);
   overflow: hidden;
+  max-width: 100%;
 }
 .timelineGraphWrapper {
   svg {
     scale: 0.7;
     max-width: 540px;
+    width: 540px;
     //translate: -83px -80px;
   }
 }

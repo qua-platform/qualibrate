@@ -32,7 +32,8 @@
     "noEmit": true,
     "isolatedModules": true,
     "allowJs": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "traceResolution": true
   },
   "include": ["src", "./src/**/*.ts", "./src/**/*.tsx"],
   "exclude": ["./src/**/*.jsx"]
