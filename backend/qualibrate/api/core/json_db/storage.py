@@ -74,8 +74,12 @@ class StorageJsonDb:
                 ):
                     continue
                 img_data = img_path.read_bytes()
+                # TODO: dynamic compute MIME type
                 content[key] = {
-                    value: f"base64;{b64encode(img_data).decode('utf-8')}"
+                    value: (
+                        "data:image/png;base64,"
+                        f"{b64encode(img_data).decode('utf-8')}"
+                    )
                 }
         self._data = content
         self._load_type = StorageLoadType.Full
