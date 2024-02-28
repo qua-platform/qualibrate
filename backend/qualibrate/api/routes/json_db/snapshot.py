@@ -1,7 +1,7 @@
 from typing import Annotated, Union, Optional
 from qualibrate.api.core.types import DocumentType, DocumentSequenceType
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, Query
 
 from qualibrate.api.core.json_db.snapshot import (
     SnapshotJsonDb,
@@ -44,5 +44,11 @@ def get_values_any_depth(
 @json_db_snapshot_router.get("/history")
 def get_history(
     snapshot: Annotated[SnapshotJsonDb, Depends(_get_snapshot_instance)],
-) -> Optional[DocumentSequenceType]:
-    return snapshot.history()
+    reverse: bool = False,
+    num_snapshots: int = Query(50, gt=0),
+) -> DocumentSequenceType:
+    history = snapshot.history(num_snapshots=num_snapshots)
+    if reverse:
+        # TODO: make more correct relationship update
+        return list(reversed(history))
+    return history
