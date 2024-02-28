@@ -133,12 +133,12 @@ class SnapshotJsonDb:
             return None
         return get_subpath_value_on_any_depth(data, target_key)
 
-    def history(self) -> Optional[DocumentSequenceType]:
+    def history(self, num_snapshots: int = 50) -> DocumentSequenceType:
         settings = get_settings()
         req_url = urljoin(
             str(settings.timeline_db_address), f"snapshot/{self.id}/history"
         )
-        result = get_with_db(req_url)
+        result = get_with_db(req_url, params={"num_snapshots": num_snapshots})
         if result.status_code != 200:
             raise QJsonDbException("Snapshot history wasn't retrieved.")
         return list(result.json())

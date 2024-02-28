@@ -24,7 +24,11 @@ def get(
 @json_db_branch_router.get("/history")
 def get_history(
     branch: Annotated[BranchJsonDb, Depends(_get_branch_instance)],
-    num_snapshots: int = Query(50, gt=0)
+    reverse: bool = False,
+    num_snapshots: int = Query(50, gt=0),
 ) -> DocumentSequenceType:
-    # TODO: add num snapshots arg
-    return branch.get_last_snapshots(num_snapshots)
+    history = branch.get_last_snapshots(num_snapshots)
+    if reverse:
+        # TODO: make more correct relationship update
+        return list(reversed(history))
+    return history
