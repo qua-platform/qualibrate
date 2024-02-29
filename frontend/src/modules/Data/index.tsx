@@ -167,7 +167,7 @@ const JSONEditor = ({ title, jsonData }: { title: string; jsonData: any }) => {
     Component: ({ value }) => (
       <div>
         <br />
-        <img height={250} width={400} src={value as string} alt={value as string} />
+        <img height={"80%"} width={"auto"} src={value as string} alt={value as string} />
       </div>
     ),
   });
