@@ -50,8 +50,13 @@ const TimelineGraph = ({
   // PERIODICAL FETCH ALL SNAPSHOTS
   const intervalFetch = () => {
     DataViewApi.fetchAllSnapshots().then((promise: any) => {
-      if (promise.result.length > allSnapshots.length && allSnapshots.length !== 0) {
+      const oldMaxId = Math.max(...allSnapshots.map((res: any) => res.id));
+      const newMaxId = Math.max(...promise.result.map((res: any) => res.id));
+      console.log(`Max snapshot ID - previous=${oldMaxId}, latest=${newMaxId}`);
+      if (newMaxId > oldMaxId && allSnapshots.length !== 0) {
         setReset(true);
+      } else {
+        setReset(false);
       }
       return promise;
     });
