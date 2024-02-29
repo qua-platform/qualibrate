@@ -6,8 +6,8 @@
 }
 
 .data {
-  width: 390px;
   min-width: 390px;
+  overflow: scroll;
 }
 
 .explorer {
@@ -23,10 +23,8 @@
   max-width: 100%;
 }
 .timelineGraphWrapper {
-  svg {
-    //scale: 0.7;
-    max-width: 540px;
-    width: 540px;
-    //translate: -83px -80px;
-  }
+}
+.svgWrapper {
+  padding-left: 10px;
+  padding-top: 10px;
 }

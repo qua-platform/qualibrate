@@ -4,7 +4,7 @@ import styles from "./Data.module.scss";
 import cyKeys from "../../utils/cyKeys";
 import useModuleStyle from "../../ui-lib/hooks/useModuleStyle";
 import { classNames } from "../../utils/classnames";
-import { Gitgraph } from "@gitgraph/react";
+import { Gitgraph, templateExtend, TemplateName } from "@gitgraph/react";
 import { JsonViewer, defineDataType } from "@textea/json-viewer";
 import { DataViewApi } from "./api/DataViewApi";
 
@@ -20,25 +20,59 @@ const TimelineGraph = ({
   const [flag, setFlag] = useState<boolean>(false);
   const [reset, setReset] = useState<boolean>(false);
 
-  const fetchGitgraphSnapshots = () => {
+  // -----------------------------------------------------------
+  // FIRST FETCH ALL SNAPSHOTS ON THE BEGINNING
+  const fetchGitgraphSnapshots = (firstTime: boolean) => {
     DataViewApi.fetchAllSnapshots().then((promise: any) => {
       setAllSnapshots(
         (promise.result as any[]).map((res, index) => {
+          if (firstTime) {
+            return Object.assign(res, { isSelected: index == promise.result.length - 1 });
+          }
           return Object.assign(res, { isSelected: index == selectedIndex });
         })
       );
-      fetchOneGitgraphSnapshot(promise.result[selectedIndex].id);
+      if (firstTime) {
+        fetchOneGitgraphSnapshot(promise.result[promise.result.length - 1].id);
+      } else {
+        fetchOneGitgraphSnapshot(promise.result[selectedIndex].id);
+        setReset(false);
+      }
     });
   };
+
+  useEffect(() => {
+    fetchGitgraphSnapshots(true);
+  }, []);
+  // -----------------------------------------------------------
+
+  // -----------------------------------------------------------
+  // PERIODICAL FETCH ALL SNAPSHOTS
   const intervalFetch = () => {
     DataViewApi.fetchAllSnapshots().then((promise: any) => {
       if (promise.result.length > allSnapshots.length && allSnapshots.length !== 0) {
-        setAllSnapshots(promise.result);
-        setFlag(true);
+        setReset(true);
       }
       return promise;
     });
   };
+  useEffect(() => {
+    const checkInterval = setInterval(async () => intervalFetch(), 1500);
+    return () => clearInterval(checkInterval);
+  }, [allSnapshots]);
+  // -----------------------------------------------------------
+
+  // -----------------------------------------------------------
+  // PERIODICAL FETCH ALL SNAPSHOTS
+  useEffect(() => {
+    if (reset) {
+      setAllSnapshots([]);
+      const updateFn = setTimeout(() => fetchGitgraphSnapshots(false), 2);
+      return () => clearTimeout(updateFn);
+    }
+  }, [reset]);
+  // -----------------------------------------------------------
+
   const fetchOneGitgraphSnapshot = (id: string) => {
     DataViewApi.fetchSnapshot(id).then((promise: any) => {
       setJsonData(promise?.result.data);
@@ -59,10 +93,6 @@ const TimelineGraph = ({
   };
 
   useEffect(() => {
-    fetchGitgraphSnapshots(true);
-  }, []);
-
-  useEffect(() => {
     if (flag) {
       setAllSnapshots([]);
       const updateFn = setTimeout(() => gitgraphUpdate(), 2);
@@ -70,16 +100,21 @@ const TimelineGraph = ({
     }
   }, [selectedIndex, flag]);
 
-  useEffect(() => {
-    setInterval(async () => intervalFetch(), 1500);
-  }, [allSnapshots, setAllSnapshots]);
+  const withoutAuthor = templateExtend(TemplateName.Metro, {
+    commit: {
+      message: {
+        displayAuthor: false,
+      },
+      spacing: 50,
+    },
+  });
 
   return (
     <div className={styles.timelineGraphWrapper}>
-      <div style={{ color: "white" }}>TIMEGRAPH</div>
-      <div style={{ overflow: "scroll", maxHeight: "1140px" }}>
+      <div style={{ color: "#d9d5d4" }}>TIMEGRAPH</div>
+      <div className={styles.svgWrapper}>
         {allSnapshots?.length > 0 && selectedIndex !== undefined && (
-          <Gitgraph>
+          <Gitgraph options={{ template: withoutAuthor }}>
             {(gitgraph) => {
               const mainBranch = gitgraph.branch({
                 name: "main",
@@ -88,41 +123,36 @@ const TimelineGraph = ({
                   label: {
                     strokeColor: "gray",
                   },
+                  spacing: 0.5,
                 },
                 commitDefaultOptions: {
                   style: {
                     color: "gray",
                     message: {
-                      color: "white",
-                    },
-                    dot: {
-                      color: "gray",
+                      color: "#d9d5d4",
                     },
                   },
                 },
               });
 
-              allSnapshots
-                .slice()
-                .reverse()
-                .forEach((snapshot: any, index) => {
-                  const snapshotId = snapshot?.id.toString();
-                  mainBranch.commit({
-                    hash: snapshotId,
-                    author: "",
-                    subject: snapshot.metadata.name,
-                    style: {
-                      dot: {
-                        color: snapshot.isSelected ? "white" : "gray",
-                      },
+              allSnapshots.forEach((snapshot: any, index) => {
+                const snapshotId = snapshot?.id.toString();
+                mainBranch.commit({
+                  hash: snapshotId,
+                  author: "",
+                  subject: snapshot.metadata.name,
+                  style: {
+                    dot: {
+                      color: snapshot.isSelected ? "#d9d5d4" : "gray",
                     },
-                    onClick: () => {
-                      setFlag(true);
-                      setSelectedIndex(allSnapshots.length - index - 1);
-                      fetchOneGitgraphSnapshot(snapshotId);
-                    },
-                  });
+                  },
+                  onClick: () => {
+                    setFlag(true);
+                    setSelectedIndex(index);
+                    fetchOneGitgraphSnapshot(snapshotId);
+                  },
                 });
+              });
             }}
           </Gitgraph>
         )}
@@ -142,7 +172,7 @@ const JSONEditor = ({ title, jsonData }: { title: string; jsonData: any }) => {
     ),
   });
   return (
-    <div style={{ color: "white", minWidth: "630px", paddingLeft: "20px" }}>
+    <div style={{ color: "#d9d5d4", minWidth: "630px", paddingLeft: "20px" }}>
       <h1>{title}</h1>
       <JsonViewer theme={"dark"} value={jsonData} valueTypes={[imageDataType]} />
     </div>

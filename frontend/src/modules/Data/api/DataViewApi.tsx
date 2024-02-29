@@ -13,7 +13,7 @@ export class DataViewApi extends Api {
   }
 
   static fetchAllSnapshots(): Promise<Res<void>> {
-    return this._fetch(this.api(ALL_SNAPSHOTS), API_METHODS.GET, {
+    return this._fetch(this.api(ALL_SNAPSHOTS()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }
