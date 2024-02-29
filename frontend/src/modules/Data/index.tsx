@@ -167,12 +167,12 @@ const JSONEditor = ({ title, jsonData }: { title: string; jsonData: any }) => {
     Component: ({ value }) => (
       <div>
         <br />
-        <img height={"80%"} width={"auto"} src={value as string} alt={value as string} />
+        <img style={{ maxWidth: "100%", height: "auto" }} src={value as string} alt={value as string} />
       </div>
     ),
   });
   return (
-    <div style={{ color: "#d9d5d4", minWidth: "630px", paddingLeft: "20px" }}>
+    <div style={{ color: "#d9d5d4", minWidth: "630px", maxWidth: "800px", paddingLeft: "20px" }}>
       <h1>{title}</h1>
       <JsonViewer theme={"dark"} value={jsonData} valueTypes={[imageDataType]} />
     </div>
