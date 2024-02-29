@@ -143,7 +143,7 @@ const TimelineGraph = ({
               allSnapshots.forEach((snapshot: any, index) => {
                 const snapshotId = snapshot?.id.toString();
                 mainBranch.commit({
-                  hash: snapshotId,
+                  hash: `#${snapshotId}`,
                   author: "",
                   subject: snapshot.metadata.name,
                   style: {
