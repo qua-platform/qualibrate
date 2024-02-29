@@ -179,7 +179,7 @@ const JSONEditor = ({ title, jsonData }: { title: string; jsonData: any }) => {
   return (
     <div style={{ color: "#d9d5d4", minWidth: "630px", maxWidth: "800px", paddingLeft: "20px" }}>
       <h1>{title}</h1>
-      <JsonViewer theme={"dark"} value={jsonData} valueTypes={[imageDataType]} />
+      <JsonViewer theme={"dark"} value={jsonData} valueTypes={[imageDataType]} style={{ overflowY: "auto", height: "100%" }} />
     </div>
   );
 };
