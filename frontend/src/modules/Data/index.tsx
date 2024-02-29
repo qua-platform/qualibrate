@@ -29,13 +29,14 @@ const TimelineGraph = ({
           if (firstTime) {
             return Object.assign(res, { isSelected: index == promise.result.length - 1 });
           }
-          return Object.assign(res, { isSelected: index == selectedIndex });
+          return Object.assign(res, { isSelected: res?.id == selectedIndex });
         })
       );
       if (firstTime) {
         fetchOneGitgraphSnapshot(promise.result[promise.result.length - 1].id);
       } else {
-        fetchOneGitgraphSnapshot(promise.result[selectedIndex].id);
+
+        fetchOneGitgraphSnapshot(selectedIndex.toString());
         setReset(false);
       }
     });
@@ -92,7 +93,8 @@ const TimelineGraph = ({
   };
   const gitgraphUpdate = () => {
     const newArray = (allSnapshots as any[]).map((res, index) => {
-      return Object.assign(res, { isSelected: index == selectedIndex });
+      // console.log("Updating git graph, selected index: ", selectedIndex, "res.id: ", res.id, "index: ", index);
+      return Object.assign(res, { isSelected: res?.id == selectedIndex });
     });
     setAllSnapshots(newArray);
   };
@@ -116,7 +118,7 @@ const TimelineGraph = ({
 
   return (
     <div className={styles.timelineGraphWrapper}>
-      <div style={{ color: "#d9d5d4" }}>TIMEGRAPH</div>
+      <div style={{ color: "#d9d5d4" }}>&nbsp;TIMEGRAPH</div>
       <div className={styles.svgWrapper}>
         {allSnapshots?.length > 0 && selectedIndex !== undefined && (
           <Gitgraph options={{ template: withoutAuthor }}>
@@ -153,7 +155,7 @@ const TimelineGraph = ({
                   },
                   onClick: () => {
                     setFlag(true);
-                    setSelectedIndex(index);
+                    setSelectedIndex(snapshotId);
                     fetchOneGitgraphSnapshot(snapshotId);
                   },
                 });
