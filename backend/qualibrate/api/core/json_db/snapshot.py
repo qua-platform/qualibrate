@@ -2,7 +2,7 @@ from urllib.parse import urljoin
 
 from enum import IntEnum
 from datetime import datetime
-from typing import Optional, ClassVar, Union
+from typing import Optional, ClassVar, Union, Any, Mapping, cast, Sequence
 
 from qualibrate.api.core.types import IdType, DocumentType, DocumentSequenceType
 from qualibrate.api.core.utils.find_utils import (
@@ -10,6 +10,7 @@ from qualibrate.api.core.utils.find_utils import (
     get_subpath_value_on_any_depth,
 )
 from qualibrate.api.core.utils.request_utils import get_with_db
+from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.api.exceptions.classes.json_db import QJsonDbException
 from qualibrate.config import get_settings
 
@@ -143,6 +144,23 @@ class SnapshotJsonDb:
             raise QJsonDbException("Snapshot history wasn't retrieved.")
         return list(result.json())
 
-    def compare_with(self, other_snapshot: "SnapshotJsonDb") -> bool:
-        # TODO: what is it?
-        return False
+    def compare_by_id(
+        self, other_snapshot_int: int
+    ) -> Mapping[str, Mapping[str, Any]]:
+        if self.id == other_snapshot_int:
+            return {}
+        settings = get_settings()
+        req_url = urljoin(str(settings.timeline_db_address), "action/compare")
+        response = get_with_db(
+            req_url, params={"left_id": self.id, "right_id": other_snapshot_int}
+        )
+        if response.status_code != 200:
+            raise QJsonDbException("Difference wasn't retrieved.")
+        result = dict(response.json())
+        original = dict(result["original"])
+        patch = result.get("patch")
+        if patch is None:
+            return {}
+        return jsonpatch_to_mapping(
+            original, cast(Sequence[Mapping[str, Any]], patch)
+        )
