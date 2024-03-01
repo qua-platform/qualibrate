@@ -91,11 +91,11 @@ const TimelineGraph = ({
         setResults(undefined);
       }
     });
-    DataViewApi.fetchSnapshotUpdate(id, (Number(id) - 1).toString()).then((promise: any) => {
+    DataViewApi.fetchSnapshotUpdate((Number(id) - 1).toString(), id).then((promise: any) => {
       if (promise.result) {
-        setResults(promise?.result);
+        setDiffData(promise?.result);
       } else {
-        setResults(undefined);
+        setDiffData({});
       }
     });
   };
@@ -225,6 +225,7 @@ const DataGUAlibrate = () => {
           <TimelineGraph setJsonData={setJsonData} setResults={setResults} setDiffData={setDiffData} />
         </div>
         <div className={styles.viewer}>
+          <div>{result && <JSONEditor title={"RESULTS"} jsonData={result} height={"100%"} />}</div>
           <div
             style={{
               overflow: "auto",
@@ -234,7 +235,6 @@ const DataGUAlibrate = () => {
             {jsonData && diffData && <JSONEditor title={"QUAM"} jsonData={jsonData} height={"66%"} />}
             {jsonData && diffData && <JSONEditor title={"QUAM Updates"} jsonData={diffData} height={"33%"} />}
           </div>
-          <div>{result && <JSONEditor title={"RESULTS"} jsonData={result} height={"100%"} />}</div>
         </div>
       </div>
     </div>
