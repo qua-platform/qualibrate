@@ -6,7 +6,7 @@
 }
 
 .data {
-  min-width: 390px;
+  min-width: 350px;
   overflow: scroll;
 }
 
@@ -22,8 +22,9 @@
   overflow: hidden;
   max-width: 100%;
 }
-.timelineGraphWrapper {
-}
+
+.timelineGraphWrapper {}
+
 .svgWrapper {
   padding-left: 10px;
   padding-top: 10px;

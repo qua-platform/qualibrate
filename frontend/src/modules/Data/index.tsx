@@ -8,6 +8,14 @@ import { Gitgraph, templateExtend, TemplateName } from "@gitgraph/react";
 import { JsonViewer, defineDataType } from "@textea/json-viewer";
 import { DataViewApi } from "./api/DataViewApi";
 
+
+const formatDateTime = (dateTime: string): string => {
+  const date = new Date(dateTime + "Z");
+  const formattedDateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  return formattedDateTime;
+};
+
+
 const TimelineGraph = ({
   setJsonData,
   setResults,
@@ -155,6 +163,7 @@ const TimelineGraph = ({
                 mainBranch.commit({
                   hash: `#${snapshotId}`,
                   author: "",
+                  body: formatDateTime(snapshot.created_at),
                   subject: snapshot.metadata.name,
                   style: {
                     dot: {
