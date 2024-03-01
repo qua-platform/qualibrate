@@ -22,6 +22,7 @@ click = "^8.1.7"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 requests = "^2.31.0"
+jsonpatch = "^1.33"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
@@ -40,6 +41,10 @@ python_version = "3.9"
 strict = true
 warn_return_any = true
 exclude = ['tests/']
+
+[[tool.mypy.overrides]]
+module = ["jsonpatch", "jsonpointer"]
+ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 80

@@ -52,3 +52,11 @@ def get_history(
         # TODO: make more correct relationship update
         return list(reversed(history))
     return history
+
+
+@json_db_snapshot_router.get("/compare")
+def compare_snapshots(
+    id_to_compare: int,
+    snapshot: Annotated[SnapshotJsonDb, Depends(_get_snapshot_instance)],
+) -> DocumentType:
+    return snapshot.compare_by_id(id_to_compare)
