@@ -1,6 +1,6 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../DEPRECATED_common/DEPRECATED_interfaces/Api";
-import { ALL_SNAPSHOTS, ONE_SNAPSHOT, SNAPSHOT_RESULT } from "../../../utils/api/apiRoutes";
+import { ALL_SNAPSHOTS, ONE_SNAPSHOT, SNAPSHOT_DIFF, SNAPSHOT_RESULT } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../DEPRECATED_common/DEPRECATED_enum/Api";
 
 export class DataViewApi extends Api {
@@ -24,6 +24,11 @@ export class DataViewApi extends Api {
   }
   static fetchSnapshotResult(id: string): Promise<Res<void>> {
     return this._fetch(this.api(SNAPSHOT_RESULT(id)), API_METHODS.GET, {
+      headers: BASIC_HEADERS,
+    });
+  }
+  static fetchSnapshotUpdate(currentId: string, newId: string): Promise<Res<void>> {
+    return this._fetch(this.api(SNAPSHOT_DIFF(currentId, newId)), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }

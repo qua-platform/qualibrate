@@ -11,9 +11,11 @@ import { DataViewApi } from "./api/DataViewApi";
 const TimelineGraph = ({
   setJsonData,
   setResults,
+  setDiffData,
 }: {
   setJsonData: Dispatch<SetStateAction<any>>;
   setResults: Dispatch<SetStateAction<any>>;
+  setDiffData: Dispatch<SetStateAction<any>>;
 }) => {
   const [allSnapshots, setAllSnapshots] = useState<any[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -35,7 +37,6 @@ const TimelineGraph = ({
       if (firstTime) {
         fetchOneGitgraphSnapshot(promise.result[promise.result.length - 1].id);
       } else {
-
         fetchOneGitgraphSnapshot(selectedIndex.toString());
         setReset(false);
       }
@@ -90,6 +91,13 @@ const TimelineGraph = ({
         setResults(undefined);
       }
     });
+    DataViewApi.fetchSnapshotUpdate(id, (Number(id) - 1).toString()).then((promise: any) => {
+      if (promise.result) {
+        setResults(promise?.result);
+      } else {
+        setResults(undefined);
+      }
+    });
   };
   const gitgraphUpdate = () => {
     const newArray = (allSnapshots as any[]).map((res, index) => {
@@ -118,7 +126,7 @@ const TimelineGraph = ({
 
   return (
     <div className={styles.timelineGraphWrapper}>
-      <div style={{ color: "#d9d5d4" }}>&nbsp;TIMEGRAPH</div>
+      <div style={{ color: "#d9d5d4", paddingLeft: "20px", paddingTop: "20px" }}>TIMEGRAPH</div>
       <div className={styles.svgWrapper}>
         {allSnapshots?.length > 0 && selectedIndex !== undefined && (
           <Gitgraph options={{ template: withoutAuthor }}>
@@ -168,7 +176,7 @@ const TimelineGraph = ({
   );
 };
 
-const JSONEditor = ({ title, jsonData }: { title: string; jsonData: any }) => {
+const JSONEditor = ({ title, jsonData, height }: { title: string; jsonData: any; height: string }) => {
   const imageDataType = defineDataType({
     is: (value) => typeof value === "string" && value.startsWith("data:image"),
     Component: ({ value }) => (
@@ -179,9 +187,27 @@ const JSONEditor = ({ title, jsonData }: { title: string; jsonData: any }) => {
     ),
   });
   return (
-    <div style={{ color: "#d9d5d4", minWidth: "630px", maxWidth: "800px", paddingLeft: "20px" }}>
-      <h1>{title}</h1>
-      <JsonViewer theme={"dark"} value={jsonData} valueTypes={[imageDataType]} displayDataTypes={false} defaultInspectDepth={3} style={{ overflowY: "auto", height: "100%" }} />
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        color: "#d9d5d4",
+        height: height,
+        minWidth: "630px",
+        maxWidth: "100%",
+        marginLeft: "20px",
+        marginRight: "20px",
+      }}
+    >
+      <h1 style={{ paddingTop: "20px", paddingBottom: "5px" }}>{title}</h1>
+      <JsonViewer
+        theme={"dark"}
+        value={jsonData}
+        valueTypes={[imageDataType]}
+        displayDataTypes={false}
+        defaultInspectDepth={3}
+        style={{ overflowY: "auto", height: "100%", paddingBottom: "15px" }}
+      />
     </div>
   );
 };
@@ -189,17 +215,26 @@ const JSONEditor = ({ title, jsonData }: { title: string; jsonData: any }) => {
 const DataGUAlibrate = () => {
   const [ref] = useModuleStyle<HTMLDivElement>();
   const [jsonData, setJsonData] = useState(undefined);
+  const [diffData, setDiffData] = useState(undefined);
   const [result, setResults] = useState(undefined);
   return (
     <div ref={ref} className={styles.wrapper}>
       <div className={classNames(styles.explorer)}>
         <div className={classNames(styles.data)}>
           <div className={styles.listWrapper} data-cy={cyKeys.data.EXPERIMENT_LIST}></div>
-          <TimelineGraph setJsonData={setJsonData} setResults={setResults} />
+          <TimelineGraph setJsonData={setJsonData} setResults={setResults} setDiffData={setDiffData} />
         </div>
         <div className={styles.viewer}>
-          {jsonData && <JSONEditor title={"QUAM"} jsonData={jsonData} />}
-          {result && <JSONEditor title={"RESULTS"} jsonData={result} />}
+          <div
+            style={{
+              overflow: "auto",
+            }}
+          >
+            {jsonData && !diffData && <JSONEditor title={"QUAM"} jsonData={jsonData} height={"100%"} />}
+            {jsonData && diffData && <JSONEditor title={"QUAM"} jsonData={jsonData} height={"66%"} />}
+            {jsonData && diffData && <JSONEditor title={"QUAM Updates"} jsonData={diffData} height={"33%"} />}
+          </div>
+          <div>{result && <JSONEditor title={"RESULTS"} jsonData={result} height={"100%"} />}</div>
         </div>
       </div>
     </div>

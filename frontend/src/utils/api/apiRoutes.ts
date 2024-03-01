@@ -6,3 +6,5 @@ export const ALL_SNAPSHOTS = (branchName: string = "main", reverseOrder = true, 
     "api/json_db/branch/" + branchName + "/history?reverse=" + reverseOrder + "&num_snapshots=" + num_snapshots;
 export const ONE_SNAPSHOT = (snapshotId: string) => `api/json_db/snapshot/${snapshotId}/`;
 export const SNAPSHOT_RESULT = (snapshotId: string) => `api/json_db/storage/${snapshotId}/content`;
+export const SNAPSHOT_DIFF = (currentSnapshotId: string, newSnapshotId: string) =>
+  `api/json_db/snapshot/${currentSnapshotId}/compare?id_to_compare=${newSnapshotId}`;
