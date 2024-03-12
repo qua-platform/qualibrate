@@ -20,8 +20,8 @@ def get_with_db(
     **kwargs: Any,
 ) -> requests.Response:
     settings = get_settings()
-    db_name = db_name if db_name is not None else settings.timeline_db_name
-    timeout = timeout if timeout is not None else settings.timeline_db_timeout
+    db_name = db_name if db_name is not None else settings.timeline_db.db_name
+    timeout = timeout if timeout is not None else settings.timeline_db.timeout
     if params is None:
         params = {"db_name": db_name}
     else:

@@ -38,7 +38,7 @@ class RootJsonDb:
     def search_snapshot(snapshot_id: int, data_path: str) -> Any:
         settings = get_settings()
         req_url = urljoin(
-            str(settings.timeline_db_address),
+            str(settings.timeline_db.address),
             f"/snapshot/{snapshot_id}/search/data/values",
         )
         result = get_with_db(req_url, params={"data_path": data_path})
