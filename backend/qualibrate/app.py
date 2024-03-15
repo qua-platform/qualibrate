@@ -8,7 +8,7 @@ from qualibrate.api.exceptions.middleware import QualibrateCatchExcMiddleware
 from qualibrate.config import get_settings
 
 try:
-    from json_timeline_database.run import app as json_timeline_db_app
+    from json_timeline_database.app import app as json_timeline_db_app
 except ImportError:
     json_timeline_db_app = None
 
