@@ -182,7 +182,7 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
 @click.option(
     "--spawn-db",
     type=bool,
-    default=False,
+    default=True,
     show_default=True,
 )
 @click.option(
