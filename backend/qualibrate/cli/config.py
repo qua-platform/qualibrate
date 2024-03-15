@@ -11,7 +11,7 @@ from click.core import ParameterSource
 from qualibrate.config import (
     QualibrateSettingsSetup,
     get_config_file,
-    CONFIG_KEY,
+    CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
     QUALIBRATE_PATH,
     DEFAULT_CONFIG_FILENAME,
 )
@@ -20,6 +20,17 @@ if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
+try:
+    from json_timeline_database.config import (
+        CONFIG_KEY as TIMELINE_DB_CONFIG_KEY,
+        Settings as TimelineDbSettings,
+        SettingsSetup as TimelineDbSettingsSetup,
+        PREDEFINED_DBS,
+    )
+except ImportError:
+    TIMELINE_DB_CONFIG_KEY = None
+    TimelineDbSettings = None
+    PREDEFINED_DBS = None
 
 
 __all__ = ["config_command"]
@@ -34,7 +45,7 @@ def not_default(ctx: click.Context, arg_key: str) -> bool:
 
 def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
     """Returns config and path to file"""
-    config_file = get_config_file(config_path)
+    config_file = get_config_file(config_path, raise_not_exists=False)
     if config_file.is_file():
         return tomllib.loads(config_file.read_text()), config_path
     return {}, config_file
@@ -125,6 +136,17 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
         exit(1)
 
 
+def _get_timeline_db_config() -> TimelineDbSettingsSetup:
+    default_config = TimelineDbSettings.schema().get("properties", {})
+    return TimelineDbSettingsSetup(
+        **{
+            k: v.get("default")
+            for k, v in default_config.items()
+            if k != "predefined_dbs"
+        }
+    )
+
+
 @click.command(name="config")
 @click.option(
     "--config-path",
@@ -201,7 +223,7 @@ def config_command(
     timeline_db_metadata_out_path: str,
 ) -> None:
     common_config, config_file = get_config(config_path)
-    qualibrate_config = common_config.get(CONFIG_KEY, {})
+    qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
     if "timeline_db" not in qualibrate_config:
         qualibrate_config["timeline_db"] = {}
 
@@ -216,6 +238,13 @@ def config_command(
     qs.user_storage.mkdir(parents=True, exist_ok=True)
     if not config_file.parent.exists():
         config_file.parent.mkdir(parents=True)
-    common_config[CONFIG_KEY] = exported_data
+    common_config[QUALIBRATE_CONFIG_KEY] = exported_data
+    if (
+        TIMELINE_DB_CONFIG_KEY is not None
+        and TIMELINE_DB_CONFIG_KEY not in common_config
+    ):
+        common_config[
+            TIMELINE_DB_CONFIG_KEY
+        ] = _get_timeline_db_config().model_dump()
     with config_file.open("wb") as f_out:
         tomli_w.dump(common_config, f_out)
