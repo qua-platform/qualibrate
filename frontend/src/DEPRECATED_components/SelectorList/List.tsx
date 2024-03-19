@@ -6,7 +6,6 @@ import SelectField from "../common/Input/SelectField";
 import { SettingsPageIcon } from "../../ui-lib/Icons/SettingsPageIcon";
 import styles from "./SelectorList.module.scss";
 import { NoItemsIcon } from "../../ui-lib/Icons/NoItemsIcon";
-import { ProjectsApi } from "../../DEPRECATED_common/DEPRECATED_api/projects";
 
 type Items = {
   title: string;
@@ -25,11 +24,9 @@ export interface ListProps {
   onClick?: () => void;
 }
 
-const List = ({ listLabel, placeholder = "Select item", items, listItems, selectIcon, customField, customArray }: ListProps) => {
+const List = ({ listLabel, placeholder = "Select item", items, listItems, selectIcon }: ListProps) => {
   const optionsList = listItems ? useMemo(() => [placeholder, ...listItems.map((i) => i.title)], [listItems]) : [];
   const [selectedOption, setSelectedOption] = useState<string>(placeholder);
-  const [selectedOptionIndex] = useState<number>(-1);
-  // const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(-1);
   return (
     <div className={styles.list}>
       <div className={styles.actionName}>{listLabel}</div>
@@ -53,7 +50,7 @@ const List = ({ listLabel, placeholder = "Select item", items, listItems, select
           <div
             className={styles.selectIcon}
             onClick={() => {
-              ProjectsApi.addUserToProject(customArray[selectedOptionIndex + 1].id, customField ?? ""); // + 1 is because of the placeholder
+              // ProjectsApi.addUserToProject(customArray[selectedOptionIndex + 1].id, customField ?? ""); // + 1 is because of the placeholder
             }}
           >
             {selectedOption !== placeholder && <PlusIcon height={38} width={38} color={ACCENT_COLOR_LIGHT} />}

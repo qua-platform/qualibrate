@@ -6,47 +6,21 @@ import BannerGuide from "./components/BannerGuide";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { CircleListIcon } from "../../ui-lib/Icons/CircleListIcon";
 import { CircleRocketIcon } from "../../ui-lib/Icons/CircleRocketIcon";
-import { IconType } from "../../DEPRECATED_common/DEPRECATED_interfaces/InputProps";
 import InputField from "../../DEPRECATED_components/common/Input/InputField";
 import LinkPlaceholder from "./components/LinkPlaceholder";
 import MainLayout from "../../ui-lib/layouts/MainLayout";
 import { NotebookIcon } from "../../ui-lib/Icons/NotebookIcon";
 import PageName from "../../DEPRECATED_components/common/Page/PageName";
 import PageSection from "../../DEPRECATED_components/common/Page/PageSection";
-import ProjectList from "./components/ProjectList";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
 import WithTooltip from "../../DEPRECATED_components/wrappers/withTooltip";
 import styles from "./WelcomePage.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
-// import { useProjectsContext } from "./utils/ProjectsContext";
 import cyKeys from "../../utils/cyKeys";
-// import { useActiveProjectContext } from "../ActiveProject/ActiveProjectContext";
-import { SettingIcon } from "../../ui-lib/Icons/SettingsIcon";
-import { ADMIN_PANEL_URL } from "../../DEPRECATED_common/modules";
-import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../auth/AuthContext";
-import { ProjectDTO } from "../../DEPRECATED_common/DEPRECATED_dtos/project/project.dto";
+import { IconType } from "../../DEPRECATED_common/DEPRECATED_interfaces/InputProps";
 
 const WelcomePage = () => {
   const { openTab } = useFlexLayoutContext();
-  // const { activeProject, userProjects } = useProjectsContext();
-  const activeProject: ProjectDTO[] = [
-    {
-      id: 1,
-      name: "Project 1",
-      prefix: "Prefix",
-    },
-  ];
-  const userProjects: ProjectDTO[] = [
-    {
-      id: 1,
-      name: "Project 1",
-      prefix: "Prefix",
-    },
-  ];
-  // const { enterProject } = useActiveProjectContext();
-  const { userInfo } = useAuthContext();
-  const navigate = useNavigate();
 
   return (
     <MainLayout className={styles.welcomePageLayout}>
@@ -60,7 +34,6 @@ const WelcomePage = () => {
             onChange={(f) => f}
             icon={<SearchIcon height={18} width={18} />}
           />
-          <ProjectList projects={userProjects} />
         </PageSection>
         <PageSection className={styles.entropyGuideFrame} sectionName="New to QUAlibrate?">
           <div className={styles.bannerList}>
@@ -85,11 +58,6 @@ const WelcomePage = () => {
                 />
               </PageSection>
             )}
-            {userInfo?.is_admin && (
-              <div className={styles.settingsIcon} onClick={() => navigate(ADMIN_PANEL_URL)}>
-                <SettingIcon />
-              </div>
-            )}
           </div>
         </PageSection>
       </div>
@@ -98,7 +66,7 @@ const WelcomePage = () => {
           <BlueButton
             onClick={() => openTab("experiments")}
             className={styles.actionButton}
-            disabled={activeProject === undefined}
+            disabled={true}
             data-cy={cyKeys.projects.LETS_START_BUTTON}
             isBig
           >
