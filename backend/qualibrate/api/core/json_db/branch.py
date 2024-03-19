@@ -47,7 +47,7 @@ class BranchJsonDb:
             return
         settings = get_settings()
         req_url = urljoin(
-            str(settings.timeline_db_address), f"branch/{self._name}/"
+            str(settings.timeline_db.address), f"branch/{self._name}/"
         )
         result = get_with_db(req_url)
         no_branch_ex = QJsonDbException("Branch data wasn't retrieved.")
@@ -63,7 +63,7 @@ class BranchJsonDb:
         """Retrieve last num_snapshots from this branch"""
         settings = get_settings()
         req_url = urljoin(
-            str(settings.timeline_db_address),
+            str(settings.timeline_db.address),
             f"branch/{self._name}/history",
         )
         result = get_with_db(

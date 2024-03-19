@@ -46,15 +46,15 @@ class NodeJsonDb:
         settings = get_settings()
         metadata = self._snapshot.metadata
         if metadata is None or not isinstance(
-            metadata.get(settings.timeline_db_metadata_out_path), str
+            metadata.get(settings.timeline_db.metadata_out_path), str
         ):
             self._storage = None
             self._load_type = NodeLoadType.Snapshot
             return
-        rel_output_path = metadata[settings.timeline_db_metadata_out_path]
+        rel_output_path = metadata[settings.timeline_db.metadata_out_path]
         abs_output_path = resolve_and_check_relative(
             settings.user_storage,
-            metadata[settings.timeline_db_metadata_out_path],
+            metadata[settings.timeline_db.metadata_out_path],
         )
         if not abs_output_path.is_dir():
             raise QNotADirectoryException(

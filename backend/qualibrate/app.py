@@ -7,7 +7,14 @@ from qualibrate.api.__main__ import api_router
 from qualibrate.api.exceptions.middleware import QualibrateCatchExcMiddleware
 from qualibrate.config import get_settings
 
+try:
+    from json_timeline_database.app import app as json_timeline_db_app
+except ImportError:
+    json_timeline_db_app = None
+
+
 app = FastAPI(title="Qualibrate")
+_settings = get_settings()
 
 origins = ["http://localhost:8002", "http://localhost:8001"]
 
@@ -22,17 +29,27 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api/json_db")
 
+if _settings.timeline_db.spawn:
+    if json_timeline_db_app is None:
+        raise ImportError(
+            "Can't import json_timeline_database instance. "
+            "Check that you have installed it."
+        )
+    app.mount("/json_db", json_timeline_db_app, name="json_timeline_db")
+
 # Directory should exist
 app.mount(
     "/",
-    StaticFiles(directory=get_settings().static_site_files, html=True),
+    StaticFiles(directory=_settings.static_site_files, html=True),
     name="static",
 )
 
 
-def main(port: int, reload: bool) -> None:
-    uvicorn.run("qualibrate.app:app", port=port, reload=reload)
+def main(port: int, num_workers: int, reload: bool) -> None:
+    uvicorn.run(
+        "qualibrate.app:app", port=port, workers=num_workers, reload=reload
+    )
 
 
 if __name__ == "__main__":
-    main(port=8000, reload=False)
+    main(port=8001, num_workers=1, reload=False)

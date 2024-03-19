@@ -65,7 +65,7 @@ class SnapshotJsonDb:
             fields = None
         params = None if fields is None else {"fields": fields}
         req_url = urljoin(
-            str(settings.timeline_db_address), f"snapshot/{self.id}/"
+            str(settings.timeline_db.address), f"snapshot/{self.id}/"
         )
         result = get_with_db(req_url, params=params)
         no_snapshot_ex = QJsonDbException("Snapshot data wasn't retrieved.")
@@ -137,7 +137,7 @@ class SnapshotJsonDb:
     def history(self, num_snapshots: int = 50) -> DocumentSequenceType:
         settings = get_settings()
         req_url = urljoin(
-            str(settings.timeline_db_address), f"snapshot/{self.id}/history"
+            str(settings.timeline_db.address), f"snapshot/{self.id}/history"
         )
         result = get_with_db(req_url, params={"num_snapshots": num_snapshots})
         if result.status_code != 200:
@@ -150,7 +150,7 @@ class SnapshotJsonDb:
         if self.id == other_snapshot_int:
             return {}
         settings = get_settings()
-        req_url = urljoin(str(settings.timeline_db_address), "action/compare")
+        req_url = urljoin(str(settings.timeline_db.address), "action/compare")
         response = get_with_db(
             req_url, params={"left_id": self.id, "right_id": other_snapshot_int}
         )
