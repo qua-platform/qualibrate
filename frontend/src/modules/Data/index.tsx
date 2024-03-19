@@ -8,13 +8,11 @@ import { Gitgraph, templateExtend, TemplateName } from "@gitgraph/react";
 import { JsonViewer, defineDataType } from "@textea/json-viewer";
 import { DataViewApi } from "./api/DataViewApi";
 
-
 const formatDateTime = (dateTime: string): string => {
   const date = new Date(dateTime + "Z");
   const formattedDateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
   return formattedDateTime;
 };
-
 
 const TimelineGraph = ({
   setJsonData,
@@ -35,7 +33,7 @@ const TimelineGraph = ({
   const fetchGitgraphSnapshots = (firstTime: boolean) => {
     DataViewApi.fetchAllSnapshots().then((promise: any) => {
       setAllSnapshots(
-        (promise.result as any[]).map((res, index) => {
+        (promise.result as any[])?.map((res, index) => {
           if (firstTime) {
             return Object.assign(res, { isSelected: index == promise.result.length - 1 });
           }
@@ -43,7 +41,9 @@ const TimelineGraph = ({
         })
       );
       if (firstTime) {
-        fetchOneGitgraphSnapshot(promise.result[promise.result.length - 1].id);
+        if (promise?.result) {
+          fetchOneGitgraphSnapshot(promise?.result[promise?.result?.length - 1]?.id);
+        }
       } else {
         fetchOneGitgraphSnapshot(selectedIndex.toString());
         setReset(false);
@@ -60,8 +60,8 @@ const TimelineGraph = ({
   // PERIODICAL FETCH ALL SNAPSHOTS
   const intervalFetch = () => {
     DataViewApi.fetchAllSnapshots().then((promise: any) => {
-      const oldMaxId = Math.max(...allSnapshots.map((res: any) => res.id));
-      const newMaxId = Math.max(...promise.result.map((res: any) => res.id));
+      const oldMaxId = Math.max(...(allSnapshots?.map((res: any) => res.id) ?? []));
+      const newMaxId = Math.max(...(promise?.result?.map((res: any) => res.id) ?? []));
       console.log(`Max snapshot ID - previous=${oldMaxId}, latest=${newMaxId}`);
       if (newMaxId > oldMaxId && allSnapshots.length !== 0) {
         setReset(true);
@@ -108,7 +108,7 @@ const TimelineGraph = ({
     });
   };
   const gitgraphUpdate = () => {
-    const newArray = (allSnapshots as any[]).map((res, index) => {
+    const newArray = (allSnapshots as any[])?.map((res, index) => {
       // console.log("Updating git graph, selected index: ", selectedIndex, "res.id: ", res.id, "index: ", index);
       return Object.assign(res, { isSelected: res?.id == selectedIndex });
     });
