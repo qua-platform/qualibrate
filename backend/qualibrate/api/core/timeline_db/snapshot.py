@@ -8,14 +8,14 @@ from qualibrate.api.core.bases.snapshot import SnapshotLoadType, SnapshotBase
 from qualibrate.api.core.utils.find_utils import get_subpath_value
 from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
-from qualibrate.api.exceptions.classes.json_db import QJsonDbException
+from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.config import get_settings
 
 
-__all__ = ["SnapshotJsonDb", "SnapshotLoadType"]
+__all__ = ["SnapshotTimelineDb", "SnapshotLoadType"]
 
 
-class SnapshotJsonDb(SnapshotBase):
+class SnapshotTimelineDb(SnapshotBase):
     def __init__(
         self,
         id: IdType,

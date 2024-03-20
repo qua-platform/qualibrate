@@ -4,10 +4,10 @@ from urllib.parse import urljoin
 from qualibrate.api.core.bases.root import RootBase
 from qualibrate.api.core.types import DocumentSequenceType, IdType
 from qualibrate.api.core.utils.request_utils import get_with_db
-from qualibrate.api.core.json_db.node import NodeJsonDb
-from qualibrate.api.core.json_db.branch import BranchJsonDb
-from qualibrate.api.core.json_db.snapshot import SnapshotJsonDb
-from qualibrate.api.exceptions.classes.json_db import QJsonDbException
+from qualibrate.api.core.timeline_db.node import NodeTimelineDb
+from qualibrate.api.core.timeline_db.branch import BranchTimelineDb
+from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.config import get_settings
 
 
@@ -16,16 +16,16 @@ __all__ = ["RootTimelineDb"]
 
 class RootTimelineDb(RootBase):
     @staticmethod
-    def get_branch(branch_name: str) -> BranchJsonDb:
-        return BranchJsonDb(branch_name)
+    def get_branch(branch_name: str) -> BranchTimelineDb:
+        return BranchTimelineDb(branch_name)
 
     @staticmethod
-    def get_snapshot(id: IdType) -> SnapshotJsonDb:
-        return SnapshotJsonDb(id=id)
+    def get_snapshot(id: IdType) -> SnapshotTimelineDb:
+        return SnapshotTimelineDb(id=id)
 
     @staticmethod
-    def get_node(id: IdType) -> NodeJsonDb:
-        return NodeJsonDb(snapshot_id=id)
+    def get_node(id: IdType) -> NodeTimelineDb:
+        return NodeTimelineDb(snapshot_id=id)
 
     def get_last_snapshots(
         self, branch_name: str, num_snapshots: int = 50

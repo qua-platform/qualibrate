@@ -3,19 +3,19 @@ from fastapi import APIRouter, Depends, Query
 
 from qualibrate.api.core.types import DocumentType, DocumentSequenceType, IdType
 from qualibrate.api.core.bases.branch import BranchLoadType
-from qualibrate.api.core.json_db.node import NodeLoadType
-from qualibrate.api.core.json_db.root import RootTimelineDb
-from qualibrate.api.core.json_db.snapshot import SnapshotLoadType
+from qualibrate.api.core.timeline_db.node import NodeLoadType
+from qualibrate.api.core.timeline_db.root import RootTimelineDb
+from qualibrate.api.core.timeline_db.snapshot import SnapshotLoadType
 
 
-json_db_root_router = APIRouter(tags=["root"])
+timeline_db_root_router = APIRouter(tags=["root"])
 
 
 def _get_root_instance() -> RootTimelineDb:
     return RootTimelineDb()
 
 
-@json_db_root_router.get("/snapshot")
+@timeline_db_root_router.get("/snapshot")
 def get_snapshot(
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
     id: IdType,
@@ -26,7 +26,7 @@ def get_snapshot(
     return snapshot.content
 
 
-@json_db_root_router.get("/snapshot/search")
+@timeline_db_root_router.get("/snapshot/search")
 def get_snapshot_search(
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
     id: IdType,
@@ -35,7 +35,7 @@ def get_snapshot_search(
     return root.search_snapshot(id, data_path)
 
 
-@json_db_root_router.get("/branch")
+@timeline_db_root_router.get("/branch")
 def get_branch(
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
     branch_name: str,
@@ -45,7 +45,7 @@ def get_branch(
     return branch.content
 
 
-@json_db_root_router.get("/get_last_snapshots")
+@timeline_db_root_router.get("/get_last_snapshots")
 def get_branch_history(
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
     branch_name: str,
@@ -53,7 +53,7 @@ def get_branch_history(
     return root.get_last_snapshots(branch_name)
 
 
-@json_db_root_router.get("/node")
+@timeline_db_root_router.get("/node")
 def get_node(
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
     id: IdType,

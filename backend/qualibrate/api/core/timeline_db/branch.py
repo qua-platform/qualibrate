@@ -7,16 +7,16 @@ from qualibrate.api.core.bases.node import NodeBase
 from qualibrate.api.core.bases.branch import BranchBase, BranchLoadType
 from qualibrate.api.core.bases.snapshot import SnapshotBase
 from qualibrate.api.core.utils.request_utils import get_with_db
-from qualibrate.api.core.json_db.node import NodeJsonDb
-from qualibrate.api.core.json_db.snapshot import SnapshotJsonDb
-from qualibrate.api.exceptions.classes.json_db import QJsonDbException
+from qualibrate.api.core.timeline_db.node import NodeTimelineDb
+from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.config import get_settings
 
 
-__all__ = ["BranchJsonDb", "BranchLoadType"]
+__all__ = ["BranchTimelineDb", "BranchLoadType"]
 
 
-class BranchJsonDb(BranchBase):
+class BranchTimelineDb(BranchBase):
     def __init__(self, name: str, content: Optional[DocumentType] = None):
         super().__init__(name, content)
 
@@ -66,7 +66,7 @@ class BranchJsonDb(BranchBase):
         raise NotImplementedError()
         # settings = get_settings()
         # req_url = urljoin(
-        #     str(settings.json_db.address),
+        #     str(settings.timeline_db.address),
         #     f"branch/{self._name}/history",
         # )
         # result = get_with_db(
@@ -89,8 +89,8 @@ class BranchJsonDb(BranchBase):
 
     def get_snapshot(self, id: IdType) -> SnapshotBase:
         # TODO: Check if snapshot is part of branch history
-        return SnapshotJsonDb(id=id)
+        return SnapshotTimelineDb(id=id)
 
     def get_node(self, id: IdType) -> NodeBase:
         # TODO: Check if snapshot is part of branch history
-        return NodeJsonDb(snapshot_id=id)
+        return NodeTimelineDb(snapshot_id=id)

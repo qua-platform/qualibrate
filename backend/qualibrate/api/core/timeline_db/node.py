@@ -2,8 +2,8 @@ from typing import Optional, cast
 
 from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
 from qualibrate.api.core.bases.storage import DataFileStorage
-from qualibrate.api.core.json_db.snapshot import (
-    SnapshotJsonDb,
+from qualibrate.api.core.timeline_db.snapshot import (
+    SnapshotTimelineDb,
     SnapshotLoadType,
 )
 from qualibrate.api.core.utils.path_utils import resolve_and_check_relative
@@ -12,23 +12,23 @@ from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
 from qualibrate.config import get_settings
 
 
-__all__ = ["NodeJsonDb", "NodeLoadType"]
+__all__ = ["NodeTimelineDb", "NodeLoadType"]
 
 
-class NodeJsonDb(NodeBase):
+class NodeTimelineDb(NodeBase):
     def __init__(
         self,
         snapshot_id: Optional[int] = None,
-        snapshot: Optional[SnapshotJsonDb] = None,
+        snapshot: Optional[SnapshotTimelineDb] = None,
     ):
         if sum(item is None for item in (snapshot_id, snapshot)) != 1:
             raise QValueException("Must provide either snapshot_id or snapshot")
         self._storage: Optional[DataFileStorage] = None
         if snapshot_id is not None:
-            self._snapshot = SnapshotJsonDb(snapshot_id)
+            self._snapshot = SnapshotTimelineDb(snapshot_id)
             self._load_type = NodeLoadType.Empty
             return
-        self._snapshot = cast(SnapshotJsonDb, snapshot)
+        self._snapshot = cast(SnapshotTimelineDb, snapshot)
         # TODO: think about this init part
         if self._snapshot.load_type < SnapshotLoadType.Metadata:
             self._load_type = NodeLoadType.Snapshot
@@ -70,7 +70,7 @@ class NodeJsonDb(NodeBase):
         self._fill_storage()
 
     @property
-    def snapshot(self) -> Optional[SnapshotJsonDb]:
+    def snapshot(self) -> Optional[SnapshotTimelineDb]:
         return self._snapshot
 
     @property

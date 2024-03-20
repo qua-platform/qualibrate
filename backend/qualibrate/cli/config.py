@@ -93,7 +93,7 @@ def _spawn_db_processing(
         )
         qualibrate_config["timeline_db"][
             "address"
-        ] = "http://localhost:8001/json_db/"
+        ] = "http://localhost:8001/timeline_db/"
     if spawn_db is False and not_default(ctx, "spawn_db"):
         click.secho(
             "Uncheck `spawn_db` flag. Use passed timeline db address.",

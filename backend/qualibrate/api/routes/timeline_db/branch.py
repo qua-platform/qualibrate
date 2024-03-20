@@ -2,27 +2,27 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, Path, Query
 from qualibrate.api.core.types import DocumentType, DocumentSequenceType
 from qualibrate.api.core.bases.branch import BranchLoadType
-from qualibrate.api.core.json_db.branch import BranchJsonDb
+from qualibrate.api.core.timeline_db.branch import BranchTimelineDb
 
 
-json_db_branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
+timeline_db_branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
 
 
-def _get_branch_instance(name: Annotated[str, Path()]) -> BranchJsonDb:
-    return BranchJsonDb(name=name)
+def _get_branch_instance(name: Annotated[str, Path()]) -> BranchTimelineDb:
+    return BranchTimelineDb(name=name)
 
 
-@json_db_branch_router.get("/")
+@timeline_db_branch_router.get("/")
 def get(
-    branch: Annotated[BranchJsonDb, Depends(_get_branch_instance)],
+    branch: Annotated[BranchTimelineDb, Depends(_get_branch_instance)],
 ) -> Optional[DocumentType]:
     branch.load(BranchLoadType.Full)
     return branch.content
 
 
-@json_db_branch_router.get("/history")
+@timeline_db_branch_router.get("/history")
 def get_history(
-    branch: Annotated[BranchJsonDb, Depends(_get_branch_instance)],
+    branch: Annotated[BranchTimelineDb, Depends(_get_branch_instance)],
     reverse: bool = False,
     num_snapshots: int = Query(50, gt=0),
 ) -> DocumentSequenceType:
