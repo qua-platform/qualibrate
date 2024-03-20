@@ -1,7 +1,7 @@
-from enum import IntEnum
 from typing import Optional, cast
 
-from qualibrate.api.core.json_db.storage import StorageJsonDb
+from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
+from qualibrate.api.core.bases.storage import DataFileStorage
 from qualibrate.api.core.json_db.snapshot import (
     SnapshotJsonDb,
     SnapshotLoadType,
@@ -15,13 +15,7 @@ from qualibrate.config import get_settings
 __all__ = ["NodeJsonDb", "NodeLoadType"]
 
 
-class NodeLoadType(IntEnum):
-    Empty = 0
-    Snapshot = 1
-    Full = 2
-
-
-class NodeJsonDb:
+class NodeJsonDb(NodeBase):
     def __init__(
         self,
         snapshot_id: Optional[int] = None,
@@ -29,7 +23,7 @@ class NodeJsonDb:
     ):
         if sum(item is None for item in (snapshot_id, snapshot)) != 1:
             raise QValueException("Must provide either snapshot_id or snapshot")
-        self._storage: Optional[StorageJsonDb] = None
+        self._storage: Optional[DataFileStorage] = None
         if snapshot_id is not None:
             self._snapshot = SnapshotJsonDb(snapshot_id)
             self._load_type = NodeLoadType.Empty
@@ -60,7 +54,7 @@ class NodeJsonDb:
             raise QNotADirectoryException(
                 f"{rel_output_path} is not a directory"
             )
-        self._storage = StorageJsonDb(abs_output_path)
+        self._storage = DataFileStorage(abs_output_path)
         self._load_type = NodeLoadType.Full
 
     @property
@@ -80,5 +74,5 @@ class NodeJsonDb:
         return self._snapshot
 
     @property
-    def storage(self) -> Optional[StorageJsonDb]:
+    def storage(self) -> Optional[DataFileStorage]:
         return self._storage

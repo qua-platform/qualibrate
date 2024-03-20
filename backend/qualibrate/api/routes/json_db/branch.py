@@ -1,8 +1,7 @@
 from typing import Annotated, Optional
-from qualibrate.api.core.types import DocumentType, DocumentSequenceType
-
 from fastapi import APIRouter, Depends, Path, Query
-
+from qualibrate.api.core.types import DocumentType, DocumentSequenceType
+from qualibrate.api.core.bases.branch import BranchLoadType
 from qualibrate.api.core.json_db.branch import BranchJsonDb
 
 
@@ -17,7 +16,7 @@ def _get_branch_instance(name: Annotated[str, Path()]) -> BranchJsonDb:
 def get(
     branch: Annotated[BranchJsonDb, Depends(_get_branch_instance)],
 ) -> Optional[DocumentType]:
-    branch.load()
+    branch.load(BranchLoadType.Full)
     return branch.content
 
 
@@ -27,7 +26,7 @@ def get_history(
     reverse: bool = False,
     num_snapshots: int = Query(50, gt=0),
 ) -> DocumentSequenceType:
-    history = branch.get_last_snapshots(num_snapshots)
+    history = branch.get_latest_snapshots(num_snapshots)
     if reverse:
         # TODO: make more correct relationship update
         return list(reversed(history))

@@ -9,7 +9,7 @@ from qualibrate.api.exceptions.classes.values import QValueException
 from qualibrate.config import get_settings
 
 
-__all__ = ["StorageJsonDb", "StorageLoadType"]
+__all__ = ["DataFileStorage", "StorageLoadType"]
 
 
 class StorageLoadType(IntEnum):
@@ -17,7 +17,7 @@ class StorageLoadType(IntEnum):
     Full = 1
 
 
-class StorageJsonDb:
+class DataFileStorage:
     data_file_name = "data.json"
 
     def __init__(self, path: Path):

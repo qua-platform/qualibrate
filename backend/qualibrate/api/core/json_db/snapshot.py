@@ -1,14 +1,11 @@
 from urllib.parse import urljoin
 
-from enum import IntEnum
 from datetime import datetime
-from typing import Optional, ClassVar, Union, Any, Mapping, cast, Sequence
+from typing import Optional, Union, Any, Mapping, cast, Sequence
 
 from qualibrate.api.core.types import IdType, DocumentType, DocumentSequenceType
-from qualibrate.api.core.utils.find_utils import (
-    get_subpath_value,
-    get_subpath_value_on_any_depth,
-)
+from qualibrate.api.core.bases.snapshot import SnapshotLoadType, SnapshotBase
+from qualibrate.api.core.utils.find_utils import get_subpath_value
 from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.api.exceptions.classes.json_db import QJsonDbException
@@ -18,41 +15,13 @@ from qualibrate.config import get_settings
 __all__ = ["SnapshotJsonDb", "SnapshotLoadType"]
 
 
-class SnapshotLoadType(IntEnum):
-    Empty = 0
-    Minified = 1
-    Metadata = 2
-    Data = 3
-    Full = 4
-
-
-# TODO: add abstract and inherit from bases
-class SnapshotJsonDb:
-    _items_keys: ClassVar[tuple[str, ...]] = ("data", "metadata")
-
+class SnapshotJsonDb(SnapshotBase):
     def __init__(
         self,
-        id: int,
+        id: IdType,
         content: Optional[DocumentType] = None,
     ):
-        self._id = id
-        if content is None:
-            self._load_type = SnapshotLoadType.Empty
-            self.content = {}
-            return
-        specified_items_keys = {
-            key: key in content for key in self.__class__._items_keys
-        }
-        if any(specified_items_keys.values()):
-            if all(specified_items_keys.values()):
-                self._load_type = SnapshotLoadType.Full
-            elif specified_items_keys["data"]:
-                self._load_type = SnapshotLoadType.Data
-            else:
-                self._load_type = SnapshotLoadType.Metadata
-        else:
-            self._load_type = SnapshotLoadType.Minified
-        self.content = dict(content)
+        super().__init__(id, content)
 
     def load(self, load_type: SnapshotLoadType) -> None:
         if load_type <= self._load_type:
@@ -101,14 +70,6 @@ class SnapshotJsonDb:
     def parents(self) -> Optional[list[IdType]]:
         return self.content.get("parents")
 
-    @property
-    def metadata(self) -> Optional[DocumentType]:
-        return self.content.get("metadata")
-
-    @property
-    def data(self) -> Optional[DocumentType]:
-        return self.content.get("data")
-
     def search(
         self,
         search_path: list[Union[str, int]],
@@ -123,18 +84,9 @@ class SnapshotJsonDb:
             return None
         return get_subpath_value(data, search_path)
 
-    def search_any_depth(
-        self, target_key: str, load: bool = False
-    ) -> Optional[DocumentSequenceType]:
-        if self._load_type < SnapshotLoadType.Data and not load:
-            return None
-        self.load(SnapshotLoadType.Data)
-        data = self.data
-        if data is None:
-            return None
-        return get_subpath_value_on_any_depth(data, target_key)
-
-    def history(self, num_snapshots: int = 50) -> DocumentSequenceType:
+    def get_latest_snapshots(
+        self, num_snapshots: int = 50
+    ) -> DocumentSequenceType:
         settings = get_settings()
         req_url = urljoin(
             str(settings.timeline_db.address), f"snapshot/{self.id}/history"

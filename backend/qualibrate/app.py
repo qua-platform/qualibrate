@@ -27,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api_router, prefix="/api/json_db")
+app.include_router(api_router, prefix="/api/timeline_db")
 
 if _settings.timeline_db.spawn:
     if json_timeline_db_app is None:
@@ -35,7 +35,7 @@ if _settings.timeline_db.spawn:
             "Can't import json_timeline_database instance. "
             "Check that you have installed it."
         )
-    app.mount("/json_db", json_timeline_db_app, name="json_timeline_db")
+    app.mount("/timeline_db", json_timeline_db_app, name="json_timeline_db")
 
 # Directory should exist
 app.mount(
