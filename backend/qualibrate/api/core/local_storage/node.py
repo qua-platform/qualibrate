@@ -1,25 +1,23 @@
-from typing import Optional, cast
+from typing import Optional
 
 from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
+from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
 from qualibrate.api.core.bases.storage import DataFileStorage
-from qualibrate.api.core.timeline_db.snapshot import (
-    SnapshotTimelineDb,
-    SnapshotLoadType,
-)
+from qualibrate.api.core.local_storage.snapshot import SnapshotLocalStorage
 from qualibrate.api.core.types import IdType
 from qualibrate.api.core.utils.path_utils import resolve_and_check_relative
 from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
 from qualibrate.config import get_settings
 
 
-__all__ = ["NodeTimelineDb", "NodeLoadType"]
+__all__ = ["NodeLocalStorage", "NodeLoadType"]
 
 
-class NodeTimelineDb(NodeBase):
+class NodeLocalStorage(NodeBase):
     def __init__(self, node_id: IdType):
         super().__init__()
         self._storage: Optional[DataFileStorage] = None
-        self._snapshot = SnapshotTimelineDb(node_id)
+        self._snapshot = SnapshotLocalStorage(node_id)
 
     def _fill_storage(self) -> None:
         settings = get_settings()
@@ -42,10 +40,6 @@ class NodeTimelineDb(NodeBase):
         self._storage = DataFileStorage(abs_output_path)
         self._load_type = NodeLoadType.Full
 
-    @property
-    def load_type(self) -> NodeLoadType:
-        return self._load_type
-
     def load(self, load_type: NodeLoadType) -> None:
         if self._load_type == NodeLoadType.Full:
             return
@@ -55,8 +49,8 @@ class NodeTimelineDb(NodeBase):
         self._fill_storage()
 
     @property
-    def snapshot(self) -> Optional[SnapshotTimelineDb]:
-        return cast(SnapshotTimelineDb, self._snapshot)
+    def snapshot(self) -> Optional[SnapshotBase]:
+        return self._snapshot
 
     @property
     def storage(self) -> Optional[DataFileStorage]:

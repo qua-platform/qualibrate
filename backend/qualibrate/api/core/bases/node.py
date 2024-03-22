@@ -17,12 +17,12 @@ class NodeLoadType(IntEnum):
 
 
 class NodeBase(ABC):
-    def __init__(self):
+    def __init__(self) -> None:
         self._load_type = NodeLoadType.Empty
         self._snapshot: SnapshotBase
 
     @property
-    def load_type(self):
+    def load_type(self) -> NodeLoadType:
         return self._load_type
 
     @abstractmethod

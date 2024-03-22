@@ -11,19 +11,16 @@ __all__ = ["RootBase"]
 
 
 class RootBase(ABC):
-    @staticmethod
     @abstractmethod
-    def get_branch(branch_name: str) -> BranchBase:
+    def get_branch(self, branch_name: str) -> BranchBase:
         pass
 
-    @staticmethod
     @abstractmethod
-    def get_snapshot(id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
         pass
 
-    @staticmethod
     @abstractmethod
-    def get_node(id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
         pass
 
     @abstractmethod
@@ -34,7 +31,6 @@ class RootBase(ABC):
     def get_latest_nodes(self, num: int = 50) -> DocumentSequenceType:
         pass
 
-    @staticmethod
     @abstractmethod
-    def search_snapshot(snapshot_id: IdType, data_path: str) -> Any:
+    def search_snapshot(self, snapshot_id: IdType, data_path: str) -> Any:
         pass

@@ -15,19 +15,16 @@ __all__ = ["RootTimelineDb"]
 
 
 class RootTimelineDb(RootBase):
-    @staticmethod
-    def get_branch(branch_name: str) -> BranchTimelineDb:
+    def get_branch(self, branch_name: str) -> BranchTimelineDb:
         return BranchTimelineDb(branch_name)
 
-    @staticmethod
-    def get_snapshot(id: Optional[IdType] = None) -> SnapshotTimelineDb:
+    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotTimelineDb:
         if id is None:
             # TODO: load latest snapshot from db
             raise NotImplementedError
         return SnapshotTimelineDb(id=id)
 
-    @staticmethod
-    def get_node(id: Optional[IdType] = None) -> NodeTimelineDb:
+    def get_node(self, id: Optional[IdType] = None) -> NodeTimelineDb:
         if id is None:
             # TODO: load latest snapshot from db
             raise NotImplementedError
@@ -43,8 +40,7 @@ class RootTimelineDb(RootBase):
         # return self.get_latest_nodes(num)
         raise NotImplementedError
 
-    @staticmethod
-    def search_snapshot(snapshot_id: IdType, data_path: str) -> Any:
+    def search_snapshot(self, snapshot_id: IdType, data_path: str) -> Any:
         settings = get_settings()
         req_url = urljoin(
             str(settings.timeline_db.address),
