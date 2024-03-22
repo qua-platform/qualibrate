@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 from qualibrate.api.core.types import DocumentSequenceType, IdType
 from qualibrate.api.core.bases.node import NodeBase
@@ -18,24 +18,20 @@ class RootBase(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_snapshot(id: IdType) -> SnapshotBase:
+    def get_snapshot(id: Optional[IdType] = None) -> SnapshotBase:
         pass
 
     @staticmethod
     @abstractmethod
-    def get_node(id: IdType) -> NodeBase:
+    def get_node(id: Optional[IdType] = None) -> NodeBase:
         pass
 
     @abstractmethod
-    def get_last_snapshots(
-        self, branch_name: str, num_snapshots: int = 50
-    ) -> DocumentSequenceType:
+    def get_latest_snapshots(self, num: int = 50) -> DocumentSequenceType:
         pass
 
     @abstractmethod
-    def get_last_nodes(
-        self, branch_name: str, num_snapshots: int = 50
-    ) -> DocumentSequenceType:
+    def get_latest_nodes(self, num: int = 50) -> DocumentSequenceType:
         pass
 
     @staticmethod

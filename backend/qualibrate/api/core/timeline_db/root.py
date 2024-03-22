@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import urljoin
 
 from qualibrate.api.core.bases.root import RootBase
@@ -20,22 +20,28 @@ class RootTimelineDb(RootBase):
         return BranchTimelineDb(branch_name)
 
     @staticmethod
-    def get_snapshot(id: IdType) -> SnapshotTimelineDb:
+    def get_snapshot(id: Optional[IdType] = None) -> SnapshotTimelineDb:
+        if id is None:
+            # TODO: load latest snapshot from db
+            raise NotImplementedError
         return SnapshotTimelineDb(id=id)
 
     @staticmethod
-    def get_node(id: IdType) -> NodeTimelineDb:
-        return NodeTimelineDb(snapshot_id=id)
+    def get_node(id: Optional[IdType] = None) -> NodeTimelineDb:
+        if id is None:
+            # TODO: load latest snapshot from db
+            raise NotImplementedError
+        return NodeTimelineDb(node_id=id)
 
-    def get_last_snapshots(
-        self, branch_name: str, num_snapshots: int = 50
-    ) -> DocumentSequenceType:
-        return self.get_branch(branch_name).get_latest_snapshots(num_snapshots)
+    def get_latest_snapshots(self, num: int = 50) -> DocumentSequenceType:
+        # TODO: load latest snapshots (independent from branch)
+        raise NotImplementedError
+        # return self.get_latest_snapshots(num)
 
-    def get_last_nodes(
-        self, branch_name: str, num_snapshots: int = 50
-    ) -> DocumentSequenceType:
-        return self.get_branch(branch_name).get_latest_nodes(num_snapshots)
+    def get_latest_nodes(self, num: int = 50) -> DocumentSequenceType:
+        # TODO: load latest snapshots (independent from branch)
+        # return self.get_latest_nodes(num)
+        raise NotImplementedError
 
     @staticmethod
     def search_snapshot(snapshot_id: IdType, data_path: str) -> Any:

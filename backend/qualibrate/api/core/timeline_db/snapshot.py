@@ -45,12 +45,11 @@ class SnapshotTimelineDb(SnapshotBase):
             raise no_snapshot_ex
         if fields is None or "metadata" in fields:  # metadata was requested
             content["metadata"] = content.get("metadata", {})
+            self._load_type = SnapshotLoadType.Metadata
         if fields is None:  # data was requested
             content["data"] = content.get("data", {})
-        if self.content is None:
-            self.content = content
-        else:
-            self.content.update(content)
+            self._load_type = SnapshotLoadType.Full
+        self.content.update(content)
 
     @property
     def load_type(self) -> SnapshotLoadType:

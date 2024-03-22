@@ -45,15 +45,17 @@ class BranchBase(ABC):
         pass
 
     @abstractmethod
-    def get_snapshot(self, id: IdType) -> SnapshotBase:
+    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
         pass
 
     @abstractmethod
-    def get_node(self, id: IdType) -> NodeBase:
+    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
         pass
 
     @abstractmethod
-    def get_latest_snapshots(
-        self, num_snapshots: int = 50
-    ) -> DocumentSequenceType:
+    def get_latest_snapshots(self, num: int = 50) -> DocumentSequenceType:
+        pass
+
+    @abstractmethod
+    def get_latest_nodes(self, num: int = 50) -> DocumentSequenceType:
         pass

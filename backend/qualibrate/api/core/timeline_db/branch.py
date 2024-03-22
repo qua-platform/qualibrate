@@ -43,6 +43,20 @@ class BranchTimelineDb(BranchBase):
         self.content.update(content)
         self._load_type = BranchLoadType.Full
 
+    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+        if id is None:
+            # TODO: load latest branch snapshot from db
+            raise NotImplementedError
+        # TODO: Check if snapshot is part of branch history
+        return SnapshotTimelineDb(id=id)
+
+    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+        if id is None:
+            # TODO: load latest branch snapshot from db
+            raise NotImplementedError
+        # TODO: Check if snapshot is part of branch history
+        return NodeTimelineDb(node_id=id)
+
     def get_latest_snapshots(
         self, num_snapshots: int = 50
     ) -> DocumentSequenceType:
@@ -86,11 +100,3 @@ class BranchTimelineDb(BranchBase):
         #     for snapshot in snapshots
         # ]
         # return nodes
-
-    def get_snapshot(self, id: IdType) -> SnapshotBase:
-        # TODO: Check if snapshot is part of branch history
-        return SnapshotTimelineDb(id=id)
-
-    def get_node(self, id: IdType) -> NodeBase:
-        # TODO: Check if snapshot is part of branch history
-        return NodeTimelineDb(snapshot_id=id)
