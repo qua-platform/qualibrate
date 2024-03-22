@@ -10,7 +10,7 @@ from qualibrate.api.core.timeline_db.snapshot import (
 from qualibrate.api.dependencies.search import get_search_path
 
 timeline_db_snapshot_router = APIRouter(
-    prefix="/snapshot/{id}", tags=["snapshot"]
+    prefix="/snapshot/{id}", tags=["snapshot timeline db"]
 )
 
 

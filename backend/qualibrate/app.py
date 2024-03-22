@@ -27,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api_router, prefix="/api/timeline_db")
+app.include_router(api_router, prefix="/api")
 
 if _settings.timeline_db.spawn:
     if json_timeline_db_app is None:

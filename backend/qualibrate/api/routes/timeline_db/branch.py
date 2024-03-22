@@ -5,7 +5,9 @@ from qualibrate.api.core.bases.branch import BranchLoadType
 from qualibrate.api.core.timeline_db.branch import BranchTimelineDb
 
 
-timeline_db_branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
+timeline_db_branch_router = APIRouter(
+    prefix="/branch/{name}", tags=["branch timeline db"]
+)
 
 
 def _get_branch_instance(name: Annotated[str, Path()]) -> BranchTimelineDb:

@@ -8,7 +8,7 @@ from qualibrate.api.core.timeline_db.root import RootTimelineDb
 from qualibrate.api.core.timeline_db.snapshot import SnapshotLoadType
 
 
-timeline_db_root_router = APIRouter(tags=["root"])
+timeline_db_root_router = APIRouter(tags=["root timeline db"])
 
 
 def _get_root_instance() -> RootTimelineDb:
@@ -50,7 +50,7 @@ def get_branch_history(
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
     branch_name: str,
 ) -> DocumentSequenceType:
-    return root.get_last_snapshots(branch_name)
+    return root.get_branch(branch_name).get_latest_snapshots()
 
 
 @timeline_db_root_router.get("/node")
@@ -60,8 +60,7 @@ def get_node(
 ) -> Optional[DocumentType]:
     node = root.get_node(id)
     node.load(NodeLoadType.Full)
-    snapshot = node.snapshot
     return {
-        "snapshot": None if snapshot is None else snapshot.content,
+        "snapshot": None if node.snapshot is None else node.snapshot.content,
         "storage": None if node.storage is None else node.storage.path,
     }
