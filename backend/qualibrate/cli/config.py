@@ -31,6 +31,11 @@ except ImportError:
     TIMELINE_DB_CONFIG_KEY = None
     TimelineDbSettings = None
     PREDEFINED_DBS = None
+    # TODO: replace with smth if timeline DB not installed
+    def _settings(**kwargs) -> None:
+        pass
+
+    TimelineDbSettingsSetup = _settings
 
 
 __all__ = ["config_command"]
