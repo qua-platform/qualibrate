@@ -1,3 +1,4 @@
+import functools
 import json
 from datetime import datetime
 from pathlib import Path
@@ -7,6 +8,14 @@ import jsonpatch
 
 from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
 from qualibrate.api.core.local_storage._id_to_local_path import IdToLocalPath
+from qualibrate.api.core.local_storage.utils.filters import (
+    date_less_or_eq,
+    id_less_then_snapshot,
+)
+from qualibrate.api.core.local_storage.utils.node_utils import (
+    find_n_latest_nodes_ids,
+    id_from_node_name,
+)
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.api.core.utils.find_utils import get_subpath_value
 from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
@@ -114,7 +123,41 @@ class SnapshotLocalStorage(SnapshotBase):
     def get_latest_snapshots(
         self, num_snapshots: int = 50
     ) -> DocumentSequenceType:
-        raise NotImplementedError
+        settings = get_settings()
+        # first in history is current
+        if num_snapshots < 1:
+            return []
+        if num_snapshots == 1:
+            return [self.content]
+        paths_mapping = IdToLocalPath(settings.user_storage)
+        snapshot_path = paths_mapping.get(self._id)
+        if snapshot_path is None:
+            raise OSError("Current snapshot not found")
+        ids = find_n_latest_nodes_ids(
+            settings.user_storage,
+            num_snapshots - 1,
+            date_filters=[
+                functools.partial(
+                    date_less_or_eq, date_to_compare=snapshot_path.parent.stem
+                )
+            ],
+            node_filters=[
+                functools.partial(
+                    id_less_then_snapshot,
+                    node_id_to_compare=id_from_node_name(snapshot_path.stem),
+                )
+            ],
+        )
+        snapshots = [SnapshotLocalStorage(id) for id in ids]
+        for snapshot in snapshots:
+            try:
+                snapshot.load(SnapshotLoadType.Metadata)
+            except OSError:
+                pass
+        return [
+            self.content,
+            *(snapshot.content for snapshot in snapshots),
+        ]
 
     def compare_by_id(
         self, other_snapshot_int: int
