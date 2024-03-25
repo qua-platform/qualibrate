@@ -2,6 +2,7 @@ from typing import Annotated, Optional, cast
 
 from fastapi import APIRouter, Depends
 
+from qualibrate.api.core.bases.branch import BranchLoadType
 from qualibrate.api.core.bases.node import NodeLoadType
 from qualibrate.api.core.bases.snapshot import SnapshotLoadType
 from qualibrate.api.core.local_storage.node import NodeLocalStorage
@@ -15,6 +16,16 @@ local_storage_root_router = APIRouter(
 
 def _get_root_instance() -> RootLocalStorage:
     return RootLocalStorage()
+
+
+@local_storage_root_router.get("/", tags=["root local storage"])
+def get_branch(
+    root: Annotated[RootLocalStorage, Depends(_get_root_instance)],
+    load_type: BranchLoadType = BranchLoadType.Full,
+) -> DocumentType:
+    branch = root.get_branch("main")
+    branch.load(load_type)
+    return branch.content
 
 
 @local_storage_root_router.get("/node")

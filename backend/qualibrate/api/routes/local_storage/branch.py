@@ -17,8 +17,9 @@ def _get_branch_instance(name: Annotated[str, Path()]) -> BranchLocalStorage:
 @local_storage_branch_router.get("/")
 def get(
     branch: Annotated[BranchLocalStorage, Depends(_get_branch_instance)],
+    load_type: BranchLoadType = BranchLoadType.Full,
 ) -> Optional[DocumentType]:
-    print(branch)
+    branch.load(load_type)
     return branch.content
 
 
