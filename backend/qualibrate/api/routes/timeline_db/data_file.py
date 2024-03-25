@@ -7,8 +7,8 @@ from qualibrate.api.core.timeline_db.node import NodeLoadType, NodeTimelineDb
 from qualibrate.api.core.types import DocumentType
 from qualibrate.api.core.utils.request_utils import HTTPException422
 
-timeline_db_storage_router = APIRouter(
-    prefix="/storage/{snapshot_id}", tags=["storage timeline db"]
+timeline_db_data_file_router = APIRouter(
+    prefix="/data_file/{snapshot_id}", tags=["data file timeline db"]
 )
 
 
@@ -25,15 +25,15 @@ def _get_storage_instance(
     return node.storage
 
 
-@timeline_db_storage_router.get("/")
-def get_node_storage(
+@timeline_db_data_file_router.get("/")
+def get_node_data_file(
     storage: Annotated[DataFileStorage, Depends(_get_storage_instance)],
 ) -> str:
     return str(storage.path)
 
 
-@timeline_db_storage_router.get("/content")
-def get_node_storage_content(
+@timeline_db_data_file_router.get("/content")
+def get_node_data_file_content(
     storage: Annotated[DataFileStorage, Depends(_get_storage_instance)],
 ) -> Optional[DocumentType]:
     storage.load(StorageLoadType.Full)
