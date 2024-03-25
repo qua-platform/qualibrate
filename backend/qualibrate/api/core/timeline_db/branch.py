@@ -2,16 +2,15 @@ from datetime import datetime
 from typing import Optional
 from urllib.parse import urljoin
 
-from qualibrate.api.core.types import DocumentType, DocumentSequenceType, IdType
-from qualibrate.api.core.bases.node import NodeBase
 from qualibrate.api.core.bases.branch import BranchBase, BranchLoadType
+from qualibrate.api.core.bases.node import NodeBase
 from qualibrate.api.core.bases.snapshot import SnapshotBase
-from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.core.timeline_db.node import NodeTimelineDb
 from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.config import get_settings
-
 
 __all__ = ["BranchTimelineDb", "BranchLoadType"]
 

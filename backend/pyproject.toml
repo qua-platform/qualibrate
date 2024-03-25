@@ -55,6 +55,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 80
+extend-select = ["I"]
 target-version = "py39"
 
 [build-system]

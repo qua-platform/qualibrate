@@ -1,19 +1,20 @@
 import os
 import sys
+from pathlib import Path
 from typing import Any, Mapping
 
 import click
 import tomli_w
-from pathlib import Path
-
 from click.core import ParameterSource
 
 from qualibrate.config import (
+    CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
+)
+from qualibrate.config import (
+    DEFAULT_CONFIG_FILENAME,
+    QUALIBRATE_PATH,
     QualibrateSettingsSetup,
     get_config_file,
-    CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
-    QUALIBRATE_PATH,
-    DEFAULT_CONFIG_FILENAME,
 )
 
 if sys.version_info[:2] < (3, 11):
@@ -23,9 +24,15 @@ else:
 try:
     from json_timeline_database.config import (
         CONFIG_KEY as TIMELINE_DB_CONFIG_KEY,
-        Settings as TimelineDbSettings,
-        SettingsSetup as TimelineDbSettingsSetup,
+    )
+    from json_timeline_database.config import (
         PREDEFINED_DBS,
+    )
+    from json_timeline_database.config import (
+        Settings as TimelineDbSettings,
+    )
+    from json_timeline_database.config import (
+        SettingsSetup as TimelineDbSettingsSetup,
     )
 except ImportError:
     TIMELINE_DB_CONFIG_KEY = None

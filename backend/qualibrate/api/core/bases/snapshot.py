@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import IntEnum
-from typing import Optional, ClassVar, Mapping, Any, Union
+from typing import Any, ClassVar, Mapping, Optional, Union
 
-from qualibrate.api.core.types import DocumentType, IdType, DocumentSequenceType
+from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 
 __all__ = ["SnapshotBase", "SnapshotLoadType"]
 

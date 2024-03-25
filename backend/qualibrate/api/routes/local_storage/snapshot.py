@@ -1,10 +1,10 @@
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Path, Depends
+from fastapi import APIRouter, Depends, Path
 
-from qualibrate.api.core.types import DocumentType, IdType
 from qualibrate.api.core.bases.snapshot import SnapshotLoadType
 from qualibrate.api.core.local_storage.snapshot import SnapshotLocalStorage
+from qualibrate.api.core.types import DocumentType, IdType
 
 local_storage_snapshot_router = APIRouter(
     prefix="/snapshot/{id}", tags=["snapshot local storage"]

@@ -3,14 +3,13 @@ from typing import Optional, cast
 from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
 from qualibrate.api.core.bases.storage import DataFileStorage
 from qualibrate.api.core.timeline_db.snapshot import (
-    SnapshotTimelineDb,
     SnapshotLoadType,
+    SnapshotTimelineDb,
 )
 from qualibrate.api.core.types import IdType
 from qualibrate.api.core.utils.path_utils import resolve_and_check_relative
 from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
 from qualibrate.config import get_settings
-
 
 __all__ = ["NodeTimelineDb", "NodeLoadType"]
 

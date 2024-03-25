@@ -2,14 +2,13 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import IntEnum
 
-
 __all__ = ["BranchBase", "BranchLoadType"]
 
 from typing import Optional
 
 from qualibrate.api.core.bases.node import NodeBase
 from qualibrate.api.core.bases.snapshot import SnapshotBase
-from qualibrate.api.core.types import DocumentType, DocumentSequenceType, IdType
+from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 
 
 class BranchLoadType(IntEnum):

@@ -1,5 +1,5 @@
 import string
-from typing import Mapping, Any, Sequence
+from typing import Any, Mapping, Sequence
 
 AllowedSearchKeys = string.ascii_letters + string.digits + "-_*"
 

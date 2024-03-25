@@ -1,13 +1,12 @@
 import os
+import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Union
 
-from pydantic import DirectoryPath, field_serializer, HttpUrl
+from pydantic import DirectoryPath, HttpUrl, field_serializer
 from pydantic_core.core_schema import FieldSerializationInfo
 from pydantic_settings import BaseSettings
-
-import sys
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib

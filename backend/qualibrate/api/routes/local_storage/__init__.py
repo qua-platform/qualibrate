@@ -8,7 +8,6 @@ from qualibrate.api.routes.local_storage.snapshot import (
     local_storage_snapshot_router,
 )
 
-
 local_storage_router = APIRouter(prefix="/local_storage")
 
 local_storage_router.include_router(local_storage_branch_router)

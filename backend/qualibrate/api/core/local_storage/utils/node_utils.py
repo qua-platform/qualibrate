@@ -1,6 +1,7 @@
+from datetime import datetime
 from pathlib import Path
 from typing import Generator
-from datetime import datetime
+
 from qualibrate.api.core.types import IdType
 
 

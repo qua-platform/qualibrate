@@ -1,4 +1,5 @@
 from typing import Annotated, Union
+
 from fastapi import Query
 
 from qualibrate.api.core.types import AllowedSearchKeys

@@ -1,9 +1,9 @@
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Path, Depends
+from fastapi import APIRouter, Depends, Path
 
 from qualibrate.api.core.local_storage.branch import BranchLocalStorage
-from qualibrate.api.core.types import DocumentType, DocumentSequenceType
+from qualibrate.api.core.types import DocumentSequenceType, DocumentType
 
 local_storage_branch_router = APIRouter(
     prefix="/branch/{name}", tags=["branch local storage"]

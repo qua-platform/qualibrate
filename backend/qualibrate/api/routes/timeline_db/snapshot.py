@@ -1,12 +1,12 @@
-from typing import Annotated, Union, Optional
-from qualibrate.api.core.types import DocumentType, DocumentSequenceType
+from typing import Annotated, Optional, Union
 
 from fastapi import APIRouter, Depends, Path, Query
 
 from qualibrate.api.core.timeline_db.snapshot import (
-    SnapshotTimelineDb,
     SnapshotLoadType,
+    SnapshotTimelineDb,
 )
+from qualibrate.api.core.types import DocumentSequenceType, DocumentType
 from qualibrate.api.dependencies.search import get_search_path
 
 timeline_db_snapshot_router = APIRouter(

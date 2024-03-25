@@ -4,7 +4,6 @@ from typing import Callable, Optional
 from qualibrate.api.core.types import IdType
 from qualibrate.api.core.utils.singleton import Singleton
 
-
 __all__ = ["default_node_path_loader", "IdToLocalPath", "SolverType"]
 
 

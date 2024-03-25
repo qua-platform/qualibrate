@@ -2,14 +2,13 @@ from typing import Any, Optional
 from urllib.parse import urljoin
 
 from qualibrate.api.core.bases.root import RootBase
+from qualibrate.api.core.timeline_db.branch import BranchTimelineDb
+from qualibrate.api.core.timeline_db.node import NodeTimelineDb
+from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
 from qualibrate.api.core.types import DocumentSequenceType, IdType
 from qualibrate.api.core.utils.request_utils import get_with_db
-from qualibrate.api.core.timeline_db.node import NodeTimelineDb
-from qualibrate.api.core.timeline_db.branch import BranchTimelineDb
-from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.config import get_settings
-
 
 __all__ = ["RootTimelineDb"]
 

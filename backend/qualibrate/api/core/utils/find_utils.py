@@ -1,5 +1,5 @@
 from itertools import chain
-from typing import Mapping, Optional, Any, Sequence, Union, Callable, cast
+from typing import Any, Callable, Mapping, Optional, Sequence, Union, cast
 
 from qualibrate.api.core.types import DocumentSequenceType
 

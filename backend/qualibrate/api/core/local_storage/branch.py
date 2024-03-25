@@ -10,7 +10,7 @@ from qualibrate.api.core.local_storage.snapshot import SnapshotLocalStorage
 from qualibrate.api.core.local_storage.utils.node_utils import (
     find_n_latest_nodes_ids,
 )
-from qualibrate.api.core.types import DocumentSequenceType, IdType, DocumentType
+from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.config import get_settings
 
 

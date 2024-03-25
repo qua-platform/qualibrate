@@ -1,11 +1,10 @@
-from typing import Optional, Mapping, Any, Callable
+from functools import partial
+from typing import Any, Callable, Mapping, Optional
 
 import requests
-from functools import partial
 from fastapi import HTTPException
 
 from qualibrate.config import get_settings
-
 
 HTTPException422 = partial(HTTPException, status_code=422)
 

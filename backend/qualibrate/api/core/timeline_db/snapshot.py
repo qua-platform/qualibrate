@@ -1,16 +1,14 @@
+from datetime import datetime
+from typing import Any, Mapping, Optional, Sequence, Union, cast
 from urllib.parse import urljoin
 
-from datetime import datetime
-from typing import Optional, Union, Any, Mapping, cast, Sequence
-
-from qualibrate.api.core.types import IdType, DocumentType, DocumentSequenceType
-from qualibrate.api.core.bases.snapshot import SnapshotLoadType, SnapshotBase
+from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
+from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.api.core.utils.find_utils import get_subpath_value
 from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.config import get_settings
-
 
 __all__ = ["SnapshotTimelineDb", "SnapshotLoadType"]
 

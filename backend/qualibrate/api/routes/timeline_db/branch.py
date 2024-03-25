@@ -1,9 +1,10 @@
 from typing import Annotated, Optional
+
 from fastapi import APIRouter, Depends, Path, Query
-from qualibrate.api.core.types import DocumentType, DocumentSequenceType
+
 from qualibrate.api.core.bases.branch import BranchLoadType
 from qualibrate.api.core.timeline_db.branch import BranchTimelineDb
-
+from qualibrate.api.core.types import DocumentSequenceType, DocumentType
 
 timeline_db_branch_router = APIRouter(
     prefix="/branch/{name}", tags=["branch timeline db"]

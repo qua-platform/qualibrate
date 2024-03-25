@@ -6,7 +6,7 @@ from qualibrate.api.core.bases.node import NodeLoadType
 from qualibrate.api.core.bases.snapshot import SnapshotLoadType
 from qualibrate.api.core.local_storage.node import NodeLocalStorage
 from qualibrate.api.core.local_storage.root import RootLocalStorage
-from qualibrate.api.core.types import DocumentType, IdType, DocumentSequenceType
+from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 
 local_storage_root_router = APIRouter(
     prefix="/root", tags=["root local storage"]
