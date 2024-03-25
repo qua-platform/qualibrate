@@ -1,11 +1,11 @@
-from typing import Optional
+from typing import Optional, Any, Mapping
 
-from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
-from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
-from qualibrate.api.core.bases.storage import DataFileStorage
-from qualibrate.api.core.local_storage.snapshot import SnapshotLocalStorage
 from qualibrate.api.core.types import IdType
+from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
+from qualibrate.api.core.bases.storage import DataFileStorage
+from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
 from qualibrate.api.core.utils.path_utils import resolve_and_check_relative
+from qualibrate.api.core.local_storage.snapshot import SnapshotLocalStorage
 from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
 from qualibrate.config import get_settings
 
@@ -43,7 +43,10 @@ class NodeLocalStorage(NodeBase):
     def load(self, load_type: NodeLoadType) -> None:
         if self._load_type == NodeLoadType.Full:
             return
-        self._snapshot.load(SnapshotLoadType.Metadata)
+        try:
+            self._snapshot.load(SnapshotLoadType.Metadata)
+        except FileNotFoundError:
+            pass
         if load_type < NodeLoadType.Full:
             return
         self._fill_storage()
@@ -55,3 +58,11 @@ class NodeLocalStorage(NodeBase):
     @property
     def storage(self) -> Optional[DataFileStorage]:
         return self._storage
+
+    def dump(self) -> Mapping[str, Any]:
+        return {
+            "snapshot": (
+                None if self._snapshot is None else self._snapshot.content
+            ),
+            "storage": None if self._storage is None else self._storage.path,
+        }

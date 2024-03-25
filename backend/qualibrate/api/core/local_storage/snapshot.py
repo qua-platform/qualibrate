@@ -21,7 +21,7 @@ def _default_snapshot_content_loader(
     snapshot_file = snapshot_path / "state.json"
     if not snapshot_file.is_file():
         # TODO: custom exception
-        raise Exception("snapshot not exists")
+        raise FileNotFoundError(f"Snapshot {snapshot_path.stem} not exists")
     node_stem_parts = snapshot_path.stem.split("_")
     snapshot_id = (
         int(node_stem_parts[0][1:])
@@ -126,6 +126,5 @@ class SnapshotLocalStorage(SnapshotBase):
         if this_data is None or other_data is None:
             raise ValueError("can't load data of oin")
         return jsonpatch_to_mapping(
-            this_data,
-            jsonpatch.make_patch(dict(this_data), dict(other_data))
+            this_data, jsonpatch.make_patch(dict(this_data), dict(other_data))
         )
