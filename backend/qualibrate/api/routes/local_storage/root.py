@@ -73,21 +73,29 @@ def get_latest_snapshot(
 
 @local_storage_root_router.get("/snapshots_history")
 def get_snapshots_history(
+    *,
     num: int,
+    reverse: bool = False,
     root: Annotated[RootLocalStorage, Depends(_get_root_instance)],
 ) -> DocumentSequenceType:
     branch = root.get_branch("main")
     snapshots = branch.get_latest_snapshots(num)
+    if reverse:
+        snapshots = list(reversed(snapshots))
     return snapshots
 
 
 @local_storage_root_router.get("/nodes_history")
 def get_nodes_history(
+    *,
     num: int,
+    reverse: bool = False,
     root: Annotated[RootLocalStorage, Depends(_get_root_instance)],
 ) -> DocumentSequenceType:
     branch = root.get_branch("main")
     nodes = branch.get_latest_nodes(num)
+    if reverse:
+        nodes = list(reversed(nodes))
     return nodes
 
 
