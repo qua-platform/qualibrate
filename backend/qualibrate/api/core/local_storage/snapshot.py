@@ -59,8 +59,7 @@ def _default_snapshot_content_loader(
         metadata_out_path = snapshot_path.relative_to(settings.user_storage)
         content["metadata"] = {
             "name": node_name,
-            # TODO: move metadata out path from timeline config part to root
-            settings.timeline_db.metadata_out_path: str(metadata_out_path),
+            settings.metadata_out_path: str(metadata_out_path),
         }
     if load_type >= SnapshotLoadType.Data:
         with snapshot_file.open("r") as f:

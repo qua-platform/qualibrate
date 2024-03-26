@@ -26,7 +26,6 @@ class JsonTimelineDBBase(BaseSettings):
     address: HttpUrl
     timeout: float
     db_name: str
-    metadata_out_path: str
 
     @field_serializer("address")
     def serialize_http_url(
@@ -38,6 +37,7 @@ class JsonTimelineDBBase(BaseSettings):
 class _QualibrateSettingsBase(BaseSettings):
     static_site_files: Path
     user_storage: Path
+    metadata_out_path: str
 
     timeline_db: JsonTimelineDBBase
 

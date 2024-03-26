@@ -67,13 +67,14 @@ def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
 def _config_from_sources(
     ctx: click.Context, from_file: dict[str, Any]
 ) -> dict[str, Any]:
-    qualibrate_mapping = {k: k for k in ("static_site_files", "user_storage")}
+    qualibrate_mapping = {
+        k: k for k in ("static_site_files", "user_storage", "metadata_out_path")
+    }
     timeline_db_mapping = {
         "spawn_db": "spawn",
         "timeline_db_address": "address",
         "timeline_db_timeout": "timeout",
         "timeline_db_name": "db_name",
-        "timeline_db_metadata_out_path": "metadata_out_path",
     }
     for arg_key, arg_value in ctx.params.items():
         not_default_arg = not_default(ctx, arg_key)
@@ -193,6 +194,12 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
     show_default=True,
 )
 @click.option(
+    "--metadata-out-path",
+    type=str,
+    default="data_path",
+    show_default=True,
+)
+@click.option(
     "--spawn-db",
     type=bool,
     default=True,
@@ -217,23 +224,17 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
     default="new_db",
     show_default=True,
 )
-@click.option(
-    "--timeline-db-metadata-out-path",
-    type=str,
-    default="data_path",
-    show_default=True,
-)
 @click.pass_context
 def config_command(
     ctx: click.Context,
     config_path: Path,
     static_site_files: Path,
     user_storage: Path,
+    metadata_out_path: str,
     spawn_db: bool,
     timeline_db_address: str,
     timeline_db_timeout: float,
     timeline_db_name: str,
-    timeline_db_metadata_out_path: str,
 ) -> None:
     common_config, config_file = get_config(config_path)
     qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
