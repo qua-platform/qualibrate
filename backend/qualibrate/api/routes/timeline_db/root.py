@@ -8,7 +8,7 @@ from qualibrate.api.core.bases.snapshot import SnapshotLoadType
 from qualibrate.api.core.timeline_db.root import RootTimelineDb
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 
-timeline_db_root_router = APIRouter(tags=["root timeline db"])
+timeline_db_root_router = APIRouter(prefix="/root", tags=["root timeline db"])
 
 
 def _get_root_instance() -> RootTimelineDb:
