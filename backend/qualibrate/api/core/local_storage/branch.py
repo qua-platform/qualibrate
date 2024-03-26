@@ -11,7 +11,10 @@ from qualibrate.api.core.local_storage.utils.node_utils import (
     find_n_latest_nodes_ids,
 )
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate.config import get_settings
+
+__all__ = ["BranchLoadType"]
 
 
 class BranchLocalStorage(BranchBase):
@@ -33,7 +36,7 @@ class BranchLocalStorage(BranchBase):
         settings = get_settings()
         id = next(find_n_latest_nodes_ids(settings.user_storage, 1), None)
         if id is None:
-            raise OSError(f"There is no {error_msg}")
+            raise QFileNotFoundException(f"There is no {error_msg}")
         return id
 
     def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:

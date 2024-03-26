@@ -19,7 +19,11 @@ from qualibrate.api.core.local_storage.utils.node_utils import (
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.api.core.utils.find_utils import get_subpath_value
 from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
+from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.api.exceptions.classes.values import QValueException
 from qualibrate.config import QualibrateSettings, get_settings
+
+__all__ = ["SnapshotLocalStorage"]
 
 
 def _default_snapshot_content_loader(
@@ -29,8 +33,9 @@ def _default_snapshot_content_loader(
 ) -> DocumentType:
     snapshot_file = snapshot_path / "state.json"
     if not snapshot_file.is_file():
-        # TODO: custom exception
-        raise FileNotFoundError(f"Snapshot {snapshot_path.stem} not exists")
+        raise QFileNotFoundException(
+            f"Snapshot {snapshot_path.stem} not exists"
+        )
     node_stem_parts = snapshot_path.stem.split("_")
     snapshot_id = (
         int(node_stem_parts[0][1:])
@@ -97,10 +102,7 @@ class SnapshotLocalStorage(SnapshotBase):
             return None
         settings = get_settings()
         paths_mapping = IdToLocalPath(settings.user_storage)
-        node_path = paths_mapping.get(self._id)
-        if node_path is None:
-            # TODO: Fail to load exception
-            raise OSError("node with specified id not exists")
+        node_path = paths_mapping[self._id]
         content = self._snapshot_loader(node_path, load_type, settings)
         self.content.update(content)
         self._load_type = load_type
@@ -132,9 +134,7 @@ class SnapshotLocalStorage(SnapshotBase):
         if num_snapshots == 1:
             return [self.content]
         paths_mapping = IdToLocalPath(settings.user_storage)
-        snapshot_path = paths_mapping.get(self._id)
-        if snapshot_path is None:
-            raise OSError("Current snapshot not found")
+        snapshot_path = paths_mapping[self._id]
         ids = find_n_latest_nodes_ids(
             settings.user_storage,
             num_snapshots - 1,
@@ -169,7 +169,7 @@ class SnapshotLocalStorage(SnapshotBase):
         this_data = self.data
         other_data = other_snapshot.data
         if this_data is None or other_data is None:
-            raise ValueError("can't load data of snapshots")
+            raise QValueException("Can't load data of snapshots")
         return jsonpatch_to_mapping(
             this_data, jsonpatch.make_patch(dict(this_data), dict(other_data))
         )

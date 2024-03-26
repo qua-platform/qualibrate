@@ -2,8 +2,9 @@ from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Path
 
+from qualibrate.api.core.bases.node import NodeLoadType
 from qualibrate.api.core.bases.storage import DataFileStorage, StorageLoadType
-from qualibrate.api.core.timeline_db.node import NodeLoadType, NodeTimelineDb
+from qualibrate.api.core.timeline_db.node import NodeTimelineDb
 from qualibrate.api.core.types import DocumentType
 from qualibrate.api.core.utils.request_utils import HTTPException422
 

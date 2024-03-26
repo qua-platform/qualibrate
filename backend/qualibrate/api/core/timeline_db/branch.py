@@ -12,7 +12,7 @@ from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.config import get_settings
 
-__all__ = ["BranchTimelineDb", "BranchLoadType"]
+__all__ = ["BranchTimelineDb"]
 
 
 class BranchTimelineDb(BranchBase):
@@ -75,27 +75,24 @@ class BranchTimelineDb(BranchBase):
 
     def get_latest_nodes(self, num_snapshots: int = 50) -> DocumentSequenceType:
         """Retrieve last num_snapshots from this branch"""
-        # TODO: discuss about return type
-        raise NotImplementedError()
-        # settings = get_settings()
-        # req_url = urljoin(
-        #     str(settings.timeline_db.address),
-        #     f"branch/{self._name}/history",
-        # )
-        # result = get_with_db(
-        #     req_url,
-        #     params={"metadata": True, "num_snapshots": num_snapshots},
-        # )
-        # if result.status_code != 200:
-        #     raise QJsonDbException("Branch history wasn't retrieved.")
-        # snapshots = list(result.json())
-        # nodes = [
-        #     NodeJsonDb(
-        #         snapshot=SnapshotJsonDb(
-        #             id=snapshot.get("id"),
-        #             content=snapshot,
-        #         )
-        #     )
-        #     for snapshot in snapshots
-        # ]
-        # return nodes
+        # TODO: Think about return type
+        settings = get_settings()
+        req_url = urljoin(
+            str(settings.timeline_db.address),
+            f"branch/{self._name}/history",
+        )
+        result = get_with_db(
+            req_url,
+            params={"metadata": False, "num_snapshots": num_snapshots},
+        )
+        if result.status_code != 200:
+            raise QJsonDbException("Branch history wasn't retrieved.")
+        snapshots = list(result.json())
+        nodes = [
+            NodeTimelineDb(
+                node_id=snapshot.get("id"),
+                snapshot_content=snapshot,
+            )
+            for snapshot in snapshots
+        ]
+        return [node.dump() for node in nodes]

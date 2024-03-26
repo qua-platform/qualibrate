@@ -3,9 +3,9 @@ from typing import Annotated, Any, Optional
 from fastapi import APIRouter, Depends, Query
 
 from qualibrate.api.core.bases.branch import BranchLoadType
-from qualibrate.api.core.timeline_db.node import NodeLoadType
+from qualibrate.api.core.bases.node import NodeLoadType
+from qualibrate.api.core.bases.snapshot import SnapshotLoadType
 from qualibrate.api.core.timeline_db.root import RootTimelineDb
-from qualibrate.api.core.timeline_db.snapshot import SnapshotLoadType
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 
 timeline_db_root_router = APIRouter(tags=["root timeline db"])

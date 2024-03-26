@@ -10,7 +10,7 @@ from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.config import get_settings
 
-__all__ = ["SnapshotTimelineDb", "SnapshotLoadType"]
+__all__ = ["SnapshotTimelineDb"]
 
 
 class SnapshotTimelineDb(SnapshotBase):

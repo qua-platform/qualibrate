@@ -3,6 +3,7 @@ from typing import Callable, Optional
 
 from qualibrate.api.core.types import IdType
 from qualibrate.api.core.utils.singleton import Singleton
+from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 
 __all__ = ["default_node_path_loader", "IdToLocalPath", "SolverType"]
 
@@ -20,10 +21,15 @@ class IdToLocalPath(metaclass=Singleton):
         self._base_path = base_path
 
     def __getitem__(self, id: IdType) -> Path:
-        return self._mapping[id]
+        path = self.get(id)
+        if path is None:
+            raise QFileNotFoundException(f"Node {id} not found")
+        return path
 
     def get(
-        self, id: IdType, solver: SolverType = default_node_path_loader
+        self,
+        id: IdType,
+        solver: SolverType = default_node_path_loader,
     ) -> Optional[Path]:
         if id in self._mapping:
             return self._mapping[id]
