@@ -116,6 +116,8 @@ class SnapshotLocalStorage(SnapshotBase):
     def search(
         self, search_path: list[Union[str, int]], load: bool = False
     ) -> Optional[DocumentSequenceType]:
+        if load:
+            self.load(SnapshotLoadType.Data)
         if self.data is None:
             return None
         return get_subpath_value(self.data, search_path)
@@ -167,7 +169,7 @@ class SnapshotLocalStorage(SnapshotBase):
         this_data = self.data
         other_data = other_snapshot.data
         if this_data is None or other_data is None:
-            raise ValueError("can't load data of oin")
+            raise ValueError("can't load data of snapshots")
         return jsonpatch_to_mapping(
             this_data, jsonpatch.make_patch(dict(this_data), dict(other_data))
         )
