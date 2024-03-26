@@ -57,11 +57,3 @@ class NodeLocalStorage(NodeBase):
     @property
     def storage(self) -> Optional[DataFileStorage]:
         return self._storage
-
-    def dump(self) -> Mapping[str, Any]:
-        return {
-            "snapshot": (
-                None if self._snapshot is None else self._snapshot.content
-            ),
-            "storage": None if self._storage is None else self._storage.path,
-        }
