@@ -19,7 +19,7 @@ def _get_root_instance() -> RootLocalStorage:
     return RootLocalStorage()
 
 
-@local_storage_root_router.get("/", tags=["root local storage"])
+@local_storage_root_router.get("/branch", tags=["root local storage"])
 def get_branch(
     root: Annotated[RootLocalStorage, Depends(_get_root_instance)],
     load_type: BranchLoadType = BranchLoadType.Full,
