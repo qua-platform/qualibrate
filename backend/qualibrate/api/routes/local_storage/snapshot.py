@@ -35,7 +35,7 @@ def get_history(
     return snapshot.get_latest_snapshots(num)
 
 
-@local_storage_snapshot_router.get("/compare_by_id")
+@local_storage_snapshot_router.get("/compare")
 def compare_by_id(
     snapshot: Annotated[SnapshotLocalStorage, Depends(_get_snapshot_instance)],
     other_snapshot_id: IdType,
