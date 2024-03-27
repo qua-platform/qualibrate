@@ -3,8 +3,8 @@ from typing import Optional, Sequence
 from urllib.parse import urljoin
 
 from qualibrate.api.core.bases.branch import BranchBase, BranchLoadType
-from qualibrate.api.core.bases.node import NodeBase
-from qualibrate.api.core.bases.snapshot import SnapshotBase
+from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
+from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
 from qualibrate.api.core.timeline_db.node import NodeTimelineDb
 from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
 from qualibrate.api.core.types import DocumentType, IdType
@@ -44,17 +44,25 @@ class BranchTimelineDb(BranchBase):
 
     def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
         if id is None:
-            # TODO: load latest branch snapshot from db
-            raise NotImplementedError
+            latest = self.get_latest_snapshots(1)
+            if len(latest) != 1:
+                raise QJsonDbException("Can't load latest snapshot of branch")
+            return latest[0]
         # TODO: Check if snapshot is part of branch history
-        return SnapshotTimelineDb(id=id)
+        snapshot = SnapshotTimelineDb(id=id)
+        snapshot.load(SnapshotLoadType.Metadata)
+        return snapshot
 
     def get_node(self, id: Optional[IdType] = None) -> NodeBase:
         if id is None:
-            # TODO: load latest branch snapshot from db
-            raise NotImplementedError
+            latest = self.get_latest_nodes(1)
+            if len(latest) != 1:
+                raise QJsonDbException("Can't load latest node of branch")
+            return latest[0]
         # TODO: Check if snapshot is part of branch history
-        return NodeTimelineDb(node_id=id)
+        node = NodeTimelineDb(node_id=id)
+        node.load(NodeLoadType.Full)
+        return node
 
     def get_latest_snapshots(self, num: int = 50) -> list[SnapshotBase]:
         """Retrieve last num_snapshots from this branch"""
