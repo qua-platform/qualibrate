@@ -26,6 +26,16 @@ def get_snapshot(
     return snapshot.dump()
 
 
+@timeline_db_root_router.get("/snapshot/latest")
+def get_latest_snapshot(
+    root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
+    load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
+) -> Optional[DocumentType]:
+    snapshot = root.get_snapshot()
+    snapshot.load(load_type)
+    return snapshot.dump()
+
+
 @timeline_db_root_router.get("/node")
 def get_node(
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
@@ -36,7 +46,16 @@ def get_node(
     return node.dump()
 
 
-@timeline_db_root_router.get("/snapshot/search")
+@timeline_db_root_router.get("/node/latest")
+def get_latest_node(
+    root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
+) -> Optional[DocumentType]:
+    snapshot = root.get_node()
+    snapshot.load(NodeLoadType.Full)
+    return snapshot.dump()
+
+
+@timeline_db_root_router.get("/search")
 def get_snapshot_search(
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
     id: IdType,
@@ -55,10 +74,25 @@ def get_branch(
     return branch.dump()
 
 
-@timeline_db_root_router.get("/get_last_snapshots")
-def get_branch_history(
+@timeline_db_root_router.get("/snapshots_history")
+def get_snapshots_history(
+    *,
+    num: Annotated[int, Query(gt=0)] = 50,
+    reverse: Annotated[bool, Query(description="Temporary unused.")] = False,
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
-    branch_name: str,
 ) -> DocumentSequenceType:
-    snapshots = root.get_branch(branch_name).get_latest_snapshots()
+    # TODO: use reverse flag
+    snapshots = root.get_latest_snapshots(num)
     return [snapshot.dump() for snapshot in snapshots]
+
+
+@timeline_db_root_router.get("/nodes_history")
+def get_nodes_history(
+    *,
+    num: Annotated[int, Query(gt=0)] = 50,
+    reverse: Annotated[bool, Query(description="Temporary unused.")] = False,
+    root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
+) -> DocumentSequenceType:
+    # TODO: use reverse flag
+    nodes = root.get_latest_nodes(num)
+    return [node.dump() for node in nodes]
