@@ -1,6 +1,6 @@
 from typing import Annotated, Optional, Union, cast
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from qualibrate.api.core.bases.branch import BranchLoadType
 from qualibrate.api.core.bases.node import NodeLoadType
@@ -74,12 +74,11 @@ def get_latest_snapshot(
 @local_storage_root_router.get("/snapshots_history")
 def get_snapshots_history(
     *,
-    num: int,
+    num: Annotated[int, Query(gt=0)] = 50,
     reverse: bool = False,
     root: Annotated[RootLocalStorage, Depends(_get_root_instance)],
 ) -> DocumentSequenceType:
-    branch = root.get_branch("main")
-    snapshots = branch.get_latest_snapshots(num)
+    snapshots = root.get_latest_snapshots(num)
     snapshots_dumped = [snapshot.dump() for snapshot in snapshots]
     if reverse:
         snapshots_dumped = list(reversed(snapshots_dumped))
@@ -89,11 +88,11 @@ def get_snapshots_history(
 @local_storage_root_router.get("/nodes_history")
 def get_nodes_history(
     *,
-    num: int,
+    num: Annotated[int, Query(gt=0)] = 50,
     reverse: bool = False,
     root: Annotated[RootLocalStorage, Depends(_get_root_instance)],
 ) -> DocumentSequenceType:
-    nodes = root.get_branch("main").get_latest_nodes(num)
+    nodes = root.get_latest_nodes(num)
     nodes_dumped = [node.dump() for node in nodes]
     if reverse:
         nodes_dumped = list(reversed(nodes_dumped))

@@ -1,6 +1,6 @@
 from typing import Annotated, Optional, cast
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, Query
 
 from qualibrate.api.core.bases.branch import BranchLoadType
 from qualibrate.api.core.bases.node import NodeLoadType
@@ -68,7 +68,7 @@ def get_latest_node(
 @local_storage_branch_router.get("/snapshots_history")
 def get_snapshots_history(
     *,
-    num: int,
+    num: Annotated[int, Query(gt=0)] = 50,
     reverse: bool = False,
     branch: Annotated[BranchLocalStorage, Depends(_get_branch_instance)],
 ) -> DocumentSequenceType:
@@ -82,7 +82,7 @@ def get_snapshots_history(
 @local_storage_branch_router.get("/nodes_history")
 def get_nodes_history(
     *,
-    num: int,
+    num: Annotated[int, Query(gt=0)] = 50,
     reverse: bool = False,
     branch: Annotated[BranchLocalStorage, Depends(_get_branch_instance)],
 ) -> DocumentSequenceType:
