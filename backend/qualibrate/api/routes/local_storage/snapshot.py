@@ -23,7 +23,7 @@ def get(
     snapshot: Annotated[SnapshotLocalStorage, Depends(_get_snapshot_instance)],
 ) -> Optional[DocumentType]:
     snapshot.load(SnapshotLoadType.Full)
-    return snapshot.content
+    return snapshot.dump()
 
 
 @local_storage_snapshot_router.get("/history")

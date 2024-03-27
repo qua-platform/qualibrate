@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Sequence
 from urllib.parse import urljoin
 
 from qualibrate.api.core.bases.branch import BranchBase, BranchLoadType
@@ -7,7 +7,7 @@ from qualibrate.api.core.bases.node import NodeBase
 from qualibrate.api.core.bases.snapshot import SnapshotBase
 from qualibrate.api.core.timeline_db.node import NodeTimelineDb
 from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
-from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.core.types import DocumentType, IdType
 from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.config import get_settings
@@ -56,9 +56,7 @@ class BranchTimelineDb(BranchBase):
         # TODO: Check if snapshot is part of branch history
         return NodeTimelineDb(node_id=id)
 
-    def get_latest_snapshots(
-        self, num_snapshots: int = 50
-    ) -> DocumentSequenceType:
+    def get_latest_snapshots(self, num: int = 50) -> list[SnapshotBase]:
         """Retrieve last num_snapshots from this branch"""
         settings = get_settings()
         req_url = urljoin(
@@ -67,15 +65,20 @@ class BranchTimelineDb(BranchBase):
         )
         result = get_with_db(
             req_url,
-            params={"metadata": True, "num_snapshots": num_snapshots},
+            params={"metadata": True, "num_snapshots": num},
         )
         if result.status_code != 200:
             raise QJsonDbException("Branch history wasn't retrieved.")
-        return list(result.json())
+        snapshots = result.json()
+        if not isinstance(snapshots, Sequence):
+            raise QJsonDbException("Branch history wasn't retrieved.")
+        return [
+            SnapshotTimelineDb(id=snapshot["id"], content=snapshot)
+            for snapshot in snapshots
+        ]
 
-    def get_latest_nodes(self, num_snapshots: int = 50) -> DocumentSequenceType:
+    def get_latest_nodes(self, num: int = 50) -> list[NodeBase]:
         """Retrieve last num_snapshots from this branch"""
-        # TODO: Think about return type
         settings = get_settings()
         req_url = urljoin(
             str(settings.timeline_db.address),
@@ -83,16 +86,17 @@ class BranchTimelineDb(BranchBase):
         )
         result = get_with_db(
             req_url,
-            params={"metadata": False, "num_snapshots": num_snapshots},
+            params={"metadata": False, "num_snapshots": num},
         )
         if result.status_code != 200:
             raise QJsonDbException("Branch history wasn't retrieved.")
-        snapshots = list(result.json())
-        nodes = [
+        snapshots = result.json()
+        if not isinstance(snapshots, Sequence):
+            raise QJsonDbException("Branch history wasn't retrieved.")
+        return [
             NodeTimelineDb(
                 node_id=snapshot.get("id"),
                 snapshot_content=snapshot,
             )
             for snapshot in snapshots
         ]
-        return [node.dump() for node in nodes]

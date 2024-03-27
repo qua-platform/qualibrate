@@ -22,7 +22,7 @@ def get(
     load_type: SnapshotLoadType = SnapshotLoadType.Full,
 ) -> Optional[DocumentType]:
     snapshot.load(load_type)
-    return snapshot.content
+    return snapshot.dump()
 
 
 @timeline_db_snapshot_router.get("/search/data/values")

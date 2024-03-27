@@ -23,7 +23,17 @@ def get_snapshot(
 ) -> Optional[DocumentType]:
     snapshot = root.get_snapshot(id)
     snapshot.load(load_type)
-    return snapshot.content
+    return snapshot.dump()
+
+
+@timeline_db_root_router.get("/node")
+def get_node(
+    root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
+    id: IdType,
+) -> Optional[DocumentType]:
+    node = root.get_node(id)
+    node.load(NodeLoadType.Full)
+    return node.dump()
 
 
 @timeline_db_root_router.get("/snapshot/search")
@@ -42,7 +52,7 @@ def get_branch(
 ) -> Optional[DocumentType]:
     branch = root.get_branch(branch_name)
     branch.load(BranchLoadType.Full)
-    return branch.content
+    return branch.dump()
 
 
 @timeline_db_root_router.get("/get_last_snapshots")
@@ -50,17 +60,5 @@ def get_branch_history(
     root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
     branch_name: str,
 ) -> DocumentSequenceType:
-    return root.get_branch(branch_name).get_latest_snapshots()
-
-
-@timeline_db_root_router.get("/node")
-def get_node(
-    root: Annotated[RootTimelineDb, Depends(_get_root_instance)],
-    id: IdType,
-) -> Optional[DocumentType]:
-    node = root.get_node(id)
-    node.load(NodeLoadType.Full)
-    return {
-        "snapshot": None if node.snapshot is None else node.snapshot.content,
-        "storage": None if node.storage is None else node.storage.path,
-    }
+    snapshots = root.get_branch(branch_name).get_latest_snapshots()
+    return [snapshot.dump() for snapshot in snapshots]

@@ -26,7 +26,7 @@ def get_branch(
 ) -> DocumentType:
     branch = root.get_branch("main")
     branch.load(load_type)
-    return branch.content
+    return branch.dump()
 
 
 @local_storage_root_router.get("/node")
@@ -58,7 +58,7 @@ def get_snapshot_by_id(
 ) -> Optional[DocumentType]:
     snapshot = root.get_snapshot(id)
     snapshot.load(load_type)
-    return snapshot.content
+    return snapshot.dump()
 
 
 @local_storage_root_router.get("/snapshot/latest")
@@ -68,7 +68,7 @@ def get_latest_snapshot(
 ) -> Optional[DocumentType]:
     snapshot = root.get_snapshot()
     snapshot.load(load_type)
-    return snapshot.content
+    return snapshot.dump()
 
 
 @local_storage_root_router.get("/snapshots_history")
@@ -80,9 +80,10 @@ def get_snapshots_history(
 ) -> DocumentSequenceType:
     branch = root.get_branch("main")
     snapshots = branch.get_latest_snapshots(num)
+    snapshots_dumped = [snapshot.dump() for snapshot in snapshots]
     if reverse:
-        snapshots = list(reversed(snapshots))
-    return snapshots
+        snapshots_dumped = list(reversed(snapshots_dumped))
+    return snapshots_dumped
 
 
 @local_storage_root_router.get("/nodes_history")
@@ -92,11 +93,11 @@ def get_nodes_history(
     reverse: bool = False,
     root: Annotated[RootLocalStorage, Depends(_get_root_instance)],
 ) -> DocumentSequenceType:
-    branch = root.get_branch("main")
-    nodes = branch.get_latest_nodes(num)
+    nodes = root.get_branch("main").get_latest_nodes(num)
+    nodes_dumped = [node.dump() for node in nodes]
     if reverse:
-        nodes = list(reversed(nodes))
-    return nodes
+        nodes_dumped = list(reversed(nodes_dumped))
+    return nodes_dumped
 
 
 @local_storage_root_router.get("/search")

@@ -29,12 +29,14 @@ class RootTimelineDb(RootBase):
             raise NotImplementedError
         return NodeTimelineDb(node_id=id)
 
-    def get_latest_snapshots(self, num: int = 50) -> DocumentSequenceType:
+    def get_latest_snapshots(
+        self, num: int = 50
+    ) -> Sequence[SnapshotTimelineDb]:
         # TODO: load latest snapshots (independent from branch)
         raise NotImplementedError
         # return self.get_latest_snapshots(num)
 
-    def get_latest_nodes(self, num: int = 50) -> DocumentSequenceType:
+    def get_latest_nodes(self, num: int = 50) -> Sequence[NodeTimelineDb]:
         # TODO: load latest snapshots (independent from branch)
         # return self.get_latest_nodes(num)
         raise NotImplementedError

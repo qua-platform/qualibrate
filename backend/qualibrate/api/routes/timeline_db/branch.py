@@ -20,7 +20,7 @@ def get(
     branch: Annotated[BranchTimelineDb, Depends(_get_branch_instance)],
 ) -> Optional[DocumentType]:
     branch.load(BranchLoadType.Full)
-    return branch.content
+    return branch.dump()
 
 
 @timeline_db_branch_router.get("/history")
@@ -30,7 +30,8 @@ def get_history(
     num_snapshots: int = Query(50, gt=0),
 ) -> DocumentSequenceType:
     history = branch.get_latest_snapshots(num_snapshots)
+    history_dumped = [snapshot.dump() for snapshot in history]
     if reverse:
         # TODO: make more correct relationship update
-        return list(reversed(history))
-    return history
+        return list(reversed(history_dumped))
+    return history_dumped

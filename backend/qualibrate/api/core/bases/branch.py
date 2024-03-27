@@ -4,11 +4,11 @@ from enum import IntEnum
 
 __all__ = ["BranchBase", "BranchLoadType"]
 
-from typing import Optional
+from typing import Optional, Sequence
 
 from qualibrate.api.core.bases.node import NodeBase
 from qualibrate.api.core.bases.snapshot import SnapshotBase
-from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.core.types import DocumentType, IdType
 
 
 class BranchLoadType(IntEnum):
@@ -52,9 +52,15 @@ class BranchBase(ABC):
         pass
 
     @abstractmethod
-    def get_latest_snapshots(self, num: int = 50) -> DocumentSequenceType:
+    def get_latest_snapshots(self, num: int = 50) -> Sequence[SnapshotBase]:
         pass
 
     @abstractmethod
-    def get_latest_nodes(self, num: int = 50) -> DocumentSequenceType:
+    def get_latest_nodes(self, num: int = 50) -> Sequence[NodeBase]:
         pass
+
+    def dump(self) -> DocumentType:
+        return {
+            "name": self._name,
+            **self.content,
+        }

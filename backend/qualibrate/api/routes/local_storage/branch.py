@@ -24,7 +24,7 @@ def get(
     load_type: BranchLoadType = BranchLoadType.Full,
 ) -> Optional[DocumentType]:
     branch.load(load_type)
-    return branch.content
+    return branch.dump()
 
 
 @local_storage_branch_router.get("/snapshot")
@@ -34,7 +34,7 @@ def get_snapshot(
 ) -> Optional[DocumentType]:
     snapshot = branch.get_snapshot(snapshot_id)
     snapshot.load(SnapshotLoadType.Metadata)
-    return snapshot.content
+    return snapshot.dump()
 
 
 @local_storage_branch_router.get("/snapshot/latest")
@@ -43,7 +43,7 @@ def get_latest_snapshot(
 ) -> Optional[DocumentType]:
     snapshot = branch.get_snapshot()
     snapshot.load(SnapshotLoadType.Metadata)
-    return snapshot.content
+    return snapshot.dump()
 
 
 @local_storage_branch_router.get("/node")
@@ -73,9 +73,10 @@ def get_snapshots_history(
     branch: Annotated[BranchLocalStorage, Depends(_get_branch_instance)],
 ) -> DocumentSequenceType:
     snapshots = branch.get_latest_snapshots(num)
+    snapshots_dumped = [snapshot.dump() for snapshot in snapshots]
     if reverse:
-        snapshots = list(reversed(snapshots))
-    return snapshots
+        snapshots_dumped = list(reversed(snapshots_dumped))
+    return snapshots_dumped
 
 
 @local_storage_branch_router.get("/nodes_history")
@@ -86,6 +87,7 @@ def get_nodes_history(
     branch: Annotated[BranchLocalStorage, Depends(_get_branch_instance)],
 ) -> DocumentSequenceType:
     nodes = branch.get_latest_nodes(num)
+    nodes_dumped = [node.dump() for node in nodes]
     if reverse:
-        nodes = list(reversed(nodes))
-    return nodes
+        nodes_dumped = list(reversed(nodes_dumped))
+    return nodes_dumped

@@ -105,3 +105,6 @@ class SnapshotBase(ABC):
         self, other_snapshot_int: int
     ) -> Mapping[str, Mapping[str, Any]]:
         pass
+
+    def dump(self) -> DocumentType:
+        return self.content

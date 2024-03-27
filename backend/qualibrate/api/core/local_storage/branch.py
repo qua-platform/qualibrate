@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Sequence
 
 from qualibrate.api.core.bases.branch import BranchBase, BranchLoadType
 from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
@@ -10,7 +10,7 @@ from qualibrate.api.core.local_storage.snapshot import SnapshotLocalStorage
 from qualibrate.api.core.local_storage.utils.node_utils import (
     find_n_latest_nodes_ids,
 )
-from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.core.types import DocumentType, IdType
 from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate.config import get_settings
 
@@ -49,7 +49,7 @@ class BranchLocalStorage(BranchBase):
             id = self._get_latest_node_id("nodes")
         return NodeLocalStorage(id)
 
-    def get_latest_snapshots(self, num: int = 50) -> DocumentSequenceType:
+    def get_latest_snapshots(self, num: int = 50) -> Sequence[SnapshotBase]:
         settings = get_settings()
         ids = find_n_latest_nodes_ids(settings.user_storage, num)
         snapshots = [SnapshotLocalStorage(id) for id in ids]
@@ -58,9 +58,9 @@ class BranchLocalStorage(BranchBase):
                 snapshot.load(SnapshotLoadType.Metadata)
             except FileNotFoundError:
                 pass
-        return [snapshot.content for snapshot in snapshots]
+        return snapshots
 
-    def get_latest_nodes(self, num: int = 50) -> DocumentSequenceType:
+    def get_latest_nodes(self, num: int = 50) -> Sequence[NodeBase]:
         settings = get_settings()
         ids = find_n_latest_nodes_ids(settings.user_storage, num)
         nodes = [NodeLocalStorage(id) for id in ids]
@@ -69,4 +69,4 @@ class BranchLocalStorage(BranchBase):
                 node.load(NodeLoadType.Full)
             except FileNotFoundError:
                 pass
-        return [node.dump() for node in nodes]
+        return nodes

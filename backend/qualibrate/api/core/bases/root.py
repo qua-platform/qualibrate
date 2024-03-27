@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 
 from qualibrate.api.core.bases.branch import BranchBase
 from qualibrate.api.core.bases.node import NodeBase
 from qualibrate.api.core.bases.snapshot import SnapshotBase
-from qualibrate.api.core.types import DocumentSequenceType, IdType
+from qualibrate.api.core.types import IdType
 
 __all__ = ["RootBase"]
 
@@ -23,11 +23,11 @@ class RootBase(ABC):
         pass
 
     @abstractmethod
-    def get_latest_snapshots(self, num: int = 50) -> DocumentSequenceType:
+    def get_latest_snapshots(self, num: int = 50) -> Sequence[SnapshotBase]:
         pass
 
     @abstractmethod
-    def get_latest_nodes(self, num: int = 50) -> DocumentSequenceType:
+    def get_latest_nodes(self, num: int = 50) -> Sequence[NodeBase]:
         pass
 
     @abstractmethod
