@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Optional, Sequence
-from urllib.parse import urljoin
 
 from qualibrate.api.core.bases.branch import BranchBase, BranchLoadType
 from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
@@ -10,7 +9,6 @@ from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
 from qualibrate.api.core.types import DocumentType, IdType
 from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate.config import get_settings
 
 __all__ = ["BranchTimelineDb"]
 
@@ -28,11 +26,7 @@ class BranchTimelineDb(BranchBase):
     def load(self, load_type: BranchLoadType) -> None:
         if self._load_type == BranchLoadType.Full:
             return
-        settings = get_settings()
-        req_url = urljoin(
-            str(settings.timeline_db.address), f"branch/{self._name}/"
-        )
-        result = get_with_db(req_url)
+        result = get_with_db(f"branch/{self._name}/")
         no_branch_ex = QJsonDbException("Branch data wasn't retrieved.")
         if result.status_code != 200:
             raise no_branch_ex
@@ -66,13 +60,8 @@ class BranchTimelineDb(BranchBase):
 
     def get_latest_snapshots(self, num: int = 50) -> list[SnapshotBase]:
         """Retrieve last num_snapshots from this branch"""
-        settings = get_settings()
-        req_url = urljoin(
-            str(settings.timeline_db.address),
-            f"branch/{self._name}/history",
-        )
         result = get_with_db(
-            req_url,
+            f"branch/{self._name}/history",
             params={"metadata": True, "num_snapshots": num},
         )
         if result.status_code != 200:
@@ -87,13 +76,8 @@ class BranchTimelineDb(BranchBase):
 
     def get_latest_nodes(self, num: int = 50) -> list[NodeBase]:
         """Retrieve last num_snapshots from this branch"""
-        settings = get_settings()
-        req_url = urljoin(
-            str(settings.timeline_db.address),
-            f"branch/{self._name}/history",
-        )
         result = get_with_db(
-            req_url,
+            f"branch/{self._name}/history",
             params={"metadata": False, "num_snapshots": num},
         )
         if result.status_code != 200:

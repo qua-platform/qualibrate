@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Any, Mapping, Optional, Sequence, Union, cast
-from urllib.parse import urljoin
 
 from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
@@ -8,7 +7,6 @@ from qualibrate.api.core.utils.find_utils import get_subpath_value
 from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate.config import get_settings
 
 __all__ = ["SnapshotTimelineDb"]
 
@@ -24,17 +22,13 @@ class SnapshotTimelineDb(SnapshotBase):
     def load(self, load_type: SnapshotLoadType) -> None:
         if load_type <= self._load_type:
             return None
-        settings = get_settings()
         fields: Optional[list[str]] = ["id", "_id", "parents", "created_at"]
         if fields is not None and load_type == SnapshotLoadType.Metadata:
             fields.append("metadata")
         elif load_type >= SnapshotLoadType.Data:
             fields = None
         params = None if fields is None else {"fields": fields}
-        req_url = urljoin(
-            str(settings.timeline_db.address), f"snapshot/{self.id}/"
-        )
-        result = get_with_db(req_url, params=params)
+        result = get_with_db(f"snapshot/{self.id}/", params=params)
         no_snapshot_ex = QJsonDbException("Snapshot data wasn't retrieved.")
         if result.status_code != 200:
             raise no_snapshot_ex
@@ -84,11 +78,10 @@ class SnapshotTimelineDb(SnapshotBase):
     def get_latest_snapshots(
         self, num_snapshots: int = 50
     ) -> DocumentSequenceType:
-        settings = get_settings()
-        req_url = urljoin(
-            str(settings.timeline_db.address), f"snapshot/{self.id}/history"
+        result = get_with_db(
+            f"snapshot/{self.id}/history",
+            params={"num_snapshots": num_snapshots},
         )
-        result = get_with_db(req_url, params={"num_snapshots": num_snapshots})
         if result.status_code != 200:
             raise QJsonDbException("Snapshot history wasn't retrieved.")
         return list(result.json())
@@ -98,10 +91,9 @@ class SnapshotTimelineDb(SnapshotBase):
     ) -> Mapping[str, Mapping[str, Any]]:
         if self.id == other_snapshot_int:
             return {}
-        settings = get_settings()
-        req_url = urljoin(str(settings.timeline_db.address), "action/compare")
         response = get_with_db(
-            req_url, params={"left_id": self.id, "right_id": other_snapshot_int}
+            "action/compare",
+            params={"left_id": self.id, "right_id": other_snapshot_int},
         )
         if response.status_code != 200:
             raise QJsonDbException("Difference wasn't retrieved.")

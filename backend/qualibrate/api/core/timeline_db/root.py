@@ -1,5 +1,4 @@
 from typing import Any, Optional, Sequence
-from urllib.parse import urljoin
 
 from qualibrate.api.core.bases.root import RootBase
 from qualibrate.api.core.timeline_db.branch import BranchTimelineDb
@@ -8,7 +7,6 @@ from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate.config import get_settings
 
 __all__ = ["RootTimelineDb"]
 
@@ -18,11 +16,7 @@ class RootTimelineDb(RootBase):
         return BranchTimelineDb(branch_name)
 
     def _get_latest_snapshots(self, num: int = 50) -> DocumentSequenceType:
-        settings = get_settings()
-        req_url = urljoin(
-            str(settings.timeline_db.address), "snapshot/n_latest"
-        )
-        result = get_with_db(req_url, params={"num": num})
+        result = get_with_db("snapshot/n_latest", params={"num": num})
         if result.status_code != 200:
             raise QJsonDbException("Latest snapshots wasn't retrieved.")
         return list(result.json())
@@ -66,12 +60,10 @@ class RootTimelineDb(RootBase):
         ]
 
     def search_snapshot(self, snapshot_id: IdType, data_path: str) -> Any:
-        settings = get_settings()
-        req_url = urljoin(
-            str(settings.timeline_db.address),
+        result = get_with_db(
             f"/snapshot/{snapshot_id}/search/data/values",
+            params={"data_path": data_path},
         )
-        result = get_with_db(req_url, params={"data_path": data_path})
         if result.status_code != 200:
             raise QJsonDbException("Branch history wasn't retrieved.")
         return result.json()
