@@ -36,14 +36,12 @@ try:
     )
 except ImportError:
     TIMELINE_DB_CONFIG_KEY = None
-    TimelineDbSettings = None
     PREDEFINED_DBS = None
 
-    # TODO: replace with smth if timeline DB not installed
-    def _settings(**kwargs) -> None:
-        pass
-
-    TimelineDbSettingsSetup = _settings
+    from qualibrate.cli._timeline_db_settings import (
+        TimelineDbSettings,
+        TimelineDbSettingsSetup,
+    )
 
 
 __all__ = ["config_command"]
@@ -242,6 +240,7 @@ def config_command(
         qualibrate_config["timeline_db"] = {}
 
     qualibrate_config = _config_from_sources(ctx, qualibrate_config)
+    print(qualibrate_config)
     qualibrate_config = _spawn_db_processing(
         ctx, qualibrate_config, spawn_db, timeline_db_address
     )
