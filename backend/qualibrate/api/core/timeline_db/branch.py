@@ -42,7 +42,13 @@ class BranchTimelineDb(BranchBase):
             if len(latest) != 1:
                 raise QJsonDbException("Can't load latest snapshot of branch")
             return latest[0]
-        # TODO: Check if snapshot is part of branch history
+        res = get_with_db(
+            f"/branch/{self.name}/is_snapshot_belong",
+            params={"snapshot_id": id},
+        )
+        snapshot_belonged_to_branch = bool(res.json())
+        if not snapshot_belonged_to_branch:
+            raise QJsonDbException("Snapshot doesn't belong to branch.")
         snapshot = SnapshotTimelineDb(id=id)
         snapshot.load(SnapshotLoadType.Metadata)
         return snapshot
@@ -53,7 +59,13 @@ class BranchTimelineDb(BranchBase):
             if len(latest) != 1:
                 raise QJsonDbException("Can't load latest node of branch")
             return latest[0]
-        # TODO: Check if snapshot is part of branch history
+        res = get_with_db(
+            f"/branch/{self.name}/is_snapshot_belong",
+            params={"snapshot_id": id},
+        )
+        snapshot_belonged_to_branch = bool(res.json())
+        if not snapshot_belonged_to_branch:
+            raise QJsonDbException("Node snapshot doesn't belong to branch.")
         node = NodeTimelineDb(node_id=id)
         node.load(NodeLoadType.Full)
         return node
