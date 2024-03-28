@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Any, ClassVar, Mapping, Optional, Union
 
+from qualibrate.api.core.bases.i_dump import IDump
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 
 __all__ = ["SnapshotBase", "SnapshotLoadType"]
@@ -18,7 +19,7 @@ class SnapshotLoadType(IntEnum):
     Full = 4
 
 
-class SnapshotBase(ABC):
+class SnapshotBase(IDump, ABC):
     _items_keys: ClassVar[tuple[str, ...]] = ("data", "metadata")
 
     def __init__(

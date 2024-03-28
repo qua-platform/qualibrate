@@ -5,6 +5,7 @@ __all__ = ["NodeBase", "NodeLoadType"]
 
 from typing import Optional
 
+from qualibrate.api.core.bases.i_dump import IDump
 from qualibrate.api.core.bases.snapshot import SnapshotBase
 from qualibrate.api.core.bases.storage import DataFileStorage
 from qualibrate.api.core.types import DocumentType
@@ -16,7 +17,7 @@ class NodeLoadType(IntEnum):
     Full = 2
 
 
-class NodeBase(ABC):
+class NodeBase(IDump, ABC):
     def __init__(self) -> None:
         self._load_type = NodeLoadType.Empty
         self._snapshot: SnapshotBase
@@ -43,7 +44,7 @@ class NodeBase(ABC):
     def dump(self) -> DocumentType:
         return {
             "snapshot": (
-                None if self._snapshot is None else self._snapshot.content
+                None if self._snapshot is None else self._snapshot.dump()
             ),
-            "storage": None if self._storage is None else self._storage.path,
+            "storage": None if self._storage is None else self._storage.dump(),
         }

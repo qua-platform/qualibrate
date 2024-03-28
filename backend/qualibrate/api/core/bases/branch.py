@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import IntEnum
-
-__all__ = ["BranchBase", "BranchLoadType"]
-
 from typing import Optional, Sequence
 
+from qualibrate.api.core.bases.i_dump import IDump
 from qualibrate.api.core.bases.node import NodeBase
 from qualibrate.api.core.bases.snapshot import SnapshotBase
 from qualibrate.api.core.types import DocumentType, IdType
+
+__all__ = ["BranchBase", "BranchLoadType"]
 
 
 class BranchLoadType(IntEnum):
@@ -16,7 +16,7 @@ class BranchLoadType(IntEnum):
     Full = 1
 
 
-class BranchBase(ABC):
+class BranchBase(IDump, ABC):
     def __init__(self, name: str, content: Optional[DocumentType] = None):
         self._name = name
         if content is None:
