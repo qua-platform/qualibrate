@@ -16,7 +16,7 @@ class NodeTimelineDb(NodeBase):
     def __init__(
         self, node_id: IdType, snapshot_content: Optional[DocumentType] = None
     ):
-        super().__init__()
+        super().__init__(node_id)
         self._storage: Optional[DataFileStorage] = None
         self._snapshot = SnapshotTimelineDb(node_id, snapshot_content)
 

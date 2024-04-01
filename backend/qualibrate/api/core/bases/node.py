@@ -8,7 +8,7 @@ from typing import Optional
 from qualibrate.api.core.bases.i_dump import IDump
 from qualibrate.api.core.bases.snapshot import SnapshotBase
 from qualibrate.api.core.bases.storage import DataFileStorage
-from qualibrate.api.core.types import DocumentType
+from qualibrate.api.core.types import DocumentType, IdType
 
 
 class NodeLoadType(IntEnum):
@@ -18,7 +18,8 @@ class NodeLoadType(IntEnum):
 
 
 class NodeBase(IDump, ABC):
-    def __init__(self) -> None:
+    def __init__(self, node_id: IdType) -> None:
+        self._node_id = node_id
         self._load_type = NodeLoadType.Empty
         self._snapshot: SnapshotBase
         self._storage: Optional[DataFileStorage]

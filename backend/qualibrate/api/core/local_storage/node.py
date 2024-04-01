@@ -14,7 +14,7 @@ __all__ = ["NodeLoadType"]
 
 class NodeLocalStorage(NodeBase):
     def __init__(self, node_id: IdType):
-        super().__init__()
+        super().__init__(node_id)
         self._storage: Optional[DataFileStorage] = None
         self._snapshot = SnapshotLocalStorage(node_id)
 
