@@ -77,14 +77,17 @@ class SnapshotTimelineDb(SnapshotBase):
 
     def get_latest_snapshots(
         self, num_snapshots: int = 50
-    ) -> DocumentSequenceType:
+    ) -> Sequence[SnapshotBase]:
         result = get_with_db(
             f"snapshot/{self.id}/history",
             params={"num_snapshots": num_snapshots},
         )
         if result.status_code != 200:
             raise QJsonDbException("Snapshot history wasn't retrieved.")
-        return list(result.json())
+        data = list(result.json())
+        return [
+            SnapshotTimelineDb(snapshot["id"], snapshot) for snapshot in data
+        ]
 
     def compare_by_id(
         self, other_snapshot_int: int

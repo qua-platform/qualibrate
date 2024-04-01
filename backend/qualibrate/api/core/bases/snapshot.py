@@ -98,7 +98,7 @@ class SnapshotBase(IDump, ABC):
     @abstractmethod
     def get_latest_snapshots(
         self, num_snapshots: int = 50
-    ) -> DocumentSequenceType:
+    ) -> Sequence["SnapshotBase"]:
         pass
 
     @abstractmethod

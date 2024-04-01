@@ -125,13 +125,14 @@ class SnapshotLocalStorage(SnapshotBase):
 
     def get_latest_snapshots(
         self, num_snapshots: int = 50
-    ) -> DocumentSequenceType:
+    ) -> Sequence[SnapshotBase]:
         settings = get_settings()
         # first in history is current
         if num_snapshots < 1:
             return []
+        self.load(SnapshotLoadType.Metadata)
         if num_snapshots == 1:
-            return [self.content]
+            return [self]
         paths_mapping = IdToLocalPath(settings.user_storage)
         snapshot_path = paths_mapping[self._id]
         ids = find_n_latest_nodes_ids(
@@ -155,10 +156,7 @@ class SnapshotLocalStorage(SnapshotBase):
                 snapshot.load(SnapshotLoadType.Metadata)
             except OSError:
                 pass
-        return [
-            self.content,
-            *(snapshot.content for snapshot in snapshots),
-        ]
+        return [self, *snapshots]
 
     def compare_by_id(
         self, other_snapshot_int: int
