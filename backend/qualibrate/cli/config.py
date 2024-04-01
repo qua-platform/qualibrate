@@ -14,6 +14,7 @@ from qualibrate.config import (
     DEFAULT_CONFIG_FILENAME,
     QUALIBRATE_PATH,
     QualibrateSettingsSetup,
+    StorageType,
     get_config_file,
 )
 
@@ -184,6 +185,12 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
     default=Path(__file__).parents[2] / "qualibrate_static",
 )
 @click.option(
+    "--storage-type",
+    type=click.Choice([t.value for t in StorageType]),
+    default=StorageType.local_storage.value,
+    show_default=True,
+)
+@click.option(
     "--user-storage",
     type=click.Path(
         exists=False,
@@ -230,6 +237,7 @@ def config_command(
     ctx: click.Context,
     config_path: Path,
     static_site_files: Path,
+    storage_type: StorageType,
     user_storage: Path,
     metadata_out_path: str,
     spawn_db: bool,
@@ -243,7 +251,6 @@ def config_command(
         qualibrate_config["timeline_db"] = {}
 
     qualibrate_config = _config_from_sources(ctx, qualibrate_config)
-    print(qualibrate_config)
     qualibrate_config = _spawn_db_processing(
         ctx, qualibrate_config, spawn_db, timeline_db_address
     )
