@@ -1,24 +1,27 @@
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Type
 
 from fastapi import APIRouter, Depends, Path
 
+from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
 from qualibrate.api.core.bases.storage import DataFileStorage, StorageLoadType
-from qualibrate.api.core.local_storage.node import (
-    NodeLoadType,
-    NodeLocalStorage,
-)
+from qualibrate.api.core.local_storage.node import NodeLocalStorage
+from qualibrate.api.core.timeline_db.node import NodeTimelineDb
 from qualibrate.api.core.types import DocumentType
 from qualibrate.api.core.utils.request_utils import HTTPException422
+from qualibrate.config import QualibrateSettings, StorageType, get_settings
 
-local_storage_data_file_router = APIRouter(
-    prefix="/data_file/{snapshot_id}", tags=["data file local storage"]
-)
+data_file_router = APIRouter(prefix="/data_file/{node_id}", tags=["data file"])
 
 
 def _get_storage_instance(
-    snapshot_id: Annotated[int, Path()],
+    node_id: Annotated[int, Path()],
+    settings: Annotated[QualibrateSettings, Depends(get_settings)],
 ) -> DataFileStorage:
-    node = NodeLocalStorage(snapshot_id)
+    node_types: dict[StorageType, Type[NodeBase]] = {
+        StorageType.local_storage: NodeLocalStorage,
+        StorageType.timeline_db: NodeTimelineDb,
+    }
+    node = node_types[settings.storage_type](node_id)
     try:
         node.load(NodeLoadType.Full)
     except NotADirectoryError as e:
@@ -28,14 +31,14 @@ def _get_storage_instance(
     return node.storage
 
 
-@local_storage_data_file_router.get("/")
+@data_file_router.get("/")
 def get_node_storage(
     storage: Annotated[DataFileStorage, Depends(_get_storage_instance)],
 ) -> str:
     return str(storage.path)
 
 
-@local_storage_data_file_router.get("/content")
+@data_file_router.get("/content")
 def get_node_storage_content(
     storage: Annotated[DataFileStorage, Depends(_get_storage_instance)],
 ) -> Optional[DocumentType]:
