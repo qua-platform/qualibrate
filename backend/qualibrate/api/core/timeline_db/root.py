@@ -1,4 +1,4 @@
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, Sequence, Union
 
 from qualibrate.api.core.bases.root import RootBase
 from qualibrate.api.core.timeline_db.branch import BranchTimelineDb
@@ -59,10 +59,13 @@ class RootTimelineDb(RootBase):
             for snapshot in snapshots
         ]
 
-    def search_snapshot(self, snapshot_id: IdType, data_path: str) -> Any:
+    def search_snapshot(
+        self, snapshot_id: IdType, data_path: Sequence[Union[str, int]]
+    ) -> Any:
+        data_path_joined = ".".join(map(str, data_path))
         result = get_with_db(
             f"/snapshot/{snapshot_id}/search/data/values",
-            params={"data_path": data_path},
+            params={"data_path": data_path_joined},
         )
         if result.status_code != 200:
             raise QJsonDbException("Branch history wasn't retrieved.")

@@ -1,4 +1,4 @@
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, Sequence, Union
 
 from qualibrate.api.core.bases.branch import BranchBase
 from qualibrate.api.core.bases.node import NodeBase
@@ -44,5 +44,7 @@ class RootLocalStorage(RootBase):
     def get_latest_nodes(self, num: int = 50) -> Sequence[NodeBase]:
         return BranchLocalStorage("main").get_latest_nodes(num)
 
-    def search_snapshot(self, snapshot_id: IdType, data_path: str) -> Any:
-        pass
+    def search_snapshot(
+        self, snapshot_id: IdType, data_path: Sequence[Union[str, int]]
+    ) -> Any:
+        return self.get_snapshot(snapshot_id).search(data_path, load=True)

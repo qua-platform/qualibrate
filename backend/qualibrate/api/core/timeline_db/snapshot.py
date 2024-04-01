@@ -63,7 +63,7 @@ class SnapshotTimelineDb(SnapshotBase):
 
     def search(
         self,
-        search_path: list[Union[str, int]],
+        search_path: Sequence[Union[str, int]],
         load: bool = False,
     ) -> Optional[DocumentSequenceType]:
         """Make search in current instance of Snapshot."""

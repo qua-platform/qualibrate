@@ -1,4 +1,4 @@
-from typing import Annotated, Union
+from typing import Annotated, Sequence, Union
 
 from fastapi import Query
 
@@ -27,7 +27,7 @@ def check_path(value: str) -> str:
 
 def get_search_path(
     data_path: Annotated[str, Query(description="Path to search")],
-) -> list[Union[str, int]]:
+) -> Sequence[Union[str, int]]:
     """Generate list of search subpaths from search path.
 
     Raises:

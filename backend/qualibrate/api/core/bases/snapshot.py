@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 from enum import IntEnum
-from typing import Any, ClassVar, Mapping, Optional, Union
+from typing import Any, ClassVar, Mapping, Optional, Sequence, Union
 
 from qualibrate.api.core.bases.i_dump import IDump
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
@@ -79,7 +79,7 @@ class SnapshotBase(IDump, ABC):
     @abstractmethod
     def search(
         self,
-        search_path: list[Union[str, int]],
+        search_path: Sequence[Union[str, int]],
         load: bool = False,
     ) -> Optional[DocumentSequenceType]:
         pass

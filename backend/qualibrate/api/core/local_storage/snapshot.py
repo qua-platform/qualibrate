@@ -2,7 +2,7 @@ import functools
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Mapping, Optional, Union
+from typing import Any, Callable, Mapping, Optional, Sequence, Union
 
 import jsonpatch
 
@@ -115,7 +115,7 @@ class SnapshotLocalStorage(SnapshotBase):
         return self.content.get("parents")
 
     def search(
-        self, search_path: list[Union[str, int]], load: bool = False
+        self, search_path: Sequence[Union[str, int]], load: bool = False
     ) -> Optional[DocumentSequenceType]:
         if load:
             self.load(SnapshotLoadType.Data)
@@ -163,6 +163,7 @@ class SnapshotLocalStorage(SnapshotBase):
     def compare_by_id(
         self, other_snapshot_int: int
     ) -> Mapping[str, Mapping[str, Any]]:
+        self.load(SnapshotLoadType.Data)
         other_snapshot = SnapshotLocalStorage(other_snapshot_int)
         other_snapshot.load(SnapshotLoadType.Data)
         this_data = self.data

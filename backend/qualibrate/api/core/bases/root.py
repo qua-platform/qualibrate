@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Sequence
+from typing import Any, Optional, Sequence, Union
 
 from qualibrate.api.core.bases.branch import BranchBase
 from qualibrate.api.core.bases.node import NodeBase
@@ -31,5 +31,9 @@ class RootBase(ABC):
         pass
 
     @abstractmethod
-    def search_snapshot(self, snapshot_id: IdType, data_path: str) -> Any:
+    def search_snapshot(
+        self,
+        snapshot_id: IdType,
+        data_path: Sequence[Union[str, int]],
+    ) -> Any:
         pass
