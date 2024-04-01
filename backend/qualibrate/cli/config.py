@@ -95,7 +95,10 @@ def _spawn_db_processing(
     spawn_db: bool,
     timeline_db_address: str,
 ) -> dict[str, Any]:
-    if spawn_db or qualibrate_config["timeline_db"]["spawn"]:
+    spawn_not_default = not_default(ctx, "spawn_db")
+    if (spawn_db and spawn_not_default) or qualibrate_config["timeline_db"][
+        "spawn"
+    ]:
         click.secho(
             (
                 "Argument timeline_db_address replaced because "
@@ -106,7 +109,7 @@ def _spawn_db_processing(
         qualibrate_config["timeline_db"][
             "address"
         ] = "http://localhost:8001/timeline_db/"
-    if spawn_db is False and not_default(ctx, "spawn_db"):
+    if spawn_db is False and spawn_not_default:
         click.secho(
             "Uncheck `spawn_db` flag. Use passed timeline db address.",
             fg="yellow",
