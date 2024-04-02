@@ -1,4 +1,5 @@
 from typing import Any, Mapping, Sequence
+
 from jsonpointer import resolve_pointer
 
 

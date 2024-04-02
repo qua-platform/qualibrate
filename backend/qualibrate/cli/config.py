@@ -1,19 +1,21 @@
 import os
 import sys
+from pathlib import Path
 from typing import Any, Mapping
 
 import click
 import tomli_w
-from pathlib import Path
-
 from click.core import ParameterSource
 
 from qualibrate.config import (
-    QualibrateSettingsSetup,
-    get_config_file,
     CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
-    QUALIBRATE_PATH,
+)
+from qualibrate.config import (
     DEFAULT_CONFIG_FILENAME,
+    QUALIBRATE_PATH,
+    QualibrateSettingsSetup,
+    StorageType,
+    get_config_file,
 )
 
 if sys.version_info[:2] < (3, 11):
@@ -23,14 +25,24 @@ else:
 try:
     from json_timeline_database.config import (
         CONFIG_KEY as TIMELINE_DB_CONFIG_KEY,
-        Settings as TimelineDbSettings,
-        SettingsSetup as TimelineDbSettingsSetup,
+    )
+    from json_timeline_database.config import (
         PREDEFINED_DBS,
+    )
+    from json_timeline_database.config import (
+        Settings as TimelineDbSettings,
+    )
+    from json_timeline_database.config import (
+        SettingsSetup as TimelineDbSettingsSetup,
     )
 except ImportError:
     TIMELINE_DB_CONFIG_KEY = None
-    TimelineDbSettings = None
     PREDEFINED_DBS = None
+
+    from qualibrate.cli._timeline_db_settings import (
+        TimelineDbSettings,
+        TimelineDbSettingsSetup,
+    )
 
 
 __all__ = ["config_command"]
@@ -54,13 +66,14 @@ def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
 def _config_from_sources(
     ctx: click.Context, from_file: dict[str, Any]
 ) -> dict[str, Any]:
-    qualibrate_mapping = {k: k for k in ("static_site_files", "user_storage")}
+    qualibrate_mapping = {
+        k: k for k in ("static_site_files", "user_storage", "metadata_out_path")
+    }
     timeline_db_mapping = {
         "spawn_db": "spawn",
         "timeline_db_address": "address",
         "timeline_db_timeout": "timeout",
         "timeline_db_name": "db_name",
-        "timeline_db_metadata_out_path": "metadata_out_path",
     }
     for arg_key, arg_value in ctx.params.items():
         not_default_arg = not_default(ctx, arg_key)
@@ -83,7 +96,10 @@ def _spawn_db_processing(
     spawn_db: bool,
     timeline_db_address: str,
 ) -> dict[str, Any]:
-    if spawn_db or qualibrate_config["timeline_db"]["spawn"]:
+    spawn_not_default = not_default(ctx, "spawn_db")
+    if (spawn_db and spawn_not_default) or qualibrate_config["timeline_db"][
+        "spawn"
+    ]:
         click.secho(
             (
                 "Argument timeline_db_address replaced because "
@@ -93,8 +109,8 @@ def _spawn_db_processing(
         )
         qualibrate_config["timeline_db"][
             "address"
-        ] = "http://localhost:8001/json_db/"
-    if spawn_db is False and not_default(ctx, "spawn_db"):
+        ] = "http://localhost:8001/timeline_db/"
+    if spawn_db is False and spawn_not_default:
         click.secho(
             "Uncheck `spawn_db` flag. Use passed timeline db address.",
             fg="yellow",
@@ -169,6 +185,12 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
     default=Path(__file__).parents[2] / "qualibrate_static",
 )
 @click.option(
+    "--storage-type",
+    type=click.Choice([t.value for t in StorageType]),
+    default=StorageType.local_storage.value,
+    show_default=True,
+)
+@click.option(
     "--user-storage",
     type=click.Path(
         exists=False,
@@ -177,6 +199,12 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
     ),
     default=Path().home() / ".qualibrate" / "user_storage",
     help="Path to user storage directory with qualibrate data.",
+    show_default=True,
+)
+@click.option(
+    "--metadata-out-path",
+    type=str,
+    default="data_path",
     show_default=True,
 )
 @click.option(
@@ -204,23 +232,18 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
     default="new_db",
     show_default=True,
 )
-@click.option(
-    "--timeline-db-metadata-out-path",
-    type=str,
-    default="data_path",
-    show_default=True,
-)
 @click.pass_context
 def config_command(
     ctx: click.Context,
     config_path: Path,
     static_site_files: Path,
+    storage_type: StorageType,
     user_storage: Path,
+    metadata_out_path: str,
     spawn_db: bool,
     timeline_db_address: str,
     timeline_db_timeout: float,
     timeline_db_name: str,
-    timeline_db_metadata_out_path: str,
 ) -> None:
     common_config, config_file = get_config(config_path)
     qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})

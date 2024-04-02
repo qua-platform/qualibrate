@@ -1,25 +1,27 @@
-from typing import Optional, Mapping, Any, Callable
+from functools import partial
+from typing import Any, Callable, Mapping, Optional
+from urllib.parse import urljoin
 
 import requests
-from functools import partial
 from fastapi import HTTPException
 
 from qualibrate.config import get_settings
-
 
 HTTPException422 = partial(HTTPException, status_code=422)
 
 
 def get_with_db(
-    url: str,
+    path: str,
     *,
     params: Optional[Mapping[str, Any]] = None,
     db_name: Optional[str] = None,
     timeout: Optional[float] = None,
     method: Callable[..., requests.Response] = requests.get,
+    host: Optional[str] = None,
     **kwargs: Any,
 ) -> requests.Response:
     settings = get_settings()
+    host = host or str(settings.timeline_db.address)
     db_name = db_name if db_name is not None else settings.timeline_db.db_name
     timeout = timeout if timeout is not None else settings.timeline_db.timeout
     if params is None:
@@ -28,7 +30,7 @@ def get_with_db(
         params = dict(params)
         params["db_name"] = db_name
     result = method(
-        url,
+        urljoin(host, path),
         params=params,
         timeout=timeout,
         **kwargs,

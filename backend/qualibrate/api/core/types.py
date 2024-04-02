@@ -1,8 +1,8 @@
 import string
-from typing import Union, Mapping, Any, Sequence
+from typing import Any, Mapping, Sequence
 
 AllowedSearchKeys = string.ascii_letters + string.digits + "-_*"
 
-IdType = Union[str, int]
+IdType = int
 DocumentType = Mapping[str, Any]
 DocumentSequenceType = Sequence[DocumentType]

@@ -1,12 +1,12 @@
 from itertools import chain
-from typing import Mapping, Optional, Any, Sequence, Union, Callable, cast
+from typing import Any, Callable, Mapping, Optional, Sequence, Union, cast
 
 from qualibrate.api.core.types import DocumentSequenceType
 
 
 def _get_subpath_value_wildcard(
     obj: Union[Mapping[str, Any], Sequence[Any]],
-    target_path: list[Union[str, int]],
+    target_path: Sequence[Union[str, int]],
     current_path: list[Union[str, int]],
 ) -> DocumentSequenceType:
     if len(target_path) == 1:
@@ -38,6 +38,7 @@ def _get_subpath_value_wildcard(
 
 
 def _check_key_valid(obj: Any, key: Union[str, int]) -> bool:
+    print("check key", obj, key)
     if isinstance(obj, Sequence):
         return isinstance(key, int) and 0 <= key < len(obj)
     if isinstance(obj, Mapping):
@@ -47,7 +48,7 @@ def _check_key_valid(obj: Any, key: Union[str, int]) -> bool:
 
 def get_subpath_value(
     obj: Union[Mapping[str, Any], Sequence[Any]],
-    target_path: list[Union[str, int]],
+    target_path: Sequence[Union[str, int]],
     current_path: Optional[list[Union[str, int]]] = None,
 ) -> DocumentSequenceType:
     if current_path is None:
@@ -57,7 +58,8 @@ def get_subpath_value(
     key = target_path[0]
     if key == "*":
         return _get_subpath_value_wildcard(obj, target_path, current_path)
-    if not _check_key_valid(obj, key):
+    key_valid = _check_key_valid(obj, key)
+    if not key_valid:
         return []
     cast_f = str if isinstance(obj, Mapping) else int
     if len(target_path) == 1:

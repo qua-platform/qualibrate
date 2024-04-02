@@ -1,13 +1,13 @@
 import os
+import sys
+from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Union
 
-from pydantic import DirectoryPath, field_serializer, HttpUrl
+from pydantic import DirectoryPath, HttpUrl, field_serializer
 from pydantic_core.core_schema import FieldSerializationInfo
 from pydantic_settings import BaseSettings
-
-import sys
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
@@ -22,12 +22,16 @@ DEFAULT_QUALIBRATE_CONFIG_FILENAME = "qualibrate.toml"
 CONFIG_PATH_ENV_NAME = "QUALIBRATE_CONFIG_FILE"
 
 
+class StorageType(Enum):
+    local_storage = "local_storage"
+    timeline_db = "timeline_db"
+
+
 class JsonTimelineDBBase(BaseSettings):
     spawn: bool
     address: HttpUrl
     timeout: float
     db_name: str
-    metadata_out_path: str
 
     @field_serializer("address")
     def serialize_http_url(
@@ -38,7 +42,9 @@ class JsonTimelineDBBase(BaseSettings):
 
 class _QualibrateSettingsBase(BaseSettings):
     static_site_files: Path
+    storage_type: StorageType = StorageType.local_storage
     user_storage: Path
+    metadata_out_path: str
 
     timeline_db: JsonTimelineDBBase
 
@@ -47,6 +53,12 @@ class QualibrateSettingsSetup(_QualibrateSettingsBase):
     @field_serializer("static_site_files", "user_storage")
     def serialize_path(self, path: Path, _info: FieldSerializationInfo) -> str:
         return str(path)
+
+    @field_serializer("storage_type")
+    def serialize_storage_type(
+        self, value: StorageType, _info: FieldSerializationInfo
+    ) -> str:
+        return value.value
 
 
 class QualibrateSettings(_QualibrateSettingsBase):

@@ -1,15 +1,16 @@
 import json
-from enum import IntEnum
 from base64 import b64encode
-from typing import Mapping, Any, Optional
+from enum import IntEnum
 from pathlib import Path
+from typing import Any, Mapping, Optional
 
+from qualibrate.api.core.bases.i_dump import IDump
+from qualibrate.api.core.types import DocumentType
 from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate.api.exceptions.classes.values import QValueException
 from qualibrate.config import get_settings
 
-
-__all__ = ["StorageJsonDb", "StorageLoadType"]
+__all__ = ["DataFileStorage", "StorageLoadType"]
 
 
 class StorageLoadType(IntEnum):
@@ -17,7 +18,7 @@ class StorageLoadType(IntEnum):
     Full = 1
 
 
-class StorageJsonDb:
+class DataFileStorage(IDump):
     data_file_name = "data.json"
 
     def __init__(self, path: Path):
@@ -83,3 +84,6 @@ class StorageJsonDb:
                 }
         self._data = content
         self._load_type = StorageLoadType.Full
+
+    def dump(self) -> DocumentType:
+        return {"path": self.path}
