@@ -74,8 +74,9 @@ def get_snapshot_by_id(
 
 @root_router.get("/snapshot/latest")
 def get_latest_snapshot(
-    root: Annotated[RootBase, Depends(_get_root_instance)],
+    *,
     load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
+    root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> Optional[DocumentType]:
     snapshot = root.get_snapshot()
     snapshot.load(load_type)

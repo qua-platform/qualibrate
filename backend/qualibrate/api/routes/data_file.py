@@ -40,7 +40,9 @@ def get_node_storage(
 
 @data_file_router.get("/content")
 def get_node_storage_content(
+    *,
+    load_type: StorageLoadType = StorageLoadType.Full,
     storage: Annotated[DataFileStorage, Depends(_get_storage_instance)],
 ) -> Optional[DocumentType]:
-    storage.load(StorageLoadType.Full)
+    storage.load(load_type)
     return storage.data

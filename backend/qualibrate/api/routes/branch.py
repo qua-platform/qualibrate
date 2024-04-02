@@ -38,38 +38,45 @@ def get(
 def get_snapshot(
     *,
     snapshot_id: IdType,
+    load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> Optional[DocumentType]:
     snapshot = branch.get_snapshot(snapshot_id)
-    snapshot.load(SnapshotLoadType.Metadata)
+    snapshot.load(load_type)
     return snapshot.dump()
 
 
 @branch_router.get("/snapshot/latest")
 def get_latest_snapshot(
+    *,
+    load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> Optional[DocumentType]:
     snapshot = branch.get_snapshot()
-    snapshot.load(SnapshotLoadType.Metadata)
+    snapshot.load(load_type)
     return snapshot.dump()
 
 
 @branch_router.get("/node")
 def get_node(
+    *,
     node_id: int,
+    load_type: NodeLoadType = NodeLoadType.Full,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> Optional[DocumentType]:
     node = branch.get_node(node_id)
-    node.load(NodeLoadType.Full)
+    node.load(load_type)
     return node.dump()
 
 
 @branch_router.get("/node/latest")
 def get_latest_node(
+    *,
+    load_type: NodeLoadType = NodeLoadType.Full,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> Optional[DocumentType]:
     node = branch.get_node()
-    node.load(NodeLoadType.Full)
+    node.load(load_type)
     return node.dump()
 
 

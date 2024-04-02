@@ -25,6 +25,10 @@ from qualibrate.config import QualibrateSettings, get_settings
 
 __all__ = ["SnapshotLocalStorage"]
 
+SnapshotContentLoaderType = Callable[
+    [Path, SnapshotLoadType, QualibrateSettings], DocumentType
+]
+
 
 def _default_snapshot_content_loader(
     snapshot_path: Path,
@@ -89,9 +93,7 @@ class SnapshotLocalStorage(SnapshotBase):
         self,
         id: IdType,
         content: Optional[DocumentType] = None,
-        snapshot_loader: Callable[
-            [Path, SnapshotLoadType, QualibrateSettings], DocumentType
-        ] = _default_snapshot_content_loader,
+        snapshot_loader: SnapshotContentLoaderType = _default_snapshot_content_loader,
     ):
         super().__init__(id=id, content=content)
         self._snapshot_loader = snapshot_loader
