@@ -48,10 +48,6 @@ const config = {
           from: inProject("public/assets"),
           to: inProject("dist/assets"),
         },
-        {
-          from: inProject("node_modules/@h5web/app/dist/styles.css"),
-          to: inProject("dist/assets/h5web-styles.css"),
-        },
       ],
     }),
     new MiniCssExtractPlugin(),
@@ -125,8 +121,8 @@ const config = {
 };
 config.resolve.alias = {
   ...config.resolve.alias,
-  "react/jsx-dev-runtime": "react/jsx-dev-runtime.js",
-  "react/jsx-runtime": "react/jsx-runtime.js",
+  "react/jsx-dev-runtime": "react/jsx-dev-runtime",
+  "react/jsx-runtime": "react/jsx-runtime",
 };
 
 module.exports = config;

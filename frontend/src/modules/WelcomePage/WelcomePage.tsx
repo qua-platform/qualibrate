@@ -13,10 +13,8 @@ import { NotebookIcon } from "../../ui-lib/Icons/NotebookIcon";
 import PageName from "../../DEPRECATED_components/common/Page/PageName";
 import PageSection from "../../DEPRECATED_components/common/Page/PageSection";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
-import WithTooltip from "../../DEPRECATED_components/wrappers/withTooltip";
 import styles from "./WelcomePage.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
-import cyKeys from "../../utils/cyKeys";
 import { IconType } from "../../DEPRECATED_common/DEPRECATED_interfaces/InputProps";
 
 const WelcomePage = () => {
@@ -62,18 +60,6 @@ const WelcomePage = () => {
         </PageSection>
       </div>
       <div className={styles.pageActions}>
-        <WithTooltip name="Open experiment tab">
-          <BlueButton
-            onClick={() => openTab("experiments")}
-            className={styles.actionButton}
-            disabled={true}
-            data-cy={cyKeys.projects.LETS_START_BUTTON}
-            isBig
-          >
-            Let’s Start
-          </BlueButton>
-        </WithTooltip>
-
         {NEW_PROJECT_BUTTON_VISIBLE && (
           <BlueButton isSecondary className={styles.actionButton}>
             <AddIcon height={12} color={ACTIVE_TEXT} />

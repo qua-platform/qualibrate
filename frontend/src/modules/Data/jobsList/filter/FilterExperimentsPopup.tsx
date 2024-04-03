@@ -1,16 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import PopupHeader from "../../../../DEPRECATED_components/Popup/PopupHeader";
 import cyKeys from "../../../../utils/cyKeys";
-// import { useJobsListContext } from "../../../Jobs/context/JobsListContext";
-import { JobsFilter } from "../../../Jobs/types";
-import DateRange from "../../../../ui-lib/components/DateInput/DateRange";
-import useOnFieldChange from "../../../../ui-lib/hooks/useOnFieldChange";
-import { FIXED_DATA_JOBS_FILTER } from "../../components/JobsList";
 import RightPopupContainer from "../../../../ui-lib/components/RightPopup/RightPopupContainer";
 import { PopupProps } from "../../../../DEPRECATED_common/DEPRECATED_interfaces/Popup";
 import LabelWrap from "../../../../ui-lib/components/formFields/LabelWrap";
 import { FilterSwitch } from "../../../../ui-lib/components/FilterSwitch/FilterSwitch";
-import { DEFAULT_JOB_FILTER_TYPE } from "../../../Jobs/components/jobPage/JobsModule";
 import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 
 const FilterExperimentsPopup: React.FC<PopupProps> = ({ selectedFilterType, setSelectedFilterType, onClose }) => {

@@ -38,7 +38,7 @@ export function FlexLayoutContextProvider(props: Props): React.ReactElement {
 
   const checkIsEmpty = useCallback(() => {
     if (LayoutBuilder.current.isEmpty()) {
-      // navigate(HOME_URL);
+      // history.push(HOME_URL);
     }
   }, [LayoutBuilder]);
 

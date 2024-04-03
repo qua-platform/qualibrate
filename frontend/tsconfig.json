@@ -36,5 +36,5 @@
     "traceResolution": true
   },
   "include": ["src", "./src/**/*.ts", "./src/**/*.tsx"],
-  "exclude": ["./src/**/*.jsx"]
+  "exclude": ["./src/**/*.jsx", "./src/**/*.js"]
 }
