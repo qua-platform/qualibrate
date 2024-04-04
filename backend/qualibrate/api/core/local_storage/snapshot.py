@@ -118,13 +118,13 @@ class SnapshotLocalStorage(SnapshotBase):
     def get_latest_snapshots(
         self, num_snapshots: int = 50
     ) -> Sequence[SnapshotBase]:
-        settings = get_settings()
         # first in history is current
         if num_snapshots < 1:
             return []
         self.load(SnapshotLoadType.Metadata)
         if num_snapshots == 1:
             return [self]
+        settings = get_settings()
         paths_mapping = IdToLocalPath(settings.user_storage)
         snapshot_path = paths_mapping[self._id]
         ids = find_n_latest_nodes_ids(
@@ -151,15 +151,21 @@ class SnapshotLocalStorage(SnapshotBase):
         return [self, *snapshots]
 
     def compare_by_id(
-        self, other_snapshot_int: int
+        self, other_snapshot_id: int
     ) -> Mapping[str, Mapping[str, Any]]:
+        if self.id == other_snapshot_id:
+            raise QValueException("Can't compare snapshots with same id")
         self.load(SnapshotLoadType.Data)
-        other_snapshot = SnapshotLocalStorage(other_snapshot_int)
-        other_snapshot.load(SnapshotLoadType.Data)
         this_data = self.data
+        if this_data is None:
+            raise QValueException(f"Can't load data of snapshot {self._id}")
+        other_snapshot = SnapshotLocalStorage(other_snapshot_id)
+        other_snapshot.load(SnapshotLoadType.Data)
         other_data = other_snapshot.data
-        if this_data is None or other_data is None:
-            raise QValueException("Can't load data of snapshots")
+        if other_data is None:
+            raise QValueException(
+                f"Can't load data of snapshot {other_snapshot_id}"
+            )
         return jsonpatch_to_mapping(
             this_data, jsonpatch.make_patch(dict(this_data), dict(other_data))
         )
