@@ -55,14 +55,8 @@ def _read_minified_node_content(
     parents = node_info.get(
         "parents", [node_id - 1] if node_id and node_id > 0 else []
     )
-    parents = list(
-        filter(
-            lambda p_id: (
-                IdToLocalPath(settings.user_storage).get(p_id) is not None
-            ),
-            parents,
-        )
-    )
+    id_local_path = IdToLocalPath(settings.user_storage)
+    parents = list(filter(id_local_path.get, parents))
     created_at_str = node_info.get("created_at")
     if created_at_str is not None:
         created_at = datetime.fromisoformat(created_at_str)
@@ -108,6 +102,13 @@ def _read_metadata_node_content(
 def _read_data_node_content(
     node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
 ) -> Optional[dict[str, Any]]:
+    """Read quam data based on node info.
+
+    Args:
+        node_info: Node content
+        node_filepath: path to file that contains node info
+        snapshot_path: Node root
+    """
     node_data = dict(node_info.get("data", {}))
     quam_relative_path = node_data.get("quam", "state.json")
     quam_file_path = node_filepath.parent.joinpath(quam_relative_path).resolve()
