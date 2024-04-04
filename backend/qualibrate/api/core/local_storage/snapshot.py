@@ -2,7 +2,7 @@ import functools
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Mapping, Optional, Sequence, Union
+from typing import Any, Callable, Mapping, Optional, Sequence, Tuple, Union
 
 import jsonpatch
 
@@ -30,6 +30,23 @@ SnapshotContentLoaderType = Callable[
 ]
 
 
+def _get_node_id_and_name(node_path: Path) -> Tuple[Optional[IdType], str]:
+    parts = node_path.stem.split("_", maxsplit=1)
+    if len(parts) == 1:
+        return None, parts[0]
+    id_str, name = parts
+    # TODO: merge with
+    #  qualibrate.api.core.local_storage.utils.node_utils.id_from_node_name
+    node_id = (
+        int(id_str[1:])
+        if id_str.startswith("#") and id_str[1:].isnumeric()
+        else None
+    )
+    if node_id is None:
+        return None, node_path.name
+    return node_id, name
+
+
 def _default_snapshot_content_loader(
     snapshot_path: Path,
     load_type: SnapshotLoadType,
@@ -40,13 +57,8 @@ def _default_snapshot_content_loader(
         raise QFileNotFoundException(
             f"Snapshot {snapshot_path.stem} not exists"
         )
-    node_stem_parts = snapshot_path.stem.split("_")
-    snapshot_id = (
-        int(node_stem_parts[0][1:])
-        if node_stem_parts[0][1:].isnumeric()
-        else None
-    )
-    parent_id = snapshot_id - 1 if snapshot_id else None
+    node_id, node_name = _get_node_id_and_name(snapshot_path)
+    parent_id = node_id - 1 if node_id else None
     if parent_id is not None:
         if IdToLocalPath(settings.user_storage).get(parent_id) is None:
             parent_id = None
@@ -55,11 +67,6 @@ def _default_snapshot_content_loader(
         "created_at": datetime.fromtimestamp(snapshot_file.stat().st_mtime),
     }
     if load_type >= SnapshotLoadType.Metadata:
-        node_name = (
-            node_stem_parts[1]
-            if len(node_stem_parts) > 1
-            else snapshot_path.stem
-        )
         metadata_out_path = snapshot_path.relative_to(settings.user_storage)
         content["metadata"] = {
             "name": node_name,
