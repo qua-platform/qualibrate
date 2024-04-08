@@ -2,7 +2,7 @@ import functools
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Mapping, Optional, Sequence, Union
 
 import jsonpatch
 
@@ -14,7 +14,7 @@ from qualibrate.api.core.local_storage.utils.filters import (
 )
 from qualibrate.api.core.local_storage.utils.node_utils import (
     find_n_latest_nodes_ids,
-    id_from_node_name,
+    get_node_id_name_time,
 )
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.api.core.utils.find_utils import get_subpath_value
@@ -30,23 +30,6 @@ SnapshotContentLoaderType = Callable[
 ]
 
 
-def _get_node_id_and_name(node_path: Path) -> Tuple[Optional[IdType], str]:
-    parts = node_path.stem.split("_", maxsplit=1)
-    if len(parts) == 1:
-        return None, parts[0]
-    id_str, name = parts
-    # TODO: merge with
-    #  qualibrate.api.core.local_storage.utils.node_utils.id_from_node_name
-    node_id = (
-        int(id_str[1:])
-        if id_str.startswith("#") and id_str[1:].isnumeric()
-        else None
-    )
-    if node_id is None:
-        return None, node_path.name
-    return node_id, name
-
-
 def _default_snapshot_content_loader(
     snapshot_path: Path,
     load_type: SnapshotLoadType,
@@ -57,7 +40,7 @@ def _default_snapshot_content_loader(
         raise QFileNotFoundException(
             f"Snapshot {snapshot_path.stem} not exists"
         )
-    node_id, node_name = _get_node_id_and_name(snapshot_path)
+    node_id, node_name, node_time = get_node_id_name_time(snapshot_path)
     parent_id = node_id - 1 if node_id else None
     if parent_id is not None:
         if IdToLocalPath(settings.user_storage).get(parent_id) is None:
@@ -155,7 +138,7 @@ class SnapshotLocalStorage(SnapshotBase):
             node_filters=[
                 functools.partial(
                     id_less_then_snapshot,
-                    node_id_to_compare=id_from_node_name(snapshot_path.stem),
+                    node_id_to_compare=self._id,
                 )
             ],
         )

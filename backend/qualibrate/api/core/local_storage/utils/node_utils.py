@@ -1,17 +1,33 @@
-from datetime import datetime
+from datetime import datetime, time
 from pathlib import Path
 from typing import Callable, Generator, Optional, Sequence
 
 from qualibrate.api.core.types import IdType
 
 
-def id_from_node_name(node_name: str) -> IdType:
-    return int(node_name.split("_")[0][1:])
+def get_node_id_name_time(
+    node_path: Path,
+) -> tuple[Optional[IdType], str, Optional[time]]:
+    parts = node_path.stem.split("_")
+    if len(parts) < 3:
+        return None, node_path.stem, None
+    id_str, *node_name, node_time_str = parts
+    node_id = (
+        int(id_str[1:])
+        if id_str.startswith("#") and id_str[1:].isnumeric()
+        else None
+    )
+    if node_id is None:
+        return None, node_path.stem, None
+    node_name_str = "_".join(node_name)
+    node_time = datetime.strptime(node_time_str, "%H%M%S").time()
+    return node_id, node_name_str, node_time
 
 
 def find_latest_node_id(base_path: Path) -> IdType:
     def _get_key(p: Path) -> int:
-        return id_from_node_name(p.stem)
+        node_id, _, _ = get_node_id_name_time(p)
+        return node_id if node_id is not None else -1
 
     return _get_key(max(base_path.glob("*/#*"), key=_get_key))
 
@@ -55,9 +71,10 @@ def find_n_latest_nodes_ids(
         ):
             current = next_
             if current is None:
-                next_ = id_from_node_name(node.stem)
+                next_, _, _ = get_node_id_name_time(node)
+                print(next_)
                 continue
-            next_ = id_from_node_name(node.stem)
+            next_, _, _ = get_node_id_name_time(node)
             n -= 1
             if n > 0:
                 yield current
