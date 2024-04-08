@@ -67,7 +67,13 @@ def _config_from_sources(
     ctx: click.Context, from_file: dict[str, Any]
 ) -> dict[str, Any]:
     qualibrate_mapping = {
-        k: k for k in ("static_site_files", "user_storage", "metadata_out_path")
+        k: k
+        for k in (
+            "static_site_files",
+            "user_storage",
+            "metadata_out_path",
+            "storage_type",
+        )
     }
     timeline_db_mapping = {
         "spawn_db": "spawn",
