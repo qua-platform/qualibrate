@@ -14,7 +14,7 @@ from qualibrate.api.core.local_storage.utils.filters import (
 )
 from qualibrate.api.core.local_storage.utils.node_utils import (
     find_n_latest_nodes_ids,
-    id_from_node_name,
+    get_node_id_name_time,
 )
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.api.core.utils.find_utils import get_subpath_value
@@ -40,13 +40,8 @@ def _default_snapshot_content_loader(
         raise QFileNotFoundException(
             f"Snapshot {snapshot_path.stem} not exists"
         )
-    node_stem_parts = snapshot_path.stem.split("_")
-    snapshot_id = (
-        int(node_stem_parts[0][1:])
-        if node_stem_parts[0][1:].isnumeric()
-        else None
-    )
-    parent_id = snapshot_id - 1 if snapshot_id else None
+    node_id, node_name, node_time = get_node_id_name_time(snapshot_path)
+    parent_id = node_id - 1 if node_id else None
     if parent_id is not None:
         if IdToLocalPath(settings.user_storage).get(parent_id) is None:
             parent_id = None
@@ -55,11 +50,6 @@ def _default_snapshot_content_loader(
         "created_at": datetime.fromtimestamp(snapshot_file.stat().st_mtime),
     }
     if load_type >= SnapshotLoadType.Metadata:
-        node_name = (
-            node_stem_parts[1]
-            if len(node_stem_parts) > 1
-            else snapshot_path.stem
-        )
         metadata_out_path = snapshot_path.relative_to(settings.user_storage)
         content["metadata"] = {
             "name": node_name,
@@ -148,7 +138,7 @@ class SnapshotLocalStorage(SnapshotBase):
             node_filters=[
                 functools.partial(
                     id_less_then_snapshot,
-                    node_id_to_compare=id_from_node_name(snapshot_path.stem),
+                    node_id_to_compare=self._id,
                 )
             ],
         )

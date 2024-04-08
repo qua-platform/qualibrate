@@ -108,4 +108,7 @@ class SnapshotBase(IDump, ABC):
         pass
 
     def dump(self) -> DocumentType:
-        return self.content
+        return {
+            "id": self._id,
+            **self.content,
+        }

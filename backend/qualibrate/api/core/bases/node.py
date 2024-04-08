@@ -44,6 +44,7 @@ class NodeBase(IDump, ABC):
 
     def dump(self) -> DocumentType:
         return {
+            "id": self._node_id,
             "snapshot": (
                 None if self._snapshot is None else self._snapshot.dump()
             ),
