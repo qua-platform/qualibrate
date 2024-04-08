@@ -5,9 +5,6 @@ from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
 from qualibrate.api.core.bases.storage import DataFileStorage
 from qualibrate.api.core.local_storage.snapshot import SnapshotLocalStorage
 from qualibrate.api.core.types import IdType
-from qualibrate.api.core.utils.path_utils import resolve_and_check_relative
-from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
-from qualibrate.config import get_settings
 
 __all__ = ["NodeLoadType"]
 
@@ -17,27 +14,6 @@ class NodeLocalStorage(NodeBase):
         super().__init__(node_id)
         self._storage: Optional[DataFileStorage] = None
         self._snapshot = SnapshotLocalStorage(node_id)
-
-    def _fill_storage(self) -> None:
-        settings = get_settings()
-        metadata = self._snapshot.metadata
-        if metadata is None or not isinstance(
-            metadata.get(settings.metadata_out_path), str
-        ):
-            self._storage = None
-            self._load_type = NodeLoadType.Snapshot
-            return
-        rel_output_path = metadata[settings.metadata_out_path]
-        abs_output_path = resolve_and_check_relative(
-            settings.user_storage,
-            metadata[settings.metadata_out_path],
-        )
-        if not abs_output_path.is_dir():
-            raise QNotADirectoryException(
-                f"{rel_output_path} is not a directory"
-            )
-        self._storage = DataFileStorage(abs_output_path)
-        self._load_type = NodeLoadType.Full
 
     def load(self, load_type: NodeLoadType) -> None:
         if self._load_type == NodeLoadType.Full:
