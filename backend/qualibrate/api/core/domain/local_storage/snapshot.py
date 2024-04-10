@@ -35,35 +35,119 @@ SnapshotContentLoaderType = Callable[
 ]
 
 
+def _read_minified_node_content(
+    node_info: Mapping[str, Any],
+    f_node_id: Optional[int],
+    node_filepath: Path,
+    settings: QualibrateSettings,
+) -> dict[str, Any]:
+    """
+    Args:
+        node_info: content of node file
+        f_node_id: node id got from node path
+        node_filepath: path to file with node info
+        settings: qualbirate settings
+
+    Returns:
+        Minified content on node
+    """
+    node_id = node_info.get("id", f_node_id or -1)
+    parents = node_info.get(
+        "parents", [node_id - 1] if node_id and node_id > 0 else []
+    )
+    parents = list(
+        filter(
+            lambda p_id: (
+                IdToLocalPath(settings.user_storage).get(p_id) is not None
+            ),
+            parents,
+        )
+    )
+    created_at_str = node_info.get("created_at")
+    if created_at_str is not None:
+        created_at = datetime.fromisoformat(created_at_str)
+    else:
+        if node_filepath.is_file():
+            created_at = datetime.fromtimestamp(node_filepath.stat().st_mtime)
+        else:
+            created_at = datetime.fromtimestamp(
+                node_filepath.parent.stat().st_mtime
+            )
+    return {
+        "id": node_id,
+        "parents": parents,
+        "created_at": created_at,
+    }
+
+
+def _read_metadata_node_content(
+    node_info: Mapping[str, Any],
+    f_node_name: str,
+    snapshot_path: Path,
+    settings: QualibrateSettings,
+) -> dict[str, Any]:
+    """
+    Args:
+        node_info: content of node file
+        f_node_name: node name got from node path
+        snapshot_path: path to common node directory
+        settings: qualbirate settings
+
+    Returns:
+        Minified content on node
+    """
+    node_metadata = dict(node_info.get("metadata", {}))
+    node_metadata.setdefault("name", f_node_name)
+    node_metadata.setdefault(
+        settings.metadata_out_path,
+        str(snapshot_path.relative_to(settings.user_storage)),
+    )
+    return node_metadata
+
+
+def _read_data_node_content(
+    node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
+) -> Optional[dict[str, Any]]:
+    node_data = dict(node_info.get("data", {}))
+    quam_relative_path = node_data.get("quam", "state.json")
+    quam_file_path = node_filepath.parent.joinpath(quam_relative_path).resolve()
+    if not quam_file_path.is_relative_to(snapshot_path):
+        raise QFileNotFoundException("Unknown quam data path")
+    if quam_file_path.is_file():
+        with quam_file_path.open("r") as f:
+            return dict(json.load(f))
+    else:
+        return None
+
+
 def _default_snapshot_content_loader(
     snapshot_path: Path,
     load_type: SnapshotLoadType,
     settings: QualibrateSettings,
 ) -> DocumentType:
-    snapshot_file = snapshot_path / "state.json"
-    if not snapshot_file.is_file():
-        raise QFileNotFoundException(
-            f"Snapshot {snapshot_path.stem} not exists"
-        )
-    node_id, node_name, node_time = get_node_id_name_time(snapshot_path)
-    parent_id = node_id - 1 if node_id else None
-    if parent_id is not None:
-        if IdToLocalPath(settings.user_storage).get(parent_id) is None:
-            parent_id = None
-    content: dict[str, Any] = {
-        "parents": [parent_id] if parent_id else [],
-        "created_at": datetime.fromtimestamp(snapshot_file.stat().st_mtime),
-    }
-    if load_type >= SnapshotLoadType.Metadata:
-        metadata_out_path = snapshot_path.relative_to(settings.user_storage)
-        content["metadata"] = {
-            "name": node_name,
-            settings.metadata_out_path: str(metadata_out_path),
-        }
-    if load_type >= SnapshotLoadType.Data:
-        with snapshot_file.open("r") as f:
-            data = json.load(f)
-        content["data"] = data
+    node_filepath = snapshot_path / "node.json"
+    if node_filepath.is_file():
+        with node_filepath.open("r") as f:
+            try:
+                node_info = json.load(f)
+            except json.JSONDecodeError:
+                node_info = {}
+    else:
+        node_info = {}
+    f_node_id, f_node_name, f_node_time = get_node_id_name_time(snapshot_path)
+    content = _read_minified_node_content(
+        node_info, f_node_id, node_filepath, settings
+    )
+    if load_type < SnapshotLoadType.Metadata:
+        return content
+    content["metadata"] = _read_metadata_node_content(
+        node_info, f_node_name, snapshot_path, settings
+    )
+    if load_type < SnapshotLoadType.Data:
+        return content
+    content["data"] = _read_data_node_content(
+        node_info, node_filepath, snapshot_path
+    )
     return content
 
 
