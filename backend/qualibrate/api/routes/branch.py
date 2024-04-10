@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends, Path, Query
 
@@ -8,6 +8,11 @@ from qualibrate.api.core.bases.snapshot import SnapshotLoadType
 from qualibrate.api.core.local_storage.branch import BranchLocalStorage
 from qualibrate.api.core.timeline_db.branch import BranchTimelineDb
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.core.models.branch import Branch as BranchModel
+from qualibrate.api.core.models.node import Node as NodeModel
+from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate.api.core.models.snapshot import Snapshot as SnapshotModel
+from qualibrate.api.core.types import IdType
 from qualibrate.config import QualibrateSettings, StorageType, get_settings
 
 branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
@@ -29,7 +34,7 @@ def get(
     *,
     load_type: BranchLoadType = BranchLoadType.Full,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> Optional[DocumentType]:
+) -> BranchModel:
     branch.load(load_type)
     return branch.dump()
 
@@ -40,7 +45,7 @@ def get_snapshot(
     snapshot_id: IdType,
     load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> Optional[DocumentType]:
+) -> SnapshotModel:
     snapshot = branch.get_snapshot(snapshot_id)
     snapshot.load(load_type)
     return snapshot.dump()
@@ -51,7 +56,7 @@ def get_latest_snapshot(
     *,
     load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> Optional[DocumentType]:
+) -> SnapshotModel:
     snapshot = branch.get_snapshot()
     snapshot.load(load_type)
     return snapshot.dump()
@@ -63,7 +68,7 @@ def get_node(
     node_id: int,
     load_type: NodeLoadType = NodeLoadType.Full,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> Optional[DocumentType]:
+) -> NodeModel:
     node = branch.get_node(node_id)
     node.load(load_type)
     return node.dump()
@@ -74,7 +79,7 @@ def get_latest_node(
     *,
     load_type: NodeLoadType = NodeLoadType.Full,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> Optional[DocumentType]:
+) -> NodeModel:
     node = branch.get_node()
     node.load(load_type)
     return node.dump()
@@ -86,7 +91,7 @@ def get_snapshots_history(
     num: Annotated[int, Query(gt=0)] = 50,
     reverse: bool = False,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> DocumentSequenceType:
+) -> Sequence[SimplifiedSnapshotWithMetadata]:
     snapshots = branch.get_latest_snapshots(num)
     snapshots_dumped = [snapshot.dump() for snapshot in snapshots]
     if reverse:
@@ -101,7 +106,7 @@ def get_nodes_history(
     num: Annotated[int, Query(gt=0)] = 50,
     reverse: bool = False,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> DocumentSequenceType:
+) -> Sequence[NodeModel]:
     nodes = branch.get_latest_nodes(num)
     nodes_dumped = [node.dump() for node in nodes]
     if reverse:

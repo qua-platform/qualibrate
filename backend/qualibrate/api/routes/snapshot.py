@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Mapping, Optional, Type, Union
+from typing import Annotated, Any, Mapping, Optional, Sequence, Type, Union
 
 from fastapi import APIRouter, Depends, Path
 
@@ -6,6 +6,9 @@ from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
 from qualibrate.api.core.local_storage.snapshot import SnapshotLocalStorage
 from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate.api.core.models.snapshot import Snapshot as SnapshotModel
+from qualibrate.api.core.types import DocumentSequenceType, IdType
 from qualibrate.api.dependencies.search import get_search_path
 from qualibrate.config import QualibrateSettings, StorageType, get_settings
 
@@ -28,7 +31,7 @@ def get(
     *,
     load_type: SnapshotLoadType = SnapshotLoadType.Full,
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
-) -> Optional[DocumentType]:
+) -> SnapshotModel:
     snapshot.load(load_type)
     return snapshot.dump()
 
@@ -39,7 +42,7 @@ def get_history(
     num: int,
     reverse: bool = False,
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
-) -> DocumentSequenceType:
+) -> Sequence[SimplifiedSnapshotWithMetadata]:
     history = snapshot.get_latest_snapshots(num)
     history_dumped = [snapshot.dump() for snapshot in history]
     if reverse:

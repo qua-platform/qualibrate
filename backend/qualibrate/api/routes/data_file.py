@@ -1,4 +1,4 @@
-from typing import Annotated, Optional, Type
+from typing import Annotated, Optional, Type, Union
 
 from fastapi import APIRouter, Depends, Path
 
@@ -17,7 +17,9 @@ def _get_storage_instance(
     node_id: Annotated[int, Path()],
     settings: Annotated[QualibrateSettings, Depends(get_settings)],
 ) -> DataFileStorage:
-    node_types: dict[StorageType, Type[NodeBase]] = {
+    node_types: dict[
+        StorageType, Union[Type[NodeLocalStorage], Type[NodeTimelineDb]]
+    ] = {
         StorageType.local_storage: NodeLocalStorage,
         StorageType.timeline_db: NodeTimelineDb,
     }
