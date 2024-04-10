@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Sequence, Union
 
-from qualibrate.api.core.bases.branch import BranchBase
-from qualibrate.api.core.bases.node import NodeBase
-from qualibrate.api.core.bases.snapshot import SnapshotBase
+from qualibrate.api.core.domain.bases.branch import BranchBase
+from qualibrate.api.core.domain.bases.node import NodeBase
+from qualibrate.api.core.domain.bases.snapshot import SnapshotBase
 from qualibrate.api.core.types import IdType
 
 __all__ = ["RootBase"]

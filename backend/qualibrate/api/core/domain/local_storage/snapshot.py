@@ -6,13 +6,18 @@ from typing import Any, Callable, Mapping, Optional, Sequence, Union
 
 import jsonpatch
 
-from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
-from qualibrate.api.core.local_storage._id_to_local_path import IdToLocalPath
-from qualibrate.api.core.local_storage.utils.filters import (
+from qualibrate.api.core.domain.bases.snapshot import (
+    SnapshotBase,
+    SnapshotLoadType,
+)
+from qualibrate.api.core.domain.local_storage._id_to_local_path import (
+    IdToLocalPath,
+)
+from qualibrate.api.core.domain.local_storage.utils.filters import (
     date_less_or_eq,
     id_less_then_snapshot,
 )
-from qualibrate.api.core.local_storage.utils.node_utils import (
+from qualibrate.api.core.domain.local_storage.utils.node_utils import (
     find_n_latest_nodes_ids,
     get_node_id_name_time,
 )

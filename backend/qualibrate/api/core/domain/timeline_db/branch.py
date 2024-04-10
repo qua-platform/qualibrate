@@ -1,11 +1,14 @@
 from datetime import datetime
 from typing import Optional, Sequence
 
-from qualibrate.api.core.bases.branch import BranchBase, BranchLoadType
-from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
-from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
-from qualibrate.api.core.timeline_db.node import NodeTimelineDb
-from qualibrate.api.core.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate.api.core.domain.bases.branch import BranchBase, BranchLoadType
+from qualibrate.api.core.domain.bases.node import NodeBase, NodeLoadType
+from qualibrate.api.core.domain.bases.snapshot import (
+    SnapshotBase,
+    SnapshotLoadType,
+)
+from qualibrate.api.core.domain.timeline_db.node import NodeTimelineDb
+from qualibrate.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
 from qualibrate.api.core.types import DocumentType, IdType
 from qualibrate.api.core.utils.request_utils import get_with_db
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
@@ -21,7 +24,9 @@ class BranchTimelineDb(BranchBase):
     def created_at(self) -> Optional[datetime]:
         if "created_at" not in self.content:
             return None
-        return datetime.fromisoformat(str(self.content.get("created_at")))
+        return datetime.fromisoformat(
+            str(self.content.get("created_at"))
+        ).astimezone()
 
     def load(self, load_type: BranchLoadType) -> None:
         if self._load_type == BranchLoadType.Full:

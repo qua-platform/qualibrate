@@ -4,8 +4,8 @@ from enum import IntEnum
 from pathlib import Path
 from typing import Any, Mapping, Optional
 
-from qualibrate.api.core.bases.i_dump import IDump
-from qualibrate.api.core.types import DocumentType
+from qualibrate.api.core.domain.bases.i_dump import IDump
+from qualibrate.api.core.models.storage import Storage as StorageModel
 from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate.api.exceptions.classes.values import QValueException
 from qualibrate.config import get_settings
@@ -85,5 +85,5 @@ class DataFileStorage(IDump):
         self._data = content
         self._load_type = StorageLoadType.Full
 
-    def dump(self) -> DocumentType:
-        return {"path": self.path}
+    def dump(self) -> StorageModel:
+        return StorageModel(path=self.path, data=self.data)

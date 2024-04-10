@@ -2,13 +2,12 @@ from typing import Annotated, Any, Sequence, Union
 
 from fastapi import APIRouter, Depends, Query
 
-from qualibrate.api.core.bases.branch import BranchLoadType
-from qualibrate.api.core.bases.node import NodeLoadType
-from qualibrate.api.core.bases.root import RootBase
-from qualibrate.api.core.bases.snapshot import SnapshotLoadType
-from qualibrate.api.core.local_storage.root import RootLocalStorage
-from qualibrate.api.core.timeline_db.root import RootTimelineDb
-from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.core.domain.bases.branch import BranchLoadType
+from qualibrate.api.core.domain.bases.node import NodeLoadType
+from qualibrate.api.core.domain.bases.root import RootBase
+from qualibrate.api.core.domain.bases.snapshot import SnapshotLoadType
+from qualibrate.api.core.domain.local_storage.root import RootLocalStorage
+from qualibrate.api.core.domain.timeline_db.root import RootTimelineDb
 from qualibrate.api.core.models.branch import Branch as BranchModel
 from qualibrate.api.core.models.node import Node as NodeModel
 from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
@@ -96,7 +95,10 @@ def get_snapshots_history(
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> Sequence[SimplifiedSnapshotWithMetadata]:
     snapshots = root.get_latest_snapshots(num)
-    snapshots_dumped = [snapshot.dump() for snapshot in snapshots]
+    snapshots_dumped = [
+        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
+        for snapshot in snapshots
+    ]
     if reverse:
         snapshots_dumped = list(reversed(snapshots_dumped))
     return snapshots_dumped

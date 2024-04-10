@@ -2,10 +2,12 @@ from abc import ABC, abstractmethod
 from enum import IntEnum
 from typing import Optional
 
-from qualibrate.api.core.bases.i_dump import IDump
-from qualibrate.api.core.bases.snapshot import SnapshotBase
-from qualibrate.api.core.bases.storage import DataFileStorage
-from qualibrate.api.core.types import DocumentType, IdType
+from qualibrate.api.core.domain.bases.i_dump import IDump
+from qualibrate.api.core.domain.bases.snapshot import SnapshotBase
+from qualibrate.api.core.domain.bases.storage import DataFileStorage
+from qualibrate.api.core.models.node import Node as NodeModel
+from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate.api.core.types import IdType
 from qualibrate.api.core.utils.path_utils import resolve_and_check_relative
 from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
 from qualibrate.config import get_settings
@@ -20,11 +22,11 @@ class NodeLoadType(IntEnum):
 
 
 class NodeBase(IDump, ABC):
-    def __init__(self, node_id: IdType) -> None:
+    def __init__(self, node_id: IdType, snapshot: SnapshotBase) -> None:
         self._node_id = node_id
         self._load_type = NodeLoadType.Empty
-        self._snapshot: SnapshotBase
-        self._storage: Optional[DataFileStorage]
+        self._snapshot = snapshot
+        self._storage: Optional[DataFileStorage] = None
 
     @property
     def load_type(self) -> NodeLoadType:
@@ -65,11 +67,12 @@ class NodeBase(IDump, ABC):
         self._storage = DataFileStorage(abs_output_path)
         self._load_type = NodeLoadType.Full
 
-    def dump(self) -> DocumentType:
-        return {
-            "id": self._node_id,
-            "snapshot": (
-                None if self._snapshot is None else self._snapshot.dump()
+    def dump(self) -> NodeModel:
+        print(self._snapshot.dump())
+        return NodeModel(
+            id=self._node_id,
+            snapshot=SimplifiedSnapshotWithMetadata(
+                **self._snapshot.dump().model_dump()
             ),
-            "storage": None if self._storage is None else self._storage.dump(),
-        }
+            storage=(None if self._storage is None else self._storage.dump()),
+        )

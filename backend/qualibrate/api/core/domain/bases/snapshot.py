@@ -3,7 +3,8 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Any, ClassVar, Mapping, Optional, Sequence, Union
 
-from qualibrate.api.core.bases.i_dump import IDump
+from qualibrate.api.core.domain.bases.i_dump import IDump
+from qualibrate.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 
 __all__ = ["SnapshotBase", "SnapshotLoadType"]
@@ -107,8 +108,5 @@ class SnapshotBase(IDump, ABC):
     ) -> Mapping[str, Mapping[str, Any]]:
         pass
 
-    def dump(self) -> DocumentType:
-        return {
-            "id": self._id,
-            **self.content,
-        }
+    def dump(self) -> SnapshotModel:
+        return SnapshotModel(**self.content)

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from qualibrate.api.core.types import DocumentType
+from pydantic import BaseModel
 
 
 class IDump(ABC):
     @abstractmethod
-    def dump(self) -> DocumentType:
+    def dump(self) -> BaseModel:
         pass
