@@ -1,14 +1,18 @@
-from typing import Annotated, Any, Optional, Sequence, Union
+from typing import Annotated, Any, Sequence, Union
 
 from fastapi import APIRouter, Depends, Query
 
-from qualibrate.api.core.bases.branch import BranchLoadType
-from qualibrate.api.core.bases.node import NodeLoadType
-from qualibrate.api.core.bases.root import RootBase
-from qualibrate.api.core.bases.snapshot import SnapshotLoadType
-from qualibrate.api.core.local_storage.root import RootLocalStorage
-from qualibrate.api.core.timeline_db.root import RootTimelineDb
-from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.core.domain.bases.branch import BranchLoadType
+from qualibrate.api.core.domain.bases.node import NodeLoadType
+from qualibrate.api.core.domain.bases.root import RootBase
+from qualibrate.api.core.domain.bases.snapshot import SnapshotLoadType
+from qualibrate.api.core.domain.local_storage.root import RootLocalStorage
+from qualibrate.api.core.domain.timeline_db.root import RootTimelineDb
+from qualibrate.api.core.models.branch import Branch as BranchModel
+from qualibrate.api.core.models.node import Node as NodeModel
+from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate.api.core.models.snapshot import Snapshot as SnapshotModel
+from qualibrate.api.core.types import IdType
 from qualibrate.api.dependencies.search import get_search_path
 from qualibrate.config import QualibrateSettings, StorageType, get_settings
 
@@ -31,7 +35,7 @@ def get_branch(
     branch_name: str = "main",
     load_type: BranchLoadType = BranchLoadType.Full,
     root: Annotated[RootBase, Depends(_get_root_instance)],
-) -> DocumentType:
+) -> BranchModel:
     branch = root.get_branch(branch_name)
     branch.load(load_type)
     return branch.dump()
@@ -43,7 +47,7 @@ def get_node_by_id(
     id: IdType,
     load_type: NodeLoadType = NodeLoadType.Full,
     root: Annotated[RootBase, Depends(_get_root_instance)],
-) -> Optional[DocumentType]:
+) -> NodeModel:
     node = root.get_node(id)
     node.load(load_type)
     return node.dump()
@@ -54,7 +58,7 @@ def get_latest_node(
     *,
     load_type: NodeLoadType = NodeLoadType.Full,
     root: Annotated[RootBase, Depends(_get_root_instance)],
-) -> Optional[DocumentType]:
+) -> NodeModel:
     node = root.get_node()
     node.load(load_type)
     return node.dump()
@@ -66,7 +70,7 @@ def get_snapshot_by_id(
     id: IdType,
     load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
     root: Annotated[RootBase, Depends(_get_root_instance)],
-) -> Optional[DocumentType]:
+) -> SnapshotModel:
     snapshot = root.get_snapshot(id)
     snapshot.load(load_type)
     return snapshot.dump()
@@ -77,7 +81,7 @@ def get_latest_snapshot(
     *,
     load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
     root: Annotated[RootBase, Depends(_get_root_instance)],
-) -> Optional[DocumentType]:
+) -> SnapshotModel:
     snapshot = root.get_snapshot()
     snapshot.load(load_type)
     return snapshot.dump()
@@ -89,9 +93,12 @@ def get_snapshots_history(
     num: Annotated[int, Query(gt=0)] = 50,
     reverse: bool = False,
     root: Annotated[RootBase, Depends(_get_root_instance)],
-) -> DocumentSequenceType:
+) -> Sequence[SimplifiedSnapshotWithMetadata]:
     snapshots = root.get_latest_snapshots(num)
-    snapshots_dumped = [snapshot.dump() for snapshot in snapshots]
+    snapshots_dumped = [
+        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
+        for snapshot in snapshots
+    ]
     if reverse:
         snapshots_dumped = list(reversed(snapshots_dumped))
     return snapshots_dumped
@@ -103,7 +110,7 @@ def get_nodes_history(
     num: Annotated[int, Query(gt=0)] = 50,
     reverse: bool = False,
     root: Annotated[RootBase, Depends(_get_root_instance)],
-) -> DocumentSequenceType:
+) -> Sequence[NodeModel]:
     nodes = root.get_latest_nodes(num)
     nodes_dumped = [node.dump() for node in nodes]
     if reverse:

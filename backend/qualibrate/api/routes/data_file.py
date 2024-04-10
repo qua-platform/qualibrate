@@ -1,11 +1,14 @@
-from typing import Annotated, Optional, Type
+from typing import Annotated, Optional, Type, Union
 
 from fastapi import APIRouter, Depends, Path
 
-from qualibrate.api.core.bases.node import NodeBase, NodeLoadType
-from qualibrate.api.core.bases.storage import DataFileStorage, StorageLoadType
-from qualibrate.api.core.local_storage.node import NodeLocalStorage
-from qualibrate.api.core.timeline_db.node import NodeTimelineDb
+from qualibrate.api.core.domain.bases.node import NodeLoadType
+from qualibrate.api.core.domain.bases.storage import (
+    DataFileStorage,
+    StorageLoadType,
+)
+from qualibrate.api.core.domain.local_storage.node import NodeLocalStorage
+from qualibrate.api.core.domain.timeline_db.node import NodeTimelineDb
 from qualibrate.api.core.types import DocumentType
 from qualibrate.api.core.utils.request_utils import HTTPException422
 from qualibrate.config import QualibrateSettings, StorageType, get_settings
@@ -17,7 +20,9 @@ def _get_storage_instance(
     node_id: Annotated[int, Path()],
     settings: Annotated[QualibrateSettings, Depends(get_settings)],
 ) -> DataFileStorage:
-    node_types: dict[StorageType, Type[NodeBase]] = {
+    node_types: dict[
+        StorageType, Union[Type[NodeLocalStorage], Type[NodeTimelineDb]]
+    ] = {
         StorageType.local_storage: NodeLocalStorage,
         StorageType.timeline_db: NodeTimelineDb,
     }

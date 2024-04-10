@@ -1,7 +1,10 @@
 from datetime import datetime
 from typing import Any, Mapping, Optional, Sequence, Union, cast
 
-from qualibrate.api.core.bases.snapshot import SnapshotBase, SnapshotLoadType
+from qualibrate.api.core.domain.bases.snapshot import (
+    SnapshotBase,
+    SnapshotLoadType,
+)
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.api.core.utils.find_utils import get_subpath_value
 from qualibrate.api.core.utils.request_utils import get_with_db

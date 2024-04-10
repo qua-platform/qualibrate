@@ -3,9 +3,10 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Optional, Sequence
 
-from qualibrate.api.core.bases.i_dump import IDump
-from qualibrate.api.core.bases.node import NodeBase
-from qualibrate.api.core.bases.snapshot import SnapshotBase
+from qualibrate.api.core.domain.bases.i_dump import IDump
+from qualibrate.api.core.domain.bases.node import NodeBase
+from qualibrate.api.core.domain.bases.snapshot import SnapshotBase
+from qualibrate.api.core.models.branch import Branch as BranchModel
 from qualibrate.api.core.types import DocumentType, IdType
 
 __all__ = ["BranchBase", "BranchLoadType"]
@@ -59,8 +60,8 @@ class BranchBase(IDump, ABC):
     def get_latest_nodes(self, num: int = 50) -> Sequence[NodeBase]:
         pass
 
-    def dump(self) -> DocumentType:
-        return {
-            "name": self._name,
+    def dump(self) -> BranchModel:
+        return BranchModel(
+            name=self._name,
             **self.content,
-        }
+        )
