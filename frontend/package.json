@@ -31,6 +31,7 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.14",
+    "@types/node": "^20.12.7",
     "@types/react": "^18.2.67",
     "@types/react-dom": "^18.2.22",
     "@types/refractor": "3.4.1",
@@ -54,6 +55,7 @@
     "stylelint-prettier": "^5.0.0",
     "typescript": "^5.4.2",
     "typescript-eslint": "^7.3.1",
+    "webpack": "^5.91.0",
     "webpack-dev-server": "4.13.1"
   },
   "dependencies": {

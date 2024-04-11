@@ -9,9 +9,8 @@ import { JsonViewer, defineDataType } from "@textea/json-viewer";
 import { DataViewApi } from "./api/DataViewApi";
 
 const formatDateTime = (dateTime: string): string => {
-  const date = new Date(dateTime + "Z");
-  const formattedDateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-  return formattedDateTime;
+  const date = new Date(dateTime);
+  return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 };
 
 const TimelineGraph = ({
@@ -89,23 +88,35 @@ const TimelineGraph = ({
   // -----------------------------------------------------------
 
   const fetchOneGitgraphSnapshot = (id: string) => {
-    DataViewApi.fetchSnapshot(id).then((promise: any) => {
-      setJsonData(promise?.result.data);
-    });
-    DataViewApi.fetchSnapshotResult(id).then((promise: any) => {
-      if (promise.result) {
-        setResults(promise?.result);
-      } else {
-        setResults(undefined);
-      }
-    });
-    DataViewApi.fetchSnapshotUpdate((Number(id) - 1).toString(), id).then((promise: any) => {
-      if (promise.result) {
-        setDiffData(promise?.result);
-      } else {
-        setDiffData({});
-      }
-    });
+    DataViewApi.fetchSnapshot(id)
+      .then((promise: any) => {
+        setJsonData(promise?.result.data);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+    DataViewApi.fetchSnapshotResult(id)
+      .then((promise: any) => {
+        if (promise.result) {
+          setResults(promise?.result);
+        } else {
+          setResults(undefined);
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+    DataViewApi.fetchSnapshotUpdate((Number(id) - 1).toString(), id)
+      .then((promise: any) => {
+        if (promise.result) {
+          setDiffData(promise?.result);
+        } else {
+          setDiffData({});
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   };
   const gitgraphUpdate = () => {
     const newArray = (allSnapshots as any[])?.map((res, index) => {
@@ -133,55 +144,51 @@ const TimelineGraph = ({
   });
 
   return (
-    <div className={styles.timelineGraphWrapper}>
-      <div style={{ color: "#d9d5d4", paddingLeft: "20px", paddingTop: "20px" }}>TIMEGRAPH</div>
-      <div className={styles.svgWrapper}>
-        {allSnapshots?.length > 0 && selectedIndex !== undefined && (
-          <Gitgraph options={{ template: withoutAuthor }}>
-            {(gitgraph) => {
-              const mainBranch = gitgraph.branch({
-                name: "main",
-                style: {
-                  color: "gray",
-                  label: {
-                    strokeColor: "gray",
-                  },
-                  spacing: 0.5,
+    allSnapshots?.length > 0 &&
+    selectedIndex !== undefined && (
+      <Gitgraph options={{ template: withoutAuthor }}>
+        {(gitgraph) => {
+          const mainBranch = gitgraph.branch({
+            name: "main",
+            style: {
+              color: "gray",
+              label: {
+                strokeColor: "gray",
+              },
+              spacing: 0.5,
+            },
+            commitDefaultOptions: {
+              style: {
+                color: "gray",
+                message: {
+                  color: "#d9d5d4",
                 },
-                commitDefaultOptions: {
-                  style: {
-                    color: "gray",
-                    message: {
-                      color: "#d9d5d4",
-                    },
-                  },
-                },
-              });
+              },
+            },
+          });
 
-              allSnapshots.forEach((snapshot: any, index) => {
-                const snapshotId = snapshot?.id.toString();
-                mainBranch.commit({
-                  hash: `#${snapshotId}`,
-                  author: "",
-                  body: formatDateTime(snapshot.created_at),
-                  subject: snapshot.metadata.name,
-                  style: {
-                    dot: {
-                      color: snapshot.isSelected ? "#d9d5d4" : "gray",
-                    },
-                  },
-                  onClick: () => {
-                    setFlag(true);
-                    setSelectedIndex(snapshotId);
-                    fetchOneGitgraphSnapshot(snapshotId);
-                  },
-                });
-              });
-            }}
-          </Gitgraph>
-        )}
-      </div>
-    </div>
+          allSnapshots.forEach((snapshot: any, index) => {
+            const snapshotId = snapshot?.id.toString();
+            mainBranch.commit({
+              hash: `#${snapshotId}`,
+              author: "",
+              body: formatDateTime(snapshot.created_at),
+              subject: snapshot.metadata.name,
+              style: {
+                dot: {
+                  color: snapshot.isSelected ? "#d9d5d4" : "gray",
+                },
+              },
+              onClick: () => {
+                setFlag(true);
+                setSelectedIndex(snapshotId);
+                fetchOneGitgraphSnapshot(snapshotId);
+              },
+            });
+          });
+        }}
+      </Gitgraph>
+    )
   );
 };
 
