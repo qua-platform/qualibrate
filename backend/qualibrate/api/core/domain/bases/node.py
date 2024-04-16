@@ -73,7 +73,6 @@ class NodeBase(IDump, ABC):
         self._load_type = NodeLoadType.Full
 
     def dump(self) -> NodeModel:
-        print(self._snapshot.dump())
         return NodeModel(
             id=self._node_id,
             snapshot=SimplifiedSnapshotWithMetadata(
