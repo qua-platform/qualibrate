@@ -16,11 +16,11 @@ def test_date_less_or_eq():
 
 def test_id_less_then_snapshot(mocker):
     id_extract_patched = mocker.patch(
-        "qualibrate.api.core.local_storage.utils.filters.id_from_node_name",
-        return_value=3,
+        "qualibrate.api.core.domain.local_storage.utils.filters.get_node_id_name_time",
+        return_value=(3, None, None),
     )
-    filename = "#3_name"
-    assert filters.id_less_then_snapshot(Path(filename), 4) is True
-    assert filters.id_less_then_snapshot(Path(filename), 3) is False
-    assert filters.id_less_then_snapshot(Path(filename), 2) is False
+    filename = Path("#3_name")
+    assert filters.id_less_then_snapshot(filename, 4) is True
+    assert filters.id_less_then_snapshot(filename, 3) is False
+    assert filters.id_less_then_snapshot(filename, 2) is False
     id_extract_patched.assert_has_calls([mocker.call(filename)] * 3)
