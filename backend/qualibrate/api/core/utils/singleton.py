@@ -10,3 +10,7 @@ class Singleton(type):
                 *args, **kwargs
             )
         return cls._instances[cls]
+
+    @classmethod
+    def _clear(cls) -> None:
+        cls._instances = {}

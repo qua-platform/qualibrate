@@ -1,6 +1,7 @@
 import pytest
 
 from qualibrate.api.core.utils.common_utils import id_type_str
+from qualibrate.api.exceptions.classes.types import QInvalidIdTypeException
 
 
 def test_id_type_str_func_arg_valid():
@@ -33,7 +34,7 @@ def test_id_type_str_method_arg_invalid():
         def call(self, *args, **kwargs):
             pass
 
-    with pytest.raises(TypeError) as ex:
+    with pytest.raises(QInvalidIdTypeException) as ex:
         C().call(1)
-    assert ex.type is TypeError
+    assert ex.type == QInvalidIdTypeException
     assert ex.value.args[0] == "id should be str"

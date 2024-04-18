@@ -1,9 +1,12 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from enum import IntEnum
 from typing import Optional
 
 from qualibrate.api.core.domain.bases.i_dump import IDump
-from qualibrate.api.core.domain.bases.snapshot import SnapshotBase
+from qualibrate.api.core.domain.bases.snapshot import (
+    SnapshotBase,
+    SnapshotLoadType,
+)
 from qualibrate.api.core.domain.bases.storage import DataFileStorage
 from qualibrate.api.core.models.node import Node as NodeModel
 from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
@@ -32,19 +35,21 @@ class NodeBase(IDump, ABC):
     def load_type(self) -> NodeLoadType:
         return self._load_type
 
-    @abstractmethod
     def load(self, load_type: NodeLoadType) -> None:
-        pass
+        if self._load_type == NodeLoadType.Full:
+            return
+        self._snapshot.load(SnapshotLoadType.Metadata)
+        if load_type < NodeLoadType.Full:
+            return
+        self._fill_storage()
 
     @property
-    @abstractmethod
     def snapshot(self) -> Optional[SnapshotBase]:
-        pass
+        return self._snapshot
 
     @property
-    @abstractmethod
     def storage(self) -> Optional[DataFileStorage]:
-        pass
+        return self._storage
 
     def _fill_storage(self) -> None:
         settings = get_settings()
@@ -68,7 +73,6 @@ class NodeBase(IDump, ABC):
         self._load_type = NodeLoadType.Full
 
     def dump(self) -> NodeModel:
-        print(self._snapshot.dump())
         return NodeModel(
             id=self._node_id,
             snapshot=SimplifiedSnapshotWithMetadata(

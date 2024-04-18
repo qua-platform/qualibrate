@@ -23,10 +23,8 @@ def test_jsonpatch_to_mapping_empty():
         ),
         (
             {"q1": {"frequency": 2, "values": "string"}},
-            {"op": "remove", "path": "/q1/values"},
-            {
-                "/q1/values": {"old": "string"},
-            },
+            [{"op": "remove", "path": "/q1/values"}],
+            {"/q1/values": {"old": "string"}},
         ),
         (
             {"q0": {"frequency": 1, "values": [1, 2, 3]}},
@@ -35,7 +33,7 @@ def test_jsonpatch_to_mapping_empty():
         ),
         (
             {"q2": {"frequency": 3, "values": [5, 6]}},
-            {"op": "add", "path": "/q2/values/2", "value": 4},
+            [{"op": "add", "path": "/q2/values/2", "value": 4}],
             {"/q2/values/2": {"new": 4}},
         ),
     ],

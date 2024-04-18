@@ -62,7 +62,10 @@ class DataFileStorage(IDump):
         if not data_file.is_file():
             return None
         with data_file.open("r") as file:
-            content = json.load(file)
+            try:
+                content = json.load(file)
+            except json.JSONDecodeError:
+                raise QValueException("Unexpected data format.")
         if not isinstance(content, Mapping):
             raise QValueException("Unexpected data format.")
         content = dict(content)

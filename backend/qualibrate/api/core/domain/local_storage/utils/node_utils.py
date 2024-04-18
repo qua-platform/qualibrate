@@ -72,16 +72,19 @@ def find_n_latest_nodes_ids(
             current = next_
             if current is None:
                 next_, _, _ = get_node_id_name_time(node)
-                print(next_)
                 continue
             next_, _, _ = get_node_id_name_time(node)
             n -= 1
             if n > 0:
                 yield current
             else:
+                # we have found all needed nodes; just exit from generator
                 yield current
                 return None
+    # all nodes are checked;
+    # if last item has already been yielded then just exits
     if next_ is None:
         return None
+    # if one more item still exists then yielded it and then exists
     yield next_
     return None
