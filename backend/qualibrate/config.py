@@ -9,11 +9,12 @@ from pydantic import DirectoryPath, HttpUrl, field_serializer
 from pydantic_core.core_schema import FieldSerializationInfo
 from pydantic_settings import BaseSettings
 
+from qualibrate.utils.config_references import resolve_references
+
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
-
 
 CONFIG_KEY = "qualibrate"
 QUALIBRATE_PATH = Path().home() / ".qualibrate"
@@ -96,9 +97,17 @@ def get_config_file(
         return _get_config_file_from_dir(QUALIBRATE_PATH)
 
 
+def read_config_file(
+    config_file: Path, solve_references: bool = True
+) -> QualibrateSettings:
+    with config_file.open("rb") as fin:
+        config = tomllib.load(fin)
+    if solve_references:
+        config = resolve_references(config)
+    return QualibrateSettings(**(config.get(CONFIG_KEY, {})))
+
+
 @lru_cache
 def get_settings() -> QualibrateSettings:
     config_file = get_config_file(os.environ.get(CONFIG_PATH_ENV_NAME))
-    with config_file.open("rb") as fin:
-        config = tomllib.load(fin)
-    return QualibrateSettings(**(config.get(CONFIG_KEY, {})))
+    return read_config_file(config_file, solve_references=True)
