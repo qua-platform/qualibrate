@@ -38,7 +38,6 @@ def _get_subpath_value_wildcard(
 
 
 def _check_key_valid(obj: Any, key: Union[str, int]) -> bool:
-    print("check key", obj, key)
     if isinstance(obj, Sequence):
         return isinstance(key, int) and 0 <= key < len(obj)
     if isinstance(obj, Mapping):

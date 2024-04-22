@@ -32,7 +32,6 @@ class JsonTimelineDBBase(BaseSettings):
     spawn: bool
     address: HttpUrl
     timeout: float
-    db_name: str
 
     @field_serializer("address")
     def serialize_http_url(
@@ -45,6 +44,7 @@ class _QualibrateSettingsBase(BaseSettings):
     static_site_files: Path
     storage_type: StorageType = StorageType.local_storage
     user_storage: Path
+    project: Optional[str]
     metadata_out_path: str
 
     timeline_db: JsonTimelineDBBase
@@ -61,10 +61,17 @@ class QualibrateSettingsSetup(_QualibrateSettingsBase):
     ) -> str:
         return value.value
 
+    @field_serializer("project")
+    def serialize_project(
+        self, value: Optional[str], _info: FieldSerializationInfo
+    ) -> str:
+        return value or ""
+
 
 class QualibrateSettings(_QualibrateSettingsBase):
     static_site_files: DirectoryPath
     user_storage: DirectoryPath
+    project: str
 
 
 def _get_config_file_from_dir(
