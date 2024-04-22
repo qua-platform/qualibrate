@@ -12,19 +12,15 @@ NodePathSolverType = Callable[[IdType, Path], Optional[Path]]
 
 
 def default_node_path_solver(id: IdType, base_path: Path) -> Optional[Path]:
+    print("fuck")
     return next(base_path.rglob(f"#{id}_*"), None)
 
 
-class IdToLocalPath(metaclass=Singleton):
-    def __init__(self, base_path: Path):
+class _IdToProjectLocalPath:
+    def __init__(self, project_name: str, project_path: Path) -> None:
         self._mapping: dict[IdType, Path] = {}
-        self._base_path = base_path
-
-    def __getitem__(self, id: IdType) -> Path:
-        path = self.get(id)
-        if path is None:
-            raise QFileNotFoundException(f"Node {id} not found")
-        return path
+        self._project_name = project_name
+        self._project_path = project_path
 
     def get(
         self,
@@ -33,8 +29,42 @@ class IdToLocalPath(metaclass=Singleton):
     ) -> Optional[Path]:
         if id in self._mapping:
             return self._mapping[id]
-        path = solver(id, self._base_path)
+        path = solver(id, self._project_path)
         if path is None:
             return None
         self._mapping[id] = path
+        return path
+
+
+class IdToLocalPath(metaclass=Singleton):
+    def __init__(self) -> None:
+        self._project_to_path: dict[str, _IdToProjectLocalPath] = {}
+
+    def get(
+        self,
+        project: str,
+        id: IdType,
+        project_path: Path,
+        solver: NodePathSolverType = default_node_path_solver,
+    ) -> Optional[Path]:
+        if project not in self._project_to_path:
+            self._project_to_path[project] = _IdToProjectLocalPath(
+                project, project_path
+            )
+        p2p = self._project_to_path[project]
+        path = p2p.get(id, solver)
+        return path
+
+    def get_or_raise(
+        self,
+        project: str,
+        id: IdType,
+        project_path: Path,
+        solver: NodePathSolverType = default_node_path_solver,
+    ) -> Path:
+        path = self.get(project, id, project_path, solver)
+        if path is None:
+            raise QFileNotFoundException(
+                f"Node {id} of project '{project}' not found"
+            )
         return path

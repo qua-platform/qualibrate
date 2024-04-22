@@ -55,8 +55,14 @@ def _read_minified_node_content(
     parents = node_info.get(
         "parents", [node_id - 1] if node_id and node_id > 0 else []
     )
-    id_local_path = IdToLocalPath(settings.user_storage)
-    parents = list(filter(id_local_path.get, parents))
+    id_local_path = IdToLocalPath()
+    project = settings.project
+    user_storage = settings.user_storage
+    parents = list(
+        filter(
+            lambda p_id: id_local_path.get(project, p_id, user_storage), parents
+        )
+    )
     created_at_str = node_info.get("created_at")
     if created_at_str is not None:
         created_at = datetime.fromisoformat(created_at_str)
@@ -156,7 +162,6 @@ class SnapshotLocalStorage(SnapshotBase):
     """
     Args:
         id: id of snapshot
-        base_path: Path to content root
 
     Notes:
         Expected structure of content root
@@ -182,8 +187,11 @@ class SnapshotLocalStorage(SnapshotBase):
         if load_type <= self._load_type:
             return None
         settings = get_settings()
-        paths_mapping = IdToLocalPath(settings.user_storage)
-        node_path = paths_mapping[self._id]
+        node_path = IdToLocalPath().get_or_raise(
+            settings.project,
+            self._id,
+            settings.user_storage,
+        )
         content = self._snapshot_loader(node_path, load_type, settings)
         self.content.update(content)
         self._load_type = load_type
@@ -215,8 +223,12 @@ class SnapshotLocalStorage(SnapshotBase):
         if num_snapshots == 1:
             return [self]
         settings = get_settings()
-        paths_mapping = IdToLocalPath(settings.user_storage)
-        snapshot_path = paths_mapping[self._id]
+        paths_mapping = IdToLocalPath()
+        snapshot_path = paths_mapping.get_or_raise(
+            settings.project,
+            self._id,
+            settings.user_storage,
+        )
         ids = find_n_latest_nodes_ids(
             settings.user_storage,
             num_snapshots - 1,
