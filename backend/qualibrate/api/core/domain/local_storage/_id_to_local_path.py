@@ -12,7 +12,6 @@ NodePathSolverType = Callable[[IdType, Path], Optional[Path]]
 
 
 def default_node_path_solver(id: IdType, base_path: Path) -> Optional[Path]:
-    print("fuck")
     return next(base_path.rglob(f"#{id}_*"), None)
 
 

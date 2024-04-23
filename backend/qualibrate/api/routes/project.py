@@ -9,6 +9,7 @@ from qualibrate.api.core.domain.local_storage.project import (
 from qualibrate.api.core.domain.timeline_db.project import (
     ProjectsManagerTimelineDb,
 )
+from qualibrate.api.core.models.project import Project
 from qualibrate.config import (
     QualibrateSettings,
     StorageType,
@@ -33,7 +34,7 @@ def get_projects_list(
     projects_manager: Annotated[
         ProjectsManagerBase, Depends(_get_projects_manager)
     ],
-) -> Sequence[str]:
+) -> Sequence[Project]:
     return projects_manager.list()
 
 
