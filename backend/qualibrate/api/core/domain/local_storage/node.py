@@ -1,4 +1,3 @@
-
 from qualibrate.api.core.domain.bases.node import NodeBase
 from qualibrate.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
