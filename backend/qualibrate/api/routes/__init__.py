@@ -1,11 +1,12 @@
-# TODO: setup default load types?
-
 from fastapi import APIRouter
 
 from qualibrate.api.routes.branch import branch_router
 from qualibrate.api.routes.data_file import data_file_router
+from qualibrate.api.routes.project import project_router
 from qualibrate.api.routes.root import root_router
 from qualibrate.api.routes.snapshot import snapshot_router
+
+__all__ = ["project_router", "storage_router"]
 
 storage_router = APIRouter()
 
