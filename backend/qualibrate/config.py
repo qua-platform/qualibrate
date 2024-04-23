@@ -3,7 +3,7 @@ import sys
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from pydantic import DirectoryPath, HttpUrl, field_serializer
 from pydantic_core.core_schema import FieldSerializationInfo
@@ -32,7 +32,6 @@ class JsonTimelineDBBase(BaseSettings):
     spawn: bool
     address: HttpUrl
     timeout: float
-    db_name: str
 
     @field_serializer("address")
     def serialize_http_url(
@@ -45,6 +44,7 @@ class _QualibrateSettingsBase(BaseSettings):
     static_site_files: Path
     storage_type: StorageType = StorageType.local_storage
     user_storage: Path
+    project: Optional[str]
     metadata_out_path: str
 
     timeline_db: JsonTimelineDBBase
@@ -61,10 +61,17 @@ class QualibrateSettingsSetup(_QualibrateSettingsBase):
     ) -> str:
         return value.value
 
+    @field_serializer("project")
+    def serialize_project(
+        self, value: Optional[str], _info: FieldSerializationInfo
+    ) -> str:
+        return value or ""
+
 
 class QualibrateSettings(_QualibrateSettingsBase):
     static_site_files: DirectoryPath
     user_storage: DirectoryPath
+    project: str
 
 
 def _get_config_file_from_dir(
@@ -99,15 +106,21 @@ def get_config_file(
 
 def read_config_file(
     config_file: Path, solve_references: bool = True
-) -> QualibrateSettings:
+) -> dict[str, Any]:
     with config_file.open("rb") as fin:
         config = tomllib.load(fin)
-    if solve_references:
-        config = resolve_references(config)
-    return QualibrateSettings(**(config.get(CONFIG_KEY, {})))
+    if not solve_references:
+        return config
+    return resolve_references(config)
+
+
+@lru_cache
+def get_config_path() -> Path:
+    return get_config_file(os.environ.get(CONFIG_PATH_ENV_NAME))
 
 
 @lru_cache
 def get_settings() -> QualibrateSettings:
-    config_file = get_config_file(os.environ.get(CONFIG_PATH_ENV_NAME))
-    return read_config_file(config_file, solve_references=True)
+    config_path = get_config_path()
+    config = read_config_file(config_path, solve_references=True)
+    return QualibrateSettings(**(config.get(CONFIG_KEY, {})))

@@ -32,86 +32,110 @@ def test_default_node_path_solver_not_exists(tmp_path: Path):
     assert _id_to_local_path.default_node_path_solver(3, tmp_path) is None
 
 
+class Test_IdToProjectLocalPath:
+    @pytest.fixture(autouse=True, scope="function")
+    def create_id2project_node(self):
+        self.id2project_node = _id_to_local_path._IdToProjectLocalPath(
+            "name", None
+        )
+
+    def test_get_item_already_exists(self, mocker):
+        self.id2project_node._mapping.update({1: "some_path"})
+        solver_patched = mocker.patch(
+            (
+                "qualibrate.api.core.domain.local_storage._id_to_local_path"
+                ".default_node_path_solver"
+            ),
+        )
+        assert self.id2project_node.get(1) == "some_path"
+        solver_patched.assert_not_called()
+
+    def test_get_item_successfully_solved(self, mocker):
+        solver_patched = mocker.patch(
+            (
+                "qualibrate.api.core.domain.local_storage._id_to_local_path"
+                ".default_node_path_solver"
+            ),
+            return_value="some_path",
+        )
+        mocker.patch.object(
+            _id_to_local_path._IdToProjectLocalPath.get,
+            "__defaults__",
+            (solver_patched,),
+        )
+        assert 1 not in self.id2project_node._mapping
+        assert self.id2project_node.get(1) == "some_path"
+        assert 1 in self.id2project_node._mapping
+        solver_patched.assert_called_once_with(1, None)
+
+    def test_get_path_not_found(self, mocker):
+        solver_patched = mocker.patch(
+            (
+                "qualibrate.api.core.domain.local_storage._id_to_local_path"
+                ".default_node_path_solver"
+            ),
+            return_value=None,
+        )
+        mocker.patch.object(
+            _id_to_local_path._IdToProjectLocalPath.get,
+            "__defaults__",
+            (solver_patched,),
+        )
+        assert 1 not in self.id2project_node._mapping
+        assert self.id2project_node.get(1) is None
+        assert 1 not in self.id2project_node._mapping
+        solver_patched.assert_called_once_with(1, None)
+
+
 class TestIdToLocalPath:
     @pytest.fixture(autouse=True, scope="function")
     def clean_id_to_local_path(self):
+        self.id2lp = _id_to_local_path.IdToLocalPath()
+        yield
         Singleton._clear()
 
-    def test_get_path_exists(self, mocker):
-        base_path = None
-        id_ = 1
-        node_path = "path"
-        solver_patched = mocker.patch(
+    def test_get_from_new_project(self, mocker):
+        patched_id2plp = mocker.patch(
             (
                 "qualibrate.api.core.domain.local_storage._id_to_local_path"
-                ".default_node_path_solver"
-            ),
-            return_value=node_path,
+                "._IdToProjectLocalPath"
+            )
         )
-        mocker.patch.object(
-            _id_to_local_path.IdToLocalPath.get,
-            "__defaults__",
-            (solver_patched,),
-        )
-        mapping = _id_to_local_path.IdToLocalPath(base_path)
-        solver_patched.assert_not_called()
-        assert mapping._mapping == {}
-        path = mapping.get(id_)
-        assert path == node_path
-        solver_patched.assert_called_once_with(id_, base_path)
-        assert mapping._mapping == {id_: node_path}
-        # verify that value got from mapping
-        path2 = mapping.get(id_)
-        assert path2 == node_path
-        solver_patched.assert_called_once_with(id_, base_path)
-        assert mapping._mapping == {id_: node_path}
+        patched_id2plp.return_value.get.return_value = "some_path"
+        assert self.id2lp._project_to_path == {}
+        assert self.id2lp.get("project", 1, "path") == "some_path"
+        assert tuple(self.id2lp._project_to_path.keys()) == ("project",)
+        patched_id2plp.assert_called_once_with("project", "path")
 
-    def test_get_path_not_exists(self, mocker):
-        base_path = None
-        id_ = 1
-        solver_patched = mocker.patch(
+    def test_get_existing_project(self, mocker):
+        p2plp = mocker.MagicMock()
+        p2plp.get.return_value = "some_path"
+        self.id2lp._project_to_path = {"project": p2plp}
+        patched_id2plp = mocker.patch(
             (
                 "qualibrate.api.core.domain.local_storage._id_to_local_path"
-                ".default_node_path_solver"
-            ),
-            return_value=None,
+                "._IdToProjectLocalPath"
+            )
         )
-        mocker.patch.object(
-            _id_to_local_path.IdToLocalPath.get,
-            "__defaults__",
-            (solver_patched,),
-        )
-        mapping = _id_to_local_path.IdToLocalPath(base_path)
-        solver_patched.assert_not_called()
-        assert mapping._mapping == {}
-        path = mapping.get(id_)
-        assert path is None
-        solver_patched.assert_called_once_with(id_, base_path)
-        assert mapping._mapping == {}
-        path2 = mapping.get(id_)
-        assert path2 is None
-        assert solver_patched.call_count == 2
-        solver_patched.assert_called_with(id_, base_path)
-        assert mapping._mapping == {}
+        assert self.id2lp.get("project", 1, "path") == "some_path"
+        assert tuple(self.id2lp._project_to_path.keys()) == ("project",)
+        patched_id2plp.assert_not_called()
 
-    def test_getitem_item_exists(self, mocker):
-        get_patched = mocker.patch.object(
-            _id_to_local_path.IdToLocalPath,
-            "get",
-            return_value="path",
-        )
-        mapping = _id_to_local_path.IdToLocalPath(None)
-        assert mapping[1] == "path"
-        get_patched.assert_called_once_with(1)
-
-    def test_getitem_item_not_exists(self, mocker):
-        mocker.patch.object(
-            _id_to_local_path.IdToLocalPath,
-            "get",
-            return_value=None,
-        )
-        mapping = _id_to_local_path.IdToLocalPath(None)
+    def test_get_or_raise_path_is_none(self, mocker):
+        patched_get = mocker.patch.object(self.id2lp, "get", return_value=None)
         with pytest.raises(QFileNotFoundException) as ex:
-            mapping[1]
+            self.id2lp.get_or_raise("project", 1, "path")
         assert ex.type == QFileNotFoundException
-        assert ex.value.args == ("Node 1 not found",)
+        assert ex.value.args == ("Node 1 of project 'project' not found",)
+        patched_get.assert_called_once_with(
+            "project", 1, "path", _id_to_local_path.default_node_path_solver
+        )
+
+    def test_get_or_raise_path_is_not_none(self, mocker):
+        patched_get = mocker.patch.object(
+            self.id2lp, "get", return_value="node_path"
+        )
+        assert self.id2lp.get_or_raise("project", 1, "path") == "node_path"
+        patched_get.assert_called_once_with(
+            "project", 1, "path", _id_to_local_path.default_node_path_solver
+        )

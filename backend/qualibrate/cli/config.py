@@ -1,7 +1,7 @@
 import os
 import sys
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Mapping, Optional
 
 import click
 import tomli_w
@@ -73,13 +73,13 @@ def _config_from_sources(
             "user_storage",
             "metadata_out_path",
             "storage_type",
+            "project",
         )
     }
     timeline_db_mapping = {
         "spawn_db": "spawn",
         "timeline_db_address": "address",
         "timeline_db_timeout": "timeout",
-        "timeline_db_name": "db_name",
     }
     for arg_key, arg_value in ctx.params.items():
         not_default_arg = not_default(ctx, arg_key)
@@ -169,6 +169,26 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
     )
 
 
+def write_config(
+    config_file: Path,
+    common_config: dict[str, Any],
+    qss: QualibrateSettingsSetup,
+    confirm: bool = True,
+) -> None:
+    exported_data = qss.model_dump()
+    if confirm:
+        _confirm(config_file, exported_data)
+    qss.user_storage.mkdir(parents=True, exist_ok=True)
+    if qss.project:
+        project_path = qss.user_storage / qss.project
+        project_path.mkdir(parents=True, exist_ok=True)
+    if not config_file.parent.exists():
+        config_file.parent.mkdir(parents=True)
+    common_config[QUALIBRATE_CONFIG_KEY] = exported_data
+    with config_file.open("wb") as f_out:
+        tomli_w.dump(common_config, f_out)
+
+
 @click.command(name="config")
 @click.option(
     "--config-path",
@@ -208,6 +228,11 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
     show_default=True,
 )
 @click.option(
+    "--project",
+    type=str,
+    required=False,
+)
+@click.option(
     "--metadata-out-path",
     type=str,
     default="data_path",
@@ -231,13 +256,6 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
     default=1.0,
     show_default=True,
 )
-# TODO: remove this when multi db will work
-@click.option(
-    "--timeline-db-name",
-    type=str,
-    default="new_db",
-    show_default=True,
-)
 @click.pass_context
 def config_command(
     ctx: click.Context,
@@ -245,29 +263,13 @@ def config_command(
     static_site_files: Path,
     storage_type: StorageType,
     user_storage: Path,
+    project: Optional[str],
     metadata_out_path: str,
     spawn_db: bool,
     timeline_db_address: str,
     timeline_db_timeout: float,
-    timeline_db_name: str,
 ) -> None:
     common_config, config_file = get_config(config_path)
-    qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
-    if "timeline_db" not in qualibrate_config:
-        qualibrate_config["timeline_db"] = {}
-
-    qualibrate_config = _config_from_sources(ctx, qualibrate_config)
-    qualibrate_config = _spawn_db_processing(
-        ctx, qualibrate_config, spawn_db, timeline_db_address
-    )
-    qs = QualibrateSettingsSetup(**qualibrate_config)
-    exported_data = qs.model_dump()
-    _confirm(config_file, exported_data)
-
-    qs.user_storage.mkdir(parents=True, exist_ok=True)
-    if not config_file.parent.exists():
-        config_file.parent.mkdir(parents=True)
-    common_config[QUALIBRATE_CONFIG_KEY] = exported_data
     if (
         TIMELINE_DB_CONFIG_KEY is not None
         and TIMELINE_DB_CONFIG_KEY not in common_config
@@ -275,5 +277,12 @@ def config_command(
         common_config[
             TIMELINE_DB_CONFIG_KEY
         ] = _get_timeline_db_config().model_dump()
-    with config_file.open("wb") as f_out:
-        tomli_w.dump(common_config, f_out)
+    qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
+    if "timeline_db" not in qualibrate_config:
+        qualibrate_config["timeline_db"] = {}
+    qualibrate_config = _config_from_sources(ctx, qualibrate_config)
+    qualibrate_config = _spawn_db_processing(
+        ctx, qualibrate_config, spawn_db, timeline_db_address
+    )
+    qss = QualibrateSettingsSetup(**qualibrate_config)
+    write_config(config_file, common_config, qss)

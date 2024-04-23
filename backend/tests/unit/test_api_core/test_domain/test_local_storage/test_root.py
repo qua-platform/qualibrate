@@ -107,7 +107,7 @@ class TestLocalStorageRoot:
                 "qualibrate.api.core.domain.local_storage.root"
                 ".BranchLocalStorage"
             ),
-            return_value=_Branch()
+            return_value=_Branch(),
         )
         assert self.root.get_latest_snapshots(5) == [1, 2]
         patched_branch.assert_called_once_with("main")

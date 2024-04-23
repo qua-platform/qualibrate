@@ -22,7 +22,7 @@ def get_with_db(
 ) -> requests.Response:
     settings = get_settings()
     host = host or str(settings.timeline_db.address)
-    db_name = db_name if db_name is not None else settings.timeline_db.db_name
+    db_name = db_name if db_name is not None else settings.project
     timeout = timeout if timeout is not None else settings.timeline_db.timeout
     if params is None:
         params = {"db_name": db_name}
