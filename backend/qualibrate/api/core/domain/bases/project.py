@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Mapping, Sequence, Tuple
 
+from qualibrate.api.core.models.project import Project
 from qualibrate.config import (
     CONFIG_KEY,
     QualibrateSettings,
@@ -36,7 +37,7 @@ class ProjectsManagerBase(ABC):
         pass
 
     @abstractmethod
-    def list(self) -> Sequence[str]:
+    def list(self) -> Sequence[Project]:
         pass
 
     def _get_raw_and_resolved_ref_config(

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Sequence, Union, cast
 from urllib.parse import urljoin
 
@@ -5,6 +6,7 @@ import requests
 from pydantic import ValidationError
 
 from qualibrate.api.core.domain.bases.project import ProjectsManagerBase
+from qualibrate.api.core.models.project import Project
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.api.exceptions.classes.values import QValueException
 from qualibrate.config import (
@@ -73,7 +75,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         new_project_path.mkdir(parents=True, exist_ok=True)
         return project_name
 
-    def list(self) -> Sequence[str]:
+    def list(self) -> Sequence[Project]:
         settings = get_settings()
         response = requests.get(
             urljoin(str(settings.timeline_db.address), "/database/list"),
@@ -81,4 +83,12 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         )
         if response.status_code != 200:
             raise QJsonDbException("Can't resolve list of projects.")
-        return cast(list[str], response.json())
+        return list(
+            Project(
+                name=name,
+                nodes_number=-1,
+                created_at=datetime.fromtimestamp(0),
+                last_modified_at=datetime.fromtimestamp(0),
+            )
+            for name in response.json()
+        )
