@@ -1,6 +1,6 @@
-from typing import Annotated, Any, Mapping, Optional, Sequence, Type, Union
+from typing import Annotated, Any, Mapping, Optional, Type, Union
 
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, Query
 
 from qualibrate.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -10,6 +10,7 @@ from qualibrate.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
 )
 from qualibrate.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate.api.core.models.paged import PagedCollection
 from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
 from qualibrate.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate.api.core.types import DocumentSequenceType, IdType
@@ -43,19 +44,25 @@ def get(
 @snapshot_router.get("/history")
 def get_history(
     *,
-    num: int,
+    page: int = Query(1, gt=0),
+    per_page: int = Query(50, gt=0),
     reverse: bool = False,
+    global_reverse: bool = False,
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
-) -> Sequence[SimplifiedSnapshotWithMetadata]:
-    history = snapshot.get_latest_snapshots(num)
+) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
+    total, history = snapshot.get_latest_snapshots(
+        page, per_page, global_reverse
+    )
     history_dumped = [
         SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
         for snapshot in history
     ]
     if reverse:
         # TODO: make more correct relationship update
-        return list(reversed(history_dumped))
-    return history_dumped
+        history_dumped = list(reversed(history_dumped))
+    return PagedCollection[SimplifiedSnapshotWithMetadata](
+        page=page, per_page=per_page, total_items=total, items=history_dumped
+    )
 
 
 @snapshot_router.get("/compare")

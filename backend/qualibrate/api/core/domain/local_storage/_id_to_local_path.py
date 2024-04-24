@@ -1,23 +1,26 @@
+import traceback
 from pathlib import Path
 from typing import Callable, Optional
 
 from qualibrate.api.core.types import IdType
+from qualibrate.api.core.utils.path_utils import NodePath
 from qualibrate.api.core.utils.singleton import Singleton
 from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 
 __all__ = ["default_node_path_solver", "IdToLocalPath", "NodePathSolverType"]
 
 
-NodePathSolverType = Callable[[IdType, Path], Optional[Path]]
+NodePathSolverType = Callable[[IdType, Path], Optional[NodePath]]
 
 
-def default_node_path_solver(id: IdType, base_path: Path) -> Optional[Path]:
-    return next(base_path.rglob(f"#{id}_*"), None)
+def default_node_path_solver(id: IdType, base_path: Path) -> Optional[NodePath]:
+    node_path = next(base_path.glob(f"*/#{id}_*"), None)
+    return NodePath(node_path) if node_path is not None else None
 
 
 class _IdToProjectLocalPath:
     def __init__(self, project_name: str, project_path: Path) -> None:
-        self._mapping: dict[IdType, Path] = {}
+        self._mapping: dict[IdType, NodePath] = {}
         self._project_name = project_name
         self._project_path = project_path
 
@@ -25,7 +28,7 @@ class _IdToProjectLocalPath:
         self,
         id: IdType,
         solver: NodePathSolverType = default_node_path_solver,
-    ) -> Optional[Path]:
+    ) -> Optional[NodePath]:
         if id in self._mapping:
             return self._mapping[id]
         path = solver(id, self._project_path)
@@ -45,7 +48,7 @@ class IdToLocalPath(metaclass=Singleton):
         id: IdType,
         project_path: Path,
         solver: NodePathSolverType = default_node_path_solver,
-    ) -> Optional[Path]:
+    ) -> Optional[NodePath]:
         if project not in self._project_to_path:
             self._project_to_path[project] = _IdToProjectLocalPath(
                 project, project_path
@@ -60,7 +63,7 @@ class IdToLocalPath(metaclass=Singleton):
         id: IdType,
         project_path: Path,
         solver: NodePathSolverType = default_node_path_solver,
-    ) -> Path:
+    ) -> NodePath:
         path = self.get(project, id, project_path, solver)
         if path is None:
             raise QFileNotFoundException(

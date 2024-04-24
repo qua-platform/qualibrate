@@ -1,4 +1,4 @@
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Tuple, Union
 
 from qualibrate.api.core.domain.bases.root import RootBase
 from qualibrate.api.core.domain.timeline_db.branch import BranchTimelineDb
@@ -15,14 +15,23 @@ class RootTimelineDb(RootBase):
     def get_branch(self, branch_name: str) -> BranchTimelineDb:
         return BranchTimelineDb(branch_name)
 
-    def _get_latest_snapshots(self, num: int = 50) -> DocumentSequenceType:
-        result = get_with_db("snapshot/n_latest", params={"num": num})
+    def _get_latest_snapshots(
+        self,
+        page: int,
+        per_page: int,
+        reverse: bool,
+    ) -> Tuple[int, DocumentSequenceType]:
+        result = get_with_db(
+            "snapshot/n_latest",
+            params={"page": page, "per_page": per_page, "reverse": reverse},
+        )
         if result.status_code != 200:
             raise QJsonDbException("Latest snapshots wasn't retrieved.")
-        return list(result.json())
+        parsed = result.json()
+        return parsed["total"], list(parsed["items"])
 
     def _get_latest_snapshot(self) -> DocumentType:
-        snapshots = self._get_latest_snapshots(1)
+        _, snapshots = self._get_latest_snapshots(1, 1, False)
         if len(snapshots) != 1:
             raise QJsonDbException("Latest snapshot wasn't retrieved.")
         return snapshots[0]
@@ -44,17 +53,25 @@ class RootTimelineDb(RootBase):
         return NodeTimelineDb(node_id=id)
 
     def get_latest_snapshots(
-        self, num: int = 50
-    ) -> Sequence[SnapshotTimelineDb]:
-        snapshots = self._get_latest_snapshots(num)
-        return [
+        self,
+        page: int = 1,
+        per_page: int = 50,
+        reverse: bool = False,
+    ) -> Tuple[int, Sequence[SnapshotTimelineDb]]:
+        total, snapshots = self._get_latest_snapshots(page, per_page, reverse)
+        return total, [
             SnapshotTimelineDb(id=snapshot["id"], content=snapshot)
             for snapshot in snapshots
         ]
 
-    def get_latest_nodes(self, num: int = 50) -> Sequence[NodeTimelineDb]:
-        snapshots = self._get_latest_snapshots(num)
-        return [
+    def get_latest_nodes(
+        self,
+        page: int = 1,
+        per_page: int = 50,
+        reverse: bool = False,
+    ) -> Tuple[int, Sequence[NodeTimelineDb]]:
+        total, snapshots = self._get_latest_snapshots(page, per_page, reverse)
+        return total, [
             NodeTimelineDb(node_id=snapshot["id"], snapshot_content=snapshot)
             for snapshot in snapshots
         ]

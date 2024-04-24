@@ -1,14 +1,12 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Sequence, cast
+from typing import Sequence
 
 from pydantic import ValidationError
 
 from qualibrate.api.core.domain.bases.project import ProjectsManagerBase
-from qualibrate.api.core.domain.local_storage.utils.node_utils import (
-    get_node_id_name_time,
-)
 from qualibrate.api.core.models.project import Project
+from qualibrate.api.core.utils.path_utils import NodePath
 from qualibrate.api.exceptions.classes.values import QValueException
 from qualibrate.config import CONFIG_KEY, QualibrateSettings, get_settings
 
@@ -53,33 +51,32 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
             project_path.stat().st_mtime
         ).astimezone()
         max_node_number_path = max(
-            project_path.rglob("#*"),
-            key=lambda n: get_node_id_name_time(n)[0] or -1,
+            map(NodePath, project_path.glob("*/#*")),
+            key=lambda n: n.id or -1,
             default=None,
         )
         if max_node_number_path is not None:
-            max_node_num_id, _, max_node_number_time = get_node_id_name_time(
-                max_node_number_path
-            )
+            (
+                max_node_num_id,
+                _,
+                max_node_number_time,
+            ) = max_node_number_path.get_node_id_name_time()
         else:
             max_node_num_id = None
             max_node_number_time = None
         max_node_number = max_node_num_id or -1
-        if max_node_number_time is not None:
-            last_modified_ts = (
-                datetime.strptime(
-                    cast(Path, max_node_number_path).parent.name, "%Y-%m-%d"
-                )
-                .replace(
-                    hour=max_node_number_time.hour,
-                    minute=max_node_number_time.minute,
-                    second=max_node_number_time.second,
-                )
-                .astimezone()
-            )
+        if (
+            max_node_number_path is not None
+            and max_node_number_time is not None
+        ):
+            last_modified_ts = max_node_number_path.datetime.replace(
+                hour=max_node_number_time.hour,
+                minute=max_node_number_time.minute,
+                second=max_node_number_time.second,
+            ).astimezone()
         else:
             last_modified_node_path = max(
-                project_path.rglob("#*"),
+                project_path.glob("*/#*"),
                 key=lambda n: n.stat().st_mtime,
                 default=None,
             )

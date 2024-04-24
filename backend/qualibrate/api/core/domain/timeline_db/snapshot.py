@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Mapping, Optional, Sequence, Union, cast
+from typing import Any, Mapping, Optional, Sequence, Tuple, Union, cast
 
 from qualibrate.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -79,18 +79,23 @@ class SnapshotTimelineDb(SnapshotBase):
         return get_subpath_value(data, search_path)
 
     def get_latest_snapshots(
-        self, num_snapshots: int = 50
-    ) -> Sequence[SnapshotBase]:
+        self, page: int = 1, per_page: int = 50, reverse: bool = False
+    ) -> Tuple[int, Sequence[SnapshotBase]]:
         result = get_with_db(
             f"snapshot/{self.id}/history",
-            params={"num_snapshots": num_snapshots},
+            params={"page": page, "per_page": per_page, "reverse": reverse},
         )
         if result.status_code != 200:
             raise QJsonDbException("Snapshot history wasn't retrieved.")
-        data = list(result.json())
-        return [
-            SnapshotTimelineDb(snapshot["id"], snapshot) for snapshot in data
-        ]
+        data = dict(result.json())
+
+        return (
+            cast(int, data["total"]),
+            [
+                SnapshotTimelineDb(int(snapshot["id"]), snapshot)
+                for snapshot in data["items"]
+            ],
+        )
 
     def compare_by_id(
         self, other_snapshot_int: int

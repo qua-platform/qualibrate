@@ -1,8 +1,7 @@
-import functools
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Mapping, Optional, Sequence, Union
+from typing import Any, Callable, Mapping, Optional, Sequence, Tuple, Union
 
 import jsonpatch
 
@@ -13,16 +12,13 @@ from qualibrate.api.core.domain.bases.snapshot import (
 from qualibrate.api.core.domain.local_storage._id_to_local_path import (
     IdToLocalPath,
 )
-from qualibrate.api.core.domain.local_storage.utils.filters import (
-    date_less_or_eq,
-    id_less_then_snapshot,
-)
 from qualibrate.api.core.domain.local_storage.utils.node_utils import (
+    find_latest_node_id,
     find_n_latest_nodes_ids,
-    get_node_id_name_time,
 )
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.api.core.utils.find_utils import get_subpath_value
+from qualibrate.api.core.utils.path_utils import NodePath
 from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate.api.exceptions.classes.values import QValueException
@@ -31,7 +27,7 @@ from qualibrate.config import QualibrateSettings, get_settings
 __all__ = ["SnapshotLocalStorage"]
 
 SnapshotContentLoaderType = Callable[
-    [Path, SnapshotLoadType, QualibrateSettings], DocumentType
+    [NodePath, SnapshotLoadType, QualibrateSettings], DocumentType
 ]
 
 
@@ -128,7 +124,7 @@ def _read_data_node_content(
 
 
 def _default_snapshot_content_loader(
-    snapshot_path: Path,
+    snapshot_path: NodePath,
     load_type: SnapshotLoadType,
     settings: QualibrateSettings,
 ) -> DocumentType:
@@ -141,14 +137,13 @@ def _default_snapshot_content_loader(
                 node_info = {}
     else:
         node_info = {}
-    f_node_id, f_node_name, f_node_time = get_node_id_name_time(snapshot_path)
     content = _read_minified_node_content(
-        node_info, f_node_id, node_filepath, settings
+        node_info, snapshot_path.id, node_filepath, settings
     )
     if load_type < SnapshotLoadType.Metadata:
         return content
     content["metadata"] = _read_metadata_node_content(
-        node_info, f_node_name, snapshot_path, settings
+        node_info, snapshot_path.node_name, snapshot_path, settings
     )
     if load_type < SnapshotLoadType.Data:
         return content
@@ -214,35 +209,18 @@ class SnapshotLocalStorage(SnapshotBase):
         return get_subpath_value(self.data, search_path)
 
     def get_latest_snapshots(
-        self, num_snapshots: int = 50
-    ) -> Sequence[SnapshotBase]:
+        self, page: int = 1, per_page: int = 50, reverse: bool = False
+    ) -> Tuple[int, Sequence[SnapshotBase]]:
         # first in history is current
-        if num_snapshots < 1:
-            return []
-        self.load(SnapshotLoadType.Metadata)
-        if num_snapshots == 1:
-            return [self]
         settings = get_settings()
-        paths_mapping = IdToLocalPath()
-        snapshot_path = paths_mapping.get_or_raise(
-            settings.project,
-            self._id,
-            settings.user_storage,
-        )
+        total = find_latest_node_id(settings.user_storage)
+        self.load(SnapshotLoadType.Metadata)
+        if page == 1 and per_page == 1:
+            return total, [self]
         ids = find_n_latest_nodes_ids(
             settings.user_storage,
-            num_snapshots - 1,
-            date_filters=[
-                functools.partial(
-                    date_less_or_eq, date_to_compare=snapshot_path.parent.stem
-                )
-            ],
-            node_filters=[
-                functools.partial(
-                    id_less_then_snapshot,
-                    node_id_to_compare=self._id,
-                )
-            ],
+            page,
+            per_page,
         )
         snapshots = [SnapshotLocalStorage(id) for id in ids]
         for snapshot in snapshots:
@@ -250,7 +228,7 @@ class SnapshotLocalStorage(SnapshotBase):
                 snapshot.load(SnapshotLoadType.Metadata)
             except OSError:
                 pass
-        return [self, *snapshots]
+        return total, [self, *snapshots]
 
     def compare_by_id(
         self, other_snapshot_id: int
