@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 from qualibrate.api.core.domain.bases.branch import BranchBase, BranchLoadType
 from qualibrate.api.core.domain.bases.node import NodeBase, NodeLoadType
@@ -13,6 +13,7 @@ from qualibrate.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
 )
 from qualibrate.api.core.domain.local_storage.utils.node_utils import (
+    find_latest_node_id,
     find_n_latest_nodes_ids,
 )
 from qualibrate.api.core.models.branch import Branch as BranchModel
@@ -40,7 +41,7 @@ class BranchLocalStorage(BranchBase):
 
     def _get_latest_node_id(self, error_msg: str) -> IdType:
         settings = get_settings()
-        id = next(find_n_latest_nodes_ids(settings.user_storage, 1), None)
+        id = next(find_n_latest_nodes_ids(settings.user_storage, 1, 1), None)
         if id is None:
             raise QFileNotFoundException(f"There is no {error_msg}")
         return id
@@ -55,21 +56,35 @@ class BranchLocalStorage(BranchBase):
             id = self._get_latest_node_id("nodes")
         return NodeLocalStorage(id)
 
-    def get_latest_snapshots(self, num: int = 50) -> Sequence[SnapshotBase]:
+    def get_latest_snapshots(
+        self,
+        page: int = 0,
+        per_page: int = 50,
+        reverse: bool = False,
+    ) -> Tuple[int, Sequence[SnapshotBase]]:
+        # TODO: use reverse
         settings = get_settings()
-        ids = find_n_latest_nodes_ids(settings.user_storage, num)
+        ids = find_n_latest_nodes_ids(settings.user_storage, page, per_page)
         snapshots = [SnapshotLocalStorage(id) for id in ids]
         for snapshot in snapshots:
             snapshot.load(SnapshotLoadType.Metadata)
-        return snapshots
+        total = find_latest_node_id(settings.user_storage)
+        return total, snapshots
 
-    def get_latest_nodes(self, num: int = 50) -> Sequence[NodeBase]:
+    def get_latest_nodes(
+        self,
+        page: int = 0,
+        per_page: int = 50,
+        reverse: bool = False,
+    ) -> Tuple[int, Sequence[NodeBase]]:
+        # TODO: use reverse
         settings = get_settings()
-        ids = find_n_latest_nodes_ids(settings.user_storage, num)
+        ids = find_n_latest_nodes_ids(settings.user_storage, page, per_page)
         nodes = [NodeLocalStorage(id) for id in ids]
         for node in nodes:
             node.load(NodeLoadType.Full)
-        return nodes
+        total = find_latest_node_id(settings.user_storage)
+        return total, nodes
 
     def dump(self) -> BranchModel:
         return BranchModel(

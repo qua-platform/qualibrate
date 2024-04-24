@@ -1,16 +1,13 @@
-from pathlib import Path
-
-from qualibrate.api.core.domain.local_storage.utils.node_utils import (
-    get_node_id_name_time,
-)
+from qualibrate.api.core.utils.path_utils import NodePath, NodesDatePath
 
 
-def date_less_or_eq(date_path: Path, date_to_compare: str) -> bool:
+def date_less_or_eq(date_path: NodesDatePath, date_to_compare: str) -> bool:
+    # TODO: use date to compare
     return date_path.stem <= date_to_compare
 
 
-def id_less_then_snapshot(node_path: Path, node_id_to_compare: int) -> bool:
-    node_id, _, _ = get_node_id_name_time(node_path)
+def id_less_then_snapshot(node_path: NodePath, node_id_to_compare: int) -> bool:
+    node_id = node_path.id
     if node_id is None:
         return False
     return int(node_id) < node_id_to_compare

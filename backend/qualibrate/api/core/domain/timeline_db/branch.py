@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 from qualibrate.api.core.domain.bases.branch import BranchBase, BranchLoadType
 from qualibrate.api.core.domain.bases.node import NodeBase, NodeLoadType
@@ -75,36 +75,52 @@ class BranchTimelineDb(BranchBase):
         node.load(NodeLoadType.Full)
         return node
 
-    def get_latest_snapshots(self, num: int = 50) -> list[SnapshotBase]:
-        """Retrieve last num_snapshots from this branch"""
+    def _get_remote_snapshots(
+        self, metadata: bool, page: int, per_page: int, reverse: bool
+    ) -> Tuple[int, Sequence[DocumentType]]:
         result = get_with_db(
             f"branch/{self._name}/history",
-            params={"metadata": True, "num_snapshots": num},
+            params={
+                "metadata": metadata,
+                "page": page,
+                "per_page": per_page,
+                "reverse": reverse,
+            },
         )
         if result.status_code != 200:
             raise QJsonDbException("Branch history wasn't retrieved.")
         snapshots = result.json()
         if not isinstance(snapshots, Sequence):
             raise QJsonDbException("Branch history wasn't retrieved.")
-        return [
+        # TODO: func for parse all paged items
+        parsed = result.json()
+        return parsed["total"], list(parsed["items"])
+
+    def get_latest_snapshots(
+        self,
+        page: int = 0,
+        per_page: int = 50,
+        reverse: bool = False,
+    ) -> Tuple[int, list[SnapshotBase]]:
+        """Retrieve last num_snapshots from this branch"""
+        total, snapshots = self._get_remote_snapshots(
+            True, page, per_page, reverse
+        )
+        return total, [
             SnapshotTimelineDb(id=snapshot["id"], content=snapshot)
             for snapshot in snapshots
         ]
 
-    def get_latest_nodes(self, num: int = 50) -> list[NodeBase]:
+    def get_latest_nodes(
+        self, page: int = 0, per_page: int = 50, reverse: bool = False
+    ) -> Tuple[int, list[NodeBase]]:
         """Retrieve last num_snapshots from this branch"""
-        result = get_with_db(
-            f"branch/{self._name}/history",
-            params={"metadata": False, "num_snapshots": num},
+        total, snapshots = self._get_remote_snapshots(
+            False, page, per_page, reverse
         )
-        if result.status_code != 200:
-            raise QJsonDbException("Branch history wasn't retrieved.")
-        snapshots = result.json()
-        if not isinstance(snapshots, Sequence):
-            raise QJsonDbException("Branch history wasn't retrieved.")
-        return [
+        return total, [
             NodeTimelineDb(
-                node_id=snapshot.get("id"),
+                node_id=snapshot["id"],
                 snapshot_content=snapshot,
             )
             for snapshot in snapshots
