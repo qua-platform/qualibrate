@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import PopupHeader from "../../../../DEPRECATED_components/Popup/PopupHeader";
 import cyKeys from "../../../../utils/cyKeys";
 import RightPopupContainer from "../../../../ui-lib/components/RightPopup/RightPopupContainer";

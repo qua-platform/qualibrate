@@ -1,0 +1,38 @@
+.projectPageLayout {
+  position: relative;
+  background-color: var(--background-color);
+  padding: 50px 70px;
+
+  @media (max-width: 900px) {
+    padding: 40px 30px;
+  }
+  @media (max-width: 700px) {
+    padding: 30px 20px;
+  }
+}
+
+.pageWrapper {
+  position: relative;
+  display: flex;
+  flex: 1;
+  gap: 70px;
+}
+
+.pageActions {
+  display: flex;
+  column-gap: 30px;
+  position: absolute;
+  bottom: 50px;
+  left: 70px;
+}
+
+.searchProjectField {
+  margin-bottom: 18px;
+}
+
+.actionButton {
+  width: 172px;
+  justify-content: center;
+  padding: 0;
+  gap: 8px;
+}

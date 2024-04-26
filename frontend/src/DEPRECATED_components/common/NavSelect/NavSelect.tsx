@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useCallback, useMemo } from "react";
+import React, { MouseEventHandler, useCallback } from "react";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NavSelect.module.scss";

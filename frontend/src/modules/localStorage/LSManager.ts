@@ -1,4 +1,4 @@
-import { ProjectDTO } from "../../DEPRECATED_common/DEPRECATED_dtos/project/project.dto";
+import { ProjectDTO } from "../Project/ProjectDTO";
 
 const LS_KEYS = {
   activeProject: "activeProject",

@@ -1,12 +1,13 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { DataViewContextProvider } from "./context/DataViewContext";
+import React, { Dispatch, SetStateAction } from "react";
 import styles from "./Data.module.scss";
 import cyKeys from "../../utils/cyKeys";
 import useModuleStyle from "../../ui-lib/hooks/useModuleStyle";
 import { classNames } from "../../utils/classnames";
 import { Gitgraph, templateExtend, TemplateName } from "@gitgraph/react";
 import { JsonViewer, defineDataType } from "@textea/json-viewer";
-import { DataViewApi } from "./api/DataViewApi";
+import { SnapshotsContextProvider, useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
+import { SnapshotDTO } from "../Snapshots/SnapshotDTO";
+import PaginationWrapper from "../Pagination/PaginationWrapper";
 
 const formatDateTime = (dateTime: string): string => {
   const date = new Date(dateTime);
@@ -14,126 +15,22 @@ const formatDateTime = (dateTime: string): string => {
 };
 
 const TimelineGraph = ({
-  setJsonData,
-  setResults,
-  setDiffData,
+  allSnapshots,
+  selectedSnapshotIndex,
+  setSelectedSnapshotIndex,
+  setSelectedSnapshotId,
+  setFlag,
+  fetchOneGitgraphSnapshot,
 }: {
-  setJsonData: Dispatch<SetStateAction<any>>;
-  setResults: Dispatch<SetStateAction<any>>;
-  setDiffData: Dispatch<SetStateAction<any>>;
+  allSnapshots: SnapshotDTO[];
+
+  selectedSnapshotIndex: number | undefined;
+  setSelectedSnapshotIndex: Dispatch<SetStateAction<number | undefined>>;
+  setSelectedSnapshotId: Dispatch<SetStateAction<number | undefined>>;
+
+  setFlag: Dispatch<SetStateAction<any>>;
+  fetchOneGitgraphSnapshot: (snapshots: SnapshotDTO[], selectedIndex: number) => void;
 }) => {
-  const [allSnapshots, setAllSnapshots] = useState<any[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [flag, setFlag] = useState<boolean>(false);
-  const [reset, setReset] = useState<boolean>(false);
-
-  // -----------------------------------------------------------
-  // FIRST FETCH ALL SNAPSHOTS ON THE BEGINNING
-  const fetchGitgraphSnapshots = (firstTime: boolean) => {
-    DataViewApi.fetchAllSnapshots().then((promise: any) => {
-      setAllSnapshots(
-        (promise.result as any[])?.map((res, index) => {
-          if (firstTime) {
-            return Object.assign(res, { isSelected: index == promise.result.length - 1 });
-          }
-          return Object.assign(res, { isSelected: res?.id == selectedIndex });
-        })
-      );
-      if (firstTime) {
-        if (promise?.result) {
-          fetchOneGitgraphSnapshot(promise?.result[promise?.result?.length - 1]?.id);
-        }
-      } else {
-        fetchOneGitgraphSnapshot(selectedIndex.toString());
-        setReset(false);
-      }
-    });
-  };
-
-  useEffect(() => {
-    fetchGitgraphSnapshots(true);
-  }, []);
-  // -----------------------------------------------------------
-
-  // -----------------------------------------------------------
-  // PERIODICAL FETCH ALL SNAPSHOTS
-  const intervalFetch = () => {
-    DataViewApi.fetchAllSnapshots().then((promise: any) => {
-      const oldMaxId = Math.max(...(allSnapshots?.map((res: any) => res.id) ?? []));
-      const newMaxId = Math.max(...(promise?.result?.map((res: any) => res.id) ?? []));
-      console.log(`Max snapshot ID - previous=${oldMaxId}, latest=${newMaxId}`);
-      if (newMaxId > oldMaxId && allSnapshots.length !== 0) {
-        setReset(true);
-      } else {
-        setReset(false);
-      }
-      return promise;
-    });
-  };
-  useEffect(() => {
-    const checkInterval = setInterval(async () => intervalFetch(), 1500);
-    return () => clearInterval(checkInterval);
-  }, [allSnapshots]);
-  // -----------------------------------------------------------
-
-  // -----------------------------------------------------------
-  // PERIODICAL FETCH ALL SNAPSHOTS
-  useEffect(() => {
-    if (reset) {
-      setAllSnapshots([]);
-      const updateFn = setTimeout(() => fetchGitgraphSnapshots(false), 2);
-      return () => clearTimeout(updateFn);
-    }
-  }, [reset]);
-  // -----------------------------------------------------------
-
-  const fetchOneGitgraphSnapshot = (id: string) => {
-    DataViewApi.fetchSnapshot(id)
-      .then((promise: any) => {
-        setJsonData(promise?.result.data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-    DataViewApi.fetchSnapshotResult(id)
-      .then((promise: any) => {
-        if (promise.result) {
-          setResults(promise?.result);
-        } else {
-          setResults(undefined);
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-    DataViewApi.fetchSnapshotUpdate((Number(id) - 1).toString(), id)
-      .then((promise: any) => {
-        if (promise.result) {
-          setDiffData(promise?.result);
-        } else {
-          setDiffData({});
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  };
-  const gitgraphUpdate = () => {
-    const newArray = (allSnapshots as any[])?.map((res, index) => {
-      // console.log("Updating git graph, selected index: ", selectedIndex, "res.id: ", res.id, "index: ", index);
-      return Object.assign(res, { isSelected: res?.id == selectedIndex });
-    });
-    setAllSnapshots(newArray);
-  };
-
-  useEffect(() => {
-    if (flag) {
-      setAllSnapshots([]);
-      const updateFn = setTimeout(() => gitgraphUpdate(), 2);
-      return () => clearTimeout(updateFn);
-    }
-  }, [selectedIndex, flag]);
-
   const withoutAuthor = templateExtend(TemplateName.Metro, {
     commit: {
       message: {
@@ -145,7 +42,7 @@ const TimelineGraph = ({
 
   return (
     allSnapshots?.length > 0 &&
-    selectedIndex !== undefined && (
+    selectedSnapshotIndex !== undefined && (
       <Gitgraph options={{ template: withoutAuthor }}>
         {(gitgraph) => {
           const mainBranch = gitgraph.branch({
@@ -167,22 +64,23 @@ const TimelineGraph = ({
             },
           });
 
-          allSnapshots.forEach((snapshot: any, index) => {
+          allSnapshots.map((snapshot: SnapshotDTO, index) => {
             const snapshotId = snapshot?.id.toString();
             mainBranch.commit({
               hash: `#${snapshotId}`,
               author: "",
               body: formatDateTime(snapshot.created_at),
-              subject: snapshot.metadata.name,
+              subject: snapshot.metadata?.name,
               style: {
                 dot: {
-                  color: snapshot.isSelected ? "#d9d5d4" : "gray",
+                  color: selectedSnapshotIndex === index ? "#d9d5d4" : "gray",
                 },
               },
               onClick: () => {
                 setFlag(true);
-                setSelectedIndex(snapshotId);
-                fetchOneGitgraphSnapshot(snapshotId);
+                setSelectedSnapshotIndex(index);
+                setSelectedSnapshotId(snapshot?.id);
+                fetchOneGitgraphSnapshot(allSnapshots, index);
               },
             });
           });
@@ -230,15 +128,33 @@ const JSONEditor = ({ title, jsonData, height }: { title: string; jsonData: any;
 
 const DataGUAlibrate = () => {
   const [ref] = useModuleStyle<HTMLDivElement>();
-  const [jsonData, setJsonData] = useState(undefined);
-  const [diffData, setDiffData] = useState(undefined);
-  const [result, setResults] = useState(undefined);
+  const {
+    totalPages,
+    setPageNumber,
+    allSnapshots,
+    selectedSnapshotIndex,
+    setSelectedSnapshotIndex,
+    setSelectedSnapshotId,
+    jsonData,
+    diffData,
+    result,
+    setFlag,
+    fetchOneGitgraphSnapshot,
+  } = useSnapshotsContext();
   return (
     <div ref={ref} className={styles.wrapper}>
       <div className={classNames(styles.explorer)}>
         <div className={classNames(styles.data)}>
           <div className={styles.listWrapper} data-cy={cyKeys.data.EXPERIMENT_LIST}></div>
-          <TimelineGraph setJsonData={setJsonData} setResults={setResults} setDiffData={setDiffData} />
+          <TimelineGraph
+            allSnapshots={allSnapshots}
+            setFlag={setFlag}
+            selectedSnapshotIndex={selectedSnapshotIndex}
+            setSelectedSnapshotIndex={setSelectedSnapshotIndex}
+            setSelectedSnapshotId={setSelectedSnapshotId}
+            fetchOneGitgraphSnapshot={fetchOneGitgraphSnapshot}
+          />
+          <PaginationWrapper numberOfPages={totalPages} setPageNumber={setPageNumber} />
         </div>
         <div className={styles.viewer}>
           <div>{result && <JSONEditor title={"RESULTS"} jsonData={result} height={"100%"} />}</div>
@@ -258,7 +174,7 @@ const DataGUAlibrate = () => {
 };
 
 export default () => (
-  <DataViewContextProvider>
+  <SnapshotsContextProvider>
     <DataGUAlibrate />
-  </DataViewContextProvider>
+  </SnapshotsContextProvider>
 );

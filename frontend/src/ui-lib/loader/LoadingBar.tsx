@@ -1,4 +1,4 @@
-import DEPRECATEDButton from "../../DEPRECATED_components/DEPRECATED_Buttons/ButtonWrapper";
+import DEPRECATEDButton from "../../DEPRECATED_components/buttons/ButtonWrapper";
 import { ButtonTypes } from "../../DEPRECATED_common/DEPRECATED_interfaces/ButtonTypes";
 import React from "react";
 import { WorkflowPlaceHolderIcon } from "../Icons/WorkflowPlaceholderIcon";

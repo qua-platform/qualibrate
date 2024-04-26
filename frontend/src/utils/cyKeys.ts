@@ -4,6 +4,7 @@ const cyKeys = {
   COMPONENTS_TAB: "components-tab",
   EXPERIMENTS_TAB: "experiments-tab",
   DASHBOARD_TAB: "dashboard-tab",
+  PROJECT_TAB: "project-tab",
   DATA_TAB: "data-tab",
   NOTEBOOK_TAB: "notebook-tab",
   DOCS_TAB: "docs-tab",

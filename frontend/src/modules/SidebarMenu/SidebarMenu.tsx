@@ -15,7 +15,7 @@ const SidebarMenu: React.FunctionComponent = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [minify, setMinify] = React.useState(true);
   const containerClassName = classNames(styles.sidebarMenu, !minify && styles.opened);
-  const hideSideMenuItems = true;
+  const hideSideMenuItems = false;
 
   useEffect(() => {
     setMinify(!pinSideMenu);
