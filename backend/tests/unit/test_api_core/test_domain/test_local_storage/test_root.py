@@ -22,7 +22,7 @@ class TestLocalStorageRoot:
             self.root._get_latest_node_id("msg")
         assert ex.type == QFileNotFoundException
         assert ex.value.args == ("There is no msg",)
-        patched_find_latest.assert_called_once_with("store", 1)
+        patched_find_latest.assert_called_once_with("store", 1, 1)
 
     def test__get_latest_node_id_valid(self, mocker):
         mocker.patch(
@@ -34,7 +34,7 @@ class TestLocalStorageRoot:
             return_value=iter([1]),
         )
         assert self.root._get_latest_node_id("msg") == 1
-        patched_find_latest.assert_called_once_with("store", 1)
+        patched_find_latest.assert_called_once_with("store", 1, 1)
 
     def test_get_snapshot_latest(self, mocker):
         patched_get_latest = mocker.patch.object(
@@ -98,8 +98,10 @@ class TestLocalStorageRoot:
 
     def test_get_latest_snapshots(self, mocker):
         class _Branch:
-            def get_latest_snapshots(self, n):
-                assert n == 5
+            def get_latest_snapshots(self, page, per_page, reverse):
+                assert page == 1
+                assert per_page == 2
+                assert reverse is False
                 return [1, 2]
 
         patched_branch = mocker.patch(
@@ -109,5 +111,5 @@ class TestLocalStorageRoot:
             ),
             return_value=_Branch(),
         )
-        assert self.root.get_latest_snapshots(5) == [1, 2]
+        assert self.root.get_latest_snapshots(1, 2, False) == [1, 2]
         patched_branch.assert_called_once_with("main")

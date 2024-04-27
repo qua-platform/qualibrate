@@ -8,14 +8,17 @@ from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 
 
 def test_default_node_path_solver_exists_root(tmp_path: Path):
-    first = tmp_path / "#1_aaa"
+    date_path = tmp_path / "date_path"
+    date_path.mkdir()
+    first = date_path / "#1_aaa"
     first.mkdir()
-    second = tmp_path / "#2_bbb"
+    second = date_path / "#2_bbb"
     second.mkdir()
     assert _id_to_local_path.default_node_path_solver(1, tmp_path) == first
     assert _id_to_local_path.default_node_path_solver(2, tmp_path) == second
 
 
+@pytest.mark.skip(reason="Now we use only non recursive nodes structure")
 def test_default_node_path_solver_exists_subpath(tmp_path: Path):
     first = tmp_path / "#1_aaa"
     second = first / "#2_bbb"
