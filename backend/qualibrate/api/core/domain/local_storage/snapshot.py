@@ -18,7 +18,7 @@ from qualibrate.api.core.domain.local_storage.utils.node_utils import (
 )
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
 from qualibrate.api.core.utils.find_utils import get_subpath_value
-from qualibrate.api.core.utils.path_utils import NodePath
+from qualibrate.api.core.utils.path.node import NodePath
 from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate.api.exceptions.classes.values import QValueException
@@ -221,6 +221,7 @@ class SnapshotLocalStorage(SnapshotBase):
             settings.user_storage,
             page,
             per_page,
+            (self.id or total) - 1,
         )
         snapshots = [SnapshotLocalStorage(id) for id in ids]
         for snapshot in snapshots:

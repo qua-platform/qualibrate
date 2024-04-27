@@ -6,7 +6,7 @@ from pydantic import ValidationError
 
 from qualibrate.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate.api.core.models.project import Project
-from qualibrate.api.core.utils.path_utils import NodePath
+from qualibrate.api.core.utils.path.node import NodePath
 from qualibrate.api.exceptions.classes.values import QValueException
 from qualibrate.config import CONFIG_KEY, QualibrateSettings, get_settings
 

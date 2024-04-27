@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from qualibrate.api.core.types import IdType
-from qualibrate.api.core.utils.path_utils import NodePath
+from qualibrate.api.core.utils.path.node import NodePath
 from qualibrate.api.core.utils.singleton import Singleton
 from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 

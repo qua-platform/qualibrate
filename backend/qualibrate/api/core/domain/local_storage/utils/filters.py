@@ -1,4 +1,5 @@
-from qualibrate.api.core.utils.path_utils import NodePath, NodesDatePath
+from qualibrate.api.core.utils.path.node import NodePath
+from qualibrate.api.core.utils.path.node_date import NodesDatePath
 
 
 def date_less_or_eq(date_path: NodesDatePath, date_to_compare: str) -> bool:
