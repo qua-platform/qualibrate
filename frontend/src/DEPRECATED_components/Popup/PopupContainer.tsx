@@ -1,7 +1,7 @@
 import { PopupModes, PopupTypes } from "../../DEPRECATED_common/DEPRECATED_enum/PopupTypes";
 import React, { PropsWithChildren, useCallback, useContext, useMemo } from "react";
 
-import DEPRECATEDButton from "../DEPRECATED_Buttons/ButtonWrapper";
+import DEPRECATEDButton from "../buttons/ButtonWrapper";
 import { ButtonTypes } from "../../DEPRECATED_common/DEPRECATED_interfaces/ButtonTypes";
 import { CloseIcon } from "../../ui-lib/Icons/CloseIcon";
 import InterfaceContext from "../../DEPRECATED_context/InterfaceContext";

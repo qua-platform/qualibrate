@@ -1,15 +1,15 @@
 import React, { useContext } from "react";
 
-import { BLUE_BUTTON } from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/utils/colors";
-import { ButtonProps } from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/DEPRECATED_common/DEPRECATED_interfaces/ButtonProps";
-import { ButtonTypes } from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/DEPRECATED_common/DEPRECATED_interfaces/ButtonTypes";
-import InterfaceContext from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/DEPRECATED_context/InterfaceContext";
-import actionButtonStyles from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/DEPRECATED_components/DEPRECATED_Buttons/styles/ActionButton.module.scss";
-import { classNames } from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/utils/classnames";
-import plainButtonStyles from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/DEPRECATED_components/DEPRECATED_Buttons/styles/PlainButton.module.scss";
-import sortButtonStyles from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/DEPRECATED_components/DEPRECATED_Buttons/styles/SortButton.module.scss";
-import styles from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/DEPRECATED_components/DEPRECATED_Buttons/styles/ButtonWrapper.module.scss";
-import { ArrowIcon } from "../../../../../entropy_frontend_ui/entropy_frontend_ui/src/ui-lib/Icons/ArrowIcon";
+import { BLUE_BUTTON } from "../../utils/colors";
+import { ButtonProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/ButtonProps";
+import { ButtonTypes } from "../../DEPRECATED_common/DEPRECATED_interfaces/ButtonTypes";
+import InterfaceContext from "../../DEPRECATED_context/InterfaceContext";
+import actionButtonStyles from "../buttons/styles/ActionButton.module.scss";
+import { classNames } from "../../utils/classnames";
+import plainButtonStyles from "../buttons/styles/PlainButton.module.scss";
+import sortButtonStyles from "../buttons/styles/SortButton.module.scss";
+import styles from "../buttons/styles/ButtonWrapper.module.scss";
+import {ArrowIcon} from "../../ui-lib/Icons/ArrowIcon";
 
 const defaultClassName = styles.button;
 const actionButtonClassName = actionButtonStyles.actionButton;

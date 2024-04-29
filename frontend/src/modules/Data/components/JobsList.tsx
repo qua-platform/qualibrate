@@ -4,7 +4,7 @@ import cyKeys from "../../../utils/cyKeys";
 // import OrderSortButton from "../../Jobs/components/OrderSortButton";
 // import { JobStatuses } from "../../../DEPRECATED_common/DEPRECATED_enum/JobStatuses";
 // import FilterExperimentsPopup from "../jobsList/filter/FilterExperimentsPopup";
-// import FilterButton from "../../../DEPRECATED_components/DEPRECATED_Buttons/FilterButton";
+// import FilterButton from "../../../DEPRECATED_components/buttons/FilterButton";
 // import { DEFAULT_JOB_FILTER_TYPE } from "../../Jobs/components/jobPage/JobsModule";
 
 // export const FIXED_DATA_JOBS_FILTER = {

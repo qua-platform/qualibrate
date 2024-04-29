@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 
-import DEPRECATEDButton from "../../DEPRECATED_Buttons/ButtonWrapper";
+import DEPRECATEDButton from "../../buttons/ButtonWrapper";
 import { ButtonTypes } from "../../../DEPRECATED_common/DEPRECATED_interfaces/ButtonTypes";
 import { classNames } from "../../../utils/classnames";
 import styles from "./SettingField.module.scss";

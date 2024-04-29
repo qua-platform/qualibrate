@@ -3,7 +3,7 @@ import * as React from "react";
 import { ACTIVE_TEXT, GREY_FONT } from "../../utils/colors";
 import { classNames } from "../../utils/classnames";
 import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
-import TargetButton from "../DEPRECATED_Buttons/TargetButton";
+import TargetButton from "../buttons/TargetButton";
 import TweakIcon from "../../ui-lib/Icons/TweakIcon";
 import { CopyButton } from "../../ui-lib/components/Button/CopyButton";
 import { SHOW_NOT_IMPLEMENTED } from "../../dev.config";
