@@ -89,13 +89,14 @@ def find_n_latest_nodes_ids(
         ),
         reverse=True,
     ):
-        for node in sorted(
-            filter(
-                lambda p: all(
-                    filter_(p, *args) for filter_, args in node_filters
-                ),
-                map(NodePath, node_date.glob("#*")),
-            ),
+        node_paths = filter(
+            lambda p: all(filter_(p, *args) for filter_, args in node_filters),
+            map(NodePath, node_date.glob("#*")),
+        )
+        node_path_ids = {int(path.stem[1:].split("_")[0]): path for path in node_paths}
+        for node_id, node in sorted(
+            node_path_ids.items(),
+            key=lambda x: x[0],
             reverse=True,
         ):
             current = next_
@@ -117,4 +118,3 @@ def find_n_latest_nodes_ids(
     # if one more item still exists then yielded it and then exists
     yield next_
     return None
-
