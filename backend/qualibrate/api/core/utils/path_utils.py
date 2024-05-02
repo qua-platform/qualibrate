@@ -78,7 +78,11 @@ class NodePath(ConcretePath):
         if node_id is None:
             return None, self.stem, None
         node_name_str = "_".join(node_name)
-        node_time = datetime.strptime(node_time_str, "%H%M%S").time()
+
+        try:
+            node_time = datetime.strptime(node_time_str, "%H%M%S").time()
+        except ValueError:
+            node_time = None
         return node_id, node_name_str, node_time
 
     @cached_property
