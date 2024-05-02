@@ -7,16 +7,18 @@ from qualibrate.config import (
     CONFIG_KEY,
     QualibrateSettings,
     get_config_path,
-    get_settings,
     read_config_file,
 )
 from qualibrate.utils.config_references import resolve_references
 
 
 class ProjectsManagerBase(ABC):
+    def __init__(self, settings: QualibrateSettings):
+        self._settings = settings
+
     @property
     def project(self) -> str:
-        return get_settings().project
+        return self._settings.project
 
     @project.setter
     def project(self, value: str) -> None:
@@ -27,13 +29,11 @@ class ProjectsManagerBase(ABC):
         pass
 
     @abstractmethod
-    def _set_user_storage_project(
-        self, project_name: str, settings: QualibrateSettings
-    ) -> None:
+    def _set_user_storage_project(self, project_name: str) -> None:
         pass
 
     @abstractmethod
-    def create(self, project_name: str, settings: QualibrateSettings) -> str:
+    def create(self, project_name: str) -> str:
         pass
 
     @abstractmethod

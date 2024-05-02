@@ -26,7 +26,7 @@ def _get_branch_instance(
         StorageType.local_storage: BranchLocalStorage,
         StorageType.timeline_db: BranchTimelineDb,
     }
-    return branch_types[settings.storage_type](name=name)
+    return branch_types[settings.storage_type](name=name, settings=settings)
 
 
 @branch_router.get("/")

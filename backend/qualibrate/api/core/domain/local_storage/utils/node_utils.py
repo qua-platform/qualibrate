@@ -9,7 +9,6 @@ from qualibrate.api.core.domain.local_storage._id_to_local_path import (
 from qualibrate.api.core.types import IdType
 from qualibrate.api.core.utils.path.node import NodePath
 from qualibrate.api.core.utils.path.node_date import NodesDatePath
-from qualibrate.config import get_settings
 
 
 def find_latest_node(base_path: Path) -> NodePath:
@@ -51,6 +50,7 @@ def find_n_latest_nodes_ids(
     base_path: Path,
     page: int,
     per_page: int,
+    project_name: str,
     max_node_id: Optional[int] = None,
 ) -> Generator[IdType, None, None]:
     """
@@ -64,12 +64,11 @@ def find_n_latest_nodes_ids(
     node_id_min_val = max(1, node_id_max_val - per_page + 1)
 
     next_ = None
-    settings = get_settings()
     paths_mapping = IdToLocalPath()
     get_node_path = partial(
         paths_mapping.get,
-        project=settings.project,
-        project_path=settings.user_storage,
+        project=project_name,
+        project_path=base_path,
     )
     min_node_path = get_node_path(id=node_id_min_val)
     min_node_path_date = (

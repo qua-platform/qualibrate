@@ -22,7 +22,7 @@ from qualibrate.api.core.utils.path.node import NodePath
 from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate.api.exceptions.classes.values import QValueException
-from qualibrate.config import QualibrateSettings, get_settings
+from qualibrate.config import QualibrateSettings
 
 __all__ = ["SnapshotLocalStorage"]
 
@@ -174,20 +174,21 @@ class SnapshotLocalStorage(SnapshotBase):
         id: IdType,
         content: Optional[DocumentType] = None,
         snapshot_loader: SnapshotContentLoaderType = _default_snapshot_content_loader,
+        *,
+        settings: QualibrateSettings,
     ):
-        super().__init__(id=id, content=content)
+        super().__init__(id=id, content=content, settings=settings)
         self._snapshot_loader = snapshot_loader
 
     def load(self, load_type: SnapshotLoadType) -> None:
         if load_type <= self._load_type:
             return None
-        settings = get_settings()
         node_path = IdToLocalPath().get_or_raise(
-            settings.project,
+            self._settings.project,
             self._id,
-            settings.user_storage,
+            self._settings.user_storage,
         )
-        content = self._snapshot_loader(node_path, load_type, settings)
+        content = self._snapshot_loader(node_path, load_type, self._settings)
         self.content.update(content)
         self._load_type = load_type
 
@@ -212,18 +213,20 @@ class SnapshotLocalStorage(SnapshotBase):
         self, page: int = 1, per_page: int = 50, reverse: bool = False
     ) -> Tuple[int, Sequence[SnapshotBase]]:
         # first in history is current
-        settings = get_settings()
-        total = find_latest_node_id(settings.user_storage)
+        total = find_latest_node_id(self._settings.user_storage)
         self.load(SnapshotLoadType.Metadata)
         if page == 1 and per_page == 1:
             return total, [self]
         ids = find_n_latest_nodes_ids(
-            settings.user_storage,
+            self._settings.user_storage,
             page,
             per_page,
-            (self.id or total) - 1,
+            self._settings.project,
+            max_node_id=(self.id or total) - 1,
         )
-        snapshots = [SnapshotLocalStorage(id) for id in ids]
+        snapshots = [
+            SnapshotLocalStorage(id, settings=self._settings) for id in ids
+        ]
         for snapshot in snapshots:
             try:
                 snapshot.load(SnapshotLoadType.Metadata)
@@ -240,7 +243,9 @@ class SnapshotLocalStorage(SnapshotBase):
         this_data = self.data
         if this_data is None:
             raise QValueException(f"Can't load data of snapshot {self._id}")
-        other_snapshot = SnapshotLocalStorage(other_snapshot_id)
+        other_snapshot = SnapshotLocalStorage(
+            other_snapshot_id, settings=self._settings
+        )
         other_snapshot.load(SnapshotLoadType.Data)
         other_data = other_snapshot.data
         if other_data is None:

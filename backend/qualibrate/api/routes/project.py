@@ -26,7 +26,7 @@ def _get_projects_manager(
         StorageType.local_storage: ProjectsManagerLocalStorage,
         StorageType.timeline_db: ProjectsManagerTimelineDb,
     }
-    return project_types[settings.storage_type]()
+    return project_types[settings.storage_type](settings=settings)
 
 
 @project_router.get("/list")
@@ -44,9 +44,8 @@ def create_project(
     projects_manager: Annotated[
         ProjectsManagerBase, Depends(_get_projects_manager)
     ],
-    settings: Annotated[QualibrateSettings, Depends(get_settings)],
 ) -> str:
-    return projects_manager.create(project_name, settings)
+    return projects_manager.create(project_name)
 
 
 @project_router.get("/active")

@@ -5,11 +5,15 @@ from qualibrate.api.core.domain.bases.branch import BranchBase
 from qualibrate.api.core.domain.bases.node import NodeBase
 from qualibrate.api.core.domain.bases.snapshot import SnapshotBase
 from qualibrate.api.core.types import IdType
+from qualibrate.config import QualibrateSettings
 
 __all__ = ["RootBase"]
 
 
 class RootBase(ABC):
+    def __init__(self, settings: QualibrateSettings):
+        self._settings = settings
+
     @abstractmethod
     def get_branch(self, branch_name: str) -> BranchBase:
         pass

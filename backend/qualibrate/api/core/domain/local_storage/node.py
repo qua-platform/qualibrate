@@ -6,7 +6,11 @@ from qualibrate.api.core.types import IdType
 
 __all__ = ["NodeLocalStorage"]
 
+from qualibrate.config import QualibrateSettings
+
 
 class NodeLocalStorage(NodeBase):
-    def __init__(self, node_id: IdType):
-        super().__init__(node_id, SnapshotLocalStorage(node_id))
+    def __init__(self, node_id: IdType, settings: QualibrateSettings):
+        super().__init__(
+            node_id, SnapshotLocalStorage(node_id, settings=settings), settings
+        )

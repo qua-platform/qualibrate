@@ -8,6 +8,7 @@ from qualibrate.api.core.domain.bases.node import NodeBase
 from qualibrate.api.core.domain.bases.snapshot import SnapshotBase
 from qualibrate.api.core.models.branch import Branch as BranchModel
 from qualibrate.api.core.types import DocumentType, IdType
+from qualibrate.config import QualibrateSettings
 
 __all__ = ["BranchBase", "BranchLoadType"]
 
@@ -18,8 +19,15 @@ class BranchLoadType(IntEnum):
 
 
 class BranchBase(IDump, ABC):
-    def __init__(self, name: str, content: Optional[DocumentType] = None):
+    def __init__(
+        self,
+        name: str,
+        content: Optional[DocumentType] = None,
+        *,
+        settings: QualibrateSettings,
+    ):
         self._name = name
+        self._settings = settings
         if content is None:
             self.content = {}
             self._load_type = BranchLoadType.Empty
@@ -63,7 +71,10 @@ class BranchBase(IDump, ABC):
 
     @abstractmethod
     def get_latest_nodes(
-        self, page: int = 1, per_page: int = 50, reverse: bool = False
+        self,
+        page: int = 1,
+        per_page: int = 50,
+        reverse: bool = False,
     ) -> Tuple[int, Sequence[NodeBase]]:
         pass
 
