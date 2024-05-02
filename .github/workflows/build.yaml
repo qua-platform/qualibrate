@@ -54,12 +54,12 @@ jobs:
         name: Upload sdist
         with:
           name: sdist
-          path: backend/dist/tmp_private_package-0.1.0.tar.gz
+          path: backend/dist/qualibrate_backend-0.1.0.tar.gz
           retention-days: 3
 
       - uses: actions/upload-artifact@v4
         name: Upload wheel
         with:
           name: wheel
-          path: backend/dist/tmp_private_package-0.1.0-py3-none-any.whl
+          path: backend/dist/qualibrate_backend-0.1.0-py3-none-any.whl
           retention-days: 3
