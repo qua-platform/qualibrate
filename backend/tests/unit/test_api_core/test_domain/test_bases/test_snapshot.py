@@ -31,7 +31,7 @@ class SnapshotBaseCustom(SnapshotBase):
         raise NotImplementedError
 
     def get_latest_snapshots(
-        self, num_snapshots: int = 50
+        self, page: int = 1, per_page: int = 50, reverse: bool = False
     ) -> Sequence[SnapshotBase]:
         raise NotImplementedError
 
@@ -45,8 +45,8 @@ def test__items_keys():
     assert SnapshotBase._items_keys == ("data", "metadata")
 
 
-def test_init_no_content():
-    s = SnapshotBaseCustom(1)
+def test_init_no_content(settings):
+    s = SnapshotBaseCustom(1, settings=settings)
     assert s._id == 1
     assert s._load_type == SnapshotLoadType.Empty
     assert s.content == {}
@@ -61,28 +61,30 @@ def test_init_no_content():
         ({"data": {}, "metadata": {}}, SnapshotLoadType.Full),
     ],
 )
-def test_init_with_content(content, load_type):
-    s = SnapshotBaseCustom(1, content)
+def test_init_with_content(content, load_type, settings):
+    s = SnapshotBaseCustom(1, content, settings=settings)
     assert s._id == 1
     assert s._load_type == load_type
     assert s.content == content
 
 
-def test_items_not_specified():
-    s = SnapshotBaseCustom(1)
+def test_items_not_specified(settings):
+    s = SnapshotBaseCustom(1, settings=settings)
     assert s.metadata is None
     assert s.data is None
 
 
-def test_items_specified():
-    s = SnapshotBaseCustom(1, {"data": "data", "metadata": "meta"})
+def test_items_specified(settings):
+    s = SnapshotBaseCustom(
+        1, {"data": "data", "metadata": "meta"}, settings=settings
+    )
     assert s.data == "data"
     assert s.metadata == "meta"
 
 
 @pytest.mark.parametrize("load", (True, False))
-def test_search_recursive_data_filled(mocker, load):
-    s = SnapshotBaseCustom(1)
+def test_search_recursive_data_filled(mocker, load, settings):
+    s = SnapshotBaseCustom(1, settings=settings)
     s._load_type = SnapshotLoadType.Data
     load_patched = mocker.patch.object(s, "load")
     data_patched = mocker.patch.object(
@@ -105,8 +107,8 @@ def test_search_recursive_data_filled(mocker, load):
     search_pathed.assert_called_once_with({"a": "b"}, "target_key")
 
 
-def test_search_recursive_no_data_no_load(mocker):
-    s = SnapshotBaseCustom(1)
+def test_search_recursive_no_data_no_load(mocker, settings):
+    s = SnapshotBaseCustom(1, settings=settings)
     s._load_type = SnapshotLoadType.Minified
     load_patched = mocker.patch.object(s, "load")
     assert s.search_recursive("target_key", False) is None
@@ -114,8 +116,8 @@ def test_search_recursive_no_data_no_load(mocker):
 
 
 @pytest.mark.parametrize("load", (True, False))
-def test_search_recursive_data_none(mocker, load):
-    s = SnapshotBaseCustom(1)
+def test_search_recursive_data_none(mocker, load, settings):
+    s = SnapshotBaseCustom(1, settings=settings)
     s._load_type = SnapshotLoadType.Data
     load_patched = mocker.patch.object(s, "load")
     data_patched = mocker.patch.object(
@@ -135,8 +137,8 @@ def test_search_recursive_data_none(mocker, load):
     search_pathed.assert_not_called()
 
 
-def test_dump_no_content():
-    s = SnapshotBaseCustom(1)
+def test_dump_no_content(settings):
+    s = SnapshotBaseCustom(1, settings=settings)
     with pytest.raises(ValidationError) as ex:
         s.dump()
     assert ex.type == ValidationError
@@ -166,10 +168,14 @@ def test_dump_no_content():
             {
                 "id": 1,
                 "parents": [],
-                "created_at": datetime(2024, 4, 15, 12),
+                "created_at": datetime(2024, 4, 15, 12).astimezone(),
                 "a": "b",
             },
-            Snapshot(id=1, parents=[], created_at=datetime(2024, 4, 15, 12)),
+            Snapshot(
+                id=1,
+                parents=[],
+                created_at=datetime(2024, 4, 15, 12).astimezone(),
+            ),
         ),
         (
             {
@@ -177,7 +183,7 @@ def test_dump_no_content():
                 "data": {"d": 1},
                 "metadata": {"m": 2},
                 "parents": [],
-                "created_at": datetime(2024, 4, 15, 12),
+                "created_at": datetime(2024, 4, 15, 12).astimezone(),
                 "custom": "c",
             },
             Snapshot(
@@ -185,11 +191,11 @@ def test_dump_no_content():
                 data={"d": 1},
                 metadata={"m": 2},
                 parents=[],
-                created_at=datetime(2024, 4, 15, 12),
+                created_at=datetime(2024, 4, 15, 12).astimezone(),
             ),
         ),
     ),
 )
-def test_dump_with_content(content, expected):
-    s = SnapshotBaseCustom(1, content)
+def test_dump_with_content(content, expected, settings):
+    s = SnapshotBaseCustom(1, content, settings=settings)
     assert s.dump() == expected

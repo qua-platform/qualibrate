@@ -12,11 +12,7 @@ from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate.api.exceptions.classes.values import QValueException
 
 
-def test__read_minified_node_content_node_info_filled(mocker, tmp_path):
-    class _Settings:
-        user_storage = tmp_path
-        project = "project"
-
+def test__read_minified_node_content_node_info_filled(mocker, settings):
     created_at = datetime.now()
     patched_get_id_local_path = mocker.patch(
         (
@@ -30,26 +26,26 @@ def test__read_minified_node_content_node_info_filled(mocker, tmp_path):
         {"id": 3, "parents": [1, 2], "created_at": created_at.isoformat()},
         None,
         None,
-        _Settings(),
+        settings,
     )
     assert result == {"id": 3, "parents": [1, 2], "created_at": created_at}
     patched_is_file.assert_not_called()
     patched_get_id_local_path.assert_has_calls(
-        [call("project", 1, tmp_path), call("project", 2, tmp_path)]
+        [
+            call("project", 1, settings.user_storage),
+            call("project", 2, settings.user_storage),
+        ]
     )
 
 
 def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
-    mocker, tmp_path
+    mocker, settings
 ):
-    class _Settings:
-        user_storage = tmp_path
-        project = "project"
-
     class FileStat:
         st_mtime = 1712932811
 
-    node_file = tmp_path / "node_file.json"
+    settings.user_storage.mkdir()
+    node_file = settings.user_storage / "node_file.json"
     node_file.touch()
     patched_get_id_local_path = mocker.patch(
         (
@@ -65,30 +61,28 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
         "pathlib.Path.parent", new_callable=PropertyMock
     )
     patched_is_file = mocker.patch("pathlib.Path.is_file", return_value=True)
-    result = snapshot._read_minified_node_content({}, 2, node_file, _Settings())
+    result = snapshot._read_minified_node_content({}, 2, node_file, settings)
     assert result == {
         "id": 2,
         "parents": [1],
-        "created_at": datetime(2024, 4, 12, 17, 40, 11),
+        "created_at": datetime(2024, 4, 12, 17, 40, 11).astimezone(),
     }
     patched_is_file.assert_called_once()
-    patched_get_id_local_path.assert_called_once_with("project", 1, tmp_path)
+    patched_get_id_local_path.assert_called_once_with(
+        "project", 1, settings.user_storage
+    )
     patched_path_stat.assert_called_once()
     patched_path_parent.assert_not_called()
 
 
 def test__read_minified_node_content_node_info_empty_no_id_no_file(
-    mocker, tmp_path
+    mocker, settings
 ):
-    class _Settings:
-        user_storage = tmp_path
-        project = "project"
-
     class FileStat:
         st_mtime = 1712932811
 
-    node_dir = tmp_path / "node_dir"
-    node_dir.mkdir()
+    node_dir = settings.user_storage / "node_dir"
+    node_dir.mkdir(parents=True)
     node_file = node_dir / "node_file.json"
     patched_get_id_local_path = mocker.patch(
         (
@@ -103,13 +97,11 @@ def test__read_minified_node_content_node_info_empty_no_id_no_file(
     patched_path_parent = mocker.patch(
         "pathlib.Path.parent", new_callable=PropertyMock, return_value=node_dir
     )
-    result = snapshot._read_minified_node_content(
-        {}, None, node_file, _Settings()
-    )
+    result = snapshot._read_minified_node_content({}, None, node_file, settings)
     assert result == {
         "id": -1,
         "parents": [],
-        "created_at": datetime(2024, 4, 12, 17, 40, 11),
+        "created_at": datetime(2024, 4, 12, 17, 40, 11).astimezone(),
     }
     patched_is_file.assert_called_once()
     patched_get_id_local_path.assert_not_called()
@@ -117,30 +109,24 @@ def test__read_minified_node_content_node_info_empty_no_id_no_file(
     patched_path_parent.assert_called_once()
 
 
-def test__read_metadata_node_content_node_info_filled(mocker, tmp_path):
-    class _Settings:
-        metadata_out_path = "data_path"
-        user_storage = tmp_path
-
-    mocker.patch("pathlib.Path.relative_to")
+def test__read_metadata_node_content_node_info_filled(mocker, settings):
     metadata = {"name": "name", "data_path": "subpath", "custom": "info"}
     result = snapshot._read_metadata_node_content(
-        {"metadata": metadata}, None, tmp_path, _Settings()
+        {"metadata": metadata},
+        None,
+        settings.user_storage,
+        settings,
     )
     assert result == metadata
 
 
-def test__read_metadata_node_content_node_info_not_filled(mocker, tmp_path):
-    class _Settings:
-        metadata_out_path = "data_path"
-        user_storage = tmp_path
-
+def test__read_metadata_node_content_node_info_not_filled(mocker, settings):
     mocker.patch("pathlib.Path.relative_to", return_value=Path("subpath"))
     result = snapshot._read_metadata_node_content(
         {"metadata": {"custom": "info"}},
         "node_name",
-        tmp_path / "subpath",
-        _Settings(),
+        settings.user_storage / "subpath",
+        settings,
     )
     assert result == {
         "name": "node_name",
@@ -352,33 +338,31 @@ def test__default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
 
 class TestSnapshotLocalStorage:
     @pytest.fixture(autouse=True)
-    def setup(self):
-        self.snapshot = snapshot.SnapshotLocalStorage(3)
+    def setup(self, settings):
+        self.snapshot = snapshot.SnapshotLocalStorage(3, settings=settings)
 
     def test_load_valid(self, mocker):
         self.snapshot._load_type = SnapshotLoadType.Empty
         self.snapshot.content = {}
-        settings_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot.get_settings"
-        )
         mocker.patch(
             "qualibrate.api.core.domain.local_storage.snapshot.IdToLocalPath"
             ".get_or_raise"
         )
-        mocker.patch.object(
+        snapshot_loader_patched = mocker.patch.object(
             self.snapshot, "_snapshot_loader", return_value={"a": "b"}
         )
         self.snapshot.load(SnapshotLoadType.Minified)
-        settings_patched.assert_called_once()
+        snapshot_loader_patched.assert_called_once()
         assert self.snapshot.content == {"a": "b"}
 
     def test_load_state_already_loaded(self, mocker):
         self.snapshot._load_type = SnapshotLoadType.Minified
-        settings_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot.get_settings"
+        get_or_raise_patched = mocker.patch(
+            "qualibrate.api.core.domain.local_storage.snapshot.IdToLocalPath"
+            ".get_or_raise"
         )
         self.snapshot.load(SnapshotLoadType.Minified)
-        settings_patched.assert_not_called()
+        get_or_raise_patched.assert_not_called()
 
     def test_created_at_not_specified(self):
         assert self.snapshot.created_at is None
@@ -441,12 +425,8 @@ class TestSnapshotLocalStorage:
             load_patched.assert_not_called()
         search_patched.assert_called_once_with(data, search_path)
 
-    def test_get_latest_snapshots_one(self, mocker):
+    def test_get_latest_snapshots_one(self, mocker, settings):
         load_patched = mocker.patch.object(self.snapshot, "load")
-        settings_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot.get_settings"
-        )
-        settings_patched.return_value.user_storage = "user_storage"
         find_latest_patched = mocker.patch(
             "qualibrate.api.core.domain.local_storage.snapshot"
             ".find_latest_node_id",
@@ -458,15 +438,10 @@ class TestSnapshotLocalStorage:
         )
         assert self.snapshot.get_latest_snapshots(1, 1) == (3, [self.snapshot])
         load_patched.assert_called_once_with(SnapshotLoadType.Metadata)
-        settings_patched.assert_called_once()
-        find_latest_patched.assert_called_once_with("user_storage")
+        find_latest_patched.assert_called_once_with(settings.user_storage)
         find_n_latest_patched.assert_not_called()
 
-    def test_get_latest_snapshots_more(self, mocker):
-        settings_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot.get_settings"
-        )
-        settings_patched.return_value.user_storage = "user_storage"
+    def test_get_latest_snapshots_more(self, mocker, settings):
         load_patched = mocker.patch(
             "qualibrate.api.core.domain.local_storage.snapshot"
             ".SnapshotLocalStorage.load"
@@ -490,29 +465,10 @@ class TestSnapshotLocalStorage:
         assert snapshots_hist[0] == self.snapshot
         assert [snapshot.id for snapshot in snapshots_hist] == [3, 2]
         load_patched.assert_has_calls([call(SnapshotLoadType.Metadata)] * 2)
-        find_latest_patched.assert_called_once_with("user_storage")
-        find_n_latest_patched.assert_called_once_with("user_storage", 1, 2, 2)
-        # assert find_n_latest_patched.call_count == 1
-        # find_n_latest_patched.assert_has_calls([])
-        # find_call = find_n_latest_patched.mock_calls[0]
-        # assert find_call.args == ("user_storage", 2)
-
-        # def _check_partial_kwarg(name, func, args, keywords):
-        #     filters = find_call.kwargs.get(name)
-        #     assert isinstance(filters, list) and len(filters) == 1
-        #     filter_f = filters[0]
-        #     assert (
-        #         filter_f.func == func
-        #         and filter_f.args == args
-        #         and filter_f.keywords == keywords
-        #     )
-        #
-        # _check_partial_kwarg(
-        #     "date_filters", date_less_or_eq, (), {"date_to_compare": "date"}
-        # )
-        # _check_partial_kwarg(
-        #     "node_filters", id_less_then_snapshot, (), {"node_id_to_compare": 3}
-        # )
+        find_latest_patched.assert_called_once_with(settings.user_storage)
+        find_n_latest_patched.assert_called_once_with(
+            settings.user_storage, 1, 2, settings.project, max_node_id=2
+        )
 
     def test_compare_by_id_same_snapshot(self, mocker):
         load_patched = mocker.patch(

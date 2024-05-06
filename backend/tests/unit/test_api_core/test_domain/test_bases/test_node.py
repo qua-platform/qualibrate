@@ -16,14 +16,14 @@ class NodeBaseCustom(NodeBase):
     pass
 
 
-def test_init():
-    n = NodeBaseCustom(1, None)
+def test_init(settings):
+    n = NodeBaseCustom(1, None, settings=settings)
     assert n._node_id == 1
     assert n._load_type == NodeLoadType.Empty
 
 
-def test_load_type():
-    n = NodeBaseCustom(1, None)
+def test_load_type(settings):
+    n = NodeBaseCustom(1, None, settings=settings)
     assert n.load_type == NodeLoadType.Empty
     n._load_type = NodeLoadType.Snapshot
     assert n.load_type == NodeLoadType.Snapshot
@@ -31,7 +31,7 @@ def test_load_type():
     assert n.load_type == NodeLoadType.Full
 
 
-def test_load_node_loaded():
+def test_load_node_loaded(settings):
     class _Snapshot:
         loaded = False
 
@@ -40,7 +40,7 @@ def test_load_node_loaded():
             self.loaded = True
 
     s = _Snapshot()
-    n = NodeBaseCustom(1, s)
+    n = NodeBaseCustom(1, s, settings=settings)
     n._load_type = NodeLoadType.Full
 
     n.load(NodeLoadType.Snapshot)
@@ -49,7 +49,7 @@ def test_load_node_loaded():
     assert not s.loaded
 
 
-def test_load_snapshot(mocker):
+def test_load_snapshot(mocker, settings):
     class _Snapshot:
         loaded = False
 
@@ -57,14 +57,14 @@ def test_load_snapshot(mocker):
             self.loaded = True
 
     s = _Snapshot()
-    n = NodeBaseCustom(1, s)
+    n = NodeBaseCustom(1, s, settings=settings)
     patched_fill_storage = mocker.patch.object(n, "_fill_storage")
     n.load(NodeLoadType.Snapshot)
     assert s.loaded
     patched_fill_storage.assert_not_called()
 
 
-def test_load_full(mocker):
+def test_load_full(mocker, settings):
     class _Snapshot:
         loaded = False
 
@@ -72,7 +72,7 @@ def test_load_full(mocker):
             self.loaded = True
 
     s = _Snapshot()
-    n = NodeBaseCustom(1, s)
+    n = NodeBaseCustom(1, s, settings=settings)
     patched_fill_storage = mocker.patch.object(n, "_fill_storage")
     n.load(NodeLoadType.Full)
     assert s.loaded
@@ -82,73 +82,50 @@ def test_load_full(mocker):
 @pytest.mark.parametrize(
     "meta", (None, {"not_out_path": None}, {"out_path": 1})
 )
-def test__fill_storage_metadata_issue(mocker, meta):
-    class _Settings:
-        metadata_out_path = "out_path"
-
+def test__fill_storage_metadata_issue(mocker, meta, settings):
     class _Snapshot:
         metadata = meta
 
-    mocker.patch(
-        "qualibrate.api.core.domain.bases.node.get_settings",
-        return_value=_Settings(),
-    )
     resolve_patched = mocker.patch(
         "qualibrate.api.core.domain.bases.node.resolve_and_check_relative"
     )
-    n = NodeBaseCustom(1, _Snapshot())
+    n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     assert n._fill_storage() is None
     assert n._storage is None
     assert n._load_type == NodeLoadType.Snapshot
     resolve_patched.assert_not_called()
 
 
-def test__fill_storage_no_output_path(mocker, tmp_path):
+def test__fill_storage_no_output_path(mocker, settings):
     node_path = "data_path"
 
-    class _Settings:
-        user_storage = tmp_path
-        metadata_out_path = "out_path"
-
     class _Snapshot:
-        metadata = {_Settings.metadata_out_path: node_path}
+        metadata = {settings.metadata_out_path: node_path}
 
-    mocker.patch(
-        "qualibrate.api.core.domain.bases.node.get_settings",
-        return_value=_Settings(),
-    )
     resolve_patched = mocker.patch(
         "qualibrate.api.core.domain.bases.node.resolve_and_check_relative",
-        return_value=tmp_path / "node",
+        return_value=settings.user_storage / "node",
     )
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     dfs_patched = mocker.patch(
         "qualibrate.api.core.domain.bases.node.DataFileStorage"
     )
-    n = NodeBaseCustom(1, _Snapshot())
+    n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     with pytest.raises(QNotADirectoryException) as ex:
         n._fill_storage()
     assert ex.type == QNotADirectoryException
     assert ex.value.args == (f"{node_path} is not a directory",)
-    resolve_patched.assert_called_once_with(tmp_path, node_path)
+    resolve_patched.assert_called_once_with(settings.user_storage, node_path)
     dfs_patched.assert_not_called()
 
 
-def test__fill_storage_valid(mocker, tmp_path):
+def test__fill_storage_valid(mocker, settings):
     rel_node_path = "data_path"
-    abs_node_path = tmp_path / rel_node_path
-
-    class _Settings:
-        user_storage = tmp_path
-        metadata_out_path = "out_path"
+    abs_node_path = settings.user_storage / rel_node_path
 
     class _Snapshot:
-        metadata = {_Settings.metadata_out_path: rel_node_path}
+        metadata = {settings.metadata_out_path: rel_node_path}
 
-    mocker.patch(
-        "qualibrate.api.core.domain.bases.node.get_settings",
-        return_value=_Settings(),
-    )
     resolve_patched = mocker.patch(
         "qualibrate.api.core.domain.bases.node.resolve_and_check_relative",
         return_value=abs_node_path,
@@ -157,13 +134,15 @@ def test__fill_storage_valid(mocker, tmp_path):
     dfs_patched = mocker.patch(
         "qualibrate.api.core.domain.bases.node.DataFileStorage"
     )
-    n = NodeBaseCustom(1, _Snapshot())
+    n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     assert n._fill_storage() is None
-    resolve_patched.assert_called_once_with(tmp_path, rel_node_path)
-    dfs_patched.assert_called_once_with(abs_node_path)
+    resolve_patched.assert_called_once_with(
+        settings.user_storage, rel_node_path
+    )
+    dfs_patched.assert_called_once_with(abs_node_path, settings)
 
 
-def test_dump_no_storage(mocker):
+def test_dump_no_storage(mocker, settings):
     created_at = datetime.now().astimezone()
     s_dumped = {
         "id": 1,
@@ -176,7 +155,7 @@ def test_dump_no_storage(mocker):
         def dump(self):
             return type("_Model", tuple(), {"model_dump": lambda: s_dumped})
 
-    n = NodeBaseCustom(1, _Snapshot())
+    n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     patched_dfs_dump = mocker.patch(
         "qualibrate.api.core.domain.bases.storage.DataFileStorage.dump"
     )
@@ -186,7 +165,7 @@ def test_dump_no_storage(mocker):
     patched_dfs_dump.assert_not_called()
 
 
-def test_dump_with_storage(mocker):
+def test_dump_with_storage(mocker, settings):
     created_at = datetime.now().astimezone()
     sn_dumped = {
         "id": 1,
@@ -200,7 +179,7 @@ def test_dump_with_storage(mocker):
         def dump(self):
             return type("_Model", tuple(), {"model_dump": lambda: sn_dumped})
 
-    n = NodeBaseCustom(1, _Snapshot())
+    n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     storage = mocker.MagicMock()
     storage.dump = mocker.MagicMock(return_value=Storage(**st_dump))
     n._storage = storage

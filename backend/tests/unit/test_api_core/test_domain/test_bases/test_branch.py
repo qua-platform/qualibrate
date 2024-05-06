@@ -31,35 +31,35 @@ class CustomBranchBase(BranchBase):
         raise NotImplementedError
 
 
-def test_creation_no_content():
-    branch = CustomBranchBase("name1")
+def test_creation_no_content(settings):
+    branch = CustomBranchBase("name1", settings=settings)
     assert branch._name == "name1"
     assert branch.content == {}
     assert branch._load_type == BranchLoadType.Empty
 
 
-def test_creation_with_content():
-    branch = CustomBranchBase("name2", {"key": "value"})
+def test_creation_with_content(settings):
+    branch = CustomBranchBase("name2", {"key": "value"}, settings=settings)
     assert branch._name == "name2"
     assert branch.content == {"key": "value"}
     assert branch._load_type == BranchLoadType.Full
 
 
-def test_name():
-    assert CustomBranchBase("name1").name == "name1"
-    assert CustomBranchBase("name2").name == "name2"
+def test_name(settings):
+    assert CustomBranchBase("name1", settings=settings).name == "name1"
+    assert CustomBranchBase("name2", settings=settings).name == "name2"
 
 
-def test_load_type():
-    branch = CustomBranchBase("name1")
+def test_load_type(settings):
+    branch = CustomBranchBase("name1", settings=settings)
     branch._load_type = BranchLoadType.Empty
     assert branch.load_type == BranchLoadType.Empty
     branch._load_type = BranchLoadType.Full
     assert branch.load_type == BranchLoadType.Full
 
 
-def test_branch_dump_not_filled():
-    branch = CustomBranchBase("name")
+def test_branch_dump_not_filled(settings):
+    branch = CustomBranchBase("name", settings=settings)
     with pytest.raises(ValidationError) as ex:
         branch.dump()
     assert ex.type == ValidationError
