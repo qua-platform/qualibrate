@@ -54,8 +54,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         self._settings.user_storage = qs.user_storage
 
     def create(self, project_name: str) -> str:
-        exists = self.list()
-        if project_name in exists:
+        if any(project.name == project_name for project in self.list()):
             raise QValueException(f"Project {project_name} already exists.")
         response = request_with_db(
             "/database/create",
