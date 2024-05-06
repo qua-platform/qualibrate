@@ -59,8 +59,14 @@ def find_n_latest_nodes_ids(
     n = per_page
     page -= 1
 
-    max_node_id = max_node_id or find_latest_node_id(base_path)
-    node_id_max_val = max(1, max_node_id - page * per_page)
+    max_node_id = (
+        max_node_id
+        if max_node_id is not None
+        else find_latest_node_id(base_path)
+    )
+    node_id_max_val = max(0, max_node_id - page * per_page)
+    if node_id_max_val == 0:
+        return None
     node_id_min_val = max(1, node_id_max_val - per_page + 1)
 
     next_ = None
