@@ -93,7 +93,9 @@ def find_n_latest_nodes_ids(
             lambda p: all(filter_(p, *args) for filter_, args in node_filters),
             map(NodePath, node_date.glob("#*")),
         )
-        node_path_ids = {int(path.stem[1:].split("_")[0]): path for path in node_paths}
+        node_path_ids = {
+            int(path.stem[1:].split("_")[0]): path for path in node_paths
+        }
         for node_id, node in sorted(
             node_path_ids.items(),
             key=lambda x: x[0],
