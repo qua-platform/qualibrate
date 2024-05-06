@@ -64,11 +64,13 @@ def _read_minified_node_content(
         created_at = datetime.fromisoformat(created_at_str)
     else:
         if node_filepath.is_file():
-            created_at = datetime.fromtimestamp(node_filepath.stat().st_mtime)
+            created_at = datetime.fromtimestamp(
+                node_filepath.stat().st_mtime
+            ).astimezone()
         else:
             created_at = datetime.fromtimestamp(
                 node_filepath.parent.stat().st_mtime
-            )
+            ).astimezone()
     return {
         "id": node_id,
         "parents": parents,
