@@ -1,7 +1,4 @@
-from datetime import datetime, timezone
-
-from pydantic import BaseModel, field_serializer
-from pydantic_core.core_schema import SerializationInfo
+from pydantic import AwareDatetime, BaseModel, field_serializer
 
 from qualibrate.api.core.types import IdType
 
@@ -13,15 +10,11 @@ class ModelWithId(BaseModel):
 
 
 class ModelCreatedAt(BaseModel):
-    created_at: datetime
+    created_at: AwareDatetime
 
     @field_serializer("created_at")
-    def serialize_dt(self, dt: datetime, _info: SerializationInfo) -> str:
-        return (
-            dt.replace(tzinfo=timezone.utc)
-            .astimezone()
-            .isoformat(timespec="seconds")
-        )
+    def dt_serializer(self, dt: AwareDatetime) -> str:
+        return dt.isoformat(timespec="seconds")
 
 
 class ModelWithIdCreatedAt(ModelWithId, ModelCreatedAt):
