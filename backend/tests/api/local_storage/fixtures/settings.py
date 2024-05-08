@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Generator
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -10,10 +13,12 @@ from qualibrate.config import (
 
 
 @pytest.fixture
-def settings(tmp_path, default_local_storage_project):
+def settings(
+    tmp_path: Path, default_local_storage_project: Path
+) -> Generator[QualibrateSettings, None, None]:
     static = tmp_path / "static"
     static.mkdir()
-    return QualibrateSettings(
+    yield QualibrateSettings(
         static_site_files=static,
         user_storage=default_local_storage_project,
         project=default_local_storage_project.name,
@@ -28,7 +33,9 @@ def settings(tmp_path, default_local_storage_project):
 
 
 @pytest.fixture
-def client_custom_settings(settings):
+def client_custom_settings(
+    settings: QualibrateSettings,
+) -> Generator[TestClient, None, None]:
     from qualibrate.app import app
 
     client = TestClient(app)

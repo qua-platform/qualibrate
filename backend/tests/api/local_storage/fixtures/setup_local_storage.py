@@ -1,6 +1,7 @@
 import json
 from datetime import date, datetime, time
 from pathlib import Path
+from typing import Any, Generator
 
 import pytest
 
@@ -65,22 +66,31 @@ def _setup_local_storage_project(project_path: Path) -> Path:
 
 
 @pytest.fixture
-def default_local_storage_project(tmp_path):
-    project_path = tmp_path / "local_storage" / "project"
+def local_storage_path(tmp_path: Path) -> Generator[Path, None, None]:
+    yield tmp_path / "local_storage"
+
+
+@pytest.fixture
+def default_local_storage_project(
+    local_storage_path,
+) -> Generator[Path, None, None]:
+    project_path = local_storage_path / "project"
     yield _setup_local_storage_project(project_path)
     IdToLocalPath()._project_to_path.clear()
 
 
 @pytest.fixture
-def local_storage_project_with_name(tmp_path, request):
+def local_storage_project_with_name(
+    tmp_path: Path, request: pytest.FixtureRequest
+) -> Generator[Path, None, None]:
     project_path = tmp_path / "local_storage" / request.param
     yield _setup_local_storage_project(project_path)
     IdToLocalPath()._project_to_path.clear()
 
 
 @pytest.fixture
-def snapshots_history():
-    return [
+def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
+    yield [
         {
             "created_at": "2024-04-27T18:27:00+03:00",
             "id": 9,
@@ -166,8 +176,8 @@ def snapshots_history():
 
 
 @pytest.fixture
-def dfss_history():
-    return [
+def dfss_history() -> Generator[list[dict[str, Any]], None, None]:
+    yield [
         {"path": "2024-04-27/#9_name_9_182700", "data": None},
         {"path": "2024-04-27/#8_name_8_151800", "data": None},
         {"path": "2024-04-27/#7_name_7_120900", "data": None},
