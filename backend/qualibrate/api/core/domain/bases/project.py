@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Mapping, Sequence, Tuple
 
@@ -45,8 +46,21 @@ class ProjectsManagerBase(ABC):
     ) -> Tuple[Mapping[str, Any], Mapping[str, Any]]:
         raw_config = read_config_file(get_config_path(), solve_references=False)
         # TODO: over way to update project
+        old_project_name = raw_config[CONFIG_KEY]["project"]
+        if old_project_name == project_name:
+            return raw_config, deepcopy(raw_config)
         raw_config[CONFIG_KEY]["project"] = project_name
         new_config = resolve_references(raw_config)
+        if (
+            new_config[CONFIG_KEY]["user_storage"]
+            == raw_config[CONFIG_KEY]["user_storage"]
+        ):
+            # there is no reference in config
+            project_path = Path(new_config[CONFIG_KEY]["user_storage"])
+            new_project_path = self._resolve_new_project_path(
+                project_name, old_project_name, project_path
+            )
+            new_config[CONFIG_KEY]["user_storage"] = str(new_project_path)
         return raw_config, new_config
 
     def _resolve_base_projects_path(
