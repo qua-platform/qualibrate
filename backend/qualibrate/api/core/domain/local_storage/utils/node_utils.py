@@ -7,8 +7,8 @@ from qualibrate.api.core.domain.local_storage._id_to_local_path import (
     IdToLocalPath,
 )
 from qualibrate.api.core.types import IdType
-from qualibrate.api.core.utils.path_utils import NodePath, NodesDatePath
-from qualibrate.config import get_settings
+from qualibrate.api.core.utils.path.node import NodePath
+from qualibrate.api.core.utils.path.node_date import NodesDatePath
 
 
 def find_latest_node(base_path: Path) -> NodePath:
@@ -19,10 +19,39 @@ def find_latest_node_id(base_path: Path) -> IdType:
     return find_latest_node(base_path).id or -1
 
 
+def _validate_date_range(
+    date_path: NodesDatePath,
+    min_date: Optional[date] = None,
+    max_date: Optional[date] = None,
+) -> bool:
+    try:
+        dt = date_path.date
+        if min_date is None and max_date is None:
+            return True
+        if min_date is not None and max_date is not None:
+            return min_date <= dt <= max_date
+        if min_date is not None:
+            return min_date <= dt
+        if max_date is not None:
+            return dt <= max_date
+        raise ValueError()
+    except ValueError:
+        return False
+
+
+def _validate_node_id(
+    node_path: NodePath, min_id: IdType, max_id: IdType
+) -> bool:
+    id_ = node_path.id
+    return id_ is not None and (min_id <= id_ <= max_id)
+
+
 def find_n_latest_nodes_ids(
     base_path: Path,
     page: int,
     per_page: int,
+    project_name: str,
+    max_node_id: Optional[int] = None,
 ) -> Generator[IdType, None, None]:
     """
     Generator of n latest nodes ids
@@ -30,42 +59,22 @@ def find_n_latest_nodes_ids(
     n = per_page
     page -= 1
 
-    def _validate_date_range(
-        date_path: NodesDatePath,
-        min_date: Optional[date] = None,
-        max_date: Optional[date] = None,
-    ) -> bool:
-        try:
-            dt = date_path.date
-            if min_date is None and max_date is None:
-                return True
-            if min_date is not None and max_date is not None:
-                return min_date <= dt <= max_date
-            if min_date is not None:
-                return min_date <= dt
-            if max_date is not None:
-                return dt <= max_date
-            raise ValueError()
-        except ValueError:
-            return False
-
-    def _validate_node_id(
-        node_path: NodePath, min_id: IdType, max_id: IdType
-    ) -> bool:
-        id_ = node_path.id
-        return id_ is not None and (min_id <= id_ <= max_id)
-
-    max_node_id = find_latest_node_id(base_path)
-    node_id_max_val = max(1, max_node_id - page * per_page)
+    max_node_id = (
+        max_node_id
+        if max_node_id is not None
+        else find_latest_node_id(base_path)
+    )
+    node_id_max_val = max(0, max_node_id - page * per_page)
+    if node_id_max_val == 0:
+        return None
     node_id_min_val = max(1, node_id_max_val - per_page + 1)
 
     next_ = None
-    settings = get_settings()
     paths_mapping = IdToLocalPath()
     get_node_path = partial(
         paths_mapping.get,
-        project=settings.project,
-        project_path=settings.user_storage,
+        project=project_name,
+        project_path=base_path,
     )
     min_node_path = get_node_path(id=node_id_min_val)
     min_node_path_date = (

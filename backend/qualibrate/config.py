@@ -3,8 +3,9 @@ import sys
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Annotated, Any, Optional, Union
 
+from fastapi import Depends
 from pydantic import DirectoryPath, HttpUrl, field_serializer
 from pydantic_core.core_schema import FieldSerializationInfo
 from pydantic_settings import BaseSettings
@@ -120,7 +121,9 @@ def get_config_path() -> Path:
 
 
 @lru_cache
-def get_settings() -> QualibrateSettings:
-    config_path = get_config_path()
+def get_settings(
+    config_path: Annotated[Path, Depends(get_config_path)],
+) -> QualibrateSettings:
+    # config_path = get_config_path()
     config = read_config_file(config_path, solve_references=True)
     return QualibrateSettings(**(config.get(CONFIG_KEY, {})))

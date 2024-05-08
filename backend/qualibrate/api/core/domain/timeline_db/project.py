@@ -7,38 +7,34 @@ from pydantic import ValidationError
 
 from qualibrate.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate.api.core.models.project import Project
+from qualibrate.api.core.utils.request_utils import request_with_db
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.api.exceptions.classes.values import QValueException
 from qualibrate.config import (
     CONFIG_KEY,
     QualibrateSettings,
     QualibrateSettingsSetup,
-    get_settings,
 )
 
 
 class ProjectsManagerTimelineDb(ProjectsManagerBase):
-    def _check_db_project_exists(
-        self, project_name: str, settings: QualibrateSettings
-    ) -> bool:
-        response = requests.get(
-            urljoin(str(settings.timeline_db.address), "/database/connect"),
-            params={"db_name": project_name},
-            timeout=settings.timeline_db.timeout,
+    def _check_db_project_exists(self, project_name: str) -> bool:
+        response = request_with_db(
+            "/database/connect",
+            db_name=project_name,
+            host=self._settings.timeline_db.address,
+            timeout=self._settings.timeline_db.timeout,
         )
         return response.status_code == 200 and response.json() is True
 
     def _active_project_setter(self, value: str) -> None:
-        settings = get_settings()
-        if not self._check_db_project_exists(value, settings):
+        if not self._check_db_project_exists(value):
             raise QJsonDbException(
                 f"Can't check if project {value} exists in timeline DB."
             )
-        self._set_user_storage_project(value, settings)
+        self._set_user_storage_project(value)
 
-    def _set_user_storage_project(
-        self, project_name: str, settings: QualibrateSettings
-    ) -> None:
+    def _set_user_storage_project(self, project_name: str) -> None:
         raw_config, new_config = self._get_raw_and_resolved_ref_config(
             project_name
         )
@@ -54,32 +50,32 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
             ):
                 raise
             qs = QualibrateSettingsSetup(**qs_dict)
-        settings.project = cast(str, qs.project)
-        settings.user_storage = qs.user_storage
+        self._settings.project = cast(str, qs.project)
+        self._settings.user_storage = qs.user_storage
 
-    def create(self, project_name: str, settings: QualibrateSettings) -> str:
-        settings = get_settings()
-        exists = self.list()
-        if project_name in exists:
+    def create(self, project_name: str) -> str:
+        if any(project.name == project_name for project in self.list()):
             raise QValueException(f"Project {project_name} already exists.")
-        response = requests.post(
-            urljoin(str(settings.timeline_db.address), "/database/create"),
-            params={"db_name": project_name},
-            timeout=settings.timeline_db.timeout,
+        response = request_with_db(
+            "/database/create",
+            db_name=project_name,
+            host=self._settings.timeline_db.address,
+            timeout=self._settings.timeline_db.timeout,
+            method=requests.post,
         )
+
         if response.status_code != 200 or response.json() != project_name:
             raise QJsonDbException(f"Can't create project {project_name}.")
         new_project_path = self._resolve_new_project_path(
-            project_name, settings.project, settings.user_storage
+            project_name, self._settings.project, self._settings.user_storage
         )
         new_project_path.mkdir(parents=True, exist_ok=True)
         return project_name
 
     def list(self) -> Sequence[Project]:
-        settings = get_settings()
         response = requests.get(
-            urljoin(str(settings.timeline_db.address), "/database/list"),
-            timeout=settings.timeline_db.timeout,
+            urljoin(str(self._settings.timeline_db.address), "/database/list"),
+            timeout=self._settings.timeline_db.timeout,
         )
         if response.status_code != 200:
             raise QJsonDbException("Can't resolve list of projects.")

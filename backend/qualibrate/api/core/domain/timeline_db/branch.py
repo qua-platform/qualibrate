@@ -10,15 +10,22 @@ from qualibrate.api.core.domain.bases.snapshot import (
 from qualibrate.api.core.domain.timeline_db.node import NodeTimelineDb
 from qualibrate.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
 from qualibrate.api.core.types import DocumentType, IdType
-from qualibrate.api.core.utils.request_utils import get_with_db
+from qualibrate.api.core.utils.request_utils import request_with_db
 from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
+from qualibrate.config import QualibrateSettings
 
 __all__ = ["BranchTimelineDb"]
 
 
 class BranchTimelineDb(BranchBase):
-    def __init__(self, name: str, content: Optional[DocumentType] = None):
-        super().__init__(name, content)
+    def __init__(
+        self,
+        name: str,
+        content: Optional[DocumentType] = None,
+        *,
+        settings: QualibrateSettings,
+    ):
+        super().__init__(name, content, settings=settings)
 
     @property
     def created_at(self) -> Optional[datetime]:
@@ -31,7 +38,12 @@ class BranchTimelineDb(BranchBase):
     def load(self, load_type: BranchLoadType) -> None:
         if self._load_type == BranchLoadType.Full:
             return
-        result = get_with_db(f"branch/{self._name}/")
+        result = request_with_db(
+            f"branch/{self._name}/",
+            db_name=self._settings.project,
+            host=self._settings.timeline_db.address,
+            timeout=self._settings.timeline_db.timeout,
+        )
         no_branch_ex = QJsonDbException("Branch data wasn't retrieved.")
         if result.status_code != 200:
             raise no_branch_ex
@@ -46,15 +58,18 @@ class BranchTimelineDb(BranchBase):
             latest = self.get_latest_snapshots(1)
             if len(latest) != 1:
                 raise QJsonDbException("Can't load latest snapshot of branch")
-            return latest[0]
-        res = get_with_db(
+            return latest[1][0]
+        res = request_with_db(
             f"/branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
+            host=self._settings.timeline_db.address,
+            db_name=self._settings.project,
+            timeout=self._settings.timeline_db.timeout,
         )
         snapshot_belonged_to_branch = bool(res.json())
         if not snapshot_belonged_to_branch:
             raise QJsonDbException("Snapshot doesn't belong to branch.")
-        snapshot = SnapshotTimelineDb(id=id)
+        snapshot = SnapshotTimelineDb(id=id, settings=self._settings)
         snapshot.load(SnapshotLoadType.Metadata)
         return snapshot
 
@@ -63,22 +78,29 @@ class BranchTimelineDb(BranchBase):
             latest = self.get_latest_nodes(1)
             if len(latest) != 1:
                 raise QJsonDbException("Can't load latest node of branch")
-            return latest[0]
-        res = get_with_db(
+            return latest[1][0]
+        res = request_with_db(
             f"/branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
+            host=self._settings.timeline_db.address,
+            db_name=self._settings.project,
+            timeout=self._settings.timeline_db.timeout,
         )
         snapshot_belonged_to_branch = bool(res.json())
         if not snapshot_belonged_to_branch:
             raise QJsonDbException("Node snapshot doesn't belong to branch.")
-        node = NodeTimelineDb(node_id=id)
+        node = NodeTimelineDb(node_id=id, settings=self._settings)
         node.load(NodeLoadType.Full)
         return node
 
     def _get_remote_snapshots(
-        self, metadata: bool, page: int, per_page: int, reverse: bool
+        self,
+        metadata: bool,
+        page: int,
+        per_page: int,
+        reverse: bool,
     ) -> Tuple[int, Sequence[DocumentType]]:
-        result = get_with_db(
+        result = request_with_db(
             f"branch/{self._name}/history",
             params={
                 "metadata": metadata,
@@ -86,6 +108,9 @@ class BranchTimelineDb(BranchBase):
                 "per_page": per_page,
                 "reverse": reverse,
             },
+            host=self._settings.timeline_db.address,
+            db_name=self._settings.project,
+            timeout=self._settings.timeline_db.timeout,
         )
         if result.status_code != 200:
             raise QJsonDbException("Branch history wasn't retrieved.")
@@ -107,12 +132,17 @@ class BranchTimelineDb(BranchBase):
             True, page, per_page, reverse
         )
         return total, [
-            SnapshotTimelineDb(id=snapshot["id"], content=snapshot)
+            SnapshotTimelineDb(
+                id=snapshot["id"], content=snapshot, settings=self._settings
+            )
             for snapshot in snapshots
         ]
 
     def get_latest_nodes(
-        self, page: int = 0, per_page: int = 50, reverse: bool = False
+        self,
+        page: int = 0,
+        per_page: int = 50,
+        reverse: bool = False,
     ) -> Tuple[int, list[NodeBase]]:
         """Retrieve last num_snapshots from this branch"""
         total, snapshots = self._get_remote_snapshots(
@@ -122,6 +152,7 @@ class BranchTimelineDb(BranchBase):
             NodeTimelineDb(
                 node_id=snapshot["id"],
                 snapshot_content=snapshot,
+                settings=self._settings,
             )
             for snapshot in snapshots
         ]

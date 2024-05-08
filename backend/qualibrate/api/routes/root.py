@@ -27,7 +27,7 @@ def _get_root_instance(
         StorageType.local_storage: RootLocalStorage,
         StorageType.timeline_db: RootTimelineDb,
     }
-    return root_types[settings.storage_type]()
+    return root_types[settings.storage_type](settings=settings)
 
 
 @root_router.get("/branch")

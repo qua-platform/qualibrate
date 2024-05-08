@@ -26,7 +26,7 @@ def _get_storage_instance(
         StorageType.local_storage: NodeLocalStorage,
         StorageType.timeline_db: NodeTimelineDb,
     }
-    node = node_types[settings.storage_type](node_id)
+    node = node_types[settings.storage_type](node_id, settings=settings)
     try:
         node.load(NodeLoadType.Full)
     except NotADirectoryError as e:

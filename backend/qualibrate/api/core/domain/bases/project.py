@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Mapping, Sequence, Tuple
 
@@ -6,17 +7,19 @@ from qualibrate.api.core.models.project import Project
 from qualibrate.config import (
     CONFIG_KEY,
     QualibrateSettings,
-    get_config_path,
-    get_settings,
     read_config_file,
 )
 from qualibrate.utils.config_references import resolve_references
 
 
 class ProjectsManagerBase(ABC):
+    def __init__(self, settings: QualibrateSettings, config_path: Path):
+        self._settings = settings
+        self._config_path = config_path
+
     @property
     def project(self) -> str:
-        return get_settings().project
+        return self._settings.project
 
     @project.setter
     def project(self, value: str) -> None:
@@ -27,13 +30,11 @@ class ProjectsManagerBase(ABC):
         pass
 
     @abstractmethod
-    def _set_user_storage_project(
-        self, project_name: str, settings: QualibrateSettings
-    ) -> None:
+    def _set_user_storage_project(self, project_name: str) -> None:
         pass
 
     @abstractmethod
-    def create(self, project_name: str, settings: QualibrateSettings) -> str:
+    def create(self, project_name: str) -> str:
         pass
 
     @abstractmethod
@@ -43,10 +44,23 @@ class ProjectsManagerBase(ABC):
     def _get_raw_and_resolved_ref_config(
         self, project_name: str
     ) -> Tuple[Mapping[str, Any], Mapping[str, Any]]:
-        raw_config = read_config_file(get_config_path(), solve_references=False)
+        raw_config = read_config_file(self._config_path, solve_references=False)
         # TODO: over way to update project
+        old_project_name = raw_config[CONFIG_KEY]["project"]
+        if old_project_name == project_name:
+            return raw_config, deepcopy(raw_config)
         raw_config[CONFIG_KEY]["project"] = project_name
         new_config = resolve_references(raw_config)
+        if (
+            new_config[CONFIG_KEY]["user_storage"]
+            == raw_config[CONFIG_KEY]["user_storage"]
+        ):
+            # there is no reference in config
+            project_path = Path(new_config[CONFIG_KEY]["user_storage"])
+            new_project_path = self._resolve_new_project_path(
+                project_name, old_project_name, project_path
+            )
+            new_config[CONFIG_KEY]["user_storage"] = str(new_project_path)
         return raw_config, new_config
 
     def _resolve_base_projects_path(

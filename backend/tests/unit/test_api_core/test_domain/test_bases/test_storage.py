@@ -17,55 +17,34 @@ def test_data_file_name():
     assert DataFileStorage.data_file_name == "data.json"
 
 
-def test_storage_creation_path_not_exists(mocker, tmp_path):
-    class _Settings:
-        user_storage = tmp_path
-
-    node_path = tmp_path / "node_path"
+def test_storage_creation_path_not_exists(mocker, settings):
+    node_path = settings.user_storage / "node_path"
     mocker.patch("pathlib.Path.is_dir", return_value=False)
-    mocker.patch(
-        "qualibrate.api.core.domain.bases.storage.get_settings",
-        return_value=_Settings(),
-    )
     with pytest.raises(QFileNotFoundException) as ex:
-        DataFileStorage(node_path)
+        DataFileStorage(node_path, settings)
     assert ex.type == QFileNotFoundException
     assert ex.value.args == ("node_path does not exist.",)
 
 
-def test_storage_creation_valid(mocker, tmp_path):
-    node_path = tmp_path / "node_path"
+def test_storage_creation_valid(mocker, settings):
+    node_path = settings.user_storage / "node_path"
     mocker.patch("pathlib.Path.is_dir", return_value=True)
-    patched_settings = mocker.patch(
-        "qualibrate.api.core.domain.bases.storage.get_settings"
-    )
-    dfs = DataFileStorage(node_path)
+    dfs = DataFileStorage(node_path, settings=settings)
     assert dfs._path == node_path
     assert dfs._load_type == StorageLoadType.Empty
     assert dfs._data is None
-    patched_settings.assert_not_called()
 
 
 class TestDataFileStorage:
     @pytest.fixture(autouse=True, scope="function")
-    def create_dfs(self, tmp_path):
+    def create_dfs(self, settings):
         self.node_rel_path = Path("node_path")
-        self.node_abs_path = tmp_path / self.node_rel_path
-        self.node_abs_path.mkdir()
+        self.node_abs_path = settings.user_storage / self.node_rel_path
+        self.node_abs_path.mkdir(parents=True)
+        self.dfs = DataFileStorage(self.node_abs_path, settings)
 
-        class _Settings:
-            user_storage = tmp_path
-
-        self.settings = _Settings
-        self.dfs = DataFileStorage(self.node_abs_path)
-
-    def test_path(self, mocker):
-        patched_settings = mocker.patch(
-            "qualibrate.api.core.domain.bases.storage.get_settings",
-            return_value=self.settings,
-        )
+    def test_path(self):
         assert self.dfs.path == self.node_rel_path
-        patched_settings.assert_called_once()
 
     def test_data_default(self):
         assert self.dfs.data is None

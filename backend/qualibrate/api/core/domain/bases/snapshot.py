@@ -6,10 +6,10 @@ from typing import Any, ClassVar, Mapping, Optional, Sequence, Tuple, Union
 from qualibrate.api.core.domain.bases.i_dump import IDump
 from qualibrate.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate.api.core.utils.find_utils import get_subpath_value_on_any_depth
+from qualibrate.config import QualibrateSettings
 
 __all__ = ["SnapshotBase", "SnapshotLoadType"]
-
-from qualibrate.api.core.utils.find_utils import get_subpath_value_on_any_depth
 
 
 class SnapshotLoadType(IntEnum):
@@ -27,8 +27,11 @@ class SnapshotBase(IDump, ABC):
         self,
         id: IdType,
         content: Optional[DocumentType] = None,
+        *,
+        settings: QualibrateSettings,
     ):
         self._id = id
+        self._settings = settings
         if content is None:
             self._load_type = SnapshotLoadType.Empty
             self.content = {}

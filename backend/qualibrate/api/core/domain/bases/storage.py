@@ -8,7 +8,7 @@ from qualibrate.api.core.domain.bases.i_dump import IDump
 from qualibrate.api.core.models.storage import Storage as StorageModel
 from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate.api.exceptions.classes.values import QValueException
-from qualibrate.config import get_settings
+from qualibrate.config import QualibrateSettings
 
 __all__ = ["DataFileStorage", "StorageLoadType"]
 
@@ -21,17 +21,18 @@ class StorageLoadType(IntEnum):
 class DataFileStorage(IDump):
     data_file_name = "data.json"
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, settings: QualibrateSettings):
         if not path.is_dir():
-            rel_path = path.relative_to(get_settings().user_storage)
+            rel_path = path.relative_to(settings.user_storage)
             raise QFileNotFoundException(f"{rel_path} does not exist.")
         self._path = path
         self._load_type = StorageLoadType.Empty
         self._data: Optional[Mapping[str, Any]] = None
+        self._settings = settings
 
     @property
     def path(self) -> Path:
-        return self._path.relative_to(get_settings().user_storage)
+        return self._path.relative_to(self._settings.user_storage)
 
     @property
     def data(self) -> Optional[Mapping[str, Any]]:

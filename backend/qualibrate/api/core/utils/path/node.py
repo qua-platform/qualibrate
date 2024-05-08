@@ -1,52 +1,12 @@
-import os
-import sys
 from datetime import date, datetime, time
 from functools import cached_property, lru_cache
-from pathlib import Path, PosixPath, WindowsPath
 from typing import Optional
 
-if sys.version_info[:2] == (3, 9):
-    pass
-else:
-    pass
-
-
 from qualibrate.api.core.types import IdType
-from qualibrate.api.exceptions.classes.storage import (
-    QRelativeNotSubpathException,
-)
+from qualibrate.api.core.utils.path import ConcretePath
+from qualibrate.api.core.utils.path.node_date import NodesDatePath
 
-
-def resolve_and_check_relative(
-    base_path: Path, subpath: os.PathLike[str]
-) -> Path:
-    """
-    Build full path from base path and subpath. Raise error if build path isn't
-    subpath of base path.
-
-    Raises:
-        ValueError: Built path isn't subpath of base path.
-    """
-    full = (base_path / Path(subpath)).resolve()
-    if not full.is_relative_to(base_path):
-        raise QRelativeNotSubpathException("Subpath isn't relative to base.")
-    return full
-
-
-if sys.platform == "win32" or sys.platform == "cygwin":
-    ConcretePath = WindowsPath
-else:
-    ConcretePath = PosixPath
-
-
-class NodesDatePath(ConcretePath):
-    @cached_property
-    def date(self) -> date:
-        return self.datetime.date()
-
-    @cached_property
-    def datetime(self) -> datetime:
-        return datetime.strptime(self.stem, "%Y-%m-%d")
+__all__ = ["NodePath"]
 
 
 class NodePath(ConcretePath):
@@ -96,7 +56,3 @@ class NodePath(ConcretePath):
     @cached_property
     def time(self) -> Optional[time]:
         return self.get_node_id_name_time()[2]
-
-
-# TODO: add class for project root
-#   contains: iterdir that filters only date dir

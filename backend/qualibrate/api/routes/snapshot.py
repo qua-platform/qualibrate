@@ -28,7 +28,7 @@ def _get_snapshot_instance(
         StorageType.local_storage: SnapshotLocalStorage,
         StorageType.timeline_db: SnapshotTimelineDb,
     }
-    return snapshot_types[settings.storage_type](id=id)
+    return snapshot_types[settings.storage_type](id=id, settings=settings)
 
 
 @snapshot_router.get("/")

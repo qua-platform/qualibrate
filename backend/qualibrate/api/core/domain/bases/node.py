@@ -11,11 +11,12 @@ from qualibrate.api.core.domain.bases.storage import DataFileStorage
 from qualibrate.api.core.models.node import Node as NodeModel
 from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
 from qualibrate.api.core.types import IdType
-from qualibrate.api.core.utils.path_utils import resolve_and_check_relative
+from qualibrate.api.core.utils.path.common import resolve_and_check_relative
 from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
-from qualibrate.config import get_settings
 
 __all__ = ["NodeBase", "NodeLoadType"]
+
+from qualibrate.config import QualibrateSettings
 
 
 class NodeLoadType(IntEnum):
@@ -25,11 +26,17 @@ class NodeLoadType(IntEnum):
 
 
 class NodeBase(IDump, ABC):
-    def __init__(self, node_id: IdType, snapshot: SnapshotBase) -> None:
+    def __init__(
+        self,
+        node_id: IdType,
+        snapshot: SnapshotBase,
+        settings: QualibrateSettings,
+    ) -> None:
         self._node_id = node_id
         self._load_type = NodeLoadType.Empty
         self._snapshot = snapshot
         self._storage: Optional[DataFileStorage] = None
+        self._settings = settings
 
     @property
     def load_type(self) -> NodeLoadType:
@@ -52,24 +59,23 @@ class NodeBase(IDump, ABC):
         return self._storage
 
     def _fill_storage(self) -> None:
-        settings = get_settings()
         metadata = self._snapshot.metadata
         if metadata is None or not isinstance(
-            metadata.get(settings.metadata_out_path), str
+            metadata.get(self._settings.metadata_out_path), str
         ):
             self._storage = None
             self._load_type = NodeLoadType.Snapshot
             return
-        rel_output_path = metadata[settings.metadata_out_path]
+        rel_output_path = metadata[self._settings.metadata_out_path]
         abs_output_path = resolve_and_check_relative(
-            settings.user_storage,
-            metadata[settings.metadata_out_path],
+            self._settings.user_storage,
+            metadata[self._settings.metadata_out_path],
         )
         if not abs_output_path.is_dir():
             raise QNotADirectoryException(
                 f"{rel_output_path} is not a directory"
             )
-        self._storage = DataFileStorage(abs_output_path)
+        self._storage = DataFileStorage(abs_output_path, self._settings)
         self._load_type = NodeLoadType.Full
 
     def dump(self) -> NodeModel:

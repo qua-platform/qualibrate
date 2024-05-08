@@ -6,18 +6,16 @@ from pydantic import ValidationError
 
 from qualibrate.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate.api.core.models.project import Project
-from qualibrate.api.core.utils.path_utils import NodePath
+from qualibrate.api.core.utils.path.node import NodePath
 from qualibrate.api.exceptions.classes.values import QValueException
-from qualibrate.config import CONFIG_KEY, QualibrateSettings, get_settings
+from qualibrate.config import CONFIG_KEY, QualibrateSettings
 
 
 class ProjectsManagerLocalStorage(ProjectsManagerBase):
     def _active_project_setter(self, value: str) -> None:
-        self._set_user_storage_project(value, get_settings())
+        self._set_user_storage_project(value)
 
-    def _set_user_storage_project(
-        self, project_name: str, settings: QualibrateSettings
-    ) -> None:
+    def _set_user_storage_project(self, project_name: str) -> None:
         raw_config, new_config = self._get_raw_and_resolved_ref_config(
             project_name
         )
@@ -34,12 +32,12 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
             if next(storage_not_exists, None) is not None:
                 raise QValueException(f"Invalid project name '{project_name}'")
             raise
-        settings.project = qs.project
-        settings.user_storage = qs.user_storage
+        self._settings.project = qs.project
+        self._settings.user_storage = qs.user_storage
 
-    def create(self, project_name: str, settings: QualibrateSettings) -> str:
+    def create(self, project_name: str) -> str:
         new_project_path = self._resolve_new_project_path(
-            project_name, settings.project, settings.user_storage
+            project_name, self._settings.project, self._settings.user_storage
         )
         if new_project_path.is_dir():
             raise QValueException(f"Project {project_name} already exists.")
@@ -95,9 +93,8 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
         )
 
     def list(self) -> Sequence[Project]:
-        settings = get_settings()
         base_path = self._resolve_base_projects_path(
-            settings.project, settings.user_storage
+            self._settings.project, self._settings.user_storage
         )
         return [
             self._get_project_info(p)

@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from qualibrate.api.__main__ import api_router
 from qualibrate.api.exceptions.middleware import QualibrateCatchExcMiddleware
-from qualibrate.config import StorageType, get_settings
+from qualibrate.config import StorageType, get_config_path, get_settings
 
 try:
     from json_timeline_database.app import app as json_timeline_db_app
@@ -14,7 +14,7 @@ except ImportError:
 
 
 app = FastAPI(title="Qualibrate")
-_settings = get_settings()
+_settings = get_settings(get_config_path())
 
 origins = ["http://localhost:8002", "http://localhost:8001"]
 
