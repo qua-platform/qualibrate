@@ -7,15 +7,15 @@ from qualibrate.api.core.models.project import Project
 from qualibrate.config import (
     CONFIG_KEY,
     QualibrateSettings,
-    get_config_path,
     read_config_file,
 )
 from qualibrate.utils.config_references import resolve_references
 
 
 class ProjectsManagerBase(ABC):
-    def __init__(self, settings: QualibrateSettings):
+    def __init__(self, settings: QualibrateSettings, config_path: Path):
         self._settings = settings
+        self._config_path = config_path
 
     @property
     def project(self) -> str:
@@ -44,7 +44,7 @@ class ProjectsManagerBase(ABC):
     def _get_raw_and_resolved_ref_config(
         self, project_name: str
     ) -> Tuple[Mapping[str, Any], Mapping[str, Any]]:
-        raw_config = read_config_file(get_config_path(), solve_references=False)
+        raw_config = read_config_file(self._config_path, solve_references=False)
         # TODO: over way to update project
         old_project_name = raw_config[CONFIG_KEY]["project"]
         if old_project_name == project_name:

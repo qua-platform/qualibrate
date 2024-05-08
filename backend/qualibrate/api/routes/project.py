@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Annotated, Sequence
 
 from fastapi import APIRouter, Depends
@@ -13,6 +14,7 @@ from qualibrate.api.core.models.project import Project
 from qualibrate.config import (
     QualibrateSettings,
     StorageType,
+    get_config_path,
     get_settings,
 )
 
@@ -21,12 +23,15 @@ project_router = APIRouter(prefix="/projects", tags=["project"])
 
 def _get_projects_manager(
     settings: Annotated[QualibrateSettings, Depends(get_settings)],
+    config_path: Annotated[Path, Depends(get_config_path)],
 ) -> ProjectsManagerBase:
     project_types = {
         StorageType.local_storage: ProjectsManagerLocalStorage,
         StorageType.timeline_db: ProjectsManagerTimelineDb,
     }
-    return project_types[settings.storage_type](settings=settings)
+    return project_types[settings.storage_type](
+        settings=settings, config_path=config_path
+    )
 
 
 @project_router.get("/list")
