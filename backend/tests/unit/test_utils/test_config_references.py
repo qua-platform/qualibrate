@@ -173,13 +173,13 @@ def test_find_all_references_complex(config_with_refs):
 def test_check_cycles_in_references_exists():
     assert cr.check_cycles_in_references(
         {"a": ("b", "c"), "b": ("c", "d"), "c": ("a",)}
-    )
+    ) == (True, ["a", "b", "c", "a"])
 
 
 def test_check_cycles_in_references_not_exists():
-    assert not cr.check_cycles_in_references(
+    assert cr.check_cycles_in_references(
         {"a": ("b", "d"), "b": ("c", "e"), "c": ("d",)}
-    )
+    ) == (False, None)
 
 
 def test__resolve_references_no_subref(config_with_refs, path_with_refs):
@@ -287,17 +287,18 @@ def test__resolve_references_with_subref(config_with_refs, path_with_refs):
 
 
 def test_resolve_references_with_cycle(mocker):
+    cycle = ["a", "b", "a"]
     mocker.patch(
         "qualibrate.utils.config_references.find_all_references",
     )
     mocker.patch(
         "qualibrate.utils.config_references.check_cycles_in_references",
-        return_value=True,
+        return_value=(True, cycle),
     )
     with pytest.raises(ValueError) as ex:
         cr.resolve_references({"a": "${#/b}", "b": "${#/a}"})
     assert ex.type == ValueError
-    assert ex.value.args == ("Config contains cycles",)
+    assert ex.value.args == (f"Config contains cycle: {cycle}",)
 
 
 def test_resolve_references_full_no_subref():

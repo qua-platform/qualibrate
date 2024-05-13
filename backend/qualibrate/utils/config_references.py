@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Mapping, Optional, Sequence, Set, cast
+from typing import Any, List, Mapping, Optional, Sequence, Set, Tuple, cast
 
 import jsonpatch
 import jsonpointer
@@ -56,30 +56,37 @@ def find_all_references(
     return to_resolve
 
 
-def check_cycles_in_references(references: Mapping[str, Sequence[str]]) -> bool:
+def check_cycles_in_references(
+    references: Mapping[str, Sequence[str]],
+) -> Tuple[bool, Optional[Sequence[str]]]:
     """Return True if the references has a cycle.
 
     >>> check_cycles_in_references({"a": ("b",), "b": ("c",), "c": ("a",)})
-    True
+    (True, ['a', 'b', 'c', 'a'])
     >>> check_cycles_in_references({"a": ("b",), "b": ("c",), "c": ("d",)})
-    False
+    (False, None)
 
     """
-    path: Set[str] = set()
+    path: List[str] = []
     visited: Set[str] = set()
+    cycled_item: str = ""
 
     def visit(vertex: str) -> bool:
+        nonlocal cycled_item
         if vertex in visited:
             return False
         visited.add(vertex)
-        path.add(vertex)
+        path.append(vertex)
         for neighbour in references.get(vertex, ()):
             if neighbour in path or visit(neighbour):
+                cycled_item = vertex
                 return True
-        path.remove(vertex)
+        path.pop()  # == path.remove(vertex):
         return False
 
-    return any(visit(v) for v in references)
+    if any(visit(v) for v in references):
+        return True, [*path, cycled_item]
+    return False, None
 
 
 def _resolve_references(
@@ -106,7 +113,10 @@ def _resolve_references(
                 solved_references,
             )
             if ref.reference_path not in solved_references:
-                raise ValueError("subref not solved")
+                raise ValueError(
+                    f"Subreference '{ref.reference_path}' "
+                    f"for '{ref.config_path}' not solved."
+                )
             ref.value = solved_references[ref.reference_path]
             ref.solved = True
         else:
@@ -114,18 +124,38 @@ def _resolve_references(
                 original_config, ref.reference_path, None
             )
             if value is None:
-                raise ValueError("can't resolve ref item")
+                raise ValueError(
+                    f"Can't resolve reference item '{ref.reference_path}' "
+                    f"for config path '{ref.config_path}'"
+                )
             ref.value = value
             ref.solved = True
             solved_references[ref.reference_path] = value
     verify_all_solved = all(map(lambda ref: ref.solved, references))
     if not verify_all_solved:
-        raise ValueError("some issues with solving")
+        not_solved_refs = filter(lambda ref: not ref.solved, references)
+        references_errors = (
+            (
+                f"- config path: '{ref.config_path}', "
+                f"reference: '{ref.reference_path}';"
+            )
+            for ref in not_solved_refs
+        )
+        raise ValueError(
+            "\n".join(
+                [
+                    "Some issues with solving references. Issued references:",
+                    *references_errors,
+                ]
+            )
+        )
     config_value = jsonpointer.resolve_pointer(
         original_config, config_item.config_path, None
     )
     if config_value is None or not isinstance(config_value, str):
-        raise ValueError("can't resolve config item")
+        raise ValueError(
+            f"Can't resolve config item '{config_item.config_path}'"
+        )
     for ref in sorted(
         references, key=lambda ref: ref.index_start, reverse=True
     ):
@@ -143,9 +173,9 @@ def resolve_references(config: dict[str, Any]) -> dict[str, Any]:
     references_seq = defaultdict(list)
     for reference in references:
         references_seq[reference.config_path].append(reference.reference_path)
-    has_cycles = check_cycles_in_references(references_seq)
+    has_cycles, cycle = check_cycles_in_references(references_seq)
     if has_cycles:
-        raise ValueError("Config contains cycles")
+        raise ValueError(f"Config contains cycle: {cycle}")
     solved_references: dict[str, Any] = {}
     path_with_references: dict[str, PathWithSolvingReferences] = {}
     for reference in references:
@@ -171,12 +201,13 @@ def resolve_references(config: dict[str, Any]) -> dict[str, Any]:
 if __name__ == "__main__":
     _config = {
         "qualibrate": {"project": "my_project"},
+        # "qualibrate": {"project": "${#/data_handler/project}"},
         "data_handler": {
             "root_data_folder": "/data/${#/data_handler/project}/subpath",
             "project": "${#/qualibrate/project}",
+            # "project": "${#/qualibrate/project_}",
         },
     }
     res = resolve_references(_config)
     print(_config)
     print(res)
-    # print(has_cycles)
