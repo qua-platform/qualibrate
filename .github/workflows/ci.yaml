@@ -40,7 +40,7 @@ jobs:
           cache-dependency-path: backend/poetry.lock
 
       - name: Install python deps
-        run: poetry install --with dev
+        run: poetry install --with dev --with test
         working-directory: backend
 
       - name: Check python package typing
