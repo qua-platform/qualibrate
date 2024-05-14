@@ -8,6 +8,7 @@ from qualibrate.config import (
     JsonTimelineDBBase,
     QualibrateSettings,
     StorageType,
+    get_config_path,
     get_settings,
 )
 
@@ -34,8 +35,17 @@ def settings(
 
 @pytest.fixture
 def client_custom_settings(
+    mocker,
     settings: QualibrateSettings,
 ) -> Generator[TestClient, None, None]:
+    get_config_path.cache_clear()
+    mocker.patch("qualibrate.config.get_config_file")
+    mocker.patch(
+        "qualibrate.config.read_config_file",
+        return_value={"qualibrate": {**settings.model_dump(mode="json")}},
+    )
+    mocker.patch("qualibrate.app.get_settings", return_value=settings)
+
     from qualibrate.app import app
 
     client = TestClient(app)
