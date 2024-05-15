@@ -2,7 +2,6 @@ import operator
 from datetime import datetime
 from pathlib import Path
 
-import tomli_w
 from fastapi.testclient import TestClient
 
 from qualibrate.config import QualibrateSettings, get_config_path
@@ -76,8 +75,6 @@ def test_project_active_set_same(
     client_custom_settings.app.dependency_overrides[get_config_path] = (
         lambda: config_path
     )
-    with config_path.open("wb") as fin:
-        tomli_w.dump({"qualibrate": settings.model_dump(mode="json")}, fin)
     assert settings.project == "project"
     response = client_custom_settings.post(
         "/api/projects/active", params={"active_project": "project"}
@@ -99,8 +96,6 @@ def test_project_active_set_other(
         lambda: config_path
     )
     (local_storage_path / new_project).mkdir()
-    with config_path.open("wb") as fin:
-        tomli_w.dump({"qualibrate": settings.model_dump(mode="json")}, fin)
     assert settings.project == "project"
     response = client_custom_settings.post(
         "/api/projects/active", params={"active_project": "new_project"}
