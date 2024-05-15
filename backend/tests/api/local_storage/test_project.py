@@ -25,6 +25,8 @@ def test_project_list(
     )
     response = client_custom_settings.get("/api/projects/list")
     assert response.status_code == 200
+    tz = datetime.now().astimezone().tzinfo
+    last_modified = datetime(2024, 4, 27, 18, 27, 0, tzinfo=tz)
     assert list(sorted(response.json(), key=operator.itemgetter("name"))) == [
         {
             "name": "other_project",
@@ -36,7 +38,7 @@ def test_project_list(
             "name": "project",
             "nodes_number": 9,
             "created_at": default_project_created_at,
-            "last_modified_at": "2024-04-27T18:27:00+03:00",
+            "last_modified_at": last_modified.isoformat(timespec="seconds"),
         },
     ]
 

@@ -1,5 +1,5 @@
 import json
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from typing import Any, Generator
 
@@ -36,7 +36,7 @@ def _setup_local_storage_project(project_path: Path) -> Path:
                     node_time.minute,
                     node_time.second,
                 )
-            ).astimezone()
+            ).replace(tzinfo=timezone(timedelta(seconds=10800)))  # 3 hours
 
             node_file.write_text(
                 json.dumps(
