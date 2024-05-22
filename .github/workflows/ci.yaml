@@ -1,6 +1,6 @@
 name: Format; lint; type; tests
 on:
-  push
+  pull_request
 
 jobs:
 #  frontend-check:
