@@ -20,12 +20,26 @@ from qualibrate.config import (
         path_type=Path,
     ),
     default=QUALIBRATE_PATH / DEFAULT_CONFIG_FILENAME,
+    help="Path to `config.toml` file",
+    show_default=True,
 )
 @click.option(
     "--reload", is_flag=True, hidden=True
 )  # env QUALIBRATE_START_RELOAD
-@click.option("--port", type=int, default=8001)  # env QUALIBRATE_START_PORT
-@click.option("--num-workers", type=int, default=1)
+@click.option(
+    "--port",
+    type=int,
+    default=8001,
+    show_default=True,
+    help="Application will be started on the given port",
+)  # env QUALIBRATE_START_PORT
+@click.option(
+    "--num-workers",
+    type=int,
+    default=1,
+    show_default=True,
+    help="Number of workers",
+)
 def start_command(
     config_path: Path, port: int, num_workers: int, reload: bool
 ) -> None:
