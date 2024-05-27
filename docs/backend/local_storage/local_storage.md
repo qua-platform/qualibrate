@@ -7,28 +7,32 @@ In this example we will assume that:
 - `qualibrate.project`: `qm`
 - `qualibrate.user_storage`: `~/data/${#/qualibrate/project}`
 
-Note that in this example the project `qm` is a folder within the root directory `~/data`.
+Note that in this example the project `qm` is a folder within the root
+directory `~/data`.
 
 ## Expected storage structure
 
 ### Path to project data
-The storage path is chosen with respect to the current project. 
-As a consequence, other projects are stored in directories next to the current project.
+
+The storage path is chosen with respect to the current project. As a
+consequence, other projects are stored in directories next to the current
+project.
 
 **Example**:
 
-| Project name | Project path                  |
-|--------------|-------------------------------|
+| Project name | Project path   |
+|--------------|----------------|
 | qm           | `~/data/qm`    |
 | other        | `~/data/other` |
 
-**Note**: The project name should always be part of the path, but does not have 
-to be the last one. It's always expected that paths would have same structure. This structure can be specified in the configuration file:
+**Note**: The project name should always be part of the path, but does not have
+to be the last one. It's always expected that paths would have same structure.
+This structure can be specified in the configuration file:
 
 `user_storage = ~/storage/${#/project}/data`
 
-| Project name | Project path                       |
-|--------------|------------------------------------|
+| Project name | Project path           |
+|--------------|------------------------|
 | qm           | `~/storage/qm/data`    |
 | other        | `~/storage/other/data` |
 
@@ -37,17 +41,21 @@ to be the last one. It's always expected that paths would have same structure. T
 ### Structure
 
 Each project should have next structure:
-- Subfolders of project path should represent date of experiment. 
-  - Format: `YYYY-MM-DD` (`YYYY` - year, `MM` - month number, `DD` - day number)
-- Subfolders of date should represent node. 
-  - Format: `#<node_id>_<node_name>_HHMMSS`
-    - `node_id` should be unique sequential integer value (index of node), starting at 1.
-    - `node_name` should be string contains latin alphabet symbols, numbers 
-        and `-_`.
-    - `HHMMSS` - time of experiment 
-        (`HH` - hour (24-hour notation), `MM` - minutes, `SS` - seconds)
+
+- Subfolders of project path should represent date of experiment.
+    - Format: `YYYY-MM-DD` (`YYYY` - year, `MM` - month number, `DD` - day
+      number)
+- Subfolders of date should represent node.
+    - Format: `#<node_id>_<node_name>_HHMMSS`
+        - `node_id` should be unique sequential integer value (index of node),
+          starting at 1.
+        - `node_name` should be string contains latin alphabet symbols, numbers
+          and `-_`.
+        - `HHMMSS` - time of experiment
+          (`HH` - hour (24-hour notation), `MM` - minutes, `SS` - seconds)
 
 **Example**:
+
 ```
 ├── 2024-04-24
 │     ├── #1_name1_120000
@@ -65,19 +73,20 @@ Each project should have next structure:
 ### Content of node folder
 
 Files:
+
 - `node.json` --  [required] [common node description](./node_json.md)
 - `state.json` -- [optional] quam snapshot description.
 - `data.json` -- [optional] [output file](#timeline_db-type).
 - Other figures, arrays, and ancillary files.
 
-
-`data.json` file contains output results of experiments. Content should be 
-valid json. It's also possible to have image references (only `.png` is 
+`data.json` file contains output results of experiments. Content should be
+valid json. It's also possible to have image references (only `.png` is
 supported now) in this file. Images path should be subpath of node path.
 
 **Example**:
 
 Files structure:
+
 ```
 2024-04-29
 └── #1_name1_180203
