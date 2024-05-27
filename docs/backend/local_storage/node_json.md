@@ -28,7 +28,7 @@ The structure of `node.json` closely mimics the timeline DB snapshot structure i
 ### Example
 ```json lines
 {
-  "created_at": "2024-03-13 17:30:39 UTC+01:00", // Or whatever ISO 8601 suggests
+  "created_at": "2024-04-29T18:02:03+02:00"
   "metadata": {
     "name": "node_name",
     "data_path": "2024-03-13/#144_node_name_173039"
