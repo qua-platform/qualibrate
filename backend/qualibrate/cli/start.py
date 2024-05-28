@@ -33,17 +33,8 @@ from qualibrate.config import (
     show_default=True,
     help="Application will be started on the given port",
 )  # env QUALIBRATE_START_PORT
-@click.option(
-    "--num-workers",
-    type=int,
-    default=1,
-    show_default=True,
-    help="Number of workers",
-)
-def start_command(
-    config_path: Path, port: int, num_workers: int, reload: bool
-) -> None:
+def start_command(config_path: Path, port: int, reload: bool) -> None:
     from qualibrate.app import main as app_main
 
     os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
-    app_main(port=port, num_workers=num_workers, reload=reload)
+    app_main(port=port, reload=reload)

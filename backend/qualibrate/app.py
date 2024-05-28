@@ -48,11 +48,9 @@ app.mount(
 )
 
 
-def main(port: int, num_workers: int, reload: bool) -> None:
-    uvicorn.run(
-        "qualibrate.app:app", port=port, workers=num_workers, reload=reload
-    )
+def main(port: int, reload: bool) -> None:
+    uvicorn.run("qualibrate.app:app", port=port, reload=reload)
 
 
 if __name__ == "__main__":
-    main(port=8001, num_workers=1, reload=False)
+    main(port=8001, reload=False)
