@@ -1,4 +1,4 @@
-import { RequestStatus, StatusType } from "../types";
+import { RequestStatus } from "../types";
 
 export const PENDING = "pending";
 export const OK = "ok";

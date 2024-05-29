@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import ProjectInfo from "./ProjectInfo";
 import SelectField from "../../../DEPRECATED_components/common/Input/SelectField";
 import { classNames } from "../../../utils/classnames";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 import cyKeys from "../../../utils/cyKeys";
 
@@ -15,14 +16,14 @@ interface Props {
   name?: string;
 }
 
-const Project = ({ showRuntime = false, isActive = false, onClick, projectId = -1, name = "" }: Props) => {
+const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: Props) => {
   const handleOnClick = useCallback(() => {
     if (!onClick) {
       return;
     }
 
     onClick(name);
-  }, [onClick]);
+  }, [onClick, name]); // TODO Possible BUG
 
   return (
     <button

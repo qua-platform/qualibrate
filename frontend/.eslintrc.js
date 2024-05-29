@@ -1,5 +1,6 @@
 module.exports = {
-  extends: ["plugin:@typescript-eslint/recommended", "prettier", "plugin:prettier/recommended", "plugin:css-modules/recommended"],
+  root: true,
+  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: 2021,
@@ -11,6 +12,8 @@ module.exports = {
   plugins: ["css-modules", "@typescript-eslint"],
   settings: {
     react: { version: "detect" },
+    ignorePatterns: ["*.css", "**/vendor/*.css"],
+    "import/ignore": [".css$", "node_modules/*"],
   },
   rules: {
     semi: ["error", "always"],

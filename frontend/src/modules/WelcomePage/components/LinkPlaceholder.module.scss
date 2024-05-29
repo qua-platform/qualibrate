@@ -6,7 +6,7 @@
 }
 
 .linkIcon {
-  @media (max-width: 800px) {
+  @media (width <= 800px) {
     display: none;
   }
 }

@@ -1,3 +1,4 @@
+import styles from "./Project.module.scss";
 import { NEW_PROJECT_BUTTON_VISIBLE } from "../../dev.config";
 import { ACTIVE_TEXT } from "../../utils/colors";
 import { AddIcon } from "../../ui-lib/Icons/AddIcon";
@@ -7,7 +8,6 @@ import InputField from "../../DEPRECATED_components/common/Input/InputField";
 import PageName from "../../DEPRECATED_components/common/Page/PageName";
 import PageSection from "../../DEPRECATED_components/common/Page/PageSection";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
-import styles from "./Project.module.scss";
 import React, { useEffect, useState } from "react";
 import ProjectList from "./components/ProjectList";
 import { ProjectContextProvider, useProjectContext } from "./context/ProjectContext";
@@ -42,7 +42,7 @@ const Project = () => {
       <div className={styles.projectPageLayout}>
         <PageName>{heading}</PageName>
         <div className={styles.pageWrapper}>
-          <PageSection className={styles.selectProjectFrame} sectionName="Please select a Project">
+          <PageSection sectionName="Please select a Project">
             <InputField
               iconType={IconType.INNER}
               placeholder="Project Name"

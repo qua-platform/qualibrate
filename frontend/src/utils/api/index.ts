@@ -32,7 +32,9 @@ export default class Api {
     let result = undefined;
     try {
       result = await res.json();
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
 
     return {
       isOk: true,
@@ -63,16 +65,16 @@ export default class Api {
     }
 
     const arrayProperties = this.divideProperties(options, true) as {
-      [key: string]: [any];
+      [key: string]: [string];
     };
 
     if (!Object.keys(arrayProperties).length) {
-      return "?" + new URLSearchParams(options);
+      return "?" + new URLSearchParams(options as string | URLSearchParams | string[][] | Record<string, string> | undefined);
     }
 
     const plainProperties = this.divideProperties(options, false);
 
-    const plainParams = new URLSearchParams(plainProperties);
+    const plainParams = new URLSearchParams(plainProperties as string | URLSearchParams | string[][] | Record<string, string> | undefined);
 
     const arrayQuery = Object.keys(arrayProperties)
       .map((arrayName) => arrayProperties[arrayName].map((value) => `&${arrayName}=${value}`))
@@ -120,6 +122,7 @@ export default class Api {
       };
     }
   }
+
   static async fetchData<P>(path: string, method: API_METHODS, options?: FetchOptions): Promise<P | ErrorObject> {
     const { queryParams, body, ...restOptions } = options || {};
     const urlQuery = this.formQuery(queryParams);
@@ -171,7 +174,13 @@ export default class Api {
     }
   }
 
-  static async downloadFile(fullPath: string, defaultFileName: string, options: { [key: string]: any } = {}): Promise<Res> {
+  static async downloadFile(
+    fullPath: string,
+    defaultFileName: string,
+    options: {
+      [key: string]: object | string | unknown;
+    } = {}
+  ): Promise<Res> {
     return new Promise((resolve) => {
       let fileName = defaultFileName;
       fetch(fullPath, {
@@ -186,7 +195,9 @@ export default class Api {
             const header = response.headers.get("Content-Disposition");
             const parts = header!.split(";");
             fileName = parts[1].split("=")[1].replaceAll('"', "");
-          } catch (e) {}
+          } catch (e) {
+            console.log(e);
+          }
           if (response.ok) {
             return response.blob();
           } else {
@@ -201,10 +212,4 @@ export default class Api {
         .catch((err) => resolve({ isOk: false, error: err }));
     });
   }
-
-  // static fetchFunc = <Data, Args>(req: (args: Args) => RequestEntry) => {
-  //   return (args: Args): Promise<Res<Data>> => {
-  //     return this.fetch(req(args));
-  //   };
-  // };
 }

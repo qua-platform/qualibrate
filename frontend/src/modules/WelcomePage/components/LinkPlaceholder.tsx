@@ -12,7 +12,8 @@ const LinkPlaceholder = ({ name, description, icon }: Props) => {
     <a className={styles.linkWrapper}>
       {icon && <div className={styles.linkIcon}>{icon}</div>}
       <div className={styles.linkInfo}>
-        <div className={styles.linkName}>{name}</div>
+        {/*<div className={styles.linkName}>{name}</div>*/}
+        <div>{name}</div>
         <div className={styles.linkDescription}>{description}</div>
       </div>
     </a>

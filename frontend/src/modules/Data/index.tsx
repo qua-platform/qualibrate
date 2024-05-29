@@ -1,10 +1,10 @@
 import React, { Dispatch, SetStateAction } from "react";
-import styles from "./Data.module.scss";
+import styles from "../Data/Data.module.scss";
 import cyKeys from "../../utils/cyKeys";
 import useModuleStyle from "../../ui-lib/hooks/useModuleStyle";
 import { classNames } from "../../utils/classnames";
 import { Gitgraph, templateExtend, TemplateName } from "@gitgraph/react";
-import { JsonViewer, defineDataType } from "@textea/json-viewer";
+import { defineDataType, JsonViewer } from "@textea/json-viewer";
 import { SnapshotsContextProvider, useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
 import { SnapshotDTO } from "../Snapshots/SnapshotDTO";
 import PaginationWrapper from "../Pagination/PaginationWrapper";
@@ -28,7 +28,7 @@ const TimelineGraph = ({
   setSelectedSnapshotIndex: Dispatch<SetStateAction<number | undefined>>;
   setSelectedSnapshotId: Dispatch<SetStateAction<number | undefined>>;
 
-  setFlag: Dispatch<SetStateAction<any>>;
+  setFlag: Dispatch<SetStateAction<boolean>>;
   fetchOneGitgraphSnapshot: (snapshots: SnapshotDTO[], selectedIndex: number) => void;
 }) => {
   const withoutAuthor = templateExtend(TemplateName.Metro, {
@@ -90,7 +90,7 @@ const TimelineGraph = ({
   );
 };
 
-const JSONEditor = ({ title, jsonData, height }: { title: string; jsonData: any; height: string }) => {
+const JSONEditor = ({ title, jsonData, height }: { title: string; jsonData: object; height: string }) => {
   const imageDataType = defineDataType({
     is: (value) => typeof value === "string" && value.startsWith("data:image"),
     Component: ({ value }) => (
@@ -145,7 +145,7 @@ const DataGUAlibrate = () => {
     <div ref={ref} className={styles.wrapper}>
       <div className={classNames(styles.explorer)}>
         <div className={classNames(styles.data)}>
-          <div className={styles.listWrapper} data-cy={cyKeys.data.EXPERIMENT_LIST}></div>
+          <div data-cy={cyKeys.data.EXPERIMENT_LIST}></div>
           <TimelineGraph
             allSnapshots={allSnapshots}
             setFlag={setFlag}

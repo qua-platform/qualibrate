@@ -3,10 +3,11 @@
   background-color: var(--background-color);
   padding: 50px 70px;
 
-  @media (max-width: 900px) {
+  @media (width <= 900px) {
     padding: 40px 30px;
   }
-  @media (max-width: 700px) {
+
+  @media (width <= 700px) {
     padding: 30px 20px;
   }
 }

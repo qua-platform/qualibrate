@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import { SnapshotDTO } from "../SnapshotDTO";
-import { SnapshotsApi } from "../api/SnapshotsApi";
+import { SnapshotResult, SnapshotsApi } from "../api/SnapshotsApi";
+import { Res } from "../../../DEPRECATED_common/DEPRECATED_interfaces/Api";
 
 interface ISnapshotsContext {
   totalPages: number;
@@ -18,12 +19,12 @@ interface ISnapshotsContext {
 
   fetchOneGitgraphSnapshot: (snapshots: SnapshotDTO[], index: number) => void;
 
-  jsonData: any;
-  setJsonData: Dispatch<SetStateAction<any>>;
-  diffData: any;
-  setDiffData: Dispatch<SetStateAction<any>>;
-  result: any;
-  setResult: Dispatch<SetStateAction<any>>;
+  jsonData: object | undefined;
+  setJsonData: Dispatch<SetStateAction<object | undefined>>;
+  diffData: object | undefined;
+  setDiffData: Dispatch<SetStateAction<object | undefined>>;
+  result: object | undefined;
+  setResult: Dispatch<SetStateAction<object | undefined>>;
 }
 
 const SnapshotsContext = React.createContext<ISnapshotsContext>({
@@ -53,7 +54,7 @@ const SnapshotsContext = React.createContext<ISnapshotsContext>({
 export const useSnapshotsContext = (): ISnapshotsContext => useContext<ISnapshotsContext>(SnapshotsContext);
 
 interface SnapshotsContextProviderProps {
-  children: React.ReactNode;
+  children: React.JSX.Element;
 }
 
 export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): React.ReactElement {
@@ -67,35 +68,35 @@ export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): 
 
   const [reset, setReset] = useState<boolean>(false);
 
-  const [jsonData, setJsonData] = useState<any>(undefined);
-  const [diffData, setDiffData] = useState<any>(undefined);
-  const [result, setResult] = useState<any>(undefined);
+  const [jsonData, setJsonData] = useState<object | undefined>(undefined);
+  const [diffData, setDiffData] = useState<object | undefined>(undefined);
+  const [result, setResult] = useState<object | undefined>(undefined);
 
   // -----------------------------------------------------------
   // FIRST FETCH ALL SNAPSHOTS ON THE BEGINNING
   const fetchGitgraphSnapshots = (firstTime: boolean, page: number) => {
-    SnapshotsApi.fetchAllSnapshots(page).then((promise: any) => {
+    SnapshotsApi.fetchAllSnapshots(page).then((promise: Res<SnapshotResult>) => {
       if (promise.isOk) {
-        setTotalPages(promise.result.total_pages);
-        setPageNumber(promise.result.page);
+        setTotalPages(promise.result?.total_pages ?? 1);
+        setPageNumber(promise.result?.page ?? 1);
         setAllSnapshots(
-          (promise?.result.items as any[])?.map((res, index) => {
+          (promise?.result?.items ?? []).map((res, index) => {
             if (firstTime) {
-              return Object.assign(res, { isSelected: index == promise.result.items.length - 1 });
+              return Object.assign(res, { isSelected: index == (promise?.result?.items as SnapshotDTO[]).length - 1 });
             }
             return Object.assign(res, { isSelected: index == selectedSnapshotIndex });
           })
         );
 
         if (firstTime) {
-          if (promise?.result.items) {
+          if (promise?.result?.items) {
             const lastIndex = promise?.result.items.length - 1;
             setSelectedSnapshotIndex(lastIndex);
             fetchOneGitgraphSnapshot(promise?.result.items, lastIndex);
           }
         } else {
           if (selectedSnapshotIndex) {
-            fetchOneGitgraphSnapshot(promise?.result.items, selectedSnapshotIndex);
+            fetchOneGitgraphSnapshot(promise?.result?.items as SnapshotDTO[], selectedSnapshotIndex);
             setReset(false);
           }
         }
@@ -108,14 +109,15 @@ export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): 
     fetchGitgraphSnapshots(true, pageNumber);
   }, [pageNumber]);
   // -----------------------------------------------------------
+  // -----------------------------------------------------------
 
   // -----------------------------------------------------------
   // PERIODICAL FETCH ALL SNAPSHOTS
   const intervalFetch = (page: number) => {
-    SnapshotsApi.fetchAllSnapshots(page).then((promise: any) => {
-      setTotalPages(promise.result.total_pages);
-      setPageNumber(promise.result.page);
-      const newMaxId = promise.result.items[promise.result.items.length - 1].id;
+    SnapshotsApi.fetchAllSnapshots(page).then((promise: Res<SnapshotResult>) => {
+      setTotalPages(promise.result?.total_pages as number);
+      setPageNumber(promise.result?.page as number);
+      const newMaxId = promise.result?.items[promise.result?.items?.length - 1].id;
       const odlMaxId = allSnapshots[allSnapshots.length - 1].id;
       console.log(`Max snapshot ID - previous=${odlMaxId}, latest=${newMaxId}`);
       if (newMaxId !== odlMaxId! && allSnapshots.length !== 0) {
@@ -152,14 +154,14 @@ export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): 
     const id2 = snapshots[index2].id.toString();
     setSelectedSnapshotId(snapshots[index].id);
     SnapshotsApi.fetchSnapshot(id1)
-      .then((promise: any) => {
-        setJsonData(promise?.result.data);
+      .then((promise: Res<SnapshotDTO>) => {
+        setJsonData(promise?.result?.data);
       })
       .catch((e) => {
         console.log(e);
       });
     SnapshotsApi.fetchSnapshotResult(id1)
-      .then((promise: any) => {
+      .then((promise: Res<object>) => {
         if (promise.result) {
           setResult(promise?.result);
         } else {
@@ -171,7 +173,7 @@ export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): 
       });
     if (id1 !== id2) {
       SnapshotsApi.fetchSnapshotUpdate(id2, id1)
-        .then((promise: any) => {
+        .then((promise: Res<object>) => {
           if (promise.result) {
             setDiffData(promise?.result);
           } else {
@@ -186,7 +188,7 @@ export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): 
     }
   };
   const gitgraphUpdate = () => {
-    const newArray = (allSnapshots as any[])?.map((res, index) => {
+    const newArray = allSnapshots.map((res, index) => {
       return Object.assign(res, { isSelected: index === selectedSnapshotIndex });
     });
     setAllSnapshots(newArray);

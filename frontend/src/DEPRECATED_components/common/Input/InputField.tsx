@@ -2,12 +2,11 @@ import { IconType, InputProps } from "../../../DEPRECATED_common/DEPRECATED_inte
 
 import React, { ChangeEventHandler } from "react";
 import { classNames } from "../../../utils/classnames";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Input.module.scss";
 
 const InputField = (props: InputProps) => {
   const {
-    fieldName,
-    newLineBetween,
     value,
     onChange,
     typeOfField,
@@ -21,7 +20,7 @@ const InputField = (props: InputProps) => {
     ...restProps
   } = props;
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    if(onChange) {
+    if (onChange) {
       onChange(event.target.value, event);
     }
   };

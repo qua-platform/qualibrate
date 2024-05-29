@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { Popup } from "../DEPRECATED_common/DEPRECATED_interfaces/Popup";
-// import { any } from "../DEPRECATED_common/DEPRECATED_enum/any";
 import noop from "../DEPRECATED_common/helpers";
-// import { registeredPopups } from "../routing/DEPRECATEDpopups";
 import { useFlexLayoutContext } from "../routing/flexLayout/FlexLayoutContext";
 import useSwitch from "@react-hook/switch";
 
 interface InterfaceContextProps {
   actions: {
-    openPopup: (id: any) => void;
-    closeCurrentPopup: (id: any) => void;
+    openPopup: (id: number | string) => void;
+    closeCurrentPopup: (id: number | string) => void;
     toggleSystemInfoVisibility: () => void;
-    getPopup: (id: any) => void;
-    getActivePopup: () => JSX.Element | null | undefined;
+    getPopup: (id: number | string) => void;
+    getActivePopup: () => ReactElement | null | undefined;
   };
 
   values: {
@@ -20,7 +18,7 @@ interface InterfaceContextProps {
     systemInfoVisible: boolean;
   };
 
-  openedPopupIDs: any[] | undefined;
+  openedPopupIDs: (string | number)[] | undefined;
 }
 
 const InterfaceContext = React.createContext<InterfaceContextProps>({
@@ -45,36 +43,22 @@ interface InterfaceContextProviderProps {
 export function InterfaceContextProvider(props: InterfaceContextProviderProps): React.ReactElement {
   const { children } = props;
   // const [popups] = useState<Popup[]>(registeredPopups);
-  const registeredPopups: any[] = [];
-  const [openedPopupIDs, setCurrentPopupIDs] = useState<any[] | undefined>(undefined);
-  const [openedPopupId, setCurrentPopupId] = useState<any | undefined>(undefined);
+  const registeredPopups: Popup[] = [];
+  const [openedPopupIDs, setCurrentPopupIDs] = useState<(string | number)[] | undefined>(undefined);
+  const [openedPopupId, setCurrentPopupId] = useState<string | number | undefined>(undefined);
 
   const [systemInfoVisible, toggleSystemInfoVisibility] = useSwitch(false);
 
   const { activeTabsetName, activeTab } = useFlexLayoutContext();
 
-  const openPopup = (id: any) => {
-    const activePopup = registeredPopups.find((p: any) => p.id === id);
+  const openPopup = (id: string | number) => {
+    const activePopup = registeredPopups.find((p: Popup) => p.id === id);
     if (activeTabsetName && activePopup?.frameId !== activeTabsetName) {
       return;
     }
 
     setCurrentPopupId(id);
-    // setCurrentPopupIDs((prev) => {
-    //   const IDs = prev ? [...prev] : [];
-    //
-    //   IDs.push(id);
-    //
-    //   return IDs;
-    // });
   };
-
-  // const closeCurrentPopup = (id: any) => {
-  //   setCurrentPopupIDs((prev) => {
-  //     return prev?.filter((p) => p !== id);
-  //   });
-  // };
-
   const closeCurrentPopup = () => {
     setCurrentPopupId(undefined);
   };
@@ -87,7 +71,7 @@ export function InterfaceContextProvider(props: InterfaceContextProviderProps): 
     });
   }, [activeTabsetName, activeTab]);
 
-  const getPopup = (targetId: any) => {
+  const getPopup = (targetId: string | number) => {
     const isVisible = !!openedPopupIDs?.find((id) => id === targetId);
 
     const popup = isVisible ? registeredPopups?.find(({ id }) => id === targetId)?.component : null;

@@ -1,6 +1,6 @@
 import React, { RefObject, useState } from "react";
 
-const useKeyPress = function (targetKey: string, ref: RefObject<HTMLInputElement>, callback: () => void) {
+const useKeyPress = function(targetKey: string, ref: RefObject<HTMLInputElement>, callback: () => void) {
   const [keyPressed, setKeyPressed] = useState(false);
 
   function downHandler({ key }: { key: string }) {

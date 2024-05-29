@@ -12,7 +12,7 @@ import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext);
-  const [showPopup, setShowPopup] = useState(false);
+  const [, setShowPopup] = useState(false);
   const [minify, setMinify] = React.useState(true);
   const containerClassName = classNames(styles.sidebarMenu, !minify && styles.opened);
   const hideSideMenuItems = false;

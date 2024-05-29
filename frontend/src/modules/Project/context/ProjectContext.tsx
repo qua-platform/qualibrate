@@ -21,7 +21,7 @@ interface ProjectContextProviderProps {
   children: React.ReactNode;
 }
 
-export function ProjectContextProvider(props: ProjectContextProviderProps): React.ReactElement {
+export function ProjectContextProvider(props: ProjectContextProviderProps): React.ReactNode {
   const [activeProject, setActiveProject] = useState<ProjectDTO | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
 
@@ -29,6 +29,8 @@ export function ProjectContextProvider(props: ProjectContextProviderProps): Reac
     const { isOk, error, result } = await ProjectViewApi.fetchAllProjects();
     if (isOk) {
       setAllProjects(result!);
+    } else if (error) {
+      console.log(error);
     }
   }, []);
 
@@ -36,6 +38,8 @@ export function ProjectContextProvider(props: ProjectContextProviderProps): Reac
     const { isOk, error, result } = await ProjectViewApi.fetchActiveProject();
     if (isOk) {
       setActiveProject(result!);
+    } else if (error) {
+      console.log(error);
     }
   }, []);
 

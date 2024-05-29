@@ -3,10 +3,11 @@
   background-color: var(--background-color);
   padding: 50px 70px;
 
-  @media (max-width: 900px) {
+  @media (width <= 900px) {
     padding: 40px 30px;
   }
-  @media (max-width: 700px) {
+
+  @media (width <= 700px) {
     padding: 30px 20px;
   }
 }
@@ -20,7 +21,6 @@
 
 .selectProjectFrame {
   flex: 0.6;
-
   height: calc(100% - 125px);
   overflow-y: scroll;
 }
@@ -45,14 +45,6 @@
   position: absolute;
   bottom: 50px;
   left: 70px;
-}
-.settingsIcon {
-  display: flex;
-  column-gap: 30px;
-  position: absolute;
-  bottom: 0;
-  left: 266px;
-  cursor: pointer;
 }
 
 .searchJobField {

@@ -1,10 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 import SidebarMenu from "../../modules/SidebarMenu/SidebarMenu";
 import { classNames } from "../../utils/classnames";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./styles/Layout.module.scss";
 import ToastComponent from "../../modules/toastModule/ToastComponent";
-import GlobalThemeContext from "../../modules/themeModule/GlobalThemeContext";
 import QUAlibrateLogoIcon from "../Icons/QUAlibrateLogoIcon";
+import { useGlobalThemeContext } from "../../modules/themeModule/GlobalThemeContext";
 
 const EmptyPlaceholder = (
   <div className={styles.emptyPlaceholder}>
@@ -14,11 +15,11 @@ const EmptyPlaceholder = (
 
 interface Props {
   className?: string;
-  children?: React.ReactNode;
+  children?: React.JSX.Element;
 }
 
 const MainLayout = ({ className, children }: Props) => {
-  const { pinSideMenu } = useContext(GlobalThemeContext);
+  const { pinSideMenu } = useGlobalThemeContext();
 
   return (
     <div className={styles.wrapper}>

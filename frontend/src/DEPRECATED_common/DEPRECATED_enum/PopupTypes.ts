@@ -7,8 +7,3 @@ export enum PopupTypes {
   CHANGE_ORGANISATION_NAME = "change_organisation_name",
   ADD_USER = "add_user",
 }
-
-export enum PopupModes {
-  SIDE_VIEW = "popup_side_view",
-  CENTER_VIEW = "popup_center_view",
-}

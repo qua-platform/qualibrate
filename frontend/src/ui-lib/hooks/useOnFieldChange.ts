@@ -5,6 +5,6 @@ export default function useOnFieldChange<D, F extends keyof D>(setData: Dispatch
     (field: F) => (value: D[F]) => {
       setData((old) => ({ ...old, [field]: value }));
     },
-    [setData]
+    [setData],
   );
 }

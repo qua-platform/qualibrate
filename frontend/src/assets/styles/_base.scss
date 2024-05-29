@@ -17,28 +17,31 @@
 @mixin popupStyle {
   background: var(--popup-background);
   border: 1px solid var(--border-color);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 30%);
   box-sizing: border-box;
   color: var(--font);
   padding: 30px 40px;
 }
+
 @mixin popup {
   @include popupStyle();
+
   position: absolute;
   height: 100vh;
   right: 0;
   top: 0;
   width: 480px;
-
   z-index: 1;
 }
-// todo remove
+
 @mixin module_page {
   display: flex;
   flex: 1;
   flex-direction: column;
   height: 100%;
+
   @include colGap(10px);
+
   box-sizing: border-box;
   background-color: var(--background-color);
   padding: 25px 40px;
@@ -58,6 +61,7 @@
   outline: none;
   width: 100%;
   letter-spacing: 0.05em;
+
   &:focus {
     border: 1px solid var(--input-outline);
   }
@@ -85,13 +89,13 @@
 }
 
 @mixin colGap($value) {
-  & > * + * {
+  > * + * {
     margin-top: $value;
   }
 }
 
 @mixin rowGap($value) {
-  & > * + * {
+  > * + * {
     margin-left: $value;
   }
 }

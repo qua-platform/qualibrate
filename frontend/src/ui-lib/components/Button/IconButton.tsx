@@ -21,7 +21,7 @@ const IconButton: React.FC<IconButtonProps> = ({ icon: Icon, title, onClick, cla
   const isHovered = useHover(buttonRef);
   const color = useMemo(
     () => (isBlue ? (isHovered ? BLUE_ICON_BUTTON_HOVER_TEXT : BLUE_ICON_BUTTON_TEXT) : isHovered ? ACTIVE_TEXT : BODY_FONT),
-    [isBlue, isHovered]
+    [isBlue, isHovered],
   );
 
   if (status && isPending(status)) {

@@ -1,5 +1,3 @@
-import isEmpty from "../isEmpty";
-
 // export type ValidateFunc<V> = (val: V, validator?: Validator) => Validator;
 
 export type ValidatorResponse = {
@@ -13,6 +11,7 @@ export const OK_RESPONSE: ValidatorResponse = {
   isOk: true,
   errors: {},
 };
+
 export class Validator {
   private result: ValidatorResponse = { isOk: true, errors: {} };
 
@@ -47,12 +46,12 @@ export class Validator {
   //   this.result.errors[field] = err || "Error";
   // };
 
-  checkEmpty = (value: string | undefined, field: string): void => {
-    if (isEmpty(value)) {
-      this.result.isOk = false;
-      this.setError(field, "Shouldn`t be empty");
-    }
-  };
+  // checkEmpty = (value: string | undefined, field: string): void => {
+  //   if (isEmpty(value)) {
+  //     this.result.isOk = false;
+  //     this.setError(field, "Shouldn`t be empty");
+  //   }
+  // };
 
   // checkJsonSyntax = (value: string): void => {
   //   try {

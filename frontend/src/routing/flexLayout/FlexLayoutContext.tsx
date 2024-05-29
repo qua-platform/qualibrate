@@ -1,36 +1,36 @@
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, { PropsWithChildren, ReactElement, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 import * as FlexLayout from "flexlayout-react";
+import { Model } from "flexlayout-react";
 
 import { APP_URL } from "../../DEPRECATED_common/modules";
 import FlexLayoutBuilder from "./FlexLayoutBuilder";
-import { Model } from "flexlayout-react";
 import { ModuleKey } from "../ModulesRegistry";
 import { useNavigate } from "react-router-dom";
 
 interface IFlexLayoutContext {
   openTab: (tab: ModuleKey) => void;
   checkIsEmpty: () => void;
-  getActiveTabset: () => void;
-  getActiveTabsetName: () => void;
-  flexLayoutListener: (action: FlexLayout.Action) => void;
+  getActiveTabset?: () => void;
+  getActiveTabsetName?: () => void;
+  flexLayoutListener: (action: FlexLayout.Action) => FlexLayout.Action;
   model: Model;
   activeTab: null | ModuleKey;
   activeTabsetName: string | null;
   activeTabsetId: null | number;
 }
 
-const FlexLayoutContext = React.createContext<IFlexLayoutContext | any>(null);
+const FlexLayoutContext = React.createContext<IFlexLayoutContext | null>(null);
 
-export const useFlexLayoutContext = (): IFlexLayoutContext => useContext<IFlexLayoutContext>(FlexLayoutContext);
+export const useFlexLayoutContext = (): IFlexLayoutContext =>
+  useContext<IFlexLayoutContext | null>(FlexLayoutContext) as IFlexLayoutContext;
 
-type Props = PropsWithChildren<any>;
-
-export function FlexLayoutContextProvider(props: Props): React.ReactElement {
+export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | React.JSX.Element>): ReactElement {
+  const { children } = props;
   const navigate = useNavigate();
   const LayoutBuilder = useRef(new FlexLayoutBuilder());
   const [model, setModel] = useState(LayoutBuilder.current.model);
   const [activeTab, setActiveTab] = useState<null | ModuleKey>(null);
-  const [activeTabsetName, setActiveTabsetName] = useState(null);
+  const [activeTabsetName, setActiveTabsetName] = useState<string | null>(null);
   useEffect(() => {
     openTab("data");
     localStorage.setItem("flexModel", JSON.stringify(model.toJson()));
@@ -47,17 +47,17 @@ export function FlexLayoutContextProvider(props: Props): React.ReactElement {
     LayoutBuilder.current.openNewTab(tab);
     setModel(LayoutBuilder.current.model);
     setActiveTab(tab);
-    setActiveTabsetName(activeTab as any);
+    setActiveTabsetName(activeTab as string);
   }, []);
 
   const [activeTabsetId, setActiveTabsetId] = useState(null);
 
   const flexLayoutListener = useCallback(
     (props: FlexLayout.Action) => {
-      const tabName = model
+      const tabName: string = model
         .getActiveTabset()
         ?.getChildren()
-        // @ts-ignore TODO Fix this
+        // @ts-expect-error TODO Fix this
         .find(({ _attributes }) => _attributes.id === props.data.tabNode)?._renderedName;
 
       setActiveTabsetId(props.data.tabNode);
@@ -83,7 +83,7 @@ export function FlexLayoutContextProvider(props: Props): React.ReactElement {
         activeTabsetId,
       }}
     >
-      {props.children}
+      {children}
     </FlexLayoutContext.Provider>
   );
 }

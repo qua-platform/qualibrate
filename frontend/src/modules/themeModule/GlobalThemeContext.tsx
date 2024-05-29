@@ -1,16 +1,20 @@
-import React, { PropsWithChildren, useCallback, useState } from "react";
+import React, { ReactNode, useCallback, useContext, useState } from "react";
 import { getColorTheme, Theme, toggleColorTheme } from "./themeHelper";
 
 interface GlobalThemeContextState {
   theme: Theme;
   toggleTheme: () => void;
   pinSideMenu: boolean;
-  setPinSideMenu: () => void;
+  setPinSideMenu: (value: boolean) => void;
 }
 
-const GlobalThemeContext = React.createContext<GlobalThemeContextState | any>(null);
+interface GlobalThemeContextProviderProps {
+  children?: ReactNode | undefined;
+}
 
-export function GlobalThemeContextProvider(props: PropsWithChildren<any>): React.ReactElement {
+const GlobalThemeContext = React.createContext<GlobalThemeContextState | null>(null);
+
+export function GlobalThemeContextProvider(props: GlobalThemeContextProviderProps): React.ReactNode {
   const { children } = props;
 
   const [theme, _setTheme] = useState<Theme>(getColorTheme());
@@ -31,6 +35,14 @@ export function GlobalThemeContextProvider(props: PropsWithChildren<any>): React
       {children}
     </GlobalThemeContext.Provider>
   );
+}
+
+export function useGlobalThemeContext(): GlobalThemeContextState {
+  const context = useContext(GlobalThemeContext);
+  if (!context) {
+    throw new Error("useGlobalThemeContext must be used within a GlobalThemeContextProvider");
+  }
+  return context;
 }
 
 export default GlobalThemeContext;

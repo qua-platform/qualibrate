@@ -18,7 +18,7 @@ const BlueButton: React.FC<BlueButtonProps> = (props) => {
         isBig && styles.big,
         isSecondary ? styles.secondary : styles.primary,
         isCircle && styles.isCircle,
-        className
+        className,
       )}
       {...restProps}
     >

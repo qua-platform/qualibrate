@@ -14,7 +14,7 @@ export const formatDate = (receivedDate?: string | Date, onlyTime?: boolean) => 
 
   const firstPart = !onlyTime ? `${day}/${month}/${year}` : "";
   const secondPart = `${transformTimePart(date.getHours())}:${transformTimePart(date.getMinutes())}:${transformTimePart(
-    date.getSeconds()
+    date.getSeconds(),
   )}`;
 
   return `${firstPart} ${secondPart}`;

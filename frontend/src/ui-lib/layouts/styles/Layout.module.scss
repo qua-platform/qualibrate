@@ -13,6 +13,7 @@
   display: flex;
   flex-direction: column;
 }
+
 .addLeftMargin {
   margin-left: 133px;
 }
@@ -20,6 +21,7 @@
 .layout {
   flex: 1;
   position: relative;
+
   --color-text: black;
   --color-background: var(--selected-tab);
   --color-base: white;
@@ -31,7 +33,7 @@
   --color-6: #d4d4d4;
   --color-drag1: #5f86c4;
   --color-drag2: #77a677;
-  --color-drag1-background: rgba(95, 134, 196, 0.1);
+  --color-drag1-background: rgb(95 134 196 / 10%);
 }
 
 .header {
@@ -52,12 +54,9 @@
   color: var(--font) !important;
   border-bottom: 2px solid var(--layout-background);
   min-width: 100px;
-
   padding: 5px 12px;
-
   position: relative;
   right: 5px;
-
   text-align: center;
   text-transform: capitalize;
   font-size: 0.8em;
@@ -76,7 +75,6 @@
 
 .emptyPlaceholder {
   height: 100%;
-
   display: flex;
   justify-content: center;
   align-items: center;

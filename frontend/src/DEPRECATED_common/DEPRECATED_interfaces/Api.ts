@@ -3,5 +3,3 @@ export type Res<P = Record<string, never>> = {
   error?: string | { detail: string };
   result?: P;
 };
-
-export type PRes<P = Record<string, never>> = Promise<Res<P>>;

@@ -24,8 +24,9 @@
 
 .input {
   @include input;
+
   &.error {
-    border: 1px solid rgba(255, 36, 99, 0.3);
+    border: 1px solid rgb(255 36 99 / 30%);
   }
 }
 
@@ -33,12 +34,21 @@
   color: var(--body-font);
 }
 
+.inputTitle {
+  color: var(--sub-text-color);
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+  margin-bottom: 8px;
+  position: relative;
+  white-space: nowrap;
+}
+
 .inputController {
   flex: 1;
   display: flex;
   align-items: center;
-  row-gap: 15px;
-  column-gap: 40px;
+  gap: 15px 40px;
   margin-bottom: 30px;
   flex-wrap: wrap;
 
@@ -50,6 +60,7 @@
       font-size: 14px;
     }
   }
+
   &.newLineBetween {
     display: unset;
   }
@@ -59,25 +70,9 @@
   margin-bottom: 70px;
 }
 
-.inputTitle {
-  color: var(--sub-text-color);
-  display: flex;
-  align-items: center;
-
-  column-gap: 10px;
-  margin-bottom: 8px;
-
-  position: relative;
-  white-space: nowrap;
-}
 
 .inputName:not(:empty) {
   width: 85px;
-}
-
-.inputIcon {
-  display: flex;
-  align-items: center;
 }
 
 .inputField {
@@ -89,7 +84,6 @@
 .inputSelect {
   &::after {
     content: "▼";
-
     font-size: 1rem;
     top: 10px;
     right: 10px;
@@ -100,6 +94,7 @@
 .addBottomPadding {
   padding-bottom: 30px;
 }
+
 .lockValue {
   flex: 150px;
   display: flex;

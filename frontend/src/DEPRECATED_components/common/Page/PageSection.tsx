@@ -1,5 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import { classNames } from "../../../utils/classnames";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Page.module.scss";
 
 interface Props {

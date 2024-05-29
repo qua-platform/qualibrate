@@ -1,9 +1,0 @@
-@import "../../../../assets/styles/_base.scss";
-.popup {
-  @include popupStyle();
-  z-index: 10;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-}

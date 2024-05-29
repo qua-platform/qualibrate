@@ -1,5 +1,6 @@
 import { PROJECT_LAST_UPDATES_VISIBLE } from "../../../dev.config";
 import React from "react";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 
 interface Props {
@@ -17,13 +18,11 @@ const ProjectInfo = ({ name, date }: Props) => {
     <div className={styles.projectInfo}>
       <div className={styles.projectThumbnail}>
         <div className={styles.projectThumbnailBackground}></div>
-        <div className={styles.projectThumbnailText}>{extractAbr(name)}</div>
+        <div>{extractAbr(name)}</div>
       </div>
       <div className={styles.projectDetails}>
         <div className={styles.projectName}>{name || ""}</div>
-        {
-          PROJECT_LAST_UPDATES_VISIBLE && <div className={styles.projectDate}>Last updates {(date as any) || "unknown"}</div> //TODO Fix this any
-        }
+        {PROJECT_LAST_UPDATES_VISIBLE && <div className={styles.projectDate}>Last updates {date?.toLocaleDateString() || "unknown"}</div>}
       </div>
     </div>
   );

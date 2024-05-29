@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-
 import { BLUE_BUTTON } from "../../utils/colors";
 import { ButtonProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/ButtonProps";
 import { ButtonTypes } from "../../DEPRECATED_common/DEPRECATED_interfaces/ButtonTypes";
@@ -7,22 +6,18 @@ import InterfaceContext from "../../DEPRECATED_context/InterfaceContext";
 import actionButtonStyles from "../buttons/styles/ActionButton.module.scss";
 import { classNames } from "../../utils/classnames";
 import plainButtonStyles from "../buttons/styles/PlainButton.module.scss";
-import sortButtonStyles from "../buttons/styles/SortButton.module.scss";
 import styles from "../buttons/styles/ButtonWrapper.module.scss";
-import {ArrowIcon} from "../../ui-lib/Icons/ArrowIcon";
 
 const defaultClassName = styles.button;
 const actionButtonClassName = actionButtonStyles.actionButton;
 const plainButtonClassName = plainButtonStyles.plainButton;
-const sortButtonClassName = sortButtonStyles.sortButton;
 
-const getButtonStyles = (type: ButtonTypes, customClassName?: string, sortButton?: boolean) => {
+const getButtonStyles = (type: ButtonTypes, customClassName?: string) => {
   return classNames(
     customClassName,
     defaultClassName,
     type === ButtonTypes.PLAIN && plainButtonClassName,
-    type === ButtonTypes.ACTION && actionButtonClassName,
-    sortButton && sortButtonClassName
+    type === ButtonTypes.ACTION && actionButtonClassName
   );
 };
 
@@ -30,7 +25,7 @@ const getButtonStyles = (type: ButtonTypes, customClassName?: string, sortButton
  * This component is overcomplicated. Use buttons from:
  * ./entropy_frontend_ui/src/ui-lib/components/Button
  *
- * If you just need a clickable wrap - use <button> all default styles are reseted
+ * If you just need a clickable wrap - use <button> all default styles are already reset
  *
  */
 const DEPRECATEDButton: React.FunctionComponent<ButtonProps> = ({
@@ -43,9 +38,7 @@ const DEPRECATEDButton: React.FunctionComponent<ButtonProps> = ({
   textColor,
   hideText = false,
   onSubmitType = "button",
-  sortButton,
   showPopup,
-  iconRotation = 180,
   disabled = false,
   ...restProps
 }: ButtonProps) => {
@@ -56,14 +49,11 @@ const DEPRECATEDButton: React.FunctionComponent<ButtonProps> = ({
   const renderButtonContent = () => {
     const textContent = !hideText ? actionName : "";
 
-    const sortIcon = sortButton && <ArrowIcon options={{ rotationDegree: iconRotation }} />;
-
     if (iconSide === "RIGHT") {
       return (
         <>
           {textContent || ""}
           {icon}
-          {sortIcon}
         </>
       );
     }
@@ -72,7 +62,6 @@ const DEPRECATEDButton: React.FunctionComponent<ButtonProps> = ({
       <>
         c{icon}
         {textContent || ""}
-        {sortIcon}
       </>
     );
   };
@@ -98,7 +87,7 @@ const DEPRECATEDButton: React.FunctionComponent<ButtonProps> = ({
   return (
     <button
       onClick={handleClick}
-      className={getButtonStyles(type, customClassName, sortButton)}
+      className={getButtonStyles(type, customClassName)}
       style={{
         ...enabledConfig,
         color: textColor,

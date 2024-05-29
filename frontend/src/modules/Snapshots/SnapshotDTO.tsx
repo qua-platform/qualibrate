@@ -1,8 +1,8 @@
 export interface SnapshotDTO {
   created_at: string;
   id: number;
-  result?: any;
-  data?: any;
+  result?: object;
+  data?: object;
   metadata?: {
     data_path: string;
     name: string;

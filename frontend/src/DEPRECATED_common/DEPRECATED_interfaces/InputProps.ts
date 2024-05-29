@@ -1,9 +1,7 @@
 import React, { ChangeEvent } from "react";
-import { InputTypes } from "./InputTypes";
 
 export enum IconType {
   INNER = "INNER",
-  // UPPER = "UPPER",
 }
 
 export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> & {
@@ -11,7 +9,7 @@ export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onCh
   name?: string;
   inputClassName?: string;
   icon?: React.ReactElement;
-  type?: InputTypes;
+  // type?: InputTypes;
   typeOfField?: string;
   error?: string | undefined;
   label?: string;

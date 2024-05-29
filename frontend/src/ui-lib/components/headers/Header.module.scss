@@ -8,9 +8,12 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
+
   @include rowGap(0.5rem);
+
   font-size: $header_font_size;
-  font-family: var(--font-family-cond), Monospace, serif;
+  font-family: var(--font-family-cond), monospace, serif;
+
   &.withBtmMargin {
     margin-bottom: 32px;
   }

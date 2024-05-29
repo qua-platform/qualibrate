@@ -4,6 +4,14 @@ import { ALL_SNAPSHOTS, ONE_SNAPSHOT, SNAPSHOT_DIFF, SNAPSHOT_RESULT } from "../
 import { API_METHODS } from "../../../DEPRECATED_common/DEPRECATED_enum/Api";
 import { SnapshotDTO } from "../SnapshotDTO";
 
+export interface SnapshotResult {
+  items: SnapshotDTO[];
+  per_page: number;
+  page: number;
+  total_items: number;
+  total_pages: number;
+}
+
 export class SnapshotsApi extends Api {
   constructor() {
     super();
@@ -13,29 +21,25 @@ export class SnapshotsApi extends Api {
     return this.address + path;
   }
 
-  static fetchAllSnapshots(pageNumber: number): Promise<
-    Res<{
-      items: SnapshotDTO[];
-      per_page: number;
-      total_items: number;
-      total_pages: number;
-    }>
-  > {
+  static fetchAllSnapshots(pageNumber: number): Promise<Res<SnapshotResult>> {
     return this._fetch(this.api(ALL_SNAPSHOTS({ pageNumber })), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }
-  static fetchSnapshot(id: string): Promise<Res<void>> {
+
+  static fetchSnapshot(id: string): Promise<Res<SnapshotDTO>> {
     return this._fetch(this.api(ONE_SNAPSHOT(id)), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }
-  static fetchSnapshotResult(id: string): Promise<Res<void>> {
+
+  static fetchSnapshotResult(id: string): Promise<Res<object>> {
     return this._fetch(this.api(SNAPSHOT_RESULT(id)), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }
-  static fetchSnapshotUpdate(currentId: string, newId: string): Promise<Res<void>> {
+
+  static fetchSnapshotUpdate(currentId: string, newId: string): Promise<Res<object>> {
     return this._fetch(this.api(SNAPSHOT_DIFF(currentId, newId)), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });

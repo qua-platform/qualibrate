@@ -1,5 +1,4 @@
 import { NEW_PROJECT_BUTTON_VISIBLE, READ_OUR_ARTICLES_VISIBLE } from "../../dev.config";
-
 import { ACTIVE_TEXT } from "../../utils/colors";
 import { AddIcon } from "../../ui-lib/Icons/AddIcon";
 import BannerGuide from "./components/BannerGuide";
