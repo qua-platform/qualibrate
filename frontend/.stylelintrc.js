@@ -13,5 +13,7 @@ module.exports = {
     "selector-class-pattern": null,
     "property-no-unknown": null,
     "import-notation": "string",
+    "selector-type-no-unknown": null,
+    "property-no-vendor-prefix": null,
   },
 };
