@@ -1,11 +1,6 @@
 from datetime import datetime
 
 import pytest
-from fastapi.testclient import TestClient
-
-from qualibrate.app import app
-
-client = TestClient(app)
 
 
 @pytest.mark.parametrize("load_type", (0, 1))

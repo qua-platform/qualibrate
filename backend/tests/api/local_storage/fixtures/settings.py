@@ -2,12 +2,14 @@ from pathlib import Path
 from typing import Generator
 
 import pytest
+import tomli_w
 from fastapi.testclient import TestClient
 
 from qualibrate.config import (
     JsonTimelineDBBase,
     QualibrateSettings,
     StorageType,
+    get_config_path,
     get_settings,
 )
 
@@ -33,9 +35,29 @@ def settings(
 
 
 @pytest.fixture
+def settings_path(tmp_path: Path) -> Generator[Path, None, None]:
+    yield tmp_path / "config.toml"
+
+
+@pytest.fixture
+def settings_path_filled(settings: QualibrateSettings, settings_path: Path):
+    with settings_path.open("wb") as fin:
+        tomli_w.dump({"qualibrate": settings.model_dump(mode="json")}, fin)
+    yield settings_path
+
+
+@pytest.fixture
 def client_custom_settings(
+    mocker,
     settings: QualibrateSettings,
+    settings_path_filled: Path,
 ) -> Generator[TestClient, None, None]:
+    get_config_path.cache_clear()
+    mocker.patch(
+        "qualibrate.config.get_config_file", return_value=settings_path_filled
+    )
+    mocker.patch("qualibrate.app.get_settings", return_value=settings)
+
     from qualibrate.app import app
 
     client = TestClient(app)

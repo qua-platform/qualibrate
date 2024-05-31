@@ -2,7 +2,6 @@ import operator
 from datetime import datetime
 from pathlib import Path
 
-import tomli_w
 from fastapi.testclient import TestClient
 
 from qualibrate.config import QualibrateSettings, get_config_path
@@ -25,6 +24,8 @@ def test_project_list(
     )
     response = client_custom_settings.get("/api/projects/list")
     assert response.status_code == 200
+    tz = datetime.now().astimezone().tzinfo
+    last_modified = datetime(2024, 4, 27, 18, 27, 0, tzinfo=tz)
     assert list(sorted(response.json(), key=operator.itemgetter("name"))) == [
         {
             "name": "other_project",
@@ -36,7 +37,7 @@ def test_project_list(
             "name": "project",
             "nodes_number": 9,
             "created_at": default_project_created_at,
-            "last_modified_at": "2024-04-27T18:27:00+03:00",
+            "last_modified_at": last_modified.isoformat(timespec="seconds"),
         },
     ]
 
@@ -74,8 +75,6 @@ def test_project_active_set_same(
     client_custom_settings.app.dependency_overrides[get_config_path] = (
         lambda: config_path
     )
-    with config_path.open("wb") as fin:
-        tomli_w.dump({"qualibrate": settings.model_dump(mode="json")}, fin)
     assert settings.project == "project"
     response = client_custom_settings.post(
         "/api/projects/active", params={"active_project": "project"}
@@ -97,8 +96,6 @@ def test_project_active_set_other(
         lambda: config_path
     )
     (local_storage_path / new_project).mkdir()
-    with config_path.open("wb") as fin:
-        tomli_w.dump({"qualibrate": settings.model_dump(mode="json")}, fin)
     assert settings.project == "project"
     response = client_custom_settings.post(
         "/api/projects/active", params={"active_project": "new_project"}

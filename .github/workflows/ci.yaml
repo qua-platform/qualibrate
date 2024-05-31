@@ -1,0 +1,64 @@
+name: Format; lint; type; tests
+on:
+  pull_request
+
+jobs:
+  frontend-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      id: node-setup
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20.x"
+
+    - uses: actions/cache@v4
+      id: frontend-cache-id
+      with:
+        path: frontend/node_modules
+        key: npm-${{ hashFiles('frontend/**/package-lock.json') }}
+        restore-keys: npm-
+
+    - name: Install npm deps
+      if: steps.frontend-cache-id.outputs.cache-hit != 'true'
+      working-directory: frontend
+      run: npm ci
+
+    - name: Run linter
+      working-directory: frontend
+      run: npm run lint
+
+  backend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "poetry"
+          cache-dependency-path: backend/poetry.lock
+
+      - name: Install python deps
+        run: poetry install --with dev --with test
+        working-directory: backend
+
+      - name: Check python package typing
+        run: poetry run poe type
+        working-directory: backend
+
+      - name: Lint python package
+        run: poetry run poe lint
+        working-directory: backend
+
+      - name: Check format python package
+        run: poetry run poe format
+        working-directory: backend
+
+      - name: Run tests
+        run: poetry run pytest
+        working-directory: backend

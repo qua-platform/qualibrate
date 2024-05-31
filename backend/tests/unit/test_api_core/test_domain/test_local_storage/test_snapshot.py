@@ -41,8 +41,10 @@ def test__read_minified_node_content_node_info_filled(mocker, settings):
 def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
     mocker, settings
 ):
+    ts = 1712932811
+
     class FileStat:
-        st_mtime = 1712932811
+        st_mtime = ts
 
     settings.user_storage.mkdir()
     node_file = settings.user_storage / "node_file.json"
@@ -65,7 +67,7 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
     assert result == {
         "id": 2,
         "parents": [1],
-        "created_at": datetime(2024, 4, 12, 17, 40, 11).astimezone(),
+        "created_at": datetime.fromtimestamp(ts).astimezone(),
     }
     patched_is_file.assert_called_once()
     patched_get_id_local_path.assert_called_once_with(
@@ -78,8 +80,10 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
 def test__read_minified_node_content_node_info_empty_no_id_no_file(
     mocker, settings
 ):
+    ts = 1712932811
+
     class FileStat:
-        st_mtime = 1712932811
+        st_mtime = ts
 
     node_dir = settings.user_storage / "node_dir"
     node_dir.mkdir(parents=True)
@@ -101,7 +105,7 @@ def test__read_minified_node_content_node_info_empty_no_id_no_file(
     assert result == {
         "id": -1,
         "parents": [],
-        "created_at": datetime(2024, 4, 12, 17, 40, 11).astimezone(),
+        "created_at": datetime.fromtimestamp(ts).astimezone(),
     }
     patched_is_file.assert_called_once()
     patched_get_id_local_path.assert_not_called()
