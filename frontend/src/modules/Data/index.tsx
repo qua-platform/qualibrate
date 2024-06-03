@@ -105,10 +105,9 @@ const JSONEditor = ({ title, jsonData, height }: { title: string; jsonData: obje
       style={{
         display: "flex",
         flexDirection: "column",
+        flex: 1,
         color: "#d9d5d4",
         height: height,
-        minWidth: "630px",
-        maxWidth: "100%",
         marginLeft: "20px",
         marginRight: "20px",
       }}
@@ -157,10 +156,11 @@ const DataGUAlibrate = () => {
           <PaginationWrapper numberOfPages={totalPages} setPageNumber={setPageNumber} />
         </div>
         <div className={styles.viewer}>
-          <div>{result && <JSONEditor title={"RESULTS"} jsonData={result} height={"100%"} />}</div>
+          {result && <JSONEditor title={"RESULTS"} jsonData={result} height={"100%"} />}
           <div
             style={{
               overflow: "auto",
+              flex: 1,
             }}
           >
             {jsonData && !diffData && <JSONEditor title={"QUAM"} jsonData={jsonData} height={"100%"} />}

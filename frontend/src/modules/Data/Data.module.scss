@@ -7,19 +7,22 @@
 
 .data {
   min-width: 350px;
+  flex-shrink: 0;
   width: 350px;
   overflow: scroll;
 }
 
 .explorer {
   height: calc(100% - 50px);
+  width: 100%;
   display: flex;
   box-sizing: border-box;
 }
 
 .viewer {
   display: flex;
+  flex-grow: 1;
   border: 1px solid var(--border-color);
   overflow: hidden;
-  max-width: 100%;
+  width: 100%;
 }
