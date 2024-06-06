@@ -4,9 +4,11 @@ version = "0.1.0"
 description = ""
 authors = ["Serwan Asaad <serwan.asaad@quantum-machines.co>"]
 readme = "README.md"
+packages = [{ include = "qualibrate" }]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.8"
+pydantic = "^2.7.3"
 
 
 [build-system]
