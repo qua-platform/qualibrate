@@ -69,3 +69,6 @@ class QualibrationLibrary:
             logger.warning(f'Node "{node.name}" already exists in library, overwriting')
 
         self.nodes[node.name] = node
+
+    def serialize(self):
+        return {"nodes": [node.serialize() for node in self.nodes.values()]}

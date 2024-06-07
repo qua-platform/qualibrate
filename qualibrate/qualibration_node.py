@@ -28,6 +28,13 @@ class QualibrationNode:
                 "Scanning library, aborting further script execution"
             )
 
+    def serialize(self):
+        return {
+            "name": self.name,
+            "parameters": self.parameters.serialize(),
+            "description": self.description,
+        }
+
     def save(self): ...
 
     def _record_state_update(self, attr, val):
