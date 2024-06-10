@@ -1,6 +1,9 @@
-from pathlib import Path
 import logging
-from typing import Optional
+from pathlib import Path
+from typing import Any, Dict, Mapping, Optional
+
+from qualibrate import NodeParameters
+from qualibrate.qualibration_node import QualibrationNode
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +28,7 @@ class QualibrationLibrary:
     active_library: "QualibrationLibrary" = None
 
     def __init__(self, library_folder: Optional[Path] = None, set_active=True):
-        self.nodes = {}
+        self.nodes: Dict[str, QualibrationNode] = {}
 
         if set_active:
             QualibrationLibrary.active_library = self
@@ -40,10 +43,8 @@ class QualibrationLibrary:
         if not append:
             self.nodes = {}
 
+        original_mode = QualibrationNode.mode
         try:
-            from qualibrate import QualibrationNode
-
-            original_mode = QualibrationNode.mode
             QualibrationNode.mode = "library_scan"
 
             for file in sorted(path.iterdir()):
@@ -66,9 +67,18 @@ class QualibrationLibrary:
 
     def add_node(self, node):
         if node.name in self.nodes:
-            logger.warning(f'Node "{node.name}" already exists in library, overwriting')
+            logger.warning(
+                f'Node "{node.name}" already exists in library, overwriting'
+            )
 
         self.nodes[node.name] = node
 
-    def serialize(self):
+    def serialize(self) -> Mapping[str, Any]:
         return {"nodes": [node.serialize() for node in self.nodes.values()]}
+
+    def get_nodes(self) -> Mapping[str, QualibrationNode]:
+        return self.nodes
+
+    def run(
+        self, node: QualibrationNode, input_parameters: NodeParameters, **kwargs
+    ): ...

@@ -1,26 +1,28 @@
 from contextlib import contextmanager
-from typing import Type
+from typing import Any, Mapping, Type
 
-from qualibrate.storage import StorageManager
 from qualibrate import NodeParameters
+from qualibrate.storage import StorageManager
 
 
 class QualibrationNode:
     mode: str = "default"
     storage_manager: StorageManager = None
 
-    def __init__(self, name, parameters_class: Type[NodeParameters], description=None):
+    def __init__(
+        self, name, parameters_class: Type[NodeParameters], description=None
+    ):
         self.name = name
         self.parameters_class = parameters_class
         self.description = description
 
-        self.parameters: NodeParameters = parameters_class()
+        self.parameters: Type[NodeParameters] = parameters_class
         self._state_updates = {}
 
         if self.mode == "library_scan":
             from qualibrate.qualibration_library import (
-                QualibrationLibrary,
                 LibraryScanException,
+                QualibrationLibrary,
             )
 
             QualibrationLibrary.active_library.add_node(self)
@@ -28,7 +30,7 @@ class QualibrationNode:
                 "Scanning library, aborting further script execution"
             )
 
-    def serialize(self):
+    def serialize(self) -> Mapping[str, Any]:
         return {
             "name": self.name,
             "parameters": self.parameters.serialize(),
