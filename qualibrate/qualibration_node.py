@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Any, Mapping, Type
+from typing import Any, Mapping, Type, Optional
 
 from qualibrate import NodeParameters
 from qualibrate.storage import StorageManager
@@ -7,23 +7,27 @@ from qualibrate.storage import StorageManager
 
 class QualibrationNode:
     mode: str = "default"
-    storage_manager: StorageManager = None
+    storage_manager: Optional[StorageManager] = None
 
-    def __init__(
-        self, name, parameters_class: Type[NodeParameters], description=None
-    ):
+    def __init__(self, name, parameters_class: Type[NodeParameters], description=None):
         self.name = name
         self.parameters_class = parameters_class
         self.description = description
 
-        self.parameters: Type[NodeParameters] = parameters_class
+        self.parameters: Optional[NodeParameters] = None
         self._state_updates = {}
+        self.results = {}
 
         if self.mode == "library_scan":
             from qualibrate.qualibration_library import (
                 LibraryScanException,
                 QualibrationLibrary,
             )
+
+            if QualibrationLibrary.active_library is None:
+                raise LibraryScanException(
+                    "Scanning library, but no active library set"
+                )
 
             QualibrationLibrary.active_library.add_node(self)
             raise LibraryScanException(

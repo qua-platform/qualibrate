@@ -25,7 +25,7 @@ def file_is_calibration_node(file: Path):
 
 
 class QualibrationLibrary:
-    active_library: "QualibrationLibrary" = None
+    active_library: Optional["QualibrationLibrary"] = None
 
     def __init__(self, library_folder: Optional[Path] = None, set_active=True):
         self.nodes: Dict[str, QualibrationNode] = {}
@@ -67,9 +67,7 @@ class QualibrationLibrary:
 
     def add_node(self, node):
         if node.name in self.nodes:
-            logger.warning(
-                f'Node "{node.name}" already exists in library, overwriting'
-            )
+            logger.warning(f'Node "{node.name}" already exists in library, overwriting')
 
         self.nodes[node.name] = node
 
