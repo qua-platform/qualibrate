@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import Annotated, Any, Callable, Mapping, Optional, Union
 
 from fastapi import Depends
-from pydantic import BaseModel, ImportString
+from pydantic import BaseModel, DirectoryPath, ImportString
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from qualibrate import QualibrationNode
+from qualibrate.qualibration_library import QualibrationLibrary
 
 from qualibrate_runner.core.models.last_run import LastRun, RunStatus
 from qualibrate_runner.utils.config_references import resolve_references
@@ -41,9 +41,10 @@ class State(BaseModel):
 class QualibrateRunnerSettings(BaseSettings):
     model_config = SettingsConfigDict(frozen=True)
 
-    calibration_nodes_resolver: ImportString[
-        Callable[[], Mapping[str, QualibrationNode]]
+    calibration_library_resolver: ImportString[
+        Callable[[Path], QualibrationLibrary]
     ]
+    calibration_library_folder: DirectoryPath
 
 
 def _get_config_file_from_dir(

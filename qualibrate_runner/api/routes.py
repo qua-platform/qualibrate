@@ -53,7 +53,7 @@ def get_nodes_list(
 def get_node(
     node: Annotated[QualibrationNode, Depends(get_qnode)],
 ) -> Mapping[str, Any]:
-    return node.serialize()
+    return cast(Mapping[str, Any], node.serialize())
 
 
 @base_router.get("/last_run")

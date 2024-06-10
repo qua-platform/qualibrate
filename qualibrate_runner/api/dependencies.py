@@ -1,7 +1,8 @@
 from functools import cache
-from typing import Annotated, Mapping
+from typing import Annotated, Mapping, cast
 
 from fastapi import Depends, HTTPException
+from qualibrate.qualibration_library import QualibrationLibrary
 from qualibrate.qualibration_node import QualibrationNode
 
 from qualibrate_runner.config import (
@@ -17,10 +18,19 @@ def get_state() -> State:
 
 
 @cache
-def get_nodes(
+def get_library(
     settings: Annotated[QualibrateRunnerSettings, Depends(get_settings)],
+) -> QualibrationLibrary:
+    return settings.calibration_library_resolver(
+        settings.calibration_library_folder
+    )
+
+
+@cache
+def get_nodes(
+    library: Annotated[QualibrationLibrary, Depends(get_library)],
 ) -> Mapping[str, QualibrationNode]:
-    return settings.calibration_nodes_resolver()
+    return cast(Mapping[str, QualibrationNode], library.get_nodes())
 
 
 def get_node(
