@@ -13,13 +13,13 @@ types_mapping = {
 
 class NodeParameters(BaseModel):
     def serialize(self) -> list[Mapping[str, Any]]:
-        schema = self.schema()
+        schema = self.model_json_schema()
         # list type is array
         return [
             {
                 "name": prop,
                 "param_type": types_mapping[value["type"]],
-                "initial_value": value.get("default")
+                "initial_value": value.get("default"),
             }
             for prop, value in schema["properties"].items()
         ]
