@@ -1,6 +1,4 @@
-import numpy as np
 from qualibrate.node_parameters import NodeParameters
-from pydantic import Field
 
 
 def test_parameters_empty_serialization():
@@ -10,7 +8,11 @@ def test_parameters_empty_serialization():
     parameters = Parameters()
     serialized = parameters.serialize()
 
-    assert serialized == []
+    assert serialized == {
+        "properties": {},
+        "title": "Parameters",
+        "type": "object",
+    }
 
 
 def test_parameters_default_types_serialization():
@@ -23,9 +25,21 @@ def test_parameters_default_types_serialization():
     parameters = Parameters()
     serialized = parameters.serialize()
 
-    assert serialized == [
-        {"name": "bool_val", "param_type": "bool", "initial_value": False},
-        {"name": "int_val", "param_type": "int", "initial_value": 0},
-        {"name": "float_val", "param_type": "float", "initial_value": 0.0},
-        {"name": "str_val", "param_type": "str", "initial_value": ""},
-    ]
+    assert serialized == {
+        "properties": {
+            "bool_val": {
+                "default": False,
+                "title": "Bool Val",
+                "type": "boolean",
+            },
+            "int_val": {"default": 0, "title": "Int Val", "type": "integer"},
+            "float_val": {
+                "default": 0.0,
+                "title": "Float Val",
+                "type": "number",
+            },
+            "str_val": {"default": "", "title": "Str Val", "type": "string"},
+        },
+        "title": "Parameters",
+        "type": "object",
+    }
