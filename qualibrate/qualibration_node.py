@@ -55,7 +55,7 @@ class QualibrationNode:
                 from quam.core import QuamBase
 
                 setattr_func = QuamBase.__setattr__
-                QuamBase.__setattr__ = self._record_setattr()
+                QuamBase.__setattr__ = self._record_state_update()
                 yield
             finally:
                 QuamBase.__setattr__ = setattr_func
