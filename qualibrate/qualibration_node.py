@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Type
+from typing import Type, Mapping, Any
 
 from qualibrate.storage import StorageManager
 from qualibrate import NodeParameters
@@ -14,7 +14,7 @@ class QualibrationNode:
         self.parameters_class = parameters_class
         self.description = description
 
-        self.parameters: NodeParameters = parameters_class()
+        self.parameters: Type[NodeParameters] = parameters_class
         self._state_updates = {}
 
         if self.mode == "library_scan":
@@ -28,7 +28,7 @@ class QualibrationNode:
                 "Scanning library, aborting further script execution"
             )
 
-    def serialize(self):
+    def serialize(self) -> Mapping[str, Any]:
         return {
             "name": self.name,
             "parameters": self.parameters.serialize(),
