@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Mapping, Any
+from typing import Any, Dict, Mapping, Optional
 
 from qualibrate import NodeParameters
 from qualibrate.qualibration_node import QualibrationNode
@@ -67,7 +67,9 @@ class QualibrationLibrary:
 
     def add_node(self, node):
         if node.name in self.nodes:
-            logger.warning(f'Node "{node.name}" already exists in library, overwriting')
+            logger.warning(
+                f'Node "{node.name}" already exists in library, overwriting'
+            )
 
         self.nodes[node.name] = node
 
@@ -79,5 +81,4 @@ class QualibrationLibrary:
 
     def run(
         self, node: QualibrationNode, input_parameters: NodeParameters, **kwargs
-    ):
-        ...
+    ): ...
