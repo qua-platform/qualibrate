@@ -35,9 +35,10 @@ class QualibrationNode:
             )
 
     def serialize(self) -> Mapping[str, Any]:
+
         return {
             "name": self.name,
-            "parameters": self.parameters.serialize(),
+            "parameters": self.parameters_class.serialize(),
             "description": self.description,
         }
 
