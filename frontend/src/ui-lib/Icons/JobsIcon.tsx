@@ -1,5 +1,5 @@
 import React from "react";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import { ACCENT_COLOR_LIGHT } from "../../utils/colors";
 
 export const JobsIcon: React.FunctionComponent<IconProps> = ({ width = 26, height = 24, color = ACCENT_COLOR_LIGHT }) => (

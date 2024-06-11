@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { GREY_FONT } from "../../utils/colors";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 
 function ThemeIcon({
   isLight = true,

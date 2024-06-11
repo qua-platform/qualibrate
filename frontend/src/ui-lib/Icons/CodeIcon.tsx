@@ -1,6 +1,6 @@
 import { MENU_TEXT_COLOR } from "../../utils/colors";
 
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import React from "react";
 
 export const CodeIcon: React.FunctionComponent<IconProps> = ({ width = 24, height = 18, color = MENU_TEXT_COLOR }) => (

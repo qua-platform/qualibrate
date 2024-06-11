@@ -1,5 +1,5 @@
 import { ACCENT_COLOR_LIGHT } from "../../utils/colors";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import React from "react";
 
 export const ProjectIcon: React.FunctionComponent<IconProps> = ({ width = 100, height = 102, color = ACCENT_COLOR_LIGHT }) => (

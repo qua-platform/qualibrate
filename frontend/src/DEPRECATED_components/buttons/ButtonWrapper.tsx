@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { BLUE_BUTTON } from "../../utils/colors";
-import { ButtonProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/ButtonProps";
-import { ButtonTypes } from "../../DEPRECATED_common/DEPRECATED_interfaces/ButtonTypes";
-import InterfaceContext from "../../DEPRECATED_context/InterfaceContext";
+import { ButtonProps } from "../../common/interfaces/ButtonProps";
+import { ButtonTypes } from "../../common/interfaces/ButtonTypes";
+import InterfaceContext from "../../contexts/InterfaceContext";
 import actionButtonStyles from "../buttons/styles/ActionButton.module.scss";
 import { classNames } from "../../utils/classnames";
 import plainButtonStyles from "../buttons/styles/PlainButton.module.scss";

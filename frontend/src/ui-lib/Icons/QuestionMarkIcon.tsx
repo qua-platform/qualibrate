@@ -1,5 +1,5 @@
 import React from "react";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import { BLUE_BUTTON } from "../../utils/colors";
 
 export default function QuestionMarkIcon({ width = 22, height = 22, color = BLUE_BUTTON }: IconProps): React.ReactElement {

@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useState } from "react";
-import { Popup } from "../DEPRECATED_common/DEPRECATED_interfaces/Popup";
-import noop from "../DEPRECATED_common/helpers";
+import { Popup } from "../common/interfaces/Popup";
+import noop from "../common/helpers";
 import { useFlexLayoutContext } from "../routing/flexLayout/FlexLayoutContext";
 import useSwitch from "@react-hook/switch";
 

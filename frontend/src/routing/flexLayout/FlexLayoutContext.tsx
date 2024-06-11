@@ -2,7 +2,7 @@ import React, { PropsWithChildren, ReactElement, ReactNode, useCallback, useCont
 import * as FlexLayout from "flexlayout-react";
 import { Model } from "flexlayout-react";
 
-import { APP_URL } from "../../DEPRECATED_common/modules";
+import { APP_URL } from "../../common/modules";
 import FlexLayoutBuilder from "./FlexLayoutBuilder";
 import { ModuleKey } from "../ModulesRegistry";
 import { useNavigate } from "react-router-dom";
@@ -32,7 +32,7 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
   const [activeTab, setActiveTab] = useState<null | ModuleKey>(null);
   const [activeTabsetName, setActiveTabsetName] = useState<string | null>(null);
   useEffect(() => {
-    openTab("data");
+    openTab("nodes");
     localStorage.setItem("flexModel", JSON.stringify(model.toJson()));
   }, [model]);
 

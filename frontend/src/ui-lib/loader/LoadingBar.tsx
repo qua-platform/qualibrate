@@ -1,11 +1,12 @@
 import DEPRECATEDButton from "../../DEPRECATED_components/buttons/ButtonWrapper";
-import { ButtonTypes } from "../../DEPRECATED_common/DEPRECATED_interfaces/ButtonTypes";
+import { ButtonTypes } from "../../common/interfaces/ButtonTypes";
 import React from "react";
 import { WorkflowPlaceHolderIcon } from "../Icons/WorkflowPlaceholderIcon";
 import { classNames } from "../../utils/classnames";
 import styles from "../../DEPRECATED_components/common/styles/LoadingBar.module.scss";
 
 const DEFAULT_LOADING_PHRASE = "Loading...";
+
 interface Props {
   text?: string;
   icon?: React.ReactElement;

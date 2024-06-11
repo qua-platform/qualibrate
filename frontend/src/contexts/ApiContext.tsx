@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, ReactElement, ReactNode, useState } from "react";
-import noop from "../DEPRECATED_common/helpers";
+import noop from "../common/helpers";
 
 const yesterdayDay = new Date(new Date().setDate(new Date().getDate() - 1));
 

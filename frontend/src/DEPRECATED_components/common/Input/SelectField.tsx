@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { SelectProps } from "../../../DEPRECATED_common/DEPRECATED_interfaces/SelectProps";
+import { SelectProps } from "../../../common/interfaces/SelectProps";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Input.module.scss";
 

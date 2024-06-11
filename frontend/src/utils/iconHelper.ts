@@ -1,4 +1,4 @@
-import { IconSvgOptions } from "../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconSvgOptions } from "../common/interfaces/IconProps";
 
 export const getSvgOptions = ({ rotationDegree }: Partial<IconSvgOptions>) => {
   return {

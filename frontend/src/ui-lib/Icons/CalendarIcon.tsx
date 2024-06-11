@@ -1,5 +1,5 @@
 import { ACTIVE_TEXT } from "../../utils/colors";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import React from "react";
 
 export const CalendarIcon: React.FunctionComponent<IconProps> = ({ width = 18, height = 18, color = ACTIVE_TEXT }) => (

@@ -1,5 +1,5 @@
-import { Model, Actions, DockLocation, Node } from "flexlayout-react";
-import { BORDER_SIZE } from "../../DEPRECATED_common/layout";
+import { Actions, DockLocation, Model, Node } from "flexlayout-react";
+import { BORDER_SIZE } from "../../common/layout";
 import { ModuleKey } from "../ModulesRegistry";
 
 const SINGLE_TAB_KEY: Array<ModuleKey> = ["experiments", "jobs"];
@@ -14,6 +14,7 @@ const DEFAULT_MODEL = {
 };
 export default class FlexLayoutBuilder {
   model: Model;
+
   constructor() {
     try {
       const saved = localStorage.getItem("flexModel");
@@ -66,10 +67,21 @@ export default class FlexLayoutBuilder {
       .filter((n) => n.getType() === "tabset")[0];
     return activeTabSet || firstTabset;
   }
+
   _addNode(tabKey: string) {
     const activeTabSet = this._getActiveTabSet();
     if (activeTabSet) {
-      this.model.doAction(Actions.addNode({ name: tabKey, type: "tab" }, activeTabSet?.getId(), DockLocation.CENTER, -1));
+      this.model.doAction(
+        Actions.addNode(
+          {
+            name: tabKey,
+            type: "tab",
+          },
+          activeTabSet?.getId(),
+          DockLocation.CENTER,
+          -1
+        )
+      );
     }
   }
 
@@ -90,6 +102,7 @@ function getChildrenFromNode(node: Node): Array<Node> {
 
   return [node];
 }
+
 function checkName(node: Node, name: string) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore

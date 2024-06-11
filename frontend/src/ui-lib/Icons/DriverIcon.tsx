@@ -1,6 +1,6 @@
 import React from "react";
 import { GREY_FONT } from "../../utils/colors";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 
 export const DriverIcon: React.FunctionComponent<IconProps> = ({ width = 24, height = 24, color = GREY_FONT }) => (
   <svg width={width} height={height} viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">

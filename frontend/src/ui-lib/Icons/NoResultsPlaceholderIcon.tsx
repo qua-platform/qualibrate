@@ -1,5 +1,5 @@
 import { ACCENT_COLOR_LIGHT } from "../../utils/colors";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import React from "react";
 
 export const NoResultsPlaceholderIcon: React.FunctionComponent<IconProps> = ({ width = 199, height = 163, color = ACCENT_COLOR_LIGHT }) => (

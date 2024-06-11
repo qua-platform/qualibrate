@@ -1,6 +1,6 @@
 import { MENU_TEXT_COLOR } from "../../utils/colors";
 
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import React from "react";
 
 export const WorkflowIcon: React.FunctionComponent<IconProps> = ({ width = 21, height = 20, color = MENU_TEXT_COLOR }) => (

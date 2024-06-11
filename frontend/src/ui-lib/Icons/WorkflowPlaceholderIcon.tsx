@@ -1,6 +1,6 @@
 import React from "react";
 import { BACKGROUND_COLOR, MAIN_TEXT_COLOR } from "../../utils/colors";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 
 export const WorkflowPlaceHolderIcon: React.FunctionComponent<IconProps> = ({ width = 373, height = 155, color = MAIN_TEXT_COLOR }) => (
   <svg width={width} height={height} viewBox="0 0 373 155" fill="none" xmlns="http://www.w3.org/2000/svg">

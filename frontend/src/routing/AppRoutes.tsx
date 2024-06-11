@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { HOME_URL } from "../DEPRECATED_common/modules";
-import MainModularPage from "../DEPRECATED_pages/MainModularPage";
+import { HOME_URL } from "../common/modules";
+import MainModularPage from "../mainPage/MainModularPage";
 
 const AppRoutes = () => {
   return (

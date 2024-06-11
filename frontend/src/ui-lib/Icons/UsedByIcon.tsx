@@ -1,5 +1,5 @@
 import React from "react";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import { GREY_FONT } from "../../utils/colors";
 
 const UsedByIcon: React.FC<IconProps> = ({ color = GREY_FONT, height = 26, width = 26 }) => {

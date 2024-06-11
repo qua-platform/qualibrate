@@ -1,5 +1,5 @@
 import { ButtonTypes } from "./ButtonTypes";
-import { PopupTypes } from "../DEPRECATED_enum/PopupTypes";
+import { PopupTypes } from "../enums/PopupTypes";
 import React from "react";
 import { MinifyProp } from "../../types";
 

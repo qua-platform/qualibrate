@@ -1,5 +1,5 @@
 // import React from "react";
-// import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+// import { IconProps } from "../../common/DEPRECATED_interfaces/IconProps";
 //
 // const EntropyLogoIcon: React.FunctionComponent<IconProps> = ({ width = 130, height = 49 }) => {
 //   return (

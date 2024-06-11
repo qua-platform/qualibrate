@@ -1,5 +1,5 @@
 import React from "react";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 
 const QUAlibrateLogoIcon: React.FunctionComponent<IconProps> = ({ width = 140, height = 49 }) => {
   return (
