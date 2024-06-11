@@ -1,5 +1,5 @@
 import { ACCENT_COLOR_LIGHT } from "../../utils/colors";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import React from "react";
 
 export const CircleRocketIcon: React.FunctionComponent<IconProps> = ({ width = 44, height = 44, color = ACCENT_COLOR_LIGHT }) => (

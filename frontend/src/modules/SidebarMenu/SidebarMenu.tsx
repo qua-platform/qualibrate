@@ -7,11 +7,11 @@ import ThemeToggle from "../themeModule/ThemeToggle";
 import { classNames } from "../../utils/classnames";
 import styles from "./styles/SidebarMenu.module.scss";
 import cyKeys from "../../utils/cyKeys";
-import GlobalThemeContext from "../themeModule/GlobalThemeContext";
+import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/GlobalThemeContext";
 import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 
 const SidebarMenu: React.FunctionComponent = () => {
-  const { pinSideMenu } = useContext(GlobalThemeContext);
+  const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const [, setShowPopup] = useState(false);
   const [minify, setMinify] = React.useState(true);
   const containerClassName = classNames(styles.sidebarMenu, !minify && styles.opened);

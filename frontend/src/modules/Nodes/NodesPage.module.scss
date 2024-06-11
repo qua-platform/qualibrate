@@ -1,0 +1,56 @@
+@import "../../assets/styles/variables";
+@import "../../assets/styles/base";
+
+.wrapper {
+  height: 100%;
+  display: flex;
+  background: var(--background-color);
+  border-radius: var(--border-radius);
+}
+
+.nodesContainer {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  overflow: hidden;
+  flex-grow: 1;
+  color: rgb(217 213 212);
+  margin-left: 20px;
+  margin-right: 20px;
+  height: calc(100% - 20px);
+  background-color: var(--background-color);
+}
+
+.listWrapper {
+  flex-grow: 1;
+  border: 2px solid var(--border-color);
+  padding: 0 2px 2px;;
+  background-color: var(--popup-background);
+  max-width: 100%
+}
+
+.runningJob {
+  display: flex;
+  height: 32%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--popup-background);
+  gap: 15px;
+}
+
+.dot {
+  height: 5px;
+  width: 5px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.results {
+  height: 65%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--popup-background);
+}

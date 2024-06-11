@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from "react";
-import { IconProps } from "../../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../../common/interfaces/IconProps";
 import useHover from "../../hooks/useHover";
 import { ACTIVE_TEXT, BLUE_ICON_BUTTON_HOVER_TEXT, BLUE_ICON_BUTTON_TEXT, BODY_FONT } from "../../../utils/colors";
 import styles from "./IconButton.module.scss";
@@ -21,7 +21,7 @@ const IconButton: React.FC<IconButtonProps> = ({ icon: Icon, title, onClick, cla
   const isHovered = useHover(buttonRef);
   const color = useMemo(
     () => (isBlue ? (isHovered ? BLUE_ICON_BUTTON_HOVER_TEXT : BLUE_ICON_BUTTON_TEXT) : isHovered ? ACTIVE_TEXT : BODY_FONT),
-    [isBlue, isHovered],
+    [isBlue, isHovered]
   );
 
   if (status && isPending(status)) {

@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, ReactNode, useEffect } from "react";
-import { ApiContextProvider } from "./DEPRECATED_context/ApiContext";
+import { ApiContextProvider } from "./contexts/ApiContext";
 import { FlexLayoutContextProvider } from "./routing/flexLayout/FlexLayoutContext";
 import "./assets/styles/index.scss";
 import "./assets/styles/_base.scss";

@@ -1,4 +1,4 @@
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import { MENU_TEXT_COLOR } from "../../utils/colors";
 import React from "react";
 

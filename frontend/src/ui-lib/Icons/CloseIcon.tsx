@@ -1,6 +1,6 @@
 import { ACCENT_COLOR_LIGHT } from "../../utils/colors";
 
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import React from "react";
 
 export const CloseIcon: React.FunctionComponent<IconProps> = ({ width = 24, height = 24, color = ACCENT_COLOR_LIGHT }) => (

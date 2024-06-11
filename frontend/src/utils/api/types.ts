@@ -1,4 +1,4 @@
-import { API_METHODS } from "../../DEPRECATED_common/DEPRECATED_enum/Api";
+import { API_METHODS } from "../../common/enums/Api";
 
 export type GETOptions = {
   [key: string]: unknown | string | URLSearchParams | string[][] | Record<string, string> | undefined;

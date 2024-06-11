@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import noop from "../../../DEPRECATED_common/helpers";
+import noop from "../../../common/helpers";
 import { ProjectViewApi } from "../api/ProjectViewAPI";
 import { ProjectDTO } from "../ProjectDTO";
 

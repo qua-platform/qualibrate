@@ -1,5 +1,5 @@
-import { API_METHODS } from "../../DEPRECATED_common/DEPRECATED_enum/Api";
-import { Res } from "../../DEPRECATED_common/DEPRECATED_interfaces/Api";
+import { API_METHODS } from "../../common/enums/Api";
+import { Res } from "../../common/interfaces/Api";
 import { FetchOptions, GETOptions, RequestEntry } from "./types";
 import { makeTemporaryDownloadLink } from "../fileHelpers";
 

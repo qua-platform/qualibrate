@@ -1,11 +1,14 @@
 import Data from "../modules/Data";
 import { DataIcon } from "../ui-lib/Icons/DataIcon";
-import { IconProps } from "../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../common/interfaces/IconProps";
 import React from "react";
 import cyKeys from "../utils/cyKeys";
 import Project from "../modules/Project";
 import { ProjectIcon } from "../ui-lib/Icons/ProjectIcon";
+import Nodes from "../modules/Nodes";
+
 const DATA_KEY: ModuleKey = "data";
+const NODES_KEY: ModuleKey = "nodes";
 const PROJECT_TAB: ModuleKey = "project";
 
 export type ModuleKey =
@@ -14,6 +17,7 @@ export type ModuleKey =
   | "dashboard"
   | "project"
   | "data"
+  | "nodes"
   | "experiments"
   | "search"
   | "jobs"
@@ -56,6 +60,16 @@ export const ModulesRegistry: Array<Module> = [
       title: "Data",
       icon: DataIcon,
       dataCy: cyKeys.DATA_TAB,
+    },
+  },
+  {
+    keyId: NODES_KEY,
+    path: "nodes",
+    Component: Nodes,
+    menuItem: {
+      title: "Nodes",
+      icon: DataIcon,
+      dataCy: cyKeys.NODES_TAB,
     },
   },
 ];

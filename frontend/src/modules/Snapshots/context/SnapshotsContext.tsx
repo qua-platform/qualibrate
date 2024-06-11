@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import { SnapshotDTO } from "../SnapshotDTO";
 import { SnapshotResult, SnapshotsApi } from "../api/SnapshotsApi";
-import { Res } from "../../../DEPRECATED_common/DEPRECATED_interfaces/Api";
+import { Res } from "../../../common/interfaces/Api";
 
 interface ISnapshotsContext {
   totalPages: number;

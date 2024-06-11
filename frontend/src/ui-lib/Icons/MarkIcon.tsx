@@ -1,6 +1,6 @@
 import { GREEN_COLOR } from "../../utils/colors";
 
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 import React from "react";
 
 export const MarkIcon: React.FunctionComponent<IconProps> = ({ width = 15, height = 10, color = GREEN_COLOR }) => (

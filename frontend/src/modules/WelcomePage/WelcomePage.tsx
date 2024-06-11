@@ -14,58 +14,60 @@ import PageSection from "../../DEPRECATED_components/common/Page/PageSection";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
 import styles from "./WelcomePage.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
-import { IconType } from "../../DEPRECATED_common/DEPRECATED_interfaces/InputProps";
+import { IconType } from "../../common/interfaces/InputProps";
 
 const WelcomePage = () => {
   const { openTab } = useFlexLayoutContext();
 
   return (
     <MainLayout className={styles.welcomePageLayout}>
-      <PageName>Welcome to QUAlibrate</PageName>
-      <div className={styles.pageWrapper}>
-        <PageSection className={styles.selectProjectFrame} sectionName="Please select a Project">
-          <InputField
-            iconType={IconType.INNER}
-            placeholder="Project Name"
-            className={styles.searchJobField}
-            onChange={(f) => f}
-            icon={<SearchIcon height={18} width={18} />}
-          />
-        </PageSection>
-        <PageSection className={styles.entropyGuideFrame} sectionName="New to QUAlibrate?">
-          <div className={styles.bannerList}>
-            <BannerGuide
-              name="See what QUAlibrate is"
-              description="QUAlibrate Hub & Flame Overview"
-              onClick={() => openTab("docs")}
-              icon={<CircleListIcon />}
+      <>
+        <PageName>Welcome to QUAlibrate</PageName>
+        <div className={styles.pageWrapper}>
+          <PageSection className={styles.selectProjectFrame} sectionName="Please select a Project">
+            <InputField
+              iconType={IconType.INNER}
+              placeholder="Project Name"
+              className={styles.searchJobField}
+              onChange={(f) => f}
+              icon={<SearchIcon height={18} width={18} />}
             />
-            <BannerGuide
-              name="See how to get started"
-              description="Getting started"
-              onClick={() => openTab("getting-started")}
-              icon={<CircleRocketIcon />}
-            />
-            {READ_OUR_ARTICLES_VISIBLE && (
-              <PageSection className={styles.mightBeInterestingFrame} sectionName="Might be interesting">
-                <LinkPlaceholder
-                  name="Read our articles in Notebook"
-                  description="30+ helpful articles to share experiences"
-                  icon={<NotebookIcon height={30} />}
-                />
-              </PageSection>
-            )}
-          </div>
-        </PageSection>
-      </div>
-      <div className={styles.pageActions}>
-        {NEW_PROJECT_BUTTON_VISIBLE && (
-          <BlueButton isSecondary className={styles.actionButton}>
-            <AddIcon height={12} color={ACTIVE_TEXT} />
-            New project
-          </BlueButton>
-        )}
-      </div>
+          </PageSection>
+          <PageSection className={styles.entropyGuideFrame} sectionName="New to QUAlibrate?">
+            <div className={styles.bannerList}>
+              <BannerGuide
+                name="See what QUAlibrate is"
+                description="QUAlibrate Hub & Flame Overview"
+                onClick={() => openTab("docs")}
+                icon={<CircleListIcon />}
+              />
+              <BannerGuide
+                name="See how to get started"
+                description="Getting started"
+                onClick={() => openTab("getting-started")}
+                icon={<CircleRocketIcon />}
+              />
+              {READ_OUR_ARTICLES_VISIBLE && (
+                <PageSection className={styles.mightBeInterestingFrame} sectionName="Might be interesting">
+                  <LinkPlaceholder
+                    name="Read our articles in Notebook"
+                    description="30+ helpful articles to share experiences"
+                    icon={<NotebookIcon height={30} />}
+                  />
+                </PageSection>
+              )}
+            </div>
+          </PageSection>
+        </div>
+        <div className={styles.pageActions}>
+          {NEW_PROJECT_BUTTON_VISIBLE && (
+            <BlueButton isSecondary className={styles.actionButton}>
+              <AddIcon height={12} color={ACTIVE_TEXT} />
+              New project
+            </BlueButton>
+          )}
+        </div>
+      </>
     </MainLayout>
   );
 };

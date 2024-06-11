@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback, useContext, useState } from "react";
 import { getColorTheme, Theme, toggleColorTheme } from "./themeHelper";
 
-interface GlobalThemeContextState {
+export interface GlobalThemeContextState {
   theme: Theme;
   toggleTheme: () => void;
   pinSideMenu: boolean;

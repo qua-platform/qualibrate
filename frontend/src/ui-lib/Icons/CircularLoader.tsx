@@ -1,5 +1,5 @@
 import React from "react";
-import { IconProps } from "../../DEPRECATED_common/DEPRECATED_interfaces/IconProps";
+import { IconProps } from "../../common/interfaces/IconProps";
 
 function CircularLoader({ color, width = 26, height = 26 }: IconProps) {
   return (

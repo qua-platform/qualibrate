@@ -3,7 +3,7 @@ import { NEW_PROJECT_BUTTON_VISIBLE } from "../../dev.config";
 import { ACTIVE_TEXT } from "../../utils/colors";
 import { AddIcon } from "../../ui-lib/Icons/AddIcon";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
-import { IconType } from "../../DEPRECATED_common/DEPRECATED_interfaces/InputProps";
+import { IconType } from "../../common/interfaces/InputProps";
 import InputField from "../../DEPRECATED_components/common/Input/InputField";
 import PageName from "../../DEPRECATED_components/common/Page/PageName";
 import PageSection from "../../DEPRECATED_components/common/Page/PageSection";

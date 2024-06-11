@@ -1,4 +1,4 @@
-import { IconType, InputProps } from "../../../DEPRECATED_common/DEPRECATED_interfaces/InputProps";
+import { IconType, InputProps } from "../../../common/interfaces/InputProps";
 
 import React, { ChangeEventHandler } from "react";
 import { classNames } from "../../../utils/classnames";

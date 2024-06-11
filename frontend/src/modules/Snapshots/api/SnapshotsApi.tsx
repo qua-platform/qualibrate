@@ -1,7 +1,7 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
-import { Res } from "../../../DEPRECATED_common/DEPRECATED_interfaces/Api";
+import { Res } from "../../../common/interfaces/Api";
 import { ALL_SNAPSHOTS, ONE_SNAPSHOT, SNAPSHOT_DIFF, SNAPSHOT_RESULT } from "../../../utils/api/apiRoutes";
-import { API_METHODS } from "../../../DEPRECATED_common/DEPRECATED_enum/Api";
+import { API_METHODS } from "../../../common/enums/Api";
 import { SnapshotDTO } from "../SnapshotDTO";
 
 export interface SnapshotResult {
