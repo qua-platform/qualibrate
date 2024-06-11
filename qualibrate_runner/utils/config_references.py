@@ -1,4 +1,5 @@
 """Copied from qualibrate package."""
+
 from collections import defaultdict
 from typing import Any, List, Mapping, Optional, Sequence, Set, Tuple, cast
 

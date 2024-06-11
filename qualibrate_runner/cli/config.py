@@ -43,7 +43,7 @@ def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
 def _config_from_sources(
     ctx: click.Context, from_file: dict[str, Any]
 ) -> dict[str, Any]:
-    config_keys = ("calibration_nodes_resolver",)
+    config_keys = QualibrateRunnerSettings.model_fields.keys()
     runner_mapping: dict[str, str] = {k: k for k in config_keys}
     for arg_key, arg_value in ctx.params.items():
         not_default_arg = not_default(ctx, arg_key)
@@ -113,21 +113,25 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
     show_default=True,
 )
 @click.option(
-    "--calibration-nodes-resolver",
+    "--calibration-library-resolver",
     type=click.STRING,
-    default=(
-        "qualibrate_runner.utils.calibration_nodes_resolver"
-        ".calibration_nodes_resolver"
-    ),
+    default="qualibrate.QualibrationLibrary",
+)
+@click.option(
+    "--calibration-library-folder",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    required=True,
 )
 @click.pass_context
 def config_command(
     ctx: click.Context,
     config_path: Path,
-    calibration_nodes_resolver: str,
+    calibration_library_resolver: str,
+    calibration_library_folder: Path,
 ) -> None:
     common_config, config_file = get_config(config_path)
     runner_config = common_config.get(QUALIBRATE_RUNNER_CONFIG_KEY, {})
     runner_config = _config_from_sources(ctx, runner_config)
+
     qrs = QualibrateRunnerSettings(**runner_config)
     write_config(config_file, common_config, qrs)

@@ -13,6 +13,10 @@ click = "^8.1.7"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 jsonpatch = "^1.33"
+qualibrate-core = {path = "../qualibrate-core", optional = true}
+
+[tool.poetry.extras]
+qualibrary = ["qualibrate-core"]
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"
@@ -28,7 +32,7 @@ strict = true
 warn_return_any = true
 
 [[tool.mypy.overrides]]
-module = ["jsonpatch", "jsonpointer"]
+module = ["jsonpatch", "jsonpointer", "qualibrate.*"]
 ignore_missing_imports = true
 
 [tool.ruff]

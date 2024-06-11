@@ -2,19 +2,20 @@ import os
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Any, Callable, List, Optional, Union
+from typing import Annotated, Any, Callable, Mapping, Optional, Union
 
 from fastapi import Depends
-from pydantic import BaseModel, ImportString
-from pydantic_settings import BaseSettings
+from pydantic import BaseModel, DirectoryPath, ImportString
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from qualibrate.qualibration_library import QualibrationLibrary
 
+from qualibrate_runner.core.models.last_run import LastRun, RunStatus
 from qualibrate_runner.utils.config_references import resolve_references
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
-
 
 CONFIG_KEY = "qualibrate_runner"
 QUALIBRATE_PATH = Path().home() / ".qualibrate"
@@ -24,12 +25,26 @@ CONFIG_PATH_ENV_NAME = "QUALIBRATE_RUNNER_CONFIG_FILE"
 
 
 class State(BaseModel):
-    running: bool = False
-    qmm: Optional[int] = None
+    passed_parameters: Mapping[str, Any] = {}
+    persistent: dict[str, Any] = {}
+    last_run: Optional[LastRun] = None
+    node: Optional[str] = None
+
+    @property
+    def is_running(self) -> bool:
+        return (
+            self.last_run is not None
+            and self.last_run.status == RunStatus.RUNNING
+        )
 
 
 class QualibrateRunnerSettings(BaseSettings):
-    calibration_nodes_resolver: ImportString[Callable[[], List[str]]]
+    model_config = SettingsConfigDict(frozen=True)
+
+    calibration_library_resolver: ImportString[
+        Callable[[Path], QualibrationLibrary]
+    ]
+    calibration_library_folder: DirectoryPath
 
 
 def _get_config_file_from_dir(
