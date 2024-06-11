@@ -1,17 +1,13 @@
 [tool.poetry]
-name = "qualibrate-backend"
+name = "qualibrate-app"
 version = "0.1.0"
 description = ""
 authors = ["Maxim V4S <maxim.d@v4scale.com>"]
 repository = "https://github.com/qua-platform/qualibrate"
-packages = [
-    { include = "qualibrate" }
-]
+packages = [{ include = "qualibrate_app" }]
 readme = "README.md"
 
-include = [
-    { path = "qualibrate_static/**/*", format = ["sdist", "wheel"] },
-]
+include = [{ path = "qualibrate_static/**/*", format = ["sdist", "wheel"] }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -25,7 +21,7 @@ requests = "^2.31.0"
 jsonpatch = "^1.33"
 
 # TODO: replace after publishing or relases on gh
-json-timeline-database = {path = "../../json-timeline-database", optional = true}
+json-timeline-database = { path = "../../json-timeline-database", optional = true }
 
 [tool.poetry.extras]
 json-timeline-db = ["json-timeline-database"]
