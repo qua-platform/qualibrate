@@ -2,14 +2,14 @@ from datetime import datetime
 
 import pytest
 
-from qualibrate.api.core.domain.bases.node import NodeBase, NodeLoadType
-from qualibrate.api.core.domain.bases.snapshot import (
+from qualibrate_app.api.core.domain.bases.node import NodeBase, NodeLoadType
+from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotLoadType,
 )
-from qualibrate.api.core.models.node import Node
-from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
-from qualibrate.api.core.models.storage import Storage
-from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
+from qualibrate_app.api.core.models.node import Node
+from qualibrate_app.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate_app.api.core.models.storage import Storage
+from qualibrate_app.api.exceptions.classes.storage import QNotADirectoryException
 
 
 class NodeBaseCustom(NodeBase):
@@ -79,9 +79,7 @@ def test_load_full(mocker, settings):
     patched_fill_storage.assert_called_once()
 
 
-@pytest.mark.parametrize(
-    "meta", (None, {"not_out_path": None}, {"out_path": 1})
-)
+@pytest.mark.parametrize("meta", (None, {"not_out_path": None}, {"out_path": 1}))
 def test__fill_storage_metadata_issue(mocker, meta, settings):
     class _Snapshot:
         metadata = meta
@@ -107,9 +105,7 @@ def test__fill_storage_no_output_path(mocker, settings):
         return_value=settings.user_storage / "node",
     )
     mocker.patch("pathlib.Path.is_dir", return_value=False)
-    dfs_patched = mocker.patch(
-        "qualibrate.api.core.domain.bases.node.DataFileStorage"
-    )
+    dfs_patched = mocker.patch("qualibrate.api.core.domain.bases.node.DataFileStorage")
     n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     with pytest.raises(QNotADirectoryException) as ex:
         n._fill_storage()
@@ -131,14 +127,10 @@ def test__fill_storage_valid(mocker, settings):
         return_value=abs_node_path,
     )
     mocker.patch("pathlib.Path.is_dir", return_value=True)
-    dfs_patched = mocker.patch(
-        "qualibrate.api.core.domain.bases.node.DataFileStorage"
-    )
+    dfs_patched = mocker.patch("qualibrate.api.core.domain.bases.node.DataFileStorage")
     n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     assert n._fill_storage() is None
-    resolve_patched.assert_called_once_with(
-        settings.user_storage, rel_node_path
-    )
+    resolve_patched.assert_called_once_with(settings.user_storage, rel_node_path)
     dfs_patched.assert_called_once_with(abs_node_path, settings)
 
 

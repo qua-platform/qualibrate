@@ -3,8 +3,8 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from qualibrate.api.core.utils.path.node import NodePath
-from qualibrate.api.core.utils.path.node_date import NodesDatePath
+from qualibrate_app.api.core.utils.path.node import NodePath
+from qualibrate_app.api.core.utils.path.node_date import NodesDatePath
 
 
 class TestNodePath:
@@ -28,9 +28,7 @@ class TestNodePath:
             node.__class__,
             "date_path",
             new_callable=PropertyMock,
-            return_value=type(
-                "MockDate", (), {"datetime": "2024-04-27T12:00:00"}
-            ),
+            return_value=type("MockDate", (), {"datetime": "2024-04-27T12:00:00"}),
         )
         assert node.datetime == "2024-04-27T12:00:00"
 

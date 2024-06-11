@@ -7,7 +7,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp
 
-from qualibrate.api.exceptions.classes.base import QualibrateException
+from qualibrate_app.api.exceptions.classes.base import QualibrateException
 
 
 class QualibrateCatchExcMiddleware(BaseHTTPMiddleware):

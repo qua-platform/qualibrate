@@ -2,21 +2,21 @@ from abc import ABC
 from enum import IntEnum
 from typing import Optional
 
-from qualibrate.api.core.domain.bases.i_dump import IDump
-from qualibrate.api.core.domain.bases.snapshot import (
+from qualibrate_app.api.core.domain.bases.i_dump import IDump
+from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadType,
 )
-from qualibrate.api.core.domain.bases.storage import DataFileStorage
-from qualibrate.api.core.models.node import Node as NodeModel
-from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
-from qualibrate.api.core.types import IdType
-from qualibrate.api.core.utils.path.common import resolve_and_check_relative
-from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
+from qualibrate_app.api.core.domain.bases.storage import DataFileStorage
+from qualibrate_app.api.core.models.node import Node as NodeModel
+from qualibrate_app.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate_app.api.core.types import IdType
+from qualibrate_app.api.core.utils.path.common import resolve_and_check_relative
+from qualibrate_app.api.exceptions.classes.storage import QNotADirectoryException
 
 __all__ = ["NodeBase", "NodeLoadType"]
 
-from qualibrate.config import QualibrateSettings
+from qualibrate_app.config import QualibrateSettings
 
 
 class NodeLoadType(IntEnum):
@@ -72,9 +72,7 @@ class NodeBase(IDump, ABC):
             metadata[self._settings.metadata_out_path],
         )
         if not abs_output_path.is_dir():
-            raise QNotADirectoryException(
-                f"{rel_output_path} is not a directory"
-            )
+            raise QNotADirectoryException(f"{rel_output_path} is not a directory")
         self._storage = DataFileStorage(abs_output_path, self._settings)
         self._load_type = NodeLoadType.Full
 

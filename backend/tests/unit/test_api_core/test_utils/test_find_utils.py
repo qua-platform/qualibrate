@@ -1,7 +1,7 @@
 import pytest
 
-from qualibrate.api.core.utils import find_utils
-from qualibrate.api.core.utils.find_utils import get_subpath_value
+from qualibrate_app.api.core.utils import find_utils
+from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 
 
 @pytest.mark.parametrize(
@@ -78,9 +78,10 @@ def test__get_subpath_value_wildcard_non_final_deeper(
         side_effect=_get_subpath_value,
     )
     target_path = ["*", "v"]
-    assert find_utils._get_subpath_value_wildcard(
-        obj, target_path, ["x", "y"]
-    ) == [1, 2]
+    assert find_utils._get_subpath_value_wildcard(obj, target_path, ["x", "y"]) == [
+        1,
+        2,
+    ]
 
     mocked_base.assert_has_calls(
         [

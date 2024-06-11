@@ -5,7 +5,7 @@ import pytest
 import tomli_w
 from fastapi.testclient import TestClient
 
-from qualibrate.config import (
+from qualibrate_app.config import (
     JsonTimelineDBBase,
     QualibrateSettings,
     StorageType,
@@ -53,12 +53,10 @@ def client_custom_settings(
     settings_path_filled: Path,
 ) -> Generator[TestClient, None, None]:
     get_config_path.cache_clear()
-    mocker.patch(
-        "qualibrate.config.get_config_file", return_value=settings_path_filled
-    )
+    mocker.patch("qualibrate.config.get_config_file", return_value=settings_path_filled)
     mocker.patch("qualibrate.app.get_settings", return_value=settings)
 
-    from qualibrate.app import app
+    from qualibrate_app.app import app
 
     client = TestClient(app)
 

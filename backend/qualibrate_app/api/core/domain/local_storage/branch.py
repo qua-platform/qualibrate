@@ -2,24 +2,24 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Sequence, Tuple
 
-from qualibrate.api.core.domain.bases.branch import BranchBase, BranchLoadType
-from qualibrate.api.core.domain.bases.node import NodeBase, NodeLoadType
-from qualibrate.api.core.domain.bases.snapshot import (
+from qualibrate_app.api.core.domain.bases.branch import BranchBase, BranchLoadType
+from qualibrate_app.api.core.domain.bases.node import NodeBase, NodeLoadType
+from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadType,
 )
-from qualibrate.api.core.domain.local_storage.node import NodeLocalStorage
-from qualibrate.api.core.domain.local_storage.snapshot import (
+from qualibrate_app.api.core.domain.local_storage.node import NodeLocalStorage
+from qualibrate_app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
 )
-from qualibrate.api.core.domain.local_storage.utils.node_utils import (
+from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
     find_latest_node_id,
     find_n_latest_nodes_ids,
 )
-from qualibrate.api.core.models.branch import Branch as BranchModel
-from qualibrate.api.core.types import DocumentType, IdType
-from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
-from qualibrate.config import QualibrateSettings
+from qualibrate_app.api.core.models.branch import Branch as BranchModel
+from qualibrate_app.api.core.types import DocumentType, IdType
+from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate_app.config import QualibrateSettings
 
 __all__ = ["BranchLocalStorage"]
 
@@ -75,9 +75,7 @@ class BranchLocalStorage(BranchBase):
         ids = find_n_latest_nodes_ids(
             self._settings.user_storage, page, per_page, self._settings.project
         )
-        snapshots = [
-            SnapshotLocalStorage(id, settings=self._settings) for id in ids
-        ]
+        snapshots = [SnapshotLocalStorage(id, settings=self._settings) for id in ids]
         for snapshot in snapshots:
             snapshot.load(SnapshotLoadType.Metadata)
         total = find_latest_node_id(self._settings.user_storage)

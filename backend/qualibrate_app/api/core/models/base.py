@@ -1,6 +1,6 @@
 from pydantic import AwareDatetime, BaseModel, field_serializer
 
-from qualibrate.api.core.types import IdType
+from qualibrate_app.api.core.types import IdType
 
 __all__ = ["ModelWithId", "ModelCreatedAt", "ModelWithIdCreatedAt"]
 

@@ -1,12 +1,12 @@
 from typing import Any, Optional, Sequence, Tuple, Union
 
-from qualibrate.api.core.domain.bases.root import RootBase
-from qualibrate.api.core.domain.timeline_db.branch import BranchTimelineDb
-from qualibrate.api.core.domain.timeline_db.node import NodeTimelineDb
-from qualibrate.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
-from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
-from qualibrate.api.core.utils.request_utils import request_with_db
-from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
+from qualibrate_app.api.core.domain.bases.root import RootBase
+from qualibrate_app.api.core.domain.timeline_db.branch import BranchTimelineDb
+from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
+from qualibrate_app.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate_app.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate_app.api.core.utils.request_utils import request_with_db
+from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
 
 __all__ = ["RootTimelineDb"]
 

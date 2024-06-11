@@ -1,16 +1,16 @@
 from datetime import datetime
 from typing import Any, Mapping, Optional, Sequence, Tuple, Union, cast
 
-from qualibrate.api.core.domain.bases.snapshot import (
+from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadType,
 )
-from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
-from qualibrate.api.core.utils.find_utils import get_subpath_value
-from qualibrate.api.core.utils.request_utils import request_with_db
-from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
-from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate.config import QualibrateSettings
+from qualibrate_app.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate_app.api.core.utils.find_utils import get_subpath_value
+from qualibrate_app.api.core.utils.request_utils import request_with_db
+from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
+from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
+from qualibrate_app.config import QualibrateSettings
 
 __all__ = ["SnapshotTimelineDb"]
 
@@ -111,9 +111,7 @@ class SnapshotTimelineDb(SnapshotBase):
             ],
         )
 
-    def compare_by_id(
-        self, other_snapshot_int: int
-    ) -> Mapping[str, Mapping[str, Any]]:
+    def compare_by_id(self, other_snapshot_int: int) -> Mapping[str, Mapping[str, Any]]:
         if self.id == other_snapshot_int:
             return {}
         response = request_with_db(
@@ -130,6 +128,4 @@ class SnapshotTimelineDb(SnapshotBase):
         patch = result.get("patch")
         if patch is None:
             return {}
-        return jsonpatch_to_mapping(
-            original, cast(Sequence[Mapping[str, Any]], patch)
-        )
+        return jsonpatch_to_mapping(original, cast(Sequence[Mapping[str, Any]], patch))

@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Any, Callable, TypeVar, cast
 
-from qualibrate.api.exceptions.classes.types import QInvalidIdTypeException
+from qualibrate_app.api.exceptions.classes.types import QInvalidIdTypeException
 
 Function = TypeVar("Function", bound=Callable[..., Any])
 

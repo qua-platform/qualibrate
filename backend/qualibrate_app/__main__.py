@@ -1,6 +1,6 @@
 import click
 
-from qualibrate.cli import config_command, start_command
+from qualibrate_app.cli import config_command, start_command
 
 
 @click.group()

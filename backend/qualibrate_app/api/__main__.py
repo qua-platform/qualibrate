@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from qualibrate.api.routes import project_router, storage_router
+from qualibrate_app.api.routes import project_router, storage_router
 
 api_router = APIRouter()
 

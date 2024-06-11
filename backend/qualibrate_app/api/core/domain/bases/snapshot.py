@@ -3,11 +3,11 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Any, ClassVar, Mapping, Optional, Sequence, Tuple, Union
 
-from qualibrate.api.core.domain.bases.i_dump import IDump
-from qualibrate.api.core.models.snapshot import Snapshot as SnapshotModel
-from qualibrate.api.core.types import DocumentSequenceType, DocumentType, IdType
-from qualibrate.api.core.utils.find_utils import get_subpath_value_on_any_depth
-from qualibrate.config import QualibrateSettings
+from qualibrate_app.api.core.domain.bases.i_dump import IDump
+from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
+from qualibrate_app.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate_app.api.core.utils.find_utils import get_subpath_value_on_any_depth
+from qualibrate_app.config import QualibrateSettings
 
 __all__ = ["SnapshotBase", "SnapshotLoadType"]
 
@@ -106,9 +106,7 @@ class SnapshotBase(IDump, ABC):
         pass
 
     @abstractmethod
-    def compare_by_id(
-        self, other_snapshot_int: int
-    ) -> Mapping[str, Mapping[str, Any]]:
+    def compare_by_id(self, other_snapshot_int: int) -> Mapping[str, Mapping[str, Any]]:
         pass
 
     def dump(self) -> SnapshotModel:

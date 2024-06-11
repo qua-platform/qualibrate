@@ -2,8 +2,8 @@ from typing import Any, Optional
 
 from pydantic import Field
 
-from qualibrate.api.core.models.base import ModelWithIdCreatedAt
-from qualibrate.api.core.types import IdType
+from qualibrate_app.api.core.models.base import ModelWithIdCreatedAt
+from qualibrate_app.api.core.types import IdType
 
 
 class SimplifiedSnapshot(ModelWithIdCreatedAt):

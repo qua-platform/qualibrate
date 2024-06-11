@@ -5,12 +5,12 @@ from unittest.mock import PropertyMock
 import pytest
 from pydantic import ValidationError
 
-from qualibrate.api.core.domain.bases.snapshot import (
+from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadType,
 )
-from qualibrate.api.core.models.snapshot import Snapshot
-from qualibrate.api.core.types import DocumentSequenceType, IdType
+from qualibrate_app.api.core.models.snapshot import Snapshot
+from qualibrate_app.api.core.types import DocumentSequenceType, IdType
 
 
 class SnapshotBaseCustom(SnapshotBase):
@@ -35,9 +35,7 @@ class SnapshotBaseCustom(SnapshotBase):
     ) -> Sequence[SnapshotBase]:
         raise NotImplementedError
 
-    def compare_by_id(
-        self, other_snapshot_int: int
-    ) -> Mapping[str, Mapping[str, Any]]:
+    def compare_by_id(self, other_snapshot_int: int) -> Mapping[str, Mapping[str, Any]]:
         raise NotImplementedError
 
 
@@ -75,9 +73,7 @@ def test_items_not_specified(settings):
 
 
 def test_items_specified(settings):
-    s = SnapshotBaseCustom(
-        1, {"data": "data", "metadata": "meta"}, settings=settings
-    )
+    s = SnapshotBaseCustom(1, {"data": "data", "metadata": "meta"}, settings=settings)
     assert s.data == "data"
     assert s.metadata == "meta"
 
@@ -94,10 +90,7 @@ def test_search_recursive_data_filled(mocker, load, settings):
         return_value={"a": "b"},
     )
     search_pathed = mocker.patch(
-        (
-            "qualibrate.api.core.domain.bases.snapshot"
-            ".get_subpath_value_on_any_depth"
-        ),
+        ("qualibrate.api.core.domain.bases.snapshot" ".get_subpath_value_on_any_depth"),
         return_value=[{}],
     )
     assert s.search_recursive("target_key", load) == [{}]
@@ -127,8 +120,7 @@ def test_search_recursive_data_none(mocker, load, settings):
         return_value=None,
     )
     search_pathed = mocker.patch(
-        "qualibrate.api.core.domain.bases.snapshot"
-        ".get_subpath_value_on_any_depth",
+        "qualibrate.api.core.domain.bases.snapshot" ".get_subpath_value_on_any_depth",
     )
     assert s.search_recursive("target_key", load) is None
 

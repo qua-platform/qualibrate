@@ -3,13 +3,13 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, Mapping, Sequence, Tuple
 
-from qualibrate.api.core.models.project import Project
-from qualibrate.config import (
+from qualibrate_app.api.core.models.project import Project
+from qualibrate_app.config import (
     CONFIG_KEY,
     QualibrateSettings,
     read_config_file,
 )
-from qualibrate.utils.config_references import resolve_references
+from qualibrate_app.utils.config_references import resolve_references
 
 
 class ProjectsManagerBase(ABC):

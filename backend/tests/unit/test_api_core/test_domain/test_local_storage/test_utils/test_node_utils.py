@@ -3,8 +3,8 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from qualibrate.api.core.domain.local_storage.utils import node_utils
-from qualibrate.api.core.utils.path.node import NodePath
+from qualibrate_app.api.core.domain.local_storage.utils import node_utils
+from qualibrate_app.api.core.utils.path.node import NodePath
 
 
 def test_find_latest_node(mocker):

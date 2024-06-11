@@ -1,4 +1,4 @@
-from qualibrate.api.exceptions.classes.base import QualibrateException
+from qualibrate_app.api.exceptions.classes.base import QualibrateException
 
 
 class QTypeException(QualibrateException, TypeError):

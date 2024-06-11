@@ -5,11 +5,11 @@ from unittest.mock import PropertyMock, call
 
 import pytest
 
-from qualibrate.api.core.domain.bases.snapshot import SnapshotLoadType
-from qualibrate.api.core.domain.local_storage import snapshot
-from qualibrate.api.core.utils.path.node import NodePath
-from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
-from qualibrate.api.exceptions.classes.values import QValueException
+from qualibrate_app.api.core.domain.bases.snapshot import SnapshotLoadType
+from qualibrate_app.api.core.domain.local_storage import snapshot
+from qualibrate_app.api.core.utils.path.node import NodePath
+from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate_app.api.exceptions.classes.values import QValueException
 
 
 def test__read_minified_node_content_node_info_filled(mocker, settings):
@@ -56,12 +56,8 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
         ),
         return_value=1,
     )
-    patched_path_stat = mocker.patch(
-        "pathlib.Path.stat", return_value=FileStat()
-    )
-    patched_path_parent = mocker.patch(
-        "pathlib.Path.parent", new_callable=PropertyMock
-    )
+    patched_path_stat = mocker.patch("pathlib.Path.stat", return_value=FileStat())
+    patched_path_parent = mocker.patch("pathlib.Path.parent", new_callable=PropertyMock)
     patched_is_file = mocker.patch("pathlib.Path.is_file", return_value=True)
     result = snapshot._read_minified_node_content({}, 2, node_file, settings)
     assert result == {
@@ -77,9 +73,7 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
     patched_path_parent.assert_not_called()
 
 
-def test__read_minified_node_content_node_info_empty_no_id_no_file(
-    mocker, settings
-):
+def test__read_minified_node_content_node_info_empty_no_id_no_file(mocker, settings):
     ts = 1712932811
 
     class FileStat:
@@ -94,9 +88,7 @@ def test__read_minified_node_content_node_info_empty_no_id_no_file(
             ".IdToLocalPath.get"
         ),
     )
-    patched_file_stat_patch = mocker.patch(
-        "pathlib.Path.stat", return_value=FileStat()
-    )
+    patched_file_stat_patch = mocker.patch("pathlib.Path.stat", return_value=FileStat())
     patched_is_file = mocker.patch("pathlib.Path.is_file", return_value=False)
     patched_path_parent = mocker.patch(
         "pathlib.Path.parent", new_callable=PropertyMock, return_value=node_dir
@@ -146,8 +138,7 @@ def test__read_data_node_content_valid_path_specified(tmp_path):
     state_path.write_text(json.dumps(data_content))
     node_info = {"data": {"quam": "state_.json"}}
     assert (
-        snapshot._read_data_node_content(node_info, node_path, tmp_path)
-        == data_content
+        snapshot._read_data_node_content(node_info, node_path, tmp_path) == data_content
     )
 
 
@@ -156,10 +147,7 @@ def test__read_data_node_content_path_not_specified(tmp_path):
     state_path = tmp_path / "state.json"
     data_content = {"a": "b", "c": 3}
     state_path.write_text(json.dumps(data_content))
-    assert (
-        snapshot._read_data_node_content({}, node_path, tmp_path)
-        == data_content
-    )
+    assert snapshot._read_data_node_content({}, node_path, tmp_path) == data_content
 
 
 def test__read_data_node_content_invalid_path(tmp_path):
@@ -190,9 +178,7 @@ def test__default_snapshot_content_loader_node_file_issue(
     if file_exists:
         # node file exists; but contains invalid json
         (node_path / "node.json").touch()
-        mocker.patch(
-            "json.load", side_effect=json.JSONDecodeError("msg", "doc", 1)
-        )
+        mocker.patch("json.load", side_effect=json.JSONDecodeError("msg", "doc", 1))
     else:
         # there is no node file
         mocker.patch("pathlib.Path.is_file", return_value=False)
@@ -207,9 +193,7 @@ def test__default_snapshot_content_loader_node_file_issue(
         node_path, SnapshotLoadType.Minified, None
     ) == {"minified": {}}
     patched_node_path_id.assert_called_once()
-    patched_read_minified.assert_called_once_with(
-        {}, 1, node_path / "node.json", None
-    )
+    patched_read_minified.assert_called_once_with({}, 1, node_path / "node.json", None)
     patched_node_path_name.assert_not_called()
 
 
@@ -222,9 +206,7 @@ def test__default_snapshot_content_loader_node_valid_minified(mocker, tmp_path):
     patched_node_path_id = mocker.patch.object(
         node_path.__class__, "id", new_callable=PropertyMock, return_value=1
     )
-    patched_node_path_name = mocker.patch.object(
-        node_path.__class__, "node_name"
-    )
+    patched_node_path_name = mocker.patch.object(node_path.__class__, "node_name")
     patched_read_minified = mocker.patch(
         (
             "qualibrate.api.core.domain.local_storage.snapshot."
@@ -282,9 +264,7 @@ def test__default_snapshot_content_loader_node_valid_metadata(mocker, tmp_path):
     patched_read_minified.assert_called_once_with(node_info, 1, node_file, None)
     patched_node_path_id.assert_called_once()
     patched_node_path_name.assert_called_once()
-    patched_read_metadata.assert_called_once_with(
-        node_info, "name", node_path, None
-    )
+    patched_read_metadata.assert_called_once_with(node_info, "name", node_path, None)
     patched_read_data.assert_not_called()
 
 
@@ -329,15 +309,9 @@ def test__default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
     ) == {"minified": {}, "metadata": {}, "data": {}}
     patched_node_path_id.assert_called_once()
     patched_node_path_name.assert_called_once()
-    patched_read_minified.assert_called_once_with(
-        node_info, 1, node_filepath, None
-    )
-    patched_read_metadata.assert_called_once_with(
-        node_info, "name", node_path, None
-    )
-    patched_read_data.assert_called_once_with(
-        node_info, node_filepath, node_path
-    )
+    patched_read_minified.assert_called_once_with(node_info, 1, node_filepath, None)
+    patched_read_metadata.assert_called_once_with(node_info, "name", node_path, None)
+    patched_read_data.assert_called_once_with(node_info, node_filepath, node_path)
 
 
 class TestSnapshotLocalStorage:
@@ -394,8 +368,7 @@ class TestSnapshotLocalStorage:
             return_value=None,
         )
         search_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
-            ".get_subpath_value",
+            "qualibrate.api.core.domain.local_storage.snapshot" ".get_subpath_value",
         )
         assert self.snapshot.search([], load) is None
         if load:
@@ -416,10 +389,7 @@ class TestSnapshotLocalStorage:
             return_value=data,
         )
         search_patched = mocker.patch(
-            (
-                "qualibrate.api.core.domain.local_storage.snapshot"
-                ".get_subpath_value"
-            ),
+            ("qualibrate.api.core.domain.local_storage.snapshot" ".get_subpath_value"),
             return_value=[{}],
         )
         assert self.snapshot.search(search_path, load) == [{}]
@@ -432,8 +402,7 @@ class TestSnapshotLocalStorage:
     def test_get_latest_snapshots_one(self, mocker, settings):
         load_patched = mocker.patch.object(self.snapshot, "load")
         find_latest_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
-            ".find_latest_node_id",
+            "qualibrate.api.core.domain.local_storage.snapshot" ".find_latest_node_id",
             return_value=3,
         )
         find_n_latest_patched = mocker.patch(
@@ -451,8 +420,7 @@ class TestSnapshotLocalStorage:
             ".SnapshotLocalStorage.load"
         )
         find_latest_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
-            ".find_latest_node_id",
+            "qualibrate.api.core.domain.local_storage.snapshot" ".find_latest_node_id",
             return_value=3,
         )
         find_n_latest_patched = mocker.patch(
@@ -501,9 +469,7 @@ class TestSnapshotLocalStorage:
         with pytest.raises(QValueException) as ex:
             self.snapshot.compare_by_id(2)
         assert ex.type == QValueException
-        assert ex.value.args == (
-            f"Can't load data of snapshot {self.snapshot._id}",
-        )
+        assert ex.value.args == (f"Can't load data of snapshot {self.snapshot._id}",)
         load_patched.assert_called_once_with(SnapshotLoadType.Data)
 
     def test_compare_by_id_other_data_is_empty(self, mocker):

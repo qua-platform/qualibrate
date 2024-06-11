@@ -2,9 +2,9 @@ from datetime import date, datetime, time
 from functools import cached_property, lru_cache
 from typing import Optional
 
-from qualibrate.api.core.types import IdType
-from qualibrate.api.core.utils.path import ConcretePath
-from qualibrate.api.core.utils.path.node_date import NodesDatePath
+from qualibrate_app.api.core.types import IdType
+from qualibrate_app.api.core.utils.path import ConcretePath
+from qualibrate_app.api.core.utils.path.node_date import NodesDatePath
 
 __all__ = ["NodePath"]
 

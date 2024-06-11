@@ -5,12 +5,12 @@ from urllib.parse import urljoin
 import requests
 from pydantic import ValidationError
 
-from qualibrate.api.core.domain.bases.project import ProjectsManagerBase
-from qualibrate.api.core.models.project import Project
-from qualibrate.api.core.utils.request_utils import request_with_db
-from qualibrate.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate.api.exceptions.classes.values import QValueException
-from qualibrate.config import (
+from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
+from qualibrate_app.api.core.models.project import Project
+from qualibrate_app.api.core.utils.request_utils import request_with_db
+from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
+from qualibrate_app.api.exceptions.classes.values import QValueException
+from qualibrate_app.config import (
     CONFIG_KEY,
     QualibrateSettings,
     QualibrateSettingsSetup,
@@ -35,9 +35,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         self._set_user_storage_project(value)
 
     def _set_user_storage_project(self, project_name: str) -> None:
-        raw_config, new_config = self._get_raw_and_resolved_ref_config(
-            project_name
-        )
+        raw_config, new_config = self._get_raw_and_resolved_ref_config(project_name)
         qs_dict = new_config.get(CONFIG_KEY, {})
         qs: Union[QualibrateSettings, QualibrateSettingsSetup]
         try:

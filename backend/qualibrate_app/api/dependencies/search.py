@@ -2,8 +2,8 @@ from typing import Annotated, Sequence, Union
 
 from fastapi import Query
 
-from qualibrate.api.core.types import AllowedSearchKeys
-from qualibrate.api.core.utils.request_utils import HTTPException422
+from qualibrate_app.api.core.types import AllowedSearchKeys
+from qualibrate_app.api.core.utils.request_utils import HTTPException422
 
 
 def check_path_item(item: str) -> bool:

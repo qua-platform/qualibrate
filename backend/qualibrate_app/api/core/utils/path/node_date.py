@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from functools import cached_property
 
-from qualibrate.api.core.utils.path import ConcretePath
+from qualibrate_app.api.core.utils.path import ConcretePath
 
 __all__ = ["NodesDatePath"]
 

@@ -3,12 +3,12 @@ from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Generator, List, Optional, Tuple
 
-from qualibrate.api.core.domain.local_storage._id_to_local_path import (
+from qualibrate_app.api.core.domain.local_storage._id_to_local_path import (
     IdToLocalPath,
 )
-from qualibrate.api.core.types import IdType
-from qualibrate.api.core.utils.path.node import NodePath
-from qualibrate.api.core.utils.path.node_date import NodesDatePath
+from qualibrate_app.api.core.types import IdType
+from qualibrate_app.api.core.utils.path.node import NodePath
+from qualibrate_app.api.core.utils.path.node_date import NodesDatePath
 
 
 def find_latest_node(base_path: Path) -> NodePath:
@@ -39,9 +39,7 @@ def _validate_date_range(
         return False
 
 
-def _validate_node_id(
-    node_path: NodePath, min_id: IdType, max_id: IdType
-) -> bool:
+def _validate_node_id(node_path: NodePath, min_id: IdType, max_id: IdType) -> bool:
     id_ = node_path.id
     return id_ is not None and (min_id <= id_ <= max_id)
 
@@ -60,9 +58,7 @@ def find_n_latest_nodes_ids(
     page -= 1
 
     max_node_id = (
-        max_node_id
-        if max_node_id is not None
-        else find_latest_node_id(base_path)
+        max_node_id if max_node_id is not None else find_latest_node_id(base_path)
     )
     node_id_max_val = max(0, max_node_id - page * per_page)
     if node_id_max_val == 0:
@@ -77,16 +73,10 @@ def find_n_latest_nodes_ids(
         project_path=base_path,
     )
     min_node_path = get_node_path(id=node_id_min_val)
-    min_node_path_date = (
-        min_node_path.date if min_node_path is not None else None
-    )
+    min_node_path_date = min_node_path.date if min_node_path is not None else None
     max_node_path = get_node_path(id=node_id_max_val)
-    max_node_path_date = (
-        max_node_path.date if max_node_path is not None else None
-    )
-    date_filters: List[
-        Tuple[Callable[[NodesDatePath], bool], Tuple[Any, ...]]
-    ] = [
+    max_node_path_date = max_node_path.date if max_node_path is not None else None
+    date_filters: List[Tuple[Callable[[NodesDatePath], bool], Tuple[Any, ...]]] = [
         (Path.is_dir, tuple()),
         (_validate_date_range, (min_node_path_date, max_node_path_date)),
     ]
@@ -102,9 +92,7 @@ def find_n_latest_nodes_ids(
             lambda p: all(filter_(p, *args) for filter_, args in node_filters),
             map(NodePath, node_date.glob("#*")),
         )
-        node_path_ids = {
-            int(path.stem[1:].split("_")[0]): path for path in node_paths
-        }
+        node_path_ids = {int(path.stem[1:].split("_")[0]): path for path in node_paths}
         for node_id, node in sorted(
             node_path_ids.items(),
             key=lambda x: x[0],

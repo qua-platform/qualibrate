@@ -1,10 +1,10 @@
 from pathlib import Path
 from typing import Callable, Optional
 
-from qualibrate.api.core.types import IdType
-from qualibrate.api.core.utils.path.node import NodePath
-from qualibrate.api.core.utils.singleton import Singleton
-from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate_app.api.core.types import IdType
+from qualibrate_app.api.core.utils.path.node import NodePath
+from qualibrate_app.api.core.utils.singleton import Singleton
+from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
 
 __all__ = ["default_node_path_solver", "IdToLocalPath", "NodePathSolverType"]
 
@@ -65,7 +65,5 @@ class IdToLocalPath(metaclass=Singleton):
     ) -> NodePath:
         path = self.get(project, id, project_path, solver)
         if path is None:
-            raise QFileNotFoundException(
-                f"Node {id} of project '{project}' not found"
-            )
+            raise QFileNotFoundException(f"Node {id} of project '{project}' not found")
         return path

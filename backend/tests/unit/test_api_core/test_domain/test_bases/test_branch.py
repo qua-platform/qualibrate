@@ -4,10 +4,10 @@ from typing import Optional, Sequence
 import pytest
 from pydantic import ValidationError
 
-from qualibrate.api.core.domain.bases.branch import BranchBase, BranchLoadType
-from qualibrate.api.core.domain.bases.node import NodeBase
-from qualibrate.api.core.domain.bases.snapshot import SnapshotBase
-from qualibrate.api.core.types import IdType
+from qualibrate_app.api.core.domain.bases.branch import BranchBase, BranchLoadType
+from qualibrate_app.api.core.domain.bases.node import NodeBase
+from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
+from qualibrate_app.api.core.types import IdType
 
 
 class CustomBranchBase(BranchBase):

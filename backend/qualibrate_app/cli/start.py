@@ -3,7 +3,7 @@ from pathlib import Path
 
 import click
 
-from qualibrate.config import (
+from qualibrate_app.config import (
     CONFIG_PATH_ENV_NAME,
     DEFAULT_CONFIG_FILENAME,
     QUALIBRATE_PATH,
@@ -23,9 +23,7 @@ from qualibrate.config import (
     help="Path to `config.toml` file",
     show_default=True,
 )
-@click.option(
-    "--reload", is_flag=True, hidden=True
-)  # env QUALIBRATE_START_RELOAD
+@click.option("--reload", is_flag=True, hidden=True)  # env QUALIBRATE_START_RELOAD
 @click.option(
     "--port",
     type=int,
@@ -34,7 +32,7 @@ from qualibrate.config import (
     help="Application will be started on the given port",
 )  # env QUALIBRATE_START_PORT
 def start_command(config_path: Path, port: int, reload: bool) -> None:
-    from qualibrate.app import main as app_main
+    from qualibrate_app.app import main as app_main
 
     os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
     app_main(port=port, reload=reload)

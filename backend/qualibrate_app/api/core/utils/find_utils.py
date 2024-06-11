@@ -1,7 +1,7 @@
 from itertools import chain
 from typing import Any, Callable, Mapping, Optional, Sequence, Union, cast
 
-from qualibrate.api.core.types import DocumentSequenceType
+from qualibrate_app.api.core.types import DocumentSequenceType
 
 
 def _get_subpath_value_wildcard(
@@ -12,13 +12,11 @@ def _get_subpath_value_wildcard(
     if len(target_path) == 1:
         if isinstance(obj, Sequence):
             return [
-                {"key": current_path + [i], "value": val}
-                for i, val in enumerate(obj)
+                {"key": current_path + [i], "value": val} for i, val in enumerate(obj)
             ]
         elif isinstance(obj, Mapping):
             return [
-                {"key": current_path + [key], "value": val}
-                for key, val in obj.items()
+                {"key": current_path + [key], "value": val} for key, val in obj.items()
             ]
         else:
             return []
@@ -84,9 +82,7 @@ def get_subpath_value_on_any_depth(
             if k == key:
                 paths.append({"path": current_path + [k], "value": v})
             else:
-                get_subpath_value_on_any_depth(
-                    v, key, current_path + [k], paths
-                )
+                get_subpath_value_on_any_depth(v, key, current_path + [k], paths)
     elif isinstance(obj, Sequence) and not isinstance(obj, str):
         for i, item in enumerate(obj):
             get_subpath_value_on_any_depth(item, key, current_path + [i], paths)

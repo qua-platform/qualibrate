@@ -5,12 +5,12 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from qualibrate.api.core.domain.bases.storage import (
+from qualibrate_app.api.core.domain.bases.storage import (
     DataFileStorage,
     StorageLoadType,
 )
-from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
-from qualibrate.api.exceptions.classes.values import QValueException
+from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate_app.api.exceptions.classes.values import QValueException
 
 
 def test_data_file_name():
@@ -60,9 +60,7 @@ class TestDataFileStorage:
         self.dfs._load_type = StorageLoadType.Full
         assert self.dfs.load_type == StorageLoadType.Full
 
-    @pytest.mark.parametrize(
-        "load_type", [StorageLoadType.Empty, StorageLoadType.Full]
-    )
+    @pytest.mark.parametrize("load_type", [StorageLoadType.Empty, StorageLoadType.Full])
     def test_load_current_type_greater_or_eq(self, mocker, load_type):
         mocker.patch.object(
             self.dfs.__class__,
@@ -191,9 +189,7 @@ class TestDataFileStorage:
         )
         data_file.write_text(json.dumps({"path": "./file.png"}))
         assert self.dfs._parse_data() is None
-        assert self.dfs._data == {
-            "path": {"./file.png": "data:image/png;base64,aW1n"}
-        }
+        assert self.dfs._data == {"path": {"./file.png": "data:image/png;base64,aW1n"}}
         assert self.dfs._load_type == StorageLoadType.Full
         patched_is_relative.assert_called_once_with(self.node_abs_path)
         patched_read_bytes.assert_called_once()

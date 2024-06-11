@@ -3,12 +3,12 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Optional, Sequence, Tuple
 
-from qualibrate.api.core.domain.bases.i_dump import IDump
-from qualibrate.api.core.domain.bases.node import NodeBase
-from qualibrate.api.core.domain.bases.snapshot import SnapshotBase
-from qualibrate.api.core.models.branch import Branch as BranchModel
-from qualibrate.api.core.types import DocumentType, IdType
-from qualibrate.config import QualibrateSettings
+from qualibrate_app.api.core.domain.bases.i_dump import IDump
+from qualibrate_app.api.core.domain.bases.node import NodeBase
+from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
+from qualibrate_app.api.core.models.branch import Branch as BranchModel
+from qualibrate_app.api.core.types import DocumentType, IdType
+from qualibrate_app.config import QualibrateSettings
 
 __all__ = ["BranchBase", "BranchLoadType"]
 

@@ -2,20 +2,20 @@ from typing import Annotated, Any, Mapping, Optional, Type, Union
 
 from fastapi import APIRouter, Depends, Path, Query
 
-from qualibrate.api.core.domain.bases.snapshot import (
+from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadType,
 )
-from qualibrate.api.core.domain.local_storage.snapshot import (
+from qualibrate_app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
 )
-from qualibrate.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
-from qualibrate.api.core.models.paged import PagedCollection
-from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
-from qualibrate.api.core.models.snapshot import Snapshot as SnapshotModel
-from qualibrate.api.core.types import DocumentSequenceType, IdType
-from qualibrate.api.dependencies.search import get_search_path
-from qualibrate.config import QualibrateSettings, StorageType, get_settings
+from qualibrate_app.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate_app.api.core.models.paged import PagedCollection
+from qualibrate_app.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
+from qualibrate_app.api.core.types import DocumentSequenceType, IdType
+from qualibrate_app.api.dependencies.search import get_search_path
+from qualibrate_app.config import QualibrateSettings, StorageType, get_settings
 
 snapshot_router = APIRouter(prefix="/snapshot/{id}", tags=["snapshot"])
 
@@ -50,9 +50,7 @@ def get_history(
     global_reverse: bool = False,
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
 ) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
-    total, history = snapshot.get_latest_snapshots(
-        page, per_page, global_reverse
-    )
+    total, history = snapshot.get_latest_snapshots(page, per_page, global_reverse)
     history_dumped = [
         SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
         for snapshot in history

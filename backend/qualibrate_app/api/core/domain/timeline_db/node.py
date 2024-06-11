@@ -1,12 +1,12 @@
 from typing import Optional
 
-from qualibrate.api.core.domain.bases.node import NodeBase
-from qualibrate.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
-from qualibrate.api.core.types import DocumentType, IdType
+from qualibrate_app.api.core.domain.bases.node import NodeBase
+from qualibrate_app.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate_app.api.core.types import DocumentType, IdType
 
 __all__ = ["NodeTimelineDb"]
 
-from qualibrate.config import QualibrateSettings
+from qualibrate_app.config import QualibrateSettings
 
 
 class NodeTimelineDb(NodeBase):
