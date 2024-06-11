@@ -36,14 +36,14 @@ export interface NodeDTO {
 export const NodeElement: React.FC<{ node: NodeDTO; nodeIndex: number }> = ({ node }) => {
   const { selectedNode, setSelectedNode, allNodes, setAllNodes } = useNodesContext();
 
-  const updateParameter = (key: string, newValue: string | number | boolean) => {
-    console.log("node.input_parameters", node.input_parameters);
-    console.log("newValue", newValue);
-    const currentInputParameters = { ...node.input_parameters };
-    const singleParameter = currentInputParameters[key];
-    currentInputParameters[key] = { ...singleParameter, ...{ default: newValue } };
-    setAllNodes(allNodes.map((n) => (n.name === node.name ? { ...n, input_parameters: currentInputParameters } : n)));
-  };
+  // const updateParameter = (key: string, newValue: string | number | boolean) => {
+  //   console.log("node.input_parameters", node.input_parameters);
+  //   console.log("newValue", newValue);
+  //   const currentInputParameters = { ...node.input_parameters };
+  //   const singleParameter = currentInputParameters[key];
+  //   currentInputParameters[key] = { ...singleParameter, ...{ default: newValue } };
+  //   setAllNodes(allNodes.map((n) => (n.name === node.name ? { ...n, input_parameters: currentInputParameters } : n)));
+  // };
   const updateParameter1 = (paramKey: string, newValue: boolean | number | string) => {
     const updatedParameters = {
       ...node.input_parameters,
@@ -139,7 +139,7 @@ export const NodeElement: React.FC<{ node: NodeDTO; nodeIndex: number }> = ({ no
           <InputField
             placeholder={key}
             value={parameter.default?.toString()}
-            onChange={(val, e) => {
+            onChange={(val) => {
               updateParameter1(key, val);
             }}
           />
