@@ -19,7 +19,7 @@ class QualibrationNode:
         self.results = {}
 
         if self.mode == "inspection":
-            from qualibrate_app.qualibration_library import (
+            from qualibrate.qualibration_library import (
                 LibraryScanException,
                 QualibrationLibrary,
             )
