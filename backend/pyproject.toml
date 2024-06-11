@@ -38,7 +38,7 @@ pytest-mock = "^3.12.0"
 httpx = "^0.27.0"
 
 [tool.poetry.scripts]
-qualibrate = "qualibrate.__main__:main"
+qualibrate = "qualibrate_app.__main__:main"
 
 [tool.mypy]
 python_version = "3.9"
