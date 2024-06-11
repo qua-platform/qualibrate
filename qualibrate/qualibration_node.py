@@ -18,8 +18,8 @@ class QualibrationNode:
         self._state_updates = {}
         self.results = {}
 
-        if self.mode == "library_scan":
-            from qualibrate.qualibration_library import (
+        if self.mode == "inspection":
+            from qualibrate_app.qualibration_library import (
                 LibraryScanException,
                 QualibrationLibrary,
             )
@@ -35,14 +35,18 @@ class QualibrationNode:
             )
 
     def serialize(self) -> Mapping[str, Any]:
-
         return {
             "name": self.name,
-            "parameters": self.parameters_class.serialize(),
+            "input_parameters": self.parameters_class.serialize(),
             "description": self.description,
         }
 
-    def save(self): ...
+    def save(self):
+        self.storage_manager.save(node=self)
+
+    def run_node(self, input_parameters):
+        QualibrationNode.mode == "external"
+        self.run_node_file(self.node_filepath)
 
     def _record_state_update(self, attr, val):
         self._state_updates[attr] = val

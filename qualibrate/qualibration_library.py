@@ -45,7 +45,7 @@ class QualibrationLibrary:
 
         original_mode = QualibrationNode.mode
         try:
-            QualibrationNode.mode = "library_scan"
+            QualibrationNode.mode = "inspection"
 
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_node(file):
@@ -77,6 +77,6 @@ class QualibrationLibrary:
     def get_nodes(self) -> Mapping[str, QualibrationNode]:
         return self.nodes
 
-    def run(
-        self, node: QualibrationNode, input_parameters: NodeParameters, **kwargs
-    ): ...
+    def run_node(self, node_name: str, input_parameters: NodeParameters):
+        node = self.nodes[node_name]
+        node.run_node(input_parameters)
