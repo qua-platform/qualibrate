@@ -43,10 +43,10 @@ def submit_run(
 
 
 @base_router.get("/get_nodes")
-def get_nodes_list(
+def get_nodes(
     nodes: Annotated[Mapping[str, Any], Depends(get_nodes)],
-) -> Sequence[str]:
-    return list(nodes.keys())
+) -> Mapping[str, Any]:
+    return {node_name: node.serialize() for node_name, node in nodes.items()}
 
 
 @base_router.get("/get_node")
