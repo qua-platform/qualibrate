@@ -54,7 +54,9 @@ class QualibrationNode:
 
     def save(self):
         if self.storage_manager is None:
-            warnings.warn("Node.storage_manager needs to be defined to save node")
+            warnings.warn(
+                "Node.storage_manager should be defined to save node, resorting to default configuration"
+            )
             from qualibrate_app.config import get_settings, get_config_path
 
             config_path = get_config_path()

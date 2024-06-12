@@ -17,11 +17,15 @@ class LocalStorageManager(StorageManager):
         logger.info(f"Saving node {node.name} to local storage")
 
         # Save results
+        self.data_handler.name = node.name
+        DataHandler.node_data = {"quam": "./quam_state.json"}
         node_contents = (
             self.data_handler.generate_node_contents()
         )  # TODO directly access idx
         self.data_handler.save_data(
-            data=node.results, name=node.name, node_contents=node_contents
+            data=node.results,
+            name=node.name,
+            node_contents=node_contents,
         )
         self.snapshot_idx = node_contents["id"]
 
@@ -32,7 +36,7 @@ class LocalStorageManager(StorageManager):
 
         # Save QuAM to the data folder
         assert isinstance(self.data_handler.path, Path)  # TODO Remove assertion
-        DataHandler.node_data = {"quam": "./state.json"}
+
         if isinstance(node.machine, dict):
             quam_path = self.data_handler.path / "quam_state.json"
             quam_path.write_text(json.dumps(node.machine, indent=4, sort_keys=True))

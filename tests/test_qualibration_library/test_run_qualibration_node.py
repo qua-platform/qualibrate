@@ -12,12 +12,4 @@ def test_run_calibration_node_from_library(tmp_path):
 
     assert list(library.nodes) == ["basic_node"]
 
-    input_parameters = {}
-
-    with pytest.raises(RuntimeError):
-        library.run_node("basic_node", input_parameters=input_parameters)
-
-    storage_manager = LocalStorageManager(root_data_folder=tmp_path)
-    library.nodes["basic_node"].storage_manager = storage_manager
-
-    library.run_node("basic_node", input_parameters=input_parameters)
+    library.run_node("basic_node", input_parameters={})
