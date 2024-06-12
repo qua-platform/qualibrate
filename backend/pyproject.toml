@@ -3,7 +3,7 @@ name = "qualibrate-app"
 version = "0.1.0"
 description = ""
 authors = ["Maxim V4S <maxim.d@v4scale.com>"]
-repository = "https://github.com/qua-platform/qualibrate"
+repository = "https://github.com/qua-platform/qualibrate-app"
 packages = [{ include = "qualibrate_app" }]
 readme = "README.md"
 
