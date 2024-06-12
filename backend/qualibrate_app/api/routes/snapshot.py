@@ -9,9 +9,13 @@ from qualibrate_app.api.core.domain.bases.snapshot import (
 from qualibrate_app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
 )
-from qualibrate_app.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate_app.api.core.domain.timeline_db.snapshot import (
+    SnapshotTimelineDb,
+)
 from qualibrate_app.api.core.models.paged import PagedCollection
-from qualibrate_app.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate_app.api.core.models.snapshot import (
+    SimplifiedSnapshotWithMetadata,
+)
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import DocumentSequenceType, IdType
 from qualibrate_app.api.dependencies.search import get_search_path
@@ -50,7 +54,9 @@ def get_history(
     global_reverse: bool = False,
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
 ) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
-    total, history = snapshot.get_latest_snapshots(page, per_page, global_reverse)
+    total, history = snapshot.get_latest_snapshots(
+        page, per_page, global_reverse
+    )
     history_dumped = [
         SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
         for snapshot in history

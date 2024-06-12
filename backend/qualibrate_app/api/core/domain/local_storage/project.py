@@ -16,13 +16,16 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
         self._set_user_storage_project(value)
 
     def _set_user_storage_project(self, project_name: str) -> None:
-        raw_config, new_config = self._get_raw_and_resolved_ref_config(project_name)
+        raw_config, new_config = self._get_raw_and_resolved_ref_config(
+            project_name
+        )
         try:
             qs = QualibrateSettings(**(new_config.get(CONFIG_KEY, {})))
         except ValidationError as ex:
             storage_not_exists = filter(
                 lambda e: (
-                    e["type"] == "path_not_directory" and e["loc"] == ("user_storage",),
+                    e["type"] == "path_not_directory"
+                    and e["loc"] == ("user_storage",),
                 ),
                 ex.errors(include_url=False, include_input=False),
             )
@@ -60,7 +63,10 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
             max_node_num_id = None
             max_node_number_time = None
         max_node_number = max_node_num_id or -1
-        if max_node_number_path is not None and max_node_number_time is not None:
+        if (
+            max_node_number_path is not None
+            and max_node_number_time is not None
+        ):
             last_modified_ts = max_node_number_path.datetime.replace(
                 hour=max_node_number_time.hour,
                 minute=max_node_number_time.minute,
@@ -91,5 +97,6 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
             self._settings.project, self._settings.user_storage
         )
         return [
-            self._get_project_info(p) for p in filter(Path.is_dir, base_path.iterdir())
+            self._get_project_info(p)
+            for p in filter(Path.is_dir, base_path.iterdir())
         ]

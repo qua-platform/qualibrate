@@ -1,7 +1,9 @@
 from typing import Optional
 
 from qualibrate_app.api.core.domain.bases.node import NodeBase
-from qualibrate_app.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate_app.api.core.domain.timeline_db.snapshot import (
+    SnapshotTimelineDb,
+)
 from qualibrate_app.api.core.types import DocumentType, IdType
 
 __all__ = ["NodeTimelineDb"]

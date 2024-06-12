@@ -1,14 +1,19 @@
 from datetime import datetime
 from typing import Optional, Sequence, Tuple
 
-from qualibrate_app.api.core.domain.bases.branch import BranchBase, BranchLoadType
+from qualibrate_app.api.core.domain.bases.branch import (
+    BranchBase,
+    BranchLoadType,
+)
 from qualibrate_app.api.core.domain.bases.node import NodeBase, NodeLoadType
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadType,
 )
 from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
-from qualibrate_app.api.core.domain.timeline_db.snapshot import SnapshotTimelineDb
+from qualibrate_app.api.core.domain.timeline_db.snapshot import (
+    SnapshotTimelineDb,
+)
 from qualibrate_app.api.core.types import DocumentType, IdType
 from qualibrate_app.api.core.utils.request_utils import request_with_db
 from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
@@ -31,7 +36,9 @@ class BranchTimelineDb(BranchBase):
     def created_at(self) -> Optional[datetime]:
         if "created_at" not in self.content:
             return None
-        return datetime.fromisoformat(str(self.content.get("created_at"))).astimezone()
+        return datetime.fromisoformat(
+            str(self.content.get("created_at"))
+        ).astimezone()
 
     def load(self, load_type: BranchLoadType) -> None:
         if self._load_type == BranchLoadType.Full:
@@ -126,7 +133,9 @@ class BranchTimelineDb(BranchBase):
         reverse: bool = False,
     ) -> Tuple[int, list[SnapshotBase]]:
         """Retrieve last num_snapshots from this branch"""
-        total, snapshots = self._get_remote_snapshots(True, page, per_page, reverse)
+        total, snapshots = self._get_remote_snapshots(
+            True, page, per_page, reverse
+        )
         return total, [
             SnapshotTimelineDb(
                 id=snapshot["id"], content=snapshot, settings=self._settings
@@ -141,7 +150,9 @@ class BranchTimelineDb(BranchBase):
         reverse: bool = False,
     ) -> Tuple[int, list[NodeBase]]:
         """Retrieve last num_snapshots from this branch"""
-        total, snapshots = self._get_remote_snapshots(False, page, per_page, reverse)
+        total, snapshots = self._get_remote_snapshots(
+            False, page, per_page, reverse
+        )
         return total, [
             NodeTimelineDb(
                 node_id=snapshot["id"],

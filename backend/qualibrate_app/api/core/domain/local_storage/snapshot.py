@@ -16,7 +16,11 @@ from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
     find_latest_node_id,
     find_n_latest_nodes_ids,
 )
-from qualibrate_app.api.core.types import DocumentSequenceType, DocumentType, IdType
+from qualibrate_app.api.core.types import (
+    DocumentSequenceType,
+    DocumentType,
+    IdType,
+)
 from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 from qualibrate_app.api.core.utils.path.node import NodePath
 from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
@@ -48,12 +52,16 @@ def _read_minified_node_content(
         Minified content on node
     """
     node_id = node_info.get("id", f_node_id or -1)
-    parents = node_info.get("parents", [node_id - 1] if node_id and node_id > 0 else [])
+    parents = node_info.get(
+        "parents", [node_id - 1] if node_id and node_id > 0 else []
+    )
     id_local_path = IdToLocalPath()
     project = settings.project
     user_storage = settings.user_storage
     parents = list(
-        filter(lambda p_id: id_local_path.get(project, p_id, user_storage), parents)
+        filter(
+            lambda p_id: id_local_path.get(project, p_id, user_storage), parents
+        )
     )
     created_at_str = node_info.get("created_at")
     if created_at_str is not None:
@@ -145,7 +153,9 @@ def _default_snapshot_content_loader(
     )
     if load_type < SnapshotLoadType.Data:
         return content
-    content["data"] = _read_data_node_content(node_info, node_filepath, snapshot_path)
+    content["data"] = _read_data_node_content(
+        node_info, node_filepath, snapshot_path
+    )
     return content
 
 
@@ -220,7 +230,9 @@ class SnapshotLocalStorage(SnapshotBase):
             self._settings.project,
             max_node_id=(self.id or total) - 1,
         )
-        snapshots = [SnapshotLocalStorage(id, settings=self._settings) for id in ids]
+        snapshots = [
+            SnapshotLocalStorage(id, settings=self._settings) for id in ids
+        ]
         for snapshot in snapshots:
             try:
                 snapshot.load(SnapshotLoadType.Metadata)
@@ -228,7 +240,9 @@ class SnapshotLocalStorage(SnapshotBase):
                 pass
         return total, [self, *snapshots]
 
-    def compare_by_id(self, other_snapshot_id: int) -> Mapping[str, Mapping[str, Any]]:
+    def compare_by_id(
+        self, other_snapshot_id: int
+    ) -> Mapping[str, Mapping[str, Any]]:
         if self.id == other_snapshot_id:
             raise QValueException("Can't compare snapshots with same id")
         self.load(SnapshotLoadType.Data)
@@ -241,7 +255,9 @@ class SnapshotLocalStorage(SnapshotBase):
         other_snapshot.load(SnapshotLoadType.Data)
         other_data = other_snapshot.data
         if other_data is None:
-            raise QValueException(f"Can't load data of snapshot {other_snapshot_id}")
+            raise QValueException(
+                f"Can't load data of snapshot {other_snapshot_id}"
+            )
         return jsonpatch_to_mapping(
             this_data, jsonpatch.make_patch(dict(this_data), dict(other_data))
         )

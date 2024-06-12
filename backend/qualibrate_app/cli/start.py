@@ -23,7 +23,9 @@ from qualibrate_app.config import (
     help="Path to `config.toml` file",
     show_default=True,
 )
-@click.option("--reload", is_flag=True, hidden=True)  # env QUALIBRATE_START_RELOAD
+@click.option(
+    "--reload", is_flag=True, hidden=True
+)  # env QUALIBRATE_START_RELOAD
 @click.option(
     "--port",
     type=int,

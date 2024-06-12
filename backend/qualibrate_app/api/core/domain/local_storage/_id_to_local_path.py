@@ -65,5 +65,7 @@ class IdToLocalPath(metaclass=Singleton):
     ) -> NodePath:
         path = self.get(project, id, project_path, solver)
         if path is None:
-            raise QFileNotFoundException(f"Node {id} of project '{project}' not found")
+            raise QFileNotFoundException(
+                f"Node {id} of project '{project}' not found"
+            )
         return path

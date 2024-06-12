@@ -28,7 +28,9 @@ class TestNodePath:
             node.__class__,
             "date_path",
             new_callable=PropertyMock,
-            return_value=type("MockDate", (), {"datetime": "2024-04-27T12:00:00"}),
+            return_value=type(
+                "MockDate", (), {"datetime": "2024-04-27T12:00:00"}
+            ),
         )
         assert node.datetime == "2024-04-27T12:00:00"
 

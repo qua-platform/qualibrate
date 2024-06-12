@@ -35,7 +35,9 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         self._set_user_storage_project(value)
 
     def _set_user_storage_project(self, project_name: str) -> None:
-        raw_config, new_config = self._get_raw_and_resolved_ref_config(project_name)
+        raw_config, new_config = self._get_raw_and_resolved_ref_config(
+            project_name
+        )
         qs_dict = new_config.get(CONFIG_KEY, {})
         qs: Union[QualibrateSettings, QualibrateSettingsSetup]
         try:

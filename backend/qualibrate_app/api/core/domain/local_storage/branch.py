@@ -2,7 +2,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Sequence, Tuple
 
-from qualibrate_app.api.core.domain.bases.branch import BranchBase, BranchLoadType
+from qualibrate_app.api.core.domain.bases.branch import (
+    BranchBase,
+    BranchLoadType,
+)
 from qualibrate_app.api.core.domain.bases.node import NodeBase, NodeLoadType
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -75,7 +78,9 @@ class BranchLocalStorage(BranchBase):
         ids = find_n_latest_nodes_ids(
             self._settings.user_storage, page, per_page, self._settings.project
         )
-        snapshots = [SnapshotLocalStorage(id, settings=self._settings) for id in ids]
+        snapshots = [
+            SnapshotLocalStorage(id, settings=self._settings) for id in ids
+        ]
         for snapshot in snapshots:
             snapshot.load(SnapshotLoadType.Metadata)
         total = find_latest_node_id(self._settings.user_storage)

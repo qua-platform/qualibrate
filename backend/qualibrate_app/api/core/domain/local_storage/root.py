@@ -4,7 +4,9 @@ from qualibrate_app.api.core.domain.bases.branch import BranchBase
 from qualibrate_app.api.core.domain.bases.node import NodeBase
 from qualibrate_app.api.core.domain.bases.root import RootBase
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
-from qualibrate_app.api.core.domain.local_storage.branch import BranchLocalStorage
+from qualibrate_app.api.core.domain.local_storage.branch import (
+    BranchLocalStorage,
+)
 from qualibrate_app.api.core.domain.local_storage.node import NodeLocalStorage
 from qualibrate_app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
@@ -49,9 +51,9 @@ class RootLocalStorage(RootBase):
         per_page: int = 50,
         reverse: bool = False,
     ) -> Tuple[int, Sequence[SnapshotBase]]:
-        return BranchLocalStorage("main", settings=self._settings).get_latest_snapshots(
-            page, per_page, reverse
-        )
+        return BranchLocalStorage(
+            "main", settings=self._settings
+        ).get_latest_snapshots(page, per_page, reverse)
 
     def get_latest_nodes(
         self,
@@ -59,9 +61,9 @@ class RootLocalStorage(RootBase):
         per_page: int = 50,
         reverse: bool = False,
     ) -> Tuple[int, Sequence[NodeBase]]:
-        return BranchLocalStorage("main", settings=self._settings).get_latest_nodes(
-            page, per_page, reverse
-        )
+        return BranchLocalStorage(
+            "main", settings=self._settings
+        ).get_latest_nodes(page, per_page, reverse)
 
     def search_snapshot(
         self, snapshot_id: IdType, data_path: Sequence[Union[str, int]]

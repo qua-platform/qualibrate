@@ -10,9 +10,9 @@ from qualibrate_app.api.exceptions.classes.storage import (
 
 def test_resolve_and_check_relative_valid():
     base_path = Path("/usr/local/.cache")
-    assert common.resolve_and_check_relative(base_path, Path("sub/path")) == Path(
-        "/usr/local/.cache/sub/path"
-    )
+    assert common.resolve_and_check_relative(
+        base_path, Path("sub/path")
+    ) == Path("/usr/local/.cache/sub/path")
 
 
 def test_resolve_and_check_relative_invalid_not_subpath():

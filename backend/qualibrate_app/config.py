@@ -35,7 +35,9 @@ class JsonTimelineDBBase(BaseSettings):
     timeout: float
 
     @field_serializer("address")
-    def serialize_http_url(self, url: HttpUrl, _info: FieldSerializationInfo) -> str:
+    def serialize_http_url(
+        self, url: HttpUrl, _info: FieldSerializationInfo
+    ) -> str:
         return str(url)
 
 
@@ -73,7 +75,9 @@ class QualibrateSettings(_QualibrateSettingsBase):
     project: str
 
 
-def _get_config_file_from_dir(dir_path: Path, raise_not_exists: bool = True) -> Path:
+def _get_config_file_from_dir(
+    dir_path: Path, raise_not_exists: bool = True
+) -> Path:
     default_qualibrate = dir_path / DEFAULT_QUALIBRATE_CONFIG_FILENAME
     if default_qualibrate.is_file():
         return default_qualibrate

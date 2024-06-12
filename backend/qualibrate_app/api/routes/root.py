@@ -11,7 +11,9 @@ from qualibrate_app.api.core.domain.timeline_db.root import RootTimelineDb
 from qualibrate_app.api.core.models.branch import Branch as BranchModel
 from qualibrate_app.api.core.models.node import Node as NodeModel
 from qualibrate_app.api.core.models.paged import PagedCollection
-from qualibrate_app.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate_app.api.core.models.snapshot import (
+    SimplifiedSnapshotWithMetadata,
+)
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import IdType
 from qualibrate_app.api.dependencies.search import get_search_path

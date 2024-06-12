@@ -73,7 +73,10 @@ class DataFileStorage(IDump):
         for key, value in content.items():
             if isinstance(value, str) and Path(value).suffix == ".png":
                 img_path = (self._path / value).resolve()
-                if not img_path.is_relative_to(self._path) or not img_path.is_file():
+                if (
+                    not img_path.is_relative_to(self._path)
+                    or not img_path.is_file()
+                ):
                     continue
                 img_data = img_path.read_bytes()
                 # TODO: dynamic compute MIME type

@@ -90,7 +90,9 @@ def _config_from_sources(
             if not_default_arg or (
                 timeline_db_mapping[arg_key] not in from_file["timeline_db"]
             ):
-                from_file["timeline_db"][timeline_db_mapping[arg_key]] = arg_value
+                from_file["timeline_db"][
+                    timeline_db_mapping[arg_key]
+                ] = arg_value
     return from_file
 
 
@@ -101,7 +103,9 @@ def _spawn_db_processing(
     timeline_db_address: str,
 ) -> dict[str, Any]:
     spawn_not_default = not_default(ctx, "spawn_db")
-    if (spawn_db and spawn_not_default) or qualibrate_config["timeline_db"]["spawn"]:
+    if (spawn_db and spawn_not_default) or qualibrate_config["timeline_db"][
+        "spawn"
+    ]:
         click.secho(
             (
                 "Argument timeline_db_address replaced because "
@@ -144,7 +148,10 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
     if not confirmed:
         click.echo(
             click.style(
-                ("The configuration has not been confirmed. " "Rerun config script."),
+                (
+                    "The configuration has not been confirmed. "
+                    "Rerun config script."
+                ),
                 fg="yellow",
             )
         )
@@ -267,7 +274,9 @@ def config_command(
         TIMELINE_DB_CONFIG_KEY is not None
         and TIMELINE_DB_CONFIG_KEY not in common_config
     ):
-        common_config[TIMELINE_DB_CONFIG_KEY] = _get_timeline_db_config().model_dump()
+        common_config[
+            TIMELINE_DB_CONFIG_KEY
+        ] = _get_timeline_db_config().model_dump()
     qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
     if "timeline_db" not in qualibrate_config:
         qualibrate_config["timeline_db"] = {}

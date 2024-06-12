@@ -4,7 +4,9 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 from qualibrate_app.api.__main__ import api_router
-from qualibrate_app.api.exceptions.middleware import QualibrateCatchExcMiddleware
+from qualibrate_app.api.exceptions.middleware import (
+    QualibrateCatchExcMiddleware,
+)
 from qualibrate_app.config import StorageType, get_config_path, get_settings
 
 try:
@@ -29,7 +31,10 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api")
 
-if _settings.storage_type == StorageType.timeline_db and _settings.timeline_db.spawn:
+if (
+    _settings.storage_type == StorageType.timeline_db
+    and _settings.timeline_db.spawn
+):
     if json_timeline_db_app is None:
         raise ImportError(
             "Can't import json_timeline_database instance. "

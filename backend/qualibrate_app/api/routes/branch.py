@@ -2,15 +2,22 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
 
-from qualibrate_app.api.core.domain.bases.branch import BranchBase, BranchLoadType
+from qualibrate_app.api.core.domain.bases.branch import (
+    BranchBase,
+    BranchLoadType,
+)
 from qualibrate_app.api.core.domain.bases.node import NodeLoadType
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotLoadType
-from qualibrate_app.api.core.domain.local_storage.branch import BranchLocalStorage
+from qualibrate_app.api.core.domain.local_storage.branch import (
+    BranchLocalStorage,
+)
 from qualibrate_app.api.core.domain.timeline_db.branch import BranchTimelineDb
 from qualibrate_app.api.core.models.branch import Branch as BranchModel
 from qualibrate_app.api.core.models.node import Node as NodeModel
 from qualibrate_app.api.core.models.paged import PagedCollection
-from qualibrate_app.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
+from qualibrate_app.api.core.models.snapshot import (
+    SimplifiedSnapshotWithMetadata,
+)
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import IdType
 from qualibrate_app.config import QualibrateSettings, StorageType, get_settings
@@ -94,7 +101,9 @@ def get_snapshots_history(
     global_reverse: bool = False,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
-    total, snapshots = branch.get_latest_snapshots(page, per_page, global_reverse)
+    total, snapshots = branch.get_latest_snapshots(
+        page, per_page, global_reverse
+    )
     snapshots_dumped = [
         SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
         for snapshot in snapshots

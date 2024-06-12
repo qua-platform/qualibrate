@@ -7,7 +7,9 @@ from fastapi.testclient import TestClient
 from qualibrate_app.config import QualibrateSettings, get_config_path
 
 
-def test_project_list(client_custom_settings: TestClient, local_storage_path: Path):
+def test_project_list(
+    client_custom_settings: TestClient, local_storage_path: Path
+):
     other_project = local_storage_path / "other_project"
     other_project.mkdir()
     default_project_created_at = (
@@ -44,7 +46,9 @@ def test_project_create(
     client_custom_settings: TestClient,
     local_storage_path: Path,
 ):
-    assert list(local_storage_path.iterdir()) == [local_storage_path / "project"]
+    assert list(local_storage_path.iterdir()) == [
+        local_storage_path / "project"
+    ]
     response = client_custom_settings.post(
         "/api/projects/create", params={"project_name": "new_project"}
     )

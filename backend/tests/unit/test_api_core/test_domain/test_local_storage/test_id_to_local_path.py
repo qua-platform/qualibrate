@@ -38,7 +38,9 @@ def test_default_node_path_solver_not_exists(tmp_path: Path):
 class Test_IdToProjectLocalPath:
     @pytest.fixture(autouse=True, scope="function")
     def create_id2project_node(self):
-        self.id2project_node = _id_to_local_path._IdToProjectLocalPath("name", None)
+        self.id2project_node = _id_to_local_path._IdToProjectLocalPath(
+            "name", None
+        )
 
     def test_get_item_already_exists(self, mocker):
         self.id2project_node._mapping.update({1: "some_path"})
@@ -133,7 +135,9 @@ class TestIdToLocalPath:
         )
 
     def test_get_or_raise_path_is_not_none(self, mocker):
-        patched_get = mocker.patch.object(self.id2lp, "get", return_value="node_path")
+        patched_get = mocker.patch.object(
+            self.id2lp, "get", return_value="node_path"
+        )
         assert self.id2lp.get_or_raise("project", 1, "path") == "node_path"
         patched_get.assert_called_once_with(
             "project", 1, "path", _id_to_local_path.default_node_path_solver

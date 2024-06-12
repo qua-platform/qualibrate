@@ -36,9 +36,7 @@ def _setup_local_storage_project(project_path: Path) -> Path:
                     node_time.minute,
                     node_time.second,
                 )
-            ).replace(
-                tzinfo=timezone(timedelta(seconds=10800))
-            )  # 3 hours
+            ).replace(tzinfo=timezone(timedelta(seconds=10800)))  # 3 hours
 
             node_file.write_text(
                 json.dumps(
@@ -46,7 +44,9 @@ def _setup_local_storage_project(project_path: Path) -> Path:
                         "created_at": created_at.isoformat(timespec="seconds"),
                         "metadata": {
                             "name": node_name,
-                            "data_path": str(Path(node_date_str, node_dir_name)),
+                            "data_path": str(
+                                Path(node_date_str, node_dir_name)
+                            ),
                         },
                         "data": {"quam": "./state.json"},
                         "parents": [node_id - 1] if node_id > 1 else [],

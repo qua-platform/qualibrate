@@ -78,7 +78,9 @@ def test__get_subpath_value_wildcard_non_final_deeper(
         side_effect=_get_subpath_value,
     )
     target_path = ["*", "v"]
-    assert find_utils._get_subpath_value_wildcard(obj, target_path, ["x", "y"]) == [
+    assert find_utils._get_subpath_value_wildcard(
+        obj, target_path, ["x", "y"]
+    ) == [
         1,
         2,
     ]

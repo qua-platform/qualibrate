@@ -14,7 +14,9 @@ def config_with_refs():
             "project": "${#/qual/project}",
         },
         "sub": {
-            "item": {"path": "path_${#/data_handler/root}_project_${#/qual/project}"}
+            "item": {
+                "path": "path_${#/data_handler/root}_project_${#/qual/project}"
+            }
         },
     }
 
@@ -83,7 +85,9 @@ def test_find_all_references_mapping_item(mocker):
     assert cr.find_all_references({"key": {"a": 1}}) == []
     assert find_ref_spy.call_count == 2
 
-    find_ref_spy.assert_has_calls((call({"key": {"a": 1}}), call({"a": 1}, ["key"])))
+    find_ref_spy.assert_has_calls(
+        (call({"key": {"a": 1}}), call({"a": 1}, ["key"]))
+    )
 
 
 def test_find_all_references_string_single_ref(mocker):
@@ -309,5 +313,7 @@ def test_resolve_references_full_with_subref(config_with_refs):
             "root": "/data/my_project/subpath",
             "project": "my_project",
         },
-        "sub": {"item": {"path": "path_/data/my_project/subpath_project_my_project"}},
+        "sub": {
+            "item": {"path": "path_/data/my_project/subpath_project_my_project"}
+        },
     }
