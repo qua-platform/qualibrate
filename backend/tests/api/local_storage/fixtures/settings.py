@@ -54,9 +54,10 @@ def client_custom_settings(
 ) -> Generator[TestClient, None, None]:
     get_config_path.cache_clear()
     mocker.patch(
-        "qualibrate.config.get_config_file", return_value=settings_path_filled
+        "qualibrate_app.config.get_config_file",
+        return_value=settings_path_filled,
     )
-    mocker.patch("qualibrate.app.get_settings", return_value=settings)
+    mocker.patch("qualibrate_app.app.get_settings", return_value=settings)
 
     from qualibrate_app.app import app
 

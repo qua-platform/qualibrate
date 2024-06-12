@@ -16,7 +16,7 @@ def test__read_minified_node_content_node_info_filled(mocker, settings):
     created_at = datetime.now()
     patched_get_id_local_path = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage._id_to_local_path"
+            "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
             ".IdToLocalPath.get"
         ),
         side_effect=[1, 2],
@@ -51,7 +51,7 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
     node_file.touch()
     patched_get_id_local_path = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage._id_to_local_path"
+            "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
             ".IdToLocalPath.get"
         ),
         return_value=1,
@@ -90,7 +90,7 @@ def test__read_minified_node_content_node_info_empty_no_id_no_file(
     node_file = node_dir / "node_file.json"
     patched_get_id_local_path = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage._id_to_local_path"
+            "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
             ".IdToLocalPath.get"
         ),
     )
@@ -198,7 +198,7 @@ def test__default_snapshot_content_loader_node_file_issue(
         mocker.patch("pathlib.Path.is_file", return_value=False)
     patched_read_minified = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage.snapshot."
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_minified_node_content"
         ),
         return_value={"minified": {}},
@@ -227,7 +227,7 @@ def test__default_snapshot_content_loader_node_valid_minified(mocker, tmp_path):
     )
     patched_read_minified = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage.snapshot."
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_minified_node_content"
         ),
         return_value={"minified": {}},
@@ -258,21 +258,21 @@ def test__default_snapshot_content_loader_node_valid_metadata(mocker, tmp_path):
     node_file.write_text(json.dumps(node_info))
     patched_read_minified = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage.snapshot."
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_minified_node_content"
         ),
         return_value={"minified": {}},
     )
     patched_read_metadata = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage.snapshot."
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_metadata_node_content"
         ),
         return_value={},
     )
     patched_read_data = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage.snapshot."
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_data_node_content"
         ),
     )
@@ -305,21 +305,21 @@ def test__default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
     node_filepath.write_text(json.dumps(node_info))
     patched_read_minified = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage.snapshot."
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_minified_node_content"
         ),
         return_value={"minified": {}},
     )
     patched_read_metadata = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage.snapshot."
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_metadata_node_content"
         ),
         return_value={},
     )
     patched_read_data = mocker.patch(
         (
-            "qualibrate.api.core.domain.local_storage.snapshot."
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_data_node_content"
         ),
         return_value={},
@@ -349,8 +349,8 @@ class TestSnapshotLocalStorage:
         self.snapshot._load_type = SnapshotLoadType.Empty
         self.snapshot.content = {}
         mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot.IdToLocalPath"
-            ".get_or_raise"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
+            ".IdToLocalPath.get_or_raise"
         )
         snapshot_loader_patched = mocker.patch.object(
             self.snapshot, "_snapshot_loader", return_value={"a": "b"}
@@ -362,8 +362,8 @@ class TestSnapshotLocalStorage:
     def test_load_state_already_loaded(self, mocker):
         self.snapshot._load_type = SnapshotLoadType.Minified
         get_or_raise_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot.IdToLocalPath"
-            ".get_or_raise"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
+            ".IdToLocalPath.get_or_raise"
         )
         self.snapshot.load(SnapshotLoadType.Minified)
         get_or_raise_patched.assert_not_called()
@@ -394,7 +394,7 @@ class TestSnapshotLocalStorage:
             return_value=None,
         )
         search_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
             ".get_subpath_value",
         )
         assert self.snapshot.search([], load) is None
@@ -417,7 +417,7 @@ class TestSnapshotLocalStorage:
         )
         search_patched = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.snapshot"
+                "qualibrate_app.api.core.domain.local_storage.snapshot"
                 ".get_subpath_value"
             ),
             return_value=[{}],
@@ -432,12 +432,12 @@ class TestSnapshotLocalStorage:
     def test_get_latest_snapshots_one(self, mocker, settings):
         load_patched = mocker.patch.object(self.snapshot, "load")
         find_latest_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
             ".find_latest_node_id",
             return_value=3,
         )
         find_n_latest_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot."
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
             "find_n_latest_nodes_ids"
         )
         assert self.snapshot.get_latest_snapshots(1, 1) == (3, [self.snapshot])
@@ -447,17 +447,17 @@ class TestSnapshotLocalStorage:
 
     def test_get_latest_snapshots_more(self, mocker, settings):
         load_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
             ".SnapshotLocalStorage.load"
         )
         find_latest_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
             ".find_latest_node_id",
             return_value=3,
         )
         find_n_latest_patched = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.snapshot"
+                "qualibrate_app.api.core.domain.local_storage.snapshot"
                 ".find_n_latest_nodes_ids"
             ),
             return_value=[2],
@@ -476,7 +476,7 @@ class TestSnapshotLocalStorage:
 
     def test_compare_by_id_same_snapshot(self, mocker):
         load_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
             ".SnapshotLocalStorage.load"
         )
         with pytest.raises(QValueException) as ex:
@@ -487,12 +487,12 @@ class TestSnapshotLocalStorage:
 
     def test_compare_by_id_current_data_is_empty(self, mocker):
         load_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
             ".SnapshotLocalStorage.load"
         )
         mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.snapshot"
+                "qualibrate_app.api.core.domain.local_storage.snapshot"
                 ".SnapshotLocalStorage.data"
             ),
             new_callable=PropertyMock,
@@ -508,12 +508,12 @@ class TestSnapshotLocalStorage:
 
     def test_compare_by_id_other_data_is_empty(self, mocker):
         load_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
             ".SnapshotLocalStorage.load"
         )
         mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.snapshot"
+                "qualibrate_app.api.core.domain.local_storage.snapshot"
                 ".SnapshotLocalStorage.data"
             ),
             new_callable=PropertyMock,
@@ -527,12 +527,12 @@ class TestSnapshotLocalStorage:
 
     def test_compare_by_id_valid(self, mocker):
         load_patched = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.snapshot"
+            "qualibrate_app.api.core.domain.local_storage.snapshot"
             ".SnapshotLocalStorage.load"
         )
         mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.snapshot"
+                "qualibrate_app.api.core.domain.local_storage.snapshot"
                 ".SnapshotLocalStorage.data"
             ),
             new_callable=PropertyMock,
@@ -543,7 +543,7 @@ class TestSnapshotLocalStorage:
         )
         p2m_patched = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.snapshot"
+                "qualibrate_app.api.core.domain.local_storage.snapshot"
                 ".jsonpatch_to_mapping"
             ),
             return_value={"d": "x"},

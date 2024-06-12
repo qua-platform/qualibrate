@@ -33,7 +33,7 @@ from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 )
 def test__get_subpath_value_wildcard_final(mocker, obj, expected_result):
     mocked_base = mocker.patch(
-        "qualibrate.api.core.utils.find_utils.get_subpath_value",
+        "qualibrate_app.api.core.utils.find_utils.get_subpath_value",
     )
     assert (
         find_utils._get_subpath_value_wildcard(obj, ["*"], ["x", "y"])
@@ -44,7 +44,7 @@ def test__get_subpath_value_wildcard_final(mocker, obj, expected_result):
 
 def test__get_subpath_value_wildcard_non_final_unexpected_type(mocker):
     mocked_base = mocker.patch(
-        "qualibrate.api.core.utils.find_utils.get_subpath_value",
+        "qualibrate_app.api.core.utils.find_utils.get_subpath_value",
     )
     assert find_utils._get_subpath_value_wildcard(1, ["*"], ["x", "y"]) == []
     mocked_base.assert_not_called()
@@ -74,7 +74,7 @@ def test__get_subpath_value_wildcard_non_final_deeper(
         return [i]
 
     mocked_base = mocker.patch(
-        "qualibrate.api.core.utils.find_utils.get_subpath_value",
+        "qualibrate_app.api.core.utils.find_utils.get_subpath_value",
         side_effect=_get_subpath_value,
     )
     target_path = ["*", "v"]
@@ -116,7 +116,7 @@ def test_get_subpath_value_empty_target_path():
 
 def test_get_subpath_value_key_is_wildcard(mocker):
     mocked_wildcard = mocker.patch(
-        "qualibrate.api.core.utils.find_utils._get_subpath_value_wildcard",
+        "qualibrate_app.api.core.utils.find_utils._get_subpath_value_wildcard",
         return_value=[{"k": "v"}],
     )
     assert get_subpath_value({"x": "v"}, ["*", 1], None) == [{"k": "v"}]
@@ -125,10 +125,10 @@ def test_get_subpath_value_key_is_wildcard(mocker):
 
 def test_get_subpath_value_invalid_key_or_index(mocker):
     mocked_wildcard = mocker.patch(
-        "qualibrate.api.core.utils.find_utils._get_subpath_value_wildcard",
+        "qualibrate_app.api.core.utils.find_utils._get_subpath_value_wildcard",
     )
     mocked_check = mocker.patch(
-        "qualibrate.api.core.utils.find_utils._check_key_valid",
+        "qualibrate_app.api.core.utils.find_utils._check_key_valid",
         return_value=False,
     )
     assert get_subpath_value({}, ["path"], None) == []
@@ -139,10 +139,10 @@ def test_get_subpath_value_invalid_key_or_index(mocker):
 @pytest.mark.parametrize("obj, key", [({"a": 1}, "a"), ([1], 0)])
 def test_get_subpath_value_final_target_key(mocker, obj, key):
     mocked_wildcard = mocker.patch(
-        "qualibrate.api.core.utils.find_utils._get_subpath_value_wildcard",
+        "qualibrate_app.api.core.utils.find_utils._get_subpath_value_wildcard",
     )
     mocked_check = mocker.patch(
-        "qualibrate.api.core.utils.find_utils._check_key_valid",
+        "qualibrate_app.api.core.utils.find_utils._check_key_valid",
         return_value=True,
     )
     assert get_subpath_value(obj, [key], None) == [{"key": [key], "value": 1}]
@@ -153,14 +153,14 @@ def test_get_subpath_value_final_target_key(mocker, obj, key):
 @pytest.mark.parametrize("obj, key", [({"a": {"k": 1}}, "a"), ([{"k": 1}], 0)])
 def test_get_subpath_value_list_target_key(mocker, obj, key):
     mocked_wildcard = mocker.patch(
-        "qualibrate.api.core.utils.find_utils._get_subpath_value_wildcard",
+        "qualibrate_app.api.core.utils.find_utils._get_subpath_value_wildcard",
     )
     mocked_check = mocker.patch(
-        "qualibrate.api.core.utils.find_utils._check_key_valid",
+        "qualibrate_app.api.core.utils.find_utils._check_key_valid",
         return_value=True,
     )
     mocked_recursive = mocker.patch(
-        "qualibrate.api.core.utils.find_utils.get_subpath_value",
+        "qualibrate_app.api.core.utils.find_utils.get_subpath_value",
         return_value=["a"],
     )
     assert get_subpath_value(obj, [key, "k"], None) == ["a"]

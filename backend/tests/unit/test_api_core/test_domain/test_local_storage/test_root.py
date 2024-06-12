@@ -11,7 +11,10 @@ class TestLocalStorageRoot:
 
     def test__get_latest_node_id_node_not_found(self, mocker, settings):
         patched_find_latest = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.root.find_n_latest_nodes_ids",
+            (
+                "qualibrate_app.api.core.domain.local_storage.root"
+                ".find_n_latest_nodes_ids"
+            ),
             return_value=iter([]),
         )
         with pytest.raises(QFileNotFoundException) as ex:
@@ -24,7 +27,10 @@ class TestLocalStorageRoot:
 
     def test__get_latest_node_id_valid(self, mocker, settings):
         patched_find_latest = mocker.patch(
-            "qualibrate.api.core.domain.local_storage.root.find_n_latest_nodes_ids",
+            (
+                "qualibrate_app.api.core.domain.local_storage.root"
+                ".find_n_latest_nodes_ids"
+            ),
             return_value=iter([1]),
         )
         assert self.root._get_latest_node_id("msg") == 1
@@ -38,7 +44,7 @@ class TestLocalStorageRoot:
         )
         patched_snapshot = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.root"
+                "qualibrate_app.api.core.domain.local_storage.root"
                 ".SnapshotLocalStorage"
             ),
             return_value="snapshot_1",
@@ -53,7 +59,7 @@ class TestLocalStorageRoot:
         )
         patched_snapshot = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.root"
+                "qualibrate_app.api.core.domain.local_storage.root"
                 ".SnapshotLocalStorage"
             ),
             return_value="snapshot_2",
@@ -68,7 +74,7 @@ class TestLocalStorageRoot:
         )
         patched_snapshot = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.root"
+                "qualibrate_app.api.core.domain.local_storage.root"
                 ".NodeLocalStorage"
             ),
             return_value="node_1",
@@ -83,7 +89,7 @@ class TestLocalStorageRoot:
         )
         patched_snapshot = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.root"
+                "qualibrate_app.api.core.domain.local_storage.root"
                 ".NodeLocalStorage"
             ),
             return_value="node_2",
@@ -102,7 +108,7 @@ class TestLocalStorageRoot:
 
         patched_branch = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage.root"
+                "qualibrate_app.api.core.domain.local_storage.root"
                 ".BranchLocalStorage"
             ),
             return_value=_Branch(),

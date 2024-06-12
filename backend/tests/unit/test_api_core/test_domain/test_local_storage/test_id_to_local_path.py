@@ -46,7 +46,7 @@ class Test_IdToProjectLocalPath:
         self.id2project_node._mapping.update({1: "some_path"})
         solver_patched = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage._id_to_local_path"
+                "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
                 ".default_node_path_solver"
             ),
         )
@@ -56,7 +56,7 @@ class Test_IdToProjectLocalPath:
     def test_get_item_successfully_solved(self, mocker):
         solver_patched = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage._id_to_local_path"
+                "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
                 ".default_node_path_solver"
             ),
             return_value="some_path",
@@ -74,7 +74,7 @@ class Test_IdToProjectLocalPath:
     def test_get_path_not_found(self, mocker):
         solver_patched = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage._id_to_local_path"
+                "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
                 ".default_node_path_solver"
             ),
             return_value=None,
@@ -100,7 +100,7 @@ class TestIdToLocalPath:
     def test_get_from_new_project(self, mocker):
         patched_id2plp = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage._id_to_local_path"
+                "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
                 "._IdToProjectLocalPath"
             )
         )
@@ -116,7 +116,7 @@ class TestIdToLocalPath:
         self.id2lp._project_to_path = {"project": p2plp}
         patched_id2plp = mocker.patch(
             (
-                "qualibrate.api.core.domain.local_storage._id_to_local_path"
+                "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
                 "._IdToProjectLocalPath"
             )
         )
