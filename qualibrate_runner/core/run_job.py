@@ -33,12 +33,14 @@ def run_job(
         idx=-1,
     )
     try:
-        QualibrationLibrary.active_library.run_node(
-            node.name,
-            node.parameters_class(**passed_input_parameters),
-        )
+        node = QualibrationLibrary.active_library.nodes[node.name]
+        node.run_node(node.parameters_class(**passed_input_parameters))
     except Exception:
-        state.last_run.status = RunStatus.ERROR
+        state.last_run = LastRun(
+            name=state.last_run.name,
+            status=RunStatus.ERROR,
+            idx=-1,
+        )
         raise
     else:
         # node.run_summary() == {
@@ -47,6 +49,10 @@ def run_job(
         #   "idx": 423,
         #   "state_updates": [...]
         # }
-        state.last_run.status = RunStatus.FINISHED
-        # TODO: assign `state_updates` and `idx`
-        state.last_run.state_updates = []
+        idx = node.snapshot_idx if hasattr(node, "snapshot_idx") else -1
+        state.last_run = LastRun(
+            name=state.last_run.name,
+            status=RunStatus.FINISHED,
+            idx=idx,
+            # TODO: add `state_updates`
+        )
