@@ -33,10 +33,9 @@ def run_job(
         idx=-1,
     )
     try:
-        QualibrationLibrary.active_library.run(
-            node,
-            node.parameters(**passed_input_parameters),
-            persistent=state.persistent,
+        QualibrationLibrary.active_library.run_node(
+            node.name,
+            node.parameters_class(**passed_input_parameters),
         )
     except Exception:
         state.last_run.status = RunStatus.ERROR

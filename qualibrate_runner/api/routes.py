@@ -36,7 +36,7 @@ def submit_run(
         raise HTTPException(status_code=422, detail="Already running")
     # TODO: use `Calibration_node.validate_parameters`
     validate_input_parameters(
-        cast(Type[BaseModel], node.parameters), input_parameters
+        cast(Type[BaseModel], node.parameters_class), input_parameters
     )
     background_tasks.add_task(run_job, node, input_parameters, state)
     return f"Job {node.name} submitted"
