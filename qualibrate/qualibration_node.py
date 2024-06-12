@@ -1,13 +1,19 @@
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Any, Mapping, Type, Optional
 
 from qualibrate import NodeParameters
 from qualibrate.storage import StorageManager
 
 
+class StopInspection(Exception):
+    pass
+
+
 class QualibrationNode:
     mode: str = "default"
     storage_manager: Optional[StorageManager] = None
+    last_instantiated_node: Optional["QualibrationNode"] = None
 
     def __init__(self, name, parameters_class: Type[NodeParameters], description=None):
         self.name = name
@@ -17,22 +23,17 @@ class QualibrationNode:
         self.parameters: Optional[NodeParameters] = None
         self._state_updates = {}
         self.results = {}
+        self.node_filepath: Optional[Path] = None
 
         if self.mode == "inspection":
-            from qualibrate.qualibration_library import (
-                LibraryScanException,
-                QualibrationLibrary,
-            )
+            self.last_instantiated_node = self
+            raise StopInspection("Node instantiated in inspection mode")
 
-            if QualibrationLibrary.active_library is None:
-                raise LibraryScanException(
-                    "Scanning library, but no active library set"
-                )
-
-            QualibrationLibrary.active_library.add_node(self)
-            raise LibraryScanException(
-                "Scanning library, aborting further script execution"
-            )
+    @property
+    def snapshot_idx(self) -> Optional[int]:
+        if self.storage_manager is None:
+            return None
+        return self.storage_manager.snapshot_idx
 
     def serialize(self) -> Mapping[str, Any]:
         return {
@@ -45,8 +46,14 @@ class QualibrationNode:
         self.storage_manager.save(node=self)
 
     def run_node(self, input_parameters):
-        QualibrationNode.mode == "external"
+        if QualibrationNode.mode != "external":
+            raise RuntimeError(
+                f"Node can only be run in external mode, not in mode: {QualibrationNode.mode}"
+            )
         self.run_node_file(self.node_filepath)
+
+    def run_node_file(self, node_filepath):  # TODO
+        raise NotImplementedError
 
     def _record_state_update(self, attr, val):
         self._state_updates[attr] = val

@@ -3,13 +3,9 @@ from pathlib import Path
 from typing import Any, Dict, Mapping, Optional
 
 from qualibrate import NodeParameters
-from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.qualibration_node import QualibrationNode, StopInspection
 
 logger = logging.getLogger(__name__)
-
-
-class LibraryScanException(RuntimeError):
-    pass
 
 
 def file_is_calibration_node(file: Path):
@@ -62,7 +58,15 @@ class QualibrationLibrary:
         try:
             # TODO Think of a safer way to execute the code
             exec(code)
-        except LibraryScanException:
+            node = QualibrationNode.last_instantiated_node
+            if node is None:
+                logger.warning(f"No node instantiated in file {file}")
+                return
+
+            node.node_filepath = file
+            self.add_node(node)
+
+        except StopInspection:
             pass
 
     def add_node(self, node):
