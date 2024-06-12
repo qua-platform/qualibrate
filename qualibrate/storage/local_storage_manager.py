@@ -16,13 +16,18 @@ class LocalStorageManager(StorageManager):
         logger.info(f"Saving node {node.name} to local storage")
 
         # Save results
-        self.data_handler.save_data(data=node.results, name=node.name)
+        node_contents = (
+            self.data_handler.generate_node_contents()
+        )  # TODO directly access idx
+        self.data_handler.save_data(
+            data=node.results, name=node.name, node_contents=node_contents
+        )
+        self.snapshot_idx = node_contents["id"]
 
         # Save QuAM
         if node.machine is None:
             logger.info("Node has no QuAM, skipping machine.save")
 
         # Save QuAM to the data folder
-        node.machine.save(
-            path=Path(self.data_handler.path) / "quam_state.json"
-        )  # TODO Verify that Path is unnecessary
+        assert isinstance(self.data_handler.path, Path)  # TODO Remove assertion
+        node.machine.save(path=self.data_handler.path / "quam_state.json")
