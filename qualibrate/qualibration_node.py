@@ -15,7 +15,12 @@ class QualibrationNode:
     storage_manager: Optional[StorageManager] = None
     last_instantiated_node: Optional["QualibrationNode"] = None
 
+    _singleton_instance = None  # configurable Singleton features
+
     def __init__(self, name, parameters_class: Type[NodeParameters], description=None):
+        if hasattr(self, "_initialized"):
+            return
+
         self.name = name
         self.parameters_class = parameters_class
         self.description = description
@@ -24,6 +29,8 @@ class QualibrationNode:
         self._state_updates = {}
         self.results = {}
         self.node_filepath: Optional[Path] = None
+
+        self._initialized = True
 
         if self.mode == "inspection":
             self.last_instantiated_node = self
@@ -54,8 +61,13 @@ class QualibrationNode:
             )
         self.run_node_file(self.node_filepath)
 
-    def run_node_file(self, node_filepath):  # TODO
-        raise NotImplementedError
+    def run_node_file(self, node_filepath):
+        try:
+            # Temporarily set the singleton instance to this node
+            self.__class__._singleton_instance = self
+            exec(node_filepath)
+        finally:
+            self.__class__._singleton_instance = None
 
     def _record_state_update(self, attr, val):
         self._state_updates[attr] = val
@@ -74,3 +86,9 @@ class QualibrationNode:
                 QuamBase.__setattr__ = setattr_func
         else:
             yield
+
+    # Singleton control
+    def __new__(cls, *args, **kwargs):
+        if cls._singleton_instance is None:
+            cls._singleton_instance = super(QualibrationNode, cls).__new__(cls)
+        return cls._singleton_instance
