@@ -1,9 +1,11 @@
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Mapping, Type, Optional
+import warnings
 
 from qualibrate import NodeParameters
 from qualibrate.storage import StorageManager
+from qualibrate.storage.local_storage_manager import LocalStorageManager
 
 
 class StopInspection(Exception):
@@ -52,14 +54,19 @@ class QualibrationNode:
 
     def save(self):
         if self.storage_manager is None:
-            raise RuntimeError("Node.storage_manager needs to be defined to save node")
+            warnings.warn("Node.storage_manager needs to be defined to save node")
+            from qualibrate_app.config import get_settings, get_config_path
+
+            config_path = get_config_path()
+            settings = get_settings(config_path)
+            self.storage_manager = LocalStorageManager(
+                root_data_folder=settings.user_storage
+            )
         self.storage_manager.save(node=self)
 
     def run_node(self, input_parameters):
-        if QualibrationNode.mode != "external":
-            raise RuntimeError(
-                f"Node can only be run in external mode, not in: {QualibrationNode.mode=}"
-            )
+        self.parameters = input_parameters
+        # self.parameters = self.parameters_class.(**input_parameters)
         self.run_node_file(self.node_filepath)
 
     def run_node_file(self, node_filepath):
@@ -92,5 +99,5 @@ class QualibrationNode:
     # Singleton control
     def __new__(cls, *args, **kwargs):
         if cls._singleton_instance is None:
-            cls._singleton_instance = super(QualibrationNode, cls).__new__(cls)
+            return super(QualibrationNode, cls).__new__(cls)
         return cls._singleton_instance

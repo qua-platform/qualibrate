@@ -51,7 +51,7 @@ class QualibrationLibrary:
             QualibrationNode.mode = original_mode
 
     def scan_node_file(self, file: Path):
-        logging.info(f"Scanning node file {file}")
+        logger.info(f"Scanning node file {file}")
         with file.open() as f:
             code = f.read()
 
@@ -83,9 +83,4 @@ class QualibrationLibrary:
 
     def run_node(self, node_name: str, input_parameters: NodeParameters):
         node = self.nodes[node_name]
-        try:
-            original_mode = QualibrationNode.mode
-            QualibrationNode.mode = "external"
-            node.run_node(input_parameters)
-        finally:
-            QualibrationNode.mode = original_mode
+        node.run_node(input_parameters)
