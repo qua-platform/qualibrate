@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 from qualibrate_app.config import (
     JsonTimelineDBBase,
+    QualibrateRunnerBase,
     QualibrateSettings,
     StorageType,
     get_config_path,
@@ -31,6 +32,7 @@ def settings(
             address="http://localhost:8000",
             timeout=0,
         ),
+        runner=QualibrateRunnerBase(spawn=False),
     )
 
 
