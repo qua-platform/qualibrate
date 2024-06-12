@@ -27,7 +27,13 @@ class LocalStorageManager(StorageManager):
         # Save QuAM
         if node.machine is None:
             logger.info("Node has no QuAM, skipping machine.save")
+            return
 
         # Save QuAM to the data folder
         assert isinstance(self.data_handler.path, Path)  # TODO Remove assertion
-        node.machine.save(path=self.data_handler.path / "quam_state.json")
+        DataHandler.node_data = {"quam": "./state.json"}
+        if isinstance(node.machine, dict):
+            quam_path = self.data_handler.path / "quam_state.json"
+            quam_path.write_text(json.dumps(node.machine, indent=4, sort_keys=True))
+        else:
+            node.machine.save(path=self.data_handler.path / "quam_state.json")

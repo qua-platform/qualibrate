@@ -29,11 +29,12 @@ class QualibrationNode:
         self._state_updates = {}
         self.results = {}
         self.node_filepath: Optional[Path] = None
+        self.machine = None
 
         self._initialized = True
 
         if self.mode == "inspection":
-            self.last_instantiated_node = self
+            QualibrationNode.last_instantiated_node = self
             raise StopInspection("Node instantiated in inspection mode")
 
     @property
@@ -65,7 +66,8 @@ class QualibrationNode:
         try:
             # Temporarily set the singleton instance to this node
             self.__class__._singleton_instance = self
-            exec(node_filepath)
+            code = node_filepath.read_text()
+            exec(code)
         finally:
             self.__class__._singleton_instance = None
 
