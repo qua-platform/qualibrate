@@ -196,7 +196,7 @@ def _get_runner_config() -> QualibrateRunnerSettings:
         calibration_library_resolver="qualibrate.QualibrationLibrary",
         calibration_library_folder=(
             Path(qualibrate.__path__).parent / "calibrations"
-        )
+        ),
     )
 
 
@@ -288,7 +288,10 @@ def write_config(
     show_default=True,
 )
 @click.option(
-    "--spawn-runner", type=bool, default=True, show_default=True,
+    "--spawn-runner",
+    type=bool,
+    default=True,
+    show_default=True,
 )
 @click.pass_context
 def config_command(
@@ -312,13 +315,8 @@ def config_command(
         common_config[
             TIMELINE_DB_CONFIG_KEY
         ] = _get_timeline_db_config().model_dump()
-    if (
-        RUNNER_CONFIG_KEY is not None
-        and RUNNER_CONFIG_KEY not in common_config
-    ):
-        common_config[
-            RUNNER_CONFIG_KEY
-        ] = _get_runner_config().model_dump()
+    if RUNNER_CONFIG_KEY is not None and RUNNER_CONFIG_KEY not in common_config:
+        common_config[RUNNER_CONFIG_KEY] = _get_runner_config().model_dump()
 
     qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
     subconfigs = ("timeline_db", "runner")
