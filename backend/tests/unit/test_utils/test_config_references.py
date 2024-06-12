@@ -2,7 +2,7 @@ from unittest.mock import call
 
 import pytest
 
-from qualibrate.utils import config_references as cr
+from qualibrate_app.utils import config_references as cr
 
 
 @pytest.fixture
@@ -289,10 +289,10 @@ def test__resolve_references_with_subref(config_with_refs, path_with_refs):
 def test_resolve_references_with_cycle(mocker):
     cycle = ["a", "b", "a"]
     mocker.patch(
-        "qualibrate.utils.config_references.find_all_references",
+        "qualibrate_app.utils.config_references.find_all_references",
     )
     mocker.patch(
-        "qualibrate.utils.config_references.check_cycles_in_references",
+        "qualibrate_app.utils.config_references.check_cycles_in_references",
         return_value=(True, cycle),
     )
     with pytest.raises(ValueError) as ex:

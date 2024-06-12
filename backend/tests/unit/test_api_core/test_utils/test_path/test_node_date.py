@@ -1,7 +1,7 @@
 from datetime import datetime
 from unittest.mock import PropertyMock
 
-from qualibrate.api.core.utils.path.node_date import NodesDatePath
+from qualibrate_app.api.core.utils.path.node_date import NodesDatePath
 
 
 class TestNodesDatePath:

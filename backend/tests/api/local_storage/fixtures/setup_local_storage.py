@@ -5,7 +5,7 @@ from typing import Any, Generator
 
 import pytest
 
-from qualibrate.api.core.domain.local_storage._id_to_local_path import (
+from qualibrate_app.api.core.domain.local_storage._id_to_local_path import (
     IdToLocalPath,
 )
 

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from qualibrate.config import QualibrateSettings, get_config_path
+from qualibrate_app.config import QualibrateSettings, get_config_path
 
 
 def test_project_list(

@@ -2,14 +2,18 @@ from datetime import datetime
 
 import pytest
 
-from qualibrate.api.core.domain.bases.node import NodeBase, NodeLoadType
-from qualibrate.api.core.domain.bases.snapshot import (
+from qualibrate_app.api.core.domain.bases.node import NodeBase, NodeLoadType
+from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotLoadType,
 )
-from qualibrate.api.core.models.node import Node
-from qualibrate.api.core.models.snapshot import SimplifiedSnapshotWithMetadata
-from qualibrate.api.core.models.storage import Storage
-from qualibrate.api.exceptions.classes.storage import QNotADirectoryException
+from qualibrate_app.api.core.models.node import Node
+from qualibrate_app.api.core.models.snapshot import (
+    SimplifiedSnapshotWithMetadata,
+)
+from qualibrate_app.api.core.models.storage import Storage
+from qualibrate_app.api.exceptions.classes.storage import (
+    QNotADirectoryException,
+)
 
 
 class NodeBaseCustom(NodeBase):
@@ -87,7 +91,7 @@ def test__fill_storage_metadata_issue(mocker, meta, settings):
         metadata = meta
 
     resolve_patched = mocker.patch(
-        "qualibrate.api.core.domain.bases.node.resolve_and_check_relative"
+        "qualibrate_app.api.core.domain.bases.node.resolve_and_check_relative"
     )
     n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     assert n._fill_storage() is None
@@ -103,12 +107,12 @@ def test__fill_storage_no_output_path(mocker, settings):
         metadata = {settings.metadata_out_path: node_path}
 
     resolve_patched = mocker.patch(
-        "qualibrate.api.core.domain.bases.node.resolve_and_check_relative",
+        "qualibrate_app.api.core.domain.bases.node.resolve_and_check_relative",
         return_value=settings.user_storage / "node",
     )
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     dfs_patched = mocker.patch(
-        "qualibrate.api.core.domain.bases.node.DataFileStorage"
+        "qualibrate_app.api.core.domain.bases.node.DataFileStorage"
     )
     n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     with pytest.raises(QNotADirectoryException) as ex:
@@ -127,12 +131,12 @@ def test__fill_storage_valid(mocker, settings):
         metadata = {settings.metadata_out_path: rel_node_path}
 
     resolve_patched = mocker.patch(
-        "qualibrate.api.core.domain.bases.node.resolve_and_check_relative",
+        "qualibrate_app.api.core.domain.bases.node.resolve_and_check_relative",
         return_value=abs_node_path,
     )
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     dfs_patched = mocker.patch(
-        "qualibrate.api.core.domain.bases.node.DataFileStorage"
+        "qualibrate_app.api.core.domain.bases.node.DataFileStorage"
     )
     n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     assert n._fill_storage() is None
@@ -157,7 +161,7 @@ def test_dump_no_storage(mocker, settings):
 
     n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     patched_dfs_dump = mocker.patch(
-        "qualibrate.api.core.domain.bases.storage.DataFileStorage.dump"
+        "qualibrate_app.api.core.domain.bases.storage.DataFileStorage.dump"
     )
     assert n.dump() == Node(
         id=1, snapshot=SimplifiedSnapshotWithMetadata(**s_dumped), storage=None

@@ -3,8 +3,8 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from qualibrate.api.core.domain.local_storage.utils import node_utils
-from qualibrate.api.core.utils.path.node import NodePath
+from qualibrate_app.api.core.domain.local_storage.utils import node_utils
+from qualibrate_app.api.core.utils.path.node import NodePath
 
 
 def test_find_latest_node(mocker):
@@ -26,7 +26,10 @@ def test_find_latest_node_id(mocker, id_res, ret_val):
         return_value=id_res,
     )
     mocker.patch(
-        "qualibrate.api.core.domain.local_storage.utils.node_utils.find_latest_node",
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils.node_utils"
+            ".find_latest_node"
+        ),
         return_value=node_path,
     )
     assert node_utils.find_latest_node_id(Path("/some_path")) == ret_val
@@ -42,7 +45,7 @@ def test_find_latest_node_id(mocker, id_res, ret_val):
 # ):
 #     mocker.patch(
 #         (
-#             "qualibrate.api.core.domain.local_storage.utils.node_utils"
+#             "qualibrate_app.api.core.domain.local_storage.utils.node_utils"
 #             ".get_node_id_name_time"
 #         ),
 #         side_effect=[(i, None, None) for i in range(4, 0, -1)],

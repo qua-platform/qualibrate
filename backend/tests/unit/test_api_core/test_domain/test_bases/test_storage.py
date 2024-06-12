@@ -5,12 +5,12 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from qualibrate.api.core.domain.bases.storage import (
+from qualibrate_app.api.core.domain.bases.storage import (
     DataFileStorage,
     StorageLoadType,
 )
-from qualibrate.api.exceptions.classes.storage import QFileNotFoundException
-from qualibrate.api.exceptions.classes.values import QValueException
+from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate_app.api.exceptions.classes.values import QValueException
 
 
 def test_data_file_name():

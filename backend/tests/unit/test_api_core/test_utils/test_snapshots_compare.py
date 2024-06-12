@@ -1,6 +1,6 @@
 import pytest
 
-from qualibrate.api.core.utils.snapshots_compare import jsonpatch_to_mapping
+from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 
 
 def test_jsonpatch_to_mapping_empty():
