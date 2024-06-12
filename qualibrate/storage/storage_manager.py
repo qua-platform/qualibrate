@@ -1,5 +1,10 @@
-from abc import ABC
+from abc import ABC, abstractmethod
+from typing import Optional
 
 
 class StorageManager(ABC):
-    pass
+    snapshot_idx: Optional[int] = None
+
+    @abstractmethod
+    def save(self, node):
+        pass

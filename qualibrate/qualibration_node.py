@@ -43,12 +43,14 @@ class QualibrationNode:
         }
 
     def save(self):
+        if self.storage_manager is None:
+            raise RuntimeError("Node.storage_manager needs to be defined to save node")
         self.storage_manager.save(node=self)
 
     def run_node(self, input_parameters):
         if QualibrationNode.mode != "external":
             raise RuntimeError(
-                f"Node can only be run in external mode, not in mode: {QualibrationNode.mode}"
+                f"Node can only be run in external mode, not in: {QualibrationNode.mode=}"
             )
         self.run_node_file(self.node_filepath)
 
