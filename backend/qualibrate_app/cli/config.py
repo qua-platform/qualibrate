@@ -43,6 +43,20 @@ except ImportError:
         TimelineDbSettings,
         TimelineDbSettingsSetup,
     )
+try:
+    import qualibrate
+    from qualibrate_runner.config import (
+        CONFIG_KEY as RUNNER_CONFIG_KEY,
+    )
+    from qualibrate_runner.config import (
+        QualibrateRunnerSettings,
+    )
+except ImportError:
+    RUNNER_CONFIG_KEY = None
+
+    from qualibrate_app.cli._runner_settings import (
+        QualibrateRunnerSettings,
+    )
 
 
 __all__ = ["config_command"]
@@ -81,6 +95,7 @@ def _config_from_sources(
         "timeline_db_address": "address",
         "timeline_db_timeout": "timeout",
     }
+    runner_mapping = {"spawn_runner": "spawn"}
     for arg_key, arg_value in ctx.params.items():
         not_default_arg = not_default(ctx, arg_key)
         if arg_key in qualibrate_mapping.keys():
@@ -93,6 +108,11 @@ def _config_from_sources(
                 from_file["timeline_db"][
                     timeline_db_mapping[arg_key]
                 ] = arg_value
+        elif arg_key in runner_mapping.keys():
+            if not_default_arg or (
+                runner_mapping[arg_key] not in from_file["runner"]
+            ):
+                from_file["runner"][runner_mapping[arg_key]] = arg_value
     return from_file
 
 
@@ -166,6 +186,17 @@ def _get_timeline_db_config() -> TimelineDbSettingsSetup:
             for k, v in default_config.items()
             if k != "predefined_dbs"
         }
+    )
+
+
+def _get_runner_config() -> QualibrateRunnerSettings:
+    if qualibrate is None:
+        raise ImportError("Qualibrate is not installed")
+    return QualibrateRunnerSettings(
+        calibration_library_resolver="qualibrate.QualibrationLibrary",
+        calibration_library_folder=(
+            Path(qualibrate.__path__).parent / "calibrations"
+        ),
     )
 
 
@@ -256,6 +287,12 @@ def write_config(
     default=1.0,
     show_default=True,
 )
+@click.option(
+    "--spawn-runner",
+    type=bool,
+    default=True,
+    show_default=True,
+)
 @click.pass_context
 def config_command(
     ctx: click.Context,
@@ -268,6 +305,7 @@ def config_command(
     spawn_db: bool,
     timeline_db_address: str,
     timeline_db_timeout: float,
+    spawn_runner: bool,
 ) -> None:
     common_config, config_file = get_config(config_path)
     if (
@@ -277,9 +315,14 @@ def config_command(
         common_config[
             TIMELINE_DB_CONFIG_KEY
         ] = _get_timeline_db_config().model_dump()
+    if RUNNER_CONFIG_KEY is not None and RUNNER_CONFIG_KEY not in common_config:
+        common_config[RUNNER_CONFIG_KEY] = _get_runner_config().model_dump()
+
     qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
-    if "timeline_db" not in qualibrate_config:
-        qualibrate_config["timeline_db"] = {}
+    subconfigs = ("timeline_db", "runner")
+    for subconfig in subconfigs:
+        if subconfig not in qualibrate_config:
+            qualibrate_config[subconfig] = {}
     qualibrate_config = _config_from_sources(ctx, qualibrate_config)
     qualibrate_config = _spawn_db_processing(
         ctx, qualibrate_config, spawn_db, timeline_db_address

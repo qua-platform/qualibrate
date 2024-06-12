@@ -41,6 +41,10 @@ class JsonTimelineDBBase(BaseSettings):
         return str(url)
 
 
+class QualibrateRunnerBase(BaseSettings):
+    spawn: bool
+
+
 class _QualibrateSettingsBase(BaseSettings):
     static_site_files: Path
     storage_type: StorageType = StorageType.local_storage
@@ -49,6 +53,7 @@ class _QualibrateSettingsBase(BaseSettings):
     metadata_out_path: str
 
     timeline_db: JsonTimelineDBBase
+    runner: QualibrateRunnerBase
 
 
 class QualibrateSettingsSetup(_QualibrateSettingsBase):

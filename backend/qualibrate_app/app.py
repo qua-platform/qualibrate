@@ -13,6 +13,10 @@ try:
     from json_timeline_database.app import app as json_timeline_db_app
 except ImportError:
     json_timeline_db_app = None
+try:
+    from qualibrate_runner.app import app as runner_app
+except ImportError:
+    runner_app = None
 
 
 app = FastAPI(title="Qualibrate")
@@ -41,6 +45,14 @@ if (
             "Check that you have installed it."
         )
     app.mount("/timeline_db", json_timeline_db_app, name="json_timeline_db")
+if _settings.runner.spawn:
+    if runner_app is None:
+        raise ImportError(
+            "Can't import qualibrate_runner instance. "
+            "Check that you have installed it."
+        )
+    app.mount("/execution", runner_app, name="qualibrate_runner")
+
 
 # Directory should exist
 app.mount(

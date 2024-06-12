@@ -21,10 +21,12 @@ requests = "^2.31.0"
 jsonpatch = "^1.33"
 
 # TODO: replace after publishing or relases on gh
-json-timeline-database = { path = "../../json-timeline-database", optional = true }
+json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
+qualibrate-runner = {path = "../../qualibrate-runner", optional = true, develop = true, extras=["qualibrary"]}
 
 [tool.poetry.extras]
 json-timeline-db = ["json-timeline-database"]
+runner = ["qualibrate-runner"]
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
@@ -48,7 +50,7 @@ exclude = ['tests/']
 
 [[tool.mypy.overrides]]
 # TODO: add py.typed to json_timeline_database and remove from ignore imports
-module = ["jsonpatch", "jsonpointer", "json_timeline_database.*"]
+module = ["jsonpatch", "jsonpointer", "json_timeline_database.*", "qualibrate", "qualibrate_runner.*"]
 ignore_missing_imports = true
 
 [tool.ruff]
