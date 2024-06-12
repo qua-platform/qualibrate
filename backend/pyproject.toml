@@ -21,10 +21,12 @@ requests = "^2.31.0"
 jsonpatch = "^1.33"
 
 # TODO: replace after publishing or relases on gh
-json-timeline-database = { path = "../../json-timeline-database", optional = true }
+json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
+qualibrate-runner = {path = "../../qualibrate-runner", optional = true, develop = true, extras=["qualibrary"]}
 
 [tool.poetry.extras]
 json-timeline-db = ["json-timeline-database"]
+runner = ["qualibrate-runner"]
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
