@@ -100,7 +100,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setIsNodeRunning(true);
     setRunningNode(node);
     setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
-    setResults(undefined);
+    // setResults(undefined);
   };
 
   return (
