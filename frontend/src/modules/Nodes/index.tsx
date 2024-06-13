@@ -1,28 +1,30 @@
 import React from "react";
 import { NodesContextProvider, useNodesContext } from "./context/NodesContext";
 import styles from "../Nodes/NodesPage.module.scss";
-import { NodeElementList } from "./components/NodeElementList";
+import { NodeElementList } from "./components/NodeElement/NodeElementList";
 import PageName from "../../DEPRECATED_components/common/Page/PageName";
+import { RunningJob } from "./components/RunningJob/RunningJob";
+import { Results } from "./components/Results/Results";
 
 const NodesPage = () => {
   const heading = "Run calibration node";
-  const { allNodes } = useNodesContext();
+  const { allNodes, runningNode, results } = useNodesContext();
+  const RunningNodeAndResultSection = (): React.ReactNode => {
+    if (!runningNode && !results) return null;
+    return (runningNode && results && (
+      <div className={styles.nodesContainer}>
+        <RunningJob />
+        <Results />
+      </div>
+    )) as React.ReactNode;
+  };
   return (
     <div className={styles.wrapper}>
       <div className={styles.nodesContainer}>
         <PageName>{heading}</PageName>
-        <div className={styles.listWrapper}>
-          <NodeElementList listOfNodes={allNodes} />
-        </div>
+        <NodeElementList listOfNodes={allNodes} />
       </div>
-      <div className={styles.nodesContainer}>
-        <div className={styles.runningJob}>
-          <div className={styles.dot}></div>
-          Running job
-        </div>
-
-        <div className={styles.results}>Results</div>
-      </div>
+      {RunningNodeAndResultSection()}
     </div>
   );
 };

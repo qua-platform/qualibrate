@@ -1,0 +1,60 @@
+@import "../../../../assets/styles/variables";
+@import "../../../../assets/styles/base";
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 32%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--popup-background);
+}
+
+.title {
+  gap: 10px;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.dot {
+  margin-right: 10px;
+  height: 12px;
+  width: 12px;
+  background-color: limegreen;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.infoWrapper {
+  display: flex;
+}
+
+.runInfo {
+  padding-left: 30px;
+  padding-top: 20px;
+  width: 50%;
+}
+
+.runInfoRow {
+  padding-top: 7px;
+}
+
+.parameterInfo {
+  width: 50%;
+  padding-top: 20px;
+}
+
+.parameterValuesWrapper {
+  display: flex;
+  padding-left: 30px;
+}
+
+.parameterLabel {
+  padding-right: 10px;
+  padding-top: 5px;
+}
+
+.parameterValue {
+  padding-top: 5px;
+}

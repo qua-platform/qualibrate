@@ -90,7 +90,7 @@ const TimelineGraph = ({
   );
 };
 
-const JSONEditor = ({ title, jsonData, height }: { title: string; jsonData: object; height: string }) => {
+export const JSONEditor = ({ title, jsonData, height }: { title: string; jsonData: object; height: string }) => {
   const imageDataType = defineDataType({
     is: (value) => typeof value === "string" && value.startsWith("data:image"),
     Component: ({ value }) => (

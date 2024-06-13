@@ -8,6 +8,7 @@ export const AUTH_HEADER = {
 };
 
 export const BASIC_HEADERS = {
+  "Content-Type": "application/json",
   Accept: "application/json",
   "Access-Control-Allow-Origin": "*",
   ...AUTH_HEADER,

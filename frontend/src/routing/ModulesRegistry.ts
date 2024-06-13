@@ -6,6 +6,7 @@ import cyKeys from "../utils/cyKeys";
 import Project from "../modules/Project";
 import { ProjectIcon } from "../ui-lib/Icons/ProjectIcon";
 import Nodes from "../modules/Nodes";
+import { ExperimentsIcon } from "../ui-lib/Icons/ExperimentsIcon";
 
 const DATA_KEY: ModuleKey = "data";
 const NODES_KEY: ModuleKey = "nodes";
@@ -68,7 +69,7 @@ export const ModulesRegistry: Array<Module> = [
     Component: Nodes,
     menuItem: {
       title: "Nodes",
-      icon: DataIcon,
+      icon: ExperimentsIcon,
       dataCy: cyKeys.NODES_TAB,
     },
   },
