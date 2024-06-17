@@ -1,7 +1,6 @@
 import logging
 from pathlib import Path
 
-
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     from qualibrate import QualibrationLibrary

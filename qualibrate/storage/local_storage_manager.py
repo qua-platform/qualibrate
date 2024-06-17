@@ -1,8 +1,14 @@
-from pathlib import Path
-from .storage_manager import StorageManager
-import logging
 import json
+import logging
+from pathlib import Path
+from typing import TYPE_CHECKING
+
 from qualang_tools.results import DataHandler
+
+from qualibrate.storage.storage_manager import StorageManager
+
+if TYPE_CHECKING:
+    from qualibrate.qualibration_node import QualibrationNode
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +19,7 @@ class LocalStorageManager(StorageManager):
         self.data_handler = DataHandler(root_data_folder=root_data_folder)
         self.snapshot_idx = None
 
-    def save(self, node):
+    def save(self, node: "QualibrationNode") -> None:
         logger.info(f"Saving node {node.name} to local storage")
 
         # Save results
@@ -39,6 +45,8 @@ class LocalStorageManager(StorageManager):
 
         if isinstance(node.machine, dict):
             quam_path = self.data_handler.path / "quam_state.json"
-            quam_path.write_text(json.dumps(node.machine, indent=4, sort_keys=True))
+            quam_path.write_text(
+                json.dumps(node.machine, indent=4, sort_keys=True)
+            )
         else:
             node.machine.save(path=self.data_handler.path / "quam_state.json")
