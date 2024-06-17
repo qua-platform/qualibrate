@@ -26,7 +26,8 @@
   border: 2px solid var(--border-color);
   padding: 0 2px 2px;;
   background-color: var(--popup-background);
-  max-width: 100%
+  max-width: 100%;
+  overflow: scroll;
 }
 
 .dot {

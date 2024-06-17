@@ -30,17 +30,8 @@ export interface NodeMap {
 }
 
 export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
-  const {
-    selectedNode,
-    setSelectedNode,
-    isNodeRunning,
-    setResults,
-    setRunningNodeInfo,
-    setIsNodeRunning,
-    setRunningNode,
-    allNodes,
-    setAllNodes,
-  } = useNodesContext();
+  const { selectedNode, setSelectedNode, isNodeRunning, setRunningNodeInfo, setIsNodeRunning, setRunningNode, allNodes, setAllNodes } =
+    useNodesContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
     const updatedParameters = {

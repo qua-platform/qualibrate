@@ -15,8 +15,7 @@ export const SNAPSHOT_DIFF = (currentSnapshotId: string, newSnapshotId: string) 
   `api/snapshot/${currentSnapshotId}/compare?id_to_compare=${newSnapshotId}`;
 export const ALL_PROJECTS = () => "api/projects/list";
 export const ACTIVE_PROJECT = () => "api/projects/active";
-export const IS_NODE_RUNNING = () => `execution/is_running`;
+export const IS_NODE_RUNNING = () => "execution/is_running";
 export const ALL_NODES = () => "execution/get_nodes";
-export const GET_NODE = (nodeName: string) => `execution/get_node?name=${nodeName}/`;
-export const SUBMIT_NODE_RUN = () => `execution/submit`;
+export const SUBMIT_NODE_RUN = () => "execution/submit";
 export const GET_LAST_RUN = () => "execution/last_run/";
