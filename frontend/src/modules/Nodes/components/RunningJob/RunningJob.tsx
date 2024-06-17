@@ -23,6 +23,7 @@ export const RunningJob: React.FC = () => {
             <div className={styles.runInfoRow}>Run duration:&nbsp;&nbsp;{runningNodeInfo?.runDuration}&nbsp;seconds</div>
           )}
           {runningNodeInfo?.status && <div className={styles.runInfoRow}>Status:&nbsp;&nbsp;{runningNodeInfo?.status}</div>}
+          {runningNodeInfo?.idx && <div className={styles.runInfoRow}>idx:&nbsp;&nbsp;{runningNodeInfo?.idx}</div>}
           {runningNodeInfo?.stateUpdates && (
             <div className={styles.runInfoRow}>State updates:&nbsp;&nbsp;{runningNodeInfo?.stateUpdates}</div>
           )}

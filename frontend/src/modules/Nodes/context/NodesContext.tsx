@@ -8,6 +8,7 @@ interface RunningNodeInfo {
   timestampOfRun?: string;
   runDuration?: string;
   status?: string;
+  idx?: string;
   stateUpdates?: string;
 }
 
@@ -102,6 +103,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
                 ...runningNodeInfo,
                 runDuration: diffInSeconds.toFixed(2),
                 status: lastRunResponseResult.status,
+                idx: lastRunResponseResult.idx.toString(),
               });
             }
             setResults(snapshotResponse.result);
