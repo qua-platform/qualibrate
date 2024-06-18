@@ -134,7 +134,7 @@ class QualibrationNode:
     def record_state_updates(self) -> Generator[None, None, None]:
         if self.mode == NodeMode.interactive:
             # Override QuamComponent.__setattr__()
-            quam_core_spec = find_spec("quam.core")
+            quam_core_spec = find_spec("core", "quam")
             if quam_core_spec is None:
                 yield
                 return
