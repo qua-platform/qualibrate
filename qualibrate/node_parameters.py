@@ -1,4 +1,4 @@
-from typing import Any, Mapping
+from typing import Any, Mapping, cast
 
 from pydantic import BaseModel
 
@@ -6,4 +6,4 @@ from pydantic import BaseModel
 class NodeParameters(BaseModel):
     @classmethod
     def serialize(cls) -> Mapping[str, Any]:
-        return cls.model_json_schema()["properties"]
+        return cast(Mapping[str, Any], cls.model_json_schema()["properties"])
