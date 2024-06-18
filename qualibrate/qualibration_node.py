@@ -1,5 +1,6 @@
 import warnings
 from contextlib import contextmanager
+from enum import Enum
 from importlib import import_module
 from importlib.util import find_spec
 from pathlib import Path
@@ -14,8 +15,15 @@ class StopInspection(Exception):
     pass
 
 
+class NodeMode(Enum):
+    default = "default"
+    inspection = "inspection"
+    external = "external"
+    interactive = "interactive"
+
+
 class QualibrationNode:
-    mode: str = "default"
+    mode: NodeMode = NodeMode.default
     storage_manager: Optional[StorageManager] = None
     last_instantiated_node: Optional["QualibrationNode"] = None
 
@@ -40,7 +48,7 @@ class QualibrationNode:
         self.parameters_class = parameters_class
         self.description = description
 
-        self.parameters: Optional[NodeParameters] = None
+        self.__parameters: Optional[NodeParameters] = None
         self._state_updates: dict[str, Any] = {}
         self.results: dict[Any, Any] = {}
         self.node_filepath: Optional[Path] = None
@@ -48,12 +56,28 @@ class QualibrationNode:
 
         self._initialized = True
 
-        if self.mode == "inspection":
+        if self.mode == NodeMode.inspection:
             # ASK: Looks like `last_instantiated_node` and
             #  `_singleton_instance` have same logic -- keep instance of class
             #  in class-level variable. Is it needed to have both?
             self.__class__.last_instantiated_node = self
             raise StopInspection("Node instantiated in inspection mode")
+
+    @property
+    def parameters(self) -> Optional[NodeParameters]:
+        return self.__parameters
+
+    @parameters.setter
+    def parameters(self, new_parameters: NodeParameters) -> None:
+        if self.mode == NodeMode.external and self.__parameters is not None:
+            return
+        if not isinstance(new_parameters, self.parameters_class):
+            raise TypeError(
+                "Expected parameters is instance of "
+                f"{self.parameters_class.__module__}"
+                f".{self.parameters_class.__name__}"
+            )
+        self.__parameters = new_parameters
 
     @property
     def snapshot_idx(self) -> Optional[int]:
@@ -85,10 +109,14 @@ class QualibrationNode:
         self.storage_manager.save(node=self)
 
     def run_node(self, input_parameters: NodeParameters) -> None:
-        self.parameters = input_parameters
-        # self.parameters = self.parameters_class.(**input_parameters)
-        # TODO: ASK: probably need to raise exception if node file isn't specified?
-        self.run_node_file(self.node_filepath)
+        mode = self.mode
+        try:
+            self.mode = NodeMode.external
+            self.__parameters = input_parameters
+            # TODO: raise exception if node file isn't specified
+            self.run_node_file(self.node_filepath)
+        finally:
+            self.mode = mode
 
     def run_node_file(self, node_filepath: Optional[Path]) -> None:
         try:
@@ -100,12 +128,11 @@ class QualibrationNode:
             self.__class__._singleton_instance = None
 
     def _record_state_update(self, attr: str, val: Any) -> None:
-        # TODO: ASK: Only record without set attr?
         self._state_updates[attr] = val
 
     @contextmanager
     def record_state_updates(self) -> Generator[None, None, None]:
-        if self.mode == "interactive":
+        if self.mode == NodeMode.interactive:
             # Override QuamComponent.__setattr__()
             quam_core_spec = find_spec("quam.core")
             if quam_core_spec is None:
