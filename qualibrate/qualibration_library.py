@@ -3,7 +3,11 @@ from pathlib import Path
 from typing import Any, Dict, Mapping, Optional
 
 from qualibrate import NodeParameters
-from qualibrate.qualibration_node import QualibrationNode, StopInspection
+from qualibrate.qualibration_node import (
+    NodeMode,
+    QualibrationNode,
+    StopInspection,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +45,7 @@ class QualibrationLibrary:
 
         original_mode = QualibrationNode.mode
         try:
-            QualibrationNode.mode = "inspection"
+            QualibrationNode.mode = NodeMode.inspection
 
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_node(file):
