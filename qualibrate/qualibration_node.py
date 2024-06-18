@@ -4,6 +4,7 @@ from enum import Enum
 from importlib import import_module
 from importlib.util import find_spec
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Generator, Mapping, Optional, Type
 
 from qualibrate import NodeParameters
@@ -129,6 +130,10 @@ class QualibrationNode:
 
     def _record_state_update(self, attr: str, val: Any) -> None:
         self._state_updates[attr] = val
+
+    @property
+    def state_updates(self) -> MappingProxyType[str, Any]:
+        return MappingProxyType(self._state_updates)
 
     @contextmanager
     def record_state_updates(self) -> Generator[None, None, None]:
