@@ -74,7 +74,7 @@ export const RunningJob: React.FC = () => {
     <div className={styles.wrapper}>
       <div className={styles.title}>
         <div className={styles.dot}></div>
-        Running job:&nbsp;&nbsp;{runningNode?.name ?? ""}
+        Running job {runningNode?.name ? ":" : ""}&nbsp;&nbsp;{runningNode?.name ?? ""}
       </div>
       <div className={styles.infoWrapper}>
         {getRunningJobInfo()}

@@ -115,6 +115,10 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
           console.log("last run idx is falsy = ", lastRunResponseResult.idx);
         }
       } else {
+        if (!firstRun) {
+          setRunningNodeInfo({ ...runningNodeInfo, status: "error" });
+        }
+        setFirstRun(false);
         console.log("last run status was error");
       }
     } else {
