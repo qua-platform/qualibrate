@@ -91,7 +91,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         const idx = lastRunResponseResult.idx.toString();
         // const idx = Math.floor(Math.random() * 100 + 1);
         if (idx && !flag) {
-          const snapshotResponse = await SnapshotsApi.fetchSnapshot(idx);
+          const snapshotResponse = await SnapshotsApi.fetchSnapshotResult(idx);
           if (snapshotResponse.isOk) {
             console.log("setResults(snapshotResponse.result);");
             if (runningNodeInfo && runningNodeInfo.timestampOfRun) {
