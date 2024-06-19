@@ -1,3 +1,4 @@
+from functools import partial
 import warnings
 from contextlib import contextmanager
 from enum import Enum
@@ -128,31 +129,51 @@ class QualibrationNode:
         finally:
             self.__class__._singleton_instance = None
 
-    def _record_state_update(self, attr: str, val: Any) -> None:
-        self._state_updates[attr] = val
-
     @property
     def state_updates(self) -> MappingProxyType[str, Any]:
         return MappingProxyType(self._state_updates)
 
     @contextmanager
-    def record_state_updates(self) -> Generator[None, None, None]:
-        if self.mode == NodeMode.interactive:
+    def record_state_updates(
+        self, interactive_only=True
+    ) -> Generator[None, None, None]:
+        if self.mode == NodeMode.interactive or not interactive_only:
             # Override QuamComponent.__setattr__()
-            quam_core_spec = find_spec("core", "quam")
-            if quam_core_spec is None:
-                yield
-                return
+            from quam.core import QuamBase, QuamComponent, QuamRoot, QuamDict, QuamList
 
-            quam_core = import_module("quam.core")
-            if not hasattr(quam_core, "QuamBase"):
-                yield
-                return
+            quam_classes = (QuamBase, QuamComponent, QuamRoot, QuamDict, QuamList)
+
+            cls_setattr_funcs = {
+                cls: cls.__dict__["__setattr__"]
+                for cls in quam_classes
+                if "__setattr__" in cls.__dict__
+            }
             try:
-                setattr_func = quam_core.QuamBase.__setattr__
-                quam_core.QuamBase.__setattr__ = self._record_state_update
+                for cls in cls_setattr_funcs:
+                    setattr(
+                        cls, "__setattr__", partial(_record_state_update, node=self)
+                    )
+                    # cls.__dict__["__setattr__"] = partial(
+                    #     _record_state_update, node=self
+                    # )
                 yield
             finally:
-                quam_core.QuamBase.__setattr__ = setattr_func
+                for cls, setattr_func in cls_setattr_funcs.items():
+                    setattr(cls, "__setattr__", setattr_func)
+                    # cls.__dict__["__setattr__"] = setattr_func
         else:
             yield
+
+
+def _record_state_update(
+    quam_obj,
+    attr: str,
+    val=None,
+    node=None,
+) -> None:
+    reference = quam_obj.get_reference(attr)
+    node._state_updates[reference] = {
+        "key": self,
+        "attr": attr,
+        "val": val,
+    }
