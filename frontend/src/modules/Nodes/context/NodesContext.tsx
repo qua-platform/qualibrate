@@ -25,6 +25,7 @@ interface INodesContext {
   setIsNodeRunning: (value: boolean) => void;
   results?: unknown | object;
   setResults: (value: unknown | object | undefined) => void;
+  fetchAllNodes: () => void;
 }
 
 const NodesContext = React.createContext<INodesContext>({
@@ -40,6 +41,7 @@ const NodesContext = React.createContext<INodesContext>({
   setIsNodeRunning: noop,
   results: undefined,
   setResults: noop,
+  fetchAllNodes: noop,
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
@@ -159,6 +161,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         setIsNodeRunning,
         results,
         setResults,
+        fetchAllNodes,
       }}
     >
       {props.children}

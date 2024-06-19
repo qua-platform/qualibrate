@@ -21,6 +21,11 @@
   background-color: var(--background-color);
 }
 
+.titleWrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
 .listWrapper {
   flex-grow: 1;
   border: 2px solid var(--border-color);
