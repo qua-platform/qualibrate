@@ -31,17 +31,20 @@ export const RunningJob: React.FC = () => {
         {Object.entries(runningNode?.input_parameters ?? {}).length > 0 && (
           <div className={styles.parameterInfo}>
             <div className={styles.parameterTitleWrapper}>
-              <div onClick={() => setExpanded(!expanded)}>
+              <div className={styles.arrowIconWrapper} onClick={() => setExpanded(!expanded)}>
                 <ArrowIcon options={{ rotationDegree: expanded ? 0 : -90 }} />
               </div>
               Parameters:
             </div>
-            {Object.entries(runningNode?.input_parameters ?? {}).map(([key, parameter]) => (
-              <div key={key} className={styles.parameterValuesWrapper}>
-                <div className={styles.parameterLabel}>{parameter.title}:</div>
-                <div className={styles.parameterValue}>{parameter.default?.toString()}</div>
-              </div>
-            ))}
+            <div>
+              {expanded &&
+                Object.entries(runningNode?.input_parameters ?? {}).map(([key, parameter]) => (
+                  <div key={key} className={styles.parameterValues}>
+                    <div className={styles.parameterLabel}>{parameter.title}:</div>
+                    <div className={styles.parameterValue}>{parameter.default?.toString()}</div>
+                  </div>
+                ))}
+            </div>
           </div>
         )}
       </>

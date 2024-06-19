@@ -6,6 +6,7 @@ import { Checkbox, CircularProgress } from "@mui/material";
 import { useNodesContext } from "../../context/NodesContext";
 import { classNames } from "../../../../utils/classnames";
 import { NodesApi } from "../../api/NodesAPI";
+import { ArrowIcon } from "../../../../ui-lib/Icons/ArrowIcon";
 
 export interface SingleParameter {
   default?: string | boolean | number;
@@ -30,6 +31,7 @@ export interface NodeMap {
 }
 
 export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
+  const [expanded, setExpanded] = React.useState<boolean>(true);
   const { selectedNode, setSelectedNode, isNodeRunning, setRunningNodeInfo, setIsNodeRunning, setRunningNode, allNodes, setAllNodes } =
     useNodesContext();
 
@@ -120,13 +122,21 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         </div>
       </div>
       <div className={classNames(styles.parametersWrapper, selectedNode?.name !== node.name && styles.nodeNotSelected)}>
-        {Object.entries(node.input_parameters).length > 0 && <div className={styles.parameterTitle}>Parameters</div>}
-        {Object.entries(node.input_parameters).map(([key, parameter]) => (
-          <div key={key} className={styles.parameterValuesWrapper}>
-            <div className={styles.parameterLabel}>{parameter.title}:</div>
-            <div className={styles.parameterValue}>{getInputElement(key, parameter)}</div>
+        {Object.entries(node.input_parameters).length > 0 && (
+          <div className={styles.parameterTitle}>
+            <div className={styles.arrowIconWrapper} onClick={() => setExpanded(!expanded)}>
+              <ArrowIcon options={{ rotationDegree: expanded ? 0 : -90 }} />
+            </div>
+            Parameters
           </div>
-        ))}
+        )}
+        {expanded &&
+          Object.entries(node.input_parameters).map(([key, parameter]) => (
+            <div key={key} className={styles.parameterValues}>
+              <div className={styles.parameterLabel}>{parameter.title}:</div>
+              <div className={styles.parameterValue}>{getInputElement(key, parameter)}</div>
+            </div>
+          ))}
       </div>
     </div>
   );

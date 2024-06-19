@@ -32,6 +32,16 @@
 .parameterTitle {
   font-size: 14px;
   height: 25px;
+  display: flex;
+}
+
+.arrowIconWrapper {
+  padding-left: 10px;
+  padding-right: 5px;
+
+  svg {
+    vertical-align: middle;
+  }
 }
 
 .parametersWrapper {
@@ -44,7 +54,7 @@
   display: none;
 }
 
-.parameterValuesWrapper {
+.parameterValues {
   display: flex;
   width: 100%;
 }
