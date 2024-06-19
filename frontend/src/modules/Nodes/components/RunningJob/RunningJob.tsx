@@ -1,7 +1,6 @@
 import React from "react";
 import styles from "./RunningJob.module.scss";
 import { useNodesContext } from "../../context/NodesContext";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import { ArrowIcon } from "../../../../ui-lib/Icons/ArrowIcon";
 
 export const RunningJob: React.FC = () => {
@@ -49,26 +48,26 @@ export const RunningJob: React.FC = () => {
     );
   };
 
-  const stateUpdateComponent = () => {
-    return (
-      <div className={styles.stateUpdateComponentWrapper}>
-        <BlueButton className={styles.stateUpdateButton}> Update </BlueButton> sdadfijafsiojasiofj asfjaiosjdfaioj f
-        <div className={styles.stateUpdateAdditionalText}></div>
-      </div>
-    );
-  };
+  // const stateUpdateComponent = () => {
+  //   return (
+  //     <div className={styles.stateUpdateComponentWrapper}>
+  //       <BlueButton className={styles.stateUpdateButton}> Update </BlueButton> sdadfijafsiojasiofj asfjaiosjdfaioj f
+  //       <div className={styles.stateUpdateAdditionalText}></div>
+  //     </div>
+  //   );
+  // };
 
-  const getStateUpdates = () => {
-    return (
-      <>
-        <div className={styles.stateTitle}>State updates:</div>
-        <div className={styles.stateWrapper}>
-          {/*{stateUpdateComponent()}*/}
-          {/*{stateUpdateComponent()}*/}
-          {/*{stateUpdateComponent()}*/}
-        </div>
-      </>
-    );
+  // const getStateUpdates = () => {
+  //   return (
+  //     <>
+  //       <div className={styles.stateTitle}>State updates:</div>
+  //       <div className={styles.stateWrapper}>
+  //         {/*{stateUpdateComponent()}*/}
+  //         {/*{stateUpdateComponent()}*/}
+  //         {/*{stateUpdateComponent()}*/}
+  //       </div>
+  //     </>
+  //   );
   };
 
   return (

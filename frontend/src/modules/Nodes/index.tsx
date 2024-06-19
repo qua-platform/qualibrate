@@ -8,7 +8,7 @@ import { Results } from "./components/Results/Results";
 
 const NodesPage = () => {
   const heading = "Run calibration node";
-  const { allNodes, runningNode, results } = useNodesContext();
+  const { allNodes } = useNodesContext();
 
   return (
     <div className={styles.wrapper}>
