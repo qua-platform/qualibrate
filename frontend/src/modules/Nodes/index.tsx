@@ -9,22 +9,17 @@ import { Results } from "./components/Results/Results";
 const NodesPage = () => {
   const heading = "Run calibration node";
   const { allNodes, runningNode, results } = useNodesContext();
-  const RunningNodeAndResultSection = (): React.ReactNode => {
-    if (!runningNode && !results) return null;
-    return (runningNode && results && (
-      <div className={styles.nodesContainer}>
-        <RunningJob />
-        <Results />
-      </div>
-    )) as React.ReactNode;
-  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.nodesContainer}>
         <PageName>{heading}</PageName>
         <NodeElementList listOfNodes={allNodes} />
       </div>
-      {RunningNodeAndResultSection()}
+      <div className={styles.nodesContainer}>
+        <RunningJob />
+        <Results />
+      </div>
     </div>
   );
 };
