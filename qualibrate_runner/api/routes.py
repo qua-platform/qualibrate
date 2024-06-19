@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Mapping, Optional, Sequence, Type, cast
+from typing import Annotated, Any, Mapping, Optional, Type, cast
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
@@ -8,7 +8,9 @@ from qualibrate_runner.api.dependencies import (
     get_node as get_qnode,
 )
 from qualibrate_runner.api.dependencies import (
-    get_nodes,
+    get_nodes as get_qnodes,
+)
+from qualibrate_runner.api.dependencies import (
     get_state,
 )
 from qualibrate_runner.config import State
@@ -44,7 +46,7 @@ def submit_run(
 
 @base_router.get("/get_nodes")
 def get_nodes(
-    nodes: Annotated[Mapping[str, Any], Depends(get_nodes)],
+    nodes: Annotated[Mapping[str, Any], Depends(get_qnodes)],
 ) -> Mapping[str, Any]:
     return {node_name: node.serialize() for node_name, node in nodes.items()}
 
