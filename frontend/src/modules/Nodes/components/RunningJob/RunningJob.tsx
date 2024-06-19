@@ -68,7 +68,7 @@ export const RunningJob: React.FC = () => {
   //       </div>
   //     </>
   //   );
-  };
+  // };
 
   return (
     <div className={styles.wrapper}>
