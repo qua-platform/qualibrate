@@ -1,7 +1,6 @@
 import React from "react";
 import styles from "./RunningJob.module.scss";
 import { useNodesContext } from "../../context/NodesContext";
-import { ArrowIcon } from "../../../../ui-lib/Icons/ArrowIcon";
 
 export const RunningJob: React.FC = () => {
   const { runningNode, runningNodeInfo } = useNodesContext();
@@ -17,23 +16,20 @@ export const RunningJob: React.FC = () => {
         )}
         {runningNodeInfo?.status && <div className={styles.runInfoRow}>Status:&nbsp;&nbsp;{runningNodeInfo?.status}</div>}
         {runningNodeInfo?.idx && <div className={styles.runInfoRow}>idx:&nbsp;&nbsp;{runningNodeInfo?.idx}</div>}
-        {runningNodeInfo?.stateUpdates && (
-          <div className={styles.runInfoRow}>State updates:&nbsp;&nbsp;{runningNodeInfo?.stateUpdates}</div>
-        )}
       </div>
     );
   };
 
   const getRunningJobParameters = () => {
-    const [expanded, setExpanded] = React.useState<boolean>(true);
+    const [expanded] = React.useState<boolean>(true);
     return (
       <>
         {Object.entries(runningNode?.input_parameters ?? {}).length > 0 && (
           <div className={styles.parameterInfo}>
             <div className={styles.parameterTitleWrapper}>
-              <div className={styles.arrowIconWrapper} onClick={() => setExpanded(!expanded)}>
-                <ArrowIcon options={{ rotationDegree: expanded ? 0 : -90 }} />
-              </div>
+              {/*<div className={styles.arrowIconWrapper} onClick={() => setExpanded(!expanded)}>*/}
+              {/*  <ArrowIcon options={{ rotationDegree: expanded ? 0 : -90 }} />*/}
+              {/*</div>*/}
               Parameters:
             </div>
             <div>
@@ -51,10 +47,20 @@ export const RunningJob: React.FC = () => {
     );
   };
 
-  // const stateUpdateComponent = () => {
+  // const stateUpdateComponent = (key: string, stateUpdateObject: StateUpdateObject) => {
   //   return (
-  //     <div className={styles.stateUpdateComponentWrapper}>
-  //       <BlueButton className={styles.stateUpdateButton}> Update </BlueButton> sdadfijafsiojasiofj asfjaiosjdfaioj f
+  //     <div key={key} className={styles.stateUpdateComponentWrapper}>
+  //       <BlueButton
+  //         className={styles.stateUpdateButton}
+  //         onClick={() => {
+  //           if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && stateUpdateObject.new) {
+  //             SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateObject.new.toString());
+  //           }
+  //         }}
+  //       >
+  //         Update
+  //       </BlueButton>
+  //       {stateUpdateObject?.label ? stateUpdateObject?.label.toString() : key.toString()}
   //       <div className={styles.stateUpdateAdditionalText}></div>
   //     </div>
   //   );
@@ -63,12 +69,8 @@ export const RunningJob: React.FC = () => {
   // const getStateUpdates = () => {
   //   return (
   //     <>
-  //       <div className={styles.stateTitle}>State updates:</div>
-  //       <div className={styles.stateWrapper}>
-  //         {/*{stateUpdateComponent()}*/}
-  //         {/*{stateUpdateComponent()}*/}
-  //         {/*{stateUpdateComponent()}*/}
-  //       </div>
+  //       {runningNodeInfo?.stateUpdates && <div className={styles.stateTitle}>State updates:</div>}
+  //       {Object.entries(runningNodeInfo?.stateUpdates ?? {}).map(([key, parameter]) => stateUpdateComponent(key, parameter))}
   //     </>
   //   );
   // };

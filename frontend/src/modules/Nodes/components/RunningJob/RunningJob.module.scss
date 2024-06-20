@@ -49,14 +49,14 @@
   display: flex;
 }
 
-.arrowIconWrapper {
-  padding-left: 10px;
-  padding-right: 5px;
-
-  svg {
-    vertical-align: middle;
-  }
-}
+//.arrowIconWrapper {
+//  padding-left: 10px;
+//  padding-right: 5px;
+//
+//  svg {
+//    vertical-align: middle;
+//  }
+//}
 
 .parameterValues {
   display: flex;
@@ -88,11 +88,13 @@
   height: 20px;
 }
 
-.stateUpdateAdditionalText {
-  padding-left: 5px;
-}
-
 .stateUpdateComponentWrapper {
   padding-top: 5px;
+  padding-left: 50px;
   display: flex;
+  gap: 15px;
+}
+
+.stateUpdateAdditionalText {
+  padding-left: 5px;
 }
