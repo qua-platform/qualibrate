@@ -40,6 +40,9 @@ class SnapshotBaseCustom(SnapshotBase):
     ) -> Mapping[str, Mapping[str, Any]]:
         raise NotImplementedError
 
+    def update_entry(self, updates: Mapping[str, Any]) -> bool:
+        raise NotImplementedError
+
 
 def test__items_keys():
     assert SnapshotBase._items_keys == ("data", "metadata")

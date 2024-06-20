@@ -569,7 +569,11 @@ class TestSnapshotLocalStorage:
         original = {"a": "b", "c": 2, "d": {"e": "f", "g": 1}}
         updated = {"a": "x", "c": 2, "d": {"e": "f", "g": 4}}
 
-        def _check_new_values(_snapshot_path, new_snapshot, _settings):
+        def _check_new_values(_snapshot_path, new_snapshot, patches, _settings):
+            assert patches == [
+                {"op": "replace", "path": "/a", "value": "x", "old": "b"},
+                {"op": "replace", "path": "/d/g", "value": 4, "old": 1},
+            ]
             assert new_snapshot == updated
             return True
 
