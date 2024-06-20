@@ -9,9 +9,11 @@ from typing import (
     Sequence,
     Tuple,
     Union,
+    cast,
 )
 
 import jsonpatch
+import jsonpointer
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -45,7 +47,13 @@ SnapshotContentLoaderType = Callable[
     [NodePath, SnapshotLoadType, QualibrateSettings], DocumentType
 ]
 SnapshotContentUpdaterType = Callable[
-    [NodePath, Mapping[str, Any], QualibrateSettings], bool
+    [
+        NodePath,
+        Mapping[str, Any],
+        Sequence[Mapping[str, Any]],
+        QualibrateSettings,
+    ],
+    bool,
 ]
 
 
@@ -157,17 +165,25 @@ def _read_data_node_content(
         return dict(json.load(f))
 
 
-# TODO: add tests
+# class DateTimeEncoder(json.JSONEncoder):
+#     def default(self, o: Any) -> Any:
+#         if isinstance(o, datetime):
+#             return o.isoformat(timespec='seconds')
+#
+#         return super().default(o)
+
+
 def _default_snapshot_content_updater(
     snapshot_path: NodePath,
     new_snapshot: Mapping[str, Any],
+    patches: Sequence[Mapping[str, Any]],
     settings: QualibrateSettings,
 ) -> bool:
     node_filepath = _get_node_filepath(snapshot_path)
     if not node_filepath.is_file():
         return False
     node_info = _default_snapshot_content_loader(
-        snapshot_path, SnapshotLoadType.Metadata, settings
+        snapshot_path, SnapshotLoadType.Empty, settings, raw=True
     )
     quam_file_path = _get_data_node_filepath(
         node_info, node_filepath, snapshot_path
@@ -176,6 +192,15 @@ def _default_snapshot_content_updater(
         return False
     with quam_file_path.open("w") as f:
         json.dump(new_snapshot, f)
+    node_info = dict(node_info)
+    if "patches" in node_info:
+        if not isinstance(node_info["patches"], list):
+            raise QValueException("Patches is not sequence")
+        node_info["patches"].extend(patches)
+    else:
+        node_info["patches"] = patches
+    with node_filepath.open("w") as f:
+        json.dump(node_info, f, indent=4)
     return True
 
 
@@ -183,6 +208,7 @@ def _default_snapshot_content_loader(
     snapshot_path: NodePath,
     load_type: SnapshotLoadType,
     settings: QualibrateSettings,
+    raw: bool = False,
 ) -> DocumentType:
     node_filepath = _get_node_filepath(snapshot_path)
     if node_filepath.is_file():
@@ -193,6 +219,8 @@ def _default_snapshot_content_loader(
                 node_info = {}
     else:
         node_info = {}
+    if raw:
+        return cast(DocumentType, node_info)
     content = _read_minified_node_content(
         node_info, snapshot_path.id, node_filepath, settings
     )
@@ -328,16 +356,29 @@ class SnapshotLocalStorage(SnapshotBase):
         data = self.data
         if data is None:
             return False
-        patch = jsonpatch.JsonPatch(
-            [
-                {"op": "replace", "path": path[1:], "value": value}
-                for path, value in updates.items()
-            ]
-        )
+
+        path_values = {
+            path: jsonpointer.resolve_pointer(data, path[1:], None)
+            for path in updates.keys()
+        }
+
+        if any(value is None for value in path_values.values()):
+            # one or more paths do not exist
+            return False
+        patch_operations = [
+            {
+                "op": "replace",
+                "path": path[1:],
+                "value": value,
+                "old": path_values[path],
+            }
+            for path, value in updates.items()
+        ]
+        patch = jsonpatch.JsonPatch(patch_operations)
         try:
             new_data = patch.apply(dict(data))
             res = self._snapshot_updater(
-                self.node_path, new_data, self._settings
+                self.node_path, new_data, patch_operations, self._settings
             )
             return res
         except jsonpatch.JsonPatchException:
