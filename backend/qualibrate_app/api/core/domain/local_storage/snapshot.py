@@ -191,7 +191,7 @@ def _default_snapshot_content_updater(
     if quam_file_path is None:
         return False
     with quam_file_path.open("w") as f:
-        json.dump(new_snapshot, f)
+        json.dump(new_snapshot, f, indent=4)
     node_info = dict(node_info)
     if "patches" in node_info:
         if not isinstance(node_info["patches"], list):
