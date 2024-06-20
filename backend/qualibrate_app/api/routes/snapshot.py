@@ -77,6 +77,24 @@ def compare_by_id(
     return snapshot.compare_by_id(id_to_compare)
 
 
+@snapshot_router.post("/update_entry")
+def update_entity(
+    *,
+    snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+    data_path: Annotated[
+        str,
+        Query(
+            ...,
+            min_length=3,
+            pattern="^#/.*",
+            examples=["#/qubits/q0/frequency"],
+        ),
+    ],
+    value: Any,
+) -> bool:
+    return snapshot.update_entry({data_path: value})
+
+
 @snapshot_router.get("/search/data/values")
 def search(
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
