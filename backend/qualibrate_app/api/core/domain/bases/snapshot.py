@@ -119,3 +119,7 @@ class SnapshotBase(IDump, ABC):
 
     def dump(self) -> SnapshotModel:
         return SnapshotModel(**self.content)
+
+    @abstractmethod
+    def update_entry(self, updates: Mapping[str, Any]) -> bool:
+        pass

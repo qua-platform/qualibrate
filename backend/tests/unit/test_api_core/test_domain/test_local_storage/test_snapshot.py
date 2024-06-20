@@ -552,3 +552,46 @@ class TestSnapshotLocalStorage:
         load_patched.assert_has_calls([call(SnapshotLoadType.Data)] * 2)
         make_patch_patched.assert_called_once_with({"a": "b"}, {"c": "d"})
         p2m_patched.assert_called_once_with({"a": "b"}, [{"diff": "a"}])
+
+    def test_update_entry_no_data(self, mocker):
+        load_patched = mocker.patch.object(self.snapshot, "load")
+        mocker.patch.object(
+            self.snapshot.__class__,
+            "data",
+            new_callable=PropertyMock,
+            return_value=None,
+        )
+        assert self.snapshot.update_entry({}) is False
+        load_patched.assert_called_once_with(SnapshotLoadType.Data)
+
+    def test_update_entry_valid_data(self, mocker):
+        load_patched = mocker.patch.object(self.snapshot, "load")
+        original = {"a": "b", "c": 2, "d": {"e": "f", "g": 1}}
+        updated = {"a": "x", "c": 2, "d": {"e": "f", "g": 4}}
+
+        def _check_new_values(_snapshot_path, new_snapshot, patches, _settings):
+            assert patches == [
+                {"op": "replace", "path": "/a", "value": "x", "old": "b"},
+                {"op": "replace", "path": "/d/g", "value": 4, "old": 1},
+            ]
+            assert new_snapshot == updated
+            return True
+
+        mocker.patch.object(
+            self.snapshot.__class__,
+            "data",
+            new_callable=PropertyMock,
+            return_value=original,
+        )
+        mocker.patch.object(
+            self.snapshot.__class__,
+            "node_path",
+            new_callable=PropertyMock,
+        )
+        mocker.patch.object(
+            self.snapshot,
+            "_snapshot_updater",
+            _check_new_values,
+        )
+        assert self.snapshot.update_entry({"#/a": "x", "#/d/g": 4}) is True
+        load_patched.assert_called_once_with(SnapshotLoadType.Data)

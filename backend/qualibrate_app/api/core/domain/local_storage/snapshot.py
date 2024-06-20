@@ -1,9 +1,19 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Mapping, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+    cast,
+)
 
 import jsonpatch
+import jsonpointer
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -24,7 +34,10 @@ from qualibrate_app.api.core.types import (
 from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 from qualibrate_app.api.core.utils.path.node import NodePath
 from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
-from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate_app.api.exceptions.classes.storage import (
+    QFileNotFoundException,
+    QPathException,
+)
 from qualibrate_app.api.exceptions.classes.values import QValueException
 from qualibrate_app.config import QualibrateSettings
 
@@ -32,6 +45,15 @@ __all__ = ["SnapshotLocalStorage"]
 
 SnapshotContentLoaderType = Callable[
     [NodePath, SnapshotLoadType, QualibrateSettings], DocumentType
+]
+SnapshotContentUpdaterType = Callable[
+    [
+        NodePath,
+        Mapping[str, Any],
+        Sequence[Mapping[str, Any]],
+        QualibrateSettings,
+    ],
+    bool,
 ]
 
 
@@ -107,6 +129,23 @@ def _read_metadata_node_content(
     return node_metadata
 
 
+def _get_node_filepath(snapshot_path: NodePath) -> Path:
+    return snapshot_path / "node.json"
+
+
+def _get_data_node_filepath(
+    node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
+) -> Optional[Path]:
+    node_data = dict(node_info.get("data", {}))
+    quam_relative_path = node_data.get("quam", "state.json")
+    quam_file_path = node_filepath.parent.joinpath(quam_relative_path).resolve()
+    if not quam_file_path.is_relative_to(snapshot_path):
+        raise QFileNotFoundException("Unknown quam data path")
+    if quam_file_path.is_file():
+        return quam_file_path
+    return None
+
+
 def _read_data_node_content(
     node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
 ) -> Optional[dict[str, Any]]:
@@ -117,24 +156,61 @@ def _read_data_node_content(
         node_filepath: path to file that contains node info
         snapshot_path: Node root
     """
-    node_data = dict(node_info.get("data", {}))
-    quam_relative_path = node_data.get("quam", "state.json")
-    quam_file_path = node_filepath.parent.joinpath(quam_relative_path).resolve()
-    if not quam_file_path.is_relative_to(snapshot_path):
-        raise QFileNotFoundException("Unknown quam data path")
-    if quam_file_path.is_file():
-        with quam_file_path.open("r") as f:
-            return dict(json.load(f))
-    else:
+    quam_file_path = _get_data_node_filepath(
+        node_info, node_filepath, snapshot_path
+    )
+    if quam_file_path is None:
         return None
+    with quam_file_path.open("r") as f:
+        return dict(json.load(f))
+
+
+# class DateTimeEncoder(json.JSONEncoder):
+#     def default(self, o: Any) -> Any:
+#         if isinstance(o, datetime):
+#             return o.isoformat(timespec='seconds')
+#
+#         return super().default(o)
+
+
+def _default_snapshot_content_updater(
+    snapshot_path: NodePath,
+    new_snapshot: Mapping[str, Any],
+    patches: Sequence[Mapping[str, Any]],
+    settings: QualibrateSettings,
+) -> bool:
+    node_filepath = _get_node_filepath(snapshot_path)
+    if not node_filepath.is_file():
+        return False
+    node_info = _default_snapshot_content_loader(
+        snapshot_path, SnapshotLoadType.Empty, settings, raw=True
+    )
+    quam_file_path = _get_data_node_filepath(
+        node_info, node_filepath, snapshot_path
+    )
+    if quam_file_path is None:
+        return False
+    with quam_file_path.open("w") as f:
+        json.dump(new_snapshot, f)
+    node_info = dict(node_info)
+    if "patches" in node_info:
+        if not isinstance(node_info["patches"], list):
+            raise QValueException("Patches is not sequence")
+        node_info["patches"].extend(patches)
+    else:
+        node_info["patches"] = patches
+    with node_filepath.open("w") as f:
+        json.dump(node_info, f, indent=4)
+    return True
 
 
 def _default_snapshot_content_loader(
     snapshot_path: NodePath,
     load_type: SnapshotLoadType,
     settings: QualibrateSettings,
+    raw: bool = False,
 ) -> DocumentType:
-    node_filepath = snapshot_path / "node.json"
+    node_filepath = _get_node_filepath(snapshot_path)
     if node_filepath.is_file():
         with node_filepath.open("r") as f:
             try:
@@ -143,6 +219,8 @@ def _default_snapshot_content_loader(
                 node_info = {}
     else:
         node_info = {}
+    if raw:
+        return cast(DocumentType, node_info)
     content = _read_minified_node_content(
         node_info, snapshot_path.id, node_filepath, settings
     )
@@ -180,21 +258,31 @@ class SnapshotLocalStorage(SnapshotBase):
         id: IdType,
         content: Optional[DocumentType] = None,
         snapshot_loader: SnapshotContentLoaderType = _default_snapshot_content_loader,
+        snapshot_updater: SnapshotContentUpdaterType = _default_snapshot_content_updater,
         *,
         settings: QualibrateSettings,
     ):
         super().__init__(id=id, content=content, settings=settings)
         self._snapshot_loader = snapshot_loader
+        self._snapshot_updater = snapshot_updater
+        self._node_path: Optional[NodePath] = None
+
+    @property
+    def node_path(self) -> NodePath:
+        if self._node_path is None:
+            self._node_path = IdToLocalPath().get_or_raise(
+                self._settings.project,
+                self._id,
+                self._settings.user_storage,
+            )
+        return self._node_path
 
     def load(self, load_type: SnapshotLoadType) -> None:
         if load_type <= self._load_type:
             return None
-        node_path = IdToLocalPath().get_or_raise(
-            self._settings.project,
-            self._id,
-            self._settings.user_storage,
+        content = self._snapshot_loader(
+            self.node_path, load_type, self._settings
         )
-        content = self._snapshot_loader(node_path, load_type, self._settings)
         self.content.update(content)
         self._load_type = load_type
 
@@ -261,3 +349,39 @@ class SnapshotLocalStorage(SnapshotBase):
         return jsonpatch_to_mapping(
             this_data, jsonpatch.make_patch(dict(this_data), dict(other_data))
         )
+
+    def update_entry(self, updates: Mapping[str, Any]) -> bool:
+        if self.load_type < SnapshotLoadType.Data:
+            self.load(SnapshotLoadType.Data)
+        data = self.data
+        if data is None:
+            return False
+
+        path_values = {
+            path: jsonpointer.resolve_pointer(data, path[1:], None)
+            for path in updates.keys()
+        }
+
+        if any(value is None for value in path_values.values()):
+            # one or more paths do not exist
+            return False
+        patch_operations = [
+            {
+                "op": "replace",
+                "path": path[1:],
+                "value": value,
+                "old": path_values[path],
+            }
+            for path, value in updates.items()
+        ]
+        patch = jsonpatch.JsonPatch(patch_operations)
+        try:
+            new_data = patch.apply(dict(data))
+            res = self._snapshot_updater(
+                self.node_path, new_data, patch_operations, self._settings
+            )
+            return res
+        except jsonpatch.JsonPatchException:
+            raise QPathException("Unknown path to update")
+        except OSError:
+            return False

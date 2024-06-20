@@ -137,3 +137,7 @@ class SnapshotTimelineDb(SnapshotBase):
         return jsonpatch_to_mapping(
             original, cast(Sequence[Mapping[str, Any]], patch)
         )
+
+    def update_entry(self, updates: Mapping[str, Any]) -> bool:
+        # TODO: update timeline db snapshot entry
+        return False
