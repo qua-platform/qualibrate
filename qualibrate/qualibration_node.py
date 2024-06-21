@@ -1,7 +1,7 @@
 import warnings
 from contextlib import contextmanager
 from enum import Enum
-from importlib import import_module
+from functools import partialmethod
 from importlib.util import find_spec
 from pathlib import Path
 from types import MappingProxyType
@@ -128,31 +128,99 @@ class QualibrationNode:
         finally:
             self.__class__._singleton_instance = None
 
-    def _record_state_update(self, attr: str, val: Any) -> None:
-        self._state_updates[attr] = val
-
     @property
     def state_updates(self) -> MappingProxyType[str, Any]:
         return MappingProxyType(self._state_updates)
 
     @contextmanager
-    def record_state_updates(self) -> Generator[None, None, None]:
-        if self.mode == NodeMode.interactive:
-            # Override QuamComponent.__setattr__()
-            quam_core_spec = find_spec("core", "quam")
-            if quam_core_spec is None:
-                yield
-                return
-
-            quam_core = import_module("quam.core")
-            if not hasattr(quam_core, "QuamBase"):
-                yield
-                return
-            try:
-                setattr_func = quam_core.QuamBase.__setattr__
-                quam_core.QuamBase.__setattr__ = self._record_state_update
-                yield
-            finally:
-                quam_core.QuamBase.__setattr__ = setattr_func
-        else:
+    def record_state_updates(
+        self, interactive_only=True
+    ) -> Generator[None, None, None]:
+        if self.mode != NodeMode.interactive and interactive_only:
             yield
+            return
+
+        # Override QuamComponent.__setattr__()
+        try:
+            from quam.core import (
+                QuamBase,
+                QuamComponent,
+                QuamDict,
+                QuamList,
+                QuamRoot,
+            )
+        except ImportError:
+            yield
+            return
+
+        quam_classes_mapping = (
+            QuamBase,
+            QuamComponent,
+            QuamRoot,
+            QuamDict,
+        )
+        quam_classes_sequences = (QuamList, QuamDict)
+
+        cls_setattr_funcs = {
+            cls: cls.__dict__["__setattr__"]
+            for cls in quam_classes_mapping
+            if "__setattr__" in cls.__dict__
+        }
+        cls_setitem_funcs = {
+            cls: cls.__dict__["__setitem__"]
+            for cls in quam_classes_sequences
+            if "__setitem__" in cls.__dict__
+        }
+        try:
+            for cls in cls_setattr_funcs:
+                setattr(
+                    cls,
+                    "__setattr__",
+                    partialmethod(_record_state_update_getattr, node=self),
+                )
+            for cls in cls_setitem_funcs:
+                setattr(
+                    cls,
+                    "__setitem__",
+                    partialmethod(_record_state_update_getitem, node=self),
+                )
+            yield
+        finally:
+            for cls, setattr_func in cls_setattr_funcs.items():
+                setattr(cls, "__setattr__", setattr_func)
+            for cls, setitem_func in cls_setitem_funcs.items():
+                setattr(cls, "__setitem__", setitem_func)
+
+
+def _record_state_update_getattr(
+    quam_obj,
+    attr: str,
+    val: Any = None,
+    node=None,
+) -> None:
+    reference = quam_obj.get_reference(attr)
+    old = getattr(quam_obj, attr)
+    if node:
+        node._state_updates[reference] = {
+            "key": reference,
+            "attr": attr,
+            "old": old,
+            "val": val,
+        }
+
+
+def _record_state_update_getitem(
+    quam_obj,
+    attr: str,
+    val: Any = None,
+    node=None,
+) -> None:
+    reference = quam_obj.get_reference(attr)
+    old = quam_obj[attr]
+    if node:
+        node._state_updates[reference] = {
+            "key": reference,
+            "attr": attr,
+            "old": old,
+            "val": val,
+        }
