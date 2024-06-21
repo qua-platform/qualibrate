@@ -140,20 +140,18 @@ class QualibrationNode:
             yield
             return
 
-        quam_core_spec = find_spec("core", "quam")
-        # quam not installed
-        if quam_core_spec is None:
+        # Override QuamComponent.__setattr__()
+        try:
+            from quam.core import (
+                QuamBase,
+                QuamComponent,
+                QuamDict,
+                QuamList,
+                QuamRoot,
+            )
+        except ImportError:
             yield
             return
-
-        # Override QuamComponent.__setattr__()
-        from quam.core import (
-            QuamBase,
-            QuamComponent,
-            QuamDict,
-            QuamList,
-            QuamRoot,
-        )
 
         quam_classes_mapping = (
             QuamBase,
