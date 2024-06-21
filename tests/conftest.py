@@ -1,5 +1,6 @@
 import pytest
-from qualibrate import QualibrationNode, NodeParameters
+
+from qualibrate import NodeParameters, QualibrationNode
 
 
 @pytest.fixture
@@ -19,7 +20,9 @@ def machine():
 
     machine = BasicQuAM(
         channels={
-            "ch1": SingleChannel(opx_output=("con1", 1), intermediate_frequency=100e6)
+            "ch1": SingleChannel(
+                opx_output=("con1", 1), intermediate_frequency=100e6
+            )
         },
     )
     return machine

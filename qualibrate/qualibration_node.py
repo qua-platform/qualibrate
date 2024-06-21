@@ -1,8 +1,7 @@
-from functools import partialmethod
 import warnings
 from contextlib import contextmanager
 from enum import Enum
-from importlib import import_module
+from functools import partialmethod
 from importlib.util import find_spec
 from pathlib import Path
 from types import MappingProxyType
@@ -137,52 +136,62 @@ class QualibrationNode:
     def record_state_updates(
         self, interactive_only=True
     ) -> Generator[None, None, None]:
-        if self.mode == NodeMode.interactive or not interactive_only:
-            # Override QuamComponent.__setattr__()
-            from quam.core import (
-                QuamBase, QuamComponent, QuamRoot, QuamDict, QuamList
-            )
-
-            quam_classes_mapping = (
-                QuamBase,
-                QuamComponent,
-                QuamRoot,
-                QuamDict,
-            )
-            quam_classes_sequences = (QuamList, QuamDict)
-
-            cls_setattr_funcs = {
-                cls: cls.__dict__["__setattr__"]
-                for cls in quam_classes_mapping
-                if "__setattr__" in cls.__dict__
-            }
-            cls_setitem_funcs = {
-                cls: cls.__dict__["__setitem__"]
-                for cls in quam_classes_sequences
-                if "__setitem__" in cls.__dict__
-            }
-            try:
-                for cls in cls_setattr_funcs:
-                    setattr(
-                        cls,
-                        "__setattr__",
-                        partialmethod(_record_state_update_getattr, node=self)
-                    )
-                for cls in cls_setitem_funcs:
-                    setattr(
-                        cls,
-                        "__setitem__",
-                        partialmethod(_record_state_update_getitem, node=self)
-                    )
-                yield
-            finally:
-                for cls, setattr_func in cls_setattr_funcs.items():
-                    setattr(cls, "__setattr__", setattr_func)
-                for cls, setitem_func in cls_setitem_funcs.items():
-                    setattr(cls, "__setitem__", setitem_func)
-
-        else:
+        if self.mode != NodeMode.interactive and interactive_only:
             yield
+            return
+
+        quam_core_spec = find_spec("core", "quam")
+        # quam not installed
+        if quam_core_spec is None:
+            yield
+            return
+
+        # Override QuamComponent.__setattr__()
+        from quam.core import (
+            QuamBase,
+            QuamComponent,
+            QuamDict,
+            QuamList,
+            QuamRoot,
+        )
+
+        quam_classes_mapping = (
+            QuamBase,
+            QuamComponent,
+            QuamRoot,
+            QuamDict,
+        )
+        quam_classes_sequences = (QuamList, QuamDict)
+
+        cls_setattr_funcs = {
+            cls: cls.__dict__["__setattr__"]
+            for cls in quam_classes_mapping
+            if "__setattr__" in cls.__dict__
+        }
+        cls_setitem_funcs = {
+            cls: cls.__dict__["__setitem__"]
+            for cls in quam_classes_sequences
+            if "__setitem__" in cls.__dict__
+        }
+        try:
+            for cls in cls_setattr_funcs:
+                setattr(
+                    cls,
+                    "__setattr__",
+                    partialmethod(_record_state_update_getattr, node=self),
+                )
+            for cls in cls_setitem_funcs:
+                setattr(
+                    cls,
+                    "__setitem__",
+                    partialmethod(_record_state_update_getitem, node=self),
+                )
+            yield
+        finally:
+            for cls, setattr_func in cls_setattr_funcs.items():
+                setattr(cls, "__setattr__", setattr_func)
+            for cls, setitem_func in cls_setitem_funcs.items():
+                setattr(cls, "__setitem__", setitem_func)
 
 
 def _record_state_update_getattr(
