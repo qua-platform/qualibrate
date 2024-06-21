@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, List, Mapping, Optional
+from typing import Any, Mapping, Optional
 
 from pydantic import BaseModel, Field
 
@@ -20,5 +20,5 @@ class LastRun(BaseModel):
     status: RunStatus
     name: str
     idx: int
-    state_updates: List[Mapping[str, Any]] = Field(default_factory=list)
+    state_updates: Mapping[str, Any] = Field(default_factory=dict)
     error: Optional[RunError] = None

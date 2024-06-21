@@ -49,16 +49,11 @@ def run_job(
         )
         raise
     else:
-        # node.run_summary() == {
-        #   "status: "finished",
-        #   "name": "my_calibration",
-        #   "idx": 423,
-        #   "state_updates": [...]
-        # }
         idx = node.snapshot_idx if hasattr(node, "snapshot_idx") else -1
+        idx = idx if idx is not None else -1
         state.last_run = LastRun(
             name=state.last_run.name,
             status=RunStatus.FINISHED,
             idx=idx,
-            # TODO: add `state_updates`
+            state_updates=node.state_updates,
         )
