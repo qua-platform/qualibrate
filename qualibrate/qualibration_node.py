@@ -1,3 +1,4 @@
+import os
 import warnings
 from contextlib import contextmanager
 from enum import Enum
@@ -6,6 +7,8 @@ from importlib.util import find_spec
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Generator, Mapping, Optional, Type
+
+import matplotlib
 
 from qualibrate import NodeParameters
 from qualibrate.storage import StorageManager
@@ -120,13 +123,16 @@ class QualibrationNode:
             self.mode = mode
 
     def run_node_file(self, node_filepath: Optional[Path]) -> None:
+        mpl_backend = matplotlib.get_backend()
         try:
             # Temporarily set the singleton instance to this node
             self.__class__._singleton_instance = self
             code = node_filepath.read_text()  # type: ignore[union-attr]
+            matplotlib.use("agg")
             exec(code)
         finally:
             self.__class__._singleton_instance = None
+            matplotlib.use(mpl_backend)
 
     @property
     def state_updates(self) -> MappingProxyType[str, Any]:
