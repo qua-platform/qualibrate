@@ -65,7 +65,7 @@ class QualibrationNode:
             raise StopInspection("Node instantiated in inspection mode")
 
     @property
-    def parameters(self) -> Optional[NodeParameters]:
+    def parameters(self):
         return self.__parameters
 
     @parameters.setter
