@@ -4,12 +4,23 @@ import noop from "../../../common/helpers";
 import { NodesApi } from "../api/NodesAPI";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 
+export interface StateUpdateObject {
+  key?: string | number;
+  attr?: string;
+  old?: string | number;
+  val?: string | number;
+}
+
+export interface StateUpdate {
+  [key: string]: StateUpdateObject;
+}
+
 interface RunningNodeInfo {
   timestampOfRun?: string;
   runDuration?: string;
   status?: string;
+  state_updates?: StateUpdate;
   idx?: string;
-  stateUpdates?: string;
 }
 
 interface INodesContext {
@@ -54,7 +65,7 @@ interface NodeStatusResponseType {
   idx: number;
   status: string;
   name: string;
-  state_updates: string[];
+  state_updates?: StateUpdate;
 }
 
 export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {
@@ -87,6 +98,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
 
   const fetchNodeResults = async (flag: boolean) => {
     const lastRunResponse = await NodesApi.fetchLastRunInfo();
+    console.log("setResults(snapshotResponse.result);");
     if (lastRunResponse.isOk) {
       const lastRunResponseResult = lastRunResponse.result as NodeStatusResponseType;
       if (lastRunResponseResult.status !== "error") {
@@ -95,7 +107,6 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         if (idx && !flag) {
           const snapshotResponse = await SnapshotsApi.fetchSnapshotResult(idx);
           if (snapshotResponse.isOk) {
-            console.log("setResults(snapshotResponse.result);");
             if (runningNodeInfo && runningNodeInfo.timestampOfRun) {
               const startDateAndTime: Date = parseDateString(runningNodeInfo?.timestampOfRun);
               const now: Date = new Date();
@@ -106,6 +117,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
                 runDuration: diffInSeconds.toFixed(2),
                 status: lastRunResponseResult.status,
                 idx: lastRunResponseResult.idx.toString(),
+                state_updates: lastRunResponseResult.state_updates,
               });
             }
             setResults(snapshotResponse.result);
@@ -130,6 +142,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
 
   useEffect(() => {
     if (!isNodeRunning) {
+      console.log("fetchNodeResults", isNodeRunning, firstRun);
       fetchNodeResults(firstRun);
     }
   }, [isNodeRunning]);

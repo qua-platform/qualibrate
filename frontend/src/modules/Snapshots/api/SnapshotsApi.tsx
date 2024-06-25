@@ -1,6 +1,6 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import { ALL_SNAPSHOTS, ONE_SNAPSHOT, SNAPSHOT_DIFF, SNAPSHOT_RESULT } from "../../../utils/api/apiRoutes";
+import { ALL_SNAPSHOTS, ONE_SNAPSHOT, SNAPSHOT_DIFF, SNAPSHOT_RESULT, UPDATE_SNAPSHOT } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { SnapshotDTO } from "../SnapshotDTO";
 
@@ -42,6 +42,14 @@ export class SnapshotsApi extends Api {
   static fetchSnapshotUpdate(currentId: string, newId: string): Promise<Res<object>> {
     return this._fetch(this.api(SNAPSHOT_DIFF(currentId, newId)), API_METHODS.GET, {
       headers: BASIC_HEADERS,
+    });
+  }
+
+  static updateState(snapshotId: string, data_path: string, value: string): Promise<Res<void>> {
+    return this._fetch(this.api(UPDATE_SNAPSHOT(snapshotId)), API_METHODS.POST, {
+      headers: BASIC_HEADERS,
+      body: JSON.stringify({ data_path, value }),
+      queryParams: { data_path, value },
     });
   }
 }
