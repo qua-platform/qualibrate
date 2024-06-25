@@ -88,11 +88,10 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
   }
 
   const handleClick = () => {
-    NodesApi.submitNodeParameters(node.name, transformInputParameters(node.input_parameters));
     setIsNodeRunning(true);
     setRunningNode(node);
     setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
-    // setResults(undefined);
+    NodesApi.submitNodeParameters(node.name, transformInputParameters(node.input_parameters));
   };
 
   return (

@@ -80,12 +80,14 @@
 .stateWrapper {
   padding-left: 45px;
   height: 100%;
-  overflow: scroll;
 }
 
 .stateUpdateButton {
-  padding-right: 10px;
   height: 20px;
+}
+
+.stateUpdateWrapper {
+  overflow: scroll;
 }
 
 .stateUpdateComponentWrapper {
@@ -95,6 +97,9 @@
   gap: 15px;
 }
 
-.stateUpdateAdditionalText {
-  padding-left: 5px;
+.stateUpdateComponentAdditionalWrapper {
+  padding-top: 5px;
+  padding-left: 100px;
+  display: flex;
+  gap: 15px;
 }
