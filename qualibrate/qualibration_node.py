@@ -1,11 +1,11 @@
 import warnings
 from contextlib import contextmanager
-from enum import Enum
 from functools import partialmethod
-from importlib.util import find_spec
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Generator, Mapping, Optional, Type
+
+from pydantic import BaseModel
 
 from qualibrate import NodeParameters
 from qualibrate.storage import StorageManager
@@ -16,15 +16,14 @@ class StopInspection(Exception):
     pass
 
 
-class NodeMode(Enum):
-    default = "default"
-    inspection = "inspection"
-    external = "external"
-    interactive = "interactive"
+class NodeMode(BaseModel):
+    inspection: bool = False
+    interactive: bool = False
+    external: bool = True
 
 
 class QualibrationNode:
-    mode: NodeMode = NodeMode.default
+    mode = NodeMode()
     storage_manager: Optional[StorageManager] = None
     last_instantiated_node: Optional["QualibrationNode"] = None
 
@@ -48,6 +47,7 @@ class QualibrationNode:
         self.name = name
         self.parameters_class = parameters_class
         self.description = description
+        self.mode = self.__class__.mode.model_copy()
 
         self.__parameters: Optional[NodeParameters] = None
         self._state_updates: dict[str, Any] = {}
@@ -57,7 +57,7 @@ class QualibrationNode:
 
         self._initialized = True
 
-        if self.mode == NodeMode.inspection:
+        if self.mode.inspection:
             # ASK: Looks like `last_instantiated_node` and
             #  `_singleton_instance` have same logic -- keep instance of class
             #  in class-level variable. Is it needed to have both?
@@ -70,7 +70,7 @@ class QualibrationNode:
 
     @parameters.setter
     def parameters(self, new_parameters: NodeParameters) -> None:
-        if self.mode == NodeMode.external and self.__parameters is not None:
+        if self.mode.external and self.__parameters is not None:
             return
         if not isinstance(new_parameters, self.parameters_class):
             raise TypeError(
@@ -110,14 +110,14 @@ class QualibrationNode:
         self.storage_manager.save(node=self)
 
     def run_node(self, input_parameters: NodeParameters) -> None:
-        mode = self.mode
+        external = self.mode.external
         try:
-            self.mode = NodeMode.external
+            self.mode.external = True
             self.__parameters = input_parameters
             # TODO: raise exception if node file isn't specified
             self.run_node_file(self.node_filepath)
         finally:
-            self.mode = mode
+            self.mode.external = external
 
     def run_node_file(self, node_filepath: Optional[Path]) -> None:
         try:
@@ -136,7 +136,7 @@ class QualibrationNode:
     def record_state_updates(
         self, interactive_only=True
     ) -> Generator[None, None, None]:
-        if self.mode != NodeMode.interactive and interactive_only:
+        if not self.mode.interactive and interactive_only:
             yield
             return
 
