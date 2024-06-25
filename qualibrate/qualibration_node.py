@@ -205,7 +205,7 @@ def _record_state_update_getattr(
             "key": reference,
             "attr": attr,
             "old": old,
-            "val": val,
+            "new": val,
         }
 
 
