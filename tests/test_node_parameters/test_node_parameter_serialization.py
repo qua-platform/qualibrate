@@ -8,11 +8,7 @@ def test_parameters_empty_serialization():
     parameters = Parameters()
     serialized = parameters.serialize()
 
-    assert serialized == {
-        "properties": {},
-        "title": "Parameters",
-        "type": "object",
-    }
+    assert serialized == {}
 
 
 def test_parameters_default_types_serialization():
@@ -26,20 +22,16 @@ def test_parameters_default_types_serialization():
     serialized = parameters.serialize()
 
     assert serialized == {
-        "properties": {
-            "bool_val": {
-                "default": False,
-                "title": "Bool Val",
-                "type": "boolean",
-            },
-            "int_val": {"default": 0, "title": "Int Val", "type": "integer"},
-            "float_val": {
-                "default": 0.0,
-                "title": "Float Val",
-                "type": "number",
-            },
-            "str_val": {"default": "", "title": "Str Val", "type": "string"},
+        "bool_val": {
+            "default": False,
+            "title": "Bool Val",
+            "type": "boolean",
         },
-        "title": "Parameters",
-        "type": "object",
+        "int_val": {"default": 0, "title": "Int Val", "type": "integer"},
+        "float_val": {
+            "default": 0.0,
+            "title": "Float Val",
+            "type": "number",
+        },
+        "str_val": {"default": "", "title": "Str Val", "type": "string"},
     }
