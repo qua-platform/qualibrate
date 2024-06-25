@@ -4,7 +4,6 @@ from typing import Any, Dict, Mapping, Optional
 
 from qualibrate import NodeParameters
 from qualibrate.qualibration_node import (
-    NodeMode,
     QualibrationNode,
     StopInspection,
 )
@@ -43,16 +42,16 @@ class QualibrationLibrary:
         if not append:
             self.nodes = {}
 
-        original_mode = QualibrationNode.mode
+        inspection = QualibrationNode.mode.inspection
         try:
-            QualibrationNode.mode = NodeMode.inspection
+            QualibrationNode.mode.inspection = True
 
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_node(file):
                     continue
                 self.scan_node_file(file)
         finally:
-            QualibrationNode.mode = original_mode
+            QualibrationNode.mode.inspection = inspection
 
     def scan_node_file(self, file: Path) -> None:
         logger.info(f"Scanning node file {file}")
