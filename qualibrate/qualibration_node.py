@@ -111,13 +111,16 @@ class QualibrationNode:
 
     def run_node(self, input_parameters: NodeParameters) -> None:
         external = self.mode.external
+        interactive = self.mode.interactive
         try:
             self.mode.external = True
+            self.mode.interactive = True
             self.__parameters = input_parameters
             # TODO: raise exception if node file isn't specified
             self.run_node_file(self.node_filepath)
         finally:
             self.mode.external = external
+            self.mode.interactive = interactive
 
     def run_node_file(self, node_filepath: Optional[Path]) -> None:
         try:
@@ -222,5 +225,5 @@ def _record_state_update_getitem(
             "key": reference,
             "attr": attr,
             "old": old,
-            "val": val,
+            "new": val,
         }
