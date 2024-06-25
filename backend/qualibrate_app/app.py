@@ -22,7 +22,12 @@ except ImportError:
 app = FastAPI(title="Qualibrate")
 _settings = get_settings(get_config_path())
 
-origins = ["http://localhost:8002", "http://localhost:8001"]
+origins = [
+    "http://localhost:8002",
+    "http://localhost:8001",
+    "http://127.0.0.1:8002",
+    "http://127.0.0.1:8001",
+]
 
 app.add_middleware(QualibrateCatchExcMiddleware)
 app.add_middleware(
