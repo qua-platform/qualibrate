@@ -1,6 +1,6 @@
 from typing import Annotated, Any, Mapping, Optional, Type, cast
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
 from qualibrate.qualibration_node import QualibrationNode
 
@@ -19,7 +19,7 @@ from qualibrate_runner.config import (
     State,
     get_settings,
 )
-from qualibrate_runner.core.models.last_run import LastRun
+from qualibrate_runner.core.models.last_run import LastRun, RunStatus
 from qualibrate_runner.core.run_job import run_job, validate_input_parameters
 
 base_router = APIRouter()
@@ -40,7 +40,10 @@ def submit_run(
     background_tasks: BackgroundTasks,
 ) -> str:
     if state.is_running:
-        raise HTTPException(status_code=422, detail="Already running")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Already running",
+        )
     # TODO: use `Calibration_node.validate_parameters`
     validate_input_parameters(
         cast(Type[BaseModel], node.parameters_class), input_parameters
@@ -74,4 +77,17 @@ def get_node(
 def get_last_run(
     state: Annotated[State, Depends(get_state)],
 ) -> Optional[LastRun]:
+    return state.last_run
+
+
+@base_router.post("/state_updated")
+def state_updated(
+    state: Annotated[State, Depends(get_state)],
+) -> Optional[LastRun]:
+    if state.last_run is None or state.last_run.status != RunStatus.FINISHED:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Node not executed or finished unsuccessful.",
+        )
+    state.last_run.updated = True
     return state.last_run

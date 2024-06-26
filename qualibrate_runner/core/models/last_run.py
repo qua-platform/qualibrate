@@ -20,5 +20,6 @@ class LastRun(BaseModel):
     status: RunStatus
     name: str
     idx: int
+    updated: bool = False
     state_updates: Mapping[str, Any] = Field(default_factory=dict)
     error: Optional[RunError] = None
