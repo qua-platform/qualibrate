@@ -1,7 +1,7 @@
 def test_state_updates(node, machine):
     channel = machine.channels["ch1"]
     assert channel.intermediate_frequency == 100e6
-    
+
     with node.record_state_updates(interactive_only=False):
         channel.intermediate_frequency = 50e6
 
