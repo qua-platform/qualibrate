@@ -99,7 +99,7 @@ def update_entity(
     if updated:
         requests.post(
             urljoin(str(settings.runner.address), "state_updated"),
-            timeout=settings.runner.timeout
+            timeout=settings.runner.timeout,
         )
     return updated
 
