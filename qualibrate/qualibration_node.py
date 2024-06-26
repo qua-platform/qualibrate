@@ -5,6 +5,8 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Generator, Mapping, Optional, Type
 
+import matplotlib
+
 from pydantic import BaseModel
 
 from qualibrate import NodeParameters
@@ -123,13 +125,16 @@ class QualibrationNode:
             self.mode.interactive = interactive
 
     def run_node_file(self, node_filepath: Optional[Path]) -> None:
+        mpl_backend = matplotlib.get_backend()
         try:
             # Temporarily set the singleton instance to this node
             self.__class__._singleton_instance = self
             code = node_filepath.read_text()  # type: ignore[union-attr]
+            matplotlib.use("agg")
             exec(code)
         finally:
             self.__class__._singleton_instance = None
+            matplotlib.use(mpl_backend)
 
     @property
     def state_updates(self) -> MappingProxyType[str, Any]:
