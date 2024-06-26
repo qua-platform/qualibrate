@@ -1,5 +1,7 @@
 from typing import Annotated, Any, Mapping, Optional, Type, Union
+from urllib.parse import urljoin
 
+import requests
 from fastapi import APIRouter, Depends, Path, Query
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
@@ -91,8 +93,15 @@ def update_entity(
         ),
     ],
     value: Any,
+    settings: Annotated[QualibrateSettings, Depends(get_settings)],
 ) -> bool:
-    return snapshot.update_entry({data_path: value})
+    updated = snapshot.update_entry({data_path: value})
+    if updated:
+        requests.post(
+            urljoin(str(settings.runner.address), "state_updated"),
+            timeout=settings.runner.timeout
+        )
+    return updated
 
 
 @snapshot_router.get("/search/data/values")
