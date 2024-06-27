@@ -83,11 +83,18 @@ def get_last_run(
 @base_router.post("/state_updated")
 def state_updated(
     state: Annotated[State, Depends(get_state)],
+    key: str,
 ) -> Optional[LastRun]:
     if state.last_run is None or state.last_run.status != RunStatus.FINISHED:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Node not executed or finished unsuccessful.",
         )
-    state.last_run.updated = True
+    state_updates = state.last_run.state_updates
+    if key not in state_updates:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Unknown state update key.",
+        )
+    state_updates[key].updated = True
     return state.last_run
