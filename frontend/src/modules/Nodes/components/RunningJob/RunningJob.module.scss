@@ -49,15 +49,6 @@
   display: flex;
 }
 
-//.arrowIconWrapper {
-//  padding-left: 10px;
-//  padding-right: 5px;
-//
-//  svg {
-//    vertical-align: middle;
-//  }
-//}
-
 .parameterValues {
   display: flex;
   padding-left: 30px;
@@ -77,29 +68,26 @@
   padding-left: 40px;
 }
 
-.stateWrapper {
-  padding-left: 45px;
-  height: 100%;
-}
-
-.stateUpdateButton {
-  height: 20px;
-}
-
 .stateUpdateWrapper {
   overflow: scroll;
-}
-
-.stateUpdateComponentWrapper {
-  padding-top: 5px;
+  display: flex;
   padding-left: 50px;
-  display: flex;
-  gap: 15px;
+  padding-top: 5px;
 }
 
-.stateUpdateComponentAdditionalWrapper {
-  padding-top: 5px;
-  padding-left: 100px;
-  display: flex;
-  gap: 15px;
+.stateUpdateIconWrapper {
+  width: 32px;
+  vertical-align: middle;
+}
+
+.stateUpdateComponentTextWrapper {
+  padding-left: 10px;
+}
+
+.stateUpdateKeyText {
+  font-weight: bold;
+}
+
+.stateUpdateValueText {
+  font-size: 12px;
 }

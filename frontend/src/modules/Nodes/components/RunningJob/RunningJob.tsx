@@ -1,13 +1,84 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./RunningJob.module.scss";
-import { StateUpdateObject, useNodesContext } from "../../context/NodesContext";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
+import { RunningNodeInfo, StateUpdateObject, useNodesContext } from "../../context/NodesContext";
 import { CircularProgress } from "@mui/material";
+import { UpArrowIcon } from "../../../../ui-lib/Icons/UpArrowIcon";
+import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
+import { CheckMarkIcon } from "../../../../ui-lib/Icons/CheckMarkIcon";
+import { RightArrowIcon } from "../../../../ui-lib/Icons/RightArrowIcon";
+
+interface StateUpdateComponentProps {
+  key: string;
+  stateUpdateObject: StateUpdateObject;
+  runningNodeInfo?: RunningNodeInfo;
+}
+
+const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
+  const { key, stateUpdateObject, runningNodeInfo } = props;
+  const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
+  const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
+  return (
+    <div key={`${key}-wrapper`} className={styles.stateUpdateWrapper}>
+      <div>
+        {!runningUpdate && !parameterUpdated && (
+          <div
+            onClick={async () => {
+              if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && stateUpdateObject.val) {
+                setRunningUpdate(true);
+                const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateObject.val.toString());
+                setRunningUpdate(false);
+                if (response.isOk) {
+                  setParameterUpdated(response.result!);
+                } else {
+                  setParameterUpdated(response.result!);
+                }
+              }
+            }}
+          >
+            <UpArrowIcon />
+          </div>
+        )}
+        <div className={styles.stateUpdateIconWrapper}>
+          {runningUpdate && !parameterUpdated && <CircularProgress size={32} />}
+          {!runningUpdate && parameterUpdated && <CheckMarkIcon />}
+        </div>
+      </div>
+      <div key={key} className={styles.stateUpdateComponentTextWrapper}>
+        <div className={styles.stateUpdateKeyText}>{stateUpdateObject?.key ? stateUpdateObject?.key.toString() : key.toString()}</div>
+        <div className={styles.stateUpdateValueText}>
+          {stateUpdateObject && (
+            <div>
+              {stateUpdateObject.old}&nbsp;&nbsp;
+              <RightArrowIcon />
+              &nbsp;&nbsp;{stateUpdateObject.val}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GetStateUpdates: React.FC<{
+  runningNodeInfo: RunningNodeInfo | undefined;
+}> = (props) => {
+  const { runningNodeInfo } = props;
+  return (
+    <>
+      {runningNodeInfo?.state_updates && <div className={styles.stateTitle}>State updates:</div>}
+      {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject]) =>
+        StateUpdateComponent({
+          key,
+          stateUpdateObject,
+          runningNodeInfo,
+        } as StateUpdateComponentProps)
+      )}
+    </>
+  );
+};
 
 export const RunningJob: React.FC = () => {
   const { runningNode, runningNodeInfo } = useNodesContext();
-  const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
 
   const getRunningJobInfo = () => {
     return (
@@ -52,44 +123,6 @@ export const RunningJob: React.FC = () => {
     );
   };
 
-  const stateUpdateComponent = (key: string, stateUpdateObject: StateUpdateObject) => {
-    return (
-      <div className={styles.stateUpdateWrapper}>
-        <div key={key} className={styles.stateUpdateComponentWrapper}>
-          {!runningUpdate && (
-            <BlueButton
-              className={styles.stateUpdateButton}
-              onClick={async () => {
-                if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && stateUpdateObject.val) {
-                  setRunningUpdate(true);
-                  await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateObject.val.toString()).then(() => {
-                    setRunningUpdate(false);
-                  });
-                }
-              }}
-            >
-              Update
-            </BlueButton>
-          )}
-          {runningUpdate && <CircularProgress />}
-          <div className={styles.stateUpdateRowWrapper}>{stateUpdateObject?.key ? stateUpdateObject?.key.toString() : key.toString()}</div>
-        </div>
-        <div key={key} className={styles.stateUpdateComponentAdditionalWrapper}>
-          {stateUpdateObject && <div>{`${stateUpdateObject.old} -> ${stateUpdateObject.val}`}</div>}
-        </div>
-      </div>
-    );
-  };
-
-  const getStateUpdates = () => {
-    return (
-      <>
-        {runningNodeInfo?.state_updates && <div className={styles.stateTitle}>State updates:</div>}
-        {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, parameter]) => stateUpdateComponent(key, parameter))}
-      </>
-    );
-  };
-
   return (
     <div className={styles.wrapper}>
       <div className={styles.title}>
@@ -102,7 +135,7 @@ export const RunningJob: React.FC = () => {
           {getRunningJobParameters()}
         </div>
       )}
-      {getStateUpdates()}
+      <GetStateUpdates runningNodeInfo={runningNodeInfo} />
     </div>
   );
 };
