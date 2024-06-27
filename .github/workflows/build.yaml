@@ -3,4 +3,4 @@ on:
 
 jobs:
   build:
-    uses: qua-platform/qualibrate-app/.github/workflows/reusable-buld.yaml@release-ci
+    uses: qua-platform/qualibrate-app/.github/workflows/reusable-buld.yaml@main
