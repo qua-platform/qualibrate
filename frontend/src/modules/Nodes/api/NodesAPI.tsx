@@ -12,9 +12,10 @@ export class NodesApi extends Api {
     return this.address + path;
   }
 
-  static fetchAllNodes(): Promise<Res<void>> {
+  static fetchAllNodes(rescan: boolean = true): Promise<Res<void>> {
     return this._fetch(this.api(ALL_NODES()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
+      queryParams: { rescan },
     });
   }
 
