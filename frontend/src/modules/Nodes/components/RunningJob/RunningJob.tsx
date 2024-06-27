@@ -23,9 +23,9 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
         {!runningUpdate && !parameterUpdated && (
           <div
             onClick={async () => {
-              if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && stateUpdateObject.val) {
+              if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && stateUpdateObject.new) {
                 setRunningUpdate(true);
-                const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateObject.val.toString());
+                const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateObject.new.toString());
                 setRunningUpdate(false);
                 if (response.isOk) {
                   setParameterUpdated(response.result!);
@@ -50,7 +50,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
             <div>
               {stateUpdateObject.old}&nbsp;&nbsp;
               <RightArrowIcon />
-              &nbsp;&nbsp;{stateUpdateObject.val}
+              &nbsp;&nbsp;{stateUpdateObject.new}
             </div>
           )}
         </div>

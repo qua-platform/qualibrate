@@ -8,7 +8,7 @@ export interface StateUpdateObject {
     key?: string | number;
     attr?: string;
     old?: string | number;
-    val?: string | number;
+    new?: string | number;
 }
 
 export interface StateUpdate {
