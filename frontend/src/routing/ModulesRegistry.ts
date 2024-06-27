@@ -54,16 +54,6 @@ export const ModulesRegistry: Array<Module> = [
     },
   },
   {
-    keyId: DATA_KEY,
-    path: "data",
-    Component: Data,
-    menuItem: {
-      title: "Data",
-      icon: DataIcon,
-      dataCy: cyKeys.DATA_TAB,
-    },
-  },
-  {
     keyId: NODES_KEY,
     path: "nodes",
     Component: Nodes,
@@ -71,6 +61,16 @@ export const ModulesRegistry: Array<Module> = [
       title: "Nodes",
       icon: ExperimentsIcon,
       dataCy: cyKeys.NODES_TAB,
+    },
+  },
+  {
+    keyId: DATA_KEY,
+    path: "data",
+    Component: Data,
+    menuItem: {
+      title: "Data",
+      icon: DataIcon,
+      dataCy: cyKeys.DATA_TAB,
     },
   },
 ];
