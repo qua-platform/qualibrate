@@ -1,0 +1,43 @@
+name: Build python package with built frontend
+on:
+  workflow_call
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "poetry"
+          cache-dependency-path: poetry.lock
+
+      - name: Install python deps
+        run: poetry install
+        working-directory: backend
+
+      - name: Build python package
+        run: poetry build
+        working-directory: backend
+
+      - uses: actions/upload-artifact@v4
+        id: upload-sdist
+        name: Upload sdist
+        with:
+          name: python-package-sdist
+          path: dist/qualibrate_app-*.tar.gz
+          retention-days: 3
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        id: upload-wheel
+        name: Upload wheel
+        with:
+          name: python-package-wheel
+          path: dist/qualibrate_app-*.whl
+          retention-days: 3
+          if-no-files-found: error
