@@ -3,12 +3,12 @@ import sys
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Any, Optional, Union
+from typing import Annotated, Any, ClassVar, Optional, Union
 
 from fastapi import Depends
 from pydantic import DirectoryPath, HttpUrl, field_serializer
 from pydantic_core.core_schema import FieldSerializationInfo
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from qualibrate_app.utils.config_references import resolve_references
 
@@ -30,7 +30,9 @@ class StorageType(Enum):
 
 
 class RemoteServiceBase(BaseSettings):
-    spawn: bool
+    model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
+        extra="ignore",
+    )
     address: HttpUrl
     timeout: float
 
@@ -50,6 +52,9 @@ class QualibrateRunnerBase(RemoteServiceBase):
 
 
 class _QualibrateSettingsBase(BaseSettings):
+    model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
+        extra="ignore",
+    )
     static_site_files: Path
     storage_type: StorageType = StorageType.local_storage
     user_storage: Path

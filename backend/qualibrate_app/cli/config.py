@@ -91,12 +91,10 @@ def _config_from_sources(
         )
     }
     timeline_db_mapping = {
-        "spawn_db": "spawn",
         "timeline_db_address": "address",
         "timeline_db_timeout": "timeout",
     }
     runner_mapping = {
-        "spawn_runner": "spawn",
         "runner_address": "address",
         "runner_timeout": "timeout",
     }
@@ -118,58 +116,6 @@ def _config_from_sources(
             ):
                 from_file["runner"][runner_mapping[arg_key]] = arg_value
     return from_file
-
-
-def _spawn_db_processing(
-    ctx: click.Context,
-    qualibrate_config: dict[str, Any],
-    spawn_db: bool,
-    timeline_db_address: str,
-) -> dict[str, Any]:
-    spawn_not_default = not_default(ctx, "spawn_db")
-    db_config = qualibrate_config["timeline_db"]
-    if (spawn_db and spawn_not_default) or db_config["spawn"]:
-        click.secho(
-            (
-                "Argument `timeline_db_address` replaced because "
-                "`spawn_db` is specified"
-            ),
-            fg="yellow",
-        )
-        db_config["address"] = "http://localhost:8001/timeline_db/"
-    if spawn_db is False and spawn_not_default:
-        click.secho(
-            "Uncheck `spawn_db` flag. Use passed timeline db address.",
-            fg="yellow",
-        )
-        db_config["address"] = timeline_db_address
-    return qualibrate_config
-
-
-def _spawn_runner_processing(
-    ctx: click.Context,
-    qualibrate_config: dict[str, Any],
-    spawn_runner: bool,
-    runner_address: str,
-) -> dict[str, Any]:
-    spawn_not_default = not_default(ctx, "spawn_runner")
-    runner_config = qualibrate_config["runner"]
-    if (spawn_runner and spawn_not_default) or runner_config["spawn"]:
-        click.secho(
-            (
-                "Argument `runner_address` replaced because "
-                "`spawn_runner` is specified"
-            ),
-            fg="yellow",
-        )
-        runner_config["address"] = "http://localhost:8001/execution/"
-    if spawn_runner is False and spawn_not_default:
-        click.secho(
-            "Uncheck `spawn_db` flag. Use passed timeline db address.",
-            fg="yellow",
-        )
-        runner_config["address"] = runner_address
-    return qualibrate_config
 
 
 def _print_config(data: Mapping[str, Any], depth: int = 0) -> None:
@@ -297,12 +243,6 @@ def write_config(
     show_default=True,
 )
 @click.option(
-    "--spawn-db",
-    type=bool,
-    default=True,
-    show_default=True,
-)
-@click.option(
     "--timeline-db-address",
     type=str,  # TODO: add type check for addr
     default="http://localhost:8000/",
@@ -312,12 +252,6 @@ def write_config(
     "--timeline-db-timeout",
     type=float,
     default=1.0,
-    show_default=True,
-)
-@click.option(
-    "--spawn-runner",
-    type=bool,
-    default=True,
     show_default=True,
 )
 @click.option(
@@ -341,10 +275,8 @@ def config_command(
     user_storage: Path,
     project: Optional[str],
     metadata_out_path: str,
-    spawn_db: bool,
     timeline_db_address: str,
     timeline_db_timeout: float,
-    spawn_runner: bool,
     runner_address: str,
     runner_timeout: float,
 ) -> None:
@@ -365,11 +297,5 @@ def config_command(
         if subconfig not in qualibrate_config:
             qualibrate_config[subconfig] = {}
     qualibrate_config = _config_from_sources(ctx, qualibrate_config)
-    qualibrate_config = _spawn_db_processing(
-        ctx, qualibrate_config, spawn_db, timeline_db_address
-    )
-    qualibrate_config = _spawn_runner_processing(
-        ctx, qualibrate_config, spawn_runner, runner_address
-    )
     qss = QualibrateSettingsSetup(**qualibrate_config)
     write_config(config_file, common_config, qss)

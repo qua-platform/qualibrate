@@ -7,7 +7,7 @@ from qualibrate_app.api.__main__ import api_router
 from qualibrate_app.api.exceptions.middleware import (
     QualibrateCatchExcMiddleware,
 )
-from qualibrate_app.config import StorageType, get_config_path, get_settings
+from qualibrate_app.config import get_config_path, get_settings
 
 try:
     from json_timeline_database.app import app as json_timeline_db_app
@@ -39,25 +39,6 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api")
-
-if (
-    _settings.storage_type == StorageType.timeline_db
-    and _settings.timeline_db.spawn
-):
-    if json_timeline_db_app is None:
-        raise ImportError(
-            "Can't import json_timeline_database instance. "
-            "Check that you have installed it."
-        )
-    app.mount("/timeline_db", json_timeline_db_app, name="json_timeline_db")
-if _settings.runner.spawn:
-    if runner_app is None:
-        raise ImportError(
-            "Can't import qualibrate_runner instance. "
-            "Check that you have installed it."
-        )
-    app.mount("/execution", runner_app, name="qualibrate_runner")
-
 
 # Directory should exist
 app.mount(
