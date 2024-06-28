@@ -29,7 +29,7 @@ class StorageType(Enum):
     timeline_db = "timeline_db"
 
 
-class JsonTimelineDBBase(BaseSettings):
+class RemoteServiceBase(BaseSettings):
     spawn: bool
     address: HttpUrl
     timeout: float
@@ -41,8 +41,12 @@ class JsonTimelineDBBase(BaseSettings):
         return str(url)
 
 
-class QualibrateRunnerBase(BaseSettings):
-    spawn: bool
+class JsonTimelineDBBase(RemoteServiceBase):
+    pass
+
+
+class QualibrateRunnerBase(RemoteServiceBase):
+    pass
 
 
 class _QualibrateSettingsBase(BaseSettings):
