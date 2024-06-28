@@ -53,7 +53,7 @@ jobs:
         id: upload-sdist
         name: Upload sdist
         with:
-          name: sdist
+          name: python-package-sdist
           path: backend/dist/qualibrate_app-*.tar.gz
           retention-days: 3
           if-no-files-found: error
@@ -62,7 +62,7 @@ jobs:
         id: upload-wheel
         name: Upload wheel
         with:
-          name: wheel
+          name: python-package-wheel
           path: backend/dist/qualibrate_app-*.whl
           retention-days: 3
           if-no-files-found: error
