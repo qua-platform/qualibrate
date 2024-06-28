@@ -98,7 +98,7 @@ def update_entity(
     updated = snapshot.update_entry({data_path: value})
     if updated:
         requests.post(
-            urljoin(str(settings.runner.address), "state_updated"),
+            urljoin(str(settings.runner.address), "record_state_update"),
             params={"key": data_path},
             timeout=settings.runner.timeout,
         )
