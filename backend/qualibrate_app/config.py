@@ -17,7 +17,7 @@ if sys.version_info[:2] < (3, 11):
 else:
     import tomllib
 
-CONFIG_KEY = "qualibrate"
+CONFIG_KEY = "qualibrate_app"
 QUALIBRATE_PATH = Path().home() / ".qualibrate"
 DEFAULT_CONFIG_FILENAME = "config.toml"
 DEFAULT_QUALIBRATE_CONFIG_FILENAME = "qualibrate.toml"
