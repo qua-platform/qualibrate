@@ -1,0 +1,343 @@
+import enum
+import os
+import sys
+from importlib.util import find_spec
+from itertools import filterfalse
+from pathlib import Path
+from typing import Any, Mapping
+
+import click
+import tomli_w
+from click.core import ParameterSource
+
+from qualibrate_composite.config import (
+    CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
+)
+from qualibrate_composite.config import (
+    DEFAULT_CONFIG_FILENAME,
+    QUALIBRATE_PATH,
+    QualibrateSettings,
+    get_config_file,
+)
+
+if sys.version_info[:2] < (3, 11):
+    import tomli as tomllib
+else:
+    import tomllib
+
+try:
+    qualibrate_app = find_spec("qualibrate_app")
+    from qualibrate_app.config import (
+        CONFIG_KEY as QAPP_CONFIG_KEY,
+    )
+    from qualibrate_app.config import (
+        QualibrateSettingsSetup as QualibrateAppSettingsSetup,
+    )
+    from qualibrate_app.config import (
+        StorageType,
+    )
+except ImportError:
+    QAPP_CONFIG_KEY = None
+
+    class StorageType(enum.Enum):
+        local_storage = "local_storage"
+
+    from qualibrate_composite.cli._sub_configs import QualibrateAppSettingsSetup
+try:
+    qualibrate = find_spec("qualibrate")
+
+    from qualibrate_runner.config import (
+        CONFIG_KEY as RUNNER_CONFIG_KEY,
+    )
+    from qualibrate_runner.config import QualibrateRunnerSettings
+except ImportError:
+    RUNNER_CONFIG_KEY = None
+
+    from qualibrate_composite.cli._sub_configs import (
+        QualibrateRunnerSettings,
+    )
+
+
+__all__ = ["config_command"]
+
+
+def not_default(ctx: click.Context, arg_key: str) -> bool:
+    return ctx.get_parameter_source(arg_key) in (
+        ParameterSource.COMMANDLINE,
+        ParameterSource.ENVIRONMENT,
+    )
+
+
+def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
+    """Returns config and path to file"""
+    config_file = get_config_file(config_path, raise_not_exists=False)
+    if config_file.is_file():
+        return tomllib.loads(config_file.read_text()), config_path
+    return {}, config_file
+
+
+def _config_from_sources(
+    ctx: click.Context, from_file: dict[str, Any]
+) -> dict[str, Any]:
+    qualibrate_app_mapping = {
+        "spawn_app": "spawn",
+    }
+    timeline_db_mapping = {
+        "spawn_db": "spawn",
+        "timeline_db_address": "address",
+        "timeline_db_timeout": "timeout",
+    }
+    runner_mapping = {
+        "spawn_runner": "spawn",
+        "runner_address": "address",
+        "runner_timeout": "timeout",
+    }
+    for arg_key, arg_value in ctx.params.items():
+        not_default_arg = not_default(ctx, arg_key)
+        if arg_key in qualibrate_app_mapping.keys():
+            if not_default_arg or (
+                qualibrate_app_mapping[arg_key] not in from_file["app"]
+            ):
+                from_file["app"][qualibrate_app_mapping[arg_key]] = arg_value
+        elif arg_key in timeline_db_mapping.keys():
+            if not_default_arg or (
+                timeline_db_mapping[arg_key] not in from_file["timeline_db"]
+            ):
+                from_file["timeline_db"][
+                    timeline_db_mapping[arg_key]
+                ] = arg_value
+        elif arg_key in runner_mapping.keys():
+            if not_default_arg or (
+                runner_mapping[arg_key] not in from_file["runner"]
+            ):
+                from_file["runner"][runner_mapping[arg_key]] = arg_value
+    return from_file
+
+
+def _print_config(data: Mapping[str, Any], depth: int = 0) -> None:
+    if not len(data.keys()):
+        return
+    max_key_len = max(map(len, map(str, data.keys())))
+    non_mapping_items = list(
+        filterfalse(lambda item: isinstance(item[1], Mapping), data.items())
+    )
+    if len(non_mapping_items):
+        click.echo(
+            os.linesep.join(
+                f"{' ' * 4 * depth}{f'{k} :':<{max_key_len + 3}} {v}"
+                for k, v in non_mapping_items
+            )
+        )
+    mappings = filter(lambda x: isinstance(x[1], Mapping), data.items())
+    for mapping_k, mapping_v in mappings:
+        click.echo(f"{' ' * 4 * depth}{mapping_k} :")
+        _print_config(mapping_v, depth + 1)
+
+
+def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
+    click.echo(f"Config file path: {config_file}")
+    click.echo(click.style("Generated config:", bold=True))
+    _print_config(exported_data)
+    confirmed = click.confirm("Do you confirm config?", default=True)
+    if not confirmed:
+        click.echo(
+            click.style(
+                (
+                    "The configuration has not been confirmed. "
+                    "Rerun config script."
+                ),
+                fg="yellow",
+            )
+        )
+        exit(1)
+
+
+def _get_runner_config(ctx: click.Context) -> QualibrateRunnerSettings:
+    if qualibrate is None:
+        raise ImportError("Qualibrate is not installed")
+    return QualibrateRunnerSettings(
+        calibration_library_resolver=ctx.params.get(
+            "runner_calibration_library_resolver"
+        ),
+        calibration_library_folder=(
+            ctx.params.get("runner_calibration_library_folder")
+        ),
+    )
+
+
+def _get_qapp_config(
+    ctx: click.Context, qs: QualibrateSettings
+) -> QualibrateAppSettingsSetup:
+    return QualibrateAppSettingsSetup(
+        static_site_files=ctx.params.get("app_static_site_files"),
+        storage_type=ctx.params.get("app_storage_type"),
+        user_storage=ctx.params.get("app_user_storage"),
+        project=ctx.params.get("app_project"),
+        metadata_out_path=ctx.params.get("app_metadata_out_path"),
+        timeline_db={
+            "address": "http://localhost:8000",
+            "timeout": 1,
+        },
+        runner={
+            "address": qs.runner.address,
+            "timeout": qs.runner.timeout,
+        },
+    )
+
+
+def write_config(
+    config_file: Path,
+    common_config: dict[str, Any],
+    qs: QualibrateSettings,
+    confirm: bool = True,
+) -> None:
+    exported_data = qs.model_dump(mode="json")
+    common_config[QUALIBRATE_CONFIG_KEY] = exported_data
+    if confirm:
+        _confirm(config_file, common_config)
+    user_storage = common_config.get(QAPP_CONFIG_KEY, {}).get("user_storage")
+    project = common_config.get(QAPP_CONFIG_KEY, {}).get("project")
+    if user_storage is not None:
+        user_storage_path = Path(user_storage)
+        user_storage_path.mkdir(parents=True, exist_ok=True)
+        if project is not None:
+            project_path = user_storage_path / project
+            project_path.mkdir(parents=True, exist_ok=True)
+    if not config_file.parent.exists():
+        config_file.parent.mkdir(parents=True)
+    with config_file.open("wb") as f_out:
+        tomli_w.dump(common_config, f_out)
+
+
+def _get_calibrations_path() -> Path:
+    return (
+        Path(qualibrate.origin).parents[1] / "calibrations"
+        if qualibrate is not None and qualibrate.origin is not None
+        else QUALIBRATE_PATH / "calibrations"
+    )
+
+
+def _get_qapp_static_file_path() -> Path:
+    if qualibrate_app is not None and qualibrate_app.origin is not None:
+        return Path(qualibrate_app.origin).parents[1] / "qualibrate_static"
+    static = QUALIBRATE_PATH / "qualibrate_static"
+    static.mkdir(parents=True, exist_ok=True)
+    return static
+
+
+def _get_user_storage() -> Path:
+    return QUALIBRATE_PATH.joinpath(
+        "user_storage", f"${{#/{QAPP_CONFIG_KEY}/project}}"
+    )
+
+
+@click.command(name="config")
+@click.option(
+    "--config-path",
+    type=click.Path(
+        exists=False,
+        path_type=Path,
+    ),
+    default=QUALIBRATE_PATH / DEFAULT_CONFIG_FILENAME,
+    show_default=True,
+)
+@click.option(
+    "--spawn-runner",
+    type=bool,  # TODO: add type check for addr
+    default=True,
+    show_default=True,
+)
+@click.option(
+    "--runner-address",
+    type=str,  # TODO: add type check for addr
+    default="http://localhost:8003/",
+    show_default=True,
+)
+@click.option(
+    "--runner-timeout",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--runner-calibration-library-resolver",
+    type=str,
+    default="qualibrate.QualibrationLibrary",
+    show_default=True,
+)
+@click.option(
+    "--runner-calibration-library-folder",
+    type=click.Path(file_okay=False, dir_okay=True),
+    default=_get_calibrations_path(),
+    show_default=True,
+)
+@click.option(
+    "--spawn-app",
+    type=bool,
+    default=True,
+    show_default=True,
+)
+@click.option(
+    "--app-static-site-files",
+    type=click.Path(file_okay=False, dir_okay=True),
+    default=_get_qapp_static_file_path(),
+    show_default=True,
+)
+@click.option(
+    "--app-storage-type",
+    type=click.Choice([t.value for t in StorageType]),
+    default="local_storage",
+    show_default=True,
+    callback=lambda ctx, param, value: StorageType(value),
+)
+@click.option(
+    "--app-user-storage",
+    type=click.Path(file_okay=False, dir_okay=True),
+    default=_get_user_storage(),
+    show_default=True,
+)
+@click.option(
+    "--app-project",
+    type=str,
+    default="init_project",
+    show_default=True,
+)
+@click.option(
+    "--app-metadata-out-path",
+    type=str,
+    default="data_path",
+    show_default=True,
+)
+@click.pass_context
+def config_command(
+    ctx: click.Context,
+    config_path: Path,
+    spawn_app: bool,
+    spawn_runner: bool,
+    runner_address: str,
+    runner_timeout: float,
+    runner_calibration_library_resolver: str,
+    runner_calibration_library_folder: Path,
+    app_static_site_files: Path,
+    app_storage_type: StorageType,
+    app_user_storage: Path,
+    app_project: str,
+    app_metadata_out_path: str,
+) -> None:
+    common_config, config_file = get_config(config_path)
+    qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
+    subconfigs = ("app", "timeline_db", "runner")
+    for subconfig in subconfigs:
+        if subconfig not in qualibrate_config:
+            qualibrate_config[subconfig] = {}
+    qualibrate_config = _config_from_sources(ctx, qualibrate_config)
+    qs = QualibrateSettings(**qualibrate_config)
+    if RUNNER_CONFIG_KEY is not None and RUNNER_CONFIG_KEY not in common_config:
+        common_config[RUNNER_CONFIG_KEY] = _get_runner_config(ctx).model_dump(
+            mode="json"
+        )
+    if QAPP_CONFIG_KEY is not None and QAPP_CONFIG_KEY not in common_config:
+        common_config[QAPP_CONFIG_KEY] = _get_qapp_config(ctx, qs).model_dump(
+            mode="json"
+        )
+    write_config(config_file, common_config, qs)

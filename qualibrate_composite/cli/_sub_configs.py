@@ -1,0 +1,29 @@
+from typing import ClassVar
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class BaseSubSettings(BaseSettings):
+    model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
+        extra="ignore",
+    )
+
+
+class TimelineDbSettings(BaseSubSettings):
+    pass
+
+
+class TimelineDbSettingsSetup(BaseSubSettings):
+    pass
+
+
+class QualibrateRunnerSettings(BaseSubSettings):
+    pass
+
+
+class QualibrateAppSettings(BaseSubSettings):
+    pass
+
+
+class QualibrateAppSettingsSetup(BaseSubSettings):
+    pass
