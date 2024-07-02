@@ -9,6 +9,20 @@ from qualibrate_composite.config import (
     QUALIBRATE_PATH,
 )
 
+try:
+    from qualibrate_app.config import (
+        CONFIG_PATH_ENV_NAME as QAPP_CONFIG_PATH_ENV_NAME,
+    )
+except ImportError:
+    QAPP_CONFIG_PATH_ENV_NAME = None
+try:
+    from qualibrate_runner.config import (
+        CONFIG_PATH_ENV_NAME as RUNNER_CONFIG_PATH_ENV_NAME,
+    )
+except ImportError:
+    RUNNER_CONFIG_PATH_ENV_NAME = None
+
+
 
 @click.command(name="start")
 @click.option(
@@ -34,7 +48,12 @@ from qualibrate_composite.config import (
     help="Application will be started on the given port",
 )  # env QUALIBRATE_START_PORT
 def start_command(config_path: Path, port: int, reload: bool) -> None:
-    from qualibrate_composite.app import main as app_main
+    config_path_str = str(config_path)
+    os.environ[CONFIG_PATH_ENV_NAME] = config_path_str
+    if QAPP_CONFIG_PATH_ENV_NAME is not None:
+        os.environ[QAPP_CONFIG_PATH_ENV_NAME] = str(config_path)
+    if RUNNER_CONFIG_PATH_ENV_NAME is not None:
+        os.environ[RUNNER_CONFIG_PATH_ENV_NAME] = str(config_path)
 
-    os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
+    from qualibrate_composite.app import main as app_main
     app_main(port=port, reload=reload)
