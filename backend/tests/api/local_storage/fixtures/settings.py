@@ -61,6 +61,7 @@ def client_custom_settings(
         "qualibrate_app.config.get_config_file",
         return_value=settings_path_filled,
     )
+    # TODO: fix patch settings
     mocker.patch("qualibrate_app.app.get_settings", return_value=settings)
 
     from qualibrate_app.app import app
