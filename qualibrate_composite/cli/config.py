@@ -210,11 +210,7 @@ def write_config(
 
 
 def _get_calibrations_path() -> Path:
-    return (
-        Path(qualibrate.origin).parents[1] / "calibrations"
-        if qualibrate is not None and qualibrate.origin is not None
-        else QUALIBRATE_PATH / "calibrations"
-    )
+    return QUALIBRATE_PATH / "calibrations"
 
 
 def _get_qapp_static_file_path() -> Path:
