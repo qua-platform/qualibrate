@@ -28,7 +28,7 @@ from qualibrate_runner.config import (
     "--port", type=int, default=8003
 )  # env QUALIBRATE_RUNNER_START_PORT
 def start_command(config_path: Path, port: int, reload: bool) -> None:
-    from qualibrate_runner.app import main as app_main
-
     os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
+
+    from qualibrate_runner.app import main as app_main
     app_main(port=port, reload=reload)
