@@ -22,41 +22,6 @@ if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
-try:
-    from json_timeline_database.config import (
-        CONFIG_KEY as TIMELINE_DB_CONFIG_KEY,
-    )
-    from json_timeline_database.config import (
-        PREDEFINED_DBS,
-    )
-    from json_timeline_database.config import (
-        Settings as TimelineDbSettings,
-    )
-    from json_timeline_database.config import (
-        SettingsSetup as TimelineDbSettingsSetup,
-    )
-except ImportError:
-    TIMELINE_DB_CONFIG_KEY = None
-    PREDEFINED_DBS = None
-
-    from qualibrate_app.cli._timeline_db_settings import (
-        TimelineDbSettings,
-        TimelineDbSettingsSetup,
-    )
-try:
-    import qualibrate
-    from qualibrate_runner.config import (
-        CONFIG_KEY as RUNNER_CONFIG_KEY,
-    )
-    from qualibrate_runner.config import (
-        QualibrateRunnerSettings,
-    )
-except ImportError:
-    RUNNER_CONFIG_KEY = None
-
-    from qualibrate_app.cli._runner_settings import (
-        QualibrateRunnerSettings,
-    )
 
 
 __all__ = ["config_command"]
@@ -149,28 +114,6 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
             )
         )
         exit(1)
-
-
-def _get_timeline_db_config() -> TimelineDbSettingsSetup:
-    default_config = TimelineDbSettings.schema().get("properties", {})
-    return TimelineDbSettingsSetup(
-        **{
-            k: v.get("default")
-            for k, v in default_config.items()
-            if k != "predefined_dbs"
-        }
-    )
-
-
-def _get_runner_config() -> QualibrateRunnerSettings:
-    if qualibrate is None:
-        raise ImportError("Qualibrate is not installed")
-    return QualibrateRunnerSettings(
-        calibration_library_resolver="qualibrate.QualibrationLibrary",
-        calibration_library_folder=(
-            Path(qualibrate.__path__).parent / "calibrations"
-        ),
-    )
 
 
 def write_config(
@@ -281,16 +224,6 @@ def config_command(
     runner_timeout: float,
 ) -> None:
     common_config, config_file = get_config(config_path)
-    if (
-        TIMELINE_DB_CONFIG_KEY is not None
-        and TIMELINE_DB_CONFIG_KEY not in common_config
-    ):
-        common_config[
-            TIMELINE_DB_CONFIG_KEY
-        ] = _get_timeline_db_config().model_dump()
-    if RUNNER_CONFIG_KEY is not None and RUNNER_CONFIG_KEY not in common_config:
-        common_config[RUNNER_CONFIG_KEY] = _get_runner_config().model_dump()
-
     qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
     subconfigs = ("timeline_db", "runner")
     for subconfig in subconfigs:

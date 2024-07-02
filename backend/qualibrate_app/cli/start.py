@@ -34,7 +34,8 @@ from qualibrate_app.config import (
     help="Application will be started on the given port",
 )  # env QUALIBRATE_START_PORT
 def start_command(config_path: Path, port: int, reload: bool) -> None:
+    os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
+
     from qualibrate_app.app import main as app_main
 
-    os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
     app_main(port=port, reload=reload)
