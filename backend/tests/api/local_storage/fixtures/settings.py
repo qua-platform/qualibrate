@@ -28,12 +28,10 @@ def settings(
         storage_type=StorageType.local_storage,
         metadata_out_path="data_path",
         timeline_db=JsonTimelineDBBase(
-            spawn=False,
             address="http://localhost:8000",
             timeout=0,
         ),
         runner=QualibrateRunnerBase(
-            spawn=False,
             address="http://localhost:8003",
             timeout=1,
         ),
