@@ -19,16 +19,12 @@ jobs:
 
       - name: Install python deps
         run: poetry install --with dev --with test
-        working-directory: backend
 
       - name: Check python package typing
         run: poetry run poe type
-        working-directory: backend
 
       - name: Lint python package
         run: poetry run poe lint
-        working-directory: backend
 
       - name: Check format python package
         run: poetry run poe format
-        working-directory: backend
