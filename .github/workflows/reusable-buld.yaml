@@ -1,4 +1,4 @@
-name: Build python package with built frontend
+name: Build python package
 on:
   workflow_call
 jobs:
@@ -18,18 +18,16 @@ jobs:
 
       - name: Install python deps
         run: poetry install
-        working-directory: backend
 
       - name: Build python package
         run: poetry build
-        working-directory: backend
 
       - uses: actions/upload-artifact@v4
         id: upload-sdist
         name: Upload sdist
         with:
           name: python-package-sdist
-          path: dist/qualibrate_app-*.tar.gz
+          path: dist/qualibrate_core-*.tar.gz
           retention-days: 3
           if-no-files-found: error
 
@@ -38,6 +36,6 @@ jobs:
         name: Upload wheel
         with:
           name: python-package-wheel
-          path: dist/qualibrate_app-*.whl
+          path: dist/qualibrate_core-*.whl
           retention-days: 3
           if-no-files-found: error
