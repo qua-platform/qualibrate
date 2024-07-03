@@ -86,7 +86,7 @@ def get_last_run(
         "Record that a state update entry belonging to the last run has been "
         "updated. This changed the state_updates entry to True  but does not "
         "update the snapshot."
-    )
+    ),
 )
 def state_updated(
     state: Annotated[State, Depends(get_state)],
