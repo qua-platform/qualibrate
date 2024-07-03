@@ -31,4 +31,5 @@ def start_command(config_path: Path, port: int, reload: bool) -> None:
     os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
 
     from qualibrate_runner.app import main as app_main
+
     app_main(port=port, reload=reload)
