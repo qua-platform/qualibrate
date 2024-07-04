@@ -2,59 +2,32 @@ import os
 import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Any, Callable, Mapping, Optional, Union
+from typing import Annotated, Any, Optional, Union
 
 from fastapi import Depends
-from pydantic import BaseModel, DirectoryPath, ImportString
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from qualibrate.qualibration_library import QualibrationLibrary
 
-from qualibrate_runner.core.models.last_run import LastRun, RunStatus
-from qualibrate_runner.utils.config_references import resolve_references
+from qualibrate_runner.config.models import QualibrateRunnerSettings
+from qualibrate_runner.config.references.resolvers import resolve_references
+from qualibrate_runner.config.vars import (
+    CONFIG_KEY,
+    CONFIG_PATH_ENV_NAME,
+    DEFAULT_CONFIG_FILENAME,
+    DEFAULT_QUALIBRATE_CONFIG_FILENAME,
+    QUALIBRATE_PATH,
+)
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
 
-CONFIG_KEY = "qualibrate_runner"
-QUALIBRATE_PATH = Path().home() / ".qualibrate"
-DEFAULT_CONFIG_FILENAME = "config.toml"
-DEFAULT_QUALIBRATE_CONFIG_FILENAME = "qualibrate-runner.toml"
-CONFIG_PATH_ENV_NAME = "QUALIBRATE_RUNNER_CONFIG_FILE"
-
 
 __all__ = [
-    "State",
-    "QualibrateRunnerSettings",
     "get_config_file",
     "read_config_file",
     "get_config_path",
     "get_settings",
 ]
-
-
-class State(BaseModel):
-    passed_parameters: Mapping[str, Any] = {}
-    persistent: dict[str, Any] = {}
-    last_run: Optional[LastRun] = None
-    node: Optional[str] = None
-
-    @property
-    def is_running(self) -> bool:
-        return (
-            self.last_run is not None
-            and self.last_run.status == RunStatus.RUNNING
-        )
-
-
-class QualibrateRunnerSettings(BaseSettings):
-    model_config = SettingsConfigDict(frozen=True)
-
-    calibration_library_resolver: ImportString[
-        Callable[[Path], QualibrationLibrary]
-    ]
-    calibration_library_folder: DirectoryPath
 
 
 def _get_config_file_from_dir(
