@@ -4,11 +4,12 @@ import sys
 from importlib.util import find_spec
 from itertools import filterfalse
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Mapping, Optional
 
 import click
 import tomli_w
 from click.core import ParameterSource
+from pydantic import ValidationError
 
 from qualibrate_composite.config import (
     CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
@@ -185,6 +186,31 @@ def _get_qapp_config(
     )
 
 
+def get_config_or_print_error(
+    config: Mapping[str, Any]
+) -> Optional[QualibrateSettings]:
+    try:
+        return QualibrateSettings(**config)
+    except ValidationError as ex:
+        errors = [
+            (
+                f"Message: {error.get('msg')}. "
+                f"Path: {'.'.join([QUALIBRATE_CONFIG_KEY, *error.get('loc')])}. "
+                f"Value: {error.get('input')}"
+            )
+            for error in ex.errors()
+        ]
+        click.secho("\n".join(errors), fg="red")
+        click.secho(
+            (
+                "Can't parse existing config. Fix it or overwrite "
+                "by default values using `--overwrite` flag."
+            ),
+            fg='yellow',
+        )
+        return
+
+
 def write_config(
     config_file: Path,
     common_config: dict[str, Any],
@@ -236,6 +262,13 @@ def _get_user_storage() -> Path:
     ),
     default=QUALIBRATE_PATH / DEFAULT_CONFIG_FILENAME,
     show_default=True,
+)
+@click.option(
+    "--overwrite",
+    type=bool,
+    default=False,
+    is_flag=True,
+    help="Ignore existing config and force overwrite values"
 )
 @click.option(
     "--spawn-runner",
@@ -308,6 +341,7 @@ def _get_user_storage() -> Path:
 def config_command(
     ctx: click.Context,
     config_path: Path,
+    overwrite: bool,
     spawn_app: bool,
     spawn_runner: bool,
     runner_address: str,
@@ -321,13 +355,20 @@ def config_command(
     app_metadata_out_path: str,
 ) -> None:
     common_config, config_file = get_config(config_path)
-    qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
+    qualibrate_config = (
+        common_config.get(QUALIBRATE_CONFIG_KEY, {})
+        if not overwrite
+        else {}
+    )
     subconfigs = ("app", "timeline_db", "runner")
     for subconfig in subconfigs:
         if subconfig not in qualibrate_config:
             qualibrate_config[subconfig] = {}
     qualibrate_config = _config_from_sources(ctx, qualibrate_config)
-    qs = QualibrateSettings(**qualibrate_config)
+    qs = get_config_or_print_error(qualibrate_config)
+    if qs is None:
+        return
+
     if RUNNER_CONFIG_KEY is not None and RUNNER_CONFIG_KEY not in common_config:
         common_config[RUNNER_CONFIG_KEY] = _get_runner_config(ctx).model_dump(
             mode="json"
