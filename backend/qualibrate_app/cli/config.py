@@ -17,6 +17,7 @@ from qualibrate_app.config import (
     StorageType,
     get_config_file,
 )
+from qualibrate_app.config.validation import get_config_model_or_print_error
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
@@ -147,6 +148,13 @@ def write_config(
     show_default=True,
 )
 @click.option(
+    "--overwrite",
+    type=bool,
+    default=False,
+    is_flag=True,
+    help="Ignore existing config and force overwrite values"
+)
+@click.option(
     "--static-site-files",
     type=click.Path(
         exists=True,
@@ -213,6 +221,7 @@ def write_config(
 def config_command(
     ctx: click.Context,
     config_path: Path,
+    overwrite: bool,
     static_site_files: Path,
     storage_type: StorageType,
     user_storage: Path,
@@ -224,11 +233,19 @@ def config_command(
     runner_timeout: float,
 ) -> None:
     common_config, config_file = get_config(config_path)
-    qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
+    qualibrate_config = (
+        common_config.get(QUALIBRATE_CONFIG_KEY, {})
+        if not overwrite
+        else {}
+    )
     subconfigs = ("timeline_db", "runner")
     for subconfig in subconfigs:
         if subconfig not in qualibrate_config:
             qualibrate_config[subconfig] = {}
     qualibrate_config = _config_from_sources(ctx, qualibrate_config)
-    qss = QualibrateSettingsSetup(**qualibrate_config)
+    qss = get_config_model_or_print_error(
+        qualibrate_config, QualibrateSettingsSetup
+    )
+    if qss is None:
+        return
     write_config(config_file, common_config, qss)
