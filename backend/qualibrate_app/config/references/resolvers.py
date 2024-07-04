@@ -3,25 +3,13 @@ from typing import Any, List, Mapping, Optional, Sequence, Set, Tuple, cast
 
 import jsonpatch
 import jsonpointer
-from pydantic import BaseModel
+
+from qualibrate_app.config.references.models import (
+    PathWithSolvingReferences,
+    Reference,
+)
 
 TEMPLATE_START = "${#"
-
-
-class Reference(BaseModel):
-    config_path: str
-    reference_path: str
-    index_start: int
-    index_end: int
-    value: Any = None
-    solved: bool = False
-
-
-class PathWithSolvingReferences(BaseModel):
-    config_path: str
-    value: Any = None
-    solved: bool = False
-    references: list[Reference] = []
 
 
 def find_all_references(

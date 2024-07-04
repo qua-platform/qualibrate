@@ -9,7 +9,7 @@ from qualibrate_app.config import (
     QualibrateSettings,
     read_config_file,
 )
-from qualibrate_app.utils.config_references import resolve_references
+from qualibrate_app.config.references.resolvers import resolve_references
 
 
 class ProjectsManagerBase(ABC):
@@ -44,7 +44,9 @@ class ProjectsManagerBase(ABC):
     def _get_raw_and_resolved_ref_config(
         self, project_name: str
     ) -> Tuple[Mapping[str, Any], Mapping[str, Any]]:
+        print(f"{self._config_path = }")
         raw_config = read_config_file(self._config_path, solve_references=False)
+        print(f"{raw_config = }")
         # TODO: over way to update project
         old_project_name = raw_config[CONFIG_KEY]["project"]
         if old_project_name == project_name:
