@@ -128,7 +128,7 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
 @click.option(
     "--calibration-library-folder",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
-    required=True,
+    default=QUALIBRATE_PATH / "calibrations",
 )
 @click.pass_context
 def config_command(
