@@ -118,7 +118,7 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
     type=bool,
     default=False,
     is_flag=True,
-    help="Ignore existing config and force overwrite values"
+    help="Ignore existing config and force overwrite values",
 )
 @click.option(
     "--calibration-library-resolver",

@@ -16,7 +16,6 @@ from qualibrate_runner.config.vars import (
     CONFIG_PATH_ENV_NAME,
 )
 
-
 __all__ = [
     "get_config_path",
     "get_settings",

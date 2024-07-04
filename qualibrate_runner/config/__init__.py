@@ -1,5 +1,5 @@
+from .file import get_config_file, read_config_file
 from .models import QualibrateRunnerSettings, State
-from .file import read_config_file, get_config_file
 from .resolvers import get_config_path, get_settings
 from .vars import (
     CONFIG_KEY,
