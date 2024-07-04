@@ -2016,68 +2016,71 @@ name = "qualibrate-app"
 version = "0.1.0"
 description = ""
 optional = false
-python-versions = "^3.9"
-files = []
-develop = true
+python-versions = ">=3.9,<4.0"
+files = [
+    {file = "qualibrate_app-0.1.0-py3-none-any.whl", hash = "sha256:5e95b9f59b2188376e917ab549c272df98f5fdf86f80dd00c98d51acdae1b1a1"},
+]
 
 [package.dependencies]
-click = "^8.1.7"
-fastapi = "^0.111.0"
-jsonpatch = "^1.33"
-pydantic-settings = "^2.1.0"
-requests = "^2.31.0"
-tomli = {version = "^2.0.1", markers = "python_version < \"3.11\""}
-tomli-w = "^1.0.0"
-uvicorn = "^0.29.0"
+click = ">=8.1.7,<9.0.0"
+fastapi = ">=0.111.0,<0.112.0"
+jsonpatch = ">=1.33,<2.0"
+pydantic-settings = ">=2.1.0,<3.0.0"
+requests = ">=2.31.0,<3.0.0"
+tomli = {version = ">=2.0.1,<3.0.0", markers = "python_version < \"3.11\""}
+tomli-w = ">=1.0.0,<2.0.0"
+uvicorn = ">=0.29.0,<0.30.0"
 
 [package.extras]
 json-timeline-db = ["json-timeline-database @ file:///home/maxim_v4s/Documents/qm/json-timeline-database"]
 runner = ["qualibrate-runner[qualibrary] @ file:///home/maxim_v4s/Documents/qm/qualibrate-runner"]
 
 [package.source]
-type = "directory"
-url = "../qualibrate-app/backend"
+type = "file"
+url = "qualibrate-wheels/qualibrate_app-0.1.0-py3-none-any.whl"
 
 [[package]]
 name = "qualibrate-core"
 version = "0.1.0"
 description = ""
 optional = false
-python-versions = "^3.8"
-files = []
-develop = true
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "qualibrate_core-0.1.0-py3-none-any.whl", hash = "sha256:db2436c8378c8f664c96fbf93e3520cf12efcff1001dbe91d66246f6ee1324cf"},
+]
 
 [package.dependencies]
-pydantic = "^2.7.3"
+pydantic = ">=2.7.3,<3.0.0"
 qualang-tools = {git = "https://github.com/qua-platform/py-qua-tools", rev = "v0.17.4", markers = "python_version >= \"3.8\" and python_version < \"3.12\""}
 
 [package.source]
-type = "directory"
-url = "../qualibrate-core"
+type = "file"
+url = "qualibrate-wheels/qualibrate_core-0.1.0-py3-none-any.whl"
 
 [[package]]
 name = "qualibrate-runner"
 version = "0.1.0"
 description = ""
 optional = false
-python-versions = "^3.9"
-files = []
-develop = true
+python-versions = ">=3.9,<4.0"
+files = [
+    {file = "qualibrate_runner-0.1.0-py3-none-any.whl", hash = "sha256:abb9872bf114b91b78485fd93df6bf22a5c34bf0ed7394a24ebd49fd580cd4ce"},
+]
 
 [package.dependencies]
-click = "^8.1.7"
-fastapi = "^0.111.0"
-jsonpatch = "^1.33"
-pydantic-settings = "^2.2.1"
-tomli = {version = "^2.0.1", markers = "python_version < \"3.11\""}
-tomli-w = "^1.0.0"
+click = ">=8.1.7,<9.0.0"
+fastapi = ">=0.111.0,<0.112.0"
+jsonpatch = ">=1.33,<2.0"
+pydantic-settings = ">=2.2.1,<3.0.0"
+tomli = {version = ">=2.0.1,<3.0.0", markers = "python_version < \"3.11\""}
+tomli-w = ">=1.0.0,<2.0.0"
 
 [package.extras]
 qualibrary = ["qualibrate-core @ file:///home/maxim_v4s/Documents/qm/qualibrate-core"]
 
 [package.source]
-type = "directory"
-url = "../qualibrate-runner"
+type = "file"
+url = "qualibrate-wheels/qualibrate_runner-0.1.0-py3-none-any.whl"
 
 [[package]]
 name = "requests"
@@ -2746,4 +2749,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "4ddf1b6031d2627bff814d099a67fe3f9c7e288af964c5c62906c80b9f3cad8a"
+content-hash = "c28969fee7b0e96f71134e382bcfa461627718eda95387be27cecfa5d0435450"

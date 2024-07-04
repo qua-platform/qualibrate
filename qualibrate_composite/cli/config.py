@@ -155,13 +155,13 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
 def _get_runner_config(ctx: click.Context) -> QualibrateRunnerSettings:
     if qualibrate is None:
         raise ImportError("Qualibrate is not installed")
+    calibration_path = ctx.params.get("runner_calibration_library_folder")
+    calibration_path.mkdir(parents=True, exist_ok=True)
     return QualibrateRunnerSettings(
         calibration_library_resolver=ctx.params.get(
             "runner_calibration_library_resolver"
         ),
-        calibration_library_folder=(
-            ctx.params.get("runner_calibration_library_folder")
-        ),
+        calibration_library_folder=calibration_path,
     )
 
 
@@ -210,11 +210,7 @@ def write_config(
 
 
 def _get_calibrations_path() -> Path:
-    return (
-        Path(qualibrate.origin).parents[1] / "calibrations"
-        if qualibrate is not None and qualibrate.origin is not None
-        else QUALIBRATE_PATH / "calibrations"
-    )
+    return QUALIBRATE_PATH / "calibrations"
 
 
 def _get_qapp_static_file_path() -> Path:
