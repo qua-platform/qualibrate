@@ -1,5 +1,4 @@
 import os
-import sys
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated

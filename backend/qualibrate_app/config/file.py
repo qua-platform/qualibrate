@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Any, Optional, Union
 
 from qualibrate_app.config.references.resolvers import resolve_references
-
 from qualibrate_app.config.vars import (
     DEFAULT_CONFIG_FILENAME,
     DEFAULT_QUALIBRATE_CONFIG_FILENAME,

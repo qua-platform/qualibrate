@@ -1,3 +1,4 @@
+from .file import get_config_file, read_config_file
 from .models import (
     JsonTimelineDBBase,
     QualibrateRunnerBase,
@@ -5,7 +6,6 @@ from .models import (
     QualibrateSettingsSetup,
     StorageType,
 )
-from .file import read_config_file, get_config_file
 from .resolvers import get_config_path, get_settings
 from .validation import get_config_model_or_print_error
 from .vars import (

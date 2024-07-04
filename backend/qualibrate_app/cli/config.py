@@ -152,7 +152,7 @@ def write_config(
     type=bool,
     default=False,
     is_flag=True,
-    help="Ignore existing config and force overwrite values"
+    help="Ignore existing config and force overwrite values",
 )
 @click.option(
     "--static-site-files",
@@ -234,9 +234,7 @@ def config_command(
 ) -> None:
     common_config, config_file = get_config(config_path)
     qualibrate_config = (
-        common_config.get(QUALIBRATE_CONFIG_KEY, {})
-        if not overwrite
-        else {}
+        common_config.get(QUALIBRATE_CONFIG_KEY, {}) if not overwrite else {}
     )
     subconfigs = ("timeline_db", "runner")
     for subconfig in subconfigs:
