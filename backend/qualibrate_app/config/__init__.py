@@ -5,12 +5,8 @@ from .models import (
     QualibrateSettingsSetup,
     StorageType,
 )
-from .resolvers import (
-    get_config_file,
-    get_config_path,
-    get_settings,
-    read_config_file,
-)
+from .file import read_config_file, get_config_file
+from .resolvers import get_config_path, get_settings
 from .validation import get_config_model_or_print_error
 from .vars import (
     CONFIG_KEY,
