@@ -16,6 +16,7 @@ from qualibrate_runner.config import (
     QualibrateRunnerSettings,
     get_config_file,
 )
+from qualibrate_runner.config.validation import get_config_model_or_print_error
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
@@ -113,6 +114,13 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
     show_default=True,
 )
 @click.option(
+    "--overwrite",
+    type=bool,
+    default=False,
+    is_flag=True,
+    help="Ignore existing config and force overwrite values"
+)
+@click.option(
     "--calibration-library-resolver",
     type=click.STRING,
     default="qualibrate.QualibrationLibrary",
@@ -126,12 +134,19 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
 def config_command(
     ctx: click.Context,
     config_path: Path,
+    overwrite: bool,
     calibration_library_resolver: str,
     calibration_library_folder: Path,
 ) -> None:
     common_config, config_file = get_config(config_path)
-    runner_config = common_config.get(QUALIBRATE_RUNNER_CONFIG_KEY, {})
+    runner_config = (
+        common_config.get(QUALIBRATE_RUNNER_CONFIG_KEY, {})
+        if not overwrite
+        else {}
+    )
     runner_config = _config_from_sources(ctx, runner_config)
 
-    qrs = QualibrateRunnerSettings(**runner_config)
+    qrs = get_config_model_or_print_error(runner_config)
+    if qrs is None:
+        return
     write_config(config_file, common_config, qrs)
