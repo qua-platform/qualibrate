@@ -23,14 +23,18 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
         {!runningUpdate && !parameterUpdated && (
           <div
             onClick={async () => {
-              if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && stateUpdateObject.new) {
+              if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && (stateUpdateObject.val || stateUpdateObject.new)) {
                 setRunningUpdate(true);
-                const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateObject.new.toString());
+                const response = await SnapshotsApi.updateState(
+                  runningNodeInfo?.idx,
+                  key,
+                  (stateUpdateObject.val ? stateUpdateObject.val : stateUpdateObject.new!).toString()
+                );
                 setRunningUpdate(false);
                 if (response.isOk) {
                   setParameterUpdated(response.result!);
                 } else {
-                  setParameterUpdated(response.result!);
+                  setParameterUpdated(response.result!); //TODO Check this
                 }
               }
             }}
@@ -50,7 +54,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
             <div>
               {stateUpdateObject.old}&nbsp;&nbsp;
               <RightArrowIcon />
-              &nbsp;&nbsp;{stateUpdateObject.new}
+              &nbsp;&nbsp;{stateUpdateObject.val ?? stateUpdateObject.new}
             </div>
           )}
         </div>
@@ -77,12 +81,33 @@ const GetStateUpdates: React.FC<{
   );
 };
 
+const NodeStatusErrorWrapper: React.FC<{
+  runningNodeInfo: RunningNodeInfo | undefined;
+}> = (props) => {
+  const { runningNodeInfo } = props;
+  return (
+    <>
+      {runningNodeInfo?.error && <div className={styles.stateTitle}>Error traceback:</div>}
+      <div className={styles.nodeStatusErrorWrapper}>
+        {(runningNodeInfo?.error?.traceback ?? []).map((row, index) => (
+          <div key={`${row}-${index}`} className={styles.nodeStatusErrorWrapper}>
+            {row}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
 export const RunningJob: React.FC = () => {
   const { runningNode, runningNodeInfo } = useNodesContext();
 
   const getRunningJobInfo = () => {
     return (
       <div className={styles.runInfo}>
+        {runningNodeInfo?.lastRunNodeName && (
+          <div className={styles.runInfoRow}>Last run node:&nbsp;&nbsp;{runningNodeInfo?.lastRunNodeName}</div>
+        )}
         {runningNodeInfo?.timestampOfRun && (
           <div className={styles.runInfoRow}>Run start:&nbsp;&nbsp;{runningNodeInfo?.timestampOfRun}</div>
         )}
@@ -136,6 +161,7 @@ export const RunningJob: React.FC = () => {
         </div>
       )}
       <GetStateUpdates runningNodeInfo={runningNodeInfo} />
+      <NodeStatusErrorWrapper runningNodeInfo={runningNodeInfo} />
     </div>
   );
 };
