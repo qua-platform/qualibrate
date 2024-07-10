@@ -87,6 +87,7 @@ class QualibrateSettings(_QualibrateSettingsBase):
     static_site_files: DirectoryPath
     user_storage: DirectoryPath
     project: str
+    active_machine_path: Optional[Path] = None
 
 
 def _get_config_file_from_dir(

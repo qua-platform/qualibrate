@@ -14,6 +14,7 @@ from typing import (
 
 import jsonpatch
 import jsonpointer
+import logging
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -42,6 +43,8 @@ from qualibrate_app.api.exceptions.classes.values import QValueException
 from qualibrate_app.config import QualibrateSettings
 
 __all__ = ["SnapshotLocalStorage"]
+
+logger = logging.getLogger(__name__)
 
 SnapshotContentLoaderType = Callable[
     [NodePath, SnapshotLoadType, QualibrateSettings], DocumentType
@@ -201,6 +204,36 @@ def _default_snapshot_content_updater(
         node_info["patches"] = patches
     with node_filepath.open("w") as f:
         json.dump(node_info, f, indent=4)
+
+    if not settings.active_machine_path:
+        logger.info("No active machine path to update")
+        pass
+    elif settings.active_machine_path.is_dir():
+        logger.info(f"Updating quam state dir {settings.active_machine_path}")
+        contents = new_snapshot.copy()
+        content_mapping = {"wiring.json": {"wiring", "network"}}
+
+        for filename, content_keys in content_mapping.items():
+            wiring_snapshot = {
+                key: contents.pop(key)
+                for key in content_keys
+                if key in contents
+            }
+            logger.info(f"Writing {filename} to {settings.active_machine_path}")
+            (settings.active_machine_path / filename).write_text(
+                json.dumps(wiring_snapshot, indent=4)
+            )
+
+        logger.info(f"Writing state.json to {settings.active_machine_path}")
+        (settings.active_machine_path / "state.json").write_text(
+            json.dumps(contents, indent=4)
+        )
+    else:
+        logger.info(f"Updating quam state file {settings.active_machine_path}")
+        settings.active_machine_path.write_text(
+            json.dumps(new_snapshot, indent=4)
+        )
+
     return True
 
 
@@ -377,6 +410,9 @@ class SnapshotLocalStorage(SnapshotBase):
         patch = jsonpatch.JsonPatch(patch_operations)
         try:
             new_data = patch.apply(dict(data))
+            # print(
+            #     f"Calling snapshot_updater with\n{self.node_path=}\n{new_data=}\n{patch_operations=}\n{self._settings=}"
+            # )
             res = self._snapshot_updater(
                 self.node_path, new_data, patch_operations, self._settings
             )
