@@ -32,7 +32,7 @@ def settings(
             timeout=0,
         ),
         runner=QualibrateRunnerBase(
-            address="http://localhost:8003",
+            address="http://localhost:8001/execution",
             timeout=1,
         ),
     )

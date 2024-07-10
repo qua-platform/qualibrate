@@ -200,7 +200,7 @@ def write_config(
 @click.option(
     "--runner-address",
     type=str,  # TODO: add type check for addr
-    default="http://localhost:8003/",
+    default="http://localhost:8001/execution/",
     show_default=True,
 )
 @click.option(
