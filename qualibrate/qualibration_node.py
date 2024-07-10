@@ -107,7 +107,8 @@ class QualibrationNode:
             config_path = get_config_path()
             settings = get_settings(config_path)
             self.storage_manager = LocalStorageManager(
-                root_data_folder=settings.user_storage
+                root_data_folder=settings.user_storage,
+                active_machine_path=settings.active_machine_path,
             )
         self.storage_manager.save(node=self)
 
