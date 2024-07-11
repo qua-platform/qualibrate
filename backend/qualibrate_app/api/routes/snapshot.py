@@ -95,6 +95,13 @@ def update_entity(
     value: Any,
     settings: Annotated[QualibrateSettings, Depends(get_settings)],
 ) -> bool:
+    if isinstance(value, str):
+        if value.isdigit():
+            value = int(value)
+        elif value.lower() in ["true", "false"]:
+            value = value.lower() == "true"
+        elif value.isnumeric():
+            value = float(value)
     updated = snapshot.update_entry({data_path: value})
     if updated:
         requests.post(
