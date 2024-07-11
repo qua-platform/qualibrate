@@ -26,6 +26,14 @@ from qualibrate_app.config import QualibrateSettings, StorageType, get_settings
 snapshot_router = APIRouter(prefix="/snapshot/{id}", tags=["snapshot"])
 
 
+def is_float(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
+
+
 def _get_snapshot_instance(
     id: Annotated[IdType, Path()],
     settings: Annotated[QualibrateSettings, Depends(get_settings)],
@@ -100,7 +108,7 @@ def update_entity(
             value = int(value)
         elif value.lower() in ["true", "false"]:
             value = value.lower() == "true"
-        elif value.isnumeric():
+        elif is_float(value):
             value = float(value)
     updated = snapshot.update_entry({data_path: value})
     if updated:
