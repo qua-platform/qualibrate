@@ -1,13 +1,15 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
 import styles from "../Data/Data.module.scss";
 import cyKeys from "../../utils/cyKeys";
 import useModuleStyle from "../../ui-lib/hooks/useModuleStyle";
 import { classNames } from "../../utils/classnames";
 import { Gitgraph, templateExtend, TemplateName } from "@gitgraph/react";
-import { defineDataType, JsonViewer } from "@textea/json-viewer";
+import { defineDataType, JsonViewer, Path } from "@textea/json-viewer";
 import { SnapshotsContextProvider, useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
 import { SnapshotDTO } from "../Snapshots/SnapshotDTO";
 import PaginationWrapper from "../Pagination/PaginationWrapper";
+import InputField from "../../DEPRECATED_components/common/Input/InputField";
+import jp from "jsonpath";
 
 const formatDateTime = (dateTime: string): string => {
   const date = new Date(dateTime);
@@ -90,7 +92,44 @@ const TimelineGraph = ({
   );
 };
 
-export const JSONEditor = ({ title, jsonData, height }: { title: string; jsonData: object; height: string }) => {
+export const JSONEditor = ({ title, jsonDataProp, height }: { title: string; jsonDataProp: object; height: string }) => {
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [jsonData, setJsonData] = useState(jsonDataProp);
+
+  const filterData = (data: object, term: string) => {
+    if (!term) return data;
+
+    try {
+      // Convert search term to JSONPath query
+      let jsonPathQuery = term.replace("#", "$").replace(/\*/g, "*").replace(/\//g, ".");
+
+      // Perform the JSONPath query
+      const result = jp.nodes(data, jsonPathQuery);
+
+      // Reconstruct the filtered data structure
+      return result.reduce((acc: any, { path, value }: { path: jp.PathComponent[]; value: any }) => {
+        let current = acc;
+        for (let i = 1; i < path.length - 1; i++) {
+          const key = path[i] as string;
+          if (!current[key]) current[key] = {};
+          current = current[key];
+        }
+        const lastKey = path[path.length - 1] as string;
+        current[lastKey] = value;
+        return acc;
+      }, {});
+    } catch (error) {
+      console.error("Invalid JSONPath query:", error);
+      return data;
+    }
+  };
+
+  const handleSearch = (_val: string, e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    const filteredData = filterData(jsonDataProp, e.target.value);
+    setJsonData(filteredData);
+  };
+
   const imageDataType = defineDataType({
     is: (value) => typeof value === "string" && value.startsWith("data:image"),
     Component: ({ value }) => (
@@ -100,6 +139,16 @@ export const JSONEditor = ({ title, jsonData, height }: { title: string; jsonDat
       </div>
     ),
   });
+  const handleOnSelect = async (path: Path) => {
+    let searchPath = "#";
+    path.forEach((a) => {
+      searchPath += "/" + a;
+    });
+    setSearchTerm(searchPath);
+    const filteredData = filterData(jsonDataProp, searchPath);
+    await navigator.clipboard.writeText(searchPath);
+    setJsonData(filteredData);
+  };
   return (
     <div
       style={{
@@ -113,7 +162,11 @@ export const JSONEditor = ({ title, jsonData, height }: { title: string; jsonDat
       }}
     >
       <h1 style={{ paddingTop: "20px", paddingBottom: "5px" }}>{title}</h1>
+
+      <InputField value={searchTerm} title={"Search"} onChange={(_e, event) => handleSearch(event.target.value, event)}></InputField>
       <JsonViewer
+        rootName={false}
+        onSelect={(path, _a) => handleOnSelect(path)}
         theme={"dark"}
         value={jsonData}
         valueTypes={[imageDataType]}
@@ -156,16 +209,16 @@ const DataGUAlibrate = () => {
           <PaginationWrapper numberOfPages={totalPages} setPageNumber={setPageNumber} />
         </div>
         <div className={styles.viewer}>
-          {result && <JSONEditor title={"RESULTS"} jsonData={result} height={"100%"} />}
+          {result && <JSONEditor title={"RESULTS"} jsonDataProp={result} height={"100%"} />}
           <div
             style={{
               overflow: "auto",
               flex: 1,
             }}
           >
-            {jsonData && !diffData && <JSONEditor title={"QUAM"} jsonData={jsonData} height={"100%"} />}
-            {jsonData && diffData && <JSONEditor title={"QUAM"} jsonData={jsonData} height={"66%"} />}
-            {jsonData && diffData && <JSONEditor title={"QUAM Updates"} jsonData={diffData} height={"33%"} />}
+            {jsonData && !diffData && <JSONEditor title={"QUAM"} jsonDataProp={jsonData} height={"100%"} />}
+            {jsonData && diffData && <JSONEditor title={"QUAM"} jsonDataProp={jsonData} height={"66%"} />}
+            {jsonData && diffData && <JSONEditor title={"QUAM Updates"} jsonDataProp={diffData} height={"33%"} />}
           </div>
         </div>
       </div>

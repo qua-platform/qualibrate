@@ -8,7 +8,7 @@ export const Results: React.FC = () => {
 
   return (
     <div className={styles.wrapper}>
-      <JSONEditor title={"Results"} jsonData={results ?? {}} height={"100%"} />
+      <JSONEditor title={"Results"} jsonDataProp={results ?? {}} height={"100%"} />
     </div>
   );
 };
