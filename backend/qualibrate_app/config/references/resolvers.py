@@ -12,6 +12,31 @@ from qualibrate_app.config.references.models import (
 TEMPLATE_START = "${#"
 
 
+def find_references_in_str(
+    to_search: str, config_path: str
+) -> Sequence[Reference]:
+    to_resolve: List[Reference] = []
+    template_start_index = to_search.find(TEMPLATE_START)
+    while template_start_index != -1:
+        template_end_index = to_search.find("}", template_start_index)
+        if template_end_index == -1:
+            return to_resolve
+        to_resolve.append(
+            Reference(
+                config_path=config_path,
+                reference_path=to_search[
+                    template_start_index + 3 : template_end_index
+                ].strip(),
+                index_start=template_start_index,
+                index_end=template_end_index,
+            )
+        )
+        template_start_index = to_search.find(
+            TEMPLATE_START, template_end_index + 1
+        )
+    return to_resolve
+
+
 def find_all_references(
     document: Mapping[str, Any], current_path: Optional[list[str]] = None
 ) -> Sequence[Reference]:
@@ -23,24 +48,7 @@ def find_all_references(
             to_resolve.extend(find_all_references(value, current_path + [key]))
         elif isinstance(value, str):
             config_path = "/" + "/".join(current_path + [key])
-            template_start_index = value.find(TEMPLATE_START)
-            while template_start_index != -1:
-                template_end_index = value.find("}", template_start_index)
-                if template_end_index == -1:
-                    break
-                to_resolve.append(
-                    Reference(
-                        config_path=config_path,
-                        reference_path=value[
-                            template_start_index + 3 : template_end_index
-                        ].strip(),
-                        index_start=template_start_index,
-                        index_end=template_end_index,
-                    )
-                )
-                template_start_index = value.find(
-                    TEMPLATE_START, template_end_index + 1
-                )
+            to_resolve.extend(find_references_in_str(value, config_path))
     return to_resolve
 
 
