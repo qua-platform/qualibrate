@@ -22,12 +22,15 @@ def settings(
 ) -> Generator[QualibrateSettings, None, None]:
     static = tmp_path / "static"
     static.mkdir()
+    active_machine_path = tmp_path / "active_machine_path"
+    active_machine_path.mkdir()
     yield QualibrateSettings(
         static_site_files=static,
         user_storage=default_local_storage_project,
         project=default_local_storage_project.name,
         storage_type=StorageType.local_storage,
         metadata_out_path="data_path",
+        active_machine_path=active_machine_path,
         timeline_db=JsonTimelineDBBase(
             address="http://localhost:8000",
             timeout=0,

@@ -70,4 +70,5 @@ class QualibrateSettings(QualibrateSettingsBase):
     static_site_files: DirectoryPath
     user_storage: DirectoryPath
     project: str
+    # TODO: ask @Serwan about this field. TOML doesn't support `None` field
     active_machine_path: Optional[Path] = None
