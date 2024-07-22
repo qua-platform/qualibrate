@@ -101,23 +101,35 @@ export const JSONEditor = ({ title, jsonDataProp, height }: { title: string; jso
 
     try {
       // Convert search term to JSONPath query
-      let jsonPathQuery = term.replace("#", "$").replace(/\*/g, "*").replace(/\//g, ".");
+      const jsonPathQuery = term.replace("#", "$").replace(/\*/g, "*").replace(/\//g, ".");
 
       // Perform the JSONPath query
       const result = jp.nodes(data, jsonPathQuery);
 
       // Reconstruct the filtered data structure
-      return result.reduce((acc: any, { path, value }: { path: jp.PathComponent[]; value: any }) => {
-        let current = acc;
-        for (let i = 1; i < path.length - 1; i++) {
-          const key = path[i] as string;
-          if (!current[key]) current[key] = {};
-          current = current[key];
-        }
-        const lastKey = path[path.length - 1] as string;
-        current[lastKey] = value;
-        return acc;
-      }, {});
+      return result.reduce(
+        (
+          acc: Record<string, unknown>,
+          {
+            path,
+            value,
+          }: {
+            path: jp.PathComponent[];
+            value: unknown;
+          }
+        ) => {
+          let current = acc;
+          for (let i = 1; i < path.length - 1; i++) {
+            const key = path[i] as string;
+            if (!current[key]) current[key] = {};
+            current = current[key] as Record<string, unknown>;
+          }
+          const lastKey = path[path.length - 1] as string;
+          current[lastKey] = value;
+          return acc;
+        },
+        {}
+      );
     } catch (error) {
       console.error("Invalid JSONPath query:", error);
       return data;
@@ -166,7 +178,7 @@ export const JSONEditor = ({ title, jsonDataProp, height }: { title: string; jso
       <InputField value={searchTerm} title={"Search"} onChange={(_e, event) => handleSearch(event.target.value, event)}></InputField>
       <JsonViewer
         rootName={false}
-        onSelect={(path, _a) => handleOnSelect(path)}
+        onSelect={(path) => handleOnSelect(path)}
         theme={"dark"}
         value={jsonData}
         valueTypes={[imageDataType]}
