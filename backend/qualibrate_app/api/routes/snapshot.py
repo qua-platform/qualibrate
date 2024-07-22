@@ -26,7 +26,7 @@ from qualibrate_app.config import QualibrateSettings, StorageType, get_settings
 snapshot_router = APIRouter(prefix="/snapshot/{id}", tags=["snapshot"])
 
 
-def is_float(string):
+def is_float(string: str) -> bool:
     try:
         float(string)
         return True

@@ -1,4 +1,6 @@
 import json
+import logging
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import (
@@ -14,7 +16,6 @@ from typing import (
 
 import jsonpatch
 import jsonpointer
-import logging
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -210,7 +211,7 @@ def _default_snapshot_content_updater(
         pass
     elif settings.active_machine_path.is_dir():
         logger.info(f"Updating quam state dir {settings.active_machine_path}")
-        contents = new_snapshot.copy()
+        contents = deepcopy(dict(new_snapshot))
         content_mapping = {"wiring.json": {"wiring", "network"}}
 
         for filename, content_keys in content_mapping.items():

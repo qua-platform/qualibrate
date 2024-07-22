@@ -2,7 +2,8 @@ from unittest.mock import call
 
 import pytest
 
-from qualibrate_app.utils import config_references as cr
+from qualibrate_app.config.references import models as ref_models
+from qualibrate_app.config.references import resolvers as ref_resolvers
 
 
 @pytest.fixture
@@ -24,12 +25,12 @@ def config_with_refs():
 @pytest.fixture
 def path_with_refs():
     return {
-        "/data_handler/root": cr.PathWithSolvingReferences(
+        "/data_handler/root": ref_models.PathWithSolvingReferences(
             config_path="/data_handler/root",
             value=None,
             solved=False,
             references=[
-                cr.Reference(
+                ref_models.Reference(
                     config_path="/data_handler/root",
                     reference_path="/data_handler/project",
                     index_start=6,
@@ -39,12 +40,12 @@ def path_with_refs():
                 )
             ],
         ),
-        "/data_handler/project": cr.PathWithSolvingReferences(
+        "/data_handler/project": ref_models.PathWithSolvingReferences(
             config_path="/data_handler/project",
             value=None,
             solved=False,
             references=[
-                cr.Reference(
+                ref_models.Reference(
                     config_path="/data_handler/project",
                     reference_path="/qual/project",
                     index_start=0,
@@ -54,12 +55,12 @@ def path_with_refs():
                 )
             ],
         ),
-        "/sub/item/path": cr.PathWithSolvingReferences(
+        "/sub/item/path": ref_models.PathWithSolvingReferences(
             config_path="/sub/item/path",
             value=None,
             solved=False,
             references=[
-                cr.Reference(
+                ref_models.Reference(
                     config_path="/sub/item/path",
                     reference_path="/data_handler/root",
                     index_start=5,
@@ -67,7 +68,7 @@ def path_with_refs():
                     value=None,
                     solved=False,
                 ),
-                cr.Reference(
+                ref_models.Reference(
                     config_path="/sub/item/path",
                     reference_path="/qual/project",
                     index_start=36,
@@ -81,8 +82,8 @@ def path_with_refs():
 
 
 def test_find_all_references_mapping_item(mocker):
-    find_ref_spy = mocker.spy(cr, "find_all_references")
-    assert cr.find_all_references({"key": {"a": 1}}) == []
+    find_ref_spy = mocker.spy(ref_resolvers, "find_all_references")
+    assert ref_resolvers.find_all_references({"key": {"a": 1}}) == []
     assert find_ref_spy.call_count == 2
 
     find_ref_spy.assert_has_calls(
@@ -91,8 +92,8 @@ def test_find_all_references_mapping_item(mocker):
 
 
 def test_find_all_references_string_single_ref(mocker):
-    find_ref_spy = mocker.spy(cr, "find_all_references")
-    expected_ref = cr.Reference(
+    find_ref_spy = mocker.spy(ref_resolvers, "find_all_references")
+    expected_ref = ref_models.Reference(
         config_path="/key",
         reference_path="/ref",
         index_start=0,
@@ -100,14 +101,18 @@ def test_find_all_references_string_single_ref(mocker):
         value=None,
         solved=False,
     )
-    assert cr.find_all_references({"key": "${#/ref}"}) == [expected_ref]
+    assert ref_resolvers.find_all_references({"key": "${#/ref}"}) == [
+        expected_ref
+    ]
     assert find_ref_spy.call_count == 1
 
 
 def test_find_all_references_string_multi_ref(mocker):
-    find_ref_spy = mocker.spy(cr, "find_all_references")
-    assert cr.find_all_references({"key": "${#/ref}_${#/other}"}) == [
-        cr.Reference(
+    find_ref_spy = mocker.spy(ref_resolvers, "find_all_references")
+    assert ref_resolvers.find_all_references(
+        {"key": "${#/ref}_${#/other}"}
+    ) == [
+        ref_models.Reference(
             config_path="/key",
             reference_path="/ref",
             index_start=0,
@@ -115,7 +120,7 @@ def test_find_all_references_string_multi_ref(mocker):
             value=None,
             solved=False,
         ),
-        cr.Reference(
+        ref_models.Reference(
             config_path="/key",
             reference_path="/other",
             index_start=9,
@@ -128,14 +133,19 @@ def test_find_all_references_string_multi_ref(mocker):
 
 
 def test_find_all_references_string_no_ref(mocker):
-    find_ref_spy = mocker.spy(cr, "find_all_references")
-    assert cr.find_all_references({"k1": 1, "k2": "$#/aa", "k3": "value"}) == []
+    find_ref_spy = mocker.spy(ref_resolvers, "find_all_references")
+    assert (
+        ref_resolvers.find_all_references(
+            {"k1": 1, "k2": "$#/aa", "k3": "value"}
+        )
+        == []
+    )
     assert find_ref_spy.call_count == 1
 
 
 def test_find_all_references_complex(config_with_refs):
-    assert cr.find_all_references(config_with_refs) == [
-        cr.Reference(
+    assert ref_resolvers.find_all_references(config_with_refs) == [
+        ref_models.Reference(
             config_path="/data_handler/root",
             reference_path="/data_handler/project",
             index_start=6,
@@ -143,7 +153,7 @@ def test_find_all_references_complex(config_with_refs):
             value=None,
             solved=False,
         ),
-        cr.Reference(
+        ref_models.Reference(
             config_path="/data_handler/project",
             reference_path="/qual/project",
             index_start=0,
@@ -151,7 +161,7 @@ def test_find_all_references_complex(config_with_refs):
             value=None,
             solved=False,
         ),
-        cr.Reference(
+        ref_models.Reference(
             config_path="/sub/item/path",
             reference_path="/data_handler/root",
             index_start=5,
@@ -159,7 +169,7 @@ def test_find_all_references_complex(config_with_refs):
             value=None,
             solved=False,
         ),
-        cr.Reference(
+        ref_models.Reference(
             config_path="/sub/item/path",
             reference_path="/qual/project",
             index_start=36,
@@ -171,13 +181,13 @@ def test_find_all_references_complex(config_with_refs):
 
 
 def test_check_cycles_in_references_exists():
-    assert cr.check_cycles_in_references(
+    assert ref_resolvers.check_cycles_in_references(
         {"a": ("b", "c"), "b": ("c", "d"), "c": ("a",)}
     ) == (True, ["a", "b", "c", "a"])
 
 
 def test_check_cycles_in_references_not_exists():
-    assert cr.check_cycles_in_references(
+    assert ref_resolvers.check_cycles_in_references(
         {"a": ("b", "d"), "b": ("c", "e"), "c": ("d",)}
     ) == (False, None)
 
@@ -185,7 +195,7 @@ def test_check_cycles_in_references_not_exists():
 def test__resolve_references_no_subref(config_with_refs, path_with_refs):
     solved_references = {}
     assert (
-        cr._resolve_references(
+        ref_resolvers._resolve_references(
             "/data_handler/project",
             path_with_refs,
             config_with_refs,
@@ -201,7 +211,7 @@ def test__resolve_references_no_subref(config_with_refs, path_with_refs):
     assert config_item.solved
     assert config_item.value == "my_project"
     assert config_item.references == [
-        cr.Reference(
+        ref_models.Reference(
             config_path="/data_handler/project",
             reference_path="/qual/project",
             index_start=0,
@@ -215,7 +225,7 @@ def test__resolve_references_no_subref(config_with_refs, path_with_refs):
 def test__resolve_references_with_subref(config_with_refs, path_with_refs):
     solved_references = {}
     assert (
-        cr._resolve_references(
+        ref_resolvers._resolve_references(
             "/sub/item/path",
             path_with_refs,
             config_with_refs,
@@ -230,12 +240,12 @@ def test__resolve_references_with_subref(config_with_refs, path_with_refs):
         "/sub/item/path": "path_/data/my_project/subpath_project_my_project",
     }
     assert path_with_refs == {
-        "/data_handler/root": cr.PathWithSolvingReferences(
+        "/data_handler/root": ref_models.PathWithSolvingReferences(
             config_path="/data_handler/root",
             value="/data/my_project/subpath",
             solved=True,
             references=[
-                cr.Reference(
+                ref_models.Reference(
                     config_path="/data_handler/root",
                     reference_path="/data_handler/project",
                     index_start=6,
@@ -245,12 +255,12 @@ def test__resolve_references_with_subref(config_with_refs, path_with_refs):
                 )
             ],
         ),
-        "/data_handler/project": cr.PathWithSolvingReferences(
+        "/data_handler/project": ref_models.PathWithSolvingReferences(
             config_path="/data_handler/project",
             value="my_project",
             solved=True,
             references=[
-                cr.Reference(
+                ref_models.Reference(
                     config_path="/data_handler/project",
                     reference_path="/qual/project",
                     index_start=0,
@@ -260,12 +270,12 @@ def test__resolve_references_with_subref(config_with_refs, path_with_refs):
                 )
             ],
         ),
-        "/sub/item/path": cr.PathWithSolvingReferences(
+        "/sub/item/path": ref_models.PathWithSolvingReferences(
             config_path="/sub/item/path",
             value="path_/data/my_project/subpath_project_my_project",
             solved=True,
             references=[
-                cr.Reference(
+                ref_models.Reference(
                     config_path="/sub/item/path",
                     reference_path="/data_handler/root",
                     index_start=5,
@@ -273,7 +283,7 @@ def test__resolve_references_with_subref(config_with_refs, path_with_refs):
                     value="/data/my_project/subpath",
                     solved=True,
                 ),
-                cr.Reference(
+                ref_models.Reference(
                     config_path="/sub/item/path",
                     reference_path="/qual/project",
                     index_start=36,
@@ -289,25 +299,25 @@ def test__resolve_references_with_subref(config_with_refs, path_with_refs):
 def test_resolve_references_with_cycle(mocker):
     cycle = ["a", "b", "a"]
     mocker.patch(
-        "qualibrate_app.utils.config_references.find_all_references",
+        "qualibrate_app.config.references.resolvers.find_all_references",
     )
     mocker.patch(
-        "qualibrate_app.utils.config_references.check_cycles_in_references",
+        "qualibrate_app.config.references.resolvers.check_cycles_in_references",
         return_value=(True, cycle),
     )
     with pytest.raises(ValueError) as ex:
-        cr.resolve_references({"a": "${#/b}", "b": "${#/a}"})
+        ref_resolvers.resolve_references({"a": "${#/b}", "b": "${#/a}"})
     assert ex.type == ValueError
     assert ex.value.args == (f"Config contains cycle: {cycle}",)
 
 
 def test_resolve_references_full_no_subref():
     doc = {"a": "b", "c": {"d": 2}}
-    assert cr.resolve_references(doc) == doc
+    assert ref_resolvers.resolve_references(doc) == doc
 
 
 def test_resolve_references_full_with_subref(config_with_refs):
-    assert cr.resolve_references(config_with_refs) == {
+    assert ref_resolvers.resolve_references(config_with_refs) == {
         "qual": {"project": "my_project"},
         "data_handler": {
             "root": "/data/my_project/subpath",

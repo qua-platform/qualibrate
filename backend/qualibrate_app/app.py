@@ -7,7 +7,7 @@ from qualibrate_app.api.__main__ import api_router
 from qualibrate_app.api.exceptions.middleware import (
     QualibrateCatchExcMiddleware,
 )
-from qualibrate_app.config import get_config_path, get_settings
+from qualibrate_app.config.resolvers import get_config_path, get_settings
 
 try:
     from json_timeline_database.app import app as json_timeline_db_app
