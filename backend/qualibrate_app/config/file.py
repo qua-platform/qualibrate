@@ -42,7 +42,7 @@ def get_config_file(
             raise OSError("Unexpected config file path")
         return config_path_
     if config_path is None:
-        return _get_config_file_from_dir(QUALIBRATE_PATH)
+        return _get_config_file_from_dir(QUALIBRATE_PATH, raise_not_exists)
 
 
 def read_config_file(
