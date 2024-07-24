@@ -6,12 +6,16 @@ from types import MappingProxyType
 from typing import Any, Generator, Mapping, Optional, Type
 
 import matplotlib
-
+from matplotlib.rcsetup import interactive_bk
 from pydantic import BaseModel
 
 from qualibrate import NodeParameters
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
+from qualibrate.utils.type_protocols import (
+    GetRefGetItemProtocol,
+    GetRefProtocol,
+)
 
 
 class StopInspection(Exception):
@@ -44,6 +48,7 @@ class QualibrationNode:
         description: Optional[str] = None,
     ):
         if hasattr(self, "_initialized"):
+            self._warn_if_external_and_interactive_mpl()
             return
 
         self.name = name
@@ -66,8 +71,17 @@ class QualibrationNode:
             self.__class__.last_instantiated_node = self
             raise StopInspection("Node instantiated in inspection mode")
 
+    def _warn_if_external_and_interactive_mpl(self) -> None:
+        mpl_backend = matplotlib.get_backend()
+        if self.mode.external and mpl_backend in interactive_bk:
+            matplotlib.use("agg")
+            raise UserWarning(
+                f"Using interactive matplotlib backend '{mpl_backend}' in "
+                "external mode. The backend is changed to 'agg'."
+            )
+
     @property
-    def parameters(self):
+    def parameters(self) -> Optional[NodeParameters]:
         return self.__parameters
 
     @parameters.setter
@@ -143,7 +157,7 @@ class QualibrationNode:
 
     @contextmanager
     def record_state_updates(
-        self, interactive_only=True
+        self, interactive_only: bool = True
     ) -> Generator[None, None, None]:
         if not self.mode.interactive and interactive_only:
             yield
@@ -202,10 +216,10 @@ class QualibrationNode:
 
 
 def _record_state_update_getattr(
-    quam_obj,
+    quam_obj: GetRefProtocol,
     attr: str,
     val: Any = None,
-    node=None,
+    node: Optional[QualibrationNode] = None,
 ) -> None:
     reference = quam_obj.get_reference(attr)
     old = getattr(quam_obj, attr)
@@ -219,10 +233,10 @@ def _record_state_update_getattr(
 
 
 def _record_state_update_getitem(
-    quam_obj,
+    quam_obj: GetRefGetItemProtocol,
     attr: str,
     val: Any = None,
-    node=None,
+    node: Optional[QualibrationNode] = None,
 ) -> None:
     reference = quam_obj.get_reference(attr)
     old = quam_obj[attr]
