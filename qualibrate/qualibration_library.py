@@ -43,6 +43,9 @@ class QualibrationLibrary:
     def get_nodes(self) -> Mapping[str, QualibrationNode]:
         return self.nodes
 
+    def get_graphs(self) -> Mapping[str, QualibrationGraph]:
+        return self.graphs
+
     def run_node(
         self, node_name: str, input_parameters: NodeParameters
     ) -> None:
