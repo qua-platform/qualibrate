@@ -1,12 +1,14 @@
 from pathlib import Path
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Dict, Mapping, Optional, cast
 
-from qualibrate.qualibration_graph import QualibrationGraph
-from qualibrate.qualibration_node import QualibrationNode
-from qualibrate.utils.parameters import (
+from qualibrate.parameters import (
     GraphParameters,
     NodeParameters,
 )
+from qualibrate.qualibration_graph import QualibrationGraph
+from qualibrate.qualibration_node import QualibrationNode
+
+__all__ = ["QualibrationLibrary"]
 
 
 class QualibrationLibrary:
@@ -22,11 +24,17 @@ class QualibrationLibrary:
             self.__class__.active_library = self
 
         if library_folder:
-            self.nodes = QualibrationNode.scan_folder_for_instances(
-                library_folder, self
+            self.nodes = cast(
+                Dict[str, QualibrationNode],
+                QualibrationNode.scan_folder_for_instances(
+                    library_folder, self
+                )
             )
-            self.graphs = QualibrationGraph.scan_folder_for_instances(
-                library_folder, self
+            self.graphs = cast(
+                Dict[str, QualibrationGraph],
+                QualibrationGraph.scan_folder_for_instances(
+                    library_folder, self
+                )
             )
 
     def serialize(self) -> Mapping[str, Any]:

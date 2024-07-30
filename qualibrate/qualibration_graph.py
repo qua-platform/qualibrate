@@ -7,14 +7,17 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Sequence, Type
 
 import networkx as nx
 
+from qualibrate.parameters import GraphParameters
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.storage.local_storage_manager import logger
 from qualibrate.utils.exceptions import StopInspection
-from qualibrate.utils.parameters import GraphParameters
 
 if TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
+
+
+__all__ = ["NodeState", "QGraphBaseType", "QualibrationGraph"]
 
 
 class NodeState(Enum):
@@ -24,7 +27,10 @@ class NodeState(Enum):
     failed: str = "failed"
 
 
-class QualibrationGraph(QRunnable[GraphParameters]):
+QGraphBaseType = QRunnable[GraphParameters]
+
+
+class QualibrationGraph(QGraphBaseType):
     _node_init_args = {"state": NodeState.pending, "retries": 0}
     last_instantiated_graph: Optional["QualibrationGraph"] = None
 
@@ -65,8 +71,8 @@ class QualibrationGraph(QRunnable[GraphParameters]):
     @classmethod
     def scan_folder_for_instances(
         cls, path: Path, library: "QualibrationLibrary"
-    ) -> Dict[str, "QualibrationGraph"]:
-        graphs: Dict[str, "QualibrationGraph"] = {}
+    ) -> Dict[str, QGraphBaseType]:
+        graphs: Dict[str, QGraphBaseType] = {}
         inspection = cls.mode.inspection
         str_path = str(path)
         lib_path_exists = str_path in sys.path
@@ -87,7 +93,7 @@ class QualibrationGraph(QRunnable[GraphParameters]):
 
     @classmethod
     def scan_graph_file(
-        cls, file: Path, graphs: Dict[str, "QualibrationGraph"]
+        cls, file: Path, graphs: Dict[str, QGraphBaseType]
     ) -> None:
         logger.info(f"Scanning graph file {file}")
         try:
@@ -109,7 +115,7 @@ class QualibrationGraph(QRunnable[GraphParameters]):
     def add_graph(
         cls,
         graph: "QualibrationGraph",
-        graphs: Dict[str, "QualibrationGraph"],
+        graphs: Dict[str, QGraphBaseType],
     ) -> None:
         if graph.name in graphs:
             logger.warning(

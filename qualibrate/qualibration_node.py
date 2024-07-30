@@ -11,12 +11,12 @@ from typing import Any, Dict, Generator, Mapping, Optional, Type
 import matplotlib
 from matplotlib.rcsetup import interactive_bk
 
+from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger import logger
-from qualibrate.utils.parameters import NodeParameters
 from qualibrate.utils.type_protocols import (
     GetRefGetItemProtocol,
     GetRefProtocol,
@@ -26,7 +26,13 @@ if typing.TYPE_CHECKING:
     from qualibrate.qualibration_library import QualibrationLibrary
 
 
-class QualibrationNode(QRunnable[NodeParameters]):
+__all__ = ["QualibrationNode"]
+
+
+QNodeBaseType = QRunnable[NodeParameters]
+
+
+class QualibrationNode(QNodeBaseType):
     storage_manager: Optional[StorageManager] = None
     last_instantiated_node: Optional["QualibrationNode"] = None
 
@@ -214,8 +220,8 @@ class QualibrationNode(QRunnable[NodeParameters]):
     @classmethod
     def scan_folder_for_instances(
         cls, path: Path, library: "QualibrationLibrary"
-    ) -> Dict[str, "QualibrationNode"]:
-        nodes: Dict[str, "QualibrationNode"] = {}
+    ) -> Dict[str, QNodeBaseType]:
+        nodes: Dict[str, QNodeBaseType] = {}
         inspection = cls.mode.inspection
         str_path = str(path)
         lib_path_exists = str_path in sys.path
@@ -236,7 +242,7 @@ class QualibrationNode(QRunnable[NodeParameters]):
 
     @classmethod
     def scan_node_file(
-        cls, file: Path, nodes: Dict[str, "QualibrationNode"]
+        cls, file: Path, nodes: Dict[str, QNodeBaseType]
     ) -> None:
         logger.info(f"Scanning node file {file}")
         try:
@@ -258,7 +264,7 @@ class QualibrationNode(QRunnable[NodeParameters]):
     def add_node(
         cls,
         node: "QualibrationNode",
-        nodes: Dict[str, "QualibrationNode"],
+        nodes: Dict[str, QNodeBaseType],
     ) -> None:
         if node.name in nodes:
             logger.warning(

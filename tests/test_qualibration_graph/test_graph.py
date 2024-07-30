@@ -3,13 +3,13 @@ from typing import Generator
 
 import pytest
 
-from qualibrate.qualibration_graph import NodeState, QualibrationGraph
-from qualibrate.qualibration_library import QualibrationLibrary
-from qualibrate.utils.parameters import (
+from qualibrate.parameters import (
+    CommonGraphParameters,
     GraphParameters,
     NodeParameters,
-    RunnableParameters,
 )
+from qualibrate.qualibration_graph import NodeState, QualibrationGraph
+from qualibrate.qualibration_library import QualibrationLibrary
 
 
 @pytest.fixture
@@ -38,7 +38,7 @@ def graph_params() -> GraphParameters:
         pass
 
     return LocalGraphParameter(
-        graph_parameters=RunnableParameters(),
+        graph_parameters=CommonGraphParameters(),
         nodes_parameters={
             "test_node": TestNodeParameters(),
             "one_more_node": OneMoreModeParameters(),

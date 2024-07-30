@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Dict, Generic, Optional, Type, TypeVar
 
+from qualibrate.parameters import RunnableParameters
 from qualibrate.run_mode import RunMode
-from qualibrate.utils.parameters import RunnableParameters
 
 if typing.TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
