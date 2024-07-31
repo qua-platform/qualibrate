@@ -1,12 +1,13 @@
-import typing
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Generic, Optional, Type, TypeVar
+from typing import (
+    TYPE_CHECKING, Dict, Generic, Optional, Type, TypeVar, Mapping, Any
+)
 
 from qualibrate.parameters import RunnableParameters
 from qualibrate.run_mode import RunMode
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
 
 ParametersType = TypeVar("ParametersType", bound=RunnableParameters)
@@ -35,6 +36,10 @@ class QRunnable(ABC, Generic[ParametersType]):
         self.filepath: Optional[Path] = None
         self.__parameters: Optional[ParametersType] = None
 
+    @abstractmethod
+    def serialize(self) -> Mapping[str, Any]:
+        pass
+
     @classmethod
     @abstractmethod
     def scan_folder_for_instances(
@@ -54,10 +59,5 @@ class QRunnable(ABC, Generic[ParametersType]):
     def parameters(self, new_parameters: ParametersType) -> None:
         if self.mode.external and self.__parameters is not None:
             return
-        if not isinstance(new_parameters, self.parameters_class):
-            raise TypeError(
-                "Expected parameters is instance of "
-                f"{self.parameters_class.__module__}"
-                f".{self.parameters_class.__name__}"
-            )
+        self.parameters_class.model_validate(new_parameters.model_dump())
         self.__parameters = new_parameters
