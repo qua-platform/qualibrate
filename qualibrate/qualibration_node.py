@@ -50,10 +50,10 @@ class QualibrationNode(QNodeBaseType):
         parameters_class: Type[NodeParameters],
         description: Optional[str] = None,
     ):
-        super(QualibrationNode, self).__init__(name, parameters_class)
         if hasattr(self, "_initialized"):
             self._warn_if_external_and_interactive_mpl()
             return
+        super(QualibrationNode, self).__init__(name, parameters_class)
 
         self.description = description
 
