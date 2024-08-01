@@ -1,4 +1,6 @@
+import importlib
 import logging
+import sys
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional
 
@@ -42,6 +44,11 @@ class QualibrationLibrary:
         if not append:
             self.nodes = {}
 
+        str_path = str(path)
+        lib_path_exists = str_path in sys.path
+        if not lib_path_exists:
+            sys.path.append(str_path)
+
         inspection = QualibrationNode.mode.inspection
         try:
             QualibrationNode.mode.inspection = True
@@ -51,16 +58,15 @@ class QualibrationLibrary:
                     continue
                 self.scan_node_file(file)
         finally:
+            if not lib_path_exists:
+                sys.path.remove(str_path)
             QualibrationNode.mode.inspection = inspection
 
     def scan_node_file(self, file: Path) -> None:
         logger.info(f"Scanning node file {file}")
-        with file.open() as f:
-            code = f.read()
-
         try:
             # TODO Think of a safer way to execute the code
-            exec(code)
+            importlib.import_module(file.name)
         except StopInspection:
             node = QualibrationNode.last_instantiated_node
             QualibrationNode.last_instantiated_node = None

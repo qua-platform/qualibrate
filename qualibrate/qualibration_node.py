@@ -1,3 +1,5 @@
+import importlib
+import sys
 import warnings
 from contextlib import contextmanager
 from functools import partialmethod
@@ -127,27 +129,36 @@ class QualibrationNode:
         self.storage_manager.save(node=self)
 
     def run_node(self, input_parameters: NodeParameters) -> None:
+        if self.node_filepath is None:
+            raise RuntimeError("Node file path was not provided")
         external = self.mode.external
         interactive = self.mode.interactive
         try:
             self.mode.external = True
             self.mode.interactive = True
             self.__parameters = input_parameters
-            # TODO: raise exception if node file isn't specified
             self.run_node_file(self.node_filepath)
         finally:
             self.mode.external = external
             self.mode.interactive = interactive
 
-    def run_node_file(self, node_filepath: Optional[Path]) -> None:
+    def run_node_file(self, node_filepath: Path) -> None:
         mpl_backend = matplotlib.get_backend()
+        str_path = str(node_filepath.parent)
+        # Appending dir with nodes can cause issues with relative imports
+        lib_path_exists = str_path in sys.path
+        if not lib_path_exists:
+            sys.path.append(str_path)
+
         try:
             # Temporarily set the singleton instance to this node
             self.__class__._singleton_instance = self
-            code = node_filepath.read_text()  # type: ignore[union-attr]
             matplotlib.use("agg")
-            exec(code)
+            importlib.import_module(node_filepath.stem)
+
         finally:
+            if not lib_path_exists:
+                sys.path.remove(str_path)
             self.__class__._singleton_instance = None
             matplotlib.use(mpl_backend)
 
