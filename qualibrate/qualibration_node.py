@@ -154,7 +154,7 @@ class QualibrationNode:
             # Temporarily set the singleton instance to this node
             self.__class__._singleton_instance = self
             matplotlib.use("agg")
-            importlib.import_module(self.node_filepath.stem)
+            importlib.import_module(node_filepath.stem)
 
         finally:
             if not lib_path_exists:
