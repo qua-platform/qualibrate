@@ -8,7 +8,7 @@ from fastapi import Depends
 from pydantic import HttpUrl, field_serializer
 from pydantic_core.core_schema import FieldSerializationInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from qualibrate_app.utils.config_references import resolve_references
+from qualibrate_app.config.references.resolvers import resolve_references
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
