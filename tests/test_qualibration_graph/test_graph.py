@@ -4,9 +4,7 @@ from typing import Generator
 import pytest
 
 from qualibrate.parameters import (
-    CommonGraphParameters,
     GraphParameters,
-    NodeParameters,
 )
 from qualibrate.qualibration_graph import NodeState, QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
@@ -14,37 +12,17 @@ from qualibrate.qualibration_library import QualibrationLibrary
 
 @pytest.fixture
 def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
-    cal_path = Path(__file__).parents[2] / "calibrations"
+    cal_path = Path(__file__).parent / "calibrations"
     tmp = QualibrationLibrary(cal_path)
     yield tmp
 
 
 @pytest.fixture
 def graph_params() -> GraphParameters:
-    class TestNodeParameters(NodeParameters):
-        str_value: str = "test"
-        int_value: int = 1
-        float_value: float = 1.0
+    class GP(GraphParameters):
+        retries: int = 2
 
-    class OneMoreModeParameters(NodeParameters):
-        str_value: str = "test"
-        float_value: float = 1.0
-
-    class TestCalParameters(NodeParameters):
-        resonator: str = "q1.resonator"
-        sampling_points: int = 100
-
-    class LocalGraphParameter(GraphParameters):
-        pass
-
-    return LocalGraphParameter(
-        graph_parameters=CommonGraphParameters(),
-        nodes_parameters={
-            "test_node": TestNodeParameters(),
-            "one_more_node": OneMoreModeParameters(),
-            "test_cal": TestCalParameters(),
-        },
-    )
+    return GP(retries=1)
 
 
 def test_export(
@@ -55,8 +33,7 @@ def test_export(
         graph_params.__class__,
         {"test_node": ["one_more_node"], "one_more_node": ["test_cal"]},
     )
-    exported = g.export(node_names_only=True)
-    assert exported == {
+    assert g.export(node_names_only=True) == {
         "directed": True,
         "multigraph": False,
         "graph": [],
@@ -67,6 +44,106 @@ def test_export(
         ],
         "adjacency": [[{"id": "one_more_node"}], [{"id": "test_cal"}], []],
     }
+
+
+def test_serialize(
+    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
+):
+    g = QualibrationGraph(
+        "name",
+        graph_params.__class__,
+        {"test_node": ["one_more_node"], "one_more_node": ["test_cal"]},
+    )
+    assert g.serialize() == {
+        "name": "name",
+        "multigraph": False,
+        "directed": True,
+        "graph": [],
+        "nodes": {
+            "test_node": {
+                "state": NodeState.pending,
+                "retries": 0,
+                "id": "test_node",
+                "name": "test_node",
+                "parameters": {
+                    "str_value": {
+                        "default": "test",
+                        "title": "Str Value",
+                        "type": "string",
+                    },
+                    "int_value": {
+                        "default": 1,
+                        "title": "Int Value",
+                        "type": "integer",
+                    },
+                    "float_value": {
+                        "default": 1.0,
+                        "title": "Float Value",
+                        "type": "number",
+                    },
+                },
+            },
+            "one_more_node": {
+                "state": NodeState.pending,
+                "retries": 0,
+                "id": "one_more_node",
+                "name": "one_more_node",
+                "parameters": {
+                    "str_value": {
+                        "default": "test",
+                        "title": "Str Value",
+                        "type": "string",
+                    },
+                    "float_value": {
+                        "default": 1.0,
+                        "title": "Float Value",
+                        "type": "number",
+                    },
+                },
+            },
+            "test_cal": {
+                "state": NodeState.pending,
+                "retries": 0,
+                "id": "test_cal",
+                "name": "test_cal",
+                "parameters": {
+                    "resonator": {
+                        "default": "q1.resonator",
+                        "title": "Resonator",
+                        "type": "string",
+                    },
+                    "sampling_points": {
+                        "default": 100,
+                        "title": "Sampling Points",
+                        "type": "integer",
+                    },
+                },
+            },
+        },
+        "connectivity": {
+            "test_node": [{"id": "one_more_node"}],
+            "one_more_node": [{"id": "test_cal"}],
+            "test_cal": [],
+        },
+        "parameters": {
+            "retries": {
+                "default": 2,
+                "title": "Retries",
+                "type": "integer",
+            },
+        },
+    }
+
+
+def test_cytoscape(
+    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
+):
+    g = QualibrationGraph(
+        "name",
+        graph_params.__class__,
+        {"test_node": ["one_more_node"], "one_more_node": ["test_cal"]},
+    )
+    print(g.cytoscape_representation())
 
 
 def test_run_sequence(
@@ -91,4 +168,25 @@ def test_run_multi_pred(
             "one_more_node": ["test_cal"],
         },
     )
-    g.run(graph_params)
+    g.run(
+        g.full_parameters(
+            **{
+                "parameters": {"retries": 4},
+                "nodes_parameters": {
+                    "test_node": {
+                        "str_value": "test_custom",
+                        "int_value": 100,
+                        "float_value": 0.2,
+                    },
+                    "one_more_node": {
+                        "str_value": "test_custom_more",
+                        "float_value": 0.4,
+                    },
+                    "test_cal": {
+                        "resonator": "test_custom",
+                        "sampling_points": 20,
+                    },
+                },
+            }
+        )
+    )

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, cast
 
 from qualibrate.parameters import (
-    GraphParameters,
+    ExecutionParameters,
     NodeParameters,
 )
 from qualibrate.qualibration_graph import QualibrationGraph
@@ -28,13 +28,13 @@ class QualibrationLibrary:
                 Dict[str, QualibrationNode],
                 QualibrationNode.scan_folder_for_instances(
                     library_folder, self
-                )
+                ),
             )
             self.graphs = cast(
                 Dict[str, QualibrationGraph],
                 QualibrationGraph.scan_folder_for_instances(
                     library_folder, self
-                )
+                ),
             )
 
     def serialize(self) -> Mapping[str, Any]:
@@ -53,7 +53,7 @@ class QualibrationLibrary:
         node.run(input_parameters)
 
     def run_graph(
-        self, graph_name: str, input_parameters: GraphParameters
+        self, graph_name: str, input_parameters: ExecutionParameters
     ) -> None:
         graph = self.graphs[graph_name]
         graph.run(input_parameters)

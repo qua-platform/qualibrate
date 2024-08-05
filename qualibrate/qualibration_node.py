@@ -32,7 +32,7 @@ __all__ = ["QualibrationNode"]
 QNodeBaseType = QRunnable[NodeParameters]
 
 
-class QualibrationNode(QNodeBaseType):
+class QualibrationNode(QRunnable[NodeParameters]):
     storage_manager: Optional[StorageManager] = None
     last_instantiated_node: Optional["QualibrationNode"] = None
 
@@ -98,7 +98,7 @@ class QualibrationNode(QNodeBaseType):
     def serialize(self) -> Mapping[str, Any]:
         return {
             "name": self.name,
-            "input_parameters": self.parameters_class.serialize(),
+            "parameters": self.parameters_class.serialize(),
             "description": self.description,
         }
 
@@ -120,7 +120,7 @@ class QualibrationNode(QNodeBaseType):
         self.storage_manager.save(node=self)
 
     def run(self, parameters: NodeParameters) -> None:
-        if self.node_filepath is None:
+        if self.filepath is None:
             raise RuntimeError("Node file path was not provided")
         external = self.mode.external
         interactive = self.mode.interactive

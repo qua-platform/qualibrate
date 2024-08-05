@@ -1,7 +1,14 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING, Dict, Generic, Optional, Type, TypeVar, Mapping, Any
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generic,
+    Mapping,
+    Optional,
+    Type,
+    TypeVar,
 )
 
 from qualibrate.parameters import RunnableParameters

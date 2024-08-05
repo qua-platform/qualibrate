@@ -3,11 +3,26 @@ import sys
 from enum import Enum
 from pathlib import Path
 from queue import Queue
-from typing import TYPE_CHECKING, Any, Dict, Mapping, Optional, Sequence, Type
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Mapping,
+    Optional,
+    Sequence,
+    Type,
+    Union,
+    cast,
+)
 
 import networkx as nx
+from pydantic import create_model
 
-from qualibrate.parameters import GraphParameters
+from qualibrate.parameters import (
+    ExecutionParameters,
+    GraphParameters,
+    NodesParameters,
+)
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.storage.local_storage_manager import logger
@@ -30,7 +45,7 @@ class NodeState(Enum):
 QGraphBaseType = QRunnable[GraphParameters]
 
 
-class QualibrationGraph(QGraphBaseType):
+class QualibrationGraph(QRunnable[GraphParameters]):
     _node_init_args = {"state": NodeState.pending, "retries": 0}
     last_instantiated_graph: Optional["QualibrationGraph"] = None
 
@@ -48,17 +63,16 @@ class QualibrationGraph(QGraphBaseType):
         """
         super().__init__(name, parameters_class)
         self._adjacency = adjacency
-
+        self.full_parameters: Optional[Type[ExecutionParameters]] = None
         self._graph = nx.DiGraph()
 
-        lib_module = importlib.import_module("qualibrate.qualibration_library")
-        qlib_class = lib_module.QualibrationLibrary
-
+        qlib = self._get_qlibrary_or_error()
         for v_name, xs_names in adjacency.items():
-            v = self._add_graph_by_name(v_name, qlib_class)
+            v = self._add_node_by_name(v_name, qlib)
             for x_name in xs_names:
-                x = self._add_graph_by_name(x_name, qlib_class)
+                x = self._add_node_by_name(x_name, qlib)
                 self._graph.add_edge(v, x)
+        self._build_parameters_class()
 
         if self.mode.inspection:
             # ASK: Looks like `last_instantiated_node` and
@@ -134,10 +148,18 @@ class QualibrationGraph(QGraphBaseType):
 
     def run(
         self,
-        parameters: GraphParameters,
+        parameters: Union[GraphParameters, Mapping[str, Any]],
     ) -> None:
-        # TODO: ask how graph params should be used?
-        nodes_parameters = parameters.nodes_parameters
+        """
+        :param parameters: Should be instance of `self.full_parameters` or Mapping
+        """
+        if self.full_parameters is None:
+            raise ValueError("Graph full parameters class have been built")
+        if isinstance(parameters, Mapping):
+            parameters = self.full_parameters(**parameters)
+        nodes_parameters = cast(
+            ExecutionParameters, parameters
+        ).nodes_parameters
         predecessors = self._graph.pred
         successors = self._graph.succ
         nodes_without_predecessors = filter(
@@ -157,7 +179,7 @@ class QualibrationGraph(QGraphBaseType):
             ):
                 continue
             node_parameters = node_to_run.parameters_class(
-                **nodes_parameters[node_to_run.name].model_dump()
+                **getattr(nodes_parameters, node_to_run.name).model_dump()
             )
             # TODO: wrap status of execution
             node_to_run.run(node_parameters)
@@ -169,18 +191,74 @@ class QualibrationGraph(QGraphBaseType):
             else:
                 execution_queue.put(node_to_run)
 
-    def _add_graph_by_name(
-        self, node_name: str, lib: Type["QualibrationLibrary"]
-    ) -> QualibrationNode:
-        library = lib.active_library
+    @staticmethod
+    def _get_qlibrary_or_error() -> "QualibrationLibrary":
+        lib_module = importlib.import_module("qualibrate.qualibration_library")
+        qlib_class = lib_module.QualibrationLibrary
+        library = qlib_class.active_library
         if library is None:
             raise ValueError("QualibrationLibrary not specified")
+        return cast("QualibrationLibrary", library)
+
+    @staticmethod
+    def _get_qnode_or_error(
+        library: "QualibrationLibrary", node_name: str
+    ) -> QualibrationNode:
         node = library.nodes.get(node_name)
         if node is None:
             raise ValueError(f"Unknown node with name {node_name}")
+        return node
+
+    def _add_node_by_name(
+        self, node_name: str, library: "QualibrationLibrary"
+    ) -> QualibrationNode:
+        node = self._get_qnode_or_error(library, node_name)
         if node not in self._graph:
             self._graph.add_node(node, **self.__class__._node_init_args)
         return node
+
+    def _build_parameters_class(self) -> None:
+        nodes_parameters_class = create_model(
+            "GraphNodesParameters",
+            __base__=NodesParameters,
+            **{  # type: ignore
+                node.name: (node.parameters_class, ...)
+                for node in self._graph.nodes
+            },
+        )
+        execution_parameters_class = create_model(
+            "ExecutionParameters",
+            __base__=(self.parameters_class, ExecutionParameters),
+            nodes_parameters=(nodes_parameters_class, ...),
+        )
+        self.full_parameters = execution_parameters_class  # type: ignore
+
+    def serialize(self) -> Mapping[str, Any]:
+        if self.full_parameters is None:
+            raise ValueError("Graph full parameters class have been built")
+        parameters = self.full_parameters.serialize()
+        data: Dict[str, Any] = dict(self.export(node_names_only=True))
+        data.update(
+            {
+                "name": self.name,
+                "parameters": parameters["parameters"],
+            }
+        )
+        nodes = {}
+        connectivity = {}
+        for node, adjacency in zip(data.pop("nodes"), data.pop("adjacency")):
+            node_id = node["id"]
+            nodes[node_id] = node
+            node.update(
+                {
+                    # TODO: simplify node name
+                    "name": node_id,
+                    "parameters": parameters["nodes_parameters"][node["id"]],
+                }
+            )
+            connectivity[node_id] = adjacency
+        data.update({"nodes": nodes, "connectivity": connectivity})
+        return data
 
     def export(self, node_names_only: bool = False) -> Mapping[str, Any]:
         data = dict(nx.readwrite.adjacency_data(self._graph))
@@ -192,3 +270,27 @@ class QualibrationGraph(QGraphBaseType):
                 for adj in adjacency:
                     adj["id"] = adj["id"].name
         return data
+
+    def cytoscape_representation(self) -> Sequence[Mapping[str, Any]]:
+        serialized = self.serialize()
+        nodes = [
+            {
+                "group": "nodes",
+                "data": {"id": node},
+                "position": {"x": 100, "y": 100},
+            }
+            for node in serialized["nodes"]
+        ]
+        edges = [
+            {
+                "group": "edges",
+                "data": {
+                    "id": f"{source}_{dest}",
+                    "source": source,
+                    "target": dest,
+                },
+            }
+            for source, dests in serialized["connectivity"].items()
+            for dest in dests
+        ]
+        return [*nodes, *edges]
