@@ -20,6 +20,7 @@ pytest = "^8.2.2"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.8"
 mypy = "^1.10.0"
+poethepoet = "^0.27.0"
 
 [tool.ruff]
 line-length = 80
@@ -36,8 +37,18 @@ warn_return_any = true
 exclude = ["tests", "calibrations"]
 
 [[tool.mypy.overrides]]
-module = ["qualang_tools.*", "quam.*", "qualibrate_app.*"]
+module = ["qualang_tools.*", "quam.*", "qualibrate_app.*", "jsonpointer", "networkx"]
 ignore_missing_imports = true
+
+[tool.poe.tasks]
+lint = "ruff check ."
+lint-fix = "ruff check --fix ."
+format = "ruff format --check ."
+format-fix = "ruff format ."
+type = "mypy ."
+check.sequence = ["lint", "format", "type"]
+fix.sequence = ["lint-fix", "format-fix", "type"]
+fix.ignore_fail = "return_non_zero"
 
 [build-system]
 requires = ["poetry-core"]
