@@ -1,12 +1,20 @@
-from typing import Annotated, Any, Mapping, Optional, Type, cast
+from typing import Annotated, Any, Mapping, Optional, Sequence, Type, cast
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
+from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
 
 from qualibrate_runner.api.dependencies import (
+    cache_clear,
     get_library,
     get_state,
+)
+from qualibrate_runner.api.dependencies import (
+    get_graph as get_qgraph,
+)
+from qualibrate_runner.api.dependencies import (
+    get_graphs as get_qgraphs,
 )
 from qualibrate_runner.api.dependencies import (
     get_node as get_qnode,
@@ -54,16 +62,30 @@ def submit_run(
 
 @base_router.get("/get_nodes")
 def get_nodes(
-    nodes: Annotated[Mapping[str, Any], Depends(get_qnodes)],
+    nodes: Annotated[Mapping[str, QualibrationNode], Depends(get_qnodes)],
     settings: Annotated[QualibrateRunnerSettings, Depends(get_settings)],
     rescan: bool = False,
 ) -> Mapping[str, Any]:
     if rescan:
-        get_library.cache_clear()
-        get_qnodes.cache_clear()
+        cache_clear()
         library = get_library(settings)
         nodes = get_qnodes(library)
     return {node_name: node.serialize() for node_name, node in nodes.items()}
+
+
+@base_router.get("/get_graphs")
+def get_graphs(
+    graphs: Annotated[Mapping[str, QualibrationNode], Depends(get_qgraphs)],
+    settings: Annotated[QualibrateRunnerSettings, Depends(get_settings)],
+    rescan: bool = False,
+) -> Mapping[str, Any]:
+    if rescan:
+        cache_clear()
+        library = get_library(settings)
+        graphs = get_qnodes(library)
+    return {
+        graph_name: graph.serialize() for graph_name, graph in graphs.items()
+    }
 
 
 @base_router.get("/get_node")
@@ -71,6 +93,20 @@ def get_node(
     node: Annotated[QualibrationNode, Depends(get_qnode)],
 ) -> Mapping[str, Any]:
     return cast(Mapping[str, Any], node.serialize())
+
+
+@base_router.get("/get_graph")
+def get_graph(
+    graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
+) -> Mapping[str, Any]:
+    return cast(Mapping[str, Any], graph.serialize())
+
+
+@base_router.get("/get_graph/cytoscape")
+def get_graph_cytoscape(
+    graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
+) -> Sequence[Mapping[str, Any]]:
+    return cast(Sequence[Mapping[str, Any]], graph.cytoscape_representation())
 
 
 @base_router.get("/last_run")
