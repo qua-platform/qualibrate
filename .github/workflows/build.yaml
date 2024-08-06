@@ -1,3 +1,4 @@
+name: Build python package manually
 on:
   workflow_dispatch
 
