@@ -1,0 +1,7 @@
+name: Build python package manually
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    uses: qua-platform/qualibrate-core/.github/workflows/reusable-buld.yaml@main
