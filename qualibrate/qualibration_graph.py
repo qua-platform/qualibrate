@@ -245,7 +245,7 @@ class QualibrationGraph(QRunnable[GraphParameters]):
             }
         )
         nodes = {}
-        connectivity = {}
+        connectivity = []
         for node, adjacency in zip(data.pop("nodes"), data.pop("adjacency")):
             node_id = node["id"]
             nodes[node_id] = node
@@ -256,7 +256,7 @@ class QualibrationGraph(QRunnable[GraphParameters]):
                     "parameters": parameters["nodes_parameters"][node["id"]],
                 }
             )
-            connectivity[node_id] = adjacency
+            connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
         return data
 
@@ -290,7 +290,6 @@ class QualibrationGraph(QRunnable[GraphParameters]):
                     "target": dest,
                 },
             }
-            for source, dests in serialized["connectivity"].items()
-            for dest in dests
+            for source, dest in serialized["connectivity"]
         ]
         return [*nodes, *edges]
