@@ -34,8 +34,12 @@ def run_job(
         idx=-1,
     )
     try:
-        node = QualibrationLibrary.active_library.nodes[node.name]
-        node.run_node(node.parameters_class(**passed_input_parameters))
+        library = QualibrationLibrary.active_library
+
+        node = library.nodes[node.name]
+        library.run_node(
+            node.name, node.parameters_class(**passed_input_parameters)
+        )
     except Exception as ex:
         state.last_run = LastRun(
             name=state.last_run.name,
