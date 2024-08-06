@@ -10,6 +10,7 @@ packages = [{ include = "qualibrate" }]
 python = "^3.8"
 pydantic = "^2.7.3"
 qualang-tools = {git = "https://github.com/qua-platform/py-qua-tools", rev = "v0.17.4", python = ">=3.8,<3.12"}
+networkx = "3.1" # max available version with python 3.8 support
 
 
 [tool.poetry.group.test.dependencies]
@@ -19,6 +20,7 @@ pytest = "^8.2.2"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.8"
 mypy = "^1.10.0"
+poethepoet = "^0.27.0"
 
 [tool.ruff]
 line-length = 80
@@ -35,8 +37,18 @@ warn_return_any = true
 exclude = ["tests", "calibrations"]
 
 [[tool.mypy.overrides]]
-module = ["qualang_tools.*", "quam.*", "qualibrate_app.*"]
+module = ["qualang_tools.*", "quam.*", "qualibrate_app.*", "jsonpointer", "networkx"]
 ignore_missing_imports = true
+
+[tool.poe.tasks]
+lint = "ruff check ."
+lint-fix = "ruff check --fix ."
+format = "ruff format --check ."
+format-fix = "ruff format ."
+type = "mypy ."
+check.sequence = ["lint", "format", "type"]
+fix.sequence = ["lint-fix", "format-fix", "type"]
+fix.ignore_fail = "return_non_zero"
 
 [build-system]
 requires = ["poetry-core"]

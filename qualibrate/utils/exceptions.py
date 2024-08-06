@@ -1,0 +1,2 @@
+class StopInspection(Exception):
+    pass
