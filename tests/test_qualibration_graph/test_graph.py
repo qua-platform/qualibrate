@@ -42,6 +42,7 @@ def test_export(
             {"state": NodeState.pending, "retries": 0, "id": "one_more_node"},
             {"state": NodeState.pending, "retries": 0, "id": "test_cal"},
         ],
+        # this is standard name so kept as is (not changed to
         "adjacency": [[{"id": "one_more_node"}], [{"id": "test_cal"}], []],
     }
 
@@ -186,7 +187,16 @@ def test_run_sequence(
         graph_params.__class__,
         {"test_node": ["one_more_node"], "one_more_node": ["test_cal"]},
     )
-    g.run(graph_params)
+    g.run(
+        {
+            **graph_params.model_dump(),
+            "nodes_parameters": {
+                "test_node": {},
+                "one_more_node": {},
+                "test_cal": {},
+            }
+        }
+    )
 
 
 def test_run_multi_pred(
