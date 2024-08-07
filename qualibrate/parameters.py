@@ -30,30 +30,26 @@ class GraphParameters(RunnableParameters):
     pass
 
 
-class ExecutionParameters(GraphParameters):
-    nodes_parameters: NodesParameters
+class ExecutionParameters(RunnableParameters):
+    parameters: GraphParameters
+    nodes: NodesParameters
 
     @classmethod
     def serialize(cls) -> Mapping[str, Any]:
         # TODO: recursively resolve refs
         schema = cls.model_json_schema()
         properties = schema["properties"]
-        nodes_parameters = properties.pop("nodes_parameters")
-        graph_params = {
-            prop_name: (
-                resolve_pointer(schema, prop["$ref"][1:])["properties"]
-                if "$ref" in prop
-                else prop
-            )
-            for prop_name, prop in properties.items()
-        }
+        graph_parameters = properties.pop("parameters")
+        nodes_parameters = properties.pop("nodes")
+        graph_class = resolve_pointer(schema, graph_parameters["$ref"][1:])
         nodes_class = resolve_pointer(schema, nodes_parameters["$ref"][1:])
+        graph_params = graph_class["properties"]
         nodes_params = {
             name: resolve_pointer(schema, ref["$ref"][1:])["properties"]
             for name, ref in nodes_class["properties"].items()
         }
         to_return = {
             "parameters": graph_params,
-            "nodes_parameters": nodes_params,
+            "nodes": nodes_params,
         }
         return to_return

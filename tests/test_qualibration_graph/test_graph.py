@@ -12,6 +12,7 @@ from qualibrate.qualibration_library import QualibrationLibrary
 
 @pytest.fixture
 def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
+    print("call create lib")
     cal_path = Path(__file__).parent / "calibrations"
     tmp = QualibrationLibrary(cal_path)
     yield tmp
@@ -189,12 +190,12 @@ def test_run_sequence(
     )
     g.run(
         {
-            **graph_params.model_dump(),
-            "nodes_parameters": {
+            "parameters": {**graph_params.model_dump()},
+            "nodes": {
                 "test_node": {},
                 "one_more_node": {},
                 "test_cal": {},
-            }
+            },
         }
     )
 
@@ -214,7 +215,7 @@ def test_run_multi_pred(
         g.full_parameters(
             **{
                 "parameters": {"retries": 4},
-                "nodes_parameters": {
+                "nodes": {
                     "test_node": {
                         "str_value": "test_custom",
                         "int_value": 100,
