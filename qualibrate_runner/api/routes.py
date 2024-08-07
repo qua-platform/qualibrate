@@ -28,7 +28,11 @@ from qualibrate_runner.config import (
     get_settings,
 )
 from qualibrate_runner.core.models.last_run import LastRun, RunStatus
-from qualibrate_runner.core.run_job import run_job, validate_input_parameters
+from qualibrate_runner.core.run_job import (
+    run_node,
+    run_workflow,
+    validate_input_parameters,
+)
 
 base_router = APIRouter()
 
@@ -40,11 +44,11 @@ def check_running(
     return state.is_running
 
 
-@base_router.post("/submit")
-def submit_run(
+@base_router.post("/submit/node")
+def submit_node_run(
     input_parameters: Mapping[str, Any],
     state: Annotated[State, Depends(get_state)],
-    node: Annotated[Any, Depends(get_qnode)],
+    node: Annotated[QualibrationNode, Depends(get_qnode)],
     background_tasks: BackgroundTasks,
 ) -> str:
     if state.is_running:
@@ -52,12 +56,30 @@ def submit_run(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Already running",
         )
-    # TODO: use `Calibration_node.validate_parameters`
     validate_input_parameters(
         cast(Type[BaseModel], node.parameters_class), input_parameters
     )
-    background_tasks.add_task(run_job, node, input_parameters, state)
-    return f"Job {node.name} submitted"
+    background_tasks.add_task(run_node, node, input_parameters, state)
+    return f"Node job {node.name} is submitted"
+
+
+@base_router.post("/submit/workflow")
+def submit_workflow_run(
+    input_parameters: Mapping[str, Any],
+    state: Annotated[State, Depends(get_state)],
+    graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
+    background_tasks: BackgroundTasks,
+) -> str:
+    if state.is_running:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Already running",
+        )
+    validate_input_parameters(
+        cast(Type[BaseModel], graph.full_parameters), input_parameters
+    )
+    background_tasks.add_task(run_workflow, graph, input_parameters, state)
+    return f"Workflow job {graph.name} is submitted"
 
 
 @base_router.get("/get_nodes")
