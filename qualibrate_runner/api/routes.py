@@ -104,7 +104,7 @@ def get_graphs(
     if rescan:
         cache_clear()
         library = get_library(settings)
-        graphs = get_qnodes(library)
+        graphs = get_qgraphs(library)
     return {
         graph_name: graph.serialize() for graph_name, graph in graphs.items()
     }
