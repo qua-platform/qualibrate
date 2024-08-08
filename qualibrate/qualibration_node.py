@@ -107,7 +107,7 @@ class QualibrationNode(
             return None
         return self.storage_manager.snapshot_idx
 
-    def serialize(self) -> Mapping[str, Any]:
+    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         return {
             "name": self.name,
             "parameters": self.parameters_class.serialize(),

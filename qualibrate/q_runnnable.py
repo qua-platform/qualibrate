@@ -46,7 +46,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self.__parameters: Optional[CreateParametersType] = None
 
     @abstractmethod
-    def serialize(self) -> Mapping[str, Any]:
+    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         pass
 
     @classmethod

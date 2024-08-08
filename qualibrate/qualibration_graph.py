@@ -236,9 +236,10 @@ class QualibrationGraph(
         )
         self.full_parameters = execution_parameters_class
 
-    def serialize(self) -> Mapping[str, Any]:
+    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         if self.full_parameters is None:
             raise ValueError("Graph full parameters class have been built")
+        cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters.serialize()
         data: Dict[str, Any] = dict(self.export(node_names_only=True))
         data.update(
@@ -261,6 +262,8 @@ class QualibrationGraph(
             )
             connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
+        if cytoscape:
+            data["cytoscape"] = self.cytoscape_representation(data)
         return data
 
     def export(self, node_names_only: bool = False) -> Mapping[str, Any]:
@@ -274,8 +277,9 @@ class QualibrationGraph(
                     adj["id"] = adj["id"].name
         return data
 
-    def cytoscape_representation(self) -> Sequence[Mapping[str, Any]]:
-        serialized = self.serialize()
+    def cytoscape_representation(
+        self, serialized: Mapping[str, Any]
+    ) -> Sequence[Mapping[str, Any]]:
         nodes = [
             {
                 "group": "nodes",
