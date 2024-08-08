@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Mapping, Optional, Type, cast
+from typing import Annotated, Any, Mapping, Optional, Type, cast, Sequence
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -137,6 +137,16 @@ def get_graph(
     cytoscape: bool = False,
 ) -> Mapping[str, Any]:
     return cast(Mapping[str, Any], graph.serialize(cytoscape=cytoscape))
+
+
+@base_router.get("/get_graph/cytoscape")
+def get_graph_cytoscape(
+    graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
+) -> Sequence[Mapping[str, Any]]:
+    return cast(
+        Sequence[Mapping[str, Any]],
+        graph.cytoscape_representation(graph.serialize())
+    )
 
 
 @base_router.get("/last_run")
