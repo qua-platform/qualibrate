@@ -1,0 +1,11 @@
+@import "../../../../assets/styles/variables";
+@import "../../../../assets/styles/base";
+
+.wrapper {
+  width: auto;
+  height: 100%;
+  background: var(--background-color);
+  border-radius: var(--border-radius);
+  margin-left: 10px;
+  margin-right: 10px;
+}

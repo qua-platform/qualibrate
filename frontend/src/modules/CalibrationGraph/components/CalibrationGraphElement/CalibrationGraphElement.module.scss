@@ -1,0 +1,73 @@
+.searchContainer {
+  max-width: 280px;
+  padding-bottom: 20px;
+
+  input {
+    border-radius: 25px;
+    font-style: italic;
+  }
+}
+
+.wrapper {
+  padding-top: 13px;
+  padding-left: 25px;
+  padding-bottom: 13px;
+  width: auto;
+  min-height: 30px;
+  border: solid 1px var(--border-color);
+  border-radius: 7px;
+  flex-direction: column;
+}
+
+.upperContainer {
+  display: flex;
+}
+
+.bottomContainer {
+  display: flex;
+}
+
+.parametersContainer {
+  max-width: 40%;
+}
+
+.graphContainer {
+  flex: 1;
+  align-content: center;
+  //text-align: center;
+  width: 60%;
+}
+
+.leftContainer {
+  align-content: center;
+  display: flex;
+  gap: 10px;
+  text-wrap: nowrap;
+}
+
+.rightContainer {
+  align-content: center;
+  text-align: right;
+  flex-grow: 1;
+  padding-right: 10px;
+}
+
+.iconWrapper {
+  align-content: center;
+  max-height: fit-content;
+  padding-right: 10px;
+
+  svg {
+    display: table-row;
+
+  }
+}
+
+.titleWrapper {
+  align-content: center;
+  color: var(--blue-icon-button-text);
+}
+
+.calibrationGraphSelected {
+  background-color: var(--selected-node);
+}
