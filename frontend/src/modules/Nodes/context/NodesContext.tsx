@@ -102,7 +102,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
 
   const fetchNodeResults = async () => {
     const lastRunResponse = await NodesApi.fetchLastRunInfo();
-    if (lastRunResponse?.isOk) {
+    if (lastRunResponse && lastRunResponse.isOk) {
       const lastRunResponseResult = lastRunResponse.result as NodeStatusResponseType;
       if (lastRunResponseResult && lastRunResponseResult.status !== "error") {
         const idx = lastRunResponseResult.idx.toString();
@@ -142,7 +142,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         console.log("last run status was error");
       }
     } else {
-      console.log(lastRunResponse.error);
+      console.log(lastRunResponse);
     }
   };
 
