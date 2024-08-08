@@ -7,16 +7,20 @@ import Project from "../modules/Project";
 import { ProjectIcon } from "../ui-lib/Icons/ProjectIcon";
 import Nodes from "../modules/Nodes";
 import { ExperimentsIcon } from "../ui-lib/Icons/ExperimentsIcon";
+import CalibrationGraph from "../modules/CalibrationGraph";
+import { CalibrationIcon } from "../ui-lib/Icons/CalibrationIcon";
 
 const DATA_KEY: ModuleKey = "data";
 const NODES_KEY: ModuleKey = "nodes";
 const PROJECT_TAB: ModuleKey = "project";
+const CALIBRATION: ModuleKey = "calibration";
 
 export type ModuleKey =
   | "components"
   | "notebook"
   | "dashboard"
   | "project"
+  | "calibration"
   | "data"
   | "nodes"
   | "experiments"
@@ -71,6 +75,16 @@ export const ModulesRegistry: Array<Module> = [
       title: "Data",
       icon: DataIcon,
       dataCy: cyKeys.DATA_TAB,
+    },
+  },
+  {
+    keyId: CALIBRATION,
+    path: "calibration",
+    Component: CalibrationGraph,
+    menuItem: {
+      title: "Calibration",
+      icon: CalibrationIcon,
+      dataCy: cyKeys.CALIBRATION_TAB,
     },
   },
 ];

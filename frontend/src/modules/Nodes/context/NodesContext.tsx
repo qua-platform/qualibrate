@@ -27,8 +27,6 @@ export interface RunningNodeInfo {
 }
 
 interface INodesContext {
-  selectedNode?: NodeDTO;
-  setSelectedNode: (selectedNode: NodeDTO) => void;
   runningNode?: NodeDTO;
   runningNodeInfo?: RunningNodeInfo;
   setRunningNode: (selectedNode: NodeDTO) => void;
@@ -43,8 +41,6 @@ interface INodesContext {
 }
 
 const NodesContext = React.createContext<INodesContext>({
-  selectedNode: undefined,
-  setSelectedNode: noop,
   runningNode: undefined,
   runningNodeInfo: undefined,
   setRunningNode: noop,
@@ -80,7 +76,6 @@ interface NodeStatusResponseType {
 
 export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {
   const [allNodes, setAllNodes] = useState<NodeMap | undefined>(undefined);
-  const [selectedNode, setSelectedNode] = useState<NodeDTO | undefined>(undefined);
   const [runningNode, setRunningNode] = useState<NodeDTO | undefined>(undefined);
   const [runningNodeInfo, setRunningNodeInfo] = useState<RunningNodeInfo | undefined>(undefined);
   const [isNodeRunning, setIsNodeRunning] = useState<boolean>(false);
@@ -107,9 +102,9 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
 
   const fetchNodeResults = async () => {
     const lastRunResponse = await NodesApi.fetchLastRunInfo();
-    if (lastRunResponse.isOk) {
+    if (lastRunResponse?.isOk) {
       const lastRunResponseResult = lastRunResponse.result as NodeStatusResponseType;
-      if (lastRunResponseResult.status !== "error") {
+      if (lastRunResponseResult && lastRunResponseResult.status !== "error") {
         const idx = lastRunResponseResult.idx.toString();
         if (lastRunResponseResult.idx) {
           const snapshotResponse = await SnapshotsApi.fetchSnapshotResult(idx);
@@ -153,7 +148,6 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
 
   useEffect(() => {
     if (!isNodeRunning) {
-      console.log("fetchNodeResults", isNodeRunning);
       fetchNodeResults();
     }
   }, [isNodeRunning]);
@@ -173,8 +167,6 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   return (
     <NodesContext.Provider
       value={{
-        selectedNode,
-        setSelectedNode,
         runningNode,
         setRunningNode,
         runningNodeInfo,

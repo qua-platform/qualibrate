@@ -5,8 +5,8 @@
   border: 2px solid var(--border-color);
   border-radius: 7px;
   padding: 10px;
+  margin-top: 2px;
   margin-bottom: 2px;
-
 }
 
 .nodeSelected {
@@ -27,56 +27,6 @@
   background-color: #bbb;
   border-radius: 50%;
   display: inline-block;
-}
-
-.parameterTitle {
-  font-size: 14px;
-  height: 25px;
-  display: flex;
-}
-
-.parametersWrapper {
-  gap: 10px;
-  font-size: 12px;
-  padding-left: 15px;
-}
-
-.nodeNotSelected {
-  display: none;
-}
-
-.parameterValues {
-  display: flex;
-  width: 100%;
-}
-
-.parameterLabel {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-left: 20px;
-  align-content: center;
-  width: 60%;
-}
-
-.parameterValue {
-  width: 100%;
-  margin-top: 2px;
-  max-height: 25px;
-
-  div, input {
-    height: 90%;
-    color: var(--font) !important;
-    border-color: var(--box-background) !important;
-  }
-
-  span {
-    padding: 0;
-    align-self: center;
-  }
-
-  fieldset {
-    border-color: var(--box-background) !important;
-  }
 }
 
 .titleOrName {

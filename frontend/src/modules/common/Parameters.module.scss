@@ -1,0 +1,54 @@
+.parametersWrapper {
+  gap: 10px;
+  font-size: 12px;
+  padding-left: 15px;
+  padding-top: 10px;
+}
+
+.arrowIconWrapper {
+  margin-top: -3px;
+  padding-right: 5px;
+}
+
+.nodeNotSelected {
+  display: none;
+}
+
+.parameterTitle {
+  font-size: 14px;
+  height: 25px;
+  display: flex;
+}
+
+.parameterValues {
+  display: flex;
+  width: 100%;
+}
+
+.parameterLabel {
+  padding: 10px 20px;
+  align-content: center;
+  text-wrap: nowrap;
+  //width: 60%;
+}
+
+.parameterValue {
+  width: 100%;
+  margin-top: 2px;
+  max-height: 25px;
+
+  div, input {
+    height: 90%;
+    color: var(--font) !important;
+    border-color: var(--box-background) !important;
+  }
+
+  span {
+    padding: 0;
+    align-self: center;
+  }
+
+  fieldset {
+    border-color: var(--box-background) !important;
+  }
+}

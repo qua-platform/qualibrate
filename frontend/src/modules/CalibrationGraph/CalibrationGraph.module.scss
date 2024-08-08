@@ -1,0 +1,32 @@
+@import "../../assets/styles/variables";
+@import "../../assets/styles/base";
+
+.wrapper {
+  height: 100%;
+  display: flex;
+  color: var(--font) !important;
+}
+
+.nodesContainer {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-grow: 1;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px;
+  border-radius: var(--border-radius);
+}
+
+.titleWrapper {
+  justify-content: space-between;
+}
+
+.listWrapper {
+  flex-grow: 1;
+  border: 2px solid var(--border-color);
+  padding: 2px;;
+  background-color: var(--popup-background);
+  max-width: 100%;
+  overflow: scroll;
+}

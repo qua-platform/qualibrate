@@ -6,23 +6,15 @@ import { Checkbox, CircularProgress } from "@mui/material";
 import { useNodesContext } from "../../context/NodesContext";
 import { classNames } from "../../../../utils/classnames";
 import { NodesApi } from "../../api/NodesAPI";
-
-export interface SingleParameter {
-  default?: string | boolean | number;
-  title: string;
-  type: string;
-  // isFocused?: boolean;
-}
-
-export interface InputParameter {
-  [key: string]: SingleParameter;
-}
+import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters";
+import { useSelectionContext } from "../../../common/context/SelectionContext";
 
 export interface NodeDTO {
   name: string;
   title?: string;
   description: string;
-  input_parameters: InputParameter;
+  parameters?: InputParameter;
+  nodes?: InputParameter;
 }
 
 export interface NodeMap {
@@ -30,19 +22,18 @@ export interface NodeMap {
 }
 
 export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
-  const [expanded] = React.useState<boolean>(true);
-  const { selectedNode, setSelectedNode, isNodeRunning, setRunningNodeInfo, setIsNodeRunning, setRunningNode, allNodes, setAllNodes } =
-    useNodesContext();
+  const { selectedItemName, setSelectedItemName } = useSelectionContext();
+  const { isNodeRunning, setRunningNodeInfo, setIsNodeRunning, setRunningNode, allNodes, setAllNodes } = useNodesContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
     const updatedParameters = {
-      ...node.input_parameters,
+      ...node.parameters,
       [paramKey]: {
-        ...node.input_parameters[paramKey],
+        ...(node.parameters as InputParameter)[paramKey],
         default: newValue,
       },
     };
-    setAllNodes({ ...allNodes, [nodeKey]: { ...node, input_parameters: updatedParameters } });
+    setAllNodes({ ...allNodes, [nodeKey]: { ...node, parameters: updatedParameters } });
   };
   const getInputElement = (key: string, parameter: SingleParameter) => {
     switch (parameter.type) {
@@ -91,13 +82,15 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setIsNodeRunning(true);
     setRunningNode(node);
     setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
-    NodesApi.submitNodeParameters(node.name, transformInputParameters(node.input_parameters));
+    NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
   };
 
   return (
     <div
-      className={classNames(styles.rowWrapper, selectedNode?.name === node.name && styles.nodeSelected)}
-      onClick={() => setSelectedNode(node)}
+      className={classNames(styles.rowWrapper, selectedItemName === node.name && styles.nodeSelected)}
+      onClick={() => {
+        setSelectedItemName(node.name);
+      }}
     >
       <div className={styles.row}>
         <div className={styles.titleOrName}>
@@ -106,36 +99,27 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         </div>
         <div className={styles.description}>{node.description}</div>
         <div className={styles.runButtonWrapper}>
-          {isNodeRunning && node.name === selectedNode?.name && <CircularProgress />}
-          {isNodeRunning && node.name !== selectedNode?.name && (
+          {isNodeRunning && node.name === selectedItemName && <CircularProgress />}
+          {isNodeRunning && node.name !== selectedItemName && (
             <BlueButton className={styles.runButton} disabled={true} onClick={() => handleClick()}>
               Run
             </BlueButton>
           )}
           {!isNodeRunning && (
-            <BlueButton className={styles.runButton} disabled={node.name !== selectedNode?.name} onClick={() => handleClick()}>
+            <BlueButton className={styles.runButton} disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
               Run
             </BlueButton>
           )}
         </div>
       </div>
-      <div className={classNames(styles.parametersWrapper, selectedNode?.name !== node.name && styles.nodeNotSelected)}>
-        {Object.entries(node.input_parameters).length > 0 && (
-          <div className={styles.parameterTitle}>
-            {/*<div className={styles.arrowIconWrapper} onClick={() => setExpanded(!expanded)}>*/}
-            {/*  <ArrowIcon options={{ rotationDegree: expanded ? 0 : -90 }} />*/}
-            {/*</div>*/}
-            Parameters
-          </div>
-        )}
-        {expanded &&
-          Object.entries(node.input_parameters).map(([key, parameter]) => (
-            <div key={key} className={styles.parameterValues}>
-              <div className={styles.parameterLabel}>{parameter.title}:</div>
-              <div className={styles.parameterValue}>{getInputElement(key, parameter)}</div>
-            </div>
-          ))}
-      </div>
+      <Parameters
+        parametersExpanded={true}
+        showTitle={true}
+        key={node.name}
+        show={selectedItemName === node.name}
+        currentItem={node}
+        getInputElement={getInputElement}
+      />
     </div>
   );
 };

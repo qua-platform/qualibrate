@@ -7,6 +7,7 @@ import PageName from "../../DEPRECATED_components/common/Page/PageName";
 import { RunningJob } from "./components/RunningJob/RunningJob";
 import { Results } from "./components/Results/Results";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
+import { SelectionContextProvider } from "../common/context/SelectionContext";
 
 const NodesPage = () => {
   const heading = "Run calibration node";
@@ -31,6 +32,8 @@ const NodesPage = () => {
 
 export default () => (
   <NodesContextProvider>
-    <NodesPage />
+    <SelectionContextProvider>
+      <NodesPage />
+    </SelectionContextProvider>
   </NodesContextProvider>
 );

@@ -1,0 +1,107 @@
+import cytoscape, { ElementDefinition, EventObject } from "cytoscape";
+import { useEffect, useRef } from "react";
+import { CytoscapeLayout } from "./config/Cytoscape";
+
+import styles from "./CytoscapeGraph.module.scss";
+import { useCalibrationGraphContext } from "../../context/CalibrationGraphContext";
+
+cytoscape.warnings(false);
+
+interface IProps {
+  elements: ElementDefinition[];
+}
+
+export default function CytoscapeGraph({ elements }: IProps) {
+  const { setSelectedNodeNameInWorkflow } = useCalibrationGraphContext();
+  const cy = useRef<cytoscape.Core>();
+  const divRef = useRef(null);
+
+  const style = [
+    {
+      selector: "node",
+      style: {
+        "background-color": "#ffffff",
+        label: "data(id)",
+        width: "50px",
+        height: "50px",
+        "border-width": "2px",
+        "border-color": "#000",
+        color: "#a8a6a6",
+      },
+    },
+    {
+      selector: ":selected",
+      css: {
+        "background-color": "#3b93dc",
+        "border-width": "1px",
+        "text-outline-width": 0.3,
+        "font-weight": 1,
+        "font-color": "#ffffff",
+      },
+    },
+    {
+      selector: "edge",
+      style: {
+        width: 3,
+        "line-color": "#cbc4c4",
+        "target-arrow-color": "#cbc4c4",
+        "target-arrow-shape": "triangle",
+        "curve-style": "bezier",
+        "font-color": "#c9bcbc",
+      },
+    },
+  ];
+  useEffect(() => {
+    if (elements) {
+      if (!cy.current) {
+        cy.current = cytoscape({
+          container: divRef.current,
+          elements,
+          style,
+          layout: CytoscapeLayout,
+          zoom: 1,
+          minZoom: 0.1,
+          maxZoom: 1.6,
+          wheelSensitivity: 0.1,
+        });
+      } else {
+        // update style around node if its status is changed
+        cy.current.batch(() => {
+          const allElements = cy.current?.elements() ?? [];
+          allElements.forEach((element) => {
+            const newElement = elements?.find((s) => s.data.id === element.id());
+            if (newElement) {
+              element.classes(newElement.classes);
+            }
+          });
+        });
+      }
+    }
+  }, [elements]);
+
+  useEffect(() => {
+    const onClickN = (e: EventObject) => {
+      setSelectedNodeNameInWorkflow((e.target.data() as { id: string }).id);
+    };
+    cy.current?.nodes().on("click", onClickN);
+
+    return () => {
+      cy.current?.nodes().off("click", "node");
+    };
+  }, [setSelectedNodeNameInWorkflow, cy.current]);
+
+  useEffect(() => {
+    const onClick = (e: EventObject) => {
+      if (e.target === cy.current) {
+        setSelectedNodeNameInWorkflow(undefined);
+      }
+    };
+    cy.current?.on("click", onClick);
+
+    return () => {
+      cy.current?.off("click", onClick);
+    };
+  }, [setSelectedNodeNameInWorkflow, cy.current]);
+
+  return <div ref={divRef} className={styles.wrapper} />;
+}
