@@ -1,12 +1,20 @@
 import importlib
 import sys
-import typing
 import warnings
 from contextlib import contextmanager
 from functools import partialmethod
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Dict, Generator, Mapping, Optional, Type
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generator,
+    Mapping,
+    Optional,
+    Type,
+    Union,
+)
 
 import matplotlib
 from matplotlib.rcsetup import interactive_bk
@@ -22,17 +30,21 @@ from qualibrate.utils.type_protocols import (
     GetRefProtocol,
 )
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from qualibrate.qualibration_library import QualibrationLibrary
 
 
 __all__ = ["QualibrationNode"]
 
 
-QNodeBaseType = QRunnable[NodeParameters]
+NodeCreateParametersType = NodeParameters
+NodeRunParametersType = NodeParameters
+QNodeBaseType = QRunnable[NodeCreateParametersType, NodeRunParametersType]
 
 
-class QualibrationNode(QRunnable[NodeParameters]):
+class QualibrationNode(
+    QRunnable[NodeCreateParametersType, NodeRunParametersType]
+):
     storage_manager: Optional[StorageManager] = None
     last_instantiated_node: Optional["QualibrationNode"] = None
 
@@ -47,7 +59,7 @@ class QualibrationNode(QRunnable[NodeParameters]):
     def __init__(
         self,
         name: str,
-        parameters_class: Type[NodeParameters],
+        parameters_class: Type[NodeCreateParametersType],
         description: Optional[str] = None,
     ):
         if hasattr(self, "_initialized"):
@@ -57,7 +69,7 @@ class QualibrationNode(QRunnable[NodeParameters]):
 
         self.description = description
 
-        self.__parameters: Optional[NodeParameters] = None
+        self.__parameters: Optional[NodeCreateParametersType] = None
         self._state_updates: dict[str, Any] = {}
         self.results: dict[Any, Any] = {}
         self.machine = None
@@ -95,7 +107,7 @@ class QualibrationNode(QRunnable[NodeParameters]):
             return None
         return self.storage_manager.snapshot_idx
 
-    def serialize(self) -> Mapping[str, Any]:
+    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         return {
             "name": self.name,
             "parameters": self.parameters_class.serialize(),
@@ -119,11 +131,15 @@ class QualibrationNode(QRunnable[NodeParameters]):
             )
         self.storage_manager.save(node=self)
 
-    def run(self, parameters: NodeParameters) -> None:
+    def run(
+        self, parameters: Union[NodeRunParametersType, Mapping[str, Any]]
+    ) -> None:
         if self.filepath is None:
             raise RuntimeError("Node file path was not provided")
         external = self.mode.external
         interactive = self.mode.interactive
+        if isinstance(parameters, Mapping):
+            parameters = self.parameters_class(**parameters)
         try:
             self.mode.external = True
             self.mode.interactive = True
@@ -221,6 +237,9 @@ class QualibrationNode(QRunnable[NodeParameters]):
     def scan_folder_for_instances(
         cls, path: Path, library: "QualibrationLibrary"
     ) -> Dict[str, QNodeBaseType]:
+        # TODO: fix issue on sequent run
+        #  ModuleNotFoundError: No module named '01_test_state_updates.py';
+        #  '01_test_state_updates' is not a package
         nodes: Dict[str, QNodeBaseType] = {}
         inspection = cls.mode.inspection
         str_path = str(path)

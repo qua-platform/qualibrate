@@ -42,17 +42,21 @@ class NodeState(Enum):
     failed: str = "failed"
 
 
-QGraphBaseType = QRunnable[GraphParameters]
+GraphCreateParametersType = GraphParameters
+GraphRunParametersType = ExecutionParameters
+QGraphBaseType = QRunnable[GraphCreateParametersType, GraphRunParametersType]
 
 
-class QualibrationGraph(QRunnable[GraphParameters]):
+class QualibrationGraph(
+    QRunnable[GraphCreateParametersType, GraphRunParametersType]
+):
     _node_init_args = {"state": NodeState.pending, "retries": 0}
     last_instantiated_graph: Optional["QualibrationGraph"] = None
 
     def __init__(
         self,
         name: str,
-        parameters_class: Type[GraphParameters],
+        parameters_class: Type[GraphCreateParametersType],
         connectivity: Mapping[str, Sequence[str]],
     ):
         """
@@ -63,7 +67,7 @@ class QualibrationGraph(QRunnable[GraphParameters]):
         """
         super().__init__(name, parameters_class)
         self._connectivity = connectivity
-        self.full_parameters: Optional[Type[ExecutionParameters]] = None
+        self.full_parameters: Optional[Type[GraphRunParametersType]] = None
         self._graph = nx.DiGraph()
 
         qlib = self._get_qlibrary_or_error()
@@ -148,7 +152,7 @@ class QualibrationGraph(QRunnable[GraphParameters]):
 
     def run(
         self,
-        parameters: Union[GraphParameters, Mapping[str, Any]],
+        parameters: Union[GraphRunParametersType, Mapping[str, Any]],
     ) -> None:
         """
         :param parameters: Should be instance of `self.full_parameters` or Mapping
@@ -157,9 +161,7 @@ class QualibrationGraph(QRunnable[GraphParameters]):
             raise ValueError("Graph full parameters class have been built")
         if isinstance(parameters, Mapping):
             parameters = self.full_parameters(**parameters)
-        nodes_parameters = cast(
-            ExecutionParameters, parameters
-        ).nodes_parameters
+        nodes_parameters = parameters.nodes
         predecessors = self._graph.pred
         successors = self._graph.succ
         nodes_without_predecessors = filter(
@@ -228,14 +230,16 @@ class QualibrationGraph(QRunnable[GraphParameters]):
         )
         execution_parameters_class = create_model(
             "ExecutionParameters",
-            __base__=(self.parameters_class, ExecutionParameters),
-            nodes_parameters=(nodes_parameters_class, ...),
+            __base__=ExecutionParameters,
+            parameters=(self.parameters_class, ...),
+            nodes=(nodes_parameters_class, ...),
         )
-        self.full_parameters = execution_parameters_class  # type: ignore
+        self.full_parameters = execution_parameters_class
 
-    def serialize(self) -> Mapping[str, Any]:
+    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         if self.full_parameters is None:
             raise ValueError("Graph full parameters class have been built")
+        cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters.serialize()
         data: Dict[str, Any] = dict(self.export(node_names_only=True))
         data.update(
@@ -253,11 +257,13 @@ class QualibrationGraph(QRunnable[GraphParameters]):
                 {
                     # TODO: simplify node name
                     "name": node_id,
-                    "parameters": parameters["nodes_parameters"][node["id"]],
+                    "parameters": parameters["nodes"][node["id"]],
                 }
             )
             connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
+        if cytoscape:
+            data["cytoscape"] = self.cytoscape_representation(data)
         return data
 
     def export(self, node_names_only: bool = False) -> Mapping[str, Any]:
@@ -271,8 +277,9 @@ class QualibrationGraph(QRunnable[GraphParameters]):
                     adj["id"] = adj["id"].name
         return data
 
-    def cytoscape_representation(self) -> Sequence[Mapping[str, Any]]:
-        serialized = self.serialize()
+    def cytoscape_representation(
+        self, serialized: Mapping[str, Any]
+    ) -> Sequence[Mapping[str, Any]]:
         nodes = [
             {
                 "group": "nodes",
