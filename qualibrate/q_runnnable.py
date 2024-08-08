@@ -43,7 +43,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
 
         self.mode = self.__class__.mode.model_copy()
         self.filepath: Optional[Path] = None
-        self.__parameters: Optional[CreateParametersType] = None
+        self._parameters: Optional[CreateParametersType] = None
 
     @abstractmethod
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
@@ -64,11 +64,11 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
 
     @property
     def parameters(self) -> Optional[CreateParametersType]:
-        return self.__parameters
+        return self._parameters
 
     @parameters.setter
     def parameters(self, new_parameters: CreateParametersType) -> None:
-        if self.mode.external and self.__parameters is not None:
+        if self.mode.external and self._parameters is not None:
             return
         self.parameters_class.model_validate(new_parameters.model_dump())
-        self.__parameters = new_parameters
+        self._parameters = new_parameters

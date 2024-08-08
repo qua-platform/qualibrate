@@ -69,7 +69,7 @@ class QualibrationNode(
 
         self.description = description
 
-        self.__parameters: Optional[NodeCreateParametersType] = None
+        self._parameters: Optional[NodeCreateParametersType] = None
         self._state_updates: dict[str, Any] = {}
         self.results: dict[Any, Any] = {}
         self.machine = None
@@ -143,7 +143,7 @@ class QualibrationNode(
         try:
             self.mode.external = True
             self.mode.interactive = True
-            self.__parameters = parameters
+            self._parameters = parameters
             # TODO: raise exception if node file isn't specified
             self.run_node_file(self.filepath)
         finally:
