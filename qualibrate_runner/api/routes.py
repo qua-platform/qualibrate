@@ -83,8 +83,8 @@ def submit_workflow_run(
     input_parameters = {
         "parameters": input_parameters.get("parameters", {}),
         "nodes": {
-            name: params.get("parameters")
-            for name, params in input_parameters.get("nodes", {})
+            name: params.get("parameters", {})
+            for name, params in input_parameters.get("nodes", {}).items()
         },
     }
     validate_input_parameters(
