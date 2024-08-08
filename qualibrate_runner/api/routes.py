@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Mapping, Optional, Sequence, Type, cast
+from typing import Annotated, Any, Mapping, Optional, Type, cast
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -51,6 +51,11 @@ def submit_node_run(
     node: Annotated[QualibrationNode, Depends(get_qnode)],
     background_tasks: BackgroundTasks,
 ) -> str:
+    # TODO:
+    #  this should unify graph submit node params and node submit params
+    #  It's needed to correct validation models
+    if "parameters" in input_parameters:
+        input_parameters = input_parameters["parameters"]
     if state.is_running:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -75,6 +80,13 @@ def submit_workflow_run(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Already running",
         )
+    input_parameters = {
+        "parameters": input_parameters.get("parameters", {}),
+        "nodes": {
+            name: params.get("parameters")
+            for name, params in input_parameters.get("nodes", {})
+        },
+    }
     validate_input_parameters(
         cast(Type[BaseModel], graph.full_parameters), input_parameters
     )
@@ -100,13 +112,15 @@ def get_graphs(
     graphs: Annotated[Mapping[str, QualibrationNode], Depends(get_qgraphs)],
     settings: Annotated[QualibrateRunnerSettings, Depends(get_settings)],
     rescan: bool = False,
+    cytoscape: bool = False,
 ) -> Mapping[str, Any]:
     if rescan:
         cache_clear()
         library = get_library(settings)
         graphs = get_qgraphs(library)
     return {
-        graph_name: graph.serialize() for graph_name, graph in graphs.items()
+        graph_name: graph.serialize(cytoscape=cytoscape)
+        for graph_name, graph in graphs.items()
     }
 
 
@@ -120,15 +134,9 @@ def get_node(
 @base_router.get("/get_graph")
 def get_graph(
     graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
+    cytoscape: bool = False,
 ) -> Mapping[str, Any]:
-    return cast(Mapping[str, Any], graph.serialize())
-
-
-@base_router.get("/get_graph/cytoscape")
-def get_graph_cytoscape(
-    graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
-) -> Sequence[Mapping[str, Any]]:
-    return cast(Sequence[Mapping[str, Any]], graph.cytoscape_representation())
+    return cast(Mapping[str, Any], graph.serialize(cytoscape=cytoscape))
 
 
 @base_router.get("/last_run")
