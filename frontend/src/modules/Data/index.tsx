@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Dispatch, SetStateAction, useState } from "react";
+import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from "react";
 import styles from "../Data/Data.module.scss";
 import cyKeys from "../../utils/cyKeys";
 import useModuleStyle from "../../ui-lib/hooks/useModuleStyle";
@@ -95,6 +95,10 @@ const TimelineGraph = ({
 export const JSONEditor = ({ title, jsonDataProp, height }: { title: string; jsonDataProp: object; height: string }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);
+
+  useEffect(() => {
+    setJsonData(jsonDataProp);
+  }, [jsonDataProp]);
 
   const filterData = (data: object, term: string) => {
     if (!term) return data;

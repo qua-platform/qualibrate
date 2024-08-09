@@ -108,7 +108,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         const idx = lastRunResponseResult.idx.toString();
         if (lastRunResponseResult.idx) {
           const snapshotResponse = await SnapshotsApi.fetchSnapshotResult(idx);
-          if (snapshotResponse.isOk) {
+          if (snapshotResponse && snapshotResponse.isOk) {
             if (runningNodeInfo && runningNodeInfo.timestampOfRun) {
               const startDateAndTime: Date = parseDateString(runningNodeInfo?.timestampOfRun);
               const now: Date = new Date();
@@ -147,7 +147,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         console.log("last run status was error");
       }
     } else {
-      console.log(lastRunResponse);
+      console.log("lastRunResponse was ", lastRunResponse);
     }
   };
 
@@ -160,7 +160,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const checkIfNodeIsStillRunning = async () => {
     const response = await NodesApi.checkIsNodeRunning();
     if (response.isOk) {
-      console.log("checkIfNodeIsStillRunning", response.result);
+      // console.log("checkIfNodeIsStillRunning", response.result);
       setIsNodeRunning(response.result as boolean);
     }
   };
