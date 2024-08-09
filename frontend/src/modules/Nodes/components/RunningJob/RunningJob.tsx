@@ -70,12 +70,16 @@ const GetStateUpdates: React.FC<{
   return (
     <>
       {runningNodeInfo?.state_updates && <div className={styles.stateTitle}>State updates:</div>}
-      {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject]) =>
-        StateUpdateComponent({
-          key,
-          stateUpdateObject,
-          runningNodeInfo,
-        } as StateUpdateComponentProps)
+      {runningNodeInfo?.state_updates && (
+        <div className={styles.stateUpdatesTopWrapper}>
+          {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject]) =>
+            StateUpdateComponent({
+              key,
+              stateUpdateObject,
+              runningNodeInfo,
+            } as StateUpdateComponentProps)
+          )}
+        </div>
       )}
     </>
   );
