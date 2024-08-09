@@ -1,5 +1,4 @@
 import importlib
-import sys
 from enum import Enum
 from pathlib import Path
 from queue import Queue
@@ -27,6 +26,7 @@ from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.storage.local_storage_manager import logger
 from qualibrate.utils.exceptions import StopInspection
+from qualibrate.utils.read_files import get_module_name, import_from_path
 
 if TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
@@ -92,10 +92,6 @@ class QualibrationGraph(
     ) -> Dict[str, QGraphBaseType]:
         graphs: Dict[str, QGraphBaseType] = {}
         inspection = cls.mode.inspection
-        str_path = str(path)
-        lib_path_exists = str_path in sys.path
-        if not lib_path_exists:
-            sys.path.append(str_path)
         try:
             cls.mode.inspection = True
 
@@ -104,8 +100,6 @@ class QualibrationGraph(
                     continue
                 cls.scan_graph_file(file, graphs)
         finally:
-            if not lib_path_exists:
-                sys.path.remove(str_path)
             cls.mode.inspection = inspection
         return graphs
 
@@ -116,7 +110,7 @@ class QualibrationGraph(
         logger.info(f"Scanning graph file {file}")
         try:
             # TODO Think of a safer way to execute the code
-            importlib.import_module(file.name)
+            _module = import_from_path(get_module_name(file), file)
         except StopInspection:
             graph = cls.last_instantiated_graph
             cls.last_instantiated_graph = None

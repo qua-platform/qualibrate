@@ -1,4 +1,3 @@
-import importlib
 import sys
 import warnings
 from contextlib import contextmanager
@@ -25,6 +24,7 @@ from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger import logger
+from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import (
     GetRefGetItemProtocol,
     GetRefProtocol,
@@ -152,21 +152,15 @@ class QualibrationNode(
 
     def run_node_file(self, node_filepath: Path) -> None:
         mpl_backend = matplotlib.get_backend()
-        str_path = str(node_filepath.parent)
         # Appending dir with nodes can cause issues with relative imports
-        lib_path_exists = str_path in sys.path
-        if not lib_path_exists:
-            sys.path.append(str_path)
-
         try:
             # Temporarily set the singleton instance to this node
             self.__class__._singleton_instance = self
             matplotlib.use("agg")
-            importlib.import_module(node_filepath.stem)
-
+            _module = import_from_path(
+                get_module_name(node_filepath), node_filepath
+            )
         finally:
-            if not lib_path_exists:
-                sys.path.remove(str_path)
             self.__class__._singleton_instance = None
             matplotlib.use(mpl_backend)
 
@@ -266,7 +260,7 @@ class QualibrationNode(
         logger.info(f"Scanning node file {file}")
         try:
             # TODO Think of a safer way to execute the code
-            importlib.import_module(file.name)
+            _module = import_from_path(get_module_name(file), file)
         except StopInspection:
             node = QualibrationNode.last_instantiated_node
             QualibrationNode.last_instantiated_node = None
