@@ -10,7 +10,7 @@ def test_state_updates(node, machine):
         "#/channels/ch1/intermediate_frequency": {
             "key": "#/channels/ch1/intermediate_frequency",
             "attr": "intermediate_frequency",
-            "val": 50e6,
+            "new": 50e6,
             "old": 100e6,
         }
     }

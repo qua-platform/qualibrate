@@ -12,7 +12,6 @@ from qualibrate.qualibration_library import QualibrationLibrary
 
 @pytest.fixture
 def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
-    print("call create lib")
     cal_path = Path(__file__).parent / "calibrations"
     tmp = QualibrationLibrary(cal_path)
     yield tmp
@@ -145,7 +144,7 @@ def test_cytoscape(
         {"test_node": ["one_more_node"], "one_more_node": ["test_cal"]},
     )
 
-    assert g.cytoscape_representation() == [
+    assert g.cytoscape_representation(g.serialize()) == [
         {
             "group": "nodes",
             "data": {"id": "test_node"},

@@ -1,4 +1,4 @@
-from qualibrate.node_parameters import NodeParameters
+from qualibrate.parameters import NodeParameters
 
 
 def test_parameters_empty_serialization():

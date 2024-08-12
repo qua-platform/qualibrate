@@ -1,5 +1,5 @@
 from qualibrate import QualibrationNode
-from qualibrate.node_parameters import NodeParameters
+from qualibrate.parameters import NodeParameters
 
 
 def test_qualibration_node_singleton():
