@@ -3,7 +3,7 @@
 # workflow should only be automatically triggered by other workflows (manual 
 # build and release).
 
-name: Build python package
+name: Reusable build python package (called by other workflows)
 on:
   workflow_call
 jobs:
