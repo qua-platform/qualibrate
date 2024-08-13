@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Mapping, Optional, Type, cast, Sequence
+from typing import Annotated, Any, Mapping, Optional, Sequence, Type, cast
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -145,7 +145,7 @@ def get_graph_cytoscape(
 ) -> Sequence[Mapping[str, Any]]:
     return cast(
         Sequence[Mapping[str, Any]],
-        graph.cytoscape_representation(graph.serialize())
+        graph.cytoscape_representation(graph.serialize()),
     )
 
 
