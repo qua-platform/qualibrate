@@ -1,4 +1,13 @@
-name: Build python package with built frontend
+# This workflow is used for building qualibrate-app python package in dist 
+# and wheel formats. It should be noted that firstly the frontend package is 
+# built. And build frontend files are added to the backend package. Then the
+# backand package is built. Built backend package archives is attached to 
+# workflow run as artifacts. The workflow should only be automatically 
+# triggered by other workflows (manual build and release).
+
+name:
+  Reusable build python package with built frontend (called by other workflows)
+
 on:
   workflow_call
 jobs:
