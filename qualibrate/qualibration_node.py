@@ -1,4 +1,3 @@
-import sys
 import warnings
 from contextlib import contextmanager
 from functools import partialmethod
@@ -256,15 +255,8 @@ class QualibrationNode(
     def scan_folder_for_instances(
         cls, path: Path, library: "QualibrationLibrary"
     ) -> Dict[str, QNodeBaseType]:
-        # TODO: fix issue on sequent run
-        #  ModuleNotFoundError: No module named '01_test_state_updates.py';
-        #  '01_test_state_updates' is not a package
         nodes: Dict[str, QNodeBaseType] = {}
         inspection = cls.mode.inspection
-        str_path = str(path)
-        lib_path_exists = str_path in sys.path
-        if not lib_path_exists:
-            sys.path.append(str_path)
         try:
             cls.mode.inspection = True
 
@@ -273,8 +265,6 @@ class QualibrationNode(
                     continue
                 cls.scan_node_file(file, nodes)
         finally:
-            if not lib_path_exists:
-                sys.path.remove(str_path)
             cls.mode.inspection = inspection
         return nodes
 
@@ -287,8 +277,8 @@ class QualibrationNode(
             # TODO Think of a safer way to execute the code
             _module = import_from_path(get_module_name(file), file)
         except StopInspection:
-            node = QualibrationNode.last_instantiated_node
-            QualibrationNode.last_instantiated_node = None
+            node = cls.last_instantiated_node
+            cls.last_instantiated_node = None
 
             if node is None:
                 logger.warning(f"No node instantiated in file {file}")
