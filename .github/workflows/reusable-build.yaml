@@ -1,3 +1,8 @@
+# This workflow is used for building qualibrate python package in dist 
+# and wheel formats. Built archives is attached to run as artifacts. The 
+# workflow should only be automatically triggered by other workflows (manual 
+# build and release).
+
 name: Build python package
 on:
   workflow_call
