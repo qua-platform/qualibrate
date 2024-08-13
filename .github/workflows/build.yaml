@@ -3,6 +3,8 @@
 # (.github/workflows/reusable-build.yaml) is triggered for creation wheel and 
 # sdist package archives. 
 
+name: Build python package manually (with built frontend)
+
 on:
   workflow_dispatch
 

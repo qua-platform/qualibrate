@@ -5,7 +5,8 @@
 # workflow run as artifacts. The workflow should only be automatically 
 # triggered by other workflows (manual build and release).
 
-name: Build python package with built frontend
+name:
+  Reusable build python package with built frontend (called by other workflows)
 
 on:
   workflow_call

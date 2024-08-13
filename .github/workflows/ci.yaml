@@ -4,9 +4,8 @@
 # poe (poethepoet) commands: type, lint, format. The commands are defined in 
 # pyproject.toml. Also, backend checks include tests run.
 
-
-
 name: Format; lint; type; tests
+
 on:
   pull_request
 
