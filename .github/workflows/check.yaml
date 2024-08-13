@@ -1,3 +1,7 @@
+# This workflow is used for automatically running checks on adding commit to 
+# pull requests. This workflow triggers poe (poethepoet) commands: type, lint, 
+# format. The commands are defined in pyproject.toml.
+
 name: Format; lint; type; tests
 on:
   pull_request
