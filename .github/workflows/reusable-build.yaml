@@ -1,4 +1,9 @@
-name: Build python package
+# This workflow is used for building qualibrate-core python package in dist 
+# and wheel formats. Built archives is attached to run as artifacts. The 
+# workflow should only be automatically triggered by other workflows (manual 
+# build and release).
+
+name: Reusable build python package (called by other workflows)
 on:
   workflow_call
 jobs:

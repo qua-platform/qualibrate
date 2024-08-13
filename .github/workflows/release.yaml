@@ -1,4 +1,9 @@
-name: Create release
+# This workflow is used for creating draft release on GitHub. Firstly the
+# build workflow (.github/workflows/reusable-build.yaml) is triggered for
+# creation wheel and sdist package archives. Then the draft GitHub release is
+# created with attached built python package archives.
+
+name: Create draft GitHub release
 
 on:
   push:

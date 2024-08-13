@@ -1,7 +1,12 @@
+# This workflow is used for manual (can be triggered via GitHub web interface)
+# build of package archives for distribution. The build workflow 
+# (.github/workflows/reusable-build.yaml) is triggered for creation wheel and 
+# sdist package archives. 
+
 name: Build python package manually
 on:
   workflow_dispatch
 
 jobs:
   build:
-    uses: qua-platform/qualibrate-core/.github/workflows/reusable-buld.yaml@main
+    uses: qua-platform/qualibrate-core/.github/workflows/reusable-build.yaml@main
