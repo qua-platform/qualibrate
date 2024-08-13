@@ -43,7 +43,7 @@ QNodeBaseType = QRunnable[NodeCreateParametersType, NodeRunParametersType]
 
 
 class QualibrationNode(
-    QRunnable[NodeCreateParametersType, NodeRunParametersType]
+    QRunnable[NodeCreateParametersType, NodeRunParametersType],
 ):
     storage_manager: Optional[StorageManager] = None
     last_instantiated_node: Optional["QualibrationNode"] = None
@@ -82,6 +82,31 @@ class QualibrationNode(
             #  in class-level variable. Is it needed to have both?
             self.__class__.last_instantiated_node = self
             raise StopInspection("Node instantiated in inspection mode")
+
+    def __copy__(self) -> "QualibrationNode":
+        instance = self.__class__(
+            self.name, self.parameters_class, self.description
+        )
+        instance.filepath = self.filepath
+        if self.parameters is not None:
+            instance.parameters = self.parameters
+        return instance
+
+    def copy(self, name: str, **node_parameters: Any) -> "QualibrationNode":
+        if not isinstance(name, str):
+            raise ValueError(
+                f"{self.__class__.__name__} should have a string name"
+            )
+        instance = self.__copy__()
+        instance.name = name
+        instance_parameters = (
+            instance.parameters.model_dump()
+            if instance.parameters is not None
+            else {}
+        )
+        new_parameters = {**instance_parameters, **node_parameters}
+        instance.parameters = self.parameters_class(**new_parameters)
+        return instance
 
     def _warn_if_external_and_interactive_mpl(self) -> None:
         mpl_backend = matplotlib.get_backend()
