@@ -106,8 +106,7 @@ class QualibrationNode(
         if len(node_parameters):
             fields = {
                 name: copy(field)
-                for name, field
-                in self.parameters_class.model_fields.items()
+                for name, field in self.parameters_class.model_fields.items()
             }
             # TODO: additional research about more correct field copying way
             for param_name, param_value in node_parameters.items():
