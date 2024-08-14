@@ -1,5 +1,6 @@
 import warnings
 from contextlib import contextmanager
+from copy import deepcopy
 from functools import partialmethod
 from pathlib import Path
 from types import MappingProxyType
@@ -16,6 +17,7 @@ from typing import (
 
 import matplotlib
 from matplotlib.rcsetup import interactive_bk
+from pydantic import create_model
 
 from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
@@ -32,9 +34,7 @@ from qualibrate.utils.type_protocols import (
 if TYPE_CHECKING:
     from qualibrate.qualibration_library import QualibrationLibrary
 
-
 __all__ = ["QualibrationNode"]
-
 
 NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
@@ -98,13 +98,26 @@ class QualibrationNode(
             )
         instance = self.__copy__()
         instance.name = name
-        instance_parameters = (
-            instance.parameters.model_dump()
-            if instance.parameters is not None
-            else {}
-        )
-        new_parameters = {**instance_parameters, **node_parameters}
-        instance.parameters = self.parameters_class(**new_parameters)
+        if len(node_parameters):
+            fields = deepcopy(self.parameters_class.model_fields)
+            # TODO: additional research about more correct field copying way
+            for param_name, param_value in node_parameters.items():
+                fields[param_name].default = param_value
+            new_model = create_model(  # type: ignore
+                self.parameters_class.__name__,
+                __doc__=self.parameters_class.__doc__,
+                __base__=self.parameters_class.__bases__,  # can't pass correct bases
+                **{
+                    name: (info.annotation, info)
+                    for name, info in fields.items()
+                },
+            )
+            instance.parameters_class = new_model
+
+        if self.parameters is not None:
+            instance.parameters = instance.parameters_class(
+                **self.parameters.model_dump()
+            )
         return instance
 
     def _warn_if_external_and_interactive_mpl(self) -> None:
