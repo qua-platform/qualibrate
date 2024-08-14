@@ -116,7 +116,7 @@ class QualibrationGraph(
             cls.last_instantiated_graph = None
 
             if graph is None:
-                logger.warning(f"No node instantiated in file {file}")
+                logger.warning(f"No graph instantiated in file {file}")
                 return
 
             graph.filepath = file

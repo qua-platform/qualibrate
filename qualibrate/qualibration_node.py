@@ -1,6 +1,6 @@
 import warnings
 from contextlib import contextmanager
-from copy import deepcopy
+from copy import copy
 from functools import partialmethod
 from pathlib import Path
 from types import MappingProxyType
@@ -96,10 +96,19 @@ class QualibrationNode(
             raise ValueError(
                 f"{self.__class__.__name__} should have a string name"
             )
-        instance = self.__copy__()
+        inspection = self.__class__.mode.inspection
+        self.__class__.mode.inspection = False
+        try:
+            instance = self.__copy__()
+        finally:
+            self.__class__.mode.inspection = inspection
         instance.name = name
         if len(node_parameters):
-            fields = deepcopy(self.parameters_class.model_fields)
+            fields = {
+                name: copy(field)
+                for name, field
+                in self.parameters_class.model_fields.items()
+            }
             # TODO: additional research about more correct field copying way
             for param_name, param_value in node_parameters.items():
                 fields[param_name].default = param_value
