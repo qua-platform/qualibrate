@@ -1,6 +1,6 @@
-import sys
 import warnings
 from contextlib import contextmanager
+from copy import copy
 from functools import partialmethod
 from pathlib import Path
 from types import MappingProxyType
@@ -17,6 +17,7 @@ from typing import (
 
 import matplotlib
 from matplotlib.rcsetup import interactive_bk
+from pydantic import create_model
 
 from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
@@ -33,9 +34,7 @@ from qualibrate.utils.type_protocols import (
 if TYPE_CHECKING:
     from qualibrate.qualibration_library import QualibrationLibrary
 
-
 __all__ = ["QualibrationNode"]
-
 
 NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
@@ -97,15 +96,36 @@ class QualibrationNode(
             raise ValueError(
                 f"{self.__class__.__name__} should have a string name"
             )
-        instance = self.__copy__()
+        inspection = self.__class__.mode.inspection
+        self.__class__.mode.inspection = False
+        try:
+            instance = self.__copy__()
+        finally:
+            self.__class__.mode.inspection = inspection
         instance.name = name
-        instance_parameters = (
-            instance.parameters.model_dump()
-            if instance.parameters is not None
-            else {}
-        )
-        new_parameters = {**instance_parameters, **node_parameters}
-        instance.parameters = self.parameters_class(**new_parameters)
+        if len(node_parameters):
+            fields = {
+                name: copy(field)
+                for name, field in self.parameters_class.model_fields.items()
+            }
+            # TODO: additional research about more correct field copying way
+            for param_name, param_value in node_parameters.items():
+                fields[param_name].default = param_value
+            new_model = create_model(  # type: ignore
+                self.parameters_class.__name__,
+                __doc__=self.parameters_class.__doc__,
+                __base__=self.parameters_class.__bases__,  # can't pass correct bases
+                **{
+                    name: (info.annotation, info)
+                    for name, info in fields.items()
+                },
+            )
+            instance.parameters_class = new_model
+
+        if self.parameters is not None:
+            instance.parameters = instance.parameters_class(
+                **self.parameters.model_dump()
+            )
         return instance
 
     def _warn_if_external_and_interactive_mpl(self) -> None:
@@ -256,15 +276,8 @@ class QualibrationNode(
     def scan_folder_for_instances(
         cls, path: Path, library: "QualibrationLibrary"
     ) -> Dict[str, QNodeBaseType]:
-        # TODO: fix issue on sequent run
-        #  ModuleNotFoundError: No module named '01_test_state_updates.py';
-        #  '01_test_state_updates' is not a package
         nodes: Dict[str, QNodeBaseType] = {}
         inspection = cls.mode.inspection
-        str_path = str(path)
-        lib_path_exists = str_path in sys.path
-        if not lib_path_exists:
-            sys.path.append(str_path)
         try:
             cls.mode.inspection = True
 
@@ -273,8 +286,6 @@ class QualibrationNode(
                     continue
                 cls.scan_node_file(file, nodes)
         finally:
-            if not lib_path_exists:
-                sys.path.remove(str_path)
             cls.mode.inspection = inspection
         return nodes
 
@@ -287,8 +298,8 @@ class QualibrationNode(
             # TODO Think of a safer way to execute the code
             _module = import_from_path(get_module_name(file), file)
         except StopInspection:
-            node = QualibrationNode.last_instantiated_node
-            QualibrationNode.last_instantiated_node = None
+            node = cls.last_instantiated_node
+            cls.last_instantiated_node = None
 
             if node is None:
                 logger.warning(f"No node instantiated in file {file}")

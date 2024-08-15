@@ -6,12 +6,11 @@ class Parameters(NodeParameters):
     float_value: float = 1.0
 
 
-
 node = QualibrationNode("one_more_node", parameters_class=Parameters)
 node.parameters = Parameters()
 
 import requests
 
 response = requests.get("https://ya.ru")
-print(response.status_code)
+assert response.status_code == 200
 

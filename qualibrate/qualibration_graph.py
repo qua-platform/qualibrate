@@ -1,4 +1,3 @@
-import importlib
 from enum import Enum
 from pathlib import Path
 from queue import Queue
@@ -9,9 +8,9 @@ from typing import (
     Mapping,
     Optional,
     Sequence,
+    Tuple,
     Type,
     Union,
-    cast,
 )
 
 import networkx as nx
@@ -57,7 +56,8 @@ class QualibrationGraph(
         self,
         name: str,
         parameters_class: Type[GraphCreateParametersType],
-        connectivity: Mapping[str, Sequence[str]],
+        nodes: Mapping[str, QualibrationNode],
+        connectivity: Sequence[Tuple[str, str]],
     ):
         """
         :param name: graph name
@@ -66,15 +66,15 @@ class QualibrationGraph(
             Format: `{"name_1": ["name_2", "name_3"], "name_2": ["name_3"]}`
         """
         super().__init__(name, parameters_class)
+        self._nodes = nodes
         self._connectivity = connectivity
         self.full_parameters: Optional[Type[GraphRunParametersType]] = None
         self._graph = nx.DiGraph()
 
-        qlib = self._get_qlibrary_or_error()
-        for v_name, xs_names in connectivity.items():
-            v = self._add_node_by_name(v_name, qlib)
-            for x_name in xs_names:
-                x = self._add_node_by_name(x_name, qlib)
+        for v_name, x_name in connectivity:
+            v = self._add_node_by_name(v_name)
+            x = self._add_node_by_name(x_name)
+            if not self._graph.has_edge(v, x):
                 self._graph.add_edge(v, x)
         self._build_parameters_class()
 
@@ -116,7 +116,7 @@ class QualibrationGraph(
             cls.last_instantiated_graph = None
 
             if graph is None:
-                logger.warning(f"No node instantiated in file {file}")
+                logger.warning(f"No graph instantiated in file {file}")
                 return
 
             graph.filepath = file
@@ -187,28 +187,14 @@ class QualibrationGraph(
             else:
                 execution_queue.put(node_to_run)
 
-    @staticmethod
-    def _get_qlibrary_or_error() -> "QualibrationLibrary":
-        lib_module = importlib.import_module("qualibrate.qualibration_library")
-        qlib_class = lib_module.QualibrationLibrary
-        library = qlib_class.active_library
-        if library is None:
-            raise ValueError("QualibrationLibrary not specified")
-        return cast("QualibrationLibrary", library)
-
-    @staticmethod
-    def _get_qnode_or_error(
-        library: "QualibrationLibrary", node_name: str
-    ) -> QualibrationNode:
-        node = library.nodes.get(node_name)
+    def _get_qnode_or_error(self, node_name: str) -> QualibrationNode:
+        node = self._nodes.get(node_name)
         if node is None:
             raise ValueError(f"Unknown node with name {node_name}")
         return node
 
-    def _add_node_by_name(
-        self, node_name: str, library: "QualibrationLibrary"
-    ) -> QualibrationNode:
-        node = self._get_qnode_or_error(library, node_name)
+    def _add_node_by_name(self, node_name: str) -> QualibrationNode:
+        node = self._get_qnode_or_error(node_name)
         if node not in self._graph:
             self._graph.add_node(node, **self.__class__._node_init_args)
         return node
