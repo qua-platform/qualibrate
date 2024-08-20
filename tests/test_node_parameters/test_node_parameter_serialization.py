@@ -8,7 +8,13 @@ def test_parameters_empty_serialization():
     parameters = Parameters()
     serialized = parameters.serialize()
 
-    assert serialized == {}
+    assert serialized == {
+        "targets_name": {
+            "anyOf": [{"type": "string"}, {"type": "null"}],
+            "default": None,
+            "title": "Targets Name",
+        }
+    }
 
 
 def test_parameters_default_types_serialization():
@@ -34,4 +40,9 @@ def test_parameters_default_types_serialization():
             "type": "number",
         },
         "str_val": {"default": "", "title": "Str Val", "type": "string"},
+        "targets_name": {
+            "anyOf": [{"type": "string"}, {"type": "null"}],
+            "default": None,
+            "title": "Targets Name",
+        },
     }

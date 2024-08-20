@@ -84,6 +84,11 @@ def test_serialize(
                         "title": "Float Value",
                         "type": "number",
                     },
+                    "targets_name": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}],
+                        "default": None,
+                        "title": "Targets Name",
+                    },
                 },
             },
             "one_more_node": {
@@ -101,6 +106,11 @@ def test_serialize(
                         "default": 1.0,
                         "title": "Float Value",
                         "type": "number",
+                    },
+                    "targets_name": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}],
+                        "default": None,
+                        "title": "Targets Name",
                     },
                 },
             },
@@ -120,6 +130,11 @@ def test_serialize(
                         "title": "Sampling Points",
                         "type": "integer",
                     },
+                    "targets_name": {
+                        "anyOf": [{"type": "string"}, {"type": "null"}],
+                        "default": None,
+                        "title": "Targets Name",
+                    },
                 },
             },
         },
@@ -132,6 +147,11 @@ def test_serialize(
                 "default": 2,
                 "title": "Retries",
                 "type": "integer",
+            },
+            "targets_name": {
+                "anyOf": [{"type": "string"}, {"type": "null"}],
+                "default": None,
+                "title": "Targets Name",
             },
         },
     }
