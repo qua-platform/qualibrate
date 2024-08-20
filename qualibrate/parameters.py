@@ -1,7 +1,13 @@
-from typing import Any, Mapping, cast
+import sys
+from typing import Any, Mapping, Optional, cast
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from jsonpointer import resolve_pointer
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field, model_validator
 
 __all__ = [
     "ExecutionParameters",
@@ -18,7 +24,28 @@ class RunnableParameters(BaseModel):
         return cast(Mapping[str, Any], cls.model_json_schema()["properties"])
 
 
-class NodeParameters(RunnableParameters):
+class TargetParameter(BaseModel):
+    targets_name: Optional[str] = None
+
+    @model_validator(mode="after")
+    def targets_exists_if_specified(self) -> Self:
+        if self.targets_name is None:
+            return self
+        if (
+            self.targets_name is not None
+            and self.targets_name not in self.model_fields
+        ):
+            raise AssertionError("targets_name should be one of model fields")
+        return self
+
+    @computed_field
+    def targets(self) -> Any:
+        if self.targets_name is None:
+            return None
+        return getattr(self, self.targets_name)
+
+
+class NodeParameters(RunnableParameters, TargetParameter):
     pass
 
 
@@ -26,7 +53,7 @@ class NodesParameters(RunnableParameters):
     pass
 
 
-class GraphParameters(RunnableParameters):
+class GraphParameters(RunnableParameters, TargetParameter):
     pass
 
 
