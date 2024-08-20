@@ -10,4 +10,4 @@ on:
 
 jobs:
   build:
-    uses: qua-platform/qualibrate-app/.github/workflows/reusable-buld.yaml@main
+    uses: qua-platform/qualibrate-app/.github/workflows/reusable-build.yaml@main
