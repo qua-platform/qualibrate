@@ -132,9 +132,11 @@ class QualibrationNode(
         mpl_backend = matplotlib.get_backend()
         if self.mode.external and mpl_backend in interactive_bk:
             matplotlib.use("agg")
-            raise UserWarning(
-                f"Using interactive matplotlib backend '{mpl_backend}' in "
-                "external mode. The backend is changed to 'agg'."
+            warnings.warn(
+                UserWarning(
+                    f"Using interactive matplotlib backend '{mpl_backend}' in "
+                    "external mode. The backend is changed to 'agg'."
+                )
             )
 
     def __str__(self) -> str:
@@ -189,7 +191,6 @@ class QualibrationNode(
             self.mode.external = True
             self.mode.interactive = True
             self._parameters = parameters
-            # TODO: raise exception if node file isn't specified
             self.run_node_file(self.filepath)
         finally:
             self.mode.external = external
