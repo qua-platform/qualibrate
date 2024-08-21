@@ -9,10 +9,8 @@ from typing import (
     Any,
     Dict,
     Generator,
-    Mapping,
     Optional,
     Type,
-    Union,
 )
 
 import matplotlib

@@ -216,14 +216,12 @@ def test_run_sequence(
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
     )
     g.run(
-        {
-            "parameters": {**graph_params.model_dump()},
-            "nodes": {
-                "test_node": {},
-                "one_more_node": {},
-                "test_cal": {},
-            },
-        }
+        **graph_params.model_dump(),
+        nodes={
+            "test_node": {},
+            "one_more_node": {},
+            "test_cal": {},
+        },
     )
 
 
@@ -241,26 +239,22 @@ def test_run_multi_predecessors(
         ],
     )
     g.run(
-        g.full_parameters(
-            **{
-                "parameters": {"retries": 4},
-                "nodes": {
-                    "test_node": {
-                        "str_value": "test_custom",
-                        "int_value": 100,
-                        "float_value": 0.2,
-                    },
-                    "one_more_node": {
-                        "str_value": "test_custom_more",
-                        "float_value": 0.4,
-                    },
-                    "test_cal": {
-                        "resonator": "test_custom",
-                        "sampling_points": 20,
-                    },
-                },
-            }
-        )
+        retries=4,
+        nodes={
+            "test_node": {
+                "str_value": "test_custom",
+                "int_value": 100,
+                "float_value": 0.2,
+            },
+            "one_more_node": {
+                "str_value": "test_custom_more",
+                "float_value": 0.4,
+            },
+            "test_cal": {
+                "resonator": "test_custom",
+                "sampling_points": 20,
+            },
+        },
     )
 
 
@@ -291,33 +285,29 @@ def test_run_multi_nodes_instances(
         ],
     )
     g.run(
-        g.full_parameters(
-            **{
-                "parameters": {"retries": 4},
-                "nodes": {
-                    "test_node": {
-                        "str_value": "test_custom",
-                        "int_value": 100,
-                        "float_value": 0.2,
-                    },
-                    "test_node_2": {
-                        "str_value": "test_custom-2",
-                        "int_value": 200,
-                        "float_value": 0.4,
-                    },
-                    "one_more_node": {
-                        "str_value": "test_custom_more",
-                        "float_value": 0.4,
-                    },
-                    "one_more_node_2": {
-                        "str_value": "test_custom_more-2",
-                        "float_value": 0.8,
-                    },
-                    "test_cal": {
-                        "resonator": "test_custom",
-                        "sampling_points": 20,
-                    },
-                },
-            }
-        )
+        retries=4,
+        nodes={
+            "test_node": {
+                "str_value": "test_custom",
+                "int_value": 100,
+                "float_value": 0.2,
+            },
+            "test_node_2": {
+                "str_value": "test_custom-2",
+                "int_value": 200,
+                "float_value": 0.4,
+            },
+            "one_more_node": {
+                "str_value": "test_custom_more",
+                "float_value": 0.4,
+            },
+            "one_more_node_2": {
+                "str_value": "test_custom_more-2",
+                "float_value": 0.8,
+            },
+            "test_cal": {
+                "resonator": "test_custom",
+                "sampling_points": 20,
+            },
+        },
     )

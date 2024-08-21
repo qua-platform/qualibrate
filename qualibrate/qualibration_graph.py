@@ -176,17 +176,16 @@ class QualibrationGraph(
     def check_node_successful(self, node: QualibrationNode) -> bool:
         return bool(self._graph.nodes[node]["state"] != NodeState.successful)
 
-    def run(
-        self,
-        parameters: Union[GraphRunParametersType, Mapping[str, Any]],
-    ) -> None:
+    def run(self, **passed_parameters: Any) -> None:
         """
-        :param parameters: Should be instance of `self.full_parameters` or Mapping
+        :param passed_parameters: Graph parameters. Should contain `nodes` key.
         """
         if self.full_parameters is None:
             raise ValueError("Graph full parameters class have been built")
-        if isinstance(parameters, Mapping):
-            parameters = self.full_parameters(**parameters)
+        nodes = passed_parameters.pop("nodes", {})
+        parameters = self.full_parameters.model_validate(
+            {"parameters": passed_parameters, "nodes": nodes}
+        )
         nodes_parameters = parameters.nodes
         predecessors = self._graph.pred
         successors = self._graph.succ

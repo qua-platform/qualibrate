@@ -8,5 +8,6 @@ def test_run_calibration_node_from_library(tmp_path):
     library = QualibrationLibrary(library_folder=folder)
 
     assert list(library.nodes) == ["basic_node"]
+    node = library.nodes["basic_node"]
     # TODO: Mock save method or need to use non-default path for exporting results
-    library.run_node("basic_node", input_parameters={})
+    library.run_node("basic_node", node.parameters_class())

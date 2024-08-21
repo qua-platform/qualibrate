@@ -56,4 +56,7 @@ class QualibrationLibrary:
         self, graph_name: str, input_parameters: ExecutionParameters
     ) -> None:
         graph = self.graphs[graph_name]
-        graph.run(input_parameters)
+        graph.run(
+            nodes=input_parameters.nodes.model_dump(),
+            **input_parameters.parameters.model_dump(),
+        )
