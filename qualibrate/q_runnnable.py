@@ -37,17 +37,22 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self,
         name: str,
         parameters_class: Type[CreateParametersType],
+        description: Optional[str] = None,
     ):
         self.name = name
         self.parameters_class = parameters_class
+        self.description = description
 
         self.mode = self.__class__.mode.model_copy()
         self.filepath: Optional[Path] = None
         self._parameters: Optional[CreateParametersType] = None
 
-    @abstractmethod
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
-        pass
+        return {
+            "name": self.name,
+            "parameters": self.parameters_class.serialize(),
+            "description": self.description,
+        }
 
     @classmethod
     @abstractmethod

@@ -56,9 +56,11 @@ def test_serialize(
         qualibration_lib.nodes,
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
         orchestrator=orchestrator,
+        description="some description",
     )
     assert g.serialize() == {
         "name": "name",
+        "description": "some description",
         "orchestrator": {
             "__class__": (
                 "qualibrate.qualibration_orchestrator.QualibrationOrchestrator"
