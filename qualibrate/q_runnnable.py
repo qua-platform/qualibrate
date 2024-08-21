@@ -9,7 +9,6 @@ from typing import (
     Optional,
     Type,
     TypeVar,
-    Union,
 )
 
 from qualibrate.parameters import RunnableParameters
@@ -62,9 +61,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         pass
 
     @abstractmethod
-    def run(
-        self, parameters: Union[RunParametersType, Mapping[str, Any]]
-    ) -> None:
+    def run(self, **passed_parameters: Any) -> None:
         pass
 
     @property
