@@ -4,6 +4,7 @@ from queue import Queue
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     Mapping,
     Optional,
@@ -12,6 +13,7 @@ from typing import (
     Type,
     Union,
 )
+from weakref import ReferenceType, ref
 
 import networkx as nx
 from pydantic import create_model
@@ -29,6 +31,7 @@ from qualibrate.utils.read_files import get_module_name, import_from_path
 
 if TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
+    from qualibrate.qualibration_orchestrator import QualibrationOrchestrator
 
 
 __all__ = ["NodeState", "QGraphBaseType", "QualibrationGraph"]
@@ -44,6 +47,9 @@ class NodeState(Enum):
 GraphCreateParametersType = GraphParameters
 GraphRunParametersType = ExecutionParameters
 QGraphBaseType = QRunnable[GraphCreateParametersType, GraphRunParametersType]
+_OrchestratorGraphType = Union[
+    ReferenceType["QualibrationOrchestrator"], Callable[[], None]
+]
 
 
 class QualibrationGraph(
@@ -58,6 +64,7 @@ class QualibrationGraph(
         parameters_class: Type[GraphCreateParametersType],
         nodes: Mapping[str, QualibrationNode],
         connectivity: Sequence[Tuple[str, str]],
+        orchestrator: Optional["QualibrationOrchestrator"] = None,
     ):
         """
         :param name: graph name
@@ -70,6 +77,9 @@ class QualibrationGraph(
         self._connectivity = connectivity
         self.full_parameters: Optional[Type[GraphRunParametersType]] = None
         self._graph = nx.DiGraph()
+        self._orchestrator: _OrchestratorGraphType = (
+            ref(orchestrator) if orchestrator is not None else lambda: None
+        )
 
         for v_name, x_name in connectivity:
             v = self._add_node_by_name(v_name)
@@ -221,16 +231,24 @@ class QualibrationGraph(
             raise ValueError("Graph full parameters class have been built")
         cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters.serialize()
-        data: Dict[str, Any] = dict(self.export(node_names_only=True))
-        data.update(
-            {
-                "name": self.name,
-                "parameters": parameters["parameters"],
-            }
+        nx_data: Dict[str, Any] = dict(
+            self.nx_graph_export(node_names_only=True)
         )
+        orchestrator: Optional["QualibrationOrchestrator"] = (
+            self._orchestrator()
+        )
+        data = {
+            "name": self.name,
+            "parameters": parameters["parameters"],
+            "orchestrator": (
+                orchestrator.serialize() if orchestrator is not None else None
+            ),
+        }
         nodes = {}
         connectivity = []
-        for node, adjacency in zip(data.pop("nodes"), data.pop("adjacency")):
+        for node, adjacency in zip(
+            nx_data.pop("nodes"), nx_data.pop("adjacency")
+        ):
             node_id = node["id"]
             nodes[node_id] = node
             node.update(
@@ -246,8 +264,12 @@ class QualibrationGraph(
             data["cytoscape"] = self.cytoscape_representation(data)
         return data
 
-    def export(self, node_names_only: bool = False) -> Mapping[str, Any]:
+    def nx_graph_export(
+        self, node_names_only: bool = False
+    ) -> Mapping[str, Any]:
         data = dict(nx.readwrite.adjacency_data(self._graph))
+        for key in ("multigraph", "directed", "graph"):
+            data.pop(key)
         if node_names_only:
             for i, (node, adjacency) in enumerate(
                 zip(data["nodes"], data["adjacency"])
