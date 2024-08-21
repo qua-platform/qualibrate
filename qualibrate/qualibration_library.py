@@ -50,7 +50,7 @@ class QualibrationLibrary:
         self, node_name: str, input_parameters: NodeParameters
     ) -> None:
         node = self.nodes[node_name]
-        node.run(input_parameters)
+        node.run(**input_parameters.model_dump())
 
     def run_graph(
         self, graph_name: str, input_parameters: ExecutionParameters

@@ -171,15 +171,16 @@ class QualibrationNode(
             )
         self.storage_manager.save(node=self)
 
-    def run(
-        self, parameters: Union[NodeRunParametersType, Mapping[str, Any]]
-    ) -> None:
+    def run(self, **passed_parameters: Any) -> None:
         if self.filepath is None:
             raise RuntimeError("Node file path was not provided")
         external = self.mode.external
         interactive = self.mode.interactive
-        if isinstance(parameters, Mapping):
-            parameters = self.parameters_class(**parameters)
+        params_dict = (
+            self.parameters.model_dump() if self.parameters is not None else {}
+        )
+        params_dict.update(passed_parameters)
+        parameters = self.parameters_class.model_validate(params_dict)
         try:
             self.mode.external = True
             self.mode.interactive = True

@@ -200,11 +200,10 @@ class QualibrationGraph(
             node_to_run = execution_queue.get()
             if any(map(self.check_node_successful, predecessors[node_to_run])):
                 continue
-            node_parameters = node_to_run.parameters_class(
+            # TODO: wrap status of execution
+            node_to_run.run(
                 **getattr(nodes_parameters, node_to_run.name).model_dump()
             )
-            # TODO: wrap status of execution
-            node_to_run.run(node_parameters)
             new_state = NodeState.successful
             self._graph.nodes[node_to_run]["state"] = new_state
             if new_state == NodeState.successful:
