@@ -89,8 +89,10 @@ class QualibrationNode(
             instance.parameters = self.parameters
         return instance
 
-    def copy(self, name: str, **node_parameters: Any) -> "QualibrationNode":
-        if not isinstance(name, str):
+    def copy(
+        self, name: Optional[str] = None, **node_parameters: Any
+    ) -> "QualibrationNode":
+        if name is not None and not isinstance(name, str):
             raise ValueError(
                 f"{self.__class__.__name__} should have a string name"
             )
@@ -100,30 +102,27 @@ class QualibrationNode(
             instance = self.__copy__()
         finally:
             self.__class__.mode.inspection = inspection
-        instance.name = name
-        if len(node_parameters):
-            fields = {
-                name: copy(field)
-                for name, field in self.parameters_class.model_fields.items()
-            }
-            # TODO: additional research about more correct field copying way
-            for param_name, param_value in node_parameters.items():
-                fields[param_name].default = param_value
-            new_model = create_model(  # type: ignore
-                self.parameters_class.__name__,
-                __doc__=self.parameters_class.__doc__,
-                __base__=self.parameters_class.__bases__,  # can't pass correct bases
-                **{
-                    name: (info.annotation, info)
-                    for name, info in fields.items()
-                },
-            )
-            instance.parameters_class = new_model
+        if name is not None:
+            instance.name = name
+        fields = {
+            name: copy(field)
+            for name, field in self.parameters_class.model_fields.items()
+        }
+        # TODO: additional research about more correct field copying way
+        for param_name, param_value in node_parameters.items():
+            fields[param_name].default = param_value
+        new_model = create_model(  # type: ignore
+            self.parameters_class.__name__,
+            __doc__=self.parameters_class.__doc__,
+            __base__=self.parameters_class.__bases__,  # can't pass correct bases
+            **{name: (info.annotation, info) for name, info in fields.items()},
+        )
+        instance.parameters_class = new_model
 
         if self.parameters is not None:
-            instance.parameters = instance.parameters_class(
-                **self.parameters.model_dump()
-            )
+            parameters_dict = self.parameters.model_dump()
+            parameters_dict.update(node_parameters)
+            instance._parameters = instance.parameters_class(**parameters_dict)
         return instance
 
     def _warn_if_external_and_interactive_mpl(self) -> None:
