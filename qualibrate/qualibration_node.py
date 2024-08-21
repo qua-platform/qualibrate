@@ -64,9 +64,9 @@ class QualibrationNode(
         if hasattr(self, "_initialized"):
             self._warn_if_external_and_interactive_mpl()
             return
-        super(QualibrationNode, self).__init__(name, parameters_class)
-
-        self.description = description
+        super(QualibrationNode, self).__init__(
+            name, parameters_class, description=description
+        )
 
         self._parameters: Optional[NodeCreateParametersType] = None
         self._state_updates: dict[str, Any] = {}
@@ -153,13 +153,6 @@ class QualibrationNode(
         if self.storage_manager is None:
             return None
         return self.storage_manager.snapshot_idx
-
-    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
-        return {
-            "name": self.name,
-            "parameters": self.parameters_class.serialize(),
-            "description": self.description,
-        }
 
     def save(self) -> None:
         if self.storage_manager is None:

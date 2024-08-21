@@ -34,7 +34,6 @@ if TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
     from qualibrate.qualibration_orchestrator import QualibrationOrchestrator
 
-
 __all__ = ["NodeState", "QGraphBaseType", "QualibrationGraph"]
 
 
@@ -66,6 +65,8 @@ class QualibrationGraph(
         nodes: Mapping[str, QualibrationNode],
         connectivity: Sequence[Tuple[str, str]],
         orchestrator: Optional["QualibrationOrchestrator"] = None,
+        *,
+        description: Optional[str] = None,
     ):
         """
         :param name: graph name
@@ -73,7 +74,7 @@ class QualibrationGraph(
         :param connectivity: Adjacency list.
             Format: `{"name_1": ["name_2", "name_3"], "name_2": ["name_3"]}`
         """
-        super().__init__(name, parameters_class)
+        super().__init__(name, parameters_class, description=description)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
         self.full_parameters: Optional[Type[GraphRunParametersType]] = None
@@ -172,6 +173,9 @@ class QualibrationGraph(
             )
         )
 
+    def check_node_successful(self, node: QualibrationNode) -> bool:
+        return bool(self._graph.nodes[node]["state"] != NodeState.successful)
+
     def run(
         self,
         parameters: Union[GraphRunParametersType, Mapping[str, Any]],
@@ -194,13 +198,7 @@ class QualibrationGraph(
             execution_queue.put(node)
         while not self._is_execution_finished():
             node_to_run = execution_queue.get()
-            if any(
-                map(
-                    lambda n: self._graph.nodes[n]["state"]
-                    != NodeState.successful,
-                    predecessors[node_to_run],
-                )
-            ):
+            if any(map(self.check_node_successful, predecessors[node_to_run])):
                 continue
             node_parameters = node_to_run.parameters_class(
                 **getattr(nodes_parameters, node_to_run.name).model_dump()
@@ -247,6 +245,7 @@ class QualibrationGraph(
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         if self.full_parameters is None:
             raise ValueError("Graph full parameters class have been built")
+        data = dict(super().serialize())
         cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters.serialize()
         nx_data: Dict[str, Any] = dict(
@@ -255,13 +254,16 @@ class QualibrationGraph(
         orchestrator: Optional["QualibrationOrchestrator"] = (
             self._orchestrator()
         )
-        data = {
-            "name": self.name,
-            "parameters": parameters["parameters"],
-            "orchestrator": (
-                orchestrator.serialize() if orchestrator is not None else None
-            ),
-        }
+        data.update(
+            {
+                "parameters": parameters["parameters"],
+                "orchestrator": (
+                    orchestrator.serialize()
+                    if orchestrator is not None
+                    else None
+                ),
+            }
+        )
         nodes = {}
         connectivity = []
         for node, adjacency in zip(
