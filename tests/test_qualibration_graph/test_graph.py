@@ -8,6 +8,7 @@ from qualibrate.parameters import (
 )
 from qualibrate.qualibration_graph import NodeState, QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
+from qualibrate.qualibration_orchestrator import QualibrationOrchestrator
 
 
 @pytest.fixture
@@ -34,10 +35,7 @@ def test_export(
         qualibration_lib.nodes,
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
     )
-    assert g.export(node_names_only=True) == {
-        "directed": True,
-        "multigraph": False,
-        "graph": [],
+    assert g.nx_graph_export(node_names_only=True) == {
         "nodes": [
             {"state": NodeState.pending, "retries": 0, "id": "test_node"},
             {"state": NodeState.pending, "retries": 0, "id": "one_more_node"},
@@ -51,17 +49,21 @@ def test_export(
 def test_serialize(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
+    orchestrator = QualibrationOrchestrator()
     g = QualibrationGraph(
         "name",
         graph_params.__class__,
         qualibration_lib.nodes,
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
+        orchestrator=orchestrator,
     )
     assert g.serialize() == {
         "name": "name",
-        "multigraph": False,
-        "directed": True,
-        "graph": [],
+        "orchestrator": {
+            "__class__": (
+                "qualibrate.qualibration_orchestrator.QualibrationOrchestrator"
+            ),
+        },
         "nodes": {
             "test_node": {
                 "state": NodeState.pending,
