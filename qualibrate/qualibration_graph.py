@@ -1,3 +1,4 @@
+import warnings
 from enum import Enum
 from pathlib import Path
 from queue import Queue
@@ -66,7 +67,7 @@ class QualibrationGraph(
             Format: `{"name_1": ["name_2", "name_3"], "name_2": ["name_3"]}`
         """
         super().__init__(name, parameters_class)
-        self._nodes = nodes
+        self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
         self.full_parameters: Optional[Type[GraphRunParametersType]] = None
         self._graph = nx.DiGraph()
@@ -84,6 +85,23 @@ class QualibrationGraph(
             #  in class-level variable. Is it needed to have both?
             self.__class__.last_instantiated_graph = self
             raise StopInspection("Node instantiated in inspection mode")
+
+    @staticmethod
+    def _validate_nodes_names_mapping(
+        nodes: Mapping[str, QualibrationNode],
+    ) -> Mapping[str, QualibrationNode]:
+        new_nodes = {}
+        for name, node in nodes.items():
+            if name != node.name:
+                node = node.copy(name)
+                warnings.warn(
+                    UserWarning(
+                        f"{node} has to be copied due to conflicting "
+                        f"name ({name})"
+                    )
+                )
+            new_nodes[name] = node
+        return new_nodes
 
     # TODO: logic commonly same with node so need to move to
     @classmethod
