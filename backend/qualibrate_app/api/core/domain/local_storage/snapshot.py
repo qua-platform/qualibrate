@@ -395,25 +395,27 @@ class SnapshotLocalStorage(SnapshotBase):
             path: jsonpointer.resolve_pointer(data, path[1:], None)
             for path in updates.keys()
         }
-
-        if any(value is None for value in path_values.values()):
-            # one or more paths do not exist
-            return False
-        patch_operations = [
+        replace_updates = filter(
+            lambda k: path_values[k] is not None, updates.keys()
+        )
+        add_updates = filter(lambda k: path_values[k] is None, updates.keys())
+        replace_patch_operations = [
             {
                 "op": "replace",
                 "path": path[1:],
-                "value": value,
+                "value": updates[path],
                 "old": path_values[path],
             }
-            for path, value in updates.items()
+            for path in replace_updates
         ]
+        add_patch_operations = [
+            {"op": "add", "path": path[1:], "value": updates[path]}
+            for path in add_updates
+        ]
+        patch_operations = add_patch_operations + replace_patch_operations
         patch = jsonpatch.JsonPatch(patch_operations)
         try:
             new_data = patch.apply(dict(data))
-            # print(
-            #     f"Calling snapshot_updater with\n{self.node_path=}\n{new_data=}\n{patch_operations=}\n{self._settings=}"
-            # )
             res = self._snapshot_updater(
                 self.node_path, new_data, patch_operations, self._settings
             )
