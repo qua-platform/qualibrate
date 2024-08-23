@@ -5,12 +5,14 @@ from typing import (
     Any,
     Dict,
     Generic,
+    Hashable,
     Mapping,
     Optional,
     Type,
     TypeVar,
 )
 
+from qualibrate.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
 from qualibrate.run_mode import RunMode
 
@@ -45,6 +47,8 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self.mode = self.__class__.mode.model_copy()
         self.filepath: Optional[Path] = None
         self._parameters: Optional[CreateParametersType] = None
+
+        self.outcomes: Dict[Hashable, Outcome] = {}
 
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         return {

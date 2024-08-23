@@ -35,6 +35,8 @@ class TargetParameter(BaseModel):
             self.targets_name is not None
             and self.targets_name not in self.model_fields
         ):
+            # self.model_fields["targets_name"].alias
+            self.model_rebuild()
             raise AssertionError("targets_name should be one of model fields")
         return self
 
@@ -54,6 +56,10 @@ class NodesParameters(RunnableParameters):
 
 
 class GraphParameters(RunnableParameters, TargetParameter):
+    pass
+
+
+class OrchestratorParameters(RunnableParameters):
     pass
 
 
