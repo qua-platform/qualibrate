@@ -15,6 +15,7 @@ from typing import (
 from qualibrate.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
 from qualibrate.run_mode import RunMode
+from qualibrate.run_summary.base import BaseRunSummary
 
 if TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
@@ -65,7 +66,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         pass
 
     @abstractmethod
-    def run(self, **passed_parameters: Any) -> None:
+    def run(self, **passed_parameters: Any) -> BaseRunSummary:
         pass
 
     @property

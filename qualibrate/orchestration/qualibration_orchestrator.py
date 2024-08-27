@@ -3,6 +3,10 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 from pydantic import create_model
 
+from qualibrate.orchestration.execution_history import (
+    ExecutionHistory,
+    ExecutionHistoryItem,
+)
 from qualibrate.outcome import Outcome
 from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.utils.naming import get_full_class_path
@@ -25,14 +29,26 @@ class QualibrationOrchestrator(ABC):
         self._parameters = self.parameters_class()
         self.initial_targets: Optional[List[Any]] = None
         self.targets: Optional[List[Any]] = None
-        self._execution_history: Sequence[Any] = []
+        self._execution_history: List[ExecutionHistoryItem] = []
+        self._active_node_name: Optional[str] = None
         self.final_outcomes: Dict[Any, Outcome] = {}
+
+    def active_node_name(self) -> Optional[str]:
+        return self._active_node_name
+
+    def cleanup(self) -> None:
+        self._graph = None
+        self.initial_targets = None
+        self.targets = None
+        self._execution_history = []
+        self._active_node_name = None
+        self.final_outcomes = {}
 
     def serialize(self) -> Mapping[str, Any]:
         return {"__class__": get_full_class_path(self.__class__)}
 
-    def get_execution_history(self) -> Sequence[Any]:
-        return self._execution_history
+    def get_execution_history(self) -> ExecutionHistory:
+        return ExecutionHistory(items=self._execution_history)
 
     @abstractmethod
     def traverse_graph(

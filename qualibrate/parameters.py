@@ -1,5 +1,7 @@
 import sys
-from typing import Any, Mapping, Optional, cast
+from typing import Any, Hashable, Mapping, Optional, Sequence, cast
+
+from qualibrate.utils.type_protocols import TargetType
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -41,10 +43,14 @@ class TargetParameter(BaseModel):
         return self
 
     @computed_field
-    def targets(self) -> Any:
+    def targets(self) -> Optional[Sequence[TargetType]]:
         if self.targets_name is None:
             return None
         return getattr(self, self.targets_name)
+
+    @targets.setter  # type: ignore[no-redef]
+    def targets(self, new_targets: Sequence[Hashable]) -> None:
+        setattr(self, self.targets_name, new_targets)
 
 
 class NodeParameters(RunnableParameters, TargetParameter):

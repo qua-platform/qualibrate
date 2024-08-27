@@ -1,4 +1,5 @@
 import warnings
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import (
@@ -18,6 +19,7 @@ from weakref import ReferenceType
 import networkx as nx
 from pydantic import create_model
 
+from qualibrate.outcome import Outcome
 from qualibrate.parameters import (
     ExecutionParameters,
     GraphParameters,
@@ -25,6 +27,8 @@ from qualibrate.parameters import (
 )
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.run_summary.base import BaseRunSummary
+from qualibrate.run_summary.graph import GraphRunSummary
 from qualibrate.storage.local_storage_manager import logger
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.read_files import get_module_name, import_from_path
@@ -167,7 +171,15 @@ class QualibrationGraph(
 
         graphs[graph.name] = graph
 
-    def run(self, **passed_parameters: Any) -> None:
+    def cleanup(self) -> None:
+        nx.set_node_attributes(
+            self._graph,
+            {node: self._node_init_args.copy() for node in self._graph.nodes},
+        )
+        if self._orchestrator:
+            self._orchestrator.cleanup()
+
+    def run(self, **passed_parameters: Any) -> BaseRunSummary:
         """
         :param passed_parameters: Graph parameters. Should contain `nodes` key.
         """
@@ -175,11 +187,38 @@ class QualibrationGraph(
             raise ValueError("Graph full parameters class have been built")
         if self._orchestrator is None:
             raise ValueError("Orchestrator not specified")
+        self.cleanup()
         nodes = passed_parameters.pop("nodes", {})
         self.full_parameters = self.full_parameters_class.model_validate(
             {"parameters": passed_parameters, "nodes": nodes}
         )
-        self._orchestrator.traverse_graph(self, [])
+        targets = self.full_parameters.parameters.targets or []
+        nodes_parameters_model = self.full_parameters.nodes
+        for node_name in nodes_parameters_model.model_fields_set:
+            node_parameters_model = getattr(nodes_parameters_model, node_name)
+            node_parameters_model.targets = targets
+        created_at = datetime.now()
+        self._orchestrator.traverse_graph(self, targets)
+        self.outcomes = self._orchestrator.final_outcomes
+        return GraphRunSummary(
+            name=self.name,
+            description=self.description,
+            created_at=created_at,
+            completed_at=datetime.now(),
+            parameters=self.full_parameters,
+            outcomes=self.outcomes,
+            initial_targets=targets,
+            successful_targets=[
+                name
+                for name, status in self.outcomes.items()
+                if status == Outcome.SUCCESSFUL
+            ],
+            failed_targets=[
+                name
+                for name, status in self.outcomes.items()
+                if status == Outcome.FAILED
+            ],
+        )
 
     def _get_qnode_or_error(self, node_name: str) -> QualibrationNode:
         node = self._nodes.get(node_name)
