@@ -82,10 +82,6 @@ class QualibrationGraph(
         super().__init__(name, parameters_class, description=description)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
-        self.full_parameters_class: Optional[Type[GraphRunParametersType]] = (
-            None
-        )
-        self.full_parameters: Optional[GraphRunParametersType] = None
         self._graph = nx.DiGraph()
         self._orchestrator = orchestrator
 
@@ -94,7 +90,8 @@ class QualibrationGraph(
             x = self._add_node_by_name(x_name)
             if not self._graph.has_edge(v, x):
                 self._graph.add_edge(v, x)
-        self._build_parameters_class()
+        self.full_parameters_class = self._build_parameters_class()
+        self.full_parameters: Optional[GraphRunParametersType] = None
 
         if self.mode.inspection:
             # ASK: Looks like `last_instantiated_node` and
@@ -183,20 +180,22 @@ class QualibrationGraph(
         """
         :param passed_parameters: Graph parameters. Should contain `nodes` key.
         """
-        if self.full_parameters_class is None:
-            raise ValueError("Graph full parameters class have been built")
         if self._orchestrator is None:
             raise ValueError("Orchestrator not specified")
         self.cleanup()
-        nodes = passed_parameters.pop("nodes", {})
+        nodes = passed_parameters.get("nodes", {})
+        self.parameters = self.parameters_class.model_validate(
+            passed_parameters
+        )
         self.full_parameters = self.full_parameters_class.model_validate(
-            {"parameters": passed_parameters, "nodes": nodes}
+            {"parameters": self.parameters, "nodes": nodes}
         )
         targets = self.full_parameters.parameters.targets or []
         nodes_parameters_model = self.full_parameters.nodes
         for node_name in nodes_parameters_model.model_fields_set:
             node_parameters_model = getattr(nodes_parameters_model, node_name)
-            node_parameters_model.targets = targets
+            if node_parameters_model.targets_name is not None:
+                node_parameters_model.targets = targets
         created_at = datetime.now()
         self._orchestrator.traverse_graph(self, targets)
         self.outcomes = self._orchestrator.final_outcomes
@@ -232,7 +231,7 @@ class QualibrationGraph(
             self._graph.add_node(node, **self.__class__._node_init_args)
         return node
 
-    def _build_parameters_class(self) -> None:
+    def _build_parameters_class(self) -> Type[GraphRunParametersType]:
         nodes_parameters_class = create_model(
             "GraphNodesParameters",
             __base__=NodesParameters,
@@ -247,11 +246,9 @@ class QualibrationGraph(
             parameters=(self.parameters_class, ...),
             nodes=(nodes_parameters_class, ...),
         )
-        self.full_parameters_class = execution_parameters_class
+        return execution_parameters_class
 
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
-        if self.full_parameters_class is None:
-            raise ValueError("Graph full parameters class have been built")
         data = dict(super().serialize())
         cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters_class.serialize()

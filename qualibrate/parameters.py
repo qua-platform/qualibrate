@@ -29,6 +29,18 @@ class RunnableParameters(BaseModel):
 class TargetParameter(BaseModel):
     targets_name: Optional[str] = None
 
+    @model_validator(mode="before")
+    @classmethod
+    def prepare_targets(cls, data: Mapping[str, Any]) -> Mapping[str, Any]:
+        if data.get("targets") is None:
+            return data
+        targets = data.get("targets")
+        default_targets_name = cls.model_fields["targets_name"].default
+        targets_name = data.get("targets_name") or default_targets_name
+        if targets_name is None:
+            raise AssertionError("Targets specified without targets name")
+        return {**data, targets_name: targets}
+
     @model_validator(mode="after")
     def targets_exists_if_specified(self) -> Self:
         if self.targets_name is None:
@@ -37,8 +49,6 @@ class TargetParameter(BaseModel):
             self.targets_name is not None
             and self.targets_name not in self.model_fields
         ):
-            # self.model_fields["targets_name"].alias
-            self.model_rebuild()
             raise AssertionError("targets_name should be one of model fields")
         return self
 
@@ -50,6 +60,8 @@ class TargetParameter(BaseModel):
 
     @targets.setter  # type: ignore[no-redef]
     def targets(self, new_targets: Sequence[Hashable]) -> None:
+        if self.targets_name is None:
+            return
         setattr(self, self.targets_name, new_targets)
 
 
