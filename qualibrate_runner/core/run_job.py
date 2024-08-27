@@ -12,11 +12,11 @@ from qualibrate_runner.core.models.last_run import LastRun, RunError, RunStatus
 
 
 def validate_input_parameters(
-    node_parameters: Type[BaseModel],
+    parameters_class: Type[BaseModel],
     passed_parameters: Mapping[str, Any],
 ) -> BaseModel:
     try:
-        return node_parameters.model_validate(passed_parameters)
+        return parameters_class.model_validate(passed_parameters)
     except ValidationError as ex:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ex.errors()
@@ -29,6 +29,7 @@ def run_node(
     state: State,
 ) -> None:
     state.passed_parameters = passed_input_parameters
+    state.run_item = node
     state.last_run = LastRun(
         name=node.name,
         status=RunStatus.RUNNING,
@@ -37,7 +38,7 @@ def run_node(
     try:
         library = QualibrationLibrary.active_library
         node = library.nodes[node.name]
-        library.run_node(
+        result = library.run_node(
             node.name, node.parameters_class(**passed_input_parameters)
         )
     except Exception as ex:
@@ -59,6 +60,7 @@ def run_node(
             name=state.last_run.name,
             status=RunStatus.FINISHED,
             idx=idx,
+            run_result=result,
             state_updates=node.state_updates,
         )
 
@@ -74,12 +76,15 @@ def run_workflow(
         status=RunStatus.RUNNING,
         idx=-1,
     )
+    state.run_item = workflow
     try:
         library = QualibrationLibrary.active_library
         workflow = library.graphs[workflow.name]
-        library.run_graph(
-            workflow.name, workflow.full_parameters(**passed_input_parameters)
+        result = library.run_graph(
+            workflow.name,
+            workflow.full_parameters_class(**passed_input_parameters),
         )
+        print("Graph completed. Result:", result)
     except Exception as ex:
         state.last_run = LastRun(
             name=state.last_run.name,
@@ -99,6 +104,7 @@ def run_workflow(
             name=state.last_run.name,
             status=RunStatus.FINISHED,
             idx=idx,
+            run_result=result,
             state_updates=(
                 workflow.state_updates
                 if hasattr(workflow, "state_updates")
