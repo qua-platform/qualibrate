@@ -114,6 +114,13 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
     show_default=True,
 )
 @click.option(
+    "--auto-accept",
+    type=bool,
+    is_flag=True,
+    default=False,
+    show_default=True,
+)
+@click.option(
     "--overwrite",
     type=bool,
     default=False,
@@ -134,6 +141,7 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
 def config_command(
     ctx: click.Context,
     config_path: Path,
+    auto_accept: bool,
     overwrite: bool,
     calibration_library_resolver: str,
     calibration_library_folder: Path,
@@ -149,4 +157,4 @@ def config_command(
     qrs = get_config_model_or_print_error(runner_config)
     if qrs is None:
         return
-    write_config(config_file, common_config, qrs)
+    write_config(config_file, common_config, qrs, confirm=not auto_accept)
