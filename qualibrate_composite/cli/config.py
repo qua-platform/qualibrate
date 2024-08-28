@@ -238,6 +238,13 @@ def _get_user_storage() -> Path:
     show_default=True,
 )
 @click.option(
+    "--auto-accept",
+    type=bool,
+    is_flag=True,
+    default=False,
+    show_default=True,
+)
+@click.option(
     "--spawn-runner",
     type=bool,  # TODO: add type check for addr
     default=True,
@@ -308,6 +315,7 @@ def _get_user_storage() -> Path:
 def config_command(
     ctx: click.Context,
     config_path: Path,
+    auto_accept: bool,
     spawn_app: bool,
     spawn_runner: bool,
     runner_address: str,
@@ -336,4 +344,4 @@ def config_command(
         common_config[QAPP_CONFIG_KEY] = _get_qapp_config(ctx, qs).model_dump(
             mode="json"
         )
-    write_config(config_file, common_config, qs)
+    write_config(config_file, common_config, qs, confirm=not auto_accept)
