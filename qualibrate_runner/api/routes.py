@@ -2,6 +2,7 @@ from typing import Annotated, Any, Mapping, Optional, Sequence, Type, cast
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
+from qualibrate.orchestration.execution_history import ExecutionHistory
 from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
 
@@ -87,9 +88,7 @@ def submit_workflow_run(
             for name, params in input_parameters.get("nodes", {}).items()
         },
     }
-    validate_input_parameters(
-        cast(Type[BaseModel], graph.full_parameters), input_parameters
-    )
+    validate_input_parameters(graph.full_parameters_class, input_parameters)
     background_tasks.add_task(run_workflow, graph, input_parameters, state)
     return f"Workflow job {graph.name} is submitted"
 
@@ -154,6 +153,23 @@ def get_last_run(
     state: Annotated[State, Depends(get_state)],
 ) -> Optional[LastRun]:
     return state.last_run
+
+
+@base_router.get("/last_run/workflow/execution_history")
+def get_execution_history(
+    state: Annotated[State, Depends(get_state)],
+) -> Optional[Mapping[str, Any]]:
+    if not isinstance(state.run_item, QualibrationGraph):
+        return None
+    graph: QualibrationGraph = state.run_item
+    orch = graph._orchestrator
+    if orch is None:
+        raise RuntimeError("No graph orchestrator")
+    history: ExecutionHistory = orch.get_execution_history()
+    return cast(
+        Mapping[str, Any],
+        history.model_dump(mode="json", serialize_as_any=True),
+    )
 
 
 @base_router.post(
