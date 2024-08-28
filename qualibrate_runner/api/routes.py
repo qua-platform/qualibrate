@@ -168,7 +168,7 @@ def get_execution_history(
     history: ExecutionHistory = orch.get_execution_history()
     return cast(
         Mapping[str, Any],
-        history.model_dump(mode="json", serialize_as_any=True)
+        history.model_dump(mode="json", serialize_as_any=True),
     )
 
 
