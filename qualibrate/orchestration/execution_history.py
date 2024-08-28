@@ -19,8 +19,8 @@ class ExecutionHistoryItem(BaseModel):
     outcomes: Dict[Hashable, Outcome] = Field(default_factory=dict)
 
     @computed_field
-    def run_duration(self) -> int:
-        return int((self.run_end - self.run_start).total_seconds())
+    def run_duration(self) -> float:
+        return round((self.run_end - self.run_start).total_seconds(), 3)
 
 
 class ExecutionHistory(BaseModel):
