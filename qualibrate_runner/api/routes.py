@@ -166,7 +166,10 @@ def get_execution_history(
     if orch is None:
         raise RuntimeError("No graph orchestrator")
     history: ExecutionHistory = orch.get_execution_history()
-    return cast(Mapping[str, Any], history.model_dump(mode="json"))
+    return cast(
+        Mapping[str, Any],
+        history.model_dump(mode="json", serialize_as_any=True)
+    )
 
 
 @base_router.post(
