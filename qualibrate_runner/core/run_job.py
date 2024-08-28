@@ -1,4 +1,5 @@
 import traceback
+from datetime import datetime
 from typing import Any, Mapping, Type
 
 from fastapi import HTTPException, status
@@ -34,6 +35,7 @@ def run_node(
         name=node.name,
         status=RunStatus.RUNNING,
         idx=-1,
+        started_at=datetime.now(),
     )
     try:
         library = QualibrationLibrary.active_library
@@ -46,6 +48,8 @@ def run_node(
             name=state.last_run.name,
             status=RunStatus.ERROR,
             idx=-1,
+            started_at=state.last_run.started_at,
+            completed_at=datetime.now(),
             error=RunError(
                 error_class=ex.__class__.__name__,
                 message=str(ex),
@@ -61,6 +65,8 @@ def run_node(
             status=RunStatus.FINISHED,
             idx=idx,
             run_result=result,
+            started_at=state.last_run.started_at,
+            completed_at=datetime.now(),
             state_updates=node.state_updates,
         )
 
@@ -75,6 +81,7 @@ def run_workflow(
         name=workflow.name,
         status=RunStatus.RUNNING,
         idx=-1,
+        started_at=datetime.now(),
     )
     state.run_item = workflow
     try:
@@ -90,6 +97,8 @@ def run_workflow(
             name=state.last_run.name,
             status=RunStatus.ERROR,
             idx=-1,
+            started_at=state.last_run.started_at,
+            completed_at=datetime.now(),
             error=RunError(
                 error_class=ex.__class__.__name__,
                 message=str(ex),
@@ -105,6 +114,8 @@ def run_workflow(
             status=RunStatus.FINISHED,
             idx=idx,
             run_result=result,
+            started_at=state.last_run.started_at,
+            completed_at=datetime.now(),
             state_updates=(
                 workflow.state_updates
                 if hasattr(workflow, "state_updates")
