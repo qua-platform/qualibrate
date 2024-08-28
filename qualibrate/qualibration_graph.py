@@ -176,6 +176,16 @@ class QualibrationGraph(
         if self._orchestrator:
             self._orchestrator.cleanup()
 
+    def completed_count(self) -> int:
+        return int(
+            sum(
+                map(
+                    lambda state: state != NodeState.pending,
+                    nx.get_node_attributes(self._graph, "state").values(),
+                )
+            )
+        )
+
     def run(self, **passed_parameters: Any) -> BaseRunSummary:
         """
         :param passed_parameters: Graph parameters. Should contain `nodes` key.
