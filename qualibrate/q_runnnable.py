@@ -5,14 +5,17 @@ from typing import (
     Any,
     Dict,
     Generic,
+    Hashable,
     Mapping,
     Optional,
     Type,
     TypeVar,
 )
 
+from qualibrate.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
 from qualibrate.run_mode import RunMode
+from qualibrate.run_summary.base import BaseRunSummary
 
 if TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
@@ -46,6 +49,8 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self.filepath: Optional[Path] = None
         self._parameters: Optional[CreateParametersType] = None
 
+        self.outcomes: Dict[Hashable, Outcome] = {}
+
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         return {
             "name": self.name,
@@ -61,7 +66,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         pass
 
     @abstractmethod
-    def run(self, **passed_parameters: Any) -> None:
+    def run(self, **passed_parameters: Any) -> BaseRunSummary:
         pass
 
     @property

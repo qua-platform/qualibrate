@@ -3,12 +3,14 @@ from typing import Generator
 
 import pytest
 
+from qualibrate.orchestration.qualibration_orchestrator import (
+    QualibrationOrchestrator,
+)
 from qualibrate.parameters import (
     GraphParameters,
 )
 from qualibrate.qualibration_graph import NodeState, QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
-from qualibrate.qualibration_orchestrator import QualibrationOrchestrator
 
 
 @pytest.fixture

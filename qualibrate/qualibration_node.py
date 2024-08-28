@@ -1,6 +1,7 @@
 import warnings
 from contextlib import contextmanager
 from copy import copy
+from datetime import datetime
 from functools import partialmethod
 from pathlib import Path
 from types import MappingProxyType
@@ -17,8 +18,11 @@ import matplotlib
 from matplotlib.rcsetup import interactive_bk
 from pydantic import create_model
 
+from qualibrate.outcome import Outcome
 from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
+from qualibrate.run_summary.base import BaseRunSummary
+from qualibrate.run_summary.node import NodeRunSummary
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
@@ -168,7 +172,7 @@ class QualibrationNode(
             )
         self.storage_manager.save(node=self)
 
-    def run(self, **passed_parameters: Any) -> None:
+    def run(self, **passed_parameters: Any) -> BaseRunSummary:
         if self.filepath is None:
             raise RuntimeError("Node file path was not provided")
         external = self.mode.external
@@ -178,6 +182,8 @@ class QualibrationNode(
         )
         params_dict.update(passed_parameters)
         parameters = self.parameters_class.model_validate(params_dict)
+        initial_targets = copy(parameters.targets) if parameters.targets else []
+        created_at = datetime.now()
         try:
             self.mode.external = True
             self.mode.interactive = True
@@ -186,6 +192,25 @@ class QualibrationNode(
         finally:
             self.mode.external = external
             self.mode.interactive = interactive
+        return NodeRunSummary(
+            name=self.name,
+            description=self.description,
+            created_at=created_at,
+            completed_at=datetime.now(),
+            initial_targets=initial_targets,
+            parameters=parameters,
+            outcomes=self.outcomes,
+            successful_targets=[
+                name
+                for name, status in self.outcomes.items()
+                if status == Outcome.SUCCESSFUL
+            ],
+            failed_targets=[
+                name
+                for name, status in self.outcomes.items()
+                if status == Outcome.FAILED
+            ],
+        )
 
     def run_node_file(self, node_filepath: Path) -> None:
         mpl_backend = matplotlib.get_backend()

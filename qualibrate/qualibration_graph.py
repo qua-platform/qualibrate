@@ -1,7 +1,7 @@
 import warnings
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from queue import Queue
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -14,11 +14,12 @@ from typing import (
     Type,
     Union,
 )
-from weakref import ReferenceType, ref
+from weakref import ReferenceType
 
 import networkx as nx
 from pydantic import create_model
 
+from qualibrate.outcome import Outcome
 from qualibrate.parameters import (
     ExecutionParameters,
     GraphParameters,
@@ -26,13 +27,17 @@ from qualibrate.parameters import (
 )
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.run_summary.base import BaseRunSummary
+from qualibrate.run_summary.graph import GraphRunSummary
 from qualibrate.storage.local_storage_manager import logger
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.read_files import get_module_name, import_from_path
 
 if TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
-    from qualibrate.qualibration_orchestrator import QualibrationOrchestrator
+    from qualibrate.orchestration.qualibration_orchestrator import (
+        QualibrationOrchestrator,
+    )
 
 __all__ = ["NodeState", "QGraphBaseType", "QualibrationGraph"]
 
@@ -77,18 +82,16 @@ class QualibrationGraph(
         super().__init__(name, parameters_class, description=description)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
-        self.full_parameters: Optional[Type[GraphRunParametersType]] = None
         self._graph = nx.DiGraph()
-        self._orchestrator: _OrchestratorGraphType = (
-            ref(orchestrator) if orchestrator is not None else lambda: None
-        )
+        self._orchestrator = orchestrator
 
         for v_name, x_name in connectivity:
             v = self._add_node_by_name(v_name)
             x = self._add_node_by_name(x_name)
             if not self._graph.has_edge(v, x):
                 self._graph.add_edge(v, x)
-        self._build_parameters_class()
+        self.full_parameters_class = self._build_parameters_class()
+        self.full_parameters: Optional[GraphRunParametersType] = None
 
         if self.mode.inspection:
             # ASK: Looks like `last_instantiated_node` and
@@ -165,51 +168,56 @@ class QualibrationGraph(
 
         graphs[graph.name] = graph
 
-    def _is_execution_finished(self) -> bool:
-        return all(
-            map(
-                lambda state: state == NodeState.successful,
-                nx.get_node_attributes(self._graph, "state").values(),
-            )
+    def cleanup(self) -> None:
+        nx.set_node_attributes(
+            self._graph,
+            {node: self._node_init_args.copy() for node in self._graph.nodes},
         )
+        if self._orchestrator:
+            self._orchestrator.cleanup()
 
-    def check_node_successful(self, node: QualibrationNode) -> bool:
-        return bool(self._graph.nodes[node]["state"] != NodeState.successful)
-
-    def run(self, **passed_parameters: Any) -> None:
+    def run(self, **passed_parameters: Any) -> BaseRunSummary:
         """
         :param passed_parameters: Graph parameters. Should contain `nodes` key.
         """
-        if self.full_parameters is None:
-            raise ValueError("Graph full parameters class have been built")
-        nodes = passed_parameters.pop("nodes", {})
-        parameters = self.full_parameters.model_validate(
-            {"parameters": passed_parameters, "nodes": nodes}
+        if self._orchestrator is None:
+            raise ValueError("Orchestrator not specified")
+        self.cleanup()
+        nodes = passed_parameters.get("nodes", {})
+        self.parameters = self.parameters_class.model_validate(
+            passed_parameters
         )
-        nodes_parameters = parameters.nodes
-        predecessors = self._graph.pred
-        successors = self._graph.succ
-        nodes_without_predecessors = filter(
-            lambda n: len(predecessors[n]) == 0, predecessors.keys()
+        self.full_parameters = self.full_parameters_class.model_validate(
+            {"parameters": self.parameters, "nodes": nodes}
         )
-        execution_queue: Queue[QualibrationNode] = Queue()
-        for node in nodes_without_predecessors:
-            execution_queue.put(node)
-        while not self._is_execution_finished():
-            node_to_run = execution_queue.get()
-            if any(map(self.check_node_successful, predecessors[node_to_run])):
-                continue
-            # TODO: wrap status of execution
-            node_to_run.run(
-                **getattr(nodes_parameters, node_to_run.name).model_dump()
-            )
-            new_state = NodeState.successful
-            self._graph.nodes[node_to_run]["state"] = new_state
-            if new_state == NodeState.successful:
-                for successor in successors[node_to_run]:
-                    execution_queue.put(successor)
-            else:
-                execution_queue.put(node_to_run)
+        targets = self.full_parameters.parameters.targets or []
+        nodes_parameters_model = self.full_parameters.nodes
+        for node_name in nodes_parameters_model.model_fields_set:
+            node_parameters_model = getattr(nodes_parameters_model, node_name)
+            if node_parameters_model.targets_name is not None:
+                node_parameters_model.targets = targets
+        created_at = datetime.now()
+        self._orchestrator.traverse_graph(self, targets)
+        self.outcomes = self._orchestrator.final_outcomes
+        return GraphRunSummary(
+            name=self.name,
+            description=self.description,
+            created_at=created_at,
+            completed_at=datetime.now(),
+            parameters=self.full_parameters,
+            outcomes=self.outcomes,
+            initial_targets=targets,
+            successful_targets=[
+                name
+                for name, status in self.outcomes.items()
+                if status == Outcome.SUCCESSFUL
+            ],
+            failed_targets=[
+                name
+                for name, status in self.outcomes.items()
+                if status == Outcome.FAILED
+            ],
+        )
 
     def _get_qnode_or_error(self, node_name: str) -> QualibrationNode:
         node = self._nodes.get(node_name)
@@ -223,7 +231,7 @@ class QualibrationGraph(
             self._graph.add_node(node, **self.__class__._node_init_args)
         return node
 
-    def _build_parameters_class(self) -> None:
+    def _build_parameters_class(self) -> Type[GraphRunParametersType]:
         nodes_parameters_class = create_model(
             "GraphNodesParameters",
             __base__=NodesParameters,
@@ -238,26 +246,21 @@ class QualibrationGraph(
             parameters=(self.parameters_class, ...),
             nodes=(nodes_parameters_class, ...),
         )
-        self.full_parameters = execution_parameters_class
+        return execution_parameters_class
 
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
-        if self.full_parameters is None:
-            raise ValueError("Graph full parameters class have been built")
         data = dict(super().serialize())
         cytoscape = bool(kwargs.get("cytoscape", False))
-        parameters = self.full_parameters.serialize()
+        parameters = self.full_parameters_class.serialize()
         nx_data: Dict[str, Any] = dict(
             self.nx_graph_export(node_names_only=True)
-        )
-        orchestrator: Optional["QualibrationOrchestrator"] = (
-            self._orchestrator()
         )
         data.update(
             {
                 "parameters": parameters["parameters"],
                 "orchestrator": (
-                    orchestrator.serialize()
-                    if orchestrator is not None
+                    self._orchestrator.serialize()
+                    if self._orchestrator is not None
                     else None
                 ),
             }

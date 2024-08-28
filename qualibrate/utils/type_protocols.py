@@ -1,4 +1,6 @@
-from typing import Any, Optional, Protocol
+from typing import Any, Hashable, Optional, Protocol
+
+TargetType = Hashable
 
 
 class GetRefProtocol(Protocol):

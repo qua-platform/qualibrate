@@ -10,6 +10,9 @@ from qualibrate.qualibration_node import QualibrationNode
 
 __all__ = ["QualibrationLibrary"]
 
+from qualibrate.run_summary.graph import GraphRunSummary
+from qualibrate.run_summary.node import NodeRunSummary
+
 
 class QualibrationLibrary:
     active_library: Optional["QualibrationLibrary"] = None
@@ -48,15 +51,18 @@ class QualibrationLibrary:
 
     def run_node(
         self, node_name: str, input_parameters: NodeParameters
-    ) -> None:
+    ) -> NodeRunSummary:
         node = self.nodes[node_name]
-        node.run(**input_parameters.model_dump())
+        return cast(NodeRunSummary, node.run(**input_parameters.model_dump()))
 
     def run_graph(
         self, graph_name: str, input_parameters: ExecutionParameters
-    ) -> None:
+    ) -> GraphRunSummary:
         graph = self.graphs[graph_name]
-        graph.run(
-            nodes=input_parameters.nodes.model_dump(),
-            **input_parameters.parameters.model_dump(),
+        return cast(
+            GraphRunSummary,
+            graph.run(
+                nodes=input_parameters.nodes.model_dump(),
+                **input_parameters.parameters.model_dump(),
+            ),
         )
