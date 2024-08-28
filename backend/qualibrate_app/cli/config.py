@@ -148,6 +148,13 @@ def write_config(
     show_default=True,
 )
 @click.option(
+    "--auto-accept",
+    type=bool,
+    is_flag=True,
+    default=False,
+    show_default=True,
+)
+@click.option(
     "--overwrite",
     type=bool,
     default=False,
@@ -221,6 +228,7 @@ def write_config(
 def config_command(
     ctx: click.Context,
     config_path: Path,
+    auto_accept: bool,
     overwrite: bool,
     static_site_files: Path,
     storage_type: StorageType,
@@ -246,4 +254,4 @@ def config_command(
     )
     if qss is None:
         return
-    write_config(config_file, common_config, qss)
+    write_config(config_file, common_config, qss, confirm=not auto_accept)
