@@ -5,13 +5,13 @@ from qualibrate_app.api.core.domain.bases.branch import BranchBase
 from qualibrate_app.api.core.domain.bases.node import NodeBase
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
 from qualibrate_app.api.core.types import IdType
-from qualibrate_app.config import QualibrateSettings
+from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["RootBase"]
 
 
 class RootBase(ABC):
-    def __init__(self, settings: QualibrateSettings):
+    def __init__(self, settings: QualibrateAppSettings):
         self._settings = settings
 
     @abstractmethod

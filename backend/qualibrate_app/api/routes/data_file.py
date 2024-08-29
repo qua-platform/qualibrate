@@ -11,14 +11,18 @@ from qualibrate_app.api.core.domain.local_storage.node import NodeLocalStorage
 from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
 from qualibrate_app.api.core.types import DocumentType
 from qualibrate_app.api.core.utils.request_utils import HTTPException422
-from qualibrate_app.config import QualibrateSettings, StorageType, get_settings
+from qualibrate_app.config import (
+    QualibrateAppSettings,
+    StorageType,
+    get_settings,
+)
 
 data_file_router = APIRouter(prefix="/data_file/{node_id}", tags=["data file"])
 
 
 def _get_storage_instance(
     node_id: Annotated[int, Path()],
-    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> DataFileStorage:
     node_types: dict[
         StorageType, Union[Type[NodeLocalStorage], Type[NodeTimelineDb]]
@@ -26,7 +30,9 @@ def _get_storage_instance(
         StorageType.local_storage: NodeLocalStorage,
         StorageType.timeline_db: NodeTimelineDb,
     }
-    node = node_types[settings.storage_type](node_id, settings=settings)
+    node = node_types[settings.qualibrate.storage.type](
+        node_id, settings=settings
+    )
     try:
         node.load(NodeLoadType.Full)
     except NotADirectoryError as e:

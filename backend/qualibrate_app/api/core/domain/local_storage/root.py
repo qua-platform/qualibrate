@@ -27,7 +27,10 @@ class RootLocalStorage(RootBase):
     def _get_latest_node_id(self, error_msg: str) -> IdType:
         id = next(
             find_n_latest_nodes_ids(
-                self._settings.user_storage, 1, 1, self._settings.project
+                self._settings.qualibrate.storage.location,
+                1,
+                1,
+                self._settings.qualibrate.project,
             ),
             None,
         )

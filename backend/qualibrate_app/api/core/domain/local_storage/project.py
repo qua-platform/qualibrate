@@ -8,7 +8,11 @@ from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.api.core.utils.path.node import NodePath
 from qualibrate_app.api.exceptions.classes.values import QValueException
-from qualibrate_app.config import CONFIG_KEY, QualibrateSettings
+from qualibrate_app.config import (
+    CONFIG_KEY,
+    QUALIBRATE_CONFIG_KEY,
+    QualibrateAppSettings,
+)
 
 
 class ProjectsManagerLocalStorage(ProjectsManagerBase):
@@ -20,7 +24,14 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
             project_name
         )
         try:
-            qs = QualibrateSettings(**(new_config.get(CONFIG_KEY, {})))
+            qs = QualibrateAppSettings(
+                **(new_config.get(CONFIG_KEY, {})),
+                **{
+                    QUALIBRATE_CONFIG_KEY: new_config.get(
+                        QUALIBRATE_CONFIG_KEY, {}
+                    )
+                },
+            )
         except ValidationError as ex:
             storage_not_exists = filter(
                 lambda e: (
@@ -32,12 +43,16 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
             if next(storage_not_exists, None) is not None:
                 raise QValueException(f"Invalid project name '{project_name}'")
             raise
-        self._settings.project = qs.project
-        self._settings.user_storage = qs.user_storage
+        self._settings.qualibrate.project = qs.qualibrate.project
+        self._settings.qualibrate.storage.location = (
+            qs.qualibrate.storage.location
+        )
 
     def create(self, project_name: str) -> str:
         new_project_path = self._resolve_new_project_path(
-            project_name, self._settings.project, self._settings.user_storage
+            project_name,
+            self._settings.qualibrate.project,
+            self._settings.qualibrate.storage.location,
         )
         if new_project_path.is_dir():
             raise QValueException(f"Project {project_name} already exists.")
@@ -94,7 +109,8 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
 
     def list(self) -> Sequence[Project]:
         base_path = self._resolve_base_projects_path(
-            self._settings.project, self._settings.user_storage
+            self._settings.qualibrate.project,
+            self._settings.qualibrate.storage.location,
         )
         return [
             self._get_project_info(p)

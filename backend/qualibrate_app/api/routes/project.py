@@ -12,7 +12,7 @@ from qualibrate_app.api.core.domain.timeline_db.project import (
 )
 from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.config import (
-    QualibrateSettings,
+    QualibrateAppSettings,
     StorageType,
     get_config_path,
     get_settings,
@@ -22,14 +22,14 @@ project_router = APIRouter(prefix="/projects", tags=["project"])
 
 
 def _get_projects_manager(
-    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
     config_path: Annotated[Path, Depends(get_config_path)],
 ) -> ProjectsManagerBase:
     project_types = {
         StorageType.local_storage: ProjectsManagerLocalStorage,
         StorageType.timeline_db: ProjectsManagerTimelineDb,
     }
-    return project_types[settings.storage_type](
+    return project_types[settings.qualibrate.storage.type](
         settings=settings, config_path=config_path
     )
 

@@ -20,20 +20,26 @@ from qualibrate_app.api.core.models.snapshot import (
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import IdType
-from qualibrate_app.config import QualibrateSettings, StorageType, get_settings
+from qualibrate_app.config import (
+    QualibrateAppSettings,
+    StorageType,
+    get_settings,
+)
 
 branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
 
 
 def _get_branch_instance(
     name: Annotated[str, Path()],
-    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> BranchBase:
     branch_types = {
         StorageType.local_storage: BranchLocalStorage,
         StorageType.timeline_db: BranchTimelineDb,
     }
-    return branch_types[settings.storage_type](name=name, settings=settings)
+    return branch_types[settings.qualibrate.storage.type](
+        name=name, settings=settings
+    )
 
 
 @branch_router.get("/")
