@@ -45,7 +45,7 @@ def get_config_solved_references_or_print_error(
 def check_config_pre_v1_and_update(
     common_config: Dict[str, Any], qapp_config: Dict[str, Any]
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    if QUALIBRATE_CONFIG_KEY in common_config:
+    if "config_version" in qapp_config:
         return common_config[QUALIBRATE_CONFIG_KEY], qapp_config
     warnings.warn(
         UserWarning(

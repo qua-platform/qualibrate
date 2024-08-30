@@ -14,6 +14,7 @@ from qualibrate_app.config.models.storage import (
     StorageSettingsBase,
     StorageSettingsSetup,
 )
+from qualibrate_app.config.models.versioned import Versioned
 
 __all__ = [
     "QualibrateSettings",
@@ -22,7 +23,7 @@ __all__ = [
 ]
 
 
-class QualibrateSettingsBase(BaseSettings):
+class QualibrateSettingsBase(BaseSettings, Versioned):
     project: Optional[str]
     storage: StorageSettingsBase
     active_machine: ActiveMachineSettingsBase

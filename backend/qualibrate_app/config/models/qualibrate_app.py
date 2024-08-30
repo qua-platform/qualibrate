@@ -10,6 +10,7 @@ from qualibrate_app.config.models.remote_services import (
     JsonTimelineDBBase,
     QualibrateRunnerBase,
 )
+from qualibrate_app.config.models.versioned import Versioned
 
 __all__ = [
     "QualibrateAppSettings",
@@ -18,7 +19,7 @@ __all__ = [
 ]
 
 
-class QualibrateAppSettingsBase(BaseSettings, PathSerializer):
+class QualibrateAppSettingsBase(BaseSettings, PathSerializer, Versioned):
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         extra="ignore",
     )
