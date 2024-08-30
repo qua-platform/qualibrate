@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Sequence
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, field_serializer
 
 from qualibrate.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
@@ -26,3 +26,9 @@ class BaseRunSummary(BaseModel):
     @computed_field
     def run_duration(self) -> float:
         return round((self.completed_at - self.created_at).total_seconds(), 3)
+
+    @field_serializer("parameters")
+    def serialize_parameters(
+        self, parameters: RunnableParameters
+    ) -> Mapping[str, Any]:
+        return parameters.model_dump(serialize_as_any=True)
