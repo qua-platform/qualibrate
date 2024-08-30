@@ -14,7 +14,7 @@ from typing import (
 
 from qualibrate.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
-from qualibrate.run_mode import RunMode
+from qualibrate.run_mode import RunModes
 from qualibrate.run_summary.base import BaseRunSummary
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ def file_is_calibration_instance(file: Path, klass: str) -> bool:
 
 
 class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
-    mode = RunMode()
+    modes = RunModes()
 
     def __init__(
         self,
@@ -45,7 +45,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self.parameters_class = parameters_class
         self.description = description
 
-        self.mode = self.__class__.mode.model_copy()
+        self.modes = self.__class__.modes.model_copy()
         self.filepath: Optional[Path] = None
         self._parameters: Optional[CreateParametersType] = None
 
@@ -75,7 +75,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
 
     @parameters.setter
     def parameters(self, new_parameters: CreateParametersType) -> None:
-        if self.mode.external and self._parameters is not None:
+        if self.modes.external and self._parameters is not None:
             return
         self.parameters_class.model_validate(new_parameters.model_dump())
         self._parameters = new_parameters
