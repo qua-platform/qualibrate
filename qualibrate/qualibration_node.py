@@ -301,7 +301,16 @@ class QualibrationNode(
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
                     continue
-                cls.scan_node_file(file, nodes)
+                try:
+                    cls.scan_node_file(file, nodes)
+                except Exception as e:
+                    warnings.warn(
+                        RuntimeWarning(
+                            "An error occurred on scanning node file "
+                            f"{file.name}.\nError: {type(e)}: {e}"
+                        )
+                    )
+
         finally:
             cls.mode.inspection = inspection
         return nodes
