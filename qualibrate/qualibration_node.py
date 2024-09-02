@@ -232,6 +232,17 @@ class QualibrationNode(
 
     def stop(self) -> bool:
         return False
+        # try:
+        #     from qm import QuantumMachinesManager
+        # except ImportError:
+        #     return False
+        # qmm = QuantumMachinesManager(**settings)  # need to specify settings
+        # ids = qmm.list_open_quantum_machines()
+        # if len(ids) == 0:
+        #     return False
+        # qm = qmm.get_qm(ids[0])
+        # job = qm.get_running_job()
+        # job.halt()
 
     @contextmanager
     def record_state_updates(
