@@ -230,6 +230,20 @@ class QualibrationNode(
     def state_updates(self) -> MappingProxyType[str, Any]:
         return MappingProxyType(self._state_updates)
 
+    def stop(self) -> bool:
+        return False
+        # try:
+        #     from qm import QuantumMachinesManager
+        # except ImportError:
+        #     return False
+        # qmm = QuantumMachinesManager(**settings)  # need to specify settings
+        # ids = qmm.list_open_quantum_machines()
+        # if len(ids) == 0:
+        #     return False
+        # qm = qmm.get_qm(ids[0])
+        # job = qm.get_running_job()
+        # job.halt()
+
     @contextmanager
     def record_state_updates(
         self, interactive_only: bool = True

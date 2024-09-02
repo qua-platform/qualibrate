@@ -58,6 +58,10 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             "description": self.description,
         }
 
+    @abstractmethod
+    def stop(self) -> bool:
+        pass
+
     @classmethod
     @abstractmethod
     def scan_folder_for_instances(
