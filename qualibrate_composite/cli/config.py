@@ -234,6 +234,19 @@ def _get_qapp_q_config(
     return QualibrateAppQSettingsSetup(**from_file)
 
 
+def reorder_common_config_entries(data: Dict[str, Any]) -> Dict[str, Any]:
+    sorted_keys = (
+        QAPP_Q_CONFIG_KEY,
+        QUALIBRATE_CONFIG_KEY,
+        QAPP_CONFIG_KEY,
+        RUNNER_CONFIG_KEY,
+    )
+    return {
+        **{key: data[key] for key in sorted_keys if key in data},
+        **{k: v for k, v in data.items() if k not in sorted_keys},
+    }
+
+
 def write_config(
     config_file: Path,
     common_config: dict[str, Any],
@@ -242,6 +255,7 @@ def write_config(
 ) -> None:
     exported_data = qs.model_dump(mode="json", exclude_none=True)
     common_config[QUALIBRATE_CONFIG_KEY] = exported_data
+    common_config = reorder_common_config_entries(common_config)
     if confirm:
         _confirm(config_file, common_config)
     qapp_q_conf = common_config.get(QAPP_Q_CONFIG_KEY, {})
