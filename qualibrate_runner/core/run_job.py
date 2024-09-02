@@ -24,6 +24,12 @@ def validate_input_parameters(
         )
 
 
+def get_active_library_or_error() -> QualibrationLibrary:
+    if QualibrationLibrary.active_library is None:
+        raise RuntimeError("Qualibration library is not exist")
+    return QualibrationLibrary.active_library
+
+
 def run_node(
     node: QualibrationNode,
     passed_input_parameters: Mapping[str, Any],
@@ -38,7 +44,7 @@ def run_node(
         started_at=datetime.now(),
     )
     try:
-        library = QualibrationLibrary.active_library
+        library = get_active_library_or_error()
         node = library.nodes[node.name]
         result = library.run_node(
             node.name, node.parameters_class(**passed_input_parameters)
@@ -85,7 +91,7 @@ def run_workflow(
     )
     state.run_item = workflow
     try:
-        library = QualibrationLibrary.active_library
+        library = get_active_library_or_error()
         workflow = library.graphs[workflow.name]
         result = library.run_graph(
             workflow.name,
