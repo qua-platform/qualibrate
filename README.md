@@ -29,7 +29,7 @@ The default configuration needs to be adjusted to the specific environment.
 Open the configuration file in `~/.qualibrate/config.toml` and adjust the following settings:
 
 - `qualibrate_runner.calibration_library_folder` - Path to the folder where calibration files are stored
-- `qualiibrate_app.qualibrate.storage.location` - Path to the folder where all calibration data is stored
+- `qualibrate_app.qualibrate.storage.location` - Path to the folder where all calibration data is stored
 - `qualibrate_app.qualibrate.project` - Name of the project. This should be 
   a top-level folder of `user_storage`.
 
