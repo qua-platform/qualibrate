@@ -287,7 +287,7 @@ def _get_qapp_static_file_path() -> Path:
 
 def _get_user_storage() -> Path:
     return QUALIBRATE_PATH.joinpath(
-        "user_storage", f"${{#/{QAPP_CONFIG_KEY}/project}}"
+        "user_storage", f"${{#/{QAPP_Q_CONFIG_KEY}/project}}"
     )
 
 
