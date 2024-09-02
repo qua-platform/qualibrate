@@ -131,7 +131,15 @@ class QualibrationGraph(
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
                     continue
-                cls.scan_graph_file(file, graphs)
+                try:
+                    cls.scan_graph_file(file, graphs)
+                except Exception as e:
+                    warnings.warn(
+                        RuntimeWarning(
+                            "An error occurred on scanning graph file "
+                            f"{file.name}.\nError message: {e}"
+                        )
+                    )
         finally:
             cls.mode.inspection = inspection
         return graphs
@@ -188,9 +196,11 @@ class QualibrationGraph(
         )
 
     def _get_all_nodes_parameters(
-        self,  nodes_parameters: Mapping[str, Any]
+        self, nodes_parameters: Mapping[str, Any]
     ) -> Mapping[str, Any]:
-        nodes_class = self.full_parameters_class.model_fields["nodes"].annotation
+        nodes_class = self.full_parameters_class.model_fields[
+            "nodes"
+        ].annotation
         return {
             name: nodes_parameters.get(name, {})
             for name in cast(NodesParameters, nodes_class).model_fields.keys()
