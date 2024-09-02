@@ -23,7 +23,6 @@ except ImportError:
     RUNNER_CONFIG_PATH_ENV_NAME = None
 
 
-
 @click.command(name="start")
 @click.option(
     "--config-path",
@@ -56,4 +55,5 @@ def start_command(config_path: Path, port: int, reload: bool) -> None:
         os.environ[RUNNER_CONFIG_PATH_ENV_NAME] = str(config_path)
 
     from qualibrate_composite.app import main as app_main
+
     app_main(port=port, reload=reload)

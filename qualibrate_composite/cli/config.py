@@ -1,10 +1,9 @@
-import enum
 import os
 import sys
 from importlib.util import find_spec
 from itertools import filterfalse
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Dict, Mapping
 
 import click
 import tomli_w
@@ -30,19 +29,22 @@ try:
     from qualibrate_app.config import (
         CONFIG_KEY as QAPP_CONFIG_KEY,
     )
+    from qualibrate_app.config import QUALIBRATE_CONFIG_KEY as QAPP_Q_CONFIG_KEY
     from qualibrate_app.config import (
-        QualibrateSettingsSetup as QualibrateAppSettingsSetup,
+        QualibrateAppSettingsSetup,
+        StorageType,
     )
     from qualibrate_app.config import (
-        StorageType,
+        QualibrateSettingsSetup as QualibrateAppQSettingsSetup,
     )
 except ImportError:
     QAPP_CONFIG_KEY = None
 
-    class StorageType(enum.Enum):
-        local_storage = "local_storage"
-
-    from qualibrate_composite.cli._sub_configs import QualibrateAppSettingsSetup
+    from qualibrate_composite.cli._sub_configs import (
+        QualibrateAppQSettingsSetup,
+        QualibrateAppSettingsSetup,
+        StorageType,
+    )
 try:
     qualibrate = find_spec("qualibrate")
 
@@ -76,7 +78,7 @@ def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
     return {}, config_file
 
 
-def _config_from_sources(
+def _qualibrate_config_from_sources(
     ctx: click.Context, from_file: dict[str, Any]
 ) -> dict[str, Any]:
     qualibrate_app_mapping = {
@@ -152,28 +154,46 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
         exit(1)
 
 
-def _get_runner_config(ctx: click.Context) -> QualibrateRunnerSettings:
+def _get_runner_config(
+    ctx: click.Context, from_file: Dict[str, Any]
+) -> QualibrateRunnerSettings:
     if qualibrate is None:
         raise ImportError("Qualibrate is not installed")
-    calibration_path = ctx.params.get("runner_calibration_library_folder")
-    calibration_path.mkdir(parents=True, exist_ok=True)
-    return QualibrateRunnerSettings(
-        calibration_library_resolver=ctx.params.get(
-            "runner_calibration_library_resolver"
-        ),
-        calibration_library_folder=calibration_path,
+    args_mapping = {
+        "runner_calibration_library_resolver": "calibration_library_resolver",
+        "runner_calibration_library_folder": "calibration_library_folder",
+    }
+    for arg_key, arg_value in ctx.params.items():
+        if arg_key not in args_mapping:
+            continue
+        not_default_resolver_arg = not_default(ctx, arg_key)
+        if not_default_resolver_arg or args_mapping[arg_key] not in from_file:
+            from_file[args_mapping[arg_key]] = arg_value
+    Path(from_file["calibration_library_folder"]).mkdir(
+        parents=True, exist_ok=True
     )
+    return QualibrateRunnerSettings(**from_file)
 
 
 def _get_qapp_config(
-    ctx: click.Context, qs: QualibrateSettings
+    ctx: click.Context, qs: QualibrateSettings, from_file: Dict[str, Any]
 ) -> QualibrateAppSettingsSetup:
+    args_mapping = {
+        "app_static_site_files": "static_site_files",
+        "app_metadata_out_path": "metadata_out_path",
+    }
+    data = {
+        config_key: from_file.get(config_key)
+        for config_key in args_mapping.values()
+    }
+    for arg_key, arg_value in ctx.params.items():
+        if arg_key not in args_mapping:
+            continue
+        not_default_resolver_arg = not_default(ctx, arg_key)
+        if not_default_resolver_arg or args_mapping[arg_key] not in from_file:
+            data[args_mapping[arg_key]] = arg_value
     return QualibrateAppSettingsSetup(
-        static_site_files=ctx.params.get("app_static_site_files"),
-        storage_type=ctx.params.get("app_storage_type"),
-        user_storage=ctx.params.get("app_user_storage"),
-        project=ctx.params.get("app_project"),
-        metadata_out_path=ctx.params.get("app_metadata_out_path"),
+        **data,
         timeline_db={
             "address": "http://localhost:8000",
             "timeout": 1,
@@ -185,18 +205,48 @@ def _get_qapp_config(
     )
 
 
+def _get_qapp_q_config(
+    ctx: click.Context, from_file: Dict[str, Any]
+) -> QualibrateAppQSettingsSetup:
+    storage_keys = {
+        "app_storage_type": "type",
+        "app_user_storage": "location",
+    }
+    common_keys = {"app_project": "project"}
+    for key in ("storage", "active_machine"):
+        if key not in from_file:
+            from_file[key] = {}
+    for arg_key, arg_value in ctx.params.items():
+        if arg_key in storage_keys:
+            not_default_resolver_arg = not_default(ctx, arg_key)
+            if (
+                not_default_resolver_arg
+                or storage_keys[arg_key] not in from_file["storage"]
+            ):
+                from_file["storage"][storage_keys[arg_key]] = arg_value
+        if arg_key in common_keys:
+            not_default_resolver_arg = not_default(ctx, arg_key)
+            if (
+                not_default_resolver_arg
+                or common_keys[arg_key] not in from_file
+            ):
+                from_file[common_keys[arg_key]] = arg_value
+    return QualibrateAppQSettingsSetup(**from_file)
+
+
 def write_config(
     config_file: Path,
     common_config: dict[str, Any],
     qs: QualibrateSettings,
     confirm: bool = True,
 ) -> None:
-    exported_data = qs.model_dump(mode="json")
+    exported_data = qs.model_dump(mode="json", exclude_none=True)
     common_config[QUALIBRATE_CONFIG_KEY] = exported_data
     if confirm:
         _confirm(config_file, common_config)
-    user_storage = common_config.get(QAPP_CONFIG_KEY, {}).get("user_storage")
-    project = common_config.get(QAPP_CONFIG_KEY, {}).get("project")
+    qapp_q_conf = common_config.get(QAPP_Q_CONFIG_KEY, {})
+    user_storage = qapp_q_conf.get("storage", {}).get("location")
+    project = qapp_q_conf.get("project")
     if user_storage is not None:
         user_storage_path = Path(user_storage)
         user_storage_path.mkdir(parents=True, exist_ok=True)
@@ -334,14 +384,27 @@ def config_command(
     for subconfig in subconfigs:
         if subconfig not in qualibrate_config:
             qualibrate_config[subconfig] = {}
-    qualibrate_config = _config_from_sources(ctx, qualibrate_config)
+    qualibrate_config = _qualibrate_config_from_sources(ctx, qualibrate_config)
     qs = QualibrateSettings(**qualibrate_config)
-    if RUNNER_CONFIG_KEY is not None and RUNNER_CONFIG_KEY not in common_config:
-        common_config[RUNNER_CONFIG_KEY] = _get_runner_config(ctx).model_dump(
-            mode="json"
+    if RUNNER_CONFIG_KEY is not None:
+        common_config[RUNNER_CONFIG_KEY] = _get_runner_config(
+            ctx, common_config.get(RUNNER_CONFIG_KEY, {})
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
         )
-    if QAPP_CONFIG_KEY is not None and QAPP_CONFIG_KEY not in common_config:
-        common_config[QAPP_CONFIG_KEY] = _get_qapp_config(ctx, qs).model_dump(
-            mode="json"
+    if QAPP_CONFIG_KEY is not None:
+        common_config[QAPP_CONFIG_KEY] = _get_qapp_config(
+            ctx, qs, common_config.get(QAPP_CONFIG_KEY, {})
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+        )
+    if QAPP_Q_CONFIG_KEY is not None:
+        common_config[QAPP_Q_CONFIG_KEY] = _get_qapp_q_config(
+            ctx, common_config.get(QAPP_Q_CONFIG_KEY, {})
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
         )
     write_config(config_file, common_config, qs, confirm=not auto_accept)
