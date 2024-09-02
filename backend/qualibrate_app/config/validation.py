@@ -66,7 +66,7 @@ def check_config_pre_v1_and_update(
         "active_machine": {},
     }
     if "active_machine_path" in qapp_config:
-        qualibrate_config[QUALIBRATE_CONFIG_KEY]["active_machine"][
+        qualibrate_config["active_machine"][
             "path"
         ] = qapp_config.pop("active_machine_path")
     return qualibrate_config, qapp_config
