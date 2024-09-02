@@ -1,9 +1,10 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import { ALL_GRAPHS, GET_WORKFLOW_GRAPH, SUBMIT_WORKFLOW_RUN } from "../../../utils/api/apiRoutes";
+import { ALL_GRAPHS, GET_EXECUTION_HISTORY, GET_WORKFLOW_GRAPH, SUBMIT_WORKFLOW_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
+import { Measurement } from "../components/GraphStatus/context/GraphStatusContext";
 
-export class CalibrationsApi extends Api {
+export class GraphLibraryApi extends Api {
   constructor() {
     super();
   }
@@ -23,6 +24,12 @@ export class CalibrationsApi extends Api {
     return this._fetch(this.api(GET_WORKFLOW_GRAPH()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
       queryParams: { name },
+    });
+  }
+
+  static fetchExecutionHistory(): Promise<Res<{ items: Measurement[] }>> {
+    return this._fetch(this.api(GET_EXECUTION_HISTORY()), API_METHODS.GET, {
+      headers: BASIC_HEADERS,
     });
   }
 

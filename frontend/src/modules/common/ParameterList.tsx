@@ -3,8 +3,8 @@ import { NodeDTO, NodeMap } from "../Nodes/components/NodeElement/NodeElement";
 import { InputParameter, Parameters, SingleParameter } from "./Parameters";
 import { Checkbox } from "@mui/material";
 import InputField from "../../DEPRECATED_components/common/Input/InputField";
-import { useCalibrationGraphContext } from "../CalibrationGraph/context/CalibrationGraphContext";
-import { CalibrationGraphWorkflow } from "../CalibrationGraph/components/CalibrationGraphList";
+import { useGraphContext } from "../GraphLibrary/context/GraphContext";
+import { GraphWorkflow } from "../GraphLibrary/components/GraphList";
 
 interface IProps {
   showParameters: boolean;
@@ -12,8 +12,8 @@ interface IProps {
 }
 
 export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfItems }) => {
-  const { allCalibrationGraphs, setAllCalibrationGraphs, selectedWorkflowName } = useCalibrationGraphContext();
-  const updateParameter = (paramKey: string, newValue: boolean | number | string, node?: NodeDTO | CalibrationGraphWorkflow) => {
+  const { allGraphs, setAllGraphs, selectedWorkflowName } = useGraphContext();
+  const updateParameter = (paramKey: string, newValue: boolean | number | string, node?: NodeDTO | GraphWorkflow) => {
     const updatedParameters = {
       ...node?.parameters,
       [paramKey]: {
@@ -23,27 +23,27 @@ export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfI
     };
     const changedNode = { ...(node as NodeDTO), parameters: updatedParameters as InputParameter };
     const nodeName = node?.name;
-    if (nodeName && selectedWorkflowName && allCalibrationGraphs?.[selectedWorkflowName]) {
+    if (nodeName && selectedWorkflowName && allGraphs?.[selectedWorkflowName]) {
       const changedNodeSInWorkflow = {
-        ...allCalibrationGraphs[selectedWorkflowName].nodes,
+        ...allGraphs[selectedWorkflowName].nodes,
         [nodeName]: changedNode,
       };
 
       const updatedWorkflow = {
-        ...allCalibrationGraphs[selectedWorkflowName],
+        ...allGraphs[selectedWorkflowName],
         nodes: changedNodeSInWorkflow,
       };
 
       const updatedCalibrationGraphs = {
-        ...allCalibrationGraphs,
+        ...allGraphs,
         [selectedWorkflowName]: updatedWorkflow,
       };
 
-      setAllCalibrationGraphs(updatedCalibrationGraphs);
+      setAllGraphs(updatedCalibrationGraphs);
     }
   };
 
-  const getInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | CalibrationGraphWorkflow) => {
+  const getInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => {
     switch (parameter.type) {
       case "boolean":
         return (

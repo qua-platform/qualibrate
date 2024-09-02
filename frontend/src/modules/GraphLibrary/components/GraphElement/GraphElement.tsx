@@ -1,22 +1,23 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
-import styles from "../CalibrationGraphElement/CalibrationGraphElement.module.scss";
+import styles from "./GraphElement.module.scss";
 import { PlayIcon } from "../../../../ui-lib/Icons/PlayIcon";
 import { classNames } from "../../../../utils/classnames";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters";
-import { CalibrationGraphWorkflow } from "../CalibrationGraphList";
+import { GraphWorkflow } from "../GraphList";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
 import { Checkbox } from "@mui/material";
 import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 import { ParameterList } from "../../../common/ParameterList";
-import { useCalibrationGraphContext } from "../../context/CalibrationGraphContext";
+import { useGraphContext } from "../../context/GraphContext";
 import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
-import { CalibrationsApi } from "../../api/CalibrationsAPI";
+import { GraphLibraryApi } from "../../api/GraphLibraryApi";
 import { NodeDTO } from "../../../Nodes/components/NodeElement/NodeElement";
+import { useFlexLayoutContext } from "../../../../routing/flexLayout/FlexLayoutContext";
 
 export interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
-  calibrationGraph: CalibrationGraphWorkflow;
+  calibrationGraph: GraphWorkflow;
 }
 
 interface TransformedGraph {
@@ -24,12 +25,12 @@ interface TransformedGraph {
   nodes: { [key: string]: { parameters: InputParameter } };
 }
 
-export const CalibrationGraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrationGraphKey, calibrationGraph }) => {
+export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrationGraphKey, calibrationGraph }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
-  const { workflowGraphElements, setSelectedWorkflowName, allCalibrationGraphs, setAllCalibrationGraphs, selectedWorkflowName } =
-    useCalibrationGraphContext();
+  const { workflowGraphElements, setSelectedWorkflowName, allGraphs, setAllGraphs, selectedWorkflowName } = useGraphContext();
+  const { openTab } = useFlexLayoutContext();
 
-  const updateParameter = (paramKey: string, newValue: boolean | number | string, workflow?: NodeDTO | CalibrationGraphWorkflow) => {
+  const updateParameter = (paramKey: string, newValue: boolean | number | string, workflow?: NodeDTO | GraphWorkflow) => {
     const updatedParameters = {
       ...workflow?.parameters,
       [paramKey]: {
@@ -38,21 +39,21 @@ export const CalibrationGraphElement: React.FC<ICalibrationGraphElementProps> = 
       },
     };
 
-    if (selectedWorkflowName && allCalibrationGraphs?.[selectedWorkflowName]) {
+    if (selectedWorkflowName && allGraphs?.[selectedWorkflowName]) {
       const updatedWorkflow = {
-        ...allCalibrationGraphs[selectedWorkflowName],
+        ...allGraphs[selectedWorkflowName],
         parameters: updatedParameters,
       };
 
       const updatedCalibrationGraphs = {
-        ...allCalibrationGraphs,
+        ...allGraphs,
         [selectedWorkflowName]: updatedWorkflow,
       };
 
-      setAllCalibrationGraphs(updatedCalibrationGraphs);
+      setAllGraphs(updatedCalibrationGraphs);
     }
   };
-  const getInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | CalibrationGraphWorkflow) => {
+  const getInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => {
     switch (parameter.type) {
       case "boolean":
         return (
@@ -75,7 +76,7 @@ export const CalibrationGraphElement: React.FC<ICalibrationGraphElementProps> = 
     }
   };
   const transformDataForSubmit = () => {
-    const input = allCalibrationGraphs?.[selectedWorkflowName ?? ""];
+    const input = allGraphs?.[selectedWorkflowName ?? ""];
     const workflowParameters = input?.parameters;
     const transformParameters = (params?: InputParameter) => {
       let transformedParams = {};
@@ -102,7 +103,8 @@ export const CalibrationGraphElement: React.FC<ICalibrationGraphElementProps> = 
 
   const handleSubmit = async () => {
     if (selectedWorkflowName) {
-      CalibrationsApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
+      GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
+      openTab("graph-status");
     }
   };
 

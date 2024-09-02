@@ -22,6 +22,7 @@ export const GET_NODE = () => "execution/get_node";
 export const ALL_GRAPHS = () => "execution/get_graphs";
 export const GET_GRAPH = () => "execution/get_graph";
 export const GET_WORKFLOW_GRAPH = () => "execution/get_graph/cytoscape";
+export const GET_EXECUTION_HISTORY = () => "execution/last_run/workflow/execution_history";
 export const SUBMIT_NODE_RUN = () => "execution/submit/node";
 export const SUBMIT_WORKFLOW_RUN = () => "execution/submit/workflow";
 export const GET_LAST_RUN = () => "execution/last_run/";

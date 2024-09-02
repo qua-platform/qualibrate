@@ -7,20 +7,21 @@ import Project from "../modules/Project";
 import { ProjectIcon } from "../ui-lib/Icons/ProjectIcon";
 import Nodes from "../modules/Nodes";
 import { ExperimentsIcon } from "../ui-lib/Icons/ExperimentsIcon";
-import CalibrationGraph from "../modules/CalibrationGraph";
+import CalibrationGraph from "../modules/GraphLibrary";
 import { CalibrationIcon } from "../ui-lib/Icons/CalibrationIcon";
+import GraphStatus from "../modules/GraphLibrary/components/GraphStatus/GraphStatus";
 
 const DATA_KEY: ModuleKey = "data";
 const NODES_KEY: ModuleKey = "nodes";
 const PROJECT_TAB: ModuleKey = "project";
-const CALIBRATION: ModuleKey = "calibration";
+const GRAPH_LIBRARY: ModuleKey = "graph-library";
+const GRAPH_STATUS: ModuleKey = "graph-status";
 
 export type ModuleKey =
   | "components"
   | "notebook"
   | "dashboard"
   | "project"
-  | "calibration"
   | "data"
   | "nodes"
   | "experiments"
@@ -28,7 +29,9 @@ export type ModuleKey =
   | "jobs"
   | "docs"
   | "getting-started"
-  | "admin-settings";
+  | "admin-settings"
+  | "graph-library"
+  | "graph-status";
 
 export type Module = {
   keyId: ModuleKey;
@@ -62,7 +65,28 @@ export const ModulesRegistry: Array<Module> = [
     path: "nodes",
     Component: Nodes,
     menuItem: {
-      title: "Nodes",
+      title: "Node library",
+      icon: ExperimentsIcon,
+      dataCy: cyKeys.NODES_TAB,
+    },
+  },
+
+  {
+    keyId: GRAPH_LIBRARY,
+    path: "GRAPH_LIBRARY",
+    Component: CalibrationGraph,
+    menuItem: {
+      title: "Graph library",
+      icon: CalibrationIcon,
+      dataCy: cyKeys.CALIBRATION_TAB,
+    },
+  },
+  {
+    keyId: GRAPH_STATUS,
+    path: "graph-status",
+    Component: GraphStatus,
+    menuItem: {
+      title: "Graph Status",
       icon: ExperimentsIcon,
       dataCy: cyKeys.NODES_TAB,
     },
@@ -75,16 +99,6 @@ export const ModulesRegistry: Array<Module> = [
       title: "Data",
       icon: DataIcon,
       dataCy: cyKeys.DATA_TAB,
-    },
-  },
-  {
-    keyId: CALIBRATION,
-    path: "calibration",
-    Component: CalibrationGraph,
-    menuItem: {
-      title: "Calibration",
-      icon: CalibrationIcon,
-      dataCy: cyKeys.CALIBRATION_TAB,
     },
   },
 ];
