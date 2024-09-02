@@ -20,6 +20,13 @@ def check_running(
     return state.is_running
 
 
+@others_router.post("/stop")
+def stop_running(state: Annotated[State, Depends(get_state)]) -> bool:
+    if state.run_item is None:
+        return False
+    return bool(state.run_item.stop())
+
+
 @others_router.post(
     "/record_state_update",
     description=(
