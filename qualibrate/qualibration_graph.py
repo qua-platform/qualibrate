@@ -355,3 +355,6 @@ class QualibrationGraph(
             for source, dest in serialized["connectivity"]
         ]
         return [*nodes, *edges]
+
+    def stop(self) -> bool:
+        return False

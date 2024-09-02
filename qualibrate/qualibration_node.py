@@ -230,6 +230,9 @@ class QualibrationNode(
     def state_updates(self) -> MappingProxyType[str, Any]:
         return MappingProxyType(self._state_updates)
 
+    def stop(self) -> bool:
+        return False
+
     @contextmanager
     def record_state_updates(
         self, interactive_only: bool = True
