@@ -22,7 +22,10 @@ class TestLocalStorageRoot:
         assert ex.type == QFileNotFoundException
         assert ex.value.args == ("There is no msg",)
         patched_find_latest.assert_called_once_with(
-            settings.user_storage, 1, 1, settings.project
+            settings.qualibrate.storage.location,
+            1,
+            1,
+            settings.qualibrate.project,
         )
 
     def test__get_latest_node_id_valid(self, mocker, settings):
@@ -35,7 +38,10 @@ class TestLocalStorageRoot:
         )
         assert self.root._get_latest_node_id("msg") == 1
         patched_find_latest.assert_called_once_with(
-            settings.user_storage, 1, 1, settings.project
+            settings.qualibrate.storage.location,
+            1,
+            1,
+            settings.qualibrate.project,
         )
 
     def test_get_snapshot_latest(self, mocker, settings):

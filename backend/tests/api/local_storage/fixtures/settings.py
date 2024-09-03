@@ -7,9 +7,13 @@ from fastapi.testclient import TestClient
 
 from qualibrate_app.config import (
     CONFIG_KEY,
+    QUALIBRATE_CONFIG_KEY,
+    ActiveMachineSettings,
     JsonTimelineDBBase,
+    QualibrateAppSettings,
     QualibrateRunnerBase,
     QualibrateSettings,
+    StorageSettings,
     StorageType,
     get_config_path,
     get_settings,
@@ -19,18 +23,22 @@ from qualibrate_app.config import (
 @pytest.fixture
 def settings(
     tmp_path: Path, default_local_storage_project: Path
-) -> Generator[QualibrateSettings, None, None]:
+) -> Generator[QualibrateAppSettings, None, None]:
     static = tmp_path / "static"
     static.mkdir()
     active_machine_path = tmp_path / "active_machine_path"
     active_machine_path.mkdir()
-    yield QualibrateSettings(
+    yield QualibrateAppSettings(
         static_site_files=static,
-        user_storage=default_local_storage_project,
-        project=default_local_storage_project.name,
-        storage_type=StorageType.local_storage,
+        qualibrate=QualibrateSettings(
+            project=default_local_storage_project.name,
+            storage=StorageSettings(
+                type=StorageType.local_storage,
+                location=default_local_storage_project,
+            ),
+            active_machine=ActiveMachineSettings(path=active_machine_path),
+        ),
         metadata_out_path="data_path",
-        active_machine_path=active_machine_path,
         timeline_db=JsonTimelineDBBase(
             address="http://localhost:8000",
             timeout=0,
@@ -48,9 +56,19 @@ def settings_path(tmp_path: Path) -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def settings_path_filled(settings: QualibrateSettings, settings_path: Path):
+def settings_path_filled(settings: QualibrateAppSettings, settings_path: Path):
     with settings_path.open("wb") as fin:
-        tomli_w.dump({CONFIG_KEY: settings.model_dump(mode="json")}, fin)
+        tomli_w.dump(
+            {
+                CONFIG_KEY: settings.model_dump(
+                    exclude={"qualibrate"}, mode="json"
+                ),
+                QUALIBRATE_CONFIG_KEY: settings.qualibrate.model_dump(
+                    mode="json"
+                ),
+            },
+            fin,
+        )
     yield settings_path
 
 

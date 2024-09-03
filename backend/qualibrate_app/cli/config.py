@@ -1,23 +1,26 @@
 import os
 import sys
 from pathlib import Path
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping, Optional, cast
 
 import click
 import tomli_w
 from click.core import ParameterSource
 
 from qualibrate_app.config import (
-    CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
-)
-from qualibrate_app.config import (
+    CONFIG_KEY,
     DEFAULT_CONFIG_FILENAME,
+    QUALIBRATE_CONFIG_KEY,
     QUALIBRATE_PATH,
     QualibrateSettingsSetup,
     StorageType,
     get_config_file,
 )
-from qualibrate_app.config.validation import get_config_model_or_print_error
+from qualibrate_app.config.models import QualibrateAppSettingsSetup
+from qualibrate_app.config.validation import (
+    check_config_pre_v1_and_update,
+    get_config_model_or_print_error,
+)
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
@@ -50,10 +53,10 @@ def _config_from_sources(
         k: k
         for k in (
             "static_site_files",
-            "user_storage",
+            # "user_storage",
             "metadata_out_path",
-            "storage_type",
-            "project",
+            # "storage_type",
+            # "project",
         )
     }
     timeline_db_mapping = {
@@ -85,7 +88,10 @@ def _config_from_sources(
 
 
 def _print_config(data: Mapping[str, Any], depth: int = 0) -> None:
-    max_key_len = max(map(len, map(str, data.keys())))
+    try:
+        max_key_len = max(map(len, map(str, data.keys())))
+    except ValueError:
+        max_key_len = 1
     click.echo(
         os.linesep.join(
             f"{' ' * 4 * depth}{f'{k} :':<{max_key_len + 3}} {v}"
@@ -99,10 +105,12 @@ def _print_config(data: Mapping[str, Any], depth: int = 0) -> None:
         _print_config(mapping_v, depth + 1)
 
 
-def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
+def _confirm(
+    config_file: Path, qs_data: Mapping[str, Any], qas_data: Mapping[str, Any]
+) -> None:
     click.echo(f"Config file path: {config_file}")
     click.echo(click.style("Generated config:", bold=True))
-    _print_config(exported_data)
+    _print_config({"Qualibrate": qs_data, "Qualibrate app": qas_data})
     confirmed = click.confirm("Do you confirm config?", default=True)
     if not confirmed:
         click.echo(
@@ -121,18 +129,22 @@ def write_config(
     config_file: Path,
     common_config: dict[str, Any],
     qss: QualibrateSettingsSetup,
+    qass: QualibrateAppSettingsSetup,
     confirm: bool = True,
 ) -> None:
-    exported_data = qss.model_dump()
+    qs_exported_data = qss.model_dump(exclude_none=True)
+    qas_exported_data = qass.model_dump()
     if confirm:
-        _confirm(config_file, exported_data)
-    qss.user_storage.mkdir(parents=True, exist_ok=True)
+        _confirm(config_file, qs_exported_data, qas_exported_data)
+    qss.storage.location.mkdir(parents=True, exist_ok=True)
     if qss.project:
-        project_path = qss.user_storage / qss.project
+        project_path = qss.storage.location / qss.project
         project_path.mkdir(parents=True, exist_ok=True)
     if not config_file.parent.exists():
         config_file.parent.mkdir(parents=True)
-    common_config[QUALIBRATE_CONFIG_KEY] = exported_data
+    common_config[CONFIG_KEY] = qas_exported_data
+    common_config[QUALIBRATE_CONFIG_KEY] = qs_exported_data
+
     with config_file.open("wb") as f_out:
         tomli_w.dump(common_config, f_out)
 
@@ -241,17 +253,30 @@ def config_command(
     runner_timeout: float,
 ) -> None:
     common_config, config_file = get_config(config_path)
-    qualibrate_config = (
-        common_config.get(QUALIBRATE_CONFIG_KEY, {}) if not overwrite else {}
+    qualibrate_app_config = (
+        common_config.get(CONFIG_KEY, {}) if not overwrite else {}
     )
-    subconfigs = ("timeline_db", "runner")
-    for subconfig in subconfigs:
-        if subconfig not in qualibrate_config:
-            qualibrate_config[subconfig] = {}
-    qualibrate_config = _config_from_sources(ctx, qualibrate_config)
+    qapp_subconfigs = ("timeline_db", "runner")
+    for subconfig in qapp_subconfigs:
+        if subconfig not in qualibrate_app_config:
+            qualibrate_app_config[subconfig] = {}
+
+    qualibrate_app_config = _config_from_sources(ctx, qualibrate_app_config)
+    qualibrate_config, qapp_config = check_config_pre_v1_and_update(
+        common_config, qualibrate_app_config
+    )
     qss = get_config_model_or_print_error(
-        qualibrate_config, QualibrateSettingsSetup
+        qualibrate_config, QualibrateSettingsSetup, QUALIBRATE_CONFIG_KEY
     )
-    if qss is None:
+    qass = get_config_model_or_print_error(
+        qapp_config, QualibrateAppSettingsSetup, CONFIG_KEY
+    )
+    if qss is None or qass is None:
         return
-    write_config(config_file, common_config, qss, confirm=not auto_accept)
+    write_config(
+        config_file,
+        common_config,
+        cast(QualibrateSettingsSetup, qss),
+        cast(QualibrateAppSettingsSetup, qass),
+        confirm=not auto_accept,
+    )

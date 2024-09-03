@@ -1,12 +1,13 @@
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import Depends
 
+from qualibrate_app.config import QualibrateSettings
 from qualibrate_app.config.file import get_config_file
-from qualibrate_app.config.models import QualibrateSettings
+from qualibrate_app.config.models.qualibrate_app import QualibrateAppSettings
 from qualibrate_app.config.validation import (
     get_config_model_or_print_error,
     get_config_solved_references_or_print_error,
@@ -14,6 +15,7 @@ from qualibrate_app.config.validation import (
 from qualibrate_app.config.vars import (
     CONFIG_KEY,
     CONFIG_PATH_ENV_NAME,
+    QUALIBRATE_CONFIG_KEY,
 )
 
 
@@ -25,13 +27,20 @@ def get_config_path() -> Path:
 @lru_cache
 def get_settings(
     config_path: Annotated[Path, Depends(get_config_path)],
-) -> QualibrateSettings:
+) -> QualibrateAppSettings:
     config = get_config_solved_references_or_print_error(config_path)
     if config is None:
         raise RuntimeError("Couldn't read config file")
     qs = get_config_model_or_print_error(
-        config.get(CONFIG_KEY, {}), QualibrateSettings
+        config.get(QUALIBRATE_CONFIG_KEY, {}),
+        QualibrateSettings,
+        QUALIBRATE_CONFIG_KEY,
     )
-    if qs is None:
+    qas_config = config.get(CONFIG_KEY, {})
+    qas_config.update({"qualibrate": qs})
+    qas = get_config_model_or_print_error(
+        qas_config, QualibrateAppSettings, CONFIG_KEY
+    )
+    if qas is None:
         raise RuntimeError("Couldn't read config file")
-    return qs
+    return cast(QualibrateAppSettings, qas)

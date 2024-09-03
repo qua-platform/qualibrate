@@ -14,7 +14,7 @@ from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 from qualibrate_app.api.core.utils.request_utils import request_with_db
 from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate_app.config import QualibrateSettings
+from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["SnapshotTimelineDb"]
 
@@ -25,7 +25,7 @@ class SnapshotTimelineDb(SnapshotBase):
         id: IdType,
         content: Optional[DocumentType] = None,
         *,
-        settings: QualibrateSettings,
+        settings: QualibrateAppSettings,
     ):
         super().__init__(id, content, settings=settings)
 
@@ -41,7 +41,7 @@ class SnapshotTimelineDb(SnapshotBase):
         result = request_with_db(
             f"snapshot/{self.id}/",
             params=params,
-            db_name=self._settings.project,
+            db_name=self._settings.qualibrate.project,
             host=self._settings.timeline_db.address,
             timeout=self._settings.timeline_db.timeout,
         )
@@ -97,7 +97,7 @@ class SnapshotTimelineDb(SnapshotBase):
         result = request_with_db(
             f"snapshot/{self.id}/history",
             params={"page": page, "per_page": per_page, "reverse": reverse},
-            db_name=self._settings.project,
+            db_name=self._settings.qualibrate.project,
             host=self._settings.timeline_db.address,
             timeout=self._settings.timeline_db.timeout,
         )
@@ -123,7 +123,7 @@ class SnapshotTimelineDb(SnapshotBase):
         response = request_with_db(
             "action/compare",
             params={"left_id": self.id, "right_id": other_snapshot_int},
-            db_name=self._settings.project,
+            db_name=self._settings.qualibrate.project,
             host=self._settings.timeline_db.address,
             timeout=self._settings.timeline_db.timeout,
         )

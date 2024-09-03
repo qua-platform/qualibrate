@@ -41,21 +41,21 @@ from qualibrate_app.api.exceptions.classes.storage import (
     QPathException,
 )
 from qualibrate_app.api.exceptions.classes.values import QValueException
-from qualibrate_app.config import QualibrateSettings
+from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["SnapshotLocalStorage"]
 
 logger = logging.getLogger(__name__)
 
 SnapshotContentLoaderType = Callable[
-    [NodePath, SnapshotLoadType, QualibrateSettings], DocumentType
+    [NodePath, SnapshotLoadType, QualibrateAppSettings], DocumentType
 ]
 SnapshotContentUpdaterType = Callable[
     [
         NodePath,
         Mapping[str, Any],
         Sequence[Mapping[str, Any]],
-        QualibrateSettings,
+        QualibrateAppSettings,
     ],
     bool,
 ]
@@ -65,7 +65,7 @@ def _read_minified_node_content(
     node_info: Mapping[str, Any],
     f_node_id: Optional[int],
     node_filepath: Path,
-    settings: QualibrateSettings,
+    settings: QualibrateAppSettings,
 ) -> dict[str, Any]:
     """
     Args:
@@ -82,8 +82,8 @@ def _read_minified_node_content(
         "parents", [node_id - 1] if node_id and node_id > 0 else []
     )
     id_local_path = IdToLocalPath()
-    project = settings.project
-    user_storage = settings.user_storage
+    project = settings.qualibrate.project
+    user_storage = settings.qualibrate.storage.location
     parents = list(
         filter(
             lambda p_id: id_local_path.get(project, p_id, user_storage), parents
@@ -112,7 +112,7 @@ def _read_metadata_node_content(
     node_info: Mapping[str, Any],
     f_node_name: str,
     snapshot_path: Path,
-    settings: QualibrateSettings,
+    settings: QualibrateAppSettings,
 ) -> dict[str, Any]:
     """
     Args:
@@ -128,7 +128,7 @@ def _read_metadata_node_content(
     node_metadata.setdefault("name", f_node_name)
     node_metadata.setdefault(
         settings.metadata_out_path,
-        str(snapshot_path.relative_to(settings.user_storage)),
+        str(snapshot_path.relative_to(settings.qualibrate.storage.location)),
     )
     return node_metadata
 
@@ -169,19 +169,11 @@ def _read_data_node_content(
         return dict(json.load(f))
 
 
-# class DateTimeEncoder(json.JSONEncoder):
-#     def default(self, o: Any) -> Any:
-#         if isinstance(o, datetime):
-#             return o.isoformat(timespec='seconds')
-#
-#         return super().default(o)
-
-
 def _default_snapshot_content_updater(
     snapshot_path: NodePath,
     new_snapshot: Mapping[str, Any],
     patches: Sequence[Mapping[str, Any]],
-    settings: QualibrateSettings,
+    settings: QualibrateAppSettings,
 ) -> bool:
     node_filepath = _get_node_filepath(snapshot_path)
     if not node_filepath.is_file():
@@ -206,11 +198,13 @@ def _default_snapshot_content_updater(
     with node_filepath.open("w") as f:
         json.dump(node_info, f, indent=4)
 
-    if not settings.active_machine_path:
+    if not settings.qualibrate.active_machine.path:
         logger.info("No active machine path to update")
         pass
-    elif settings.active_machine_path.is_dir():
-        logger.info(f"Updating quam state dir {settings.active_machine_path}")
+    elif settings.qualibrate.active_machine.path.is_dir():
+        logger.info(
+            f"Updating quam state dir {settings.qualibrate.active_machine.path}"
+        )
         contents = deepcopy(dict(new_snapshot))
         content_mapping = {"wiring.json": {"wiring", "network"}}
 
@@ -220,18 +214,24 @@ def _default_snapshot_content_updater(
                 for key in content_keys
                 if key in contents
             }
-            logger.info(f"Writing {filename} to {settings.active_machine_path}")
-            (settings.active_machine_path / filename).write_text(
+            logger.info(
+                f"Writing {filename} to {settings.qualibrate.active_machine.path}"
+            )
+            (settings.qualibrate.active_machine.path / filename).write_text(
                 json.dumps(wiring_snapshot, indent=4)
             )
 
-        logger.info(f"Writing state.json to {settings.active_machine_path}")
-        (settings.active_machine_path / "state.json").write_text(
+        logger.info(
+            f"Writing state.json to {settings.qualibrate.active_machine.path}"
+        )
+        (settings.qualibrate.active_machine.path / "state.json").write_text(
             json.dumps(contents, indent=4)
         )
     else:
-        logger.info(f"Updating quam state file {settings.active_machine_path}")
-        settings.active_machine_path.write_text(
+        logger.info(
+            f"Updating quam state file {settings.qualibrate.active_machine.path}"
+        )
+        settings.qualibrate.active_machine.path.write_text(
             json.dumps(new_snapshot, indent=4)
         )
 
@@ -241,7 +241,7 @@ def _default_snapshot_content_updater(
 def _default_snapshot_content_loader(
     snapshot_path: NodePath,
     load_type: SnapshotLoadType,
-    settings: QualibrateSettings,
+    settings: QualibrateAppSettings,
     raw: bool = False,
 ) -> DocumentType:
     node_filepath = _get_node_filepath(snapshot_path)
@@ -294,7 +294,7 @@ class SnapshotLocalStorage(SnapshotBase):
         snapshot_loader: SnapshotContentLoaderType = _default_snapshot_content_loader,
         snapshot_updater: SnapshotContentUpdaterType = _default_snapshot_content_updater,
         *,
-        settings: QualibrateSettings,
+        settings: QualibrateAppSettings,
     ):
         super().__init__(id=id, content=content, settings=settings)
         self._snapshot_loader = snapshot_loader
@@ -305,9 +305,9 @@ class SnapshotLocalStorage(SnapshotBase):
     def node_path(self) -> NodePath:
         if self._node_path is None:
             self._node_path = IdToLocalPath().get_or_raise(
-                self._settings.project,
+                self._settings.qualibrate.project,
                 self._id,
-                self._settings.user_storage,
+                self._settings.qualibrate.storage.location,
             )
         return self._node_path
 
@@ -341,15 +341,15 @@ class SnapshotLocalStorage(SnapshotBase):
         self, page: int = 1, per_page: int = 50, reverse: bool = False
     ) -> Tuple[int, Sequence[SnapshotBase]]:
         # first in history is current
-        total = find_latest_node_id(self._settings.user_storage)
+        total = find_latest_node_id(self._settings.qualibrate.storage.location)
         self.load(SnapshotLoadType.Metadata)
         if page == 1 and per_page == 1:
             return total, [self]
         ids = find_n_latest_nodes_ids(
-            self._settings.user_storage,
+            self._settings.qualibrate.storage.location,
             page,
             per_page,
-            self._settings.project,
+            self._settings.qualibrate.project,
             max_node_id=(self.id or total) - 1,
         )
         snapshots = [

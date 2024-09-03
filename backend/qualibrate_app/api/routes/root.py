@@ -17,19 +17,23 @@ from qualibrate_app.api.core.models.snapshot import (
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import IdType
 from qualibrate_app.api.dependencies.search import get_search_path
-from qualibrate_app.config import QualibrateSettings, StorageType, get_settings
+from qualibrate_app.config import (
+    QualibrateAppSettings,
+    StorageType,
+    get_settings,
+)
 
 root_router = APIRouter(prefix="/root", tags=["root"])
 
 
 def _get_root_instance(
-    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> RootBase:
     root_types = {
         StorageType.local_storage: RootLocalStorage,
         StorageType.timeline_db: RootTimelineDb,
     }
-    return root_types[settings.storage_type](settings=settings)
+    return root_types[settings.qualibrate.storage.type](settings=settings)
 
 
 @root_router.get("/branch")
