@@ -6,6 +6,8 @@ import { UpArrowIcon } from "../../../../ui-lib/Icons/UpArrowIcon";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { CheckMarkIcon } from "../../../../ui-lib/Icons/CheckMarkIcon";
 import { RightArrowIcon } from "../../../../ui-lib/Icons/RightArrowIcon";
+import { EditIcon } from "../../../../ui-lib/Icons/EditIcon";
+import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 
 interface StateUpdateComponentProps {
   key: string;
@@ -17,6 +19,8 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
   const { key, stateUpdateObject, runningNodeInfo } = props;
   const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [customValue, setCustomValue] = useState<string | number | undefined>(undefined);
   return (
     <div key={`${key}-wrapper`} className={styles.stateUpdateWrapper}>
       <div>
@@ -25,17 +29,14 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
             onClick={async () => {
               if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && (stateUpdateObject.val || stateUpdateObject.new)) {
                 setRunningUpdate(true);
-                const response = await SnapshotsApi.updateState(
-                  runningNodeInfo?.idx,
-                  key,
-                  (stateUpdateObject.val ? stateUpdateObject.val : stateUpdateObject.new!).toString()
-                );
-                setRunningUpdate(false);
+                const stateUpdateValue = customValue ? customValue : stateUpdateObject.val ?? stateUpdateObject.new!;
+                const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateValue.toString());
                 if (response.isOk) {
                   setParameterUpdated(response.result!);
                 } else {
                   setParameterUpdated(response.result!); //TODO Check this
                 }
+                setRunningUpdate(false);
               }
             }}
           >
@@ -51,10 +52,28 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
         <div className={styles.stateUpdateKeyText}>{stateUpdateObject?.key ? stateUpdateObject?.key.toString() : key.toString()}</div>
         <div className={styles.stateUpdateValueText}>
           {stateUpdateObject && (
-            <div>
+            <div className={styles.stateUpdateValueTextWrapper}>
               {stateUpdateObject.old}&nbsp;&nbsp;
               <RightArrowIcon />
               &nbsp;&nbsp;{stateUpdateObject.val ?? stateUpdateObject.new}
+              <div
+                className={styles.editIconWrapper}
+                onClick={() => {
+                  setEditMode(true);
+                  setCustomValue(stateUpdateObject.val ?? stateUpdateObject.new);
+                }}
+              >
+                {!editMode && <EditIcon />}
+              </div>
+              {editMode && (
+                <InputField
+                  className={styles.newValueOfState}
+                  value={customValue}
+                  onChange={(val) => {
+                    setCustomValue(val);
+                  }}
+                />
+              )}
             </div>
           )}
         </div>
@@ -89,10 +108,22 @@ const NodeStatusErrorWrapper: React.FC<{
   runningNodeInfo: RunningNodeInfo | undefined;
 }> = (props) => {
   const { runningNodeInfo } = props;
+  let errorMessage = runningNodeInfo?.error?.error_class;
+  if (errorMessage) {
+    errorMessage += ": ";
+  }
+  if (runningNodeInfo?.error?.message) {
+    errorMessage += runningNodeInfo?.error?.message;
+  }
+
   return (
     <>
-      {runningNodeInfo?.error && <div className={styles.stateTitle}>Error traceback:</div>}
+      {/*{runningNodeInfo?.error && <div className={styles.stateTitle}>Error traceback:</div>}*/}
       <div className={styles.nodeStatusErrorWrapper}>
+        {runningNodeInfo?.error?.error_class && <div>Error occurred:</div>}
+        <div className={styles.nodeStatusErrorWrapper}> {errorMessage}</div>
+        {runningNodeInfo?.error?.traceback?.length}
+        {runningNodeInfo?.error?.traceback?.length && runningNodeInfo?.error?.traceback?.length > 0 && <div>Error traceback:</div>}
         {(runningNodeInfo?.error?.traceback ?? []).map((row, index) => (
           <div key={`${row}-${index}`} className={styles.nodeStatusErrorWrapper}>
             {row}
@@ -151,12 +182,19 @@ export const RunningJob: React.FC = () => {
       </>
     );
   };
+  const insertSpaces = (str: string, interval = 40) => {
+    let result = "";
+    for (let i = 0; i < str.length; i += interval) {
+      result += str.slice(i, i + interval) + " ";
+    }
+    return result.trim();
+  };
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.title}>
         <div className={styles.dot}></div>
-        Running job {runningNode?.name ? ":" : ""}&nbsp;&nbsp;{runningNode?.name ?? ""}
+        Running job {runningNode?.name ? ":" : ""}&nbsp;&nbsp;{runningNode?.name ? insertSpaces(runningNode?.name) : ""}
       </div>
       {runningNodeInfo && (
         <div className={styles.infoWrapper}>
