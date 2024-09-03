@@ -50,8 +50,6 @@ def run_node(
         converted_parameters = types_conversion(
             passed_input_parameters, node.parameters_class.serialize()
         )
-        print("before", passed_input_parameters)
-        print("after", converted_parameters)
         result = library.run_node(
             node.name, node.parameters_class(**converted_parameters)
         )
