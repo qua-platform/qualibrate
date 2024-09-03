@@ -50,7 +50,7 @@ exclude = ['tests/']
 
 [[tool.mypy.overrides]]
 # TODO: add py.typed to json_timeline_database and remove from ignore imports
-module = ["jsonpatch", "jsonpointer", "qualibrate", "qualibrate_app.*",  "qualibrate_runner.*"]
+module = ["jsonpatch", "jsonpointer", "qualibrate", "qualibrate_app.*",  "qualibrate_runner.*", "json_timeline_database.*"]
 ignore_missing_imports = true
 
 [tool.ruff]
