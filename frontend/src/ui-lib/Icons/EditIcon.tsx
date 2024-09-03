@@ -1,8 +1,7 @@
-import { ACTIVE_TEXT } from "../../utils/colors";
 import { IconProps } from "../../common/interfaces/IconProps";
 import React from "react";
 
-export const EditIcon: React.FunctionComponent<IconProps> = ({ width = 13, height = 13, color = ACTIVE_TEXT }) => (
+export const EditIcon: React.FunctionComponent<IconProps> = ({ width = 13, height = 13 }) => (
   <svg width={width} height={height} viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clipPath="url(#clip0_2158_393)">
       <path
