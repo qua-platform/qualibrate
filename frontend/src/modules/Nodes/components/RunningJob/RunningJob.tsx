@@ -23,7 +23,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
         {!runningUpdate && !parameterUpdated && (
           <div
             onClick={async () => {
-              if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && (stateUpdateObject.val || stateUpdateObject.new)) {
+              if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && ("val" in stateUpdateObject || "new" in stateUpdateObject)) {
                 setRunningUpdate(true);
                 const response = await SnapshotsApi.updateState(
                   runningNodeInfo?.idx,
