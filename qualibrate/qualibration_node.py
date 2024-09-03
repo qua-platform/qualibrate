@@ -12,6 +12,7 @@ from typing import (
     Generator,
     Optional,
     Type,
+    cast,
 )
 
 import matplotlib
@@ -231,18 +232,24 @@ class QualibrationNode(
         return MappingProxyType(self._state_updates)
 
     def stop(self) -> bool:
-        return False
-        # try:
-        #     from qm import QuantumMachinesManager
-        # except ImportError:
-        #     return False
-        # qmm = QuantumMachinesManager(**settings)  # need to specify settings
-        # ids = qmm.list_open_quantum_machines()
-        # if len(ids) == 0:
-        #     return False
-        # qm = qmm.get_qm(ids[0])
-        # job = qm.get_running_job()
-        # job.halt()
+        try:
+            from qm import QuantumMachinesManager
+        except ImportError:
+            return False
+        qmm = getattr(self.machine, "qmm", None)
+        if not qmm:
+            return False
+        ids = cast(
+            QuantumMachinesManager, qmm
+        ).list_open_qms()  # FIXME: probably `list_open_quantum_machines`
+        if len(ids) == 0:
+            return False
+        qm = qmm.get_qm(ids[0])
+        job = qm.get_running_job()
+        if job is None:
+            return False
+        job.halt()
+        return True
 
     @contextmanager
     def record_state_updates(
