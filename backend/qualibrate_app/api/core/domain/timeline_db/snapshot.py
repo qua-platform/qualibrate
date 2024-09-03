@@ -141,3 +141,8 @@ class SnapshotTimelineDb(SnapshotBase):
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         # TODO: update timeline db snapshot entry
         return False
+
+    def extract_state_update_type(
+        self, path: str
+    ) -> Optional[Mapping[str, Any]]:
+        return None

@@ -121,5 +121,11 @@ class SnapshotBase(IDump, ABC):
         return SnapshotModel(**self.content)
 
     @abstractmethod
+    def extract_state_update_type(
+        self, path: str
+    ) -> Optional[Mapping[str, Any]]:
+        pass
+
+    @abstractmethod
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         pass

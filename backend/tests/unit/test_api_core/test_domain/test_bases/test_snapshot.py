@@ -43,6 +43,11 @@ class SnapshotBaseCustom(SnapshotBase):
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         raise NotImplementedError
 
+    def extract_state_update_type(
+        self, path: str
+    ) -> Optional[Mapping[str, Any]]:
+        raise NotImplementedError
+
 
 def test__items_keys():
     assert SnapshotBase._items_keys == ("data", "metadata")

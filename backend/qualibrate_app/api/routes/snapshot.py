@@ -1,5 +1,4 @@
 from typing import Annotated, Any, Mapping, Optional, Type, Union
-from urllib.parse import urljoin
 
 import requests
 from fastapi import APIRouter, Depends, Path, Query
@@ -20,6 +19,7 @@ from qualibrate_app.api.core.models.snapshot import (
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import DocumentSequenceType, IdType
+from qualibrate_app.api.core.utils.types_parsing import types_conversion
 from qualibrate_app.api.dependencies.search import get_search_path
 from qualibrate_app.config import (
     QualibrateAppSettings,
@@ -109,17 +109,14 @@ def update_entity(
     value: Any,
     settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> bool:
-    if isinstance(value, str):
-        if value.isdigit():
-            value = int(value)
-        elif value.lower() in ["true", "false"]:
-            value = value.lower() == "true"
-        elif is_float(value):
-            value = float(value)
+    type_ = snapshot.extract_state_update_type(data_path)
+    print("extracted type", type_)
+    if type_ is not None:
+        value = types_conversion(value, type_)
     updated = snapshot.update_entry({data_path: value})
     if updated:
         requests.post(
-            urljoin(str(settings.runner.address), "record_state_update"),
+            f"{settings.runner.address}/record_state_update",
             params={"key": data_path},
             timeout=settings.runner.timeout,
         )
