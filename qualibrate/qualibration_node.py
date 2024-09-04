@@ -78,7 +78,7 @@ class QualibrationNode(
 
         self._initialized = True
 
-        if self.mode.inspection:
+        if self.modes.inspection:
             # ASK: Looks like `last_instantiated_node` and
             #  `_singleton_instance` have same logic -- keep instance of class
             #  in class-level variable. Is it needed to have both?
@@ -101,12 +101,12 @@ class QualibrationNode(
             raise ValueError(
                 f"{self.__class__.__name__} should have a string name"
             )
-        inspection = self.__class__.mode.inspection
-        self.__class__.mode.inspection = False
+        inspection = self.__class__.modes.inspection
+        self.__class__.modes.inspection = False
         try:
             instance = self.__copy__()
         finally:
-            self.__class__.mode.inspection = inspection
+            self.__class__.modes.inspection = inspection
         if name is not None:
             instance.name = name
         fields = {
@@ -132,7 +132,7 @@ class QualibrationNode(
 
     def _warn_if_external_and_interactive_mpl(self) -> None:
         mpl_backend = matplotlib.get_backend()
-        if self.mode.external and mpl_backend in interactive_bk:
+        if self.modes.external and mpl_backend in interactive_bk:
             matplotlib.use("agg")
             warnings.warn(
                 UserWarning(
@@ -147,7 +147,7 @@ class QualibrationNode(
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}: {self.name} "
-            f"(mode: {self.mode}; parameters: {self.parameters})"
+            f"(mode: {self.modes}; parameters: {self.parameters})"
         )
 
     @property
@@ -176,8 +176,8 @@ class QualibrationNode(
     def run(self, **passed_parameters: Any) -> BaseRunSummary:
         if self.filepath is None:
             raise RuntimeError("Node file path was not provided")
-        external = self.mode.external
-        interactive = self.mode.interactive
+        external = self.modes.external
+        interactive = self.modes.interactive
         params_dict = (
             self.parameters.model_dump() if self.parameters is not None else {}
         )
@@ -186,13 +186,13 @@ class QualibrationNode(
         initial_targets = copy(parameters.targets) if parameters.targets else []
         created_at = datetime.now()
         try:
-            self.mode.external = True
-            self.mode.interactive = True
+            self.modes.external = True
+            self.modes.interactive = True
             self._parameters = parameters
             self.run_node_file(self.filepath)
         finally:
-            self.mode.external = external
-            self.mode.interactive = interactive
+            self.modes.external = external
+            self.modes.interactive = interactive
         return NodeRunSummary(
             name=self.name,
             description=self.description,
@@ -254,7 +254,7 @@ class QualibrationNode(
     def record_state_updates(
         self, interactive_only: bool = True
     ) -> Generator[None, None, None]:
-        if not self.mode.interactive and interactive_only:
+        if not self.modes.interactive and interactive_only:
             yield
             return
 
@@ -314,9 +314,9 @@ class QualibrationNode(
         cls, path: Path, library: "QualibrationLibrary"
     ) -> Dict[str, QNodeBaseType]:
         nodes: Dict[str, QNodeBaseType] = {}
-        inspection = cls.mode.inspection
+        inspection = cls.modes.inspection
         try:
-            cls.mode.inspection = True
+            cls.modes.inspection = True
 
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
@@ -332,7 +332,7 @@ class QualibrationNode(
                     )
 
         finally:
-            cls.mode.inspection = inspection
+            cls.modes.inspection = inspection
         return nodes
 
     @classmethod
@@ -352,7 +352,7 @@ class QualibrationNode(
                 return
 
             node.filepath = file
-            node.mode.inspection = False
+            node.modes.inspection = False
             cls.add_node(node, nodes)
 
     @classmethod

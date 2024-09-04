@@ -94,7 +94,7 @@ class QualibrationGraph(
         self.full_parameters_class = self._build_parameters_class()
         self.full_parameters: Optional[GraphRunParametersType] = None
 
-        if self.mode.inspection:
+        if self.modes.inspection:
             # ASK: Looks like `last_instantiated_node` and
             #  `_singleton_instance` have same logic -- keep instance of class
             #  in class-level variable. Is it needed to have both?
@@ -124,9 +124,9 @@ class QualibrationGraph(
         cls, path: Path, library: "QualibrationLibrary"
     ) -> Dict[str, QGraphBaseType]:
         graphs: Dict[str, QGraphBaseType] = {}
-        inspection = cls.mode.inspection
+        inspection = cls.modes.inspection
         try:
-            cls.mode.inspection = True
+            cls.modes.inspection = True
 
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
@@ -141,7 +141,7 @@ class QualibrationGraph(
                         )
                     )
         finally:
-            cls.mode.inspection = inspection
+            cls.modes.inspection = inspection
         return graphs
 
     @classmethod
@@ -161,7 +161,7 @@ class QualibrationGraph(
                 return
 
             graph.filepath = file
-            graph.mode.inspection = False
+            graph.modes.inspection = False
             cls.add_graph(graph, graphs)
 
     @classmethod
