@@ -8,6 +8,7 @@ import { CheckMarkIcon } from "../../../../ui-lib/Icons/CheckMarkIcon";
 import { RightArrowIcon } from "../../../../ui-lib/Icons/RightArrowIcon";
 import { EditIcon } from "../../../../ui-lib/Icons/EditIcon";
 import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
+import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 
 interface StateUpdateComponentProps {
   key: string;
@@ -135,7 +136,7 @@ const NodeStatusErrorWrapper: React.FC<{
 };
 
 export const RunningJob: React.FC = () => {
-  const { runningNode, runningNodeInfo } = useNodesContext();
+  const { runningNode, runningNodeInfo, isNodeRunning, setIsNodeRunning } = useNodesContext();
 
   const getRunningJobInfo = () => {
     return (
@@ -190,11 +191,28 @@ export const RunningJob: React.FC = () => {
     return result.trim();
   };
 
+  const handleStopClick = () => {
+    SnapshotsApi.stopNodeRunning().then((res) => {
+      if (res.isOk) {
+        setIsNodeRunning(!res.result);
+      }
+    });
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.title}>
         <div className={styles.dot}></div>
-        Running job {runningNode?.name ? ":" : ""}&nbsp;&nbsp;{runningNode?.name ? insertSpaces(runningNode?.name) : ""}
+        <div>
+          Running job {runningNode?.name ? ":" : ""}&nbsp;&nbsp;{runningNode?.name ? insertSpaces(runningNode?.name) : ""}
+        </div>
+        {isNodeRunning && (
+          <div className={styles.stopButtonWrapper}>
+            <BlueButton className={styles.stopButton} onClick={handleStopClick}>
+              Stop
+            </BlueButton>
+          </div>
+        )}
       </div>
       {runningNodeInfo && (
         <div className={styles.infoWrapper}>
