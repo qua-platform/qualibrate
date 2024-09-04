@@ -13,6 +13,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 from weakref import ReferenceType
 
@@ -130,7 +131,15 @@ class QualibrationGraph(
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
                     continue
-                cls.scan_graph_file(file, graphs)
+                try:
+                    cls.scan_graph_file(file, graphs)
+                except Exception as e:
+                    warnings.warn(
+                        RuntimeWarning(
+                            "An error occurred on scanning graph file "
+                            f"{file.name}.\nError message: {e}"
+                        )
+                    )
         finally:
             cls.modes.inspection = inspection
         return graphs
@@ -186,6 +195,17 @@ class QualibrationGraph(
             )
         )
 
+    def _get_all_nodes_parameters(
+        self, nodes_parameters: Mapping[str, Any]
+    ) -> Mapping[str, Any]:
+        nodes_class = self.full_parameters_class.model_fields[
+            "nodes"
+        ].annotation
+        return {
+            name: nodes_parameters.get(name, {})
+            for name in cast(NodesParameters, nodes_class).model_fields.keys()
+        }
+
     def run(self, **passed_parameters: Any) -> BaseRunSummary:
         """
         :param passed_parameters: Graph parameters. Should contain `nodes` key.
@@ -193,7 +213,9 @@ class QualibrationGraph(
         if self._orchestrator is None:
             raise ValueError("Orchestrator not specified")
         self.cleanup()
-        nodes = passed_parameters.get("nodes", {})
+        nodes = self._get_all_nodes_parameters(
+            passed_parameters.get("nodes", {})
+        )
         self.parameters = self.parameters_class.model_validate(
             passed_parameters
         )
@@ -333,3 +355,6 @@ class QualibrationGraph(
             for source, dest in serialized["connectivity"]
         ]
         return [*nodes, *edges]
+
+    def stop(self) -> bool:
+        return False

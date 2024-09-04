@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from copy import copy
 from datetime import datetime
 from functools import partialmethod
+from importlib.util import find_spec
 from pathlib import Path
 from types import MappingProxyType
 from typing import (
@@ -167,8 +168,8 @@ class QualibrationNode(
             config_path = get_config_path()
             settings = get_settings(config_path)
             self.storage_manager = LocalStorageManager(
-                root_data_folder=settings.user_storage,
-                active_machine_path=settings.active_machine_path,
+                root_data_folder=settings.qualibrate.storage.location,
+                active_machine_path=settings.qualibrate.active_machine.path,
             )
         self.storage_manager.save(node=self)
 
@@ -229,6 +230,25 @@ class QualibrationNode(
     @property
     def state_updates(self) -> MappingProxyType[str, Any]:
         return MappingProxyType(self._state_updates)
+
+    def stop(self) -> bool:
+        if find_spec("qm") is None:
+            return False
+        qmm = getattr(self.machine, "qmm", None)
+        if not qmm:
+            return False
+        if hasattr(qmm, "list_open_qms"):
+            ids = qmm.list_open_qms()
+        elif hasattr(qmm, "list_open_quantum_machines"):
+            ids = qmm.list_open_quantum_machines()
+        else:
+            return False
+        qm = qmm.get_qm(ids[0])
+        job = qm.get_running_job()
+        if job is None:
+            return False
+        job.halt()
+        return True
 
     @contextmanager
     def record_state_updates(
@@ -301,7 +321,16 @@ class QualibrationNode(
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
                     continue
-                cls.scan_node_file(file, nodes)
+                try:
+                    cls.scan_node_file(file, nodes)
+                except Exception as e:
+                    warnings.warn(
+                        RuntimeWarning(
+                            "An error occurred on scanning node file "
+                            f"{file.name}.\nError: {type(e)}: {e}"
+                        )
+                    )
+
         finally:
             cls.modes.inspection = inspection
         return nodes

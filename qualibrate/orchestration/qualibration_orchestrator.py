@@ -8,6 +8,7 @@ from qualibrate.orchestration.execution_history import (
     ExecutionHistoryItem,
 )
 from qualibrate.outcome import Outcome
+from qualibrate.parameters import RunnableParameters
 from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.utils.naming import get_full_class_path
 
@@ -22,6 +23,7 @@ class QualibrationOrchestrator(ABC):
         self._graph: Optional[QualibrationGraph] = None
         self.parameters_class = create_model(
             "OrchestratorParameters",
+            __base__=RunnableParameters,
             **{  # type: ignore
                 name: (type(value), value) for name, value in parameters.items()
             },
@@ -45,7 +47,10 @@ class QualibrationOrchestrator(ABC):
         self.final_outcomes = {}
 
     def serialize(self) -> Mapping[str, Any]:
-        return {"__class__": get_full_class_path(self.__class__)}
+        return {
+            "__class__": get_full_class_path(self.__class__),
+            "parameters": self.parameters_class.serialize(),
+        }
 
     def get_execution_history(self) -> ExecutionHistory:
         return ExecutionHistory(items=self._execution_history)
