@@ -434,19 +434,17 @@ class SnapshotLocalStorage(SnapshotBase):
             quam_state = json.loads(quam_state_file.read_text())
         except json.JSONDecodeError:
             return None
-        print(f"{quam_state = }")
         quam_item = jsonpointer.resolve_pointer(quam_state, path[1:], object)
         if quam_item is object:
             return None
-        print(f"{quam_item = }")
         return self._conversion_type_from_value(quam_item)
 
     def extract_state_update_type(
         self, path: str
     ) -> Optional[Mapping[str, Any]]:
-        # _type = self._extract_state_updates_type_from_runner(path)
-        # if _type is not None:
-        #     return _type
+        _type = self._extract_state_updates_type_from_runner(path)
+        if _type is not None:
+            return _type
         return self._extract_state_updates_from_quam_state(path)
 
     def update_entry(self, updates: Mapping[str, Any]) -> bool:

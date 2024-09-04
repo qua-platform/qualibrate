@@ -110,7 +110,6 @@ def update_entity(
     settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> bool:
     type_ = snapshot.extract_state_update_type(data_path)
-    print("extracted type", type_)
     if type_ is not None:
         value = types_conversion(value, type_)
     updated = snapshot.update_entry({data_path: value})
