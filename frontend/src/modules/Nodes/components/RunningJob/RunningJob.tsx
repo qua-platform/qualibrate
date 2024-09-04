@@ -17,13 +17,26 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
   const { key, stateUpdateObject, runningNodeInfo } = props;
   const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
+
+  const renderSuggestedValue = (value: string | number | number[]) => {
+    if (Array.isArray(value)) {
+      return "[" + value.toString() + "]";
+    }
+    return value.toString();
+  };
+  console.log(stateUpdateObject);
   return (
     <div key={`${key}-wrapper`} className={styles.stateUpdateWrapper}>
       <div>
         {!runningUpdate && !parameterUpdated && (
           <div
             onClick={async () => {
-              if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && ("val" in stateUpdateObject || "new" in stateUpdateObject)) {
+              if (
+                runningNodeInfo &&
+                runningNodeInfo.idx &&
+                stateUpdateObject &&
+                ("val" in stateUpdateObject || "new" in stateUpdateObject)
+              ) {
                 setRunningUpdate(true);
                 const response = await SnapshotsApi.updateState(
                   runningNodeInfo?.idx,
@@ -54,7 +67,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
             <div>
               {stateUpdateObject.old}&nbsp;&nbsp;
               <RightArrowIcon />
-              &nbsp;&nbsp;{stateUpdateObject.val ?? stateUpdateObject.new}
+              &nbsp;&nbsp;{renderSuggestedValue(stateUpdateObject.val ?? stateUpdateObject.new ?? "")}
             </div>
           )}
         </div>
