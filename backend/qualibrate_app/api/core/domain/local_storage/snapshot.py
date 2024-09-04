@@ -396,10 +396,10 @@ class SnapshotLocalStorage(SnapshotBase):
             if item_type is None:
                 return {"type": "array"}
             return {"type": "array", "items": {"type": item_type}}
-        item_type = TYPE_TO_STR.get(type(value[0]))
+        item_type = TYPE_TO_STR.get(type(value))
         if item_type is None:
-            return {"type": "array"}
-        return {"type": type(value)}
+            return {"type": "null"}
+        return {"type": item_type}
 
     def _extract_state_updates_type_from_runner(
         self, path: str
