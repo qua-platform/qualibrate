@@ -24,7 +24,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
     }
     return value.toString();
   };
-  console.log(stateUpdateObject);
+
   return (
     <div key={`${key}-wrapper`} className={styles.stateUpdateWrapper}>
       <div>
