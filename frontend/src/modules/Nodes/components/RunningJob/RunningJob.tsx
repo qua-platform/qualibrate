@@ -67,7 +67,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
                 <div className={styles.stateUpdateValueText}>
                     {stateUpdateObject && (
                         <div className={styles.stateUpdateValueTextWrapper}>
-                            {stateUpdateObject.old}&nbsp;&nbsp;
+                            {renderSuggestedValue(stateUpdateObject.old ?? "None")}&nbsp;&nbsp;
                             <RightArrowIcon />
                             &nbsp;&nbsp;{renderSuggestedValue(stateUpdateObject.val ?? stateUpdateObject.new ?? "")}
                             <div
