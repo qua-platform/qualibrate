@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from copy import copy
 from datetime import datetime
 from functools import partialmethod
+from importlib.util import find_spec
 from pathlib import Path
 from types import MappingProxyType
 from typing import (
@@ -12,7 +13,6 @@ from typing import (
     Generator,
     Optional,
     Type,
-    cast,
 )
 
 import matplotlib
@@ -232,17 +232,16 @@ class QualibrationNode(
         return MappingProxyType(self._state_updates)
 
     def stop(self) -> bool:
-        try:
-            from qm import QuantumMachinesManager
-        except ImportError:
+        if find_spec("qm") is None:
             return False
         qmm = getattr(self.machine, "qmm", None)
         if not qmm:
             return False
-        ids = cast(
-            QuantumMachinesManager, qmm
-        ).list_open_qms()  # FIXME: probably `list_open_quantum_machines`
-        if len(ids) == 0:
+        if hasattr(qmm, "list_open_qms"):
+            ids = qmm.list_open_qms()
+        elif hasattr(qmm, "list_open_quantum_machines"):
+            ids = qmm.list_open_quantum_machines()
+        else:
             return False
         qm = qmm.get_qm(ids[0])
         job = qm.get_running_job()
