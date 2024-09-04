@@ -8,7 +8,7 @@ from qualibrate_app.api.core.domain.bases.node import NodeBase
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
 from qualibrate_app.api.core.models.branch import Branch as BranchModel
 from qualibrate_app.api.core.types import DocumentType, IdType
-from qualibrate_app.config import QualibrateSettings
+from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["BranchBase", "BranchLoadType"]
 
@@ -24,7 +24,7 @@ class BranchBase(IDump, ABC):
         name: str,
         content: Optional[DocumentType] = None,
         *,
-        settings: QualibrateSettings,
+        settings: QualibrateAppSettings,
     ):
         self._name = name
         self._settings = settings

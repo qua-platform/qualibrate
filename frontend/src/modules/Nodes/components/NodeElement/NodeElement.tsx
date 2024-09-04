@@ -3,7 +3,7 @@ import styles from "./NodeElement.module.scss";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 import { Checkbox, CircularProgress } from "@mui/material";
-import { useNodesContext } from "../../context/NodesContext";
+import { NodeStatusErrorWithDetails, useNodesContext } from "../../context/NodesContext";
 import { classNames } from "../../../../utils/classnames";
 import { NodesApi } from "../../api/NodesAPI";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters";
@@ -78,11 +78,33 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
   }
 
-  const handleClick = () => {
+  const handleClick = async () => {
     setIsNodeRunning(true);
     setRunningNode(node);
-    setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
-    NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
+    const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
+    if (result.isOk) {
+      console.log("result", result);
+      setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
+    } else {
+      const errorWithDetails = result.error as NodeStatusErrorWithDetails;
+      setRunningNodeInfo({
+        timestampOfRun: formatDate(new Date()),
+        status: "error",
+        error: {
+          error_class: errorWithDetails.detail[0].type,
+          traceback: undefined,
+          message: errorWithDetails.detail[0].msg,
+        },
+      });
+    }
+  };
+
+  const insertSpaces = (str: string, interval = 40) => {
+    let result = "";
+    for (let i = 0; i < str.length; i += interval) {
+      result += str.slice(i, i + interval) + " ";
+    }
+    return result.trim();
   };
 
   return (
@@ -93,9 +115,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
       }}
     >
       <div className={styles.row}>
-        <div className={styles.titleOrName}>
+        <div className={styles.titleOrNameWrapper}>
           <div className={styles.dot}></div>
-          {node.title ?? node.name}
+          <div className={styles.titleOrName}>{insertSpaces(node.title ?? node.name)}</div>
         </div>
         <div className={styles.description}>{node.description}</div>
         <div className={styles.runButtonWrapper}>

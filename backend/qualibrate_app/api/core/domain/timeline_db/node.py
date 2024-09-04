@@ -5,10 +5,9 @@ from qualibrate_app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
 from qualibrate_app.api.core.types import DocumentType, IdType
+from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["NodeTimelineDb"]
-
-from qualibrate_app.config import QualibrateSettings
 
 
 class NodeTimelineDb(NodeBase):
@@ -17,7 +16,7 @@ class NodeTimelineDb(NodeBase):
         node_id: IdType,
         snapshot_content: Optional[DocumentType] = None,
         *,
-        settings: QualibrateSettings,
+        settings: QualibrateAppSettings,
     ):
         super().__init__(
             node_id,

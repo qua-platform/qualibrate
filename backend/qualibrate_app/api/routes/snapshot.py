@@ -21,7 +21,11 @@ from qualibrate_app.api.core.models.snapshot import (
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import DocumentSequenceType, IdType
 from qualibrate_app.api.dependencies.search import get_search_path
-from qualibrate_app.config import QualibrateSettings, StorageType, get_settings
+from qualibrate_app.config import (
+    QualibrateAppSettings,
+    StorageType,
+    get_settings,
+)
 
 snapshot_router = APIRouter(prefix="/snapshot/{id}", tags=["snapshot"])
 
@@ -36,13 +40,15 @@ def is_float(string: str) -> bool:
 
 def _get_snapshot_instance(
     id: Annotated[IdType, Path()],
-    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> SnapshotBase:
     snapshot_types: dict[StorageType, Type[SnapshotBase]] = {
         StorageType.local_storage: SnapshotLocalStorage,
         StorageType.timeline_db: SnapshotTimelineDb,
     }
-    return snapshot_types[settings.storage_type](id=id, settings=settings)
+    return snapshot_types[settings.qualibrate.storage.type](
+        id=id, settings=settings
+    )
 
 
 @snapshot_router.get("/")
@@ -101,7 +107,7 @@ def update_entity(
         ),
     ],
     value: Any,
-    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> bool:
     if isinstance(value, str):
         if value.isdigit():

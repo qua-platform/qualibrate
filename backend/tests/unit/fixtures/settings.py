@@ -5,9 +5,19 @@ import pytest
 
 
 @dataclass
-class _Settings:
-    user_storage: Path
+class _Storage:
+    location: Path
+
+
+@dataclass
+class _Qualibrate:
+    storage: _Storage
     project: str
+
+
+@dataclass
+class _Settings:
+    qualibrate: _Qualibrate
     metadata_out_path: str
 
 
@@ -15,7 +25,9 @@ class _Settings:
 def settings(tmp_path):
     user_storage = tmp_path / "project"
     return _Settings(
-        user_storage=user_storage,
-        project="project",
+        qualibrate=_Qualibrate(
+            storage=_Storage(location=user_storage),
+            project="project",
+        ),
         metadata_out_path="data_path",
     )

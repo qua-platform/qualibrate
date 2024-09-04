@@ -32,8 +32,8 @@ def test__read_minified_node_content_node_info_filled(mocker, settings):
     patched_is_file.assert_not_called()
     patched_get_id_local_path.assert_has_calls(
         [
-            call("project", 1, settings.user_storage),
-            call("project", 2, settings.user_storage),
+            call("project", 1, settings.qualibrate.storage.location),
+            call("project", 2, settings.qualibrate.storage.location),
         ]
     )
 
@@ -46,8 +46,8 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
     class FileStat:
         st_mtime = ts
 
-    settings.user_storage.mkdir()
-    node_file = settings.user_storage / "node_file.json"
+    settings.qualibrate.storage.location.mkdir()
+    node_file = settings.qualibrate.storage.location / "node_file.json"
     node_file.touch()
     patched_get_id_local_path = mocker.patch(
         (
@@ -71,7 +71,7 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
     }
     patched_is_file.assert_called_once()
     patched_get_id_local_path.assert_called_once_with(
-        "project", 1, settings.user_storage
+        "project", 1, settings.qualibrate.storage.location
     )
     patched_path_stat.assert_called_once()
     patched_path_parent.assert_not_called()
@@ -85,7 +85,7 @@ def test__read_minified_node_content_node_info_empty_no_id_no_file(
     class FileStat:
         st_mtime = ts
 
-    node_dir = settings.user_storage / "node_dir"
+    node_dir = settings.qualibrate.storage.location / "node_dir"
     node_dir.mkdir(parents=True)
     node_file = node_dir / "node_file.json"
     patched_get_id_local_path = mocker.patch(
@@ -118,7 +118,7 @@ def test__read_metadata_node_content_node_info_filled(mocker, settings):
     result = snapshot._read_metadata_node_content(
         {"metadata": metadata},
         None,
-        settings.user_storage,
+        settings.qualibrate.storage.location,
         settings,
     )
     assert result == metadata
@@ -129,7 +129,7 @@ def test__read_metadata_node_content_node_info_not_filled(mocker, settings):
     result = snapshot._read_metadata_node_content(
         {"metadata": {"custom": "info"}},
         "node_name",
-        settings.user_storage / "subpath",
+        settings.qualibrate.storage.location / "subpath",
         settings,
     )
     assert result == {
@@ -442,7 +442,9 @@ class TestSnapshotLocalStorage:
         )
         assert self.snapshot.get_latest_snapshots(1, 1) == (3, [self.snapshot])
         load_patched.assert_called_once_with(SnapshotLoadType.Metadata)
-        find_latest_patched.assert_called_once_with(settings.user_storage)
+        find_latest_patched.assert_called_once_with(
+            settings.qualibrate.storage.location
+        )
         find_n_latest_patched.assert_not_called()
 
     def test_get_latest_snapshots_more(self, mocker, settings):
@@ -469,9 +471,15 @@ class TestSnapshotLocalStorage:
         assert snapshots_hist[0] == self.snapshot
         assert [snapshot.id for snapshot in snapshots_hist] == [3, 2]
         load_patched.assert_has_calls([call(SnapshotLoadType.Metadata)] * 2)
-        find_latest_patched.assert_called_once_with(settings.user_storage)
+        find_latest_patched.assert_called_once_with(
+            settings.qualibrate.storage.location
+        )
         find_n_latest_patched.assert_called_once_with(
-            settings.user_storage, 1, 2, settings.project, max_node_id=2
+            settings.qualibrate.storage.location,
+            1,
+            2,
+            settings.qualibrate.project,
+            max_node_id=2,
         )
 
     def test_compare_by_id_same_snapshot(self, mocker):

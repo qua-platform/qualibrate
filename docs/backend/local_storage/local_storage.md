@@ -5,7 +5,7 @@ Check [config file description](../config.md) before this file.
 In this example we will assume that:
 
 - `qualibrate.project`: `qm`
-- `qualibrate.user_storage`: `~/data/${#/qualibrate/project}`
+- `qualibrate.storage.location`: `~/data/${#/qualibrate/project}`
 
 Note that in this example the project `qm` is a folder within the root
 directory `~/data`.

@@ -17,10 +17,9 @@ from qualibrate_app.api.core.utils.path.common import resolve_and_check_relative
 from qualibrate_app.api.exceptions.classes.storage import (
     QNotADirectoryException,
 )
+from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["NodeBase", "NodeLoadType"]
-
-from qualibrate_app.config import QualibrateSettings
 
 
 class NodeLoadType(IntEnum):
@@ -34,7 +33,7 @@ class NodeBase(IDump, ABC):
         self,
         node_id: IdType,
         snapshot: SnapshotBase,
-        settings: QualibrateSettings,
+        settings: QualibrateAppSettings,
     ) -> None:
         self._node_id = node_id
         self._load_type = NodeLoadType.Empty
@@ -72,7 +71,7 @@ class NodeBase(IDump, ABC):
             return
         rel_output_path = metadata[self._settings.metadata_out_path]
         abs_output_path = resolve_and_check_relative(
-            self._settings.user_storage,
+            self._settings.qualibrate.storage.location,
             metadata[self._settings.metadata_out_path],
         )
         if not abs_output_path.is_dir():
