@@ -148,7 +148,7 @@ descriptions of the following options:
 
 **--user-storage**
 
-- Corresponds to the `qualibrate.user_storage` field.
+- Corresponds to the `qualibrate.storage.location` field.
 
 **--metadata-out-path**
 

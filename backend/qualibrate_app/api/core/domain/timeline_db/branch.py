@@ -17,7 +17,7 @@ from qualibrate_app.api.core.domain.timeline_db.snapshot import (
 from qualibrate_app.api.core.types import DocumentType, IdType
 from qualibrate_app.api.core.utils.request_utils import request_with_db
 from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate_app.config import QualibrateSettings
+from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["BranchTimelineDb"]
 
@@ -28,7 +28,7 @@ class BranchTimelineDb(BranchBase):
         name: str,
         content: Optional[DocumentType] = None,
         *,
-        settings: QualibrateSettings,
+        settings: QualibrateAppSettings,
     ):
         super().__init__(name, content, settings=settings)
 
@@ -45,7 +45,7 @@ class BranchTimelineDb(BranchBase):
             return
         result = request_with_db(
             f"branch/{self._name}/",
-            db_name=self._settings.project,
+            db_name=self._settings.qualibrate.project,
             host=self._settings.timeline_db.address,
             timeout=self._settings.timeline_db.timeout,
         )
@@ -68,7 +68,7 @@ class BranchTimelineDb(BranchBase):
             f"/branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
             host=self._settings.timeline_db.address,
-            db_name=self._settings.project,
+            db_name=self._settings.qualibrate.project,
             timeout=self._settings.timeline_db.timeout,
         )
         snapshot_belonged_to_branch = bool(res.json())
@@ -88,7 +88,7 @@ class BranchTimelineDb(BranchBase):
             f"/branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
             host=self._settings.timeline_db.address,
-            db_name=self._settings.project,
+            db_name=self._settings.qualibrate.project,
             timeout=self._settings.timeline_db.timeout,
         )
         snapshot_belonged_to_branch = bool(res.json())
@@ -114,7 +114,7 @@ class BranchTimelineDb(BranchBase):
                 "reverse": reverse,
             },
             host=self._settings.timeline_db.address,
-            db_name=self._settings.project,
+            db_name=self._settings.qualibrate.project,
             timeout=self._settings.timeline_db.timeout,
         )
         if result.status_code != 200:

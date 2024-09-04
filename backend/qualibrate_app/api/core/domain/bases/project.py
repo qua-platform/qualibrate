@@ -5,21 +5,21 @@ from typing import Any, Mapping, Sequence, Tuple
 
 from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.config import (
-    CONFIG_KEY,
-    QualibrateSettings,
+    QUALIBRATE_CONFIG_KEY,
+    QualibrateAppSettings,
     read_config_file,
 )
 from qualibrate_app.config.references.resolvers import resolve_references
 
 
 class ProjectsManagerBase(ABC):
-    def __init__(self, settings: QualibrateSettings, config_path: Path):
+    def __init__(self, settings: QualibrateAppSettings, config_path: Path):
         self._settings = settings
         self._config_path = config_path
 
     @property
     def project(self) -> str:
-        return self._settings.project
+        return self._settings.qualibrate.project
 
     @project.setter
     def project(self, value: str) -> None:
@@ -46,21 +46,25 @@ class ProjectsManagerBase(ABC):
     ) -> Tuple[Mapping[str, Any], Mapping[str, Any]]:
         raw_config = read_config_file(self._config_path, solve_references=False)
         # TODO: over way to update project
-        old_project_name = raw_config[CONFIG_KEY]["project"]
+        old_project_name = raw_config[QUALIBRATE_CONFIG_KEY]["project"]
         if old_project_name == project_name:
             return raw_config, deepcopy(raw_config)
-        raw_config[CONFIG_KEY]["project"] = project_name
+        raw_config[QUALIBRATE_CONFIG_KEY]["project"] = project_name
         new_config = resolve_references(raw_config)
         if (
-            new_config[CONFIG_KEY]["user_storage"]
-            == raw_config[CONFIG_KEY]["user_storage"]
+            new_config[QUALIBRATE_CONFIG_KEY]["storage"]["location"]
+            == raw_config[QUALIBRATE_CONFIG_KEY]["storage"]["location"]
         ):
             # there is no reference in config
-            project_path = Path(new_config[CONFIG_KEY]["user_storage"])
+            project_path = Path(
+                new_config[QUALIBRATE_CONFIG_KEY]["storage"]["location"]
+            )
             new_project_path = self._resolve_new_project_path(
                 project_name, old_project_name, project_path
             )
-            new_config[CONFIG_KEY]["user_storage"] = str(new_project_path)
+            new_config[QUALIBRATE_CONFIG_KEY]["storage"]["location"] = str(
+                new_project_path
+            )
         return raw_config, new_config
 
     def _resolve_base_projects_path(

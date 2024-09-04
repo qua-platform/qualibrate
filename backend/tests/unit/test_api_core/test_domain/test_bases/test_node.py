@@ -108,7 +108,7 @@ def test__fill_storage_no_output_path(mocker, settings):
 
     resolve_patched = mocker.patch(
         "qualibrate_app.api.core.domain.bases.node.resolve_and_check_relative",
-        return_value=settings.user_storage / "node",
+        return_value=settings.qualibrate.storage.location / "node",
     )
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     dfs_patched = mocker.patch(
@@ -119,13 +119,15 @@ def test__fill_storage_no_output_path(mocker, settings):
         n._fill_storage()
     assert ex.type == QNotADirectoryException
     assert ex.value.args == (f"{node_path} is not a directory",)
-    resolve_patched.assert_called_once_with(settings.user_storage, node_path)
+    resolve_patched.assert_called_once_with(
+        settings.qualibrate.storage.location, node_path
+    )
     dfs_patched.assert_not_called()
 
 
 def test__fill_storage_valid(mocker, settings):
     rel_node_path = "data_path"
-    abs_node_path = settings.user_storage / rel_node_path
+    abs_node_path = settings.qualibrate.storage.location / rel_node_path
 
     class _Snapshot:
         metadata = {settings.metadata_out_path: rel_node_path}
@@ -141,7 +143,7 @@ def test__fill_storage_valid(mocker, settings):
     n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     assert n._fill_storage() is None
     resolve_patched.assert_called_once_with(
-        settings.user_storage, rel_node_path
+        settings.qualibrate.storage.location, rel_node_path
     )
     dfs_patched.assert_called_once_with(abs_node_path, settings)
 

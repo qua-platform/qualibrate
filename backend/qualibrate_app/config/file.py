@@ -5,7 +5,7 @@ from typing import Any, Optional, Union
 from qualibrate_app.config.references.resolvers import resolve_references
 from qualibrate_app.config.vars import (
     DEFAULT_CONFIG_FILENAME,
-    DEFAULT_QUALIBRATE_CONFIG_FILENAME,
+    DEFAULT_QUALIBRATE_APP_CONFIG_FILENAME,
     QUALIBRATE_PATH,
 )
 
@@ -18,7 +18,7 @@ else:
 def _get_config_file_from_dir(
     dir_path: Path, raise_not_exists: bool = True
 ) -> Path:
-    default_qualibrate = dir_path / DEFAULT_QUALIBRATE_CONFIG_FILENAME
+    default_qualibrate = dir_path / DEFAULT_QUALIBRATE_APP_CONFIG_FILENAME
     if default_qualibrate.is_file():
         return default_qualibrate
     default_common = dir_path / DEFAULT_CONFIG_FILENAME

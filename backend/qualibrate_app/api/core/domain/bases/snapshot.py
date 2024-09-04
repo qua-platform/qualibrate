@@ -13,7 +13,7 @@ from qualibrate_app.api.core.types import (
 from qualibrate_app.api.core.utils.find_utils import (
     get_subpath_value_on_any_depth,
 )
-from qualibrate_app.config import QualibrateSettings
+from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["SnapshotBase", "SnapshotLoadType"]
 
@@ -34,7 +34,7 @@ class SnapshotBase(IDump, ABC):
         id: IdType,
         content: Optional[DocumentType] = None,
         *,
-        settings: QualibrateSettings,
+        settings: QualibrateAppSettings,
     ):
         self._id = id
         self._settings = settings

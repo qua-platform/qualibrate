@@ -11,7 +11,7 @@ from qualibrate_app.api.core.utils.request_utils import request_with_db
 from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate_app.api.exceptions.classes.values import QValueException
 from qualibrate_app.config import (
-    CONFIG_KEY,
+    QUALIBRATE_CONFIG_KEY,
     QualibrateSettings,
     QualibrateSettingsSetup,
 )
@@ -38,7 +38,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         raw_config, new_config = self._get_raw_and_resolved_ref_config(
             project_name
         )
-        qs_dict = new_config.get(CONFIG_KEY, {})
+        qs_dict = new_config.get(QUALIBRATE_CONFIG_KEY, {})
         qs: Union[QualibrateSettings, QualibrateSettingsSetup]
         try:
             qs = QualibrateSettings(**qs_dict)
@@ -46,12 +46,11 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
             errors = ex.errors(include_url=False, include_input=False)
             if len(errors) != 1 or not (
                 errors[0]["type"] == "path_not_directory"
-                and errors[0]["loc"] == ("user_storage",)
             ):
                 raise
             qs = QualibrateSettingsSetup(**qs_dict)
-        self._settings.project = cast(str, qs.project)
-        self._settings.user_storage = qs.user_storage
+        self._settings.qualibrate.project = cast(str, qs.project)
+        self._settings.qualibrate.storage.location = qs.storage.location
 
     def create(self, project_name: str) -> str:
         if any(project.name == project_name for project in self.list()):
@@ -67,7 +66,9 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         if response.status_code != 200 or response.json() != project_name:
             raise QJsonDbException(f"Can't create project {project_name}.")
         new_project_path = self._resolve_new_project_path(
-            project_name, self._settings.project, self._settings.user_storage
+            project_name,
+            self._settings.qualibrate.project,
+            self._settings.qualibrate.storage.location,
         )
         new_project_path.mkdir(parents=True, exist_ok=True)
         return project_name

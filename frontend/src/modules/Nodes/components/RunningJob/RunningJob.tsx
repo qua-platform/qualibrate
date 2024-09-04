@@ -22,13 +22,26 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [customValue, setCustomValue] = useState<string | number | undefined>(undefined);
+
+  const renderSuggestedValue = (value: string | number | number[]) => {
+    if (Array.isArray(value)) {
+      return "[" + value.toString() + "]";
+    }
+    return value.toString();
+  };
+
   return (
     <div key={`${key}-wrapper`} className={styles.stateUpdateWrapper}>
       <div>
         {!runningUpdate && !parameterUpdated && (
           <div
             onClick={async () => {
-              if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && (stateUpdateObject.val || stateUpdateObject.new)) {
+              if (
+                runningNodeInfo &&
+                runningNodeInfo.idx &&
+                stateUpdateObject &&
+                ("val" in stateUpdateObject || "new" in stateUpdateObject)
+              ) {
                 setRunningUpdate(true);
                 const stateUpdateValue = customValue ? customValue : stateUpdateObject.val ?? stateUpdateObject.new!;
                 const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateValue.toString());
@@ -56,7 +69,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
             <div className={styles.stateUpdateValueTextWrapper}>
               {stateUpdateObject.old}&nbsp;&nbsp;
               <RightArrowIcon />
-              &nbsp;&nbsp;{stateUpdateObject.val ?? stateUpdateObject.new}
+              &nbsp;&nbsp;{renderSuggestedValue(stateUpdateObject.val ?? stateUpdateObject.new ?? "")}
               <div
                 className={styles.editIconWrapper}
                 onClick={() => {
