@@ -139,17 +139,18 @@ def types_conversion(value: Any, expected_type: Mapping[str, Any]) -> Any:
         expected_type_["type"] = expected_type_.pop("anyOf")[0]["type"]
         return types_conversion(value, expected_type_)
     if "type" in expected_type:
-        if expected_type.get("type") == "array" and "items" in expected_type:
+        if expected_type.get("type") == "array":
             # array
-            item_type: Optional[Type[BASIC_TYPES]] = STR_TO_TYPE.get(
-                expected_type["items"]["type"]
+            item_type: Optional[Type[BASIC_TYPES]] = (
+                STR_TO_TYPE.get(expected_type["items"]["type"])
+                if "items" in expected_type
+                else None
             )
             return parse_list(value, item_type)
         if expected_type.get("type") in STR_TO_TYPE.keys():
             expected = STR_TO_TYPE[expected_type["type"]]
             parser = BASIC_PARSERS[expected]
             return parser(value)
-
     return value
 
 
