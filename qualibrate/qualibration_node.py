@@ -1,3 +1,4 @@
+from collections import UserDict, UserList
 import warnings
 from contextlib import contextmanager
 from copy import copy
@@ -377,6 +378,10 @@ def _record_state_update_getattr(
 ) -> None:
     reference = quam_obj.get_reference(attr)
     old = getattr(quam_obj, attr)
+    if isinstance(old, UserList):
+        old = list(old)
+    elif isinstance(old, UserDict):
+        old = dict(old)
     if node:
         node._state_updates[reference] = {
             "key": reference,
@@ -394,6 +399,10 @@ def _record_state_update_getitem(
 ) -> None:
     reference = quam_obj.get_reference(attr)
     old = quam_obj[attr]
+    if isinstance(old, UserList):
+        old = list(old)
+    elif isinstance(old, UserDict):
+        old = dict(old)
     if node:
         node._state_updates[reference] = {
             "key": reference,
