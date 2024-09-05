@@ -305,13 +305,13 @@ tests = ["pytest", "pytest-cov", "pytest-xdist"]
 
 [[package]]
 name = "datadog-api-client"
-version = "2.27.0"
+version = "2.28.0"
 description = "Collection of all Datadog Public endpoints"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "datadog_api_client-2.27.0-py3-none-any.whl", hash = "sha256:8d0d96fa6930e7556644a1d6f6f8cde4102055851c5f55d4e5c0e7ea54e2206b"},
-    {file = "datadog_api_client-2.27.0.tar.gz", hash = "sha256:902dd264feaf74fd8749897497f01d7f47e2190dc4362765fec805c197e498cc"},
+    {file = "datadog_api_client-2.28.0-py3-none-any.whl", hash = "sha256:104b97574cd4704274aba54dcf4d9628561602d83f2bea29d7591bb6b3acc2a9"},
+    {file = "datadog_api_client-2.28.0.tar.gz", hash = "sha256:5748dc0beeff9f8d408bd87d62deb0f4c3019e46202dbbcd1b57e47495ded53f"},
 ]
 
 [package.dependencies]
@@ -2096,10 +2096,11 @@ description = ""
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "qualibrate_core-0.1.0-py3-none-any.whl", hash = "sha256:eade7dd3ba0e0ed6da6f6334095affc43b417834f58f73c10352238e3b7f67b6"},
+    {file = "qualibrate_core-0.1.0-py3-none-any.whl", hash = "sha256:5c0a9559b93488bd9e4e01918a5984729dcd58fabc7d163c8d1c21f57ea24fe5"},
 ]
 
 [package.dependencies]
+jsonpointer = ">=3.0.0,<4.0.0"
 networkx = "3.1"
 pydantic = ">=2.7.3,<3.0.0"
 qualang-tools = {git = "https://github.com/qua-platform/py-qua-tools", rev = "v0.17.4", markers = "python_version >= \"3.8\" and python_version < \"3.12\""}
