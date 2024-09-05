@@ -4,6 +4,11 @@ from typing import ClassVar
 from pydantic import DirectoryPath, field_serializer
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from qualibrate_app.config.models.active_machine import (
+    ActiveMachineSettings,
+    ActiveMachineSettingsBase,
+    ActiveMachineSettingsSetup,
+)
 from qualibrate_app.config.models.path_serializer import PathSerializer
 from qualibrate_app.config.models.qualibrate import QualibrateSettings
 from qualibrate_app.config.models.remote_services import (
@@ -26,6 +31,7 @@ class QualibrateAppSettingsBase(BaseSettings, PathSerializer, Versioned):
     static_site_files: Path
     metadata_out_path: str
 
+    active_machine: ActiveMachineSettingsBase
     timeline_db: JsonTimelineDBBase
     runner: QualibrateRunnerBase
 
@@ -34,8 +40,10 @@ class QualibrateAppSettingsSetup(QualibrateAppSettingsBase):
     static_files_serializer = field_serializer("static_site_files")(
         PathSerializer.serialize_path
     )
+    active_machine: ActiveMachineSettingsSetup
 
 
 class QualibrateAppSettings(QualibrateAppSettingsBase):
     static_site_files: DirectoryPath
     qualibrate: QualibrateSettings
+    active_machine: ActiveMachineSettings

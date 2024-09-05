@@ -198,13 +198,11 @@ def _default_snapshot_content_updater(
     with node_filepath.open("w") as f:
         json.dump(node_info, f, indent=4)
 
-    if not settings.qualibrate.active_machine.path:
+    if not settings.active_machine.path:
         logger.info("No active machine path to update")
         pass
-    elif settings.qualibrate.active_machine.path.is_dir():
-        logger.info(
-            f"Updating quam state dir {settings.qualibrate.active_machine.path}"
-        )
+    elif settings.active_machine.path.is_dir():
+        logger.info(f"Updating quam state dir {settings.active_machine.path}")
         contents = deepcopy(dict(new_snapshot))
         content_mapping = {"wiring.json": {"wiring", "network"}}
 
@@ -214,24 +212,18 @@ def _default_snapshot_content_updater(
                 for key in content_keys
                 if key in contents
             }
-            logger.info(
-                f"Writing {filename} to {settings.qualibrate.active_machine.path}"
-            )
-            (settings.qualibrate.active_machine.path / filename).write_text(
+            logger.info(f"Writing {filename} to {settings.active_machine.path}")
+            (settings.active_machine.path / filename).write_text(
                 json.dumps(wiring_snapshot, indent=4)
             )
 
-        logger.info(
-            f"Writing state.json to {settings.qualibrate.active_machine.path}"
-        )
-        (settings.qualibrate.active_machine.path / "state.json").write_text(
+        logger.info(f"Writing state.json to {settings.active_machine.path}")
+        (settings.active_machine.path / "state.json").write_text(
             json.dumps(contents, indent=4)
         )
     else:
-        logger.info(
-            f"Updating quam state file {settings.qualibrate.active_machine.path}"
-        )
-        settings.qualibrate.active_machine.path.write_text(
+        logger.info(f"Updating quam state file {settings.active_machine.path}")
+        settings.active_machine.path.write_text(
             json.dumps(new_snapshot, indent=4)
         )
 
