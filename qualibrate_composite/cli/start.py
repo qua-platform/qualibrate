@@ -57,3 +57,7 @@ def start_command(config_path: Path, port: int, reload: bool) -> None:
     from qualibrate_composite.app import main as app_main
 
     app_main(port=port, reload=reload)
+
+
+if __name__ is "__main__":
+    start_command()
