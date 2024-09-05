@@ -7,9 +7,9 @@ import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 export interface StateUpdateObject {
   key?: string | number;
   attr?: string;
-  old?: string | number;
-  val?: string | number;
-  new?: string | number;
+  old?: string | number | object | number[];
+  val?: string | number | object | number[];
+  new?: string | number | object | number[];
 }
 
 export interface StateUpdate {

@@ -18,13 +18,6 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
   const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
 
-  const renderSuggestedValue = (value: string | number | number[]) => {
-    if (Array.isArray(value)) {
-      return "[" + value.toString() + "]";
-    }
-    return value.toString();
-  };
-
   return (
     <div key={`${key}-wrapper`} className={styles.stateUpdateWrapper}>
       <div>
@@ -65,9 +58,9 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
         <div className={styles.stateUpdateValueText}>
           {stateUpdateObject && (
             <div>
-              {stateUpdateObject.old}&nbsp;&nbsp;
+              {JSON.stringify(stateUpdateObject.old ?? "")}&nbsp;&nbsp;
               <RightArrowIcon />
-              &nbsp;&nbsp;{renderSuggestedValue(stateUpdateObject.val ?? stateUpdateObject.new ?? "")}
+              &nbsp;&nbsp;{JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? "")}
             </div>
           )}
         </div>
