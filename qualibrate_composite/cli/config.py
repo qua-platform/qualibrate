@@ -27,6 +27,9 @@ else:
 try:
     qualibrate_app = find_spec("qualibrate_app")
     from qualibrate_app.config import (
+        ACTIVE_MACHINE_CONFIG_KEY as QAPP_AM_CONFIG_KEY,
+    )
+    from qualibrate_app.config import (
         CONFIG_KEY as QAPP_CONFIG_KEY,
     )
     from qualibrate_app.config import QUALIBRATE_CONFIG_KEY as QAPP_Q_CONFIG_KEY
@@ -39,6 +42,8 @@ try:
     )
 except ImportError:
     QAPP_CONFIG_KEY = None
+    QAPP_Q_CONFIG_KEY = None
+    QAPP_AM_CONFIG_KEY = None
 
     from qualibrate_composite.cli._sub_configs import (
         QualibrateAppQSettingsSetup,
@@ -205,6 +210,12 @@ def _get_qapp_config(
     )
 
 
+def _get_qapp_am_config(
+    ctx: click.Context, from_file: Dict[str, Any]
+) -> QualibrateAppQSettingsSetup:
+    return QualibrateAppQSettingsSetup(**from_file)
+
+
 def _get_qapp_q_config(
     ctx: click.Context, from_file: Dict[str, Any]
 ) -> QualibrateAppQSettingsSetup:
@@ -213,7 +224,7 @@ def _get_qapp_q_config(
         "app_user_storage": "location",
     }
     common_keys = {"app_project": "project"}
-    for key in ("storage", "active_machine"):
+    for key in ("storage",):
         if key not in from_file:
             from_file[key] = {}
     for arg_key, arg_value in ctx.params.items():
@@ -240,6 +251,7 @@ def reorder_common_config_entries(data: Dict[str, Any]) -> Dict[str, Any]:
         QUALIBRATE_CONFIG_KEY,
         QAPP_CONFIG_KEY,
         RUNNER_CONFIG_KEY,
+        QAPP_AM_CONFIG_KEY,
     )
     return {
         **{key: data[key] for key in sorted_keys if key in data},
@@ -417,6 +429,13 @@ def config_command(
     if QAPP_Q_CONFIG_KEY is not None:
         common_config[QAPP_Q_CONFIG_KEY] = _get_qapp_q_config(
             ctx, common_config.get(QAPP_Q_CONFIG_KEY, {})
+        ).model_dump(
+            mode="json",
+            exclude_none=True,
+        )
+    if QAPP_AM_CONFIG_KEY is not None:
+        common_config[QAPP_AM_CONFIG_KEY] = _get_qapp_am_config(
+            ctx, common_config.get(QAPP_AM_CONFIG_KEY, {})
         ).model_dump(
             mode="json",
             exclude_none=True,
