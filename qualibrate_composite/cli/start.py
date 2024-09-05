@@ -59,5 +59,5 @@ def start_command(config_path: Path, port: int, reload: bool) -> None:
     app_main(port=port, reload=reload)
 
 
-if __name__ is "__main__":
+if __name__ == "__main__":
     start_command()
