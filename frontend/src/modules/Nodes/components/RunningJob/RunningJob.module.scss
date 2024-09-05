@@ -12,6 +12,8 @@
 }
 
 .title {
+  display: flex;
+  align-items: center;
   gap: 10px;
   font-size: 20px;
   vertical-align: middle;
@@ -24,6 +26,18 @@
   background-color: limegreen;
   border-radius: 50%;
   display: inline-block;
+}
+
+.stopButtonWrapper {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 10px;
+}
+
+.stopButton {
+  background-color: #e02525;
 }
 
 .infoWrapper {
@@ -94,6 +108,20 @@
 
 .stateUpdateValueText {
   font-size: 12px;
+}
+
+.editIconWrapper {
+  padding-left: 5px;
+}
+
+.newValueOfState {
+  padding-left: 5px;
+
+  input {
+    font-size: 12px;
+    padding: 0 !important;
+    height: 20px !important;
+  }
 }
 
 .nodeStatusErrorWrapper {

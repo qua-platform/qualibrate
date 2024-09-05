@@ -2,7 +2,7 @@ import React from "react";
 import { IconProps } from "../../common/interfaces/IconProps";
 
 export const RightArrowIcon: React.FunctionComponent<IconProps> = ({ width = 16, height = 16 }) => (
-  <svg width={width} height={height} fill="#ffff" viewBox="0 0 330 200">
+  <svg width={width} height={height} fill="#ffff" viewBox="0 0 330 330">
     <path
       id="XMLID_7_"
       d="M288.107,116.894c-5.858-5.858-15.355-5.858-21.213,0c-5.858,5.858-5.858,15.355,0,21.213L278.787,150H15
