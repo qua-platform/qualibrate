@@ -52,7 +52,7 @@ export class SnapshotsApi extends Api {
     });
   }
 
-  static updateState(snapshotId: string, data_path: string, value: string): Promise<Res<boolean>> {
+  static updateState(snapshotId: string, data_path: string, value: unknown): Promise<Res<boolean>> {
     return this._fetch(this.api(UPDATE_SNAPSHOT(snapshotId)), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       body: JSON.stringify({ data_path, value }),
