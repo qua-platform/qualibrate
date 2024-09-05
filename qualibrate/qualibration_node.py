@@ -170,7 +170,7 @@ class QualibrationNode(
             settings = get_settings(config_path)
             self.storage_manager = LocalStorageManager(
                 root_data_folder=settings.qualibrate.storage.location,
-                active_machine_path=settings.qualibrate.active_machine.path,
+                active_machine_path=settings.active_machine.path,
             )
         self.storage_manager.save(node=self)
 
