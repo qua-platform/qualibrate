@@ -37,7 +37,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
               ) {
                 setRunningUpdate(true);
                 const stateUpdateValue = customValue ? customValue : stateUpdateObject.val ?? stateUpdateObject.new!;
-                const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateValue.toString());
+                const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateValue);
                 setRunningUpdate(false);
                 if (response.isOk) {
                   setParameterUpdated(response.result!);
@@ -60,7 +60,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
         <div className={styles.stateUpdateKeyText}>{stateUpdateObject?.key ? stateUpdateObject?.key.toString() : key.toString()}</div>
         <div className={styles.stateUpdateValueText}>
           {stateUpdateObject && (
-            <div>
+            <div className={styles.stateUpdateValueTextWrapper}>
               {JSON.stringify(stateUpdateObject.old)}&nbsp;&nbsp;
               <RightArrowIcon />
               &nbsp;&nbsp;{JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? "")}

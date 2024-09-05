@@ -110,6 +110,12 @@
   font-size: 12px;
 }
 
+.stateUpdateValueTextWrapper {
+  padding-top: 5px;
+  align-items: center;
+  display: flex;
+}
+
 .editIconWrapper {
   padding-left: 5px;
 }
@@ -122,6 +128,7 @@
     padding: 0 !important;
     height: 20px !important;
   }
+
 }
 
 .nodeStatusErrorWrapper {
