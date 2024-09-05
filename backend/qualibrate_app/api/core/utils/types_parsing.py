@@ -98,11 +98,22 @@ def parse_typed_list(
 ) -> LIST_TYPES:
     if len(value) == 0:
         return value
-    parser = BASIC_PARSERS[item_type]
+    parser = BASIC_PARSERS.get(item_type)
+    if parser is None:
+        return value
     try:
         return list(map(parser, value))  # type: ignore
     except ValueError:
         return value
+
+
+def _parse_list(
+    value: List[Any],
+    item_type: Optional[Type[BASIC_TYPES]],
+) -> VALUE_TYPES_WITHOUT_REC:
+    if item_type is None:
+        return value
+    return parse_typed_list(value, item_type)
 
 
 def parse_list(
@@ -110,17 +121,13 @@ def parse_list(
     item_type: Optional[Type[BASIC_TYPES]],
 ) -> VALUE_TYPES_WITHOUT_REC:
     if isinstance(value, List):
-        if item_type is None:
-            return value
-        return parse_typed_list(value, item_type)
+        return _parse_list(value, item_type)
     if isinstance(value, str):
         stripped = value.strip()
         if stripped.startswith("[") and stripped.endswith("]"):
             stripped = stripped[1:-1]
         splitted = list(map(str.strip, stripped.split(",")))
-        if item_type is None:
-            return splitted
-        return parse_typed_list(splitted, item_type)
+        return _parse_list(splitted, item_type)
     return value
 
 
@@ -156,60 +163,3 @@ def types_conversion(value: Any, expected_type: Mapping[str, Any]) -> Any:
             parser = BASIC_PARSERS[expected]
             return parser(value)
     return value
-
-
-if __name__ == "__main__":
-    types = {
-        "targets_name": {
-            "anyOf": [{"type": "string"}, {"type": "null"}],
-            "default": None,
-            "title": "Targets Name",
-        },
-        "str_val": {
-            "anyOf": [{"type": "string"}, {"type": "null"}],
-            "default": "a",
-            "title": "Str Val",
-        },
-        "list_str": {
-            "default": ["a", "b"],
-            "items": {"type": "string"},
-            "title": "List Str",
-            "type": "array",
-        },
-        "float_val": {"default": 1.1, "title": "Float Val", "type": "number"},
-        "list_float": {
-            "default": ["a", "b"],
-            "items": {"type": "number"},
-            "title": "List Float",
-            "type": "array",
-        },
-        "int_val": {"default": 100, "title": "Int Val", "type": "integer"},
-        "list_int": {
-            "default": ["a", "b"],
-            "items": {"type": "integer"},
-            "title": "List Int",
-            "type": "array",
-        },
-        "bool_val": {"default": False, "title": "Bool Val", "type": "boolean"},
-        "list_bool": {
-            "default": ["a", "b"],
-            "items": {"type": "boolean"},
-            "title": "List Bool",
-            "type": "array",
-        },
-        "none_val": {"default": None, "title": "None Val", "type": "null"},
-    }
-    types_conversion(
-        {
-            # "str_val": "aaa",
-            # "list_str": "[aa, bb]",
-            # "float_val": "1.2",
-            # "list_float": ["1.2","1.3"],
-            # "int_val": "-1111111",
-            # "list_int": [1,2,3],
-            # "bool_val": False,
-            "list_bool": "[1, 0, True, False, true, false, 1.1, 0.0]",
-            # "none_val": None
-        },
-        types,
-    )
