@@ -16,26 +16,32 @@
 .row {
   display: flex;
   justify-content: space-between;
-  flex: 1;
   flex-direction: row;
   padding-bottom: 10px;
+  max-width: 100%;
 }
 
 .dot {
-  height: 7px;
-  width: 7px;
+  min-height: 7px;
+  min-width: 7px;
   background-color: #bbb;
   border-radius: 50%;
   display: inline-block;
 }
 
-.titleOrName {
+.titleOrNameWrapper {
+  max-width: calc(100% - 127px);
   display: flex;
   flex: 1;
   font-size: 18px;
   align-items: center;
   padding-bottom: 20px;
   gap: 10px;
+}
+
+.titleOrName {
+  display: block;
+  max-width: 100%;
 }
 
 .description {

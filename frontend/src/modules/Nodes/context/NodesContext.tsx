@@ -7,9 +7,9 @@ import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 export interface StateUpdateObject {
   key?: string | number;
   attr?: string;
-  old?: string | number;
-  val?: string | number;
-  new?: string | number;
+  old?: string | number | object | number[];
+  val?: string | number | object | number[];
+  new?: string | number | object | number[];
 }
 
 export interface StateUpdate {
@@ -60,13 +60,17 @@ interface NodesContextProviderProps {
   children: React.JSX.Element;
 }
 
-interface NodeStatusError {
+export interface NodeStatusError {
   error_class: string;
   message: string;
-  traceback: string[];
+  traceback?: string[];
 }
 
-interface NodeStatusResponseType {
+export interface NodeStatusErrorWithDetails {
+  detail: { msg: string; type: string }[];
+}
+
+export interface NodeStatusResponseType {
   idx: number;
   status: string;
   error?: NodeStatusError;
@@ -154,6 +158,12 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   useEffect(() => {
     if (!isNodeRunning) {
       fetchNodeResults();
+      if (runningNodeInfo?.status === "running") {
+        setRunningNodeInfo({
+          ...runningNodeInfo,
+          status: "finished",
+        });
+      }
     }
   }, [isNodeRunning]);
 
