@@ -236,8 +236,8 @@ class QualibrationNode(
         if find_spec("qm") is None:
             return False
         qmm = getattr(self.machine, "qmm", None)
-        if not qmm:
-            return False
+        if not qmm and hasattr(self.machine, "connect"):
+            qmm = self.machine.connect()
         if hasattr(qmm, "list_open_qms"):
             ids = qmm.list_open_qms()
         elif hasattr(qmm, "list_open_quantum_machines"):
