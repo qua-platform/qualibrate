@@ -114,11 +114,14 @@ def update_entity(
         value = types_conversion(value, type_)
     updated = snapshot.update_entry({data_path: value})
     if updated:
-        requests.post(
-            f"{settings.runner.address}/record_state_update",
-            params={"key": data_path},
-            timeout=settings.runner.timeout,
-        )
+        try:
+            requests.post(
+                f"{settings.runner.address}/record_state_update",
+                params={"key": data_path},
+                timeout=settings.runner.timeout,
+            )
+        except requests.exceptions.ConnectionError:
+            pass
     return updated
 
 

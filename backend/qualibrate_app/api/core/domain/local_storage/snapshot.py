@@ -404,9 +404,12 @@ class SnapshotLocalStorage(SnapshotBase):
     def _extract_state_updates_type_from_runner(
         self, path: str
     ) -> Optional[Mapping[str, Any]]:
-        last_run_response = requests.get(
-            f"{self._settings.runner.address}/last_run"
-        )
+        try:
+            last_run_response = requests.get(
+                f"{self._settings.runner.address}/last_run"
+            )
+        except requests.exceptions.ConnectionError:
+            return None
         if last_run_response.status_code != 200:
             return None
         try:
