@@ -12,6 +12,7 @@ from qualibrate_app.config import (
     DEFAULT_CONFIG_FILENAME,
     QUALIBRATE_CONFIG_KEY,
     QUALIBRATE_PATH,
+    ActiveMachineSettingsSetup,
     QualibrateSettingsSetup,
     StorageType,
     get_config_file,
@@ -21,6 +22,7 @@ from qualibrate_app.config.validation import (
     check_config_pre_v1_and_update,
     get_config_model_or_print_error,
 )
+from qualibrate_app.config.vars import ACTIVE_MACHINE_CONFIG_KEY
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
@@ -106,11 +108,20 @@ def _print_config(data: Mapping[str, Any], depth: int = 0) -> None:
 
 
 def _confirm(
-    config_file: Path, qs_data: Mapping[str, Any], qas_data: Mapping[str, Any]
+    config_file: Path,
+    qs_data: Mapping[str, Any],
+    am_data: Mapping[str, Any],
+    qas_data: Mapping[str, Any],
 ) -> None:
     click.echo(f"Config file path: {config_file}")
     click.echo(click.style("Generated config:", bold=True))
-    _print_config({"Qualibrate": qs_data, "Qualibrate app": qas_data})
+    _print_config(
+        {
+            "Qualibrate": qs_data,
+            "Qualibrate app": qas_data,
+            "Active machine": am_data,
+        }
+    )
     confirmed = click.confirm("Do you confirm config?", default=True)
     if not confirmed:
         click.echo(
@@ -129,13 +140,17 @@ def write_config(
     config_file: Path,
     common_config: dict[str, Any],
     qss: QualibrateSettingsSetup,
+    ams: ActiveMachineSettingsSetup,
     qass: QualibrateAppSettingsSetup,
     confirm: bool = True,
 ) -> None:
     qs_exported_data = qss.model_dump(exclude_none=True)
+    am_exported_data = ams.model_dump(exclude_none=True)
     qas_exported_data = qass.model_dump()
     if confirm:
-        _confirm(config_file, qs_exported_data, qas_exported_data)
+        _confirm(
+            config_file, qs_exported_data, am_exported_data, qas_exported_data
+        )
     qss.storage.location.mkdir(parents=True, exist_ok=True)
     if qss.project:
         project_path = qss.storage.location / qss.project
@@ -143,6 +158,7 @@ def write_config(
     if not config_file.parent.exists():
         config_file.parent.mkdir(parents=True)
     common_config[CONFIG_KEY] = qas_exported_data
+    common_config[ACTIVE_MACHINE_CONFIG_KEY] = am_exported_data
     common_config[QUALIBRATE_CONFIG_KEY] = qs_exported_data
 
     with config_file.open("wb") as f_out:
@@ -262,11 +278,18 @@ def config_command(
             qualibrate_app_config[subconfig] = {}
 
     qualibrate_app_config = _config_from_sources(ctx, qualibrate_app_config)
-    qualibrate_config, qapp_config = check_config_pre_v1_and_update(
-        common_config, qualibrate_app_config
-    )
+    (
+        qualibrate_config,
+        active_machine_config,
+        qapp_config,
+    ) = check_config_pre_v1_and_update(common_config, qualibrate_app_config)
     qss = get_config_model_or_print_error(
         qualibrate_config, QualibrateSettingsSetup, QUALIBRATE_CONFIG_KEY
+    )
+    ams = get_config_model_or_print_error(
+        active_machine_config,
+        ActiveMachineSettingsSetup,
+        ACTIVE_MACHINE_CONFIG_KEY,
     )
     qass = get_config_model_or_print_error(
         qapp_config, QualibrateAppSettingsSetup, CONFIG_KEY
@@ -277,6 +300,7 @@ def config_command(
         config_file,
         common_config,
         cast(QualibrateSettingsSetup, qss),
+        cast(ActiveMachineSettingsSetup, ams),
         cast(QualibrateAppSettingsSetup, qass),
         confirm=not auto_accept,
     )

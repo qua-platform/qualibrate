@@ -36,7 +36,6 @@ def settings(
                 type=StorageType.local_storage,
                 location=default_local_storage_project,
             ),
-            active_machine=ActiveMachineSettings(path=active_machine_path),
         ),
         metadata_out_path="data_path",
         timeline_db=JsonTimelineDBBase(
@@ -47,6 +46,7 @@ def settings(
             address="http://localhost:8001/execution",
             timeout=1,
         ),
+        active_machine=ActiveMachineSettings(path=active_machine_path),
     )
 
 

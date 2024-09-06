@@ -1,23 +1,23 @@
 export const ALL_SNAPSHOTS = ({ branchName = "main", pageNumber = 1, pageLimit = 100, reverseOrder = true, globalReverse = false }) =>
-  "api/branch/" +
-  branchName +
-  "/snapshots_history?page=" +
-  pageNumber +
-  "&per_page=" +
-  pageLimit +
-  "&reverse=" +
-  reverseOrder +
-  "&global_reverse=" +
-  globalReverse;
+    "api/branch/" +
+    branchName +
+    "/snapshots_history?page=" +
+    pageNumber +
+    "&per_page=" +
+    pageLimit +
+    "&reverse=" +
+    reverseOrder +
+    "&global_reverse=" +
+    globalReverse;
 export const ONE_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/`;
 export const SNAPSHOT_RESULT = (snapshotId: string) => `api/data_file/${snapshotId}/content`;
 export const SNAPSHOT_DIFF = (currentSnapshotId: string, newSnapshotId: string) =>
-  `api/snapshot/${currentSnapshotId}/compare?id_to_compare=${newSnapshotId}`;
+    `api/snapshot/${currentSnapshotId}/compare?id_to_compare=${newSnapshotId}`;
 export const UPDATE_SNAPSHOT = (id: string) => `api/snapshot/${id}/update_entry`;
 export const ALL_PROJECTS = () => "api/projects/list";
 export const ACTIVE_PROJECT = () => "api/projects/active";
 export const IS_NODE_RUNNING = () => "execution/is_running";
-export const STOP_NODE_RUNNING = () => "api/execution/stop";
+export const STOP_NODE_RUNNING = () => "execution/stop";
 export const ALL_NODES = () => "execution/get_nodes";
 export const GET_NODE = () => "execution/get_node";
 export const ALL_GRAPHS = () => "execution/get_graphs";

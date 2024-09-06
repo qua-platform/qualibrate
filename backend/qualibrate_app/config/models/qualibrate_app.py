@@ -4,6 +4,9 @@ from typing import ClassVar
 from pydantic import DirectoryPath, field_serializer
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from qualibrate_app.config.models.active_machine import (
+    ActiveMachineSettings,
+)
 from qualibrate_app.config.models.path_serializer import PathSerializer
 from qualibrate_app.config.models.qualibrate import QualibrateSettings
 from qualibrate_app.config.models.remote_services import (
@@ -39,3 +42,4 @@ class QualibrateAppSettingsSetup(QualibrateAppSettingsBase):
 class QualibrateAppSettings(QualibrateAppSettingsBase):
     static_site_files: DirectoryPath
     qualibrate: QualibrateSettings
+    active_machine: ActiveMachineSettings
