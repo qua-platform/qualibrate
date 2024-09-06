@@ -83,10 +83,11 @@ class BasicOrchestrator(QualibrationOrchestrator):
             run_start = datetime.now()
             try:
                 self._active_node_name = node_to_run.name
-                node_result = node_to_run.run(
-                    **node_to_run_parameters.model_dump()
-                )
-                self.targets = node_result.successful_targets
+                node_parameters = node_to_run_parameters.model_dump()
+                node_parameters.update({"targets": self.targets})
+                node_result = node_to_run.run(**node_parameters)
+                if self._parameters.skip_failed:
+                    self.targets = node_result.successful_targets
                 print("Node completed. Result:", node_result)
             except Exception as ex:
                 new_state = NodeState.failed
@@ -100,6 +101,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
                         description=node_to_run.description,
                         snapshot_idx=node_to_run.snapshot_idx,
                         outcomes=node_to_run.outcomes,
+                        state=new_state,
                         run_start=run_start,
                         run_end=datetime.now(),
                         parameters=node_to_run_parameters,

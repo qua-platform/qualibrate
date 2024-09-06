@@ -3,7 +3,7 @@ from typing import Optional
 from qualibrate import NodeParameters
 from qualibrate.run_summary.base import BaseRunSummary
 
-__all__ = ["NodeParameters"]
+__all__ = ["NodeRunSummary"]
 
 
 class NodeRunSummary(BaseRunSummary):
