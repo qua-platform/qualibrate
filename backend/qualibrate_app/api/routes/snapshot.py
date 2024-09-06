@@ -1,7 +1,7 @@
 from typing import Annotated, Any, Mapping, Optional, Type, Union
 
 import requests
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Body, Depends, Path, Query
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -99,14 +99,14 @@ def update_entity(
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
     data_path: Annotated[
         str,
-        Query(
+        Body(
             ...,
             min_length=3,
             pattern="^#/.*",
             examples=["#/qubits/q0/frequency"],
         ),
     ],
-    value: Any,
+    value: Annotated[Any, Body()],
     settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> bool:
     type_ = snapshot.extract_state_update_type(data_path)
