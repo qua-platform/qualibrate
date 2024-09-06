@@ -68,7 +68,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
                 className={styles.editIconWrapper}
                 onClick={() => {
                   setEditMode(true);
-                  setCustomValue(stateUpdateObject.val ?? stateUpdateObject.new);
+                  setCustomValue(JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new));
                 }}
               >
                 {!editMode && <EditIcon />}
@@ -76,7 +76,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
               {editMode && (
                 <InputField
                   className={styles.newValueOfState}
-                  value={JSON.stringify(customValue)}
+                  value={customValue as string | number | readonly string[] | undefined}
                   onChange={(val) => {
                     setCustomValue(val);
                   }}

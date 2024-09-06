@@ -56,7 +56,7 @@ export class SnapshotsApi extends Api {
     return this._fetch(this.api(UPDATE_SNAPSHOT(snapshotId)), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       body: JSON.stringify({ data_path, value }),
-      queryParams: { data_path, value },
+      // queryParams: { data_path, value },
     });
   }
 
