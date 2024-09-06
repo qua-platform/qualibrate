@@ -57,6 +57,7 @@ class QualibrationNode(
     def __new__(cls, *args: Any, **kwargs: Any) -> "QualibrationNode":
         if cls._singleton_instance is None:
             return super(QualibrationNode, cls).__new__(cls)
+        cls._singleton_instance._state_updates.clear()
         return cls._singleton_instance
 
     def __init__(
