@@ -10,7 +10,6 @@ from qualibrate.qualibration_node import QualibrationNode
 
 from qualibrate_runner.config import State
 from qualibrate_runner.core.models.last_run import LastRun, RunError, RunStatus
-from qualibrate_runner.core.types_parsing import types_conversion
 
 
 def validate_input_parameters(
@@ -47,11 +46,8 @@ def run_node(
     try:
         library = get_active_library_or_error()
         node = library.nodes[node.name]
-        converted_parameters = types_conversion(
-            passed_input_parameters, node.parameters_class.serialize()
-        )
         result = library.run_node(
-            node.name, node.parameters_class(**converted_parameters)
+            node.name, node.parameters_class(**passed_input_parameters)
         )
     except Exception as ex:
         state.last_run = LastRun(

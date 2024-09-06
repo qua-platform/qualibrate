@@ -63,6 +63,15 @@ def parse_float(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
 
 
 def parse_str(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
+    if (
+        isinstance(value, str)
+        and len(value) > 1
+        and (
+            (value.startswith('"') and value.endswith('"'))
+            or (value.startswith("'") and value.endswith("'"))
+        )
+    ):
+        return value[1:-1]
     return value
 
 
