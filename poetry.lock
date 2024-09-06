@@ -2069,7 +2069,7 @@ description = ""
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "qualibrate_app-0.1.0-py3-none-any.whl", hash = "sha256:a7fcf297b2a3141b58d4cd38b26318719637f28316497cd4d440a40529f63bd1"},
+    {file = "qualibrate_app-0.1.0-py3-none-any.whl", hash = "sha256:104d863ce6d8e6a610b3b677b2229586eca1abbd7d8e6b04479b4246b0915b0c"},
 ]
 
 [package.dependencies]
