@@ -26,6 +26,10 @@ class QualibrateRunnerSettings(BaseSubSettings):
     pass
 
 
+class ActiveMachineSettingsSetup(BaseSubSettings):
+    pass
+
+
 class QualibrateAppSettings(BaseSubSettings):
     pass
 

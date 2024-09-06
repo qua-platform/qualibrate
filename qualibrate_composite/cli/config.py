@@ -34,6 +34,7 @@ try:
     )
     from qualibrate_app.config import QUALIBRATE_CONFIG_KEY as QAPP_Q_CONFIG_KEY
     from qualibrate_app.config import (
+        ActiveMachineSettingsSetup,
         QualibrateAppSettingsSetup,
         StorageType,
     )
@@ -46,6 +47,7 @@ except ImportError:
     QAPP_AM_CONFIG_KEY = None
 
     from qualibrate_composite.cli._sub_configs import (
+        ActiveMachineSettingsSetup,
         QualibrateAppQSettingsSetup,
         QualibrateAppSettingsSetup,
         StorageType,
@@ -212,8 +214,8 @@ def _get_qapp_config(
 
 def _get_qapp_am_config(
     ctx: click.Context, from_file: Dict[str, Any]
-) -> QualibrateAppQSettingsSetup:
-    return QualibrateAppQSettingsSetup(**from_file)
+) -> ActiveMachineSettingsSetup:
+    return ActiveMachineSettingsSetup(**from_file)
 
 
 def _get_qapp_q_config(
