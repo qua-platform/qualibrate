@@ -16,6 +16,8 @@ from typing import (
 
 import jsonpatch
 import jsonpointer
+import requests
+from requests import JSONDecodeError as RequestsJSONDecodeError
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -36,6 +38,7 @@ from qualibrate_app.api.core.types import (
 from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 from qualibrate_app.api.core.utils.path.node import NodePath
 from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
+from qualibrate_app.api.core.utils.types_parsing import TYPE_TO_STR
 from qualibrate_app.api.exceptions.classes.storage import (
     QFileNotFoundException,
     QPathException,
@@ -375,6 +378,69 @@ class SnapshotLocalStorage(SnapshotBase):
         return jsonpatch_to_mapping(
             this_data, jsonpatch.make_patch(dict(this_data), dict(other_data))
         )
+
+    @staticmethod
+    def _conversion_type_from_value(value: Any) -> Mapping[str, Any]:
+        if isinstance(value, list):
+            if len(value) == 0:
+                return {"type": "array"}
+            item_type = TYPE_TO_STR.get(type(value[0]))
+            if item_type is None:
+                return {"type": "array"}
+            return {"type": "array", "items": {"type": item_type}}
+        item_type = TYPE_TO_STR.get(type(value))
+        if item_type is None:
+            return {"type": "null"}
+        return {"type": item_type}
+
+    def _extract_state_updates_type_from_runner(
+        self, path: str
+    ) -> Optional[Mapping[str, Any]]:
+        try:
+            last_run_response = requests.get(
+                f"{self._settings.runner.address}/last_run"
+            )
+        except requests.exceptions.ConnectionError:
+            return None
+        if last_run_response.status_code != 200:
+            return None
+        try:
+            data = last_run_response.json()
+        except RequestsJSONDecodeError:
+            return None
+        state_update = data.get("state_updates", {}).get(path)
+        if state_update is None:
+            return None
+        new_state = state_update.get("new", object)
+        if new_state is object:
+            return None
+        return self._conversion_type_from_value(new_state)
+
+    def _extract_state_updates_from_quam_state(
+        self, path: str
+    ) -> Optional[Mapping[str, Any]]:
+        try:
+            quam_state_file: Path = self.node_path / "quam_state.json"
+        except QFileNotFoundException:
+            return None
+        if not quam_state_file.is_file():
+            return None
+        try:
+            quam_state = json.loads(quam_state_file.read_text())
+        except json.JSONDecodeError:
+            return None
+        quam_item = jsonpointer.resolve_pointer(quam_state, path[1:], object)
+        if quam_item is object:
+            return None
+        return self._conversion_type_from_value(quam_item)
+
+    def extract_state_update_type(
+        self, path: str
+    ) -> Optional[Mapping[str, Any]]:
+        _type = self._extract_state_updates_type_from_runner(path)
+        if _type is not None:
+            return _type
+        return self._extract_state_updates_from_quam_state(path)
 
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         if self.load_type < SnapshotLoadType.Data:
