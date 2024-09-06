@@ -15,15 +15,27 @@ import click
 from pydantic import ValidationError
 
 from qualibrate_app.config import read_config_file
+from qualibrate_app.config.models.active_machine import (
+    ActiveMachineSettingsBase,
+)
 from qualibrate_app.config.models.qualibrate import (
     QualibrateSettingsBase,
 )
 from qualibrate_app.config.models.qualibrate_app import (
     QualibrateAppSettingsBase,
 )
-from qualibrate_app.config.vars import CONFIG_KEY, QUALIBRATE_CONFIG_KEY
+from qualibrate_app.config.vars import (
+    ACTIVE_MACHINE_CONFIG_KEY,
+    CONFIG_KEY,
+    QUALIBRATE_CONFIG_KEY,
+)
 
-T = TypeVar("T", QualibrateAppSettingsBase, QualibrateSettingsBase)
+T = TypeVar(
+    "T",
+    QualibrateAppSettingsBase,
+    QualibrateSettingsBase,
+    ActiveMachineSettingsBase,
+)
 
 SUGGEST_MSG = (
     "Can't parse existing config. Fix it or overwrite "
@@ -44,9 +56,13 @@ def get_config_solved_references_or_print_error(
 
 def check_config_pre_v1_and_update(
     common_config: Dict[str, Any], qapp_config: Dict[str, Any]
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
     if "config_version" in qapp_config:
-        return common_config[QUALIBRATE_CONFIG_KEY], qapp_config
+        return (
+            common_config[QUALIBRATE_CONFIG_KEY],
+            common_config[ACTIVE_MACHINE_CONFIG_KEY],
+            qapp_config,
+        )
     warnings.warn(
         UserWarning(
             "You are using old version of config. "
@@ -63,13 +79,11 @@ def check_config_pre_v1_and_update(
             ),
         },
         "project": qapp_config.pop("project"),
-        "active_machine": {},
     }
+    active_machine_config = {}
     if "active_machine_path" in qapp_config:
-        qualibrate_config["active_machine"]["path"] = qapp_config.pop(
-            "active_machine_path"
-        )
-    return qualibrate_config, qapp_config
+        active_machine_config["path"] = qapp_config.pop("active_machine_path")
+    return qualibrate_config, active_machine_config, qapp_config
 
 
 def get_config_model_or_print_error(
