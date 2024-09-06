@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import field_serializer
 from pydantic_core.core_schema import FieldSerializationInfo
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from qualibrate_app.config.models.storage import (
     StorageSettings,
@@ -19,6 +19,8 @@ __all__ = [
 
 
 class QualibrateSettingsBase(BaseSettings, Versioned):
+    model_config = SettingsConfigDict(extra="ignore")
+
     project: Optional[str]
     storage: StorageSettingsBase
 
