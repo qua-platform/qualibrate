@@ -100,6 +100,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
                         description=node_to_run.description,
                         snapshot_idx=node_to_run.snapshot_idx,
                         outcomes=node_to_run.outcomes,
+                        state=new_state,
                         run_start=run_start,
                         run_end=datetime.now(),
                         parameters=node_to_run_parameters,
