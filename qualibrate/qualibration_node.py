@@ -1,5 +1,5 @@
-from collections import UserDict, UserList
 import warnings
+from collections import UserDict, UserList
 from contextlib import contextmanager
 from copy import copy
 from datetime import datetime
@@ -195,6 +195,9 @@ class QualibrationNode(
         finally:
             self.modes.external = external
             self.modes.interactive = interactive
+        self.outcomes = {
+            name: Outcome(outcome) for name, outcome in self.outcomes.items()
+        }
         return NodeRunSummary(
             name=self.name,
             description=self.description,

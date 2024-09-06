@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from qualibrate import NodeParameters
 from qualibrate.outcome import Outcome
+from qualibrate.qualibration_graph import NodeState
 
 
 class ExecutionHistoryItem(BaseModel):
@@ -13,6 +14,7 @@ class ExecutionHistoryItem(BaseModel):
     name: str
     description: Optional[str] = None
     snapshot_idx: Optional[int] = None
+    state: NodeState
     run_start: datetime
     run_end: datetime
     parameters: NodeParameters
