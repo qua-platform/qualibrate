@@ -1,6 +1,7 @@
 import sys
-from typing import Any, Hashable, Mapping, Optional, Sequence, cast
+from typing import Any, Hashable, Mapping, Optional, Sequence
 
+from qualibrate.utils.parameters import recursive_properties_solver
 from qualibrate.utils.type_protocols import TargetType
 
 if sys.version_info >= (3, 11):
@@ -8,7 +9,6 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
-from jsonpointer import resolve_pointer
 from pydantic import BaseModel, computed_field, model_validator
 
 __all__ = [
@@ -23,7 +23,9 @@ __all__ = [
 class RunnableParameters(BaseModel):
     @classmethod
     def serialize(cls) -> Mapping[str, Any]:
-        return cast(Mapping[str, Any], cls.model_json_schema()["properties"])
+        schema = cls.model_json_schema()
+        properties = schema["properties"]
+        return recursive_properties_solver(properties, schema)
 
 
 class TargetParameter(BaseModel):
@@ -84,23 +86,3 @@ class OrchestratorParameters(RunnableParameters):
 class ExecutionParameters(RunnableParameters):
     parameters: GraphParameters
     nodes: NodesParameters
-
-    @classmethod
-    def serialize(cls) -> Mapping[str, Any]:
-        # TODO: recursively resolve refs
-        schema = cls.model_json_schema()
-        properties = schema["properties"]
-        graph_parameters = properties.pop("parameters")
-        nodes_parameters = properties.pop("nodes")
-        graph_class = resolve_pointer(schema, graph_parameters["$ref"][1:])
-        nodes_class = resolve_pointer(schema, nodes_parameters["$ref"][1:])
-        graph_params = graph_class["properties"]
-        nodes_params = {
-            name: resolve_pointer(schema, ref["$ref"][1:])["properties"]
-            for name, ref in nodes_class["properties"].items()
-        }
-        to_return = {
-            "parameters": graph_params,
-            "nodes": nodes_params,
-        }
-        return to_return
