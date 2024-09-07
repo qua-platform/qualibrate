@@ -1,4 +1,5 @@
 import sys
+import warnings
 from typing import Any, Hashable, Mapping, Optional, Sequence, cast
 
 from qualibrate.utils.parameters import recursive_properties_solver
@@ -47,6 +48,13 @@ class TargetParameter(BaseModel):
         targets_name = data.get("targets_name") or default_targets_name
         if targets_name is None:
             raise AssertionError("Targets specified without targets name")
+        if targets_name in data:
+            warnings.warn(
+                UserWarning(
+                    f"You specified `targets` and `{targets_name}` (marked as "
+                    f"targets name) fields. `{targets_name}` will be ignored."
+                )
+            )
         targets = types_conversion(
             targets, cls.model_json_schema()["properties"].get(targets_name)
         )
