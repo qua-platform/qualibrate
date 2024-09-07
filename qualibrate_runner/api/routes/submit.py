@@ -22,7 +22,6 @@ from qualibrate_runner.core.run_job import (
     run_workflow,
     validate_input_parameters,
 )
-from qualibrate_runner.core.types_parsing import types_conversion
 
 submit_router = APIRouter(prefix="/submit")
 
@@ -44,13 +43,10 @@ def submit_node_run(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Already running",
         )
-    converted_parameters = types_conversion(
-        input_parameters, node.parameters_class.serialize()
-    )
     validate_input_parameters(
-        cast(Type[BaseModel], node.parameters_class), converted_parameters
+        cast(Type[BaseModel], node.parameters_class), input_parameters
     )
-    background_tasks.add_task(run_node, node, converted_parameters, state)
+    background_tasks.add_task(run_node, node, input_parameters, state)
     return f"Node job {node.name} is submitted"
 
 
