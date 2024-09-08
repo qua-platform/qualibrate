@@ -1,14 +1,16 @@
 import sys
+import warnings
 from typing import Any, Hashable, Mapping, Optional, Sequence, cast
 
+from qualibrate.utils.parameters import recursive_properties_solver
 from qualibrate.utils.type_protocols import TargetType
+from qualibrate.utils.types_parsing import types_conversion
 
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     from typing_extensions import Self
 
-from jsonpointer import resolve_pointer
 from pydantic import BaseModel, computed_field, model_validator
 
 __all__ = [
@@ -23,7 +25,14 @@ __all__ = [
 class RunnableParameters(BaseModel):
     @classmethod
     def serialize(cls) -> Mapping[str, Any]:
-        return cast(Mapping[str, Any], cls.model_json_schema()["properties"])
+        schema = cls.model_json_schema()
+        properties = schema["properties"]
+        return recursive_properties_solver(properties, schema)
+
+    @model_validator(mode="before")
+    @classmethod
+    def types_conversion(cls, data: Mapping[str, Any]) -> Mapping[str, Any]:
+        return cast(Mapping[str, Any], types_conversion(data, cls.serialize()))
 
 
 class TargetParameter(BaseModel):
@@ -39,6 +48,16 @@ class TargetParameter(BaseModel):
         targets_name = data.get("targets_name") or default_targets_name
         if targets_name is None:
             raise AssertionError("Targets specified without targets name")
+        if targets_name in data:
+            warnings.warn(
+                UserWarning(
+                    f"You specified `targets` and `{targets_name}` (marked as "
+                    f"targets name) fields. `{targets_name}` will be ignored."
+                )
+            )
+        targets = types_conversion(
+            targets, cls.model_json_schema()["properties"].get(targets_name)
+        )
         return {**data, targets_name: targets}
 
     @model_validator(mode="after")
@@ -84,23 +103,3 @@ class OrchestratorParameters(RunnableParameters):
 class ExecutionParameters(RunnableParameters):
     parameters: GraphParameters
     nodes: NodesParameters
-
-    @classmethod
-    def serialize(cls) -> Mapping[str, Any]:
-        # TODO: recursively resolve refs
-        schema = cls.model_json_schema()
-        properties = schema["properties"]
-        graph_parameters = properties.pop("parameters")
-        nodes_parameters = properties.pop("nodes")
-        graph_class = resolve_pointer(schema, graph_parameters["$ref"][1:])
-        nodes_class = resolve_pointer(schema, nodes_parameters["$ref"][1:])
-        graph_params = graph_class["properties"]
-        nodes_params = {
-            name: resolve_pointer(schema, ref["$ref"][1:])["properties"]
-            for name, ref in nodes_class["properties"].items()
-        }
-        to_return = {
-            "parameters": graph_params,
-            "nodes": nodes_params,
-        }
-        return to_return

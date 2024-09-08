@@ -240,7 +240,7 @@ class QualibrationNode(
             return False
         qmm = getattr(self.machine, "qmm", None)
         if not qmm:
-            if not hasattr(self.machine, "connect"):
+            if self.machine is None or not hasattr(self.machine, "connect"):
                 return False
             qmm = self.machine.connect()
         if hasattr(qmm, "list_open_qms"):
