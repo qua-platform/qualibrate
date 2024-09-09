@@ -11,17 +11,11 @@ import { GraphContextProvider } from "../../context/GraphContext";
 
 const GraphStatus = () => {
   const heading = "Run calibration graph";
-  const { allMeasurements, selectedMeasurement, result, diffData } = useGraphStatusContext();
-
-  // useEffect(() => {
-  //   console.log("aaaa", selectedMeasurement);
-  //   a();
-  // }, [selectedMeasurement]);
-
+  const { allMeasurements, result, diffData } = useGraphStatusContext();
   return (
     <div className={styles.wrapper}>
       <div className={styles.upperContainer}>
-        <div className={styles.titleWrapper}>
+        <div>
           <PageName>{heading}</PageName>
         </div>
         <MeasurementElementGraph />

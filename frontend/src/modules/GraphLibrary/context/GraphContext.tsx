@@ -51,6 +51,38 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
   const [selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow] = useState<string | undefined>(undefined);
   const [workflowGraphElements, setWorkflowGraphElements] = useState<ElementDefinition[] | undefined>(undefined);
 
+  // const removeTargetsNameAndQubits = (someObject: NodeDTO, propertyName: string, tempValue?: string) => {
+  //   let newParams = { ...someObject?.parameters };
+  //   Object.entries(newParams).forEach(([key, value]) => {
+  //     if (value?.default === tempValue) {
+  //       delete newParams[key];
+  //     }
+  //     if (key === propertyName) {
+  //       delete newParams[key];
+  //     }
+  //   });
+  //
+  //   someObject.parameters = newParams;
+  //   return someObject;
+  // };
+
+  // const fetchAllCalibrationGraphs = async () => {
+  //   const response = await GraphLibraryApi.fetchAllGraphs();
+  //   if (response.isOk) {
+  //     let allGraphs: GraphMap | undefined = response.result! as GraphMap;
+  //     let temp: GraphMap | undefined = response.result! as GraphMap;
+  //     Object.entries(allGraphs).forEach(([key, graph]) => {
+  //       Object.entries(graph?.nodes as NodeMap[]).forEach(([key2, node]) => {
+  //         node[key2] = removeTargetsNameAndQubits(node[key2], "targets_name", "qubits");
+  //       });
+  //     });
+  //     console.log("response.result", response.result);
+  //     setAllGraphs(response.result! as GraphMap);
+  //   } else if (response.error) {
+  //     console.log(response.error);
+  //   }
+  // };
+
   const fetchAllCalibrationGraphs = async () => {
     const response = await GraphLibraryApi.fetchAllGraphs();
     if (response.isOk) {

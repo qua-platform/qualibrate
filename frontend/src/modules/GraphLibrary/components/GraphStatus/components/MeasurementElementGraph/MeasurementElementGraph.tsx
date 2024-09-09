@@ -1,11 +1,9 @@
 import React from "react";
 import styles from "./MeasurementElementGraph.module.scss";
-import { useGraphContext } from "../../../../context/GraphContext";
 import { GraphList } from "../../../GraphList";
 
 export const MeasurementElementGraph: React.FC = () => {
   const title = "Calibration Graph Progress";
-  const { workflowGraphElements } = useGraphContext();
 
   return (
     <div className={styles.wrapper}>

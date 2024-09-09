@@ -1,5 +1,5 @@
 import React from "react";
-import { MeasurementParameter, useGraphStatusContext } from "../../context/GraphStatusContext";
+import { MeasurementParameter } from "../../context/GraphStatusContext";
 import styles from "../MeasurementElementParameters/MeasurementElementParameters.module.scss";
 import { ArrowIcon } from "../../../../../../ui-lib/Icons/ArrowIcon";
 
@@ -7,7 +7,6 @@ export const MeasurementElementParameters: React.FC<{
   title: string;
   parameters: MeasurementParameter;
 }> = ({ title, parameters }) => {
-  const { selectedMeasurement } = useGraphStatusContext();
   const [expanded, setExpanded] = React.useState<boolean>(true);
   // useEffect(() => {
   //   if (measurementId === (selectedMeasurement?.snapshot_idx?.toString() ?? selectedMeasurement?.name?.toString())) {
