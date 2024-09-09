@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { CytoscapeLayout } from "./config/Cytoscape";
 
 import styles from "./CytoscapeGraph.module.scss";
-import { useCalibrationGraphContext } from "../../context/CalibrationGraphContext";
+import { useGraphContext } from "../../context/GraphContext";
 
 cytoscape.warnings(false);
 
@@ -12,7 +12,7 @@ interface IProps {
 }
 
 export default function CytoscapeGraph({ elements }: IProps) {
-  const { setSelectedNodeNameInWorkflow } = useCalibrationGraphContext();
+  const { setSelectedNodeNameInWorkflow } = useGraphContext();
   const cy = useRef<cytoscape.Core>();
   const divRef = useRef(null);
 

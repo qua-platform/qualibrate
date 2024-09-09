@@ -3,16 +3,16 @@ import { classNames } from "../../utils/classnames";
 import styles from "./Parameters.module.scss";
 import { NodeDTO } from "../Nodes/components/NodeElement/NodeElement";
 import { ArrowIcon } from "../../ui-lib/Icons/ArrowIcon";
-import { CalibrationGraphWorkflow } from "../CalibrationGraph/components/CalibrationGraphList";
-import { useCalibrationGraphContext } from "../CalibrationGraph/context/CalibrationGraphContext";
+import { GraphWorkflow } from "../GraphLibrary/components/GraphList";
+import { useGraphContext } from "../GraphLibrary/context/GraphContext";
 
 interface IProps {
   parametersExpanded?: boolean;
   show: boolean;
   showTitle: boolean;
   title?: string;
-  currentItem?: NodeDTO | CalibrationGraphWorkflow;
-  getInputElement: (key: string, parameter: SingleParameter, node?: NodeDTO | CalibrationGraphWorkflow) => React.JSX.Element;
+  currentItem?: NodeDTO | GraphWorkflow;
+  getInputElement: (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => React.JSX.Element;
 }
 
 export interface SingleParameter {
@@ -33,7 +33,7 @@ export const Parameters: React.FC<IProps> = ({
   currentItem,
   getInputElement,
 }) => {
-  const { selectedNodeNameInWorkflow } = useCalibrationGraphContext();
+  const { selectedNodeNameInWorkflow } = useGraphContext();
   const [expanded, setExpanded] = React.useState<boolean>(selectedNodeNameInWorkflow === title ?? parametersExpanded);
 
   useEffect(() => {
