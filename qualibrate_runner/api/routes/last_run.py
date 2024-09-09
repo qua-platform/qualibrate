@@ -41,6 +41,7 @@ def get_workflow_status(
 @last_run_router.get("/workflow/execution_history")
 def get_execution_history(
     state: Annotated[State, Depends(get_state)],
+    reverse: bool = False,
 ) -> Optional[Mapping[str, Any]]:
     if not isinstance(state.run_item, QualibrationGraph):
         return None
@@ -49,6 +50,8 @@ def get_execution_history(
     if orch is None:
         raise RuntimeError("No graph orchestrator")
     history: ExecutionHistory = orch.get_execution_history()
+    if reverse:
+        history.items = list(reversed(history.items))
     return cast(
         Mapping[str, Any],
         history.model_dump(mode="json", serialize_as_any=True),
