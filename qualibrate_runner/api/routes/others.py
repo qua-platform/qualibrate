@@ -21,10 +21,14 @@ def check_running(
 
 
 @others_router.post("/stop")
-def stop_running(state: Annotated[State, Depends(get_state)]) -> bool:
-    if state.run_item is None:
+def stop_running(
+    state: Annotated[State, Depends(get_state)],
+    stop_graph_node: bool = False,
+) -> bool:
+    run_item = state.run_item
+    if run_item is None:
         return False
-    return bool(state.run_item.stop())
+    return bool(run_item.stop(stop_graph_node=stop_graph_node))
 
 
 @others_router.post(
