@@ -83,7 +83,6 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setRunningNode(node);
     const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
     if (result.isOk) {
-      console.log("result", result);
       setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
     } else {
       const errorWithDetails = result.error as NodeStatusErrorWithDetails;

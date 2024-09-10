@@ -26,7 +26,6 @@ export const MeasurementElement: React.FC<{ element: Measurement }> = ({ element
       onClick={() => {
         setSelectedItemName(element.snapshot_idx ? element.snapshot_idx.toString() : element.name?.toString());
         if (element.snapshot_idx) {
-          console.log(element.snapshot_idx);
           fetchResultsAndDiffData(element.snapshot_idx);
         } else {
           setResult({});

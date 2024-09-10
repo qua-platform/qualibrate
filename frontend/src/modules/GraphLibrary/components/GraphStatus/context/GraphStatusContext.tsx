@@ -91,7 +91,6 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
   const fetchResultsAndDiffData = (snapshotId: number) => {
     const id1 = snapshotId.toString();
     const id2 = snapshotId - 1 >= 0 ? (snapshotId - 1).toString() : "0";
-    console.log(id1, id2);
     SnapshotsApi.fetchSnapshotResult(id1)
       .then((promise: Res<object>) => {
         if (promise.result) {
