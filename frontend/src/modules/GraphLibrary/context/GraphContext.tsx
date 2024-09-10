@@ -3,6 +3,7 @@ import noop from "../../../common/helpers";
 import { GraphWorkflow } from "../components/GraphList";
 import { GraphLibraryApi } from "../api/GraphLibraryApi";
 import { ElementDefinition } from "cytoscape";
+import { InputParameter } from "../../common/Parameters";
 
 interface GraphProviderProps {
   children: React.JSX.Element;
@@ -51,46 +52,60 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
   const [selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow] = useState<string | undefined>(undefined);
   const [workflowGraphElements, setWorkflowGraphElements] = useState<ElementDefinition[] | undefined>(undefined);
 
-  // const removeTargetsNameAndQubits = (someObject: NodeDTO, propertyName: string, tempValue?: string) => {
-  //   let newParams = { ...someObject?.parameters };
-  //   Object.entries(newParams).forEach(([key, value]) => {
-  //     if (value?.default === tempValue) {
-  //       delete newParams[key];
-  //     }
-  //     if (key === propertyName) {
-  //       delete newParams[key];
-  //     }
-  //   });
-  //
-  //   someObject.parameters = newParams;
-  //   return someObject;
-  // };
+  const updateObject = (obj: GraphWorkflow): GraphWorkflow => {
+    const modifyParameters = (parameters?: InputParameter, isNodeLevel: boolean = false): InputParameter | undefined => {
+      if (parameters?.targets_name) {
+        if (isNodeLevel) {
+          const targetKey = parameters.targets_name.default?.toString();
 
-  // const fetchAllCalibrationGraphs = async () => {
-  //   const response = await GraphLibraryApi.fetchAllGraphs();
-  //   if (response.isOk) {
-  //     let allGraphs: GraphMap | undefined = response.result! as GraphMap;
-  //     let temp: GraphMap | undefined = response.result! as GraphMap;
-  //     Object.entries(allGraphs).forEach(([key, graph]) => {
-  //       Object.entries(graph?.nodes as NodeMap[]).forEach(([key2, node]) => {
-  //         node[key2] = removeTargetsNameAndQubits(node[key2], "targets_name", "qubits");
-  //       });
-  //     });
-  //     console.log("response.result", response.result);
-  //     setAllGraphs(response.result! as GraphMap);
-  //   } else if (response.error) {
-  //     console.log(response.error);
-  //   }
-  // };
+          if (targetKey && parameters.targets_name.default) {
+            const { targets_name, [targetKey]: _, ...rest } = parameters;
+            return rest;
+          }
+          const { targets_name, ...rest } = parameters;
+          return rest;
+        } else {
+          const { targets_name, ...rest } = parameters;
+          return rest;
+        }
+      }
+      return parameters;
+    };
+
+    obj.parameters = modifyParameters(obj.parameters, false);
+
+    if (obj.nodes) {
+      Object.keys(obj.nodes).forEach((nodeKey) => {
+        const node = obj.nodes![nodeKey];
+        node.parameters = modifyParameters(node.parameters, true);
+      });
+    }
+
+    return obj;
+  };
+
+  const updateAllGraphs = (allFetchedGraphs: GraphMap): GraphMap => {
+    const updatedGraphs: GraphMap = {};
+
+    Object.entries(allFetchedGraphs).forEach(([key, graph]) => {
+      updatedGraphs[key] = updateObject(graph);
+    });
+
+    return updatedGraphs;
+  };
 
   const fetchAllCalibrationGraphs = async () => {
     const response = await GraphLibraryApi.fetchAllGraphs();
     if (response.isOk) {
-      setAllGraphs(response.result! as GraphMap);
+      const allFetchedGraphs = response.result! as GraphMap;
+      const updatedGraphs = updateAllGraphs(allFetchedGraphs);
+
+      setAllGraphs(updatedGraphs);
     } else if (response.error) {
       console.log(response.error);
     }
   };
+
   const fetchWorkflowGraph = async (nodeName: string) => {
     const response = await GraphLibraryApi.fetchGraph(nodeName);
     if (response.isOk) {
