@@ -235,7 +235,7 @@ class QualibrationNode(
     def state_updates(self) -> MappingProxyType[str, Any]:
         return MappingProxyType(self._state_updates)
 
-    def stop(self) -> bool:
+    def stop(self, **kwargs: Any) -> bool:
         if find_spec("qm") is None:
             return False
         qmm = getattr(self.machine, "qmm", None)

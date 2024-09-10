@@ -59,7 +59,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         }
 
     @abstractmethod
-    def stop(self) -> bool:
+    def stop(self, **kwargs: Any) -> bool:
         pass
 
     @classmethod
