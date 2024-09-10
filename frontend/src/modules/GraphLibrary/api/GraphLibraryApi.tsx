@@ -33,7 +33,7 @@ export class GraphLibraryApi extends Api {
     });
   }
 
-  static submitWorkflow(name: string, workflow: unknown): Promise<Res<void>> {
+  static submitWorkflow(name: string, workflow: unknown): Promise<Res<string>> {
     return this._fetch(this.api(SUBMIT_WORKFLOW_RUN()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       body: JSON.stringify(workflow),

@@ -103,8 +103,10 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
 
   const handleSubmit = async () => {
     if (selectedWorkflowName) {
-      GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
-      openTab("graph-status");
+      const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
+      if (response.isOk) {
+        openTab("graph-status");
+      }
     }
   };
 

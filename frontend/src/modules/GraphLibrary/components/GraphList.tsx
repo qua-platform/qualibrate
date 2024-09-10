@@ -11,7 +11,7 @@ export interface GraphWorkflow {
   title?: string;
   description: string;
   parameters?: InputParameter;
-  nodes?: NodeMap[];
+  nodes?: NodeMap;
   connectivity?: string[][];
 }
 
