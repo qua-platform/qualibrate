@@ -13,6 +13,11 @@ class RunStatus(Enum):
     ERROR = "error"
 
 
+class RunnableType(Enum):
+    NODE = "node"
+    WORKFLOW = "workflow"
+
+
 class RunError(BaseModel):
     error_class: str
     message: str
@@ -33,6 +38,7 @@ class LastRun(BaseModel):
     completed_at: Optional[datetime] = None
     name: str
     idx: int
+    runnable_type: RunnableType
     run_result: Optional[Union[NodeRunSummary, GraphRunSummary]] = None
     state_updates: Mapping[str, StateUpdate] = Field(default_factory=dict)
     error: Optional[RunError] = None

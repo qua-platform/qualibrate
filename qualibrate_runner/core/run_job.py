@@ -9,7 +9,12 @@ from qualibrate.qualibration_library import QualibrationLibrary
 from qualibrate.qualibration_node import QualibrationNode
 
 from qualibrate_runner.config import State
-from qualibrate_runner.core.models.last_run import LastRun, RunError, RunStatus
+from qualibrate_runner.core.models.last_run import (
+    LastRun,
+    RunError,
+    RunnableType,
+    RunStatus,
+)
 
 
 def validate_input_parameters(
@@ -42,6 +47,7 @@ def run_node(
         status=RunStatus.RUNNING,
         idx=-1,
         started_at=datetime.now(),
+        runnable_type=RunnableType.NODE,
     )
     try:
         library = get_active_library_or_error()
@@ -56,6 +62,7 @@ def run_node(
             idx=-1,
             started_at=state.last_run.started_at,
             completed_at=datetime.now(),
+            runnable_type=state.last_run.runnable_type,
             error=RunError(
                 error_class=ex.__class__.__name__,
                 message=str(ex),
@@ -71,6 +78,7 @@ def run_node(
             status=RunStatus.FINISHED,
             idx=idx,
             run_result=result,
+            runnable_type=state.last_run.runnable_type,
             started_at=state.last_run.started_at,
             completed_at=datetime.now(),
             state_updates=node.state_updates,
@@ -88,6 +96,7 @@ def run_workflow(
         status=RunStatus.RUNNING,
         idx=-1,
         started_at=datetime.now(),
+        runnable_type=RunnableType.WORKFLOW,
     )
     state.run_item = workflow
     try:
@@ -105,6 +114,7 @@ def run_workflow(
             idx=-1,
             started_at=state.last_run.started_at,
             completed_at=datetime.now(),
+            runnable_type=state.last_run.runnable_type,
             error=RunError(
                 error_class=ex.__class__.__name__,
                 message=str(ex),
@@ -122,6 +132,7 @@ def run_workflow(
             run_result=result,
             started_at=state.last_run.started_at,
             completed_at=datetime.now(),
+            runnable_type=state.last_run.runnable_type,
             state_updates=(
                 workflow.state_updates
                 if hasattr(workflow, "state_updates")
