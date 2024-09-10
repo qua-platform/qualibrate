@@ -356,5 +356,14 @@ class QualibrationGraph(
         ]
         return [*nodes, *edges]
 
-    def stop(self) -> bool:
-        return False
+    def stop(self, **kwargs: Any) -> bool:
+        stop_node: Optional[bool] = kwargs.get("stop_graph_node", None)
+        node_stop = True
+        orchestrator = self._orchestrator
+        if orchestrator is None:
+            return False
+        if stop_node:
+            if node := orchestrator.active_node:
+                node_stop = node.stop()
+        orchestrator.stop()
+        return node_stop

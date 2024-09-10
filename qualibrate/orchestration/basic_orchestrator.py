@@ -58,6 +58,8 @@ class BasicOrchestrator(QualibrationOrchestrator):
     def traverse_graph(
         self, graph: QualibrationGraph, targets: Sequence[Any]
     ) -> None:
+        if self._is_stopped:
+            return
         self._graph = graph
         if graph.full_parameters is None:
             raise RuntimeError("Execution graph parameters not specified")
@@ -75,14 +77,14 @@ class BasicOrchestrator(QualibrationOrchestrator):
         for node in nodes_without_predecessors:
             self._execution_queue.put(node)
 
-        while not self._is_execution_finished():
+        while not self._is_execution_finished() and not self._is_stopped:
             node_to_run = self.get_next_node()
             if node_to_run is None:
                 raise RuntimeError("No next node. Execution not finished")
             node_to_run_parameters = getattr(nodes_parameters, node_to_run.name)
             run_start = datetime.now()
             try:
-                self._active_node_name = node_to_run.name
+                self._active_node = node_to_run
                 node_parameters = node_to_run_parameters.model_dump()
                 node_parameters.update({"targets": self.targets})
                 node_result = node_to_run.run(**node_parameters)
@@ -112,7 +114,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
             if new_state == NodeState.successful:
                 for successor in successors[node_to_run]:
                     self._execution_queue.put(successor)
-        self._active_node_name = None
+        self._active_node = None
         # TODO: correct resolving of outcomes
         for target in targets:
             self.final_outcomes[target] = Outcome.SUCCESSFUL
