@@ -96,7 +96,7 @@ def run_workflow(
         status=RunStatus.RUNNING,
         idx=-1,
         started_at=datetime.now(),
-        runnable_type=RunnableType.WORKFLOW,
+        runnable_type=RunnableType.GRAPH,
     )
     state.run_item = workflow
     try:

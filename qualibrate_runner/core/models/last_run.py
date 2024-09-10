@@ -15,7 +15,7 @@ class RunStatus(Enum):
 
 class RunnableType(Enum):
     NODE = "node"
-    WORKFLOW = "workflow"
+    GRAPH = "graph"
 
 
 class RunError(BaseModel):
