@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
 import { PlayIcon } from "../../../../ui-lib/Icons/PlayIcon";
@@ -14,6 +14,7 @@ import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
 import { GraphLibraryApi } from "../../api/GraphLibraryApi";
 import { NodeDTO } from "../../../Nodes/components/NodeElement/NodeElement";
 import { useFlexLayoutContext } from "../../../../routing/flexLayout/FlexLayoutContext";
+import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 
 export interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -26,6 +27,7 @@ interface TransformedGraph {
 }
 
 export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrationGraphKey, calibrationGraph }) => {
+  const [errorObject, setErrorObject] = useState<unknown>(undefined);
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements, setSelectedWorkflowName, allGraphs, setAllGraphs, selectedWorkflowName } = useGraphContext();
   const { openTab } = useFlexLayoutContext();
@@ -103,9 +105,13 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
 
   const handleSubmit = async () => {
     if (selectedWorkflowName) {
+      console.log("transformDataForSubmit()", transformDataForSubmit());
       const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
+      console.log("response", response);
       if (response.isOk) {
         openTab("graph-status");
+      } else {
+        setErrorObject(response.error);
       }
     }
   };
@@ -134,6 +140,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
       </div>
       <div className={styles.bottomContainer}>
         <div className={styles.parametersContainer}>
+          <GraphElementErrorWrapper errorObject={errorObject} />
           <Parameters
             key={calibrationGraphKey}
             show={show}
