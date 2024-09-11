@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { classNames } from "../../utils/classnames";
+import { classNames } from "../../../utils/classnames";
 import styles from "./Parameters.module.scss";
-import { NodeDTO } from "../Nodes/components/NodeElement/NodeElement";
-import { ArrowIcon } from "../../ui-lib/Icons/ArrowIcon";
-import { GraphWorkflow } from "../GraphLibrary/components/GraphList";
-import { useGraphContext } from "../GraphLibrary/context/GraphContext";
+import { NodeDTO } from "../../Nodes/components/NodeElement/NodeElement";
+import { ArrowIcon } from "../../../ui-lib/Icons/ArrowIcon";
+import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
+import { useGraphContext } from "../../GraphLibrary/context/GraphContext";
 
 interface IProps {
   parametersExpanded?: boolean;

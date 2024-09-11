@@ -9,6 +9,11 @@
   border-radius: var(--border-radius);
 }
 
+.graphContainer {
+  flex: 1;
+  align-content: center;
+  width: 60%;
+}
 
 .upperContainer {
   color: rgb(217 213 212);
@@ -26,23 +31,3 @@
   height: calc(100% - 20px);
   background-color: var(--background-color);
 }
-
-//.titleWrapper {
-//  display: flex;displaydisplay
-//  justify-content: space-between;justify-contentjustify-content
-//}
-//
-//.listWrapper {flex-growflex-grow
-//  border: 2px solid var(--border-color);borderborder
-//  padding: 0 2px 2px;paddingpadding;
-//  background-color: var(--popup-background);background-colorbackground-color
-//  max-width: 100%;max-widthmax-width
-//  overflow: scroll;overflowoverflow
-//}
-//
-//.dot {height
-//  width: 5px;widthwidth
-//  background-color: #bbb;background-colorbackground-color
-//  border-radius: 50%;border-radiusborder-radius
-//  display: inline-block;displaydisplay
-//}

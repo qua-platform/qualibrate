@@ -1,10 +1,20 @@
 import React from "react";
 import styles from "./MeasurementElementGraph.module.scss";
-import { GraphList } from "../../../GraphList";
+import CytoscapeGraph from "../../../CytoscapeGraph/CytoscapeGraph";
+import cytoscape from "cytoscape";
+import { useGraphContext } from "../../../../context/GraphContext";
+import { GlobalElementParameters } from "../../../../../common/GlobalElementParameters/GlobalElementParameters";
 
-export const MeasurementElementGraph: React.FC = () => {
+interface IProps {
+  workflowGraphElements: cytoscape.ElementDefinition[];
+  active?: boolean;
+  nodesCompleted?: number;
+  runDuration?: number;
+}
+
+export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements }) => {
   const title = "Calibration Graph Progress";
-
+  const { lastRunInfo } = useGraphContext();
   return (
     <div className={styles.wrapper}>
       <div className={styles.title}>{title}</div>
@@ -12,21 +22,17 @@ export const MeasurementElementGraph: React.FC = () => {
         <div className={styles.lowerContainer}>
           <div className={styles.lowerUpperContainer}>
             <div className={styles.lowerUpperLeftContainer}>
-              <div>Graph progress: 2/4 nodes completed</div>
-              <div>Run duration: 3m 6s</div>
+              <div>Status: {lastRunInfo?.active ? "running" : "finished"}</div>
+              <div>Graph progress: {lastRunInfo?.nodesCompleted} nodes completed</div>
+              <div>Run duration: {lastRunInfo?.runDuration}</div>
             </div>
             <div className={styles.lowerUpperRightContainer}>
-              <div>Graph parameters</div>
-              <div>Qubits: q0, q2, q3</div>
-              <div>Orchestrator parameters</div>
-              <div>Skip failed: True</div>
+              <GlobalElementParameters title={"Graph parameters"} parameters={{ Qubits: "q0, q1, q2" }} />
+              <GlobalElementParameters title={"Orchestrator parameters"} parameters={{ "Skip failed": "true" }} />
             </div>
           </div>
           <div className={styles.lowerLowerContainer}>
-            <GraphList />
-            {/*<div className={styles.lowerLowerLeftContainer}>left</div>*/}
-            {/*<div className={styles.lowerLowerRightContainer}>right</div>*/}
-            {/*<CytoscapeGraph elements={workflowGraphElements} />*/}
+            <CytoscapeGraph elements={workflowGraphElements} />
           </div>
         </div>
       </div>

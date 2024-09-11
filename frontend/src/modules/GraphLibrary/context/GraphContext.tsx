@@ -3,10 +3,19 @@ import noop from "../../../common/helpers";
 import { GraphWorkflow } from "../components/GraphList";
 import { GraphLibraryApi } from "../api/GraphLibraryApi";
 import { ElementDefinition } from "cytoscape";
-import { InputParameter } from "../../common/Parameters";
+import { InputParameter } from "../../common/Parameters/Parameters";
+import { NodesApi } from "../../Nodes/api/NodesAPI";
+import { StatusResponseType } from "../../Nodes/context/NodesContext";
 
 interface GraphProviderProps {
   children: React.JSX.Element;
+}
+
+interface LastRunInfo {
+  workflowName?: string;
+  active?: boolean;
+  nodesCompleted?: number;
+  runDuration?: number;
 }
 
 export interface GraphMap {
@@ -24,6 +33,8 @@ interface IGraphContext {
   setSelectedNodeNameInWorkflow: (nodeName: string | undefined) => void;
   workflowGraphElements?: ElementDefinition[];
   setWorkflowGraphElements: Dispatch<SetStateAction<ElementDefinition[] | undefined>>;
+  lastRunInfo?: LastRunInfo;
+  setLastRunInfo: Dispatch<SetStateAction<LastRunInfo | undefined>>;
 }
 
 const GraphContext = React.createContext<IGraphContext>({
@@ -41,6 +52,9 @@ const GraphContext = React.createContext<IGraphContext>({
 
   workflowGraphElements: undefined,
   setWorkflowGraphElements: noop,
+
+  lastRunInfo: undefined,
+  setLastRunInfo: noop,
 });
 
 export const useGraphContext = () => useContext<IGraphContext>(GraphContext);
@@ -51,6 +65,21 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
   const [selectedWorkflowName, setSelectedWorkflowName] = useState<string | undefined>(undefined);
   const [selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow] = useState<string | undefined>(undefined);
   const [workflowGraphElements, setWorkflowGraphElements] = useState<ElementDefinition[] | undefined>(undefined);
+  const [lastRunInfo, setLastRunInfo] = useState<LastRunInfo | undefined>(undefined);
+
+  const fetchLastRunInfo = async () => {
+    const lastRunResponse = await NodesApi.fetchLastRunInfo();
+    if (lastRunResponse && lastRunResponse.isOk) {
+      const lastRunResponseResult = lastRunResponse.result as StatusResponseType;
+      if (lastRunResponseResult && lastRunResponseResult.status !== "error") {
+        setLastRunInfo({ workflowName: (lastRunResponse.result as { name: string }).name });
+      } else {
+        console.log("last run status was error");
+      }
+    } else {
+      console.log("lastRunResponse was ", lastRunResponse);
+    }
+  };
 
   const updateObject = (obj: GraphWorkflow): GraphWorkflow => {
     const modifyParameters = (parameters?: InputParameter, isNodeLevel: boolean = false): InputParameter | undefined => {
@@ -59,12 +88,15 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
           const targetKey = parameters.targets_name.default?.toString();
 
           if (targetKey && parameters.targets_name.default) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { targets_name, [targetKey]: _, ...rest } = parameters;
             return rest;
           }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { targets_name, ...rest } = parameters;
           return rest;
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { targets_name, ...rest } = parameters;
           return rest;
         }
@@ -115,9 +147,30 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
     }
   };
 
+  const fetchLastRunWorkflowStatus = async () => {
+    const response = await GraphLibraryApi.fetchLastWorkflowStatus();
+    if (response.isOk) {
+      setLastRunInfo({
+        ...lastRunInfo,
+        active: response.result?.active,
+        nodesCompleted: response.result?.nodes_completed,
+        runDuration: response.result?.run_duration,
+      });
+    } else if (response.error) {
+      console.log(response.error);
+    }
+  };
+
   useEffect(() => {
     fetchAllCalibrationGraphs();
+    fetchLastRunInfo();
   }, []);
+
+  useEffect(() => {
+    if (lastRunInfo?.workflowName) {
+      fetchWorkflowGraph(lastRunInfo?.workflowName);
+    }
+  }, [lastRunInfo]);
 
   useEffect(() => {
     if (selectedWorkflowName) {
@@ -125,6 +178,11 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
       setSelectedWorkflow(allGraphs?.[selectedWorkflowName]);
     }
   }, [selectedWorkflowName]);
+
+  useEffect(() => {
+    const checkInterval = setInterval(async () => fetchLastRunWorkflowStatus(), 1500);
+    return () => clearInterval(checkInterval);
+  }, []);
 
   return (
     <GraphContext.Provider
@@ -139,6 +197,8 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
         setSelectedNodeNameInWorkflow,
         workflowGraphElements,
         setWorkflowGraphElements,
+        lastRunInfo,
+        setLastRunInfo,
       }}
     >
       {props.children}

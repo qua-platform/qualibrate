@@ -7,18 +7,21 @@ import { Results } from "../../../Nodes/components/Results/Results";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
 import { SelectionContextProvider } from "../../../common/context/SelectionContext";
-import { GraphContextProvider } from "../../context/GraphContext";
+import { GraphContextProvider, useGraphContext } from "../../context/GraphContext";
 
 const GraphStatus = () => {
   const heading = "Run calibration graph";
+  const { workflowGraphElements } = useGraphContext();
   const { allMeasurements, result, diffData } = useGraphStatusContext();
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.upperContainer}>
         <div>
           <PageName>{heading}</PageName>
         </div>
-        <MeasurementElementGraph />
+        {workflowGraphElements && <MeasurementElementGraph workflowGraphElements={workflowGraphElements} />}
+
         <MeasurementHistory listOfMeasurements={allMeasurements} />
       </div>
       <div className={styles.resultsContainer}>

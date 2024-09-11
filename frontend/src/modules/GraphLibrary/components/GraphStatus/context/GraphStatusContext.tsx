@@ -9,7 +9,7 @@ interface GraphProviderProps {
   children: React.JSX.Element;
 }
 
-export interface MeasurementParameter {
+export interface GlobalParameterStructure {
   [key: string]: string | number;
 }
 
@@ -18,7 +18,7 @@ export interface Measurement {
   name?: string;
   description?: string;
   outcomes: object;
-  parameters: MeasurementParameter;
+  parameters: GlobalParameterStructure;
   run_start: string;
   run_end: string;
   run_duration: number;
@@ -75,13 +75,6 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
     if (response.isOk) {
       if (response.result && response.result.items) {
         setAllMeasurements(response.result.items);
-        // setAllMeasurements(
-        //     response.result.items.filter((item) => {
-        //       if (item.snapshot_idx) {
-        //         return item;
-        //       }
-        //     })
-        // );
       }
     } else if (response.error) {
       console.log(response.error);

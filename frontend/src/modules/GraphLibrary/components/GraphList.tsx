@@ -4,7 +4,7 @@ import styles from "../GraphLibrary.module.scss";
 import { GraphElement } from "./GraphElement/GraphElement";
 import { NodeMap } from "../../Nodes/components/NodeElement/NodeElement";
 import { useGraphContext } from "../context/GraphContext";
-import { InputParameter } from "../../common/Parameters";
+import { InputParameter } from "../../common/Parameters/Parameters";
 
 export interface GraphWorkflow {
   name?: string;

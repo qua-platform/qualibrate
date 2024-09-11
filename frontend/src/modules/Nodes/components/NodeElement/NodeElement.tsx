@@ -6,7 +6,7 @@ import { Checkbox, CircularProgress } from "@mui/material";
 import { NodeStatusErrorWithDetails, useNodesContext } from "../../context/NodesContext";
 import { classNames } from "../../../../utils/classnames";
 import { NodesApi } from "../../api/NodesAPI";
-import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters";
+import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
 
 export interface NodeDTO {
