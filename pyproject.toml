@@ -38,7 +38,7 @@ warn_return_any = true
 exclude = ["tests", "calibrations"]
 
 [[tool.mypy.overrides]]
-module = ["qualang_tools.*", "quam.*", "qualibrate_app.*", "jsonpointer", "networkx"]
+module = ["qualang_tools.*", "quam.*", "qualibrate_app.*", "qualibrate_runner.*", "jsonpointer", "networkx"]
 ignore_missing_imports = true
 
 [tool.poe.tasks]

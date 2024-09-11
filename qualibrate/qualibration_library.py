@@ -1,3 +1,5 @@
+import warnings
+from importlib.util import find_spec
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, cast
 
@@ -39,6 +41,29 @@ class QualibrationLibrary:
                     library_folder, self
                 ),
             )
+
+    @classmethod
+    def get_active_library(
+        cls, library_folder: Optional[Path] = None, create: bool = True
+    ) -> Optional["QualibrationLibrary"]:
+        if cls.active_library is not None:
+            return cls.active_library
+        if not create:
+            return None
+        if library_folder is None:
+            warnings.warn("Getting calibration path from config")
+            if find_spec("qualibrate_runner") is not None:
+                from qualibrate_runner.config import (
+                    get_config_path,
+                    get_settings,
+                )
+
+                config_path = get_config_path()
+                settings = get_settings(config_path)
+                library_folder = settings.calibration_library_folder
+            if library_folder is None:
+                raise RuntimeError("Can't resolve default calibrations folder")
+        return QualibrationLibrary(library_folder=library_folder)
 
     def serialize(self) -> Mapping[str, Any]:
         return {"nodes": [node.serialize() for node in self.nodes.values()]}
