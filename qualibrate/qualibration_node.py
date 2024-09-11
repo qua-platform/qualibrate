@@ -195,8 +195,14 @@ class QualibrationNode(
         finally:
             self.modes.external = external
             self.modes.interactive = interactive
+        outcomes = self.outcomes
+        if self.parameters is not None and (targets := self.parameters.targets):
+            lost_targets_outcomes = set(targets) - set(outcomes.keys())
+            outcomes.update(
+                {target: Outcome.SUCCESSFUL for target in lost_targets_outcomes}
+            )
         self.outcomes = {
-            name: Outcome(outcome) for name, outcome in self.outcomes.items()
+            name: Outcome(outcome) for name, outcome in outcomes.items()
         }
         return NodeRunSummary(
             name=self.name,
