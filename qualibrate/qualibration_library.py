@@ -45,11 +45,11 @@ class QualibrationLibrary:
     @classmethod
     def get_active_library(
         cls, library_folder: Optional[Path] = None, create: bool = True
-    ) -> Optional["QualibrationLibrary"]:
+    ) -> "QualibrationLibrary":
         if cls.active_library is not None:
             return cls.active_library
         if not create:
-            return None
+            raise RuntimeError("Library hasn't been instantiated yet.")
         if library_folder is None:
             warnings.warn("Getting calibration path from config")
             if find_spec("qualibrate_runner") is not None:
