@@ -9,10 +9,13 @@ try:
     settings = get_settings(config_path)
     log_folder = settings.qualibrate.log_folder
 except (ModuleNotFoundError, AttributeError):
-    log_folder = Path().home().joinpath(".qualibrate", "logs")
+    log_folder = None
+
 
 __all__ = ["logger"]
 
+if log_folder is None:
+    log_folder = Path().home().joinpath(".qualibrate", "logs")
 log_folder.mkdir(parents=True, exist_ok=True)
 log_file_path = log_folder / "qualibrate.log"
 LOG_FORMAT = (
