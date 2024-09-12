@@ -215,7 +215,18 @@ def _get_qapp_config(
 def _get_qapp_am_config(
     ctx: click.Context, from_file: Dict[str, Any]
 ) -> ActiveMachineSettingsSetup:
-    return ActiveMachineSettingsSetup(**from_file)
+    args_mapping = {"active_machine_path": "path"}
+    data = {
+        config_key: from_file.get(config_key)
+        for config_key in args_mapping.values()
+    }
+    for arg_key, arg_value in filter(
+        lambda item: item[0] in args_mapping, ctx.params.items()
+    ):
+        not_default_resolver_arg = not_default(ctx, arg_key)
+        if not_default_resolver_arg or args_mapping[arg_key] not in from_file:
+            data[args_mapping[arg_key]] = arg_value
+    return ActiveMachineSettingsSetup(**data)
 
 
 def _get_qapp_q_config(
@@ -389,6 +400,12 @@ def _get_user_storage() -> Path:
     default="data_path",
     show_default=True,
 )
+@click.option(
+    "--active-machine-path",
+    type=click.Path(file_okay=False, dir_okay=True),
+    default=None,
+    show_default=True,
+)
 @click.pass_context
 def config_command(
     ctx: click.Context,
@@ -405,6 +422,7 @@ def config_command(
     app_user_storage: Path,
     app_project: str,
     app_metadata_out_path: str,
+    active_machine_path: Path,
 ) -> None:
     common_config, config_file = get_config(config_path)
     qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
