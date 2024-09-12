@@ -64,7 +64,8 @@ def settings_path_filled(settings: QualibrateAppSettings, settings_path: Path):
                     exclude={"qualibrate"}, mode="json", exclude_none=True
                 ),
                 QUALIBRATE_CONFIG_KEY: settings.qualibrate.model_dump(
-                    mode="json", exclude_none=True,
+                    mode="json",
+                    exclude_none=True,
                 ),
             },
             fin,
