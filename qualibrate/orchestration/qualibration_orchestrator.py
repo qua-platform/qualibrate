@@ -11,6 +11,7 @@ from qualibrate.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
 from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.utils.logger_m import logger
 from qualibrate.utils.naming import get_full_class_path
 
 __all__ = ["QualibrationOrchestrator"]
@@ -46,9 +47,11 @@ class QualibrationOrchestrator(ABC):
         return self.active_node.name if self.active_node else None
 
     def stop(self) -> None:
+        logger.debug("Orchestrator. Stop")
         self._is_stopped = True
 
     def cleanup(self) -> None:
+        logger.debug("Orchestrator. Cleanup")
         self._graph = None
         self._is_stopped = False
         self.initial_targets = None

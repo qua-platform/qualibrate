@@ -1,4 +1,3 @@
-import warnings
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -30,8 +29,8 @@ from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.run_summary.base import BaseRunSummary
 from qualibrate.run_summary.graph import GraphRunSummary
-from qualibrate.storage.local_storage_manager import logger
 from qualibrate.utils.exceptions import StopInspection
+from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
 
 if TYPE_CHECKING:
@@ -109,11 +108,8 @@ class QualibrationGraph(
         for name, node in nodes.items():
             if name != node.name:
                 node = node.copy(name)
-                warnings.warn(
-                    UserWarning(
-                        f"{node} has to be copied due to conflicting "
-                        f"name ({name})"
-                    )
+                logger.warning(
+                    f"{node} has to be copied due to conflicting name ({name})"
                 )
             new_nodes[name] = node
         return new_nodes
@@ -134,11 +130,10 @@ class QualibrationGraph(
                 try:
                     cls.scan_graph_file(file, graphs)
                 except Exception as e:
-                    warnings.warn(
-                        RuntimeWarning(
-                            "An error occurred on scanning graph file "
-                            f"{file.name}.\nError message: {e}"
-                        )
+                    logger.exception("", exc_info=e)
+                    logger.warning(
+                        "An error occurred on scanning graph file "
+                        f"{file.name}.\nError message: {e}"
                     )
         finally:
             cls.modes.inspection = inspection
@@ -210,8 +205,13 @@ class QualibrationGraph(
         """
         :param passed_parameters: Graph parameters. Should contain `nodes` key.
         """
+        logger.info(
+            f"Run graph {self.name} with parameters: {passed_parameters}"
+        )
         if self._orchestrator is None:
-            raise ValueError("Orchestrator not specified")
+            ex = ValueError("Orchestrator not specified")
+            logger.exception("", exc_info=ex)
+            raise ex
         self.cleanup()
         nodes = self._get_all_nodes_parameters(
             passed_parameters.get("nodes", {})
@@ -231,7 +231,7 @@ class QualibrationGraph(
         created_at = datetime.now()
         self._orchestrator.traverse_graph(self, targets)
         self.outcomes = self._orchestrator.final_outcomes
-        return GraphRunSummary(
+        run_summary = GraphRunSummary(
             name=self.name,
             description=self.description,
             created_at=created_at,
@@ -250,6 +250,8 @@ class QualibrationGraph(
                 if status == Outcome.FAILED
             ],
         )
+        logger.debug(f"Graph run summary {run_summary}")
+        return run_summary
 
     def _get_qnode_or_error(self, node_name: str) -> QualibrationNode:
         node = self._nodes.get(node_name)
@@ -357,6 +359,7 @@ class QualibrationGraph(
         return [*nodes, *edges]
 
     def stop(self, **kwargs: Any) -> bool:
+        logger.debug(f"Stop graph {self.name}")
         stop_node: Optional[bool] = kwargs.get("stop_graph_node", None)
         node_stop = True
         orchestrator = self._orchestrator

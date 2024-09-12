@@ -1,4 +1,3 @@
-import warnings
 from collections import UserDict, UserList
 from contextlib import contextmanager
 from copy import copy
@@ -28,7 +27,7 @@ from qualibrate.run_summary.node import NodeRunSummary
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
-from qualibrate.utils.logger import logger
+from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import (
     GetRefGetItemProtocol,
@@ -66,6 +65,7 @@ class QualibrationNode(
         parameters_class: Type[NodeCreateParametersType],
         description: Optional[str] = None,
     ):
+        logger.info(f"Creating node {name}")
         if hasattr(self, "_initialized"):
             self._warn_if_external_and_interactive_mpl()
             return
@@ -99,6 +99,10 @@ class QualibrationNode(
     def copy(
         self, name: Optional[str] = None, **node_parameters: Any
     ) -> "QualibrationNode":
+        logger.info(
+            f"Copying node with name {self.name} with parameters "
+            f"{name = }, {node_parameters = }"
+        )
         if name is not None and not isinstance(name, str):
             raise ValueError(
                 f"{self.__class__.__name__} should have a string name"
@@ -136,11 +140,9 @@ class QualibrationNode(
         mpl_backend = matplotlib.get_backend()
         if self.modes.external and mpl_backend in interactive_bk:
             matplotlib.use("agg")
-            warnings.warn(
-                UserWarning(
-                    f"Using interactive matplotlib backend '{mpl_backend}' in "
-                    "external mode. The backend is changed to 'agg'."
-                )
+            logger.warning(
+                f"Using interactive matplotlib backend '{mpl_backend}' in "
+                "external mode. The backend is changed to 'agg'."
             )
 
     def __str__(self) -> str:
@@ -161,10 +163,11 @@ class QualibrationNode(
     def save(self) -> None:
         if self.storage_manager is None:
             # TODO: fully depend on qualibrate. Need to remove this dependency.
-            warnings.warn(
+            msg = (
                 "Node.storage_manager should be defined to save node, "
                 "resorting to default configuration"
             )
+            logger.warning(msg)
             from qualibrate_app.config import get_config_path, get_settings
 
             config_path = get_config_path()
@@ -176,8 +179,13 @@ class QualibrationNode(
         self.storage_manager.save(node=self)
 
     def run(self, **passed_parameters: Any) -> BaseRunSummary:
+        logger.info(
+            f"Run node {self.name} with parameters: {passed_parameters}"
+        )
         if self.filepath is None:
-            raise RuntimeError("Node file path was not provided")
+            ex = RuntimeError(f"Node {self.name} file path was not provided")
+            logger.exception("", exc_info=ex)
+            raise ex
         external = self.modes.external
         interactive = self.modes.interactive
         params_dict = (
@@ -192,6 +200,9 @@ class QualibrationNode(
             self.modes.interactive = True
             self._parameters = parameters
             self.run_node_file(self.filepath)
+        except Exception as e:
+            logger.exception("", exc_info=e)
+            raise e
         finally:
             self.modes.external = external
             self.modes.interactive = interactive
@@ -204,7 +215,7 @@ class QualibrationNode(
         self.outcomes = {
             name: Outcome(outcome) for name, outcome in outcomes.items()
         }
-        return NodeRunSummary(
+        run_summary = NodeRunSummary(
             name=self.name,
             description=self.description,
             created_at=created_at,
@@ -223,6 +234,8 @@ class QualibrationNode(
                 if status == Outcome.FAILED
             ],
         )
+        logger.debug(f"Node run summary {run_summary}")
+        return run_summary
 
     def run_node_file(self, node_filepath: Path) -> None:
         mpl_backend = matplotlib.get_backend()
@@ -243,6 +256,7 @@ class QualibrationNode(
         return MappingProxyType(self._state_updates)
 
     def stop(self, **kwargs: Any) -> bool:
+        logger.debug(f"Stop node {self.name}")
         if find_spec("qm") is None:
             return False
         qmm = getattr(self.machine, "qmm", None)
@@ -267,6 +281,7 @@ class QualibrationNode(
     def record_state_updates(
         self, interactive_only: bool = True
     ) -> Generator[None, None, None]:
+        logger.debug(f"Init recording state updates for node {self.name}")
         if not self.modes.interactive and interactive_only:
             yield
             return
@@ -337,11 +352,9 @@ class QualibrationNode(
                 try:
                     cls.scan_node_file(file, nodes)
                 except Exception as e:
-                    warnings.warn(
-                        RuntimeWarning(
-                            "An error occurred on scanning node file "
-                            f"{file.name}.\nError: {type(e)}: {e}"
-                        )
+                    logger.warn(
+                        "An error occurred on scanning node file "
+                        f"{file.name}.\nError: {type(e)}: {e}"
                     )
 
         finally:
