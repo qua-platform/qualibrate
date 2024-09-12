@@ -52,7 +52,7 @@ except ImportError:
     default="127.0.0.1",
     show_default=True,
     help="Application will be started on the given host",
-)  # env QUALIBRATE_START_PORT
+)  # env QUALIBRATE_START_HOST
 def start_command(
     config_path: Path, port: int, host: str, reload: bool
 ) -> None:
