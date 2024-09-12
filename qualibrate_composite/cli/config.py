@@ -236,7 +236,10 @@ def _get_qapp_q_config(
         "app_storage_type": "type",
         "app_user_storage": "location",
     }
-    common_keys = {"app_project": "project"}
+    common_keys = {
+        "app_project": "project",
+        "log_folder": "log_folder",
+    }
     for key in ("storage",):
         if key not in from_file:
             from_file[key] = {}
@@ -406,6 +409,13 @@ def _get_user_storage() -> Path:
     default=None,
     show_default=True,
 )
+@click.option(
+    "--log-folder",
+    type=click.Path(file_okay=False, resolve_path=True, path_type=Path),
+    default=QUALIBRATE_PATH / "logs",
+    help="Path to logs directory with qualibrate logs.",
+    show_default=True,
+)
 @click.pass_context
 def config_command(
     ctx: click.Context,
@@ -423,6 +433,7 @@ def config_command(
     app_project: str,
     app_metadata_out_path: str,
     active_machine_path: Path,
+    log_folder: Path,
 ) -> None:
     common_config, config_file = get_config(config_path)
     qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
