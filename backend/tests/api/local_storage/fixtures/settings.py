@@ -61,10 +61,10 @@ def settings_path_filled(settings: QualibrateAppSettings, settings_path: Path):
         tomli_w.dump(
             {
                 CONFIG_KEY: settings.model_dump(
-                    exclude={"qualibrate"}, mode="json"
+                    exclude={"qualibrate"}, mode="json", exclude_none=True
                 ),
                 QUALIBRATE_CONFIG_KEY: settings.qualibrate.model_dump(
-                    mode="json"
+                    mode="json", exclude_none=True,
                 ),
             },
             fin,
