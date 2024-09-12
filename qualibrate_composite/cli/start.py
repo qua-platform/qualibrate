@@ -46,7 +46,16 @@ except ImportError:
     show_default=True,
     help="Application will be started on the given port",
 )  # env QUALIBRATE_START_PORT
-def start_command(config_path: Path, port: int, reload: bool) -> None:
+@click.option(
+    "--host",
+    type=str,
+    default="127.0.0.1",
+    show_default=True,
+    help="Application will be started on the given host",
+)  # env QUALIBRATE_START_HOST
+def start_command(
+    config_path: Path, port: int, host: str, reload: bool
+) -> None:
     config_path_str = str(config_path)
     os.environ[CONFIG_PATH_ENV_NAME] = config_path_str
     if QAPP_CONFIG_PATH_ENV_NAME is not None:
@@ -56,4 +65,4 @@ def start_command(config_path: Path, port: int, reload: bool) -> None:
 
     from qualibrate_composite.app import main as app_main
 
-    app_main(port=port, reload=reload)
+    app_main(port=port, host=host, reload=reload)

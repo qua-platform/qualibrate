@@ -54,9 +54,11 @@ if _settings.app.spawn:
     app.mount("/", qualibarte_app_app, name="qualibrate_runner")
 
 
-def main(port: int, reload: bool) -> None:
-    uvicorn.run("qualibrate_composite.app:app", port=port, reload=reload)
+def main(port: int, host: str, reload: bool) -> None:
+    uvicorn.run(
+        "qualibrate_composite.app:app", port=port, host=host, reload=reload
+    )
 
 
 if __name__ == "__main__":
-    main(port=8001, reload=False)
+    main(port=8001, host="127.0.0.1", reload=False)
