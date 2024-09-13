@@ -76,6 +76,11 @@ export interface StatusResponseType {
   error?: NodeStatusError;
   name: string;
   state_updates?: StateUpdate;
+  run_result?: {
+    parameters?: {
+      nodes: { [key: string]: string };
+    };
+  };
 }
 
 export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {

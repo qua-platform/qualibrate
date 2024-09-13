@@ -10,7 +10,7 @@ export const GlobalElementParameters: React.FC<{
   const [expanded, setExpanded] = React.useState<boolean>(true);
 
   return (
-    <div>
+    <>
       <div className={styles.parameterTitle}>
         <div
           className={styles.arrowIconWrapper}
@@ -25,12 +25,12 @@ export const GlobalElementParameters: React.FC<{
       {expanded && (
         <div className={styles.sectionWrapper}>
           {Object.entries(parameters ?? {}).map(([key, value]) => (
-            <div key={key}>
+            <div key={key} className={styles.textWrapper}>
               {key}:&nbsp;{value}
             </div>
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 };

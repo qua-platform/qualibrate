@@ -15,7 +15,10 @@ interface LastRunInfo {
   workflowName?: string;
   active?: boolean;
   nodesCompleted?: number;
+  nodesTotal?: number;
   runDuration?: number;
+  status?: string;
+  errorMessage?: string;
 }
 
 export interface GraphMap {
@@ -72,8 +75,17 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
     if (lastRunResponse && lastRunResponse.isOk) {
       const lastRunResponseResult = lastRunResponse.result as StatusResponseType;
       if (lastRunResponseResult && lastRunResponseResult.status !== "error") {
-        setLastRunInfo({ workflowName: (lastRunResponse.result as { name: string }).name });
+        setLastRunInfo({
+          workflowName: (lastRunResponse.result as { name: string }).name,
+          nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
+        });
       } else {
+        setLastRunInfo({
+          workflowName: (lastRunResponse.result as { name: string }).name,
+          nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
+          status: "error",
+          errorMessage: JSON.stringify(lastRunResponse.error),
+        });
         console.log("last run status was error");
       }
     } else {

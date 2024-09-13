@@ -47,7 +47,14 @@ export class GraphLibraryApi extends Api {
     });
   }
 
-  static fetchLastWorkflowStatus(): Promise<Res<{ active: boolean; nodes_completed: number; run_duration: number }>> {
+  static fetchLastWorkflowStatus(): Promise<
+    Res<{
+      active: boolean;
+      nodes_completed: number;
+      run_duration: number;
+      run_results: { parameters: { nodes: { [key: string]: string }[] } };
+    }>
+  > {
     return this._fetch(this.api(GET_LAST_RUN_WORKFLOW_STATUS()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
