@@ -1,9 +1,9 @@
 import React from "react";
 import styles from "./MeasurementElement.module.scss";
-import { Measurement, MeasurementParameter, useGraphStatusContext } from "../../context/GraphStatusContext";
+import { GlobalParameterStructure, Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { classNames } from "../../../../../../utils/classnames";
 import { useSelectionContext } from "../../../../../common/context/SelectionContext";
-import { MeasurementElementParameters } from "../MeasurementElementParameters/MeasurementElementParameters";
+import { GlobalElementParameters } from "../../../../../common/GlobalElementParameters/GlobalElementParameters";
 
 export const MeasurementElement: React.FC<{ element: Measurement }> = ({ element }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
@@ -26,7 +26,6 @@ export const MeasurementElement: React.FC<{ element: Measurement }> = ({ element
       onClick={() => {
         setSelectedItemName(element.snapshot_idx ? element.snapshot_idx.toString() : element.name?.toString());
         if (element.snapshot_idx) {
-          console.log(element.snapshot_idx);
           fetchResultsAndDiffData(element.snapshot_idx);
         } else {
           setResult({});
@@ -48,8 +47,8 @@ export const MeasurementElement: React.FC<{ element: Measurement }> = ({ element
             <div>Run duration: {element.run_duration}s</div>
           </div>
           <div className={styles.right}>
-            <MeasurementElementParameters title={"Parameters"} parameters={element.parameters} />
-            <MeasurementElementParameters title={"Outcomes"} parameters={element.outcomes as MeasurementParameter} />
+            <GlobalElementParameters title={"Parameters"} parameters={element.parameters} />
+            <GlobalElementParameters title={"Outcomes"} parameters={element.outcomes as GlobalParameterStructure} />
           </div>
         </div>
       )}

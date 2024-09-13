@@ -22,12 +22,13 @@
 }
 
 //.upperContainer {
-//  display: flex;display
-//  align-items: center;align-items
+//  display: flex;displaydisplaydisplay
+//  align-items: center;align-itemsalign-itemsalign-items
 //}
 
 .lowerContainer {
   height: 100%;
+  gap: 10px;
 }
 
 .lowerUpperContainer {
@@ -39,11 +40,11 @@
 }
 
 .lowerUpperLeftContainer {
-  width: 50%;
+  min-width: 50%;
 }
 
 .lowerUpperRightContainer {
-  width: 50%;
+  max-width: 50%;
 }
 
 .lowerLowerContainer {
@@ -53,9 +54,9 @@
 }
 
 //.lowerLowerLeftContainer {
-//  width: 50%;width
+//  width: 50%;widthwidthwidth
 //}
 
 //.lowerLowerRightContainer {
-//  width: 50%;width
+//  width: 50%;widthwidthwidth
 //}

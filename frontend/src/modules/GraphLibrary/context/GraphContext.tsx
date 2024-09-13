@@ -3,9 +3,22 @@ import noop from "../../../common/helpers";
 import { GraphWorkflow } from "../components/GraphList";
 import { GraphLibraryApi } from "../api/GraphLibraryApi";
 import { ElementDefinition } from "cytoscape";
+import { InputParameter } from "../../common/Parameters/Parameters";
+import { NodesApi } from "../../Nodes/api/NodesAPI";
+import { StatusResponseType } from "../../Nodes/context/NodesContext";
 
 interface GraphProviderProps {
   children: React.JSX.Element;
+}
+
+interface LastRunInfo {
+  workflowName?: string;
+  active?: boolean;
+  nodesCompleted?: number;
+  nodesTotal?: number;
+  runDuration?: number;
+  status?: string;
+  errorMessage?: string;
 }
 
 export interface GraphMap {
@@ -23,6 +36,8 @@ interface IGraphContext {
   setSelectedNodeNameInWorkflow: (nodeName: string | undefined) => void;
   workflowGraphElements?: ElementDefinition[];
   setWorkflowGraphElements: Dispatch<SetStateAction<ElementDefinition[] | undefined>>;
+  lastRunInfo?: LastRunInfo;
+  setLastRunInfo: Dispatch<SetStateAction<LastRunInfo | undefined>>;
 }
 
 const GraphContext = React.createContext<IGraphContext>({
@@ -40,6 +55,9 @@ const GraphContext = React.createContext<IGraphContext>({
 
   workflowGraphElements: undefined,
   setWorkflowGraphElements: noop,
+
+  lastRunInfo: undefined,
+  setLastRunInfo: noop,
 });
 
 export const useGraphContext = () => useContext<IGraphContext>(GraphContext);
@@ -50,47 +68,88 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
   const [selectedWorkflowName, setSelectedWorkflowName] = useState<string | undefined>(undefined);
   const [selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow] = useState<string | undefined>(undefined);
   const [workflowGraphElements, setWorkflowGraphElements] = useState<ElementDefinition[] | undefined>(undefined);
+  const [lastRunInfo, setLastRunInfo] = useState<LastRunInfo | undefined>(undefined);
 
-  // const removeTargetsNameAndQubits = (someObject: NodeDTO, propertyName: string, tempValue?: string) => {
-  //   let newParams = { ...someObject?.parameters };
-  //   Object.entries(newParams).forEach(([key, value]) => {
-  //     if (value?.default === tempValue) {
-  //       delete newParams[key];
-  //     }
-  //     if (key === propertyName) {
-  //       delete newParams[key];
-  //     }
-  //   });
-  //
-  //   someObject.parameters = newParams;
-  //   return someObject;
-  // };
+  const fetchLastRunInfo = async () => {
+    const lastRunResponse = await NodesApi.fetchLastRunInfo();
+    if (lastRunResponse && lastRunResponse.isOk) {
+      const lastRunResponseResult = lastRunResponse.result as StatusResponseType;
+      if (lastRunResponseResult && lastRunResponseResult.status !== "error") {
+        setLastRunInfo({
+          workflowName: (lastRunResponse.result as { name: string }).name,
+          nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
+        });
+      } else {
+        setLastRunInfo({
+          workflowName: (lastRunResponse.result as { name: string }).name,
+          nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
+          status: "error",
+          errorMessage: JSON.stringify(lastRunResponse.error),
+        });
+        console.log("last run status was error");
+      }
+    } else {
+      console.log("lastRunResponse was ", lastRunResponse);
+    }
+  };
 
-  // const fetchAllCalibrationGraphs = async () => {
-  //   const response = await GraphLibraryApi.fetchAllGraphs();
-  //   if (response.isOk) {
-  //     let allGraphs: GraphMap | undefined = response.result! as GraphMap;
-  //     let temp: GraphMap | undefined = response.result! as GraphMap;
-  //     Object.entries(allGraphs).forEach(([key, graph]) => {
-  //       Object.entries(graph?.nodes as NodeMap[]).forEach(([key2, node]) => {
-  //         node[key2] = removeTargetsNameAndQubits(node[key2], "targets_name", "qubits");
-  //       });
-  //     });
-  //     console.log("response.result", response.result);
-  //     setAllGraphs(response.result! as GraphMap);
-  //   } else if (response.error) {
-  //     console.log(response.error);
-  //   }
-  // };
+  const updateObject = (obj: GraphWorkflow): GraphWorkflow => {
+    const modifyParameters = (parameters?: InputParameter, isNodeLevel: boolean = false): InputParameter | undefined => {
+      if (parameters?.targets_name) {
+        if (isNodeLevel) {
+          const targetKey = parameters.targets_name.default?.toString();
+
+          if (targetKey && parameters.targets_name.default) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { targets_name, [targetKey]: _, ...rest } = parameters;
+            return rest;
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { targets_name, ...rest } = parameters;
+          return rest;
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { targets_name, ...rest } = parameters;
+          return rest;
+        }
+      }
+      return parameters;
+    };
+
+    obj.parameters = modifyParameters(obj.parameters, false);
+
+    if (obj.nodes) {
+      Object.keys(obj.nodes).forEach((nodeKey) => {
+        const node = obj.nodes![nodeKey];
+        node.parameters = modifyParameters(node.parameters, true);
+      });
+    }
+
+    return obj;
+  };
+
+  const updateAllGraphs = (allFetchedGraphs: GraphMap): GraphMap => {
+    const updatedGraphs: GraphMap = {};
+
+    Object.entries(allFetchedGraphs).forEach(([key, graph]) => {
+      updatedGraphs[key] = updateObject(graph);
+    });
+
+    return updatedGraphs;
+  };
 
   const fetchAllCalibrationGraphs = async () => {
     const response = await GraphLibraryApi.fetchAllGraphs();
     if (response.isOk) {
-      setAllGraphs(response.result! as GraphMap);
+      const allFetchedGraphs = response.result! as GraphMap;
+      const updatedGraphs = updateAllGraphs(allFetchedGraphs);
+
+      setAllGraphs(updatedGraphs);
     } else if (response.error) {
       console.log(response.error);
     }
   };
+
   const fetchWorkflowGraph = async (nodeName: string) => {
     const response = await GraphLibraryApi.fetchGraph(nodeName);
     if (response.isOk) {
@@ -100,9 +159,30 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
     }
   };
 
+  const fetchLastRunWorkflowStatus = async () => {
+    const response = await GraphLibraryApi.fetchLastWorkflowStatus();
+    if (response.isOk) {
+      setLastRunInfo({
+        ...lastRunInfo,
+        active: response.result?.active,
+        nodesCompleted: response.result?.nodes_completed,
+        runDuration: response.result?.run_duration,
+      });
+    } else if (response.error) {
+      console.log(response.error);
+    }
+  };
+
   useEffect(() => {
     fetchAllCalibrationGraphs();
+    fetchLastRunInfo();
   }, []);
+
+  useEffect(() => {
+    if (lastRunInfo?.workflowName) {
+      fetchWorkflowGraph(lastRunInfo?.workflowName);
+    }
+  }, [lastRunInfo]);
 
   useEffect(() => {
     if (selectedWorkflowName) {
@@ -110,6 +190,11 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
       setSelectedWorkflow(allGraphs?.[selectedWorkflowName]);
     }
   }, [selectedWorkflowName]);
+
+  useEffect(() => {
+    const checkInterval = setInterval(async () => fetchLastRunWorkflowStatus(), 1500);
+    return () => clearInterval(checkInterval);
+  }, []);
 
   return (
     <GraphContext.Provider
@@ -124,6 +209,8 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
         setSelectedNodeNameInWorkflow,
         workflowGraphElements,
         setWorkflowGraphElements,
+        lastRunInfo,
+        setLastRunInfo,
       }}
     >
       {props.children}

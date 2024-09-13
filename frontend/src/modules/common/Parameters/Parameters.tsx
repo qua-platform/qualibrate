@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { classNames } from "../../utils/classnames";
+import { classNames } from "../../../utils/classnames";
 import styles from "./Parameters.module.scss";
-import { NodeDTO } from "../Nodes/components/NodeElement/NodeElement";
-import { ArrowIcon } from "../../ui-lib/Icons/ArrowIcon";
-import { GraphWorkflow } from "../GraphLibrary/components/GraphList";
-import { useGraphContext } from "../GraphLibrary/context/GraphContext";
+import { NodeDTO } from "../../Nodes/components/NodeElement/NodeElement";
+import { ArrowIcon } from "../../../ui-lib/Icons/ArrowIcon";
+import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
+import { useGraphContext } from "../../GraphLibrary/context/GraphContext";
 
 interface IProps {
   parametersExpanded?: boolean;
@@ -60,12 +60,16 @@ export const Parameters: React.FC<IProps> = ({
         </div>
       )}
       {expanded &&
-        Object.entries(currentItem?.parameters ?? {}).map(([key, parameter]) => (
-          <div key={key} className={styles.parameterValues}>
-            <div className={styles.parameterLabel}>{parameter.title}:</div>
-            <div className={styles.parameterValue}>{getInputElement(key, parameter, currentItem)}</div>
-          </div>
-        ))}
+        Object.entries(currentItem?.parameters ?? {}).map(([key, parameter]) => {
+          if (parameter.title.toLowerCase() !== "targets name") {
+            return (
+              <div key={key} className={styles.parameterValues}>
+                <div className={styles.parameterLabel}>{parameter.title}:</div>
+                <div className={styles.parameterValue}>{getInputElement(key, parameter, currentItem)}</div>
+              </div>
+            );
+          }
+        })}
     </div>
   );
 };

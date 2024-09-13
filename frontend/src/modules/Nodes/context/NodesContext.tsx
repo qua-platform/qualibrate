@@ -70,12 +70,17 @@ export interface NodeStatusErrorWithDetails {
   detail: { msg: string; type: string }[];
 }
 
-export interface NodeStatusResponseType {
+export interface StatusResponseType {
   idx: number;
   status: string;
   error?: NodeStatusError;
   name: string;
   state_updates?: StateUpdate;
+  run_result?: {
+    parameters?: {
+      nodes: { [key: string]: string };
+    };
+  };
 }
 
 export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {
@@ -107,7 +112,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const fetchNodeResults = async () => {
     const lastRunResponse = await NodesApi.fetchLastRunInfo();
     if (lastRunResponse && lastRunResponse.isOk) {
-      const lastRunResponseResult = lastRunResponse.result as NodeStatusResponseType;
+      const lastRunResponseResult = lastRunResponse.result as StatusResponseType;
       if (lastRunResponseResult && lastRunResponseResult.status !== "error") {
         const idx = lastRunResponseResult.idx.toString();
         if (lastRunResponseResult.idx) {

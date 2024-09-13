@@ -1,9 +1,7 @@
 import React from "react";
-
 import styles from "./MeasurementHistory.module.scss";
 import { Measurement } from "../../context/GraphStatusContext";
 import { MeasurementElementList } from "../MeasurementElementList/MeasurementElementList";
-import LoaderPage from "../../../../../../ui-lib/loader/LoaderPage";
 
 // eslint-disable-next-line css-modules/no-unused-class
 
@@ -13,13 +11,6 @@ export interface IMeasurementHistoryListProps {
 }
 
 export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ title = "Execution history", listOfMeasurements }) => {
-  if (!listOfMeasurements) {
-    return (
-      <div className={styles.contentContainer}>
-        <LoaderPage />
-      </div>
-    );
-  }
   return (
     <div className={styles.wrapper}>
       <div className={styles.titleRow}>
@@ -29,23 +20,18 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
         {/*  Track latest*/}
         {/*</div>*/}
       </div>
-      {listOfMeasurements && (
+      {listOfMeasurements && listOfMeasurements?.length > 0 && (
         <div className={styles.contentContainer}>
-          <div className={styles.upperContainer}></div>
           <div className={styles.lowerContainer}>
             <MeasurementElementList listOfMeasurements={listOfMeasurements} />
           </div>
         </div>
       )}
+      {(!listOfMeasurements || listOfMeasurements?.length === 0) && (
+        <div className={styles.contentContainer}>
+          <div className={styles.lowerContainer}>No measurements found</div>
+        </div>
+      )}
     </div>
   );
-  // return (
-  //   listOfMeasurements && (
-  //     <div className={styles.listWrapper}>
-  //       {Object.entries(listOfMeasurements).map(([key, node]) => {
-  //         return <MeasurementElement key={key} nodeKey={key} node={node} />;
-  //       })}
-  //     </div>
-  //   )
-  // );
 };

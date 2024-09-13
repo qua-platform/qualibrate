@@ -1,10 +1,10 @@
 import React from "react";
-import { NodeDTO, NodeMap } from "../Nodes/components/NodeElement/NodeElement";
+import { NodeDTO, NodeMap } from "../../Nodes/components/NodeElement/NodeElement";
 import { InputParameter, Parameters, SingleParameter } from "./Parameters";
 import { Checkbox } from "@mui/material";
-import InputField from "../../DEPRECATED_components/common/Input/InputField";
-import { useGraphContext } from "../GraphLibrary/context/GraphContext";
-import { GraphWorkflow } from "../GraphLibrary/components/GraphList";
+import InputField from "../../../DEPRECATED_components/common/Input/InputField";
+import { useGraphContext } from "../../GraphLibrary/context/GraphContext";
+import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
 
 interface IProps {
   showParameters: boolean;
