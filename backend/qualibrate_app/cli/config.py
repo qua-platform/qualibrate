@@ -155,6 +155,8 @@ def write_config(
     if qss.project:
         project_path = qss.storage.location / qss.project
         project_path.mkdir(parents=True, exist_ok=True)
+    if qss.log_folder:
+        qss.log_folder.mkdir(parents=True, exist_ok=True)
     if not config_file.parent.exists():
         config_file.parent.mkdir(parents=True)
     common_config[CONFIG_KEY] = qas_exported_data
@@ -213,7 +215,7 @@ def write_config(
         resolve_path=True,
         path_type=Path,
     ),
-    default=Path().home() / ".qualibrate" / "user_storage",
+    default=QUALIBRATE_PATH / "user_storage",
     help="Path to user storage directory with qualibrate data.",
     show_default=True,
 )
@@ -260,6 +262,7 @@ def config_command(
     overwrite: bool,
     static_site_files: Path,
     storage_type: StorageType,
+    log_path: Path,
     user_storage: Path,
     project: Optional[str],
     metadata_out_path: str,

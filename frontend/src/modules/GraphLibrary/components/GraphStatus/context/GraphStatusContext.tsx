@@ -9,7 +9,7 @@ interface GraphProviderProps {
   children: React.JSX.Element;
 }
 
-export interface MeasurementParameter {
+export interface GlobalParameterStructure {
   [key: string]: string | number;
 }
 
@@ -18,7 +18,7 @@ export interface Measurement {
   name?: string;
   description?: string;
   outcomes: object;
-  parameters: MeasurementParameter;
+  parameters: GlobalParameterStructure;
   run_start: string;
   run_end: string;
   run_duration: number;
@@ -75,13 +75,6 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
     if (response.isOk) {
       if (response.result && response.result.items) {
         setAllMeasurements(response.result.items);
-        // setAllMeasurements(
-        //     response.result.items.filter((item) => {
-        //       if (item.snapshot_idx) {
-        //         return item;
-        //       }
-        //     })
-        // );
       }
     } else if (response.error) {
       console.log(response.error);
@@ -91,7 +84,6 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
   const fetchResultsAndDiffData = (snapshotId: number) => {
     const id1 = snapshotId.toString();
     const id2 = snapshotId - 1 >= 0 ? (snapshotId - 1).toString() : "0";
-    console.log(id1, id2);
     SnapshotsApi.fetchSnapshotResult(id1)
       .then((promise: Res<object>) => {
         if (promise.result) {

@@ -1,19 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
 import { PlayIcon } from "../../../../ui-lib/Icons/PlayIcon";
 import { classNames } from "../../../../utils/classnames";
-import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters";
+import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { GraphWorkflow } from "../GraphList";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
 import { Checkbox } from "@mui/material";
 import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
-import { ParameterList } from "../../../common/ParameterList";
+import { ParameterList } from "../../../common/Parameters/ParameterList";
 import { useGraphContext } from "../../context/GraphContext";
 import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
 import { GraphLibraryApi } from "../../api/GraphLibraryApi";
 import { NodeDTO } from "../../../Nodes/components/NodeElement/NodeElement";
 import { useFlexLayoutContext } from "../../../../routing/flexLayout/FlexLayoutContext";
+import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 
 export interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -26,6 +27,7 @@ interface TransformedGraph {
 }
 
 export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrationGraphKey, calibrationGraph }) => {
+  const [errorObject, setErrorObject] = useState<unknown>(undefined);
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements, setSelectedWorkflowName, allGraphs, setAllGraphs, selectedWorkflowName } = useGraphContext();
   const { openTab } = useFlexLayoutContext();
@@ -103,8 +105,12 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
 
   const handleSubmit = async () => {
     if (selectedWorkflowName) {
-      GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
-      openTab("graph-status");
+      const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
+      if (response.isOk) {
+        openTab("graph-status");
+      } else {
+        setErrorObject(response.error);
+      }
     }
   };
 
@@ -132,6 +138,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
       </div>
       <div className={styles.bottomContainer}>
         <div className={styles.parametersContainer}>
+          <GraphElementErrorWrapper errorObject={errorObject} />
           <Parameters
             key={calibrationGraphKey}
             show={show}
