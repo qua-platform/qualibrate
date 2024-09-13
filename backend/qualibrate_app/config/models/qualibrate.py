@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional
 
 from pydantic import field_serializer
@@ -23,6 +24,7 @@ class QualibrateSettingsBase(BaseSettings, Versioned):
 
     project: Optional[str]
     storage: StorageSettingsBase
+    log_folder: Optional[Path] = None
 
 
 class QualibrateSettingsSetup(QualibrateSettingsBase):
