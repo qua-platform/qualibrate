@@ -34,6 +34,7 @@ def get_workflow_status(
     return WorkflowStatus(
         active=state.is_running,
         nodes_completed=graph.completed_count(),
+        nodes_total=len(graph._nodes),
         run_duration=run_duration,
     )
 

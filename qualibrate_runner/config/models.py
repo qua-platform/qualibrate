@@ -13,7 +13,6 @@ from qualibrate_runner.core.models.last_run import LastRun, RunStatus
 class State(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    passed_parameters: Mapping[str, Any] = {}
     last_run: Optional[LastRun] = None
     run_item: Optional[Union[QualibrationNode, QualibrationGraph]] = None
 

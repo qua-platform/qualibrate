@@ -40,12 +40,12 @@ def run_node(
     passed_input_parameters: Mapping[str, Any],
     state: State,
 ) -> None:
-    state.passed_parameters = passed_input_parameters
     state.run_item = node
     state.last_run = LastRun(
         name=node.name,
         status=RunStatus.RUNNING,
         idx=-1,
+        passed_parameters=passed_input_parameters,
         started_at=datetime.now(),
         runnable_type=RunnableType.NODE,
     )
@@ -90,13 +90,13 @@ def run_workflow(
     passed_input_parameters: Mapping[str, Any],
     state: State,
 ) -> None:
-    state.passed_parameters = passed_input_parameters
     state.last_run = LastRun(
         name=workflow.name,
         status=RunStatus.RUNNING,
         idx=-1,
         started_at=datetime.now(),
         runnable_type=RunnableType.GRAPH,
+        passed_parameters=passed_input_parameters
     )
     state.run_item = workflow
     try:
