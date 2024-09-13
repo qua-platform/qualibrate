@@ -1,4 +1,3 @@
-import warnings
 from importlib.util import find_spec
 from pathlib import Path
 from typing import Any, Dict, Mapping, Optional, cast
@@ -14,6 +13,7 @@ __all__ = ["QualibrationLibrary"]
 
 from qualibrate.run_summary.graph import GraphRunSummary
 from qualibrate.run_summary.node import NodeRunSummary
+from qualibrate.utils.logger_m import logger
 
 
 class QualibrationLibrary:
@@ -49,9 +49,11 @@ class QualibrationLibrary:
         if cls.active_library is not None:
             return cls.active_library
         if not create:
-            raise RuntimeError("Library hasn't been instantiated yet.")
+            ex = RuntimeError("Library hasn't been instantiated yet.")
+            logger.exception("", exc_info=ex)
+            raise ex
         if library_folder is None:
-            warnings.warn("Getting calibration path from config")
+            logger.warning("Getting calibration path from config")
             if find_spec("qualibrate_runner") is not None:
                 from qualibrate_runner.config import (
                     get_config_path,

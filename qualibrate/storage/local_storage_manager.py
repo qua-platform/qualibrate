@@ -1,16 +1,14 @@
 import json
-import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 from qualang_tools.results import DataHandler
 
 from qualibrate.storage.storage_manager import StorageManager
+from qualibrate.utils.logger_m import logger
 
 if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
-
-logger = logging.getLogger(__name__)
 
 
 class LocalStorageManager(StorageManager):
@@ -75,7 +73,9 @@ class LocalStorageManager(StorageManager):
 
         # Optionally also save QuAM to the active path
         if self.active_machine_path is not None:
-            print(f"Saving machine to active path {self.active_machine_path}")
+            logger.info(
+                f"Saving machine to active path {self.active_machine_path}"
+            )
             node.machine.save(
                 path=self.active_machine_path,
                 content_mapping=content_mapping,

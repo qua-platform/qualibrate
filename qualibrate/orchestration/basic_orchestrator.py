@@ -11,6 +11,7 @@ from qualibrate.orchestration.qualibration_orchestrator import (
 )
 from qualibrate.outcome import Outcome
 from qualibrate.qualibration_graph import NodeState
+from qualibrate.utils.logger_m import logger
 
 
 class BasicOrchestrator(QualibrationOrchestrator):
@@ -58,11 +59,14 @@ class BasicOrchestrator(QualibrationOrchestrator):
     def traverse_graph(
         self, graph: QualibrationGraph, targets: Sequence[Any]
     ) -> None:
+        logger.info(f"Traverse graph {graph.name} with targets {targets}")
         if self._is_stopped:
             return
         self._graph = graph
         if graph.full_parameters is None:
-            raise RuntimeError("Execution graph parameters not specified")
+            ex = RuntimeError("Execution graph parameters not specified")
+            logger.exception("", exc_info=ex)
+            raise ex
         self.initial_targets = graph.full_parameters.parameters.targets.copy()
         self.targets = (
             self.initial_targets.copy() if self.initial_targets else None
@@ -79,21 +83,35 @@ class BasicOrchestrator(QualibrationOrchestrator):
 
         while not self._is_execution_finished() and not self._is_stopped:
             node_to_run = self.get_next_node()
+            logger.info(f"Graph. Node to run. {node_to_run}")
             if node_to_run is None:
-                raise RuntimeError("No next node. Execution not finished")
+                exc = RuntimeError("No next node. Execution not finished")
+                logger.exception("", exc_info=exc)
+                raise exc
             node_to_run_parameters = getattr(nodes_parameters, node_to_run.name)
             run_start = datetime.now()
             try:
                 self._active_node = node_to_run
                 node_parameters = node_to_run_parameters.model_dump()
                 node_parameters.update({"targets": self.targets})
+                logger.debug(
+                    f"Graph. Start running node {node_to_run} "
+                    f"with parameters {node_parameters}"
+                )
                 node_result = node_to_run.run(**node_parameters)
                 if self._parameters.skip_failed:
                     self.targets = node_result.successful_targets
-                print("Node completed. Result:", node_result)
+                logger.debug(f"Node completed. Result: {node_result}")
             except Exception as ex:
                 new_state = NodeState.failed
                 nx_graph.nodes[node_to_run]["error"] = str(ex)
+                logger.exception(
+                    (
+                        f"Failed to run node {node_to_run.name} "
+                        f"in graph {self._graph.name}"
+                    ),
+                    exc_info=ex,
+                )
             else:
                 new_state = NodeState.successful
             finally:

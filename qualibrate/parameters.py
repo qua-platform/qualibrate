@@ -1,7 +1,7 @@
 import sys
-import warnings
 from typing import Any, Hashable, Mapping, Optional, Sequence, cast
 
+from qualibrate.utils.logger_m import logger
 from qualibrate.utils.parameters import recursive_properties_solver
 from qualibrate.utils.type_protocols import TargetType
 from qualibrate.utils.types_parsing import types_conversion
@@ -49,12 +49,11 @@ class TargetParameter(BaseModel):
         if targets_name is None:
             raise AssertionError("Targets specified without targets name")
         if targets_name in data:
-            warnings.warn(
-                UserWarning(
-                    f"You specified `targets` and `{targets_name}` (marked as "
-                    f"targets name) fields. `{targets_name}` will be ignored."
-                )
+            msg = (
+                f"You specified `targets` and `{targets_name}` (marked as "
+                f"targets name) fields. `{targets_name}` will be ignored."
             )
+            logger.warning(msg)
         targets = types_conversion(
             targets, cls.model_json_schema()["properties"].get(targets_name)
         )
