@@ -1,0 +1,111 @@
+@import "../../assets/styles/variables";
+@import "../../assets/styles/base";
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #2b2c32;
+  overflow: hidden;
+}
+
+.welcomeInfo {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+
+  color: #ffffff;
+  font-family: var(--font-family-cond), serif;
+}
+
+.wave {
+  position: absolute;
+  min-width: 100%;
+  min-height: 50%;
+  top: 50%;
+  bottom: 0;
+}
+
+.welcomeContent {
+  padding: 97px;
+  font-size: 58px;
+  display: flex;
+  flex-direction: column;
+  gap: 85px;
+}
+
+.rightPart {
+  height: 100%;
+  padding: 97px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.version {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-family), serif;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px;
+  color: rgba(33, 33, 37, 0.4);
+}
+
+.form {
+  position: relative;
+  width: 350px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2rem;
+}
+
+.title {
+  font-family: var(--font-family-cond), serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+}
+
+.inputWrapper {
+  label {
+    color: #2b2c32;
+  }
+}
+
+.input {
+  background: #fff;
+  color: #2b2c32;
+  border: 1px solid rgba(194, 209, 214, 0.5);
+  width: 100%;
+}
+
+.loginButton {
+  width: 100%;
+  background-color: #0fb0cb !important;
+  color: white !important;
+
+  &:disabled {
+    background-color: rgba(33, 33, 37, 0.1) !important;
+    color: rgba(33, 33, 37, 0.5) !important;
+  }
+}
+
+.errorMsg {
+  position: absolute;
+  bottom: -20px;
+  line-height: 14px;
+  color: var(--error);
+  font-weight: 400;
+  font-size: 12px;
+}

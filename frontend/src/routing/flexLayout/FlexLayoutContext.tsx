@@ -1,8 +1,6 @@
 import React, { PropsWithChildren, ReactElement, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
 import * as FlexLayout from "flexlayout-react";
 import { Model } from "flexlayout-react";
-
-import { APP_URL } from "../../common/modules";
 import FlexLayoutBuilder from "./FlexLayoutBuilder";
 import { ModuleKey } from "../ModulesRegistry";
 import { useNavigate } from "react-router-dom";
@@ -32,7 +30,7 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
   const [activeTab, setActiveTab] = useState<null | ModuleKey>(null);
   const [activeTabsetName, setActiveTabsetName] = useState<string | null>(null);
   useEffect(() => {
-    openTab("nodes");
+    // openTab("nodes");
     localStorage.setItem("flexModel", JSON.stringify(model.toJson()));
   }, [model]);
 
@@ -43,7 +41,7 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
   }, [LayoutBuilder]);
 
   const openTab = useCallback((tab: ModuleKey) => {
-    navigate(APP_URL);
+    // navigate(APP_URL);
     LayoutBuilder.current.openNewTab(tab);
     setModel(LayoutBuilder.current.model);
     setActiveTab(tab);

@@ -8,10 +8,11 @@ import { BrowserRouter } from "react-router-dom";
 import { updateColorTheme } from "./modules/themeModule/themeHelper";
 import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeContext";
 import { render } from "react-dom";
+import { AuthContextProvider } from "./modules/Login/context/AuthContext";
 
 type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
 
-const contextProviders: ProviderComponent[] = [ApiContextProvider, FlexLayoutContextProvider, BrowserRouter];
+const contextProviders: ProviderComponent[] = [ApiContextProvider, AuthContextProvider, FlexLayoutContextProvider, BrowserRouter];
 
 const Application: React.FunctionComponent = () => {
   useEffect(updateColorTheme, []);
