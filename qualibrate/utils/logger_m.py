@@ -1,23 +1,24 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
+from types import TracebackType
+from typing import Mapping, Optional, Union
 
 try:
     from qualibrate_app.config import get_config_path, get_settings
+except ImportError:
+    get_config_path = None
+    get_settings = None
 
-    config_path = get_config_path()
-    settings = get_settings(config_path)
-    log_folder = settings.qualibrate.log_folder
-except (ModuleNotFoundError, AttributeError):
-    log_folder = None
-
+_SysExcInfoType = Union[
+    tuple[type[BaseException], BaseException, Optional[TracebackType]],
+    tuple[None, None, None],
+]
+_ExcInfoType = Optional[Union[bool, _SysExcInfoType, BaseException]]
+_ArgsType = Union[tuple[object, ...], Mapping[str, object]]
 
 __all__ = ["logger"]
 
-if log_folder is None:
-    log_folder = Path().home().joinpath(".qualibrate", "logs")
-log_folder.mkdir(parents=True, exist_ok=True)
-log_file_path = log_folder / "qualibrate.log"
 LOG_FORMAT = (
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s "
     "(%(filename)s:%(lineno)d)"
@@ -54,18 +55,55 @@ class ConsoleFormatter(QualibrateFormatter):
         return log_fmtr.format(record)
 
 
-logger = logging.getLogger("qualibrate-core")
-logger.setLevel(logging.DEBUG)
-file_handler = RotatingFileHandler(
-    log_file_path,
-    maxBytes=1024 * 1024 * 10,  # 10 Mb
-    backupCount=3,
-)
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(QualibrateFormatter())
-logger.addHandler(file_handler)
+class LazyInitLogger(logging.Logger):
+    _initialized = False
 
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-console.setFormatter(ConsoleFormatter())
-logger.addHandler(console)
+    def _log(
+        self,
+        level: int,
+        msg: object,
+        args: _ArgsType,
+        exc_info: Optional[_ExcInfoType] = None,
+        extra: Optional[Mapping[str, object]] = None,
+        stack_info: bool = False,
+        stacklevel: int = 1,
+    ) -> None:
+        if not self._initialized:
+            self._initialize()
+        super()._log(level, msg, args, exc_info, extra, stack_info)
+
+    @staticmethod
+    def get_log_filepath() -> Path:
+        log_folder = None
+        if get_config_path is not None and get_settings is not None:
+            try:
+                config_path = get_config_path()
+                settings = get_settings(config_path)
+                log_folder = settings.qualibrate.log_folder
+            except AttributeError:
+                log_folder = None
+        if log_folder is None:
+            log_folder = Path().home().joinpath(".qualibrate", "logs")
+        log_folder.mkdir(parents=True, exist_ok=True)
+        log_file_path = log_folder / "qualibrate.log"
+        return log_file_path
+
+    def _initialize(self) -> None:
+        self.setLevel(logging.DEBUG)
+        file_handler = RotatingFileHandler(
+            self.get_log_filepath(),
+            maxBytes=1024 * 1024 * 10,  # 10 Mb
+            backupCount=3,
+        )
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(QualibrateFormatter())
+        self.addHandler(file_handler)
+
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        console.setFormatter(ConsoleFormatter())
+        self.addHandler(console)
+        self._initialized = True
+
+
+logger = LazyInitLogger("qualibrate-core")
