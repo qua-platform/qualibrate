@@ -3,7 +3,7 @@ import sys
 from importlib.util import find_spec
 from itertools import filterfalse
 from pathlib import Path
-from typing import Any, Dict, Mapping
+from typing import Any, Dict, Mapping, Optional
 
 import click
 import tomli_w
@@ -88,6 +88,7 @@ def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
 def _qualibrate_config_from_sources(
     ctx: click.Context, from_file: dict[str, Any]
 ) -> dict[str, Any]:
+    qualibrate_composite_mapping = {"qualibrate_password": "password"}
     qualibrate_app_mapping = {
         "spawn_app": "spawn",
     }
@@ -103,7 +104,12 @@ def _qualibrate_config_from_sources(
     }
     for arg_key, arg_value in ctx.params.items():
         not_default_arg = not_default(ctx, arg_key)
-        if arg_key in qualibrate_app_mapping.keys():
+        if arg_key in qualibrate_composite_mapping.keys():
+            if not_default_arg or (
+                qualibrate_composite_mapping[arg_key] not in from_file
+            ):
+                from_file[qualibrate_composite_mapping[arg_key]] = arg_value
+        elif arg_key in qualibrate_app_mapping.keys():
             if not_default_arg or (
                 qualibrate_app_mapping[arg_key] not in from_file["app"]
             ):
@@ -337,6 +343,11 @@ def _get_user_storage() -> Path:
     show_default=True,
 )
 @click.option(
+    "--qualibrate-password",
+    type=str,
+    default=None,
+)
+@click.option(
     "--spawn-runner",
     type=bool,  # TODO: add type check for addr
     default=True,
@@ -421,6 +432,7 @@ def config_command(
     ctx: click.Context,
     config_path: Path,
     auto_accept: bool,
+    qualibrate_password: Optional[str],
     spawn_app: bool,
     spawn_runner: bool,
     runner_address: str,

@@ -2,12 +2,17 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from qualibrate_composite.api.auth_middleware import (
+    QualibrateAppAuthMiddleware,
+    RunnerAuthMiddleware,
+)
+from qualibrate_composite.api.routes import base_router
 from qualibrate_composite.config import get_config_path, get_settings
 
 try:
-    from qualibrate_app.app import app as qualibarte_app_app
+    from qualibrate_app.app import app as qualibrate_app_app
 except ImportError:
-    qualibarte_app_app = None
+    qualibrate_app_app = None
 try:
     from json_timeline_database.app import app as json_timeline_db_app
 except ImportError:
@@ -35,7 +40,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.include_router(base_router)
 
 if _settings.runner.spawn:
     if runner_app is None:
@@ -43,15 +48,17 @@ if _settings.runner.spawn:
             "Can't import qualibrate_runner instance. "
             "Check that you have installed it."
         )
+    runner_app.add_middleware(RunnerAuthMiddleware)
     app.mount("/execution", runner_app, name="qualibrate_runner")
 
 if _settings.app.spawn:
-    if qualibarte_app_app is None:
+    if qualibrate_app_app is None:
         raise ImportError(
             "Can't import qualibrate_runner instance. "
             "Check that you have installed it."
         )
-    app.mount("/", qualibarte_app_app, name="qualibrate_runner")
+    qualibrate_app_app.add_middleware(QualibrateAppAuthMiddleware)
+    app.mount("/", qualibrate_app_app, name="qualibrate_runner")
 
 
 def main(port: int, host: str, reload: bool) -> None:

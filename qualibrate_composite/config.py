@@ -46,6 +46,7 @@ class QualibrateSettings(BaseSettings):
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
         extra="ignore",
     )
+    password: Optional[str] = None
 
     app: QualibrateApp
     runner: QualibrateRunner
