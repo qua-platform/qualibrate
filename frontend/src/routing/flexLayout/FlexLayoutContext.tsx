@@ -3,7 +3,6 @@ import * as FlexLayout from "flexlayout-react";
 import { Model } from "flexlayout-react";
 import FlexLayoutBuilder from "./FlexLayoutBuilder";
 import { ModuleKey } from "../ModulesRegistry";
-import { useNavigate } from "react-router-dom";
 
 interface IFlexLayoutContext {
   openTab: (tab: ModuleKey) => void;
@@ -24,7 +23,6 @@ export const useFlexLayoutContext = (): IFlexLayoutContext =>
 
 export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | React.JSX.Element>): ReactElement {
   const { children } = props;
-  const navigate = useNavigate();
   const LayoutBuilder = useRef(new FlexLayoutBuilder());
   const [model, setModel] = useState(LayoutBuilder.current.model);
   const [activeTab, setActiveTab] = useState<null | ModuleKey>(null);

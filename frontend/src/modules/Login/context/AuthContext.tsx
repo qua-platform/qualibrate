@@ -28,7 +28,7 @@ export function AuthContextProvider(props: PropsWithChildren<ReactNode>): React.
 
   const getCookieStartingWith = (prefix: string) => {
     const cookies = document.cookie.split("; ");
-    for (let cookie of cookies) {
+    for (const cookie of cookies) {
       if (cookie.startsWith(prefix)) {
         return cookie;
       }
@@ -39,7 +39,6 @@ export function AuthContextProvider(props: PropsWithChildren<ReactNode>): React.
   const checkIfThereIsCookie = () => {
     const cookiePrefix = "Qualibrate-Token=";
     const token = getCookieStartingWith(cookiePrefix);
-    console.log("cookie", token);
     return token !== null;
   };
   useEffect(() => {
