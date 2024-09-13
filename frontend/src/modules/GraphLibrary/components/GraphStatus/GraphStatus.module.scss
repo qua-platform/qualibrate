@@ -1,0 +1,34 @@
+@import "../../../../assets/styles/variables";
+@import "../../../../assets/styles/base";
+
+.wrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  background: var(--background-color);
+  border-radius: var(--border-radius);
+}
+
+.graphContainer {
+  flex: 1;
+  align-content: center;
+  width: 60%;
+}
+
+.upperContainer {
+  color: rgb(217 213 212);
+  min-width: 33%;
+}
+
+.resultsContainer {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  overflow: hidden;
+  flex-grow: 1;
+  color: rgb(217 213 212);
+  margin-left: 20px;
+  margin-right: 20px;
+  height: calc(100% - 20px);
+  background-color: var(--background-color);
+}

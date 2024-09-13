@@ -1,0 +1,36 @@
+.wrapper {
+  height: auto;
+  justify-content: space-between;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  font-size: 18px;
+}
+
+.title {
+  font-size: 18px;
+}
+
+.contentContainer {
+  border: 1px solid var(--border-color);
+  background-color: var(--popup-background);
+  border-radius: 7px;
+  padding: 10px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+//.upperContainer {
+//  display: flex;display
+//  align-items: center;align-items
+//}
+
+.lowerContainer {
+  display: flex;
+  align-items: center;
+}

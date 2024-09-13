@@ -1,0 +1,24 @@
+.wrapper {
+  gap: 10px;
+  font-size: 12px;
+  padding-left: 15px;
+  padding-top: 10px;
+
+}
+
+.titleAndIconWrapper {
+  display: flex;
+  font-size: 14px;
+}
+
+.arrowIconWrapper {
+  margin-top: -3px;
+  padding-right: 5px;
+
+}
+
+.errorObjectWrapper {
+  padding: 10px 20px;
+  align-content: center;
+  overflow-wrap: anywhere;
+}

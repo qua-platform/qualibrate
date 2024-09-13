@@ -1,18 +1,18 @@
 import React, { useEffect } from "react";
-import { classNames } from "../../utils/classnames";
+import { classNames } from "../../../utils/classnames";
 import styles from "./Parameters.module.scss";
-import { NodeDTO } from "../Nodes/components/NodeElement/NodeElement";
-import { ArrowIcon } from "../../ui-lib/Icons/ArrowIcon";
-import { CalibrationGraphWorkflow } from "../CalibrationGraph/components/CalibrationGraphList";
-import { useCalibrationGraphContext } from "../CalibrationGraph/context/CalibrationGraphContext";
+import { NodeDTO } from "../../Nodes/components/NodeElement/NodeElement";
+import { ArrowIcon } from "../../../ui-lib/Icons/ArrowIcon";
+import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
+import { useGraphContext } from "../../GraphLibrary/context/GraphContext";
 
 interface IProps {
   parametersExpanded?: boolean;
   show: boolean;
   showTitle: boolean;
   title?: string;
-  currentItem?: NodeDTO | CalibrationGraphWorkflow;
-  getInputElement: (key: string, parameter: SingleParameter, node?: NodeDTO | CalibrationGraphWorkflow) => React.JSX.Element;
+  currentItem?: NodeDTO | GraphWorkflow;
+  getInputElement: (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => React.JSX.Element;
 }
 
 export interface SingleParameter {
@@ -33,7 +33,7 @@ export const Parameters: React.FC<IProps> = ({
   currentItem,
   getInputElement,
 }) => {
-  const { selectedNodeNameInWorkflow } = useCalibrationGraphContext();
+  const { selectedNodeNameInWorkflow } = useGraphContext();
   const [expanded, setExpanded] = React.useState<boolean>(selectedNodeNameInWorkflow === title ?? parametersExpanded);
 
   useEffect(() => {
@@ -60,12 +60,16 @@ export const Parameters: React.FC<IProps> = ({
         </div>
       )}
       {expanded &&
-        Object.entries(currentItem?.parameters ?? {}).map(([key, parameter]) => (
-          <div key={key} className={styles.parameterValues}>
-            <div className={styles.parameterLabel}>{parameter.title}:</div>
-            <div className={styles.parameterValue}>{getInputElement(key, parameter, currentItem)}</div>
-          </div>
-        ))}
+        Object.entries(currentItem?.parameters ?? {}).map(([key, parameter]) => {
+          if (parameter.title.toLowerCase() !== "targets name") {
+            return (
+              <div key={key} className={styles.parameterValues}>
+                <div className={styles.parameterLabel}>{parameter.title}:</div>
+                <div className={styles.parameterValue}>{getInputElement(key, parameter, currentItem)}</div>
+              </div>
+            );
+          }
+        })}
     </div>
   );
 };

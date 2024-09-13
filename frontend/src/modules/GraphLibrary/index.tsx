@@ -1,13 +1,13 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
-import styles from "../CalibrationGraph/CalibrationGraph.module.scss";
-import { CalibrationGraphContextProvider } from "./context/CalibrationGraphContext";
+import styles from "./GraphLibrary.module.scss";
+import { GraphContextProvider } from "./context/GraphContext";
 import PageName from "../../DEPRECATED_components/common/Page/PageName";
-import { CalibrationGraphList } from "./components/CalibrationGraphList";
-import { CalibrationGraphSearch } from "./components/CalibrationGraphElement/CalibrationGraphSearch";
+import { GraphList } from "./components/GraphList";
+import { GraphSearch } from "./components/GraphElement/GraphSearch";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
 
-const CalibrationGraph = () => {
+const GraphLibrary = () => {
   const heading = "Run calibration graph";
   return (
     <div className={styles.wrapper}>
@@ -15,17 +15,17 @@ const CalibrationGraph = () => {
         <div className={styles.titleWrapper}>
           <PageName>{heading}</PageName>
         </div>
-        <CalibrationGraphSearch />
-        <CalibrationGraphList />
+        <GraphSearch />
+        <GraphList />
       </div>
     </div>
   );
 };
 
 export default () => (
-  <CalibrationGraphContextProvider>
+  <GraphContextProvider>
     <SelectionContextProvider>
-      <CalibrationGraph />
+      <GraphLibrary />
     </SelectionContextProvider>
-  </CalibrationGraphContextProvider>
+  </GraphContextProvider>
 );
