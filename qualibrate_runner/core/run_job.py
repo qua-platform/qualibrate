@@ -98,7 +98,7 @@ def run_workflow(
         idx=-1,
         started_at=datetime.now(),
         runnable_type=RunnableType.GRAPH,
-        passed_parameters=passed_input_parameters
+        passed_parameters=passed_input_parameters,
     )
     state.run_item = workflow
     try:
