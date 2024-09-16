@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, computed_field
 from qualibrate import NodeParameters
 from qualibrate.outcome import Outcome
 from qualibrate.qualibration_graph import NodeState
+from qualibrate.run_summary.run_error import RunError
 
 
 class ExecutionHistoryItem(BaseModel):
@@ -18,6 +19,7 @@ class ExecutionHistoryItem(BaseModel):
     run_start: datetime
     run_end: datetime
     parameters: NodeParameters
+    error: Optional[RunError] = None
     outcomes: Dict[Hashable, Outcome] = Field(default_factory=dict)
 
     @computed_field

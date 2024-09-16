@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -29,9 +30,11 @@ from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.run_summary.base import BaseRunSummary
 from qualibrate.run_summary.graph import GraphRunSummary
+from qualibrate.run_summary.run_error import RunError
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
+from qualibrate.utils.type_protocols import TargetType
 
 if TYPE_CHECKING:
     from qualibrate import QualibrationLibrary
@@ -201,13 +204,7 @@ class QualibrationGraph(
             for name in cast(NodesParameters, nodes_class).model_fields.keys()
         }
 
-    def run(self, **passed_parameters: Any) -> BaseRunSummary:
-        """
-        :param passed_parameters: Graph parameters. Should contain `nodes` key.
-        """
-        logger.info(
-            f"Run graph {self.name} with parameters: {passed_parameters}"
-        )
+    def _run(self, **passed_parameters: Any) -> Sequence[TargetType]:
         if self._orchestrator is None:
             ex = ValueError("Orchestrator not specified")
             logger.exception("", exc_info=ex)
@@ -228,9 +225,28 @@ class QualibrationGraph(
             node_parameters_model = getattr(nodes_parameters_model, node_name)
             if node_parameters_model.targets_name is not None:
                 node_parameters_model.targets = targets
-        created_at = datetime.now()
         self._orchestrator.traverse_graph(self, targets)
         self.outcomes = self._orchestrator.final_outcomes
+        return targets
+
+    def run(self, **passed_parameters: Any) -> BaseRunSummary:
+        """
+        :param passed_parameters: Graph parameters. Should contain `nodes` key.
+        """
+        logger.info(
+            f"Run graph {self.name} with parameters: {passed_parameters}"
+        )
+        created_at = datetime.now()
+        run_error: Optional[RunError] = None
+        initial_targets: Sequence[TargetType] = []
+        try:
+            initial_targets = self._run(**passed_parameters)
+        except Exception as ex:
+            run_error = RunError(
+                error_class=ex.__class__.__name__,
+                message=str(ex),
+                traceback=traceback.format_tb(ex.__traceback__),
+            )
         run_summary = GraphRunSummary(
             name=self.name,
             description=self.description,
@@ -238,7 +254,8 @@ class QualibrationGraph(
             completed_at=datetime.now(),
             parameters=self.full_parameters,
             outcomes=self.outcomes,
-            initial_targets=targets,
+            initial_targets=initial_targets,
+            error=run_error,
             successful_targets=[
                 name
                 for name, status in self.outcomes.items()
