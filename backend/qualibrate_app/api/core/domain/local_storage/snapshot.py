@@ -7,6 +7,7 @@ from typing import (
     Any,
     Callable,
     Mapping,
+    MutableMapping,
     Optional,
     Sequence,
     Tuple,
@@ -394,11 +395,17 @@ class SnapshotLocalStorage(SnapshotBase):
         return {"type": item_type}
 
     def _extract_state_updates_type_from_runner(
-        self, path: str
+        self,
+        path: str,
+        **kwargs: Any,
     ) -> Optional[Mapping[str, Any]]:
         try:
+            cookies = cast(
+                Optional[MutableMapping[str, str]], kwargs.get("cookies")
+            )
             last_run_response = requests.get(
-                f"{self._settings.runner.address}/last_run"
+                f"{self._settings.runner.address}/last_run/",
+                cookies=cookies,
             )
         except requests.exceptions.ConnectionError:
             return None
@@ -435,9 +442,11 @@ class SnapshotLocalStorage(SnapshotBase):
         return self._conversion_type_from_value(quam_item)
 
     def extract_state_update_type(
-        self, path: str
+        self,
+        path: str,
+        **kwargs: Mapping[str, Any],
     ) -> Optional[Mapping[str, Any]]:
-        _type = self._extract_state_updates_type_from_runner(path)
+        _type = self._extract_state_updates_type_from_runner(path, **kwargs)
         if _type is not None:
             return _type
         return self._extract_state_updates_from_quam_state(path)

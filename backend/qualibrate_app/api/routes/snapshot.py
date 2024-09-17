@@ -1,7 +1,7 @@
 from typing import Annotated, Any, Mapping, Optional, Type, Union
 
 import requests
-from fastapi import APIRouter, Body, Depends, Path, Query
+from fastapi import APIRouter, Body, Cookie, Depends, Path, Query
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -108,8 +108,16 @@ def update_entity(
     ],
     value: Annotated[Any, Body()],
     settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
+    qualibrate_token: Annotated[
+        Union[str, None], Cookie(alias="Qualibrate-Token")
+    ] = None,
 ) -> bool:
-    type_ = snapshot.extract_state_update_type(data_path)
+    cookies = (
+        {"Qualibrate-Token": qualibrate_token}
+        if qualibrate_token is not None
+        else {}
+    )
+    type_ = snapshot.extract_state_update_type(data_path, cookies=cookies)
     if type_ is not None:
         value = types_conversion(value, type_)
     updated = snapshot.update_entry({data_path: value})
@@ -118,6 +126,7 @@ def update_entity(
             requests.post(
                 f"{settings.runner.address}/record_state_update",
                 params={"key": data_path},
+                cookies=cookies,
                 timeout=settings.runner.timeout,
             )
         except requests.exceptions.ConnectionError:

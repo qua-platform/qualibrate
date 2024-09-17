@@ -44,7 +44,9 @@ class SnapshotBaseCustom(SnapshotBase):
         raise NotImplementedError
 
     def extract_state_update_type(
-        self, path: str
+        self,
+        path: str,
+        **kwargs: Mapping[str, Any],
     ) -> Optional[Mapping[str, Any]]:
         raise NotImplementedError
 
