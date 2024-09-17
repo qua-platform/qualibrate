@@ -3,7 +3,6 @@ from qualibrate.outcome import Outcome
 
 
 class Parameters(NodeParameters):
-    targets_name: str = "qubits"
     qubits: list[str] = ["q0", "q1", "q2"]
 
 
