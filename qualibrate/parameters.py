@@ -1,5 +1,14 @@
 import sys
-from typing import Any, Hashable, Mapping, Optional, Sequence, cast
+from typing import (
+    Any,
+    ClassVar,
+    Hashable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    cast,
+)
 
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.parameters import recursive_properties_solver
@@ -11,7 +20,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
-from pydantic import BaseModel, computed_field, model_validator
+from pydantic import BaseModel, model_validator
 
 __all__ = [
     "ExecutionParameters",
@@ -36,28 +45,26 @@ class RunnableParameters(BaseModel):
 
 
 class TargetParameter(BaseModel):
-    targets_name: Optional[str] = None
+    targets_name: ClassVar[Optional[str]] = None
 
     @model_validator(mode="before")
     @classmethod
     def prepare_targets(cls, data: Mapping[str, Any]) -> Mapping[str, Any]:
-        if data.get("targets") is None:
+        if "targets" not in data:
             return data
         targets = data.get("targets")
-        default_targets_name = cls.model_fields["targets_name"].default
-        targets_name = data.get("targets_name") or default_targets_name
-        if targets_name is None:
+        if cls.targets_name is None:
             raise AssertionError("Targets specified without targets name")
-        if targets_name in data:
+        if cls.targets_name in data:
             msg = (
-                f"You specified `targets` and `{targets_name}` (marked as "
-                f"targets name) fields. `{targets_name}` will be ignored."
+                f"You specified `targets` and `{cls.targets_name}` (marked as "
+                f"targets name) fields. `{cls.targets_name}` will be ignored."
             )
             logger.warning(msg)
         targets = types_conversion(
-            targets, cls.model_json_schema()["properties"].get(targets_name)
+            targets, cls.model_json_schema()["properties"].get(cls.targets_name)
         )
-        return {**data, targets_name: targets}
+        return {**data, cls.targets_name: targets}
 
     @model_validator(mode="after")
     def targets_exists_if_specified(self) -> Self:
@@ -68,15 +75,19 @@ class TargetParameter(BaseModel):
             and self.targets_name not in self.model_fields
         ):
             raise AssertionError("targets_name should be one of model fields")
+        if not isinstance(self.targets, List):
+            raise AssertionError(
+                "Targets must be an iterable of hashable objects"
+            )
         return self
 
-    @computed_field
-    def targets(self) -> Optional[Sequence[TargetType]]:
+    @property
+    def targets(self) -> Optional[List[TargetType]]:
         if self.targets_name is None:
             return None
-        return getattr(self, self.targets_name)
+        return cast(List[TargetType], getattr(self, self.targets_name))
 
-    @targets.setter  # type: ignore[no-redef]
+    @targets.setter
     def targets(self, new_targets: Sequence[Hashable]) -> None:
         if self.targets_name is None:
             return
@@ -84,7 +95,7 @@ class TargetParameter(BaseModel):
 
 
 class NodeParameters(RunnableParameters, TargetParameter):
-    pass
+    targets_name: ClassVar[Optional[str]] = "qubits"
 
 
 class NodesParameters(RunnableParameters):
@@ -92,7 +103,7 @@ class NodesParameters(RunnableParameters):
 
 
 class GraphParameters(RunnableParameters, TargetParameter):
-    pass
+    targets_name: ClassVar[Optional[str]] = "qubits"
 
 
 class OrchestratorParameters(RunnableParameters):

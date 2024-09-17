@@ -67,7 +67,10 @@ class BasicOrchestrator(QualibrationOrchestrator):
             ex = RuntimeError("Execution graph parameters not specified")
             logger.exception("", exc_info=ex)
             raise ex
-        self.initial_targets = graph.full_parameters.parameters.targets.copy()
+        initial_targets = graph.full_parameters.parameters.targets
+        self.initial_targets = (
+            initial_targets.copy() if initial_targets else None
+        )
         self.targets = (
             self.initial_targets.copy() if self.initial_targets else None
         )
@@ -92,8 +95,8 @@ class BasicOrchestrator(QualibrationOrchestrator):
             run_start = datetime.now()
             try:
                 self._active_node = node_to_run
+                node_to_run_parameters.targets = self.targets
                 node_parameters = node_to_run_parameters.model_dump()
-                node_parameters.update({"targets": self.targets})
                 logger.debug(
                     f"Graph. Start running node {node_to_run} "
                     f"with parameters {node_parameters}"
