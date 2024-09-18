@@ -11,6 +11,13 @@ base_router = APIRouter()
 AUTH_COOKIE_LIFETIME = 7 * 24 * 60 * 60
 
 
+@base_router.get("/login_required")
+def login_required(
+    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+) -> bool:
+    return settings.password is not None
+
+
 @base_router.post("/login")
 def login(
     password: Annotated[str, Body()],
