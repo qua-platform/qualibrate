@@ -69,7 +69,7 @@ class QualibrationGraph(
     def __init__(
         self,
         name: str,
-        parameters_class: Type[GraphCreateParametersType],
+        parameters: GraphCreateParametersType,
         nodes: Mapping[str, QualibrationNode],
         connectivity: Sequence[Tuple[str, str]],
         orchestrator: Optional["QualibrationOrchestrator"] = None,
@@ -78,11 +78,11 @@ class QualibrationGraph(
     ):
         """
         :param name: graph name
-        :param parameters_class: class of parameters
+        :param parameters: parameters
         :param connectivity: Adjacency list.
             Format: `{"name_1": ["name_2", "name_3"], "name_2": ["name_3"]}`
         """
-        super().__init__(name, parameters_class, description=description)
+        super().__init__(name, parameters, description=description)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
         self._graph = nx.DiGraph()
@@ -94,7 +94,9 @@ class QualibrationGraph(
             if not self._graph.has_edge(v, x):
                 self._graph.add_edge(v, x)
         self.full_parameters_class = self._build_parameters_class()
-        self.full_parameters: Optional[GraphRunParametersType] = None
+        self.full_parameters: GraphRunParametersType = (
+            self.full_parameters_class()
+        )
 
         if self.modes.inspection:
             # ASK: Looks like `last_instantiated_node` and
@@ -213,9 +215,7 @@ class QualibrationGraph(
         nodes = self._get_all_nodes_parameters(
             passed_parameters.get("nodes", {})
         )
-        self.parameters = self.parameters_class.model_validate(
-            passed_parameters
-        )
+        self.parameters = self.parameters.model_validate(passed_parameters)
         self.full_parameters = self.full_parameters_class.model_validate(
             {"parameters": self.parameters, "nodes": nodes}
         )
@@ -287,15 +287,15 @@ class QualibrationGraph(
             "GraphNodesParameters",
             __base__=NodesParameters,
             **{  # type: ignore
-                node.name: (node.parameters_class, ...)
+                node.name: (node.parameters_class, node.parameters)
                 for node in self._graph.nodes
             },
         )
         execution_parameters_class = create_model(
             "ExecutionParameters",
             __base__=ExecutionParameters,
-            parameters=(self.parameters_class, ...),
-            nodes=(nodes_parameters_class, ...),
+            parameters=(self.parameters.__class__, self.parameters),
+            nodes=(nodes_parameters_class, nodes_parameters_class()),
         )
         return execution_parameters_class
 

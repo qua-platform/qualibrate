@@ -3,22 +3,24 @@ from qualibrate.parameters import NodeParameters
 
 def test_parameters_empty_serialization():
     class Parameters(NodeParameters):
-        pass
+        qubits: list[str] = []
 
     parameters = Parameters()
     serialized = parameters.serialize()
 
     assert serialized == {
-        "targets_name": {
-            "anyOf": [{"type": "string"}, {"type": "null"}],
-            "default": None,
-            "title": "Targets Name",
+        "qubits": {
+            "default": [],
+            "items": {"type": "string"},
+            "title": "Qubits",
+            "type": "array",
         }
     }
 
 
 def test_parameters_default_types_serialization():
     class Parameters(NodeParameters):
+        qubits: list[str] = []
         bool_val: bool = False
         int_val: int = 0
         float_val: float = 0.0
@@ -40,9 +42,10 @@ def test_parameters_default_types_serialization():
             "type": "number",
         },
         "str_val": {"default": "", "title": "Str Val", "type": "string"},
-        "targets_name": {
-            "anyOf": [{"type": "string"}, {"type": "null"}],
-            "default": None,
-            "title": "Targets Name",
+        "qubits": {
+            "default": [],
+            "items": {"type": "string"},
+            "title": "Qubits",
+            "type": "array",
         },
     }

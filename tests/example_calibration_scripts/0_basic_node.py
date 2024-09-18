@@ -2,10 +2,10 @@ from qualibrate import NodeParameters, QualibrationNode
 
 
 class Parameters(NodeParameters):
-    pass
+    qubits: list[str] = []
 
 
-node = QualibrationNode("basic_node", parameters_class=Parameters)
+node = QualibrationNode("basic_node", parameters=Parameters())
 
 print("Running node")
 node.machine = {"qubits": [{"qubit1": None}]}

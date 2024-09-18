@@ -6,13 +6,15 @@ from matplotlib import pyplot as plt
 
 
 class Parameters(NodeParameters):
+    qubits: list[str] = []
+
     resonator: str = "q1.resonator"
     sampling_points: int = 100
 
 
 node = QualibrationNode(
     name="test_cal",
-    parameters_class=Parameters,
+    parameters=Parameters(),
     description="Test calibration that wait a few seconds, then plots random data.",
 )
 machine = node.machine

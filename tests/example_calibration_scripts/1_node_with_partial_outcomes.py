@@ -6,7 +6,7 @@ class Parameters(NodeParameters):
     qubits: list[str] = ["q0", "q1", "q2"]
 
 
-node = QualibrationNode("node_part_outcome", parameters_class=Parameters)
+node = QualibrationNode("node_part_outcome", parameters=Parameters())
 
 print("Running node")
 node.machine = {"qubits": [{"qubit1": None}]}
