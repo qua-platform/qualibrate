@@ -34,10 +34,12 @@ class RunnerAuthMiddleware(BaseHTTPMiddleware):
             )
         ):
             return await call_next(request)
-        return JSONResponse(
+        response = JSONResponse(
             {"detail": "Qualibrate-Token cookie not specified or invalid"},
             status_code=401,
         )
+        response.delete_cookie("Qualibrate-Token")
+        return response
 
 
 class QualibrateAppAuthMiddleware(BaseHTTPMiddleware):

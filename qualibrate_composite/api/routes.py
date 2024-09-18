@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Body, Depends, Response, status
 from fastapi.responses import JSONResponse
@@ -11,17 +11,25 @@ base_router = APIRouter()
 AUTH_COOKIE_LIFETIME = 7 * 24 * 60 * 60
 
 
+@base_router.get("/login_required")
+def login_required(
+    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+) -> bool:
+    return settings.password is not None
+
+
 @base_router.post("/login")
 def login(
-    password: Annotated[str, Body()],
+    password: Annotated[Optional[str], Body()] = None,
+    *,
     settings: Annotated[QualibrateSettings, Depends(get_settings)],
 ) -> Response:
     if settings.password is None or password == settings.password:
         response = Response()
-
+        password = encoded_password(password) if password else ""
         response.set_cookie(
             "Qualibrate-Token",
-            encoded_password(password),
+            password,
             max_age=AUTH_COOKIE_LIFETIME,
         )
     else:
