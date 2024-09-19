@@ -69,7 +69,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
             ex = RuntimeError("Execution graph parameters not specified")
             logger.exception("", exc_info=ex)
             raise ex
-        initial_targets = graph.full_parameters.parameters.targets
+        initial_targets = (graph.full_parameters.parameters.targets or []).copy()
         self.initial_targets = (
             initial_targets.copy() if initial_targets else None
         )
