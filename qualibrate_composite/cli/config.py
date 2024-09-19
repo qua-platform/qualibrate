@@ -334,6 +334,13 @@ def _get_user_storage() -> Path:
     ),
     default=QUALIBRATE_PATH / DEFAULT_CONFIG_FILENAME,
     show_default=True,
+    help=(
+        "Path to the configuration file. If the path points to a file, it will "
+        "be read and the old configuration will be reused, except for the "
+        "variables specified by the user. If the file does not exist, a new one"
+        " will be created. If the path points to a directory, a check will be "
+        "made to see if files with the default name exist."
+    ),
 )
 @click.option(
     "--auto-accept",
@@ -341,53 +348,87 @@ def _get_user_storage() -> Path:
     is_flag=True,
     default=False,
     show_default=True,
+    help=(
+        "Flag responsible for whether to skip confirmation of the generated "
+        "config."
+    ),
 )
 @click.option(
     "--qualibrate-password",
     type=str,
     default=None,
+    help=(
+        "Password used to authorize users. By default, no password is used. "
+        "Everyone has access to the API. If a password is specified during "
+        "configuration, you must log in to access the API."
+    ),
 )
 @click.option(
     "--spawn-runner",
     type=bool,  # TODO: add type check for addr
     default=True,
     show_default=True,
+    help=(
+        "This flag indicates whether the `qualibrate-runner` service should be "
+        "started. This service is designed to run nodes and graphs. The service"
+        " can be spawned independently."
+    ),
 )
 @click.option(
     "--runner-address",
     type=str,  # TODO: add type check for addr
     default="http://localhost:8001/execution",
     show_default=True,
+    help=(
+        "Address of `qualibrate-runner` service. If the service is spawned by "
+        "the `qualibrate` then the default address should be kept as is. If you"
+        " are running the service separately, you must specify its address."
+    ),
 )
 @click.option(
     "--runner-timeout",
     type=float,
     default=1.0,
     show_default=True,
+    help=(
+        "Maximum waiting time for a response from the `qualibrate-runner` "
+        "service."
+    ),
 )
 @click.option(
     "--runner-calibration-library-resolver",
     type=str,
     default="qualibrate.QualibrationLibrary",
     show_default=True,
+    help=(
+        "String contains python path to the class that represents qualibration "
+        "library."
+    ),
 )
 @click.option(
     "--runner-calibration-library-folder",
     type=click.Path(file_okay=False, dir_okay=True),
     default=_get_calibrations_path(),
     show_default=True,
+    help="Path to the folder contains calibration nodes and graphs.",
 )
 @click.option(
     "--spawn-app",
     type=bool,
     default=True,
     show_default=True,
+    help=(
+        "This flag indicates whether the `qualibrate-app` service should be "
+        "started. This service is designed to getting info about snapshots. "
+        "The service can be spawned independently."
+    ),
 )
 @click.option(
     "--app-static-site-files",
     type=click.Path(file_okay=False, dir_okay=True),
     default=_get_qapp_static_file_path(),
     show_default=True,
+    help="Path to the frontend build static files.",
 )
 @click.option(
     "--app-storage-type",
@@ -395,36 +436,55 @@ def _get_user_storage() -> Path:
     default="local_storage",
     show_default=True,
     callback=lambda ctx, param, value: StorageType(value),
+    help=(
+        "Type of storage. Only `local_storage` is supported now. Use specified "
+        "local path as the database."
+    ),
 )
 @click.option(
     "--app-user-storage",
     type=click.Path(file_okay=False, dir_okay=True),
     default=_get_user_storage(),
     show_default=True,
+    help=(
+        "Path to the local user storage. Used for storing nodes output data."
+    ),
 )
 @click.option(
     "--app-project",
     type=str,
     default="init_project",
     show_default=True,
+    help=(
+        "The name of qualibrate app project that will be used for storing runs "
+        "results and resolving them."
+    ),
 )
 @click.option(
     "--app-metadata-out-path",
     type=str,
     default="data_path",
     show_default=True,
+    help=(
+        "Key of metadata that's used for resolving path where a node results "
+        "should be stored to or resolved from."
+    ),
 )
 @click.option(
     "--active-machine-path",
     type=click.Path(file_okay=False, dir_okay=True),
     default=None,
     show_default=True,
+    help=(
+        "The path to the directory where the active machine state should be "
+        "stored."
+    ),
 )
 @click.option(
     "--log-folder",
     type=click.Path(file_okay=False, resolve_path=True, path_type=Path),
     default=QUALIBRATE_PATH / "logs",
-    help="Path to logs directory with qualibrate logs.",
+    help="The path to the directory where the logs should be stored to.",
     show_default=True,
 )
 @click.pass_context
