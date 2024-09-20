@@ -1,3 +1,4 @@
+import traceback
 from collections import UserDict, UserList
 from contextlib import contextmanager
 from copy import copy
@@ -24,6 +25,7 @@ from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.run_summary.base import BaseRunSummary
 from qualibrate.run_summary.node import NodeRunSummary
+from qualibrate.run_summary.run_error import RunError
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
@@ -195,14 +197,20 @@ class QualibrationNode(
         parameters = self.parameters_class.model_validate(params_dict)
         initial_targets = copy(parameters.targets) if parameters.targets else []
         created_at = datetime.now()
+        run_error: Optional[RunError] = None
         try:
             self.modes.external = True
             self.modes.interactive = True
             self._parameters = parameters
             self.run_node_file(self.filepath)
-        except Exception as e:
-            logger.exception("", exc_info=e)
-            raise e
+        except Exception as ex:
+            run_error = RunError(
+                error_class=ex.__class__.__name__,
+                message=str(ex),
+                traceback=traceback.format_tb(ex.__traceback__),
+            )
+            logger.exception("", exc_info=ex)
+            raise ex
         finally:
             self.modes.external = external
             self.modes.interactive = interactive
@@ -223,6 +231,7 @@ class QualibrationNode(
             initial_targets=initial_targets,
             parameters=parameters,
             outcomes=self.outcomes,
+            error=run_error,
             successful_targets=[
                 name
                 for name, status in self.outcomes.items()

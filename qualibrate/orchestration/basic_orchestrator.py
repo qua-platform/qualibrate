@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime
 from queue import Queue
 from typing import Any, Optional, Sequence
@@ -11,6 +12,7 @@ from qualibrate.orchestration.qualibration_orchestrator import (
 )
 from qualibrate.outcome import Outcome
 from qualibrate.qualibration_graph import NodeState
+from qualibrate.run_summary.run_error import RunError
 from qualibrate.utils.logger_m import logger
 
 
@@ -90,6 +92,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
                 raise exc
             node_to_run_parameters = getattr(nodes_parameters, node_to_run.name)
             run_start = datetime.now()
+            run_error: Optional[RunError] = None
             try:
                 self._active_node = node_to_run
                 node_parameters = node_to_run_parameters.model_dump()
@@ -112,6 +115,11 @@ class BasicOrchestrator(QualibrationOrchestrator):
                     ),
                     exc_info=ex,
                 )
+                run_error = RunError(
+                    error_class=ex.__class__.__name__,
+                    message=str(ex),
+                    traceback=traceback.format_tb(ex.__traceback__),
+                )
             else:
                 new_state = NodeState.successful
             finally:
@@ -122,6 +130,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
                         snapshot_idx=node_to_run.snapshot_idx,
                         outcomes=node_to_run.outcomes,
                         state=new_state,
+                        error=run_error,
                         run_start=run_start,
                         run_end=datetime.now(),
                         parameters=node_to_run_parameters,

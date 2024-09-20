@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, computed_field, field_serializer
 
 from qualibrate.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
+from qualibrate.run_summary.run_error import RunError
 from qualibrate.utils.type_protocols import TargetType
 
 __all__ = ["BaseRunSummary"]
@@ -15,8 +16,9 @@ class BaseRunSummary(BaseModel):
     description: Optional[str] = None
     created_at: datetime
     completed_at: datetime
-    parameters: RunnableParameters
+    parameters: Optional[RunnableParameters] = None
     outcomes: Dict[TargetType, Outcome]
+    error: Optional[RunError] = None
 
     initial_targets: Sequence[TargetType] = Field(default_factory=list)
     successful_targets: List[TargetType] = Field(default_factory=list)
