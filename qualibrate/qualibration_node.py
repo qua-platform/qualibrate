@@ -6,7 +6,6 @@ from datetime import datetime
 from functools import partialmethod
 from importlib.util import find_spec
 from pathlib import Path
-from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -161,7 +160,9 @@ class QualibrationNode(
             )
         self.storage_manager.save(node=self)
 
-    def run(self, **passed_parameters: Any) -> BaseRunSummary:
+    def run(
+        self, interactive: bool = True, **passed_parameters: Any
+    ) -> BaseRunSummary:
         logger.info(
             f"Run node {self.name} with parameters: {passed_parameters}"
         )
@@ -170,7 +171,7 @@ class QualibrationNode(
             logger.exception("", exc_info=ex)
             raise ex
         external = self.modes.external
-        interactive = self.modes.interactive
+        stored_interactive = self.modes.interactive
         params_dict = (
             self.parameters.model_dump() if self.parameters is not None else {}
         )
@@ -181,7 +182,7 @@ class QualibrationNode(
         run_error: Optional[RunError] = None
         try:
             self.modes.external = True
-            self.modes.interactive = True
+            self.modes.interactive = interactive
             self._parameters = parameters
             self.run_node_file(self.filepath)
         except Exception as ex:
@@ -194,7 +195,7 @@ class QualibrationNode(
             raise ex
         finally:
             self.modes.external = external
-            self.modes.interactive = interactive
+            self.modes.interactive = stored_interactive
         outcomes = self.outcomes
         if self.parameters is not None and (targets := self.parameters.targets):
             lost_targets_outcomes = set(targets) - set(outcomes.keys())
@@ -268,11 +269,11 @@ class QualibrationNode(
     def record_state_updates(
         self, interactive_only: bool = True
     ) -> Generator[None, None, None]:
-        logger.debug(f"Init recording state updates for node {self.name}")
         if not self.modes.interactive and interactive_only:
             yield
             return
 
+        logger.debug(f"Init recording state updates for node {self.name}")
         # Override QuamComponent.__setattr__()
         try:
             from quam.core import (

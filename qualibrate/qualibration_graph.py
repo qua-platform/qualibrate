@@ -87,7 +87,8 @@ class QualibrationGraph(
         self._connectivity = connectivity
         self._graph = nx.DiGraph()
         self._orchestrator = orchestrator
-
+        for node in self._nodes:
+            self._add_node_by_name(node)
         for v_name, x_name in connectivity:
             v = self._add_node_by_name(v_name)
             x = self._add_node_by_name(x_name)
@@ -215,7 +216,7 @@ class QualibrationGraph(
         nodes = self._get_all_nodes_parameters(
             passed_parameters.get("nodes", {})
         )
-        self.parameters = self.parameters.model_validate(passed_parameters)
+        self._parameters = self.parameters.model_validate(passed_parameters)
         self.full_parameters = self.full_parameters_class.model_validate(
             {"parameters": self.parameters, "nodes": nodes}
         )
@@ -227,9 +228,6 @@ class QualibrationGraph(
                 node_parameters_model.targets = targets
         self._orchestrator.traverse_graph(self, targets)
         self.outcomes = self._orchestrator.final_outcomes
-        self._state_updates = {
-            name: node.state_updates for name, node in self._nodes.items()
-        }
         return targets
 
     def run(self, **passed_parameters: Any) -> BaseRunSummary:

@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from copy import copy
 from pathlib import Path
-from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     Any,
