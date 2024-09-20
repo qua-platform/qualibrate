@@ -97,6 +97,8 @@ class TargetParameter(BaseModel):
 class NodeParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[Optional[str]] = "qubits"
 
+    qubits: List[TargetType] = Field(default_factory=list)
+
 
 class NodesParameters(RunnableParameters):
     pass
@@ -104,6 +106,8 @@ class NodesParameters(RunnableParameters):
 
 class GraphParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[Optional[str]] = "qubits"
+
+    qubits: List[TargetType] = Field(default_factory=list)
 
 
 class OrchestratorParameters(RunnableParameters):
