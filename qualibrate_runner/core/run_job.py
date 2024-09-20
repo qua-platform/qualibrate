@@ -63,6 +63,7 @@ def run_node(
             started_at=state.last_run.started_at,
             completed_at=datetime.now(),
             runnable_type=state.last_run.runnable_type,
+            passed_parameters=passed_input_parameters,
             error=RunError(
                 error_class=ex.__class__.__name__,
                 message=str(ex),
@@ -79,6 +80,7 @@ def run_node(
             idx=idx,
             run_result=result,
             runnable_type=state.last_run.runnable_type,
+            passed_parameters=passed_input_parameters,
             started_at=state.last_run.started_at,
             completed_at=datetime.now(),
             state_updates=node.state_updates,
@@ -96,7 +98,7 @@ def run_workflow(
         idx=-1,
         started_at=datetime.now(),
         runnable_type=RunnableType.GRAPH,
-        passed_parameters=passed_input_parameters
+        passed_parameters=passed_input_parameters,
     )
     state.run_item = workflow
     try:
@@ -115,6 +117,7 @@ def run_workflow(
             started_at=state.last_run.started_at,
             completed_at=datetime.now(),
             runnable_type=state.last_run.runnable_type,
+            passed_parameters=passed_input_parameters,
             error=RunError(
                 error_class=ex.__class__.__name__,
                 message=str(ex),
@@ -133,6 +136,7 @@ def run_workflow(
             started_at=state.last_run.started_at,
             completed_at=datetime.now(),
             runnable_type=state.last_run.runnable_type,
+            passed_parameters=passed_input_parameters,
             state_updates=(
                 workflow.state_updates
                 if hasattr(workflow, "state_updates")
