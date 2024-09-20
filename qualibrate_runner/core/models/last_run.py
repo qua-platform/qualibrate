@@ -41,7 +41,9 @@ class LastRun(BaseModel):
     runnable_type: RunnableType
     passed_parameters: Mapping[str, Any] = Field(default_factory=dict)
     run_result: Optional[Union[NodeRunSummary, GraphRunSummary]] = None
-    state_updates: Mapping[str, StateUpdate] = Field(default_factory=dict)
+    state_updates: Union[
+        Mapping[str, StateUpdate], Mapping[str, Mapping[str, StateUpdate]]
+    ] = Field(default_factory=dict)
     error: Optional[RunError] = None
 
     @computed_field

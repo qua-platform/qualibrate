@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated, Mapping, Optional, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -8,7 +8,11 @@ from qualibrate_runner.api.dependencies import (
 from qualibrate_runner.config import (
     State,
 )
-from qualibrate_runner.core.models.last_run import LastRun, RunStatus
+from qualibrate_runner.core.models.last_run import (
+    LastRun,
+    RunStatus,
+    StateUpdate,
+)
 
 others_router = APIRouter()
 
@@ -54,5 +58,6 @@ def state_updated(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Unknown state update key.",
         )
+    state_updates = cast(Mapping[str, StateUpdate], state_updates)
     state_updates[key].updated = True
     return state.last_run
