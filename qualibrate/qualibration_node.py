@@ -73,7 +73,6 @@ class QualibrationNode(
             name, parameters, description=description
         )
 
-        self._state_updates: dict[str, Any] = {}
         self.results: dict[Any, Any] = {}
         self.machine = None
 
@@ -224,6 +223,7 @@ class QualibrationNode(
                 for name, status in self.outcomes.items()
                 if status == Outcome.FAILED
             ],
+            state_updates=self.state_updates,
         )
         logger.debug(f"Node run summary {run_summary}")
         return run_summary
@@ -241,10 +241,6 @@ class QualibrationNode(
         finally:
             self.__class__._singleton_instance = None
             matplotlib.use(mpl_backend)
-
-    @property
-    def state_updates(self) -> MappingProxyType[str, Any]:
-        return MappingProxyType(self._state_updates)
 
     def stop(self, **kwargs: Any) -> bool:
         logger.debug(f"Stop node {self.name}")

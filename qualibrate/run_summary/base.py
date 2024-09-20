@@ -24,6 +24,7 @@ class BaseRunSummary(BaseModel):
     successful_targets: List[TargetType] = Field(default_factory=list)
     failed_targets: List[TargetType] = Field(default_factory=list)
     dropped_targets: Optional[List[TargetType]] = None
+    state_updates: Mapping[str, Any] = Field(default_factory=dict)
 
     @computed_field
     def run_duration(self) -> float:

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from copy import copy
 from pathlib import Path
+from types import MappingProxyType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -55,6 +56,8 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self.modes = self.__class__.modes.model_copy()
         self.filepath: Optional[Path] = None
 
+        self._state_updates: dict[str, Any] = {}
+
         self.outcomes: Dict[Hashable, Outcome] = {}
 
     @staticmethod
@@ -82,6 +85,10 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             "parameters": self.parameters_class.serialize(),
             "description": self.description,
         }
+
+    @property
+    def state_updates(self) -> Mapping[str, Any]:
+        return self._state_updates
 
     @abstractmethod
     def stop(self, **kwargs: Any) -> bool:

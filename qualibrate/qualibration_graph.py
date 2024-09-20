@@ -227,6 +227,9 @@ class QualibrationGraph(
                 node_parameters_model.targets = targets
         self._orchestrator.traverse_graph(self, targets)
         self.outcomes = self._orchestrator.final_outcomes
+        self._state_updates = {
+            name: node.state_updates for name, node in self._nodes.items()
+        }
         return targets
 
     def run(self, **passed_parameters: Any) -> BaseRunSummary:
@@ -266,6 +269,7 @@ class QualibrationGraph(
                 for name, status in self.outcomes.items()
                 if status == Outcome.FAILED
             ],
+            state_updates=self.state_updates,
         )
         logger.debug(f"Graph run summary {run_summary}")
         return run_summary
