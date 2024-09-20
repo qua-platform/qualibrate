@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from copy import copy
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -10,7 +11,10 @@ from typing import (
     Optional,
     Type,
     TypeVar,
+    cast,
 )
+
+from pydantic import create_model
 
 from qualibrate.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
@@ -38,18 +42,39 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
     def __init__(
         self,
         name: str,
-        parameters_class: Type[CreateParametersType],
+        parameters: CreateParametersType,
         description: Optional[str] = None,
     ):
         self.name = name
-        self.parameters_class = parameters_class
+        self.parameters_class = self.build_parameters_class_from_instance(
+            parameters
+        )
+        self._parameters = self.parameters_class()
         self.description = description
 
         self.modes = self.__class__.modes.model_copy()
         self.filepath: Optional[Path] = None
-        self._parameters: Optional[CreateParametersType] = None
 
         self.outcomes: Dict[Hashable, Outcome] = {}
+
+    @staticmethod
+    def build_parameters_class_from_instance(
+        parameters: CreateParametersType,
+    ) -> Type[CreateParametersType]:
+        fields = {
+            name: copy(field) for name, field in parameters.model_fields.items()
+        }
+        # TODO: additional research about more correct field copying way
+        for param_name, param_value in parameters.model_dump().items():
+            fields[param_name].default = param_value
+        model = create_model(  # type: ignore
+            parameters.__class__.__name__,
+            __doc__=parameters.__class__.__doc__,
+            __base__=parameters.__class__.__bases__,
+            __module__=parameters.__class__.__module__,
+            **{name: (info.annotation, info) for name, info in fields.items()},
+        )
+        return cast(Type[CreateParametersType], model)
 
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         return {
@@ -74,12 +99,12 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         pass
 
     @property
-    def parameters(self) -> Optional[CreateParametersType]:
+    def parameters(self) -> CreateParametersType:
         return self._parameters
 
     @parameters.setter
     def parameters(self, new_parameters: CreateParametersType) -> None:
         if self.modes.external and self._parameters is not None:
             return
-        self.parameters_class.model_validate(new_parameters.model_dump())
+        self._parameters.model_validate(new_parameters.model_dump())
         self._parameters = new_parameters

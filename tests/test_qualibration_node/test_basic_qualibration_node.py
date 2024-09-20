@@ -9,6 +9,7 @@ from qualibrate.qualibration_node import QualibrationNode
 @pytest.fixture
 def params_with_req() -> Type[NodeParameters]:
     class Parameters(NodeParameters):
+        qubits: list[str] = []
         req_str_param: str
         int_param: int = 1
         float_param: float = 2.0
@@ -20,7 +21,9 @@ def params_with_req() -> Type[NodeParameters]:
 def node_with_req_param(
     params_with_req: Type[NodeParameters],
 ) -> QualibrationNode:
-    yield QualibrationNode("node_name", params_with_req, "node description")
+    yield QualibrationNode(
+        "node_name", params_with_req(req_str_param="a"), "node description"
+    )
 
 
 def test_copy_without_parameters_changes(node_with_req_param: QualibrationNode):
@@ -53,10 +56,11 @@ def test_copy_with_parameters_instance(
     params_with_req: Type[NodeParameters], node_with_req_param: QualibrationNode
 ):
     node = node_with_req_param
+    node.modes.external = False
     node.parameters = node_with_req_param.parameters_class(
         req_str_param="aaa", int_param=10
     )
-    assert node.parameters == params_with_req(
+    assert node.parameters == node_with_req_param.parameters_class(
         req_str_param="aaa", int_param=10, float_param=2.0
     )
     copied = node.copy(req_str_param="param", float_param=-1.2)
@@ -67,6 +71,9 @@ def test_copy_with_parameters_instance(
     )
     assert copied.parameters_class.model_fields["int_param"].default == 1
     assert copied.parameters_class.model_fields["float_param"].default == -1.2
-    assert copied.parameters == copied.parameters_class(
-        req_str_param="param", int_param=10, float_param=-1.2
+    assert (
+        copied.parameters.model_dump()
+        == copied.parameters_class(
+            req_str_param="param", int_param=1, float_param=-1.2
+        ).model_dump()
     )

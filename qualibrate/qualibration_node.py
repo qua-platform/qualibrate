@@ -13,12 +13,10 @@ from typing import (
     Dict,
     Generator,
     Optional,
-    Type,
 )
 
 import matplotlib
 from matplotlib.rcsetup import interactive_bk
-from pydantic import create_model
 
 from qualibrate.outcome import Outcome
 from qualibrate.parameters import NodeParameters
@@ -64,7 +62,7 @@ class QualibrationNode(
     def __init__(
         self,
         name: str,
-        parameters_class: Type[NodeCreateParametersType],
+        parameters: NodeCreateParametersType,
         description: Optional[str] = None,
     ):
         logger.info(f"Creating node {name}")
@@ -72,10 +70,9 @@ class QualibrationNode(
             self._warn_if_external_and_interactive_mpl()
             return
         super(QualibrationNode, self).__init__(
-            name, parameters_class, description=description
+            name, parameters, description=description
         )
 
-        self._parameters: Optional[NodeCreateParametersType] = None
         self._state_updates: dict[str, Any] = {}
         self.results: dict[Any, Any] = {}
         self.machine = None
@@ -91,11 +88,9 @@ class QualibrationNode(
 
     def __copy__(self) -> "QualibrationNode":
         instance = self.__class__(
-            self.name, self.parameters_class, self.description
+            self.name, self.parameters_class(), self.description
         )
         instance.filepath = self.filepath
-        if self.parameters is not None:
-            instance.parameters = self.parameters
         return instance
 
     def copy(
@@ -117,25 +112,12 @@ class QualibrationNode(
             self.__class__.modes.inspection = inspection
         if name is not None:
             instance.name = name
-        fields = {
-            name: copy(field)
-            for name, field in self.parameters_class.model_fields.items()
-        }
-        # TODO: additional research about more correct field copying way
-        for param_name, param_value in node_parameters.items():
-            fields[param_name].default = param_value
-        new_model = create_model(  # type: ignore
-            self.parameters_class.__name__,
-            __doc__=self.parameters_class.__doc__,
-            __base__=self.parameters_class.__bases__,  # can't pass correct bases
-            **{name: (info.annotation, info) for name, info in fields.items()},
+        instance._parameters = instance.parameters_class.model_validate(
+            node_parameters
         )
-        instance.parameters_class = new_model
-
-        if self.parameters is not None:
-            parameters_dict = self.parameters.model_dump()
-            parameters_dict.update(node_parameters)
-            instance._parameters = instance.parameters_class(**parameters_dict)
+        instance.parameters_class = self.build_parameters_class_from_instance(
+            instance._parameters
+        )
         return instance
 
     def _warn_if_external_and_interactive_mpl(self) -> None:
@@ -194,7 +176,7 @@ class QualibrationNode(
             self.parameters.model_dump() if self.parameters is not None else {}
         )
         params_dict.update(passed_parameters)
-        parameters = self.parameters_class.model_validate(params_dict)
+        parameters = self.parameters.model_validate(params_dict)
         initial_targets = copy(parameters.targets) if parameters.targets else []
         created_at = datetime.now()
         run_error: Optional[RunError] = None

@@ -16,6 +16,7 @@ jsonpointer = "^3.0.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2.2"
+pytest-mock = "^3.14.0"
 
 
 [tool.poetry.group.dev.dependencies]

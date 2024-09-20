@@ -20,7 +20,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 __all__ = [
     "ExecutionParameters",
@@ -111,5 +111,5 @@ class OrchestratorParameters(RunnableParameters):
 
 
 class ExecutionParameters(RunnableParameters):
-    parameters: GraphParameters
-    nodes: NodesParameters
+    parameters: GraphParameters = Field(default_factory=GraphParameters)
+    nodes: NodesParameters = Field(default_factory=NodesParameters)

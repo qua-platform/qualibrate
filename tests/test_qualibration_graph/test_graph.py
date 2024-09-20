@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Generator
+from typing import Any, Generator, Sequence
 
 import pytest
 
@@ -23,9 +23,17 @@ def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
 @pytest.fixture
 def graph_params() -> GraphParameters:
     class GP(GraphParameters):
+        qubits: list[str] = []
         retries: int = 2
 
     return GP(retries=1)
+
+
+class Orchestrator(QualibrationOrchestrator):
+    def traverse_graph(
+        self, graph: QualibrationGraph, targets: Sequence[Any]
+    ) -> None:
+        pass
 
 
 def test_export(
@@ -33,7 +41,7 @@ def test_export(
 ):
     g = QualibrationGraph(
         "name",
-        graph_params.__class__,
+        graph_params,
         qualibration_lib.nodes,
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
     )
@@ -51,13 +59,12 @@ def test_export(
 def test_serialize(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
-    orchestrator = QualibrationOrchestrator()
     g = QualibrationGraph(
         "name",
-        graph_params.__class__,
+        graph_params,
         qualibration_lib.nodes,
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
-        orchestrator=orchestrator,
+        orchestrator=Orchestrator(),
         description="some description",
     )
     assert g.serialize() == {
@@ -65,8 +72,9 @@ def test_serialize(
         "description": "some description",
         "orchestrator": {
             "__class__": (
-                "qualibrate.qualibration_orchestrator.QualibrationOrchestrator"
+                "tests.test_qualibration_graph.test_graph.Orchestrator"
             ),
+            "parameters": {},
         },
         "nodes": {
             "test_node": {
@@ -90,10 +98,11 @@ def test_serialize(
                         "title": "Float Value",
                         "type": "number",
                     },
-                    "targets_name": {
-                        "anyOf": [{"type": "string"}, {"type": "null"}],
-                        "default": None,
-                        "title": "Targets Name",
+                    "qubits": {
+                        "default": [],
+                        "items": {"type": "string"},
+                        "title": "Qubits",
+                        "type": "array",
                     },
                 },
             },
@@ -113,10 +122,11 @@ def test_serialize(
                         "title": "Float Value",
                         "type": "number",
                     },
-                    "targets_name": {
-                        "anyOf": [{"type": "string"}, {"type": "null"}],
-                        "default": None,
-                        "title": "Targets Name",
+                    "qubits": {
+                        "default": [],
+                        "items": {"type": "string"},
+                        "title": "Qubits",
+                        "type": "array",
                     },
                 },
             },
@@ -136,10 +146,11 @@ def test_serialize(
                         "title": "Sampling Points",
                         "type": "integer",
                     },
-                    "targets_name": {
-                        "anyOf": [{"type": "string"}, {"type": "null"}],
-                        "default": None,
-                        "title": "Targets Name",
+                    "qubits": {
+                        "default": [],
+                        "items": {"type": "string"},
+                        "title": "Qubits",
+                        "type": "array",
                     },
                 },
             },
@@ -150,14 +161,15 @@ def test_serialize(
         ],
         "parameters": {
             "retries": {
-                "default": 2,
+                "default": 1,
                 "title": "Retries",
                 "type": "integer",
             },
-            "targets_name": {
-                "anyOf": [{"type": "string"}, {"type": "null"}],
-                "default": None,
-                "title": "Targets Name",
+            "qubits": {
+                "default": [],
+                "items": {"type": "string"},
+                "title": "Qubits",
+                "type": "array",
             },
         },
     }
@@ -168,9 +180,10 @@ def test_cytoscape(
 ):
     g = QualibrationGraph(
         "name",
-        graph_params.__class__,
+        graph_params,
         qualibration_lib.nodes,
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
+        orchestrator=Orchestrator(),
     )
 
     assert g.cytoscape_representation(g.serialize()) == [
@@ -213,9 +226,10 @@ def test_run_sequence(
 ):
     g = QualibrationGraph(
         "graph_name",
-        graph_params.__class__,
+        graph_params,
         qualibration_lib.nodes,
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
+        orchestrator=Orchestrator(),
     )
     g.run(
         **graph_params.model_dump(),
@@ -232,13 +246,14 @@ def test_run_multi_predecessors(
 ):
     g = QualibrationGraph(
         "graph_name",
-        graph_params.__class__,
+        graph_params,
         qualibration_lib.nodes,
         [
             ("test_node", "test_cal"),
             ("test_node", "one_more_node"),
             ("one_more_node", "test_cal"),
         ],
+        orchestrator=Orchestrator(),
     )
     g.run(
         retries=4,
@@ -271,7 +286,7 @@ def test_run_multi_nodes_instances(
     nodes = [test_node_1, test_node_2, one_more_node, one_more_node_2, test_cal]
     g = QualibrationGraph(
         "graph_name",
-        graph_params.__class__,
+        graph_params,
         {n.name: n for n in nodes},
         [
             ("test_node", "test_cal"),
@@ -285,6 +300,7 @@ def test_run_multi_nodes_instances(
             ("test_node", "one_more_node_2"),
             ("one_more_node_2", "test_cal"),
         ],
+        orchestrator=Orchestrator(),
     )
     g.run(
         retries=4,
