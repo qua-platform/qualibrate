@@ -49,7 +49,7 @@ export const Login = () => {
             placeholder={""}
             {...inputDefaultProps}
           />
-          <BlueButton className={styles.loginButton} onClick={handleLogin} disabled={!password} {...inputDefaultProps} isBig>
+          <BlueButton className={styles.loginButton} onClick={handleLogin} {...inputDefaultProps} isBig>
             Log In
           </BlueButton>
           <div className={styles.errorMsg}>{authError}</div>
