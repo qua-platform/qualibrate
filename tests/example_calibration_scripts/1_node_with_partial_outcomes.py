@@ -1,5 +1,5 @@
 from qualibrate import NodeParameters, QualibrationNode
-from qualibrate.outcome import Outcome
+from qualibrate.models.outcome import Outcome
 
 
 class Parameters(NodeParameters):

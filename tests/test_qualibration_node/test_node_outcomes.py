@@ -1,7 +1,7 @@
 import importlib
 from pathlib import Path
 
-from qualibrate.outcome import Outcome
+from qualibrate.models.outcome import Outcome
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.exceptions import StopInspection
 

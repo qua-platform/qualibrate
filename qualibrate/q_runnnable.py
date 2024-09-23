@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from copy import copy
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Any,
     Dict,
     Generic,
@@ -15,14 +14,11 @@ from typing import (
 
 from pydantic import create_model
 
-from qualibrate.outcome import Outcome
+from qualibrate.models.outcome import Outcome
+from qualibrate.models.run_mode import RunModes
+from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.parameters import RunnableParameters
-from qualibrate.run_mode import RunModes
-from qualibrate.run_summary.base import BaseRunSummary
 from qualibrate.utils.type_protocols import TargetType
-
-if TYPE_CHECKING:
-    pass
 
 CreateParametersType = TypeVar("CreateParametersType", bound=RunnableParameters)
 RunParametersType = TypeVar("RunParametersType", bound=RunnableParameters)
@@ -61,6 +57,10 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self._state_updates: dict[str, Any] = {}
 
         self.outcomes: Dict[TargetType, Outcome] = {}
+        self.run_summary: Optional[BaseRunSummary] = None
+
+    def cleanup(self) -> None:
+        self.run_summary = None
 
     @staticmethod
     def build_parameters_class_from_instance(

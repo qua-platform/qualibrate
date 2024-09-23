@@ -3,11 +3,13 @@ from typing import Dict, Optional, Sequence
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
-from qualibrate import NodeParameters
-from qualibrate.outcome import Outcome
-from qualibrate.qualibration_graph import NodeState
-from qualibrate.run_summary.run_error import RunError
+from qualibrate.models.node_status import NodeStatus
+from qualibrate.models.outcome import Outcome
+from qualibrate.models.run_summary.run_error import RunError
+from qualibrate.parameters import NodeParameters
 from qualibrate.utils.type_protocols import TargetType
+
+__all__ = ["ExecutionHistory", "ExecutionHistoryItem"]
 
 
 class ExecutionHistoryItem(BaseModel):
@@ -16,7 +18,7 @@ class ExecutionHistoryItem(BaseModel):
     name: str
     description: Optional[str] = None
     snapshot_idx: Optional[int] = None
-    state: NodeState
+    status: NodeStatus
     run_start: datetime
     run_end: datetime
     parameters: NodeParameters

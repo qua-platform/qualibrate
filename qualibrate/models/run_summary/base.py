@@ -3,9 +3,9 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 from pydantic import BaseModel, Field, computed_field, field_serializer
 
-from qualibrate.outcome import Outcome
+from qualibrate.models.outcome import Outcome
+from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.parameters import RunnableParameters
-from qualibrate.run_summary.run_error import RunError
 from qualibrate.utils.type_protocols import TargetType
 
 __all__ = ["BaseRunSummary"]
