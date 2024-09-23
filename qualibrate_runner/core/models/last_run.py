@@ -3,8 +3,8 @@ from enum import Enum
 from typing import Any, Mapping, Optional, Union
 
 from pydantic import BaseModel, Field, computed_field
-from qualibrate.run_summary.graph import GraphRunSummary
-from qualibrate.run_summary.node import NodeRunSummary
+from qualibrate.models.run_summary.graph import GraphRunSummary
+from qualibrate.models.run_summary.node import NodeRunSummary
 
 
 class RunStatus(Enum):
