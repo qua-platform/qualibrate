@@ -51,6 +51,7 @@ export class GraphLibraryApi extends Api {
     Res<{
       active: boolean;
       nodes_completed: number;
+      nodes_total: number;
       run_duration: number;
       run_results: { parameters: { nodes: { [key: string]: string }[] } };
     }>
