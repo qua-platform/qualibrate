@@ -68,14 +68,9 @@ class TargetParameter(BaseModel):
 
     @model_validator(mode="after")
     def targets_exists_if_specified(self) -> Self:
-        if self.targets_name is None:
+        if self.targets_name not in self.model_fields:
             return self
-        if (
-            self.targets_name is not None
-            and self.targets_name not in self.model_fields
-        ):
-            raise AssertionError("targets_name should be one of model fields")
-        if not isinstance(self.targets, List):
+        if self.targets is not None and not isinstance(self.targets, list):
             raise AssertionError(
                 "Targets must be an iterable of hashable objects"
             )
@@ -96,8 +91,6 @@ class TargetParameter(BaseModel):
 
 class NodeParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[Optional[str]] = "qubits"
-
-    qubits: List[TargetType] = Field(default_factory=list)
 
 
 class NodesParameters(RunnableParameters):
