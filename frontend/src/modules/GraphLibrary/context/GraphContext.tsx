@@ -166,6 +166,7 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
         ...lastRunInfo,
         active: response.result?.active,
         nodesCompleted: response.result?.nodes_completed,
+        nodesTotal: response.result?.nodes_total,
         runDuration: response.result?.run_duration,
       });
     } else if (response.error) {

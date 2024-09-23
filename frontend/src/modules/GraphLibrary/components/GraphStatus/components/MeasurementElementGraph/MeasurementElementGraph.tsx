@@ -15,12 +15,16 @@ interface IProps {
 export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements }) => {
   const title = "Calibration Graph Progress";
   const { lastRunInfo } = useGraphContext();
+  const graphProgressMessage =
+    lastRunInfo?.nodesCompleted !== undefined &&
+    lastRunInfo?.nodesCompleted !== null &&
+    lastRunInfo?.nodesTotal !== undefined &&
+    lastRunInfo?.nodesTotal !== null
+      ? `${lastRunInfo?.nodesCompleted}/${lastRunInfo?.nodesTotal} node${lastRunInfo?.nodesCompleted > 1 ? "s" : ""} completed`
+      : "";
   // const graphProgressMessage = lastRunInfo?.nodesCompleted
-  //   ? `${lastRunInfo?.nodesCompleted}/${lastRunInfo?.nodesTotal} node${lastRunInfo?.nodesCompleted > 1 ? "s" : ""} completed`
-  //   : "";
-  const graphProgressMessage = lastRunInfo?.nodesCompleted
-    ? `${lastRunInfo?.nodesCompleted} node${lastRunInfo?.nodesCompleted > 1 ? "s" : ""} completed`
-    : undefined;
+  //   ? `${lastRunInfo?.nodesCompleted} node${lastRunInfo?.nodesCompleted > 1 ? "s" : ""} completed`
+  //   : undefined;
   const runDurationMessage = lastRunInfo?.runDuration ? `${lastRunInfo?.runDuration}s` : undefined;
   return (
     <div className={styles.wrapper}>
