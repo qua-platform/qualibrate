@@ -1,13 +1,6 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import {
-  ALL_SNAPSHOTS,
-  ONE_SNAPSHOT,
-  SNAPSHOT_DIFF,
-  SNAPSHOT_RESULT,
-  STOP_NODE_RUNNING,
-  UPDATE_SNAPSHOT,
-} from "../../../utils/api/apiRoutes";
+import { ALL_SNAPSHOTS, ONE_SNAPSHOT, SNAPSHOT_DIFF, SNAPSHOT_RESULT, STOP_RUNNING, UPDATE_SNAPSHOT } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { SnapshotDTO } from "../SnapshotDTO";
 
@@ -61,7 +54,7 @@ export class SnapshotsApi extends Api {
   }
 
   static stopNodeRunning(): Promise<Res<boolean>> {
-    return this._fetch(this.api(STOP_NODE_RUNNING()), API_METHODS.POST, {
+    return this._fetch(this.api(STOP_RUNNING()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       // body: JSON.stringify({ data_path, value }),
       // queryParams: { data_path, value },
