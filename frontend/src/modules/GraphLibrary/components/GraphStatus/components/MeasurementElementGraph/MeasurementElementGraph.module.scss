@@ -22,8 +22,8 @@
 }
 
 //.upperContainer {
-//  display: flex;displaydisplaydisplay
-//  align-items: center;align-itemsalign-itemsalign-items
+//  display: flex;
+//  align-items: center;
 //}
 
 .lowerContainer {
@@ -44,7 +44,12 @@
 }
 
 .lowerUpperRightContainer {
-  max-width: 50%;
+  width: 50%;
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 10px;
 }
 
 .lowerLowerContainer {

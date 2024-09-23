@@ -4,6 +4,8 @@ import CytoscapeGraph from "../../../CytoscapeGraph/CytoscapeGraph";
 import cytoscape from "cytoscape";
 import { useGraphContext } from "../../../../context/GraphContext";
 import { CircularProgress } from "@mui/material";
+import { SnapshotsApi } from "../../../../../Snapshots/api/SnapshotsApi";
+import BlueButton from "../../../../../../ui-lib/components/Button/BlueButton";
 
 interface IProps {
   workflowGraphElements: cytoscape.ElementDefinition[];
@@ -22,6 +24,11 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
     ? `${lastRunInfo?.nodesCompleted} node${lastRunInfo?.nodesCompleted > 1 ? "s" : ""} completed`
     : undefined;
   const runDurationMessage = lastRunInfo?.runDuration ? `${lastRunInfo?.runDuration}s` : undefined;
+
+  const handleStopClick = () => {
+    SnapshotsApi.stopNodeRunning();
+  };
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.title}>{title}</div>
@@ -34,6 +41,11 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
               <div>Run duration: {runDurationMessage ?? <CircularProgress size="2rem" />}</div>
             </div>
             <div className={styles.lowerUpperRightContainer}>
+              {lastRunInfo?.active && (
+                <BlueButton className={styles.stopButton} onClick={handleStopClick}>
+                  Stop
+                </BlueButton>
+              )}
               {/*<GlobalElementParameters title={"Graph parameters"} parameters={{ Qubits: "q0, q1, q2" }} />*/}
               {/*<GlobalElementParameters title={"Orchestrator parameters"} parameters={{ "Skip failed": "true" }} />*/}
             </div>
