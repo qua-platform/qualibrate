@@ -84,14 +84,13 @@ class QualibrationGraph(
         :param connectivity: Adjacency list.
             Format: `{"name_1": ["name_2", "name_3"], "name_2": ["name_3"]}`
         """
-        print("graph call init")
         super().__init__(name, parameters, description=description, modes=modes)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
         self._graph = nx.DiGraph()
         self._orchestrator = orchestrator
-        for node in self._nodes:
-            self._add_node_by_name(node)
+        for node_name in self._nodes:
+            self._add_node_by_name(node_name)
         for v_name, x_name in connectivity:
             v = self._add_node_by_name(v_name)
             x = self._add_node_by_name(x_name)
@@ -103,9 +102,6 @@ class QualibrationGraph(
         )
 
         if self.modes.inspection:
-            # ASK: Looks like `last_instantiated_node` and
-            #  `_singleton_instance` have same logic -- keep instance of class
-            #  in class-level variable. Is it needed to have both?
             self.__class__.last_instantiated_graph = self
             raise StopInspection("Graph instantiated in inspection mode")
 
