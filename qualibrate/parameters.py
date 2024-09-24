@@ -2,7 +2,6 @@ import sys
 from typing import (
     Any,
     ClassVar,
-    Hashable,
     List,
     Mapping,
     Optional,
@@ -70,10 +69,8 @@ class TargetParameter(BaseModel):
     def targets_exists_if_specified(self) -> Self:
         if self.targets_name not in self.model_fields:
             return self
-        if self.targets is not None and not isinstance(self.targets, list):
-            raise AssertionError(
-                "Targets must be an iterable of hashable objects"
-            )
+        if self.targets is not None and not isinstance(self.targets, Sequence):
+            raise AssertionError(f"Targets must be an iterable of {TargetType}")
         return self
 
     @property
@@ -83,14 +80,18 @@ class TargetParameter(BaseModel):
         return cast(List[TargetType], getattr(self, self.targets_name))
 
     @targets.setter
-    def targets(self, new_targets: Sequence[Hashable]) -> None:
+    def targets(self, new_targets: Sequence[TargetType]) -> None:
         if self.targets_name is None:
             return
+        if not isinstance(new_targets, Sequence):
+            raise ValueError(f"Targets must be an iterable of {TargetType}")
         setattr(self, self.targets_name, new_targets)
 
 
 class NodeParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[Optional[str]] = "qubits"
+
+    qubits: Optional[List[TargetType]] = None
 
 
 class NodesParameters(RunnableParameters):
