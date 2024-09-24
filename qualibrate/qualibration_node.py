@@ -49,14 +49,18 @@ class QualibrationNode(
     storage_manager: Optional[StorageManager] = None
     last_instantiated_node: Optional["QualibrationNode"] = None
 
-    _singleton_instance = None  # configurable Singleton features
+    _singleton_instance: Optional["QualibrationNode"] = (
+        None  # configurable Singleton features
+    )
 
     # Singleton control
     def __new__(cls, *args: Any, **kwargs: Any) -> "QualibrationNode":
-        if cls._singleton_instance is None:
+        node_name = args[0] if len(args) > 0 else kwargs["name"]
+        instance = cls._singleton_instance
+        if instance is None or instance.name != node_name:
             return super(QualibrationNode, cls).__new__(cls)
-        cls._singleton_instance._state_updates.clear()
-        return cls._singleton_instance
+        instance._state_updates.clear()
+        return instance
 
     def __init__(
         self,
@@ -64,10 +68,11 @@ class QualibrationNode(
         parameters: NodeCreateParametersType,
         description: Optional[str] = None,
     ):
-        logger.info(f"Creating node {name}")
         if hasattr(self, "_initialized"):
             self._warn_if_external_and_interactive_mpl()
+            self._process_inspection()
             return
+        logger.info(f"Creating node {name}")
         super(QualibrationNode, self).__init__(
             name, parameters, description=description
         )
@@ -76,8 +81,10 @@ class QualibrationNode(
         self.machine = None
 
         self._initialized = True
+        self._process_inspection()
 
-        if self.modes.inspection:
+    def _process_inspection(self) -> None:
+        if self.__class__.modes.inspection:
             # ASK: Looks like `last_instantiated_node` and
             #  `_singleton_instance` have same logic -- keep instance of class
             #  in class-level variable. Is it needed to have both?
