@@ -28,6 +28,7 @@ from qualibrate.parameters import (
 )
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.run_mode import RunModes
 from qualibrate.run_summary.base import BaseRunSummary
 from qualibrate.run_summary.graph import GraphRunSummary
 from qualibrate.run_summary.run_error import RunError
@@ -73,8 +74,9 @@ class QualibrationGraph(
         nodes: Mapping[str, QualibrationNode],
         connectivity: Sequence[Tuple[str, str]],
         orchestrator: Optional["QualibrationOrchestrator"] = None,
-        *,
         description: Optional[str] = None,
+        *,
+        modes: Optional[RunModes] = None,
     ):
         """
         :param name: graph name
@@ -82,7 +84,8 @@ class QualibrationGraph(
         :param connectivity: Adjacency list.
             Format: `{"name_1": ["name_2", "name_3"], "name_2": ["name_3"]}`
         """
-        super().__init__(name, parameters, description=description)
+        print("graph call init")
+        super().__init__(name, parameters, description=description, modes=modes)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
         self._graph = nx.DiGraph()
@@ -104,7 +107,7 @@ class QualibrationGraph(
             #  `_singleton_instance` have same logic -- keep instance of class
             #  in class-level variable. Is it needed to have both?
             self.__class__.last_instantiated_graph = self
-            raise StopInspection("Node instantiated in inspection mode")
+            raise StopInspection("Graph instantiated in inspection mode")
 
     @staticmethod
     def _validate_nodes_names_mapping(

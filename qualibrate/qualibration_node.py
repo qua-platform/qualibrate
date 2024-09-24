@@ -20,6 +20,7 @@ from matplotlib.rcsetup import interactive_bk
 from qualibrate.outcome import Outcome
 from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
+from qualibrate.run_mode import RunModes
 from qualibrate.run_summary.base import BaseRunSummary
 from qualibrate.run_summary.node import NodeRunSummary
 from qualibrate.run_summary.run_error import RunError
@@ -67,6 +68,8 @@ class QualibrationNode(
         name: str,
         parameters: NodeCreateParametersType,
         description: Optional[str] = None,
+        *,
+        modes: Optional[RunModes] = None,
     ):
         if hasattr(self, "_initialized"):
             self._warn_if_external_and_interactive_mpl()
@@ -74,7 +77,7 @@ class QualibrationNode(
             return
         logger.info(f"Creating node {name}")
         super(QualibrationNode, self).__init__(
-            name, parameters, description=description
+            name, parameters, description=description, modes=modes,
         )
 
         self.results: dict[Any, Any] = {}
@@ -84,7 +87,7 @@ class QualibrationNode(
         self._process_inspection()
 
     def _process_inspection(self) -> None:
-        if self.__class__.modes.inspection:
+        if self.modes.inspection:
             # ASK: Looks like `last_instantiated_node` and
             #  `_singleton_instance` have same logic -- keep instance of class
             #  in class-level variable. Is it needed to have both?
@@ -92,9 +95,11 @@ class QualibrationNode(
             raise StopInspection("Node instantiated in inspection mode")
 
     def __copy__(self) -> "QualibrationNode":
+        modes = self.modes.model_copy(update={"inspection": False})
         instance = self.__class__(
-            self.name, self.parameters_class(), self.description
+            self.name, self.parameters_class(), self.description, modes=modes
         )
+        instance.modes.inspection = self.modes.inspection
         instance.filepath = self.filepath
         return instance
 
@@ -109,12 +114,7 @@ class QualibrationNode(
             raise ValueError(
                 f"{self.__class__.__name__} should have a string name"
             )
-        inspection = self.__class__.modes.inspection
-        self.__class__.modes.inspection = False
-        try:
-            instance = self.__copy__()
-        finally:
-            self.__class__.modes.inspection = inspection
+        instance = self.__copy__()
         if name is not None:
             instance.name = name
         instance._parameters = instance.parameters_class.model_validate(

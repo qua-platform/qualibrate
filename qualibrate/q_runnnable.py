@@ -44,6 +44,8 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         name: str,
         parameters: CreateParametersType,
         description: Optional[str] = None,
+        *,
+        modes: Optional[RunModes] = None,
     ):
         self.name = name
         self.parameters_class = self.build_parameters_class_from_instance(
@@ -51,8 +53,9 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         )
         self._parameters = self.parameters_class()
         self.description = description
-
-        self.modes = self.__class__.modes.model_copy()
+        self.modes = (
+            self.__class__.modes.model_copy() if modes is None else modes
+        )
         self.filepath: Optional[Path] = None
 
         self._state_updates: dict[str, Any] = {}
