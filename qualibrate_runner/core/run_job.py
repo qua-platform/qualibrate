@@ -1,6 +1,6 @@
 import traceback
 from datetime import datetime
-from typing import Any, Mapping, Type
+from typing import Any, Mapping, Type, cast
 
 from fastapi import HTTPException, status
 from pydantic import BaseModel, ValidationError
@@ -8,6 +8,7 @@ from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
 from qualibrate.qualibration_node import QualibrationNode
 
+from qualibrate.run_summary.node import NodeRunSummary
 from qualibrate_runner.config import State
 from qualibrate_runner.core.models.last_run import (
     LastRun,
@@ -50,11 +51,9 @@ def run_node(
         runnable_type=RunnableType.NODE,
     )
     try:
-        library = get_active_library_or_error()
-        node = library.nodes[node.name]
-        result = library.run_node(
-            node.name, node.parameters_class(**passed_input_parameters)
-        )
+        result = node.run(passed_parameters=passed_input_parameters)
+        result = cast(NodeRunSummary, result)
+        node = QualibrationNode.last_executed_node
     except Exception as ex:
         state.last_run = LastRun(
             name=state.last_run.name,
