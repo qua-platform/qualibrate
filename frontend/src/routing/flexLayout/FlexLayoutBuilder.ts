@@ -93,6 +93,14 @@ export default class FlexLayoutBuilder {
     }
     this._addNode(key);
   }
+
+  removeAllOpenTabs() {
+    const allTabs = this._getAllTabs();
+    console.log(allTabs);
+    allTabs.forEach((tab) => {
+      this.model.doAction(Actions.deleteTab(tab.getId()));
+    });
+  }
 }
 
 function getChildrenFromNode(node: Node): Array<Node> {

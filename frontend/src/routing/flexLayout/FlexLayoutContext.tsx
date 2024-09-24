@@ -40,6 +40,7 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
 
   const openTab = useCallback((tab: ModuleKey) => {
     // navigate(APP_URL);
+    LayoutBuilder.current.removeAllOpenTabs();
     LayoutBuilder.current.openNewTab(tab);
     setModel(LayoutBuilder.current.model);
     setActiveTab(tab);
