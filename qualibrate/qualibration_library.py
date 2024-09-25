@@ -24,23 +24,30 @@ class QualibrationLibrary:
     ):
         self.nodes: Dict[str, QualibrationNode] = {}
         self.graphs: Dict[str, QualibrationGraph] = {}
+        self._library_folder = library_folder
 
         if set_active:
             self.__class__.active_library = self
-
         if library_folder:
-            self.nodes = cast(
-                Dict[str, QualibrationNode],
-                QualibrationNode.scan_folder_for_instances(
-                    library_folder, self
-                ),
-            )
-            self.graphs = cast(
-                Dict[str, QualibrationGraph],
-                QualibrationGraph.scan_folder_for_instances(
-                    library_folder, self
-                ),
-            )
+            self._scan()
+
+    def _scan(self) -> None:
+        if self._library_folder is None:
+            logger.warning("Can't rescan library without specified folder.")
+            return
+        self.nodes = cast(
+            Dict[str, QualibrationNode],
+            QualibrationNode.scan_folder_for_instances(self._library_folder),
+        )
+        self.graphs = cast(
+            Dict[str, QualibrationGraph],
+            QualibrationGraph.scan_folder_for_instances(self._library_folder),
+        )
+
+    def rescan(self) -> None:
+        self.nodes = {}
+        self.graphs = {}
+        self._scan()
 
     @classmethod
     def get_active_library(

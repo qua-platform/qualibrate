@@ -28,6 +28,7 @@ from qualibrate.parameters import (
 )
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
 from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.run_mode import RunModes
 from qualibrate.run_summary.base import BaseRunSummary
 from qualibrate.run_summary.graph import GraphRunSummary
 from qualibrate.run_summary.run_error import RunError
@@ -37,7 +38,6 @@ from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import TargetType
 
 if TYPE_CHECKING:
-    from qualibrate import QualibrationLibrary
     from qualibrate.orchestration.qualibration_orchestrator import (
         QualibrationOrchestrator,
     )
@@ -64,7 +64,6 @@ class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType]
 ):
     _node_init_args = {"state": NodeState.pending, "retries": 0}
-    last_instantiated_graph: Optional["QualibrationGraph"] = None
 
     def __init__(
         self,
@@ -73,8 +72,9 @@ class QualibrationGraph(
         nodes: Mapping[str, QualibrationNode],
         connectivity: Sequence[Tuple[str, str]],
         orchestrator: Optional["QualibrationOrchestrator"] = None,
-        *,
         description: Optional[str] = None,
+        *,
+        modes: Optional[RunModes] = None,
     ):
         """
         :param name: graph name
@@ -82,13 +82,13 @@ class QualibrationGraph(
         :param connectivity: Adjacency list.
             Format: `{"name_1": ["name_2", "name_3"], "name_2": ["name_3"]}`
         """
-        super().__init__(name, parameters, description=description)
+        super().__init__(name, parameters, description=description, modes=modes)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
         self._graph = nx.DiGraph()
         self._orchestrator = orchestrator
-        for node in self._nodes:
-            self._add_node_by_name(node)
+        for node_name in self._nodes:
+            self._add_node_by_name(node_name)
         for v_name, x_name in connectivity:
             v = self._add_node_by_name(v_name)
             x = self._add_node_by_name(x_name)
@@ -100,11 +100,9 @@ class QualibrationGraph(
         )
 
         if self.modes.inspection:
-            # ASK: Looks like `last_instantiated_node` and
-            #  `_singleton_instance` have same logic -- keep instance of class
-            #  in class-level variable. Is it needed to have both?
-            self.__class__.last_instantiated_graph = self
-            raise StopInspection("Node instantiated in inspection mode")
+            raise StopInspection(
+                "Graph instantiated in inspection mode", instance=self
+            )
 
     @staticmethod
     def _validate_nodes_names_mapping(
@@ -122,11 +120,8 @@ class QualibrationGraph(
 
     # TODO: logic commonly same with node so need to move to
     @classmethod
-    def scan_folder_for_instances(
-        cls, path: Path, library: "QualibrationLibrary"
-    ) -> Dict[str, QGraphBaseType]:
+    def scan_folder_for_instances(cls, path: Path) -> Dict[str, QGraphBaseType]:
         graphs: Dict[str, QGraphBaseType] = {}
-        inspection = cls.modes.inspection
         try:
             cls.modes.inspection = True
 
@@ -142,7 +137,7 @@ class QualibrationGraph(
                         f"{file.name}.\nError message: {e}"
                     )
         finally:
-            cls.modes.inspection = inspection
+            cls.modes.inspection = False
         return graphs
 
     @classmethod
@@ -153,14 +148,8 @@ class QualibrationGraph(
         try:
             # TODO Think of a safer way to execute the code
             _module = import_from_path(get_module_name(file), file)
-        except StopInspection:
-            graph = cls.last_instantiated_graph
-            cls.last_instantiated_graph = None
-
-            if graph is None:
-                logger.warning(f"No graph instantiated in file {file}")
-                return
-
+        except StopInspection as ex:
+            graph = cast("QualibrationGraph", ex.instance)
             graph.filepath = file
             graph.modes.inspection = False
             cls.add_graph(graph, graphs)

@@ -12,6 +12,7 @@ from typing import (
     Dict,
     Generator,
     Optional,
+    cast,
 )
 
 import matplotlib
@@ -20,6 +21,7 @@ from matplotlib.rcsetup import interactive_bk
 from qualibrate.outcome import Outcome
 from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
+from qualibrate.run_mode import RunModes
 from qualibrate.run_summary.base import BaseRunSummary
 from qualibrate.run_summary.node import NodeRunSummary
 from qualibrate.run_summary.run_error import RunError
@@ -34,7 +36,7 @@ from qualibrate.utils.type_protocols import (
 )
 
 if TYPE_CHECKING:
-    from qualibrate.qualibration_library import QualibrationLibrary
+    pass
 
 __all__ = ["QualibrationNode"]
 
@@ -47,47 +49,46 @@ class QualibrationNode(
     QRunnable[NodeCreateParametersType, NodeRunParametersType],
 ):
     storage_manager: Optional[StorageManager] = None
-    last_instantiated_node: Optional["QualibrationNode"] = None
-
-    _singleton_instance = None  # configurable Singleton features
-
-    # Singleton control
-    def __new__(cls, *args: Any, **kwargs: Any) -> "QualibrationNode":
-        if cls._singleton_instance is None:
-            return super(QualibrationNode, cls).__new__(cls)
-        cls._singleton_instance._state_updates.clear()
-        return cls._singleton_instance
+    last_executed_node: Optional["QualibrationNode"] = None
+    _external_parameters: Optional[NodeParameters] = None
 
     def __init__(
         self,
         name: str,
         parameters: NodeCreateParametersType,
         description: Optional[str] = None,
+        *,
+        modes: Optional[RunModes] = None,
     ):
         logger.info(f"Creating node {name}")
-        if hasattr(self, "_initialized"):
-            self._warn_if_external_and_interactive_mpl()
-            return
         super(QualibrationNode, self).__init__(
-            name, parameters, description=description
+            name,
+            parameters,
+            description=description,
+            modes=modes,
         )
 
         self.results: dict[Any, Any] = {}
         self.machine = None
 
-        self._initialized = True
-
         if self.modes.inspection:
-            # ASK: Looks like `last_instantiated_node` and
-            #  `_singleton_instance` have same logic -- keep instance of class
-            #  in class-level variable. Is it needed to have both?
-            self.__class__.last_instantiated_node = self
-            raise StopInspection("Node instantiated in inspection mode")
+            raise StopInspection(
+                "Node instantiated in inspection mode", instance=self
+            )
+
+        self.__class__.last_executed_node = self
+
+        self._warn_if_external_and_interactive_mpl()
+
+        if self._external_parameters is not None:
+            self._parameters = self._external_parameters
 
     def __copy__(self) -> "QualibrationNode":
+        modes = self.modes.model_copy(update={"inspection": False})
         instance = self.__class__(
-            self.name, self.parameters_class(), self.description
+            self.name, self.parameters_class(), self.description, modes=modes
         )
+        instance.modes.inspection = self.modes.inspection
         instance.filepath = self.filepath
         return instance
 
@@ -102,12 +103,7 @@ class QualibrationNode(
             raise ValueError(
                 f"{self.__class__.__name__} should have a string name"
             )
-        inspection = self.__class__.modes.inspection
-        self.__class__.modes.inspection = False
-        try:
-            instance = self.__copy__()
-        finally:
-            self.__class__.modes.inspection = inspection
+        instance = self.__copy__()
         if name is not None:
             instance.name = name
         instance._parameters = instance.parameters_class.model_validate(
@@ -234,13 +230,12 @@ class QualibrationNode(
         # Appending dir with nodes can cause issues with relative imports
         try:
             # Temporarily set the singleton instance to this node
-            self.__class__._singleton_instance = self
+            self.__class__._external_parameters = self.parameters
             matplotlib.use("agg")
             _module = import_from_path(
                 get_module_name(node_filepath), node_filepath
             )
         finally:
-            self.__class__._singleton_instance = None
             matplotlib.use(mpl_backend)
 
     def stop(self, **kwargs: Any) -> bool:
@@ -326,11 +321,8 @@ class QualibrationNode(
                 setattr(cls, "__setitem__", setitem_func)
 
     @classmethod
-    def scan_folder_for_instances(
-        cls, path: Path, library: "QualibrationLibrary"
-    ) -> Dict[str, QNodeBaseType]:
+    def scan_folder_for_instances(cls, path: Path) -> Dict[str, QNodeBaseType]:
         nodes: Dict[str, QNodeBaseType] = {}
-        inspection = cls.modes.inspection
         try:
             cls.modes.inspection = True
 
@@ -346,7 +338,7 @@ class QualibrationNode(
                     )
 
         finally:
-            cls.modes.inspection = inspection
+            cls.modes.inspection = False
         return nodes
 
     @classmethod
@@ -357,14 +349,8 @@ class QualibrationNode(
         try:
             # TODO Think of a safer way to execute the code
             _module = import_from_path(get_module_name(file), file)
-        except StopInspection:
-            node = cls.last_instantiated_node
-            cls.last_instantiated_node = None
-
-            if node is None:
-                logger.warning(f"No node instantiated in file {file}")
-                return
-
+        except StopInspection as ex:
+            node = cast("QualibrationNode", ex.instance)
             node.filepath = file
             node.modes.inspection = False
             cls.add_node(node, nodes)

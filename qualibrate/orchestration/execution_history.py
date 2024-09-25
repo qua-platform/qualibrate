@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, Hashable, Optional, Sequence
+from typing import Dict, Optional, Sequence
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
@@ -7,6 +7,7 @@ from qualibrate import NodeParameters
 from qualibrate.outcome import Outcome
 from qualibrate.qualibration_graph import NodeState
 from qualibrate.run_summary.run_error import RunError
+from qualibrate.utils.type_protocols import TargetType
 
 
 class ExecutionHistoryItem(BaseModel):
@@ -20,7 +21,7 @@ class ExecutionHistoryItem(BaseModel):
     run_end: datetime
     parameters: NodeParameters
     error: Optional[RunError] = None
-    outcomes: Dict[Hashable, Outcome] = Field(default_factory=dict)
+    outcomes: Dict[TargetType, Outcome] = Field(default_factory=dict)
 
     @computed_field
     def run_duration(self) -> float:
