@@ -7,7 +7,6 @@ from qualibrate.utils.exceptions import StopInspection
 
 
 def test_node_outcomes():
-    inspection = QualibrationNode.modes.inspection
     try:
         QualibrationNode.modes.inspection = True
         try:
@@ -33,4 +32,4 @@ def test_node_outcomes():
             "q2": Outcome.SUCCESSFUL,
         }
     finally:
-        QualibrationNode.modes.inspection = inspection
+        QualibrationNode.modes.inspection = False

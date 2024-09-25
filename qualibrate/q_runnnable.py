@@ -6,7 +6,6 @@ from typing import (
     Any,
     Dict,
     Generic,
-    Hashable,
     Mapping,
     Optional,
     Type,
@@ -20,9 +19,11 @@ from qualibrate.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
 from qualibrate.run_mode import RunModes
 from qualibrate.run_summary.base import BaseRunSummary
+from qualibrate.utils.logger_m import logger
+from qualibrate.utils.type_protocols import TargetType
 
 if TYPE_CHECKING:
-    from qualibrate import QualibrationLibrary
+    pass
 
 CreateParametersType = TypeVar("CreateParametersType", bound=RunnableParameters)
 RunParametersType = TypeVar("RunParametersType", bound=RunnableParameters)
@@ -56,11 +57,12 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self.modes = (
             self.__class__.modes.model_copy() if modes is None else modes
         )
+        logger.info(f"{name}; {modes = }")
         self.filepath: Optional[Path] = None
 
         self._state_updates: dict[str, Any] = {}
 
-        self.outcomes: Dict[Hashable, Outcome] = {}
+        self.outcomes: Dict[TargetType, Outcome] = {}
 
     @staticmethod
     def build_parameters_class_from_instance(
@@ -99,7 +101,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
     @classmethod
     @abstractmethod
     def scan_folder_for_instances(
-        cls, path: Path, library: "QualibrationLibrary"
+        cls, path: Path
     ) -> Dict[str, "QRunnable[CreateParametersType, RunParametersType]"]:
         pass
 

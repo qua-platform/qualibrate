@@ -35,7 +35,7 @@ from qualibrate.utils.type_protocols import (
 )
 
 if TYPE_CHECKING:
-    from qualibrate.qualibration_library import QualibrationLibrary
+    pass
 
 __all__ = ["QualibrationNode"]
 
@@ -178,7 +178,6 @@ class QualibrationNode(
         try:
             self.modes.external = True
             self.modes.interactive = interactive
-            self.modes.inspection = False
             self._parameters = parameters
             self.run_node_file(self.filepath)
         except Exception as ex:
@@ -321,11 +320,8 @@ class QualibrationNode(
                 setattr(cls, "__setitem__", setitem_func)
 
     @classmethod
-    def scan_folder_for_instances(
-        cls, path: Path, library: "QualibrationLibrary"
-    ) -> Dict[str, QNodeBaseType]:
+    def scan_folder_for_instances(cls, path: Path) -> Dict[str, QNodeBaseType]:
         nodes: Dict[str, QNodeBaseType] = {}
-        inspection = cls.modes.inspection
         try:
             cls.modes.inspection = True
 
@@ -341,14 +337,14 @@ class QualibrationNode(
                     )
 
         finally:
-            cls.modes.inspection = inspection
+            cls.modes.inspection = False
         return nodes
 
     @classmethod
     def scan_node_file(
         cls, file: Path, nodes: Dict[str, QNodeBaseType]
     ) -> None:
-        logger.info(f"Scanning node file {file}")
+        # logger.info(f"Scanning node file {file}")
         try:
             # TODO Think of a safer way to execute the code
             _module = import_from_path(get_module_name(file), file)

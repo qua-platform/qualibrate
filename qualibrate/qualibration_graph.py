@@ -38,7 +38,6 @@ from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import TargetType
 
 if TYPE_CHECKING:
-    from qualibrate import QualibrationLibrary
     from qualibrate.orchestration.qualibration_orchestrator import (
         QualibrationOrchestrator,
     )
@@ -121,11 +120,8 @@ class QualibrationGraph(
 
     # TODO: logic commonly same with node so need to move to
     @classmethod
-    def scan_folder_for_instances(
-        cls, path: Path, library: "QualibrationLibrary"
-    ) -> Dict[str, QGraphBaseType]:
+    def scan_folder_for_instances(cls, path: Path) -> Dict[str, QGraphBaseType]:
         graphs: Dict[str, QGraphBaseType] = {}
-        inspection = cls.modes.inspection
         try:
             cls.modes.inspection = True
 
@@ -141,7 +137,7 @@ class QualibrationGraph(
                         f"{file.name}.\nError message: {e}"
                     )
         finally:
-            cls.modes.inspection = inspection
+            cls.modes.inspection = False
         return graphs
 
     @classmethod
