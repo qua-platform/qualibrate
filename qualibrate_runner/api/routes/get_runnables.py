@@ -5,10 +5,6 @@ from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
 
 from qualibrate_runner.api.dependencies import (
-    cache_clear,
-    get_library,
-)
-from qualibrate_runner.api.dependencies import (
     get_graph as get_qgraph,
 )
 from qualibrate_runner.api.dependencies import (
@@ -20,10 +16,6 @@ from qualibrate_runner.api.dependencies import (
 from qualibrate_runner.api.dependencies import (
     get_nodes as get_qnodes,
 )
-from qualibrate_runner.config import (
-    QualibrateRunnerSettings,
-    get_settings,
-)
 
 get_runnables_router = APIRouter()
 
@@ -31,27 +23,15 @@ get_runnables_router = APIRouter()
 @get_runnables_router.get("/get_nodes")
 def get_nodes(
     nodes: Annotated[Mapping[str, QualibrationNode], Depends(get_qnodes)],
-    settings: Annotated[QualibrateRunnerSettings, Depends(get_settings)],
-    rescan: bool = False,
 ) -> Mapping[str, Any]:
-    if rescan:
-        cache_clear()
-        library = get_library(settings)
-        nodes = get_qnodes(library)
     return {node_name: node.serialize() for node_name, node in nodes.items()}
 
 
 @get_runnables_router.get("/get_graphs")
 def get_graphs(
     graphs: Annotated[Mapping[str, QualibrationNode], Depends(get_qgraphs)],
-    settings: Annotated[QualibrateRunnerSettings, Depends(get_settings)],
-    rescan: bool = False,
     cytoscape: bool = False,
 ) -> Mapping[str, Any]:
-    if rescan:
-        cache_clear()
-        library = get_library(settings)
-        graphs = get_qgraphs(library)
     return {
         graph_name: graph.serialize(cytoscape=cytoscape)
         for graph_name, graph in graphs.items()

@@ -19,7 +19,7 @@ def get_state() -> State:
 
 
 @cache
-def get_library(
+def get_cached_library(
     settings: Annotated[QualibrateRunnerSettings, Depends(get_settings)],
 ) -> QualibrationLibrary:
     return settings.calibration_library_resolver(
@@ -27,14 +27,21 @@ def get_library(
     )
 
 
-@cache
+def get_library(
+    library: Annotated[QualibrationLibrary, Depends(get_cached_library)],
+    rescan: bool = False,
+) -> QualibrationLibrary:
+    if rescan:
+        library.rescan()
+    return library
+
+
 def get_nodes(
     library: Annotated[QualibrationLibrary, Depends(get_library)],
 ) -> Mapping[str, QualibrationNode]:
     return cast(Mapping[str, QualibrationNode], library.get_nodes())
 
 
-@cache
 def get_graphs(
     library: Annotated[QualibrationLibrary, Depends(get_library)],
 ) -> Mapping[str, QualibrationGraph]:
@@ -61,11 +68,3 @@ def get_graph(
             status_code=422, detail=f"Unknown graph name {name}"
         )
     return graph
-
-
-CACHED_DEPENDENCIES = (get_library, get_nodes, get_graphs)
-
-
-def cache_clear() -> None:
-    for func in CACHED_DEPENDENCIES:
-        func.cache_clear()
