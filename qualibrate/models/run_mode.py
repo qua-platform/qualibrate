@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+__all__ = ["RunModes"]
+
 
 class RunModes(BaseModel):
     inspection: bool = False

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from qualibrate import NodeParameters
-from qualibrate.run_summary.base import BaseRunSummary
+from qualibrate.models.run_summary.base import BaseRunSummary
 
 __all__ = ["NodeRunSummary"]
 

@@ -9,7 +9,7 @@ from qualibrate.orchestration.qualibration_orchestrator import (
 from qualibrate.parameters import (
     GraphParameters,
 )
-from qualibrate.qualibration_graph import NodeState, QualibrationGraph
+from qualibrate.qualibration_graph import NodeStatus, QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
 
 
@@ -47,9 +47,9 @@ def test_export(
     )
     assert g.nx_graph_export(node_names_only=True) == {
         "nodes": [
-            {"state": NodeState.pending, "retries": 0, "id": "test_node"},
-            {"state": NodeState.pending, "retries": 0, "id": "one_more_node"},
-            {"state": NodeState.pending, "retries": 0, "id": "test_cal"},
+            {"status": NodeStatus.pending, "retries": 0, "id": "test_node"},
+            {"status": NodeStatus.pending, "retries": 0, "id": "one_more_node"},
+            {"status": NodeStatus.pending, "retries": 0, "id": "test_cal"},
         ],
         # this is standard name so kept as is (not changed to
         "adjacency": [[{"id": "one_more_node"}], [{"id": "test_cal"}], []],
@@ -78,7 +78,7 @@ def test_serialize(
         },
         "nodes": {
             "test_node": {
-                "state": NodeState.pending,
+                "status": NodeStatus.pending,
                 "retries": 0,
                 "id": "test_node",
                 "name": "test_node",
@@ -107,7 +107,7 @@ def test_serialize(
                 },
             },
             "one_more_node": {
-                "state": NodeState.pending,
+                "status": NodeStatus.pending,
                 "retries": 0,
                 "id": "one_more_node",
                 "name": "one_more_node",
@@ -131,7 +131,7 @@ def test_serialize(
                 },
             },
             "test_cal": {
-                "state": NodeState.pending,
+                "status": NodeStatus.pending,
                 "retries": 0,
                 "id": "test_cal",
                 "name": "test_cal",

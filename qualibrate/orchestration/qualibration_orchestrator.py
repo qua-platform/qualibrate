@@ -3,11 +3,11 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence
 
 from pydantic import create_model
 
-from qualibrate.orchestration.execution_history import (
+from qualibrate.models.execution_history import (
     ExecutionHistory,
     ExecutionHistoryItem,
 )
-from qualibrate.outcome import Outcome
+from qualibrate.models.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
 from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode

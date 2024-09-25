@@ -7,24 +7,24 @@ from functools import partialmethod
 from importlib.util import find_spec
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Any,
     Dict,
     Generator,
     Optional,
+    Sequence,
     cast,
 )
 
 import matplotlib
 from matplotlib.rcsetup import interactive_bk
 
-from qualibrate.outcome import Outcome
+from qualibrate.models.outcome import Outcome
+from qualibrate.models.run_mode import RunModes
+from qualibrate.models.run_summary.base import BaseRunSummary
+from qualibrate.models.run_summary.node import NodeRunSummary
+from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
-from qualibrate.run_mode import RunModes
-from qualibrate.run_summary.base import BaseRunSummary
-from qualibrate.run_summary.node import NodeRunSummary
-from qualibrate.run_summary.run_error import RunError
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
@@ -33,10 +33,8 @@ from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import (
     GetRefGetItemProtocol,
     GetRefProtocol,
+    TargetType,
 )
-
-if TYPE_CHECKING:
-    pass
 
 __all__ = ["QualibrationNode"]
 
@@ -156,6 +154,46 @@ class QualibrationNode(
             )
         self.storage_manager.save(node=self)
 
+    def _post_run(
+        self,
+        created_at: datetime,
+        initial_targets: Sequence[TargetType],
+        parameters: NodeParameters,
+        run_error: Optional[RunError],
+    ) -> NodeRunSummary:
+        outcomes = self.outcomes
+        if self.parameters is not None and (targets := self.parameters.targets):
+            lost_targets_outcomes = set(targets) - set(outcomes.keys())
+            outcomes.update(
+                {target: Outcome.SUCCESSFUL for target in lost_targets_outcomes}
+            )
+        self.outcomes = {
+            name: Outcome(outcome) for name, outcome in outcomes.items()
+        }
+        self.run_summary = NodeRunSummary(
+            name=self.name,
+            description=self.description,
+            created_at=created_at,
+            completed_at=datetime.now(),
+            initial_targets=initial_targets,
+            parameters=parameters,
+            outcomes=self.outcomes,
+            error=run_error,
+            successful_targets=[
+                name
+                for name, status in self.outcomes.items()
+                if status == Outcome.SUCCESSFUL
+            ],
+            failed_targets=[
+                name
+                for name, status in self.outcomes.items()
+                if status == Outcome.FAILED
+            ],
+            state_updates=self.state_updates,
+        )
+        logger.debug(f"Node run summary {self.run_summary}")
+        return self.run_summary
+
     def run(
         self, interactive: bool = True, **passed_parameters: Any
     ) -> BaseRunSummary:
@@ -188,41 +226,13 @@ class QualibrationNode(
                 traceback=traceback.format_tb(ex.__traceback__),
             )
             logger.exception("", exc_info=ex)
-            raise ex
+            raise
         finally:
             self.modes.external = external
             self.modes.interactive = stored_interactive
-        outcomes = self.outcomes
-        if self.parameters is not None and (targets := self.parameters.targets):
-            lost_targets_outcomes = set(targets) - set(outcomes.keys())
-            outcomes.update(
-                {target: Outcome.SUCCESSFUL for target in lost_targets_outcomes}
+            run_summary = self._post_run(
+                created_at, initial_targets, parameters, run_error
             )
-        self.outcomes = {
-            name: Outcome(outcome) for name, outcome in outcomes.items()
-        }
-        run_summary = NodeRunSummary(
-            name=self.name,
-            description=self.description,
-            created_at=created_at,
-            completed_at=datetime.now(),
-            initial_targets=initial_targets,
-            parameters=parameters,
-            outcomes=self.outcomes,
-            error=run_error,
-            successful_targets=[
-                name
-                for name, status in self.outcomes.items()
-                if status == Outcome.SUCCESSFUL
-            ],
-            failed_targets=[
-                name
-                for name, status in self.outcomes.items()
-                if status == Outcome.FAILED
-            ],
-            state_updates=self.state_updates,
-        )
-        logger.debug(f"Node run summary {run_summary}")
         return run_summary
 
     def run_node_file(self, node_filepath: Path) -> None:
