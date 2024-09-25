@@ -204,8 +204,6 @@ class QualibrationNode(
             ex = RuntimeError(f"Node {self.name} file path was not provided")
             logger.exception("", exc_info=ex)
             raise ex
-        external = self.modes.external
-        stored_interactive = self.modes.interactive
         params_dict = (
             self.parameters.model_dump() if self.parameters is not None else {}
         )
@@ -214,9 +212,13 @@ class QualibrationNode(
         initial_targets = copy(parameters.targets) if parameters.targets else []
         created_at = datetime.now()
         run_error: Optional[RunError] = None
+
+        cls = self.__class__
+        original_modes = cls.modes
         try:
-            self.modes.external = True
-            self.modes.interactive = interactive
+            cls.modes = RunModes(
+                external=True, interactive=interactive, inspection=False
+            )
             self._parameters = parameters
             self.run_node_file(self.filepath)
         except Exception as ex:
@@ -228,8 +230,7 @@ class QualibrationNode(
             logger.exception("", exc_info=ex)
             raise
         finally:
-            self.modes.external = external
-            self.modes.interactive = stored_interactive
+            cls.modes = original_modes
             run_summary = self._post_run(
                 created_at, initial_targets, parameters, run_error
             )

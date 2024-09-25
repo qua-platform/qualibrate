@@ -113,6 +113,12 @@ class BasicOrchestrator(QualibrationOrchestrator):
                 node_result = node_to_run.run(
                     interactive=False, **node_parameters
                 )
+                last_executed_node = node_to_run.__class__.last_executed_node
+                if last_executed_node is None:
+                    last_executed_node = node_to_run
+                    logger.warning(
+                        "Last executed node not set after running {node_to_run}"
+                    )
                 if self._parameters.skip_failed:
                     self.targets = node_result.successful_targets
                 logger.debug(f"Node completed. Result: {node_result}")
@@ -137,21 +143,21 @@ class BasicOrchestrator(QualibrationOrchestrator):
             finally:
                 self._execution_history.append(
                     ExecutionHistoryItem(
-                        name=node_to_run.name,
-                        description=node_to_run.description,
-                        snapshot_idx=node_to_run.snapshot_idx,
-                        outcomes=node_to_run.outcomes,
+                        name=last_executed_node.name,
+                        description=last_executed_node.description,
+                        snapshot_idx=last_executed_node.snapshot_idx,
+                        outcomes=last_executed_node.outcomes,
                         status=new_status,
                         error=run_error,
                         run_start=run_start,
                         run_end=datetime.now(),
-                        parameters=node_to_run_parameters,
+                        parameters=last_executed_node._parameters,
                     )
                 )
             # Suppose that all nodes are successfully finish
-            nx_graph.nodes[node_to_run][QualibrationGraph.STATUS_FIELD] = (
-                new_status
-            )
+            nx_graph.nodes[node_to_run][
+                QualibrationGraph.STATUS_FIELD
+            ] = new_status
             if new_status == NodeStatus.successful:
                 for successor in successors[node_to_run]:
                     self._execution_queue.put(successor)
