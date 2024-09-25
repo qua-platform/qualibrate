@@ -7,8 +7,8 @@ from pydantic import BaseModel, ValidationError
 from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
 from qualibrate.qualibration_node import QualibrationNode
-
 from qualibrate.run_summary.node import NodeRunSummary
+
 from qualibrate_runner.config import State
 from qualibrate_runner.core.models.last_run import (
     LastRun,
@@ -103,9 +103,12 @@ def run_workflow(
     try:
         library = get_active_library_or_error()
         workflow = library.graphs[workflow.name]
-        result = library.run_graph(
-            workflow.name,
-            workflow.full_parameters_class(**passed_input_parameters),
+        input_parameters = workflow.full_parameters_class(
+            **passed_input_parameters
+        )
+        result = workflow.run(
+            nodes=input_parameters.nodes.model_dump(),
+            **input_parameters.parameters.model_dump(),
         )
         print("Graph completed. Result:", result)
     except Exception as ex:
