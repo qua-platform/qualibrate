@@ -75,7 +75,10 @@ class TargetParameter(BaseModel):
 
     @property
     def targets(self) -> Optional[List[TargetType]]:
-        if self.targets_name is None:
+        if (
+            self.targets_name is None
+            or self.targets_name not in self.model_fields
+        ):
             return None
         return cast(List[TargetType], getattr(self, self.targets_name))
 
@@ -83,6 +86,10 @@ class TargetParameter(BaseModel):
     def targets(self, new_targets: Sequence[TargetType]) -> None:
         if self.targets_name is None:
             return
+        if self.targets_name not in self.model_fields:
+            raise ValueError(
+                f"Targets name ({self.targets_name}) specified but field does not exist"
+            )
         if not isinstance(new_targets, Sequence):
             raise ValueError(f"Targets must be an iterable of {TargetType}")
         setattr(self, self.targets_name, new_targets)
@@ -90,8 +97,6 @@ class TargetParameter(BaseModel):
 
 class NodeParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[Optional[str]] = "qubits"
-
-    qubits: Optional[List[TargetType]] = None
 
 
 class NodesParameters(RunnableParameters):
