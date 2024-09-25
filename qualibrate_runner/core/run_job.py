@@ -53,7 +53,7 @@ def run_node(
     idx = -1
     run_error = None
     try:
-        node.run(passed_parameters=passed_input_parameters)
+        node.run(**passed_input_parameters)
         node = QualibrationNode.last_executed_node
     except Exception as ex:
         run_status = RunStatus.ERROR
