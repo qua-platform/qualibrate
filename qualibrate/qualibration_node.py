@@ -12,6 +12,7 @@ from typing import (
     Generator,
     Optional,
     Sequence,
+    Tuple,
     cast,
 )
 
@@ -27,7 +28,7 @@ from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import (
     QRunnable,
-    run_modes_context,
+    run_modes_ctx,
     file_is_calibration_instance,
 )
 from qualibrate.storage import StorageManager
@@ -47,8 +48,11 @@ NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
 QNodeBaseType = QRunnable[NodeCreateParametersType, NodeRunParametersType]
 
-external_parameters_context: ContextVar[Optional[NodeParameters]] = ContextVar(
+external_parameters_ctx: ContextVar[Optional[NodeParameters]] = ContextVar(
     "external_parameters", default=None
+)
+last_executed_node_ctx: ContextVar[Optional["QualibrationNode"]] = ContextVar(
+    "last_executed_node", default=None
 )
 
 
@@ -56,7 +60,6 @@ class QualibrationNode(
     QRunnable[NodeCreateParametersType, NodeRunParametersType],
 ):
     storage_manager: Optional[StorageManager] = None
-    last_executed_node: Optional["QualibrationNode"] = None
 
     def __init__(
         self,
@@ -82,11 +85,11 @@ class QualibrationNode(
                 "Node instantiated in inspection mode", instance=self
             )
 
-        self.__class__.last_executed_node = self
+        last_executed_node_ctx.set(self)
 
         self._warn_if_external_and_interactive_mpl()
 
-        external_parameters = external_parameters_context.get()
+        external_parameters = external_parameters_ctx.get()
         if external_parameters is not None:
             self._parameters = external_parameters
 
@@ -205,7 +208,7 @@ class QualibrationNode(
 
     def run(
         self, interactive: bool = True, **passed_parameters: Any
-    ) -> BaseRunSummary:
+    ) -> Tuple["QualibrationNode", BaseRunSummary]:
         logger.info(
             f"Run node {self.name} with parameters: {passed_parameters}"
         )
@@ -223,15 +226,18 @@ class QualibrationNode(
         run_error: Optional[RunError] = None
 
         try:
-            run_modes_token = run_modes_context.set(
+            if run_modes_ctx.get() is not None:
+                logger.error(
+                    "Run modes context is already set to %s",
+                    run_modes_ctx.get(),
+                )
+            run_modes_token = run_modes_ctx.set(
                 RunModes(
                     external=True, interactive=interactive, inspection=False
                 )
             )
 
-            external_parameters_token = external_parameters_context.set(
-                parameters
-            )
+            external_parameters_token = external_parameters_ctx.set(parameters)
             self._parameters = parameters
             self.run_node_file(self.filepath)
         except Exception as ex:
@@ -243,12 +249,20 @@ class QualibrationNode(
             logger.exception("", exc_info=ex)
             raise
         finally:
-            run_modes_context.reset(run_modes_token)
-            external_parameters_context.reset(external_parameters_token)
+            run_modes_ctx.reset(run_modes_token)
+            external_parameters_ctx.reset(external_parameters_token)
             run_summary = self._post_run(
                 created_at, initial_targets, parameters, run_error
             )
-        return run_summary
+
+        last_executed_node = last_executed_node_ctx.get()
+        if last_executed_node is None:
+            logger.warning(
+                "Last executed node not set after running {node_to_run}"
+            )
+            last_executed_node = self
+
+        return last_executed_node, run_summary
 
     def run_node_file(self, node_filepath: Path) -> None:
         mpl_backend = matplotlib.get_backend()
@@ -347,7 +361,12 @@ class QualibrationNode(
     def scan_folder_for_instances(cls, path: Path) -> Dict[str, QNodeBaseType]:
         nodes: Dict[str, QNodeBaseType] = {}
         try:
-            run_modes_token = run_modes_context.set(RunModes(inspection=True))
+            if run_modes_ctx.get() is not None:
+                logger.error(
+                    "Run modes context is already set to %s",
+                    run_modes_ctx.get(),
+                )
+            run_modes_token = run_modes_ctx.set(RunModes(inspection=True))
 
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
@@ -361,7 +380,7 @@ class QualibrationNode(
                     )
 
         finally:
-            run_modes_context.reset(run_modes_token)
+            run_modes_ctx.reset(run_modes_token)
         return nodes
 
     @classmethod

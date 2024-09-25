@@ -34,7 +34,7 @@ def file_is_calibration_instance(file: Path, klass: str) -> bool:
     return f"{klass}(" in contents
 
 
-run_modes_context: ContextVar[Optional[RunModes]] = ContextVar(
+run_modes_ctx: ContextVar[Optional[RunModes]] = ContextVar(
     "run_modes", default=None
 )
 
@@ -99,7 +99,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         if modes is not None:
             return modes
 
-        context_run_modes = run_modes_context.get()
+        context_run_modes = run_modes_ctx.get()
         if context_run_modes is not None:
             return context_run_modes.model_copy()
         elif cls.modes is not None:
