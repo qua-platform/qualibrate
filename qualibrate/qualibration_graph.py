@@ -30,7 +30,11 @@ from qualibrate.parameters import (
     GraphParameters,
     NodesParameters,
 )
-from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
+from qualibrate.q_runnnable import (
+    QRunnable,
+    run_modes_context,
+    file_is_calibration_instance,
+)
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger_m import logger
@@ -117,7 +121,7 @@ class QualibrationGraph(
     def scan_folder_for_instances(cls, path: Path) -> Dict[str, QGraphBaseType]:
         graphs: Dict[str, QGraphBaseType] = {}
         try:
-            cls.modes.inspection = True
+            run_modes_token = run_modes_context.set(RunModes(inspection=True))
 
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
@@ -131,7 +135,7 @@ class QualibrationGraph(
                         f"{file.name}.\nError message: {e}"
                     )
         finally:
-            cls.modes.inspection = False
+            run_modes_context.reset(run_modes_token)
         return graphs
 
     @classmethod

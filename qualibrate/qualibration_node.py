@@ -17,6 +17,7 @@ from typing import (
 
 import matplotlib
 from matplotlib.rcsetup import interactive_bk
+from contextvars import ContextVar
 
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
@@ -24,7 +25,11 @@ from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.models.run_summary.node import NodeRunSummary
 from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.parameters import NodeParameters
-from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
+from qualibrate.q_runnnable import (
+    QRunnable,
+    run_modes_context,
+    file_is_calibration_instance,
+)
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
@@ -42,13 +47,16 @@ NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
 QNodeBaseType = QRunnable[NodeCreateParametersType, NodeRunParametersType]
 
+external_parameters_context: ContextVar[Optional[NodeParameters]] = ContextVar(
+    "external_parameters", default=None
+)
+
 
 class QualibrationNode(
     QRunnable[NodeCreateParametersType, NodeRunParametersType],
 ):
     storage_manager: Optional[StorageManager] = None
     last_executed_node: Optional["QualibrationNode"] = None
-    _external_parameters: Optional[NodeParameters] = None
 
     def __init__(
         self,
@@ -78,8 +86,9 @@ class QualibrationNode(
 
         self._warn_if_external_and_interactive_mpl()
 
-        if self._external_parameters is not None:
-            self._parameters = self._external_parameters
+        external_parameters = external_parameters_context.get()
+        if external_parameters is not None:
+            self._parameters = external_parameters
 
     def __copy__(self) -> "QualibrationNode":
         modes = self.modes.model_copy(update={"inspection": False})
@@ -213,11 +222,15 @@ class QualibrationNode(
         created_at = datetime.now()
         run_error: Optional[RunError] = None
 
-        cls = self.__class__
-        original_modes = cls.modes
         try:
-            cls.modes = RunModes(
-                external=True, interactive=interactive, inspection=False
+            run_modes_token = run_modes_context.set(
+                RunModes(
+                    external=True, interactive=interactive, inspection=False
+                )
+            )
+
+            external_parameters_token = external_parameters_context.set(
+                parameters
             )
             self._parameters = parameters
             self.run_node_file(self.filepath)
@@ -230,7 +243,8 @@ class QualibrationNode(
             logger.exception("", exc_info=ex)
             raise
         finally:
-            cls.modes = original_modes
+            run_modes_context.reset(run_modes_token)
+            external_parameters_context.reset(external_parameters_token)
             run_summary = self._post_run(
                 created_at, initial_targets, parameters, run_error
             )
@@ -240,8 +254,6 @@ class QualibrationNode(
         mpl_backend = matplotlib.get_backend()
         # Appending dir with nodes can cause issues with relative imports
         try:
-            # Temporarily set the singleton instance to this node
-            self.__class__._external_parameters = self.parameters
             matplotlib.use("agg")
             _module = import_from_path(
                 get_module_name(node_filepath), node_filepath
@@ -335,7 +347,7 @@ class QualibrationNode(
     def scan_folder_for_instances(cls, path: Path) -> Dict[str, QNodeBaseType]:
         nodes: Dict[str, QNodeBaseType] = {}
         try:
-            cls.modes.inspection = True
+            run_modes_token = run_modes_context.set(RunModes(inspection=True))
 
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
@@ -349,7 +361,7 @@ class QualibrationNode(
                     )
 
         finally:
-            cls.modes.inspection = False
+            run_modes_context.reset(run_modes_token)
         return nodes
 
     @classmethod
