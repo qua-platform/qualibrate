@@ -12,6 +12,7 @@ from typing import (
     Dict,
     Generator,
     Optional,
+    cast,
 )
 
 import matplotlib
@@ -48,7 +49,6 @@ class QualibrationNode(
     QRunnable[NodeCreateParametersType, NodeRunParametersType],
 ):
     storage_manager: Optional[StorageManager] = None
-    last_inspected_node: Optional["QualibrationNode"] = None
     last_executed_node: Optional["QualibrationNode"] = None
     _external_parameters: Optional[NodeParameters] = None
 
@@ -72,8 +72,9 @@ class QualibrationNode(
         self.machine = None
 
         if self.modes.inspection:
-            self.__class__.last_inspected_node = self
-            raise StopInspection("Node instantiated in inspection mode")
+            raise StopInspection(
+                "Node instantiated in inspection mode", instance=self
+            )
 
         self.__class__.last_executed_node = self
 
@@ -344,18 +345,12 @@ class QualibrationNode(
     def scan_node_file(
         cls, file: Path, nodes: Dict[str, QNodeBaseType]
     ) -> None:
-        # logger.info(f"Scanning node file {file}")
+        logger.info(f"Scanning node file {file}")
         try:
             # TODO Think of a safer way to execute the code
             _module = import_from_path(get_module_name(file), file)
-        except StopInspection:
-            node = cls.last_inspected_node
-            cls.last_inspected_node = None
-
-            if node is None:
-                logger.warning(f"No node instantiated in file {file}")
-                return
-
+        except StopInspection as ex:
+            node = cast("QualibrationNode", ex.instance)
             node.filepath = file
             node.modes.inspection = False
             cls.add_node(node, nodes)

@@ -64,7 +64,6 @@ class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType]
 ):
     _node_init_args = {"state": NodeState.pending, "retries": 0}
-    last_instantiated_graph: Optional["QualibrationGraph"] = None
 
     def __init__(
         self,
@@ -101,8 +100,9 @@ class QualibrationGraph(
         )
 
         if self.modes.inspection:
-            self.__class__.last_instantiated_graph = self
-            raise StopInspection("Graph instantiated in inspection mode")
+            raise StopInspection(
+                "Graph instantiated in inspection mode", instance=self
+            )
 
     @staticmethod
     def _validate_nodes_names_mapping(
@@ -148,14 +148,8 @@ class QualibrationGraph(
         try:
             # TODO Think of a safer way to execute the code
             _module = import_from_path(get_module_name(file), file)
-        except StopInspection:
-            graph = cls.last_instantiated_graph
-            cls.last_instantiated_graph = None
-
-            if graph is None:
-                logger.warning(f"No graph instantiated in file {file}")
-                return
-
+        except StopInspection as ex:
+            graph = cast("QualibrationGraph", ex.instance)
             graph.filepath = file
             graph.modes.inspection = False
             cls.add_graph(graph, graphs)
