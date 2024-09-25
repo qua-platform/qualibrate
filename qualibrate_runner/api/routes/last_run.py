@@ -1,12 +1,12 @@
 from typing import Annotated, Any, Mapping, Optional, cast
 
 from fastapi import APIRouter, Depends
-from qualibrate.orchestration.execution_history import ExecutionHistory
+from qualibrate.models.execution_history import ExecutionHistory
 from qualibrate.qualibration_graph import QualibrationGraph
 
 from qualibrate_runner.api.dependencies import get_state
 from qualibrate_runner.config import State
-from qualibrate_runner.core.models.last_run import LastRun
+from qualibrate_runner.core.models.last_run import LastRun, RunStatus
 from qualibrate_runner.core.models.workflow import WorkflowStatus
 
 last_run_router = APIRouter(prefix="/last_run")
@@ -26,16 +26,17 @@ def get_workflow_status(
     if not isinstance(state.run_item, QualibrationGraph):
         return None
     graph: QualibrationGraph = state.run_item
+    last_run = state.last_run
     run_duration = float(
-        state.last_run.run_duration  # type: ignore
-        if state.last_run
-        else 0.0
+        last_run.run_duration if last_run else 0.0  # type: ignore
     )
     return WorkflowStatus(
+        status=last_run.status if last_run else RunStatus.FINISHED,
         active=state.is_running,
         nodes_completed=graph.completed_count(),
         nodes_total=len(graph._nodes),
         run_duration=run_duration,
+        error=last_run.error if last_run else None,
     )
 
 
