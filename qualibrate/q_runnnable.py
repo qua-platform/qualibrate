@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from contextvars import ContextVar
 from copy import copy
 from pathlib import Path
 from typing import (
@@ -7,6 +8,7 @@ from typing import (
     Generic,
     Mapping,
     Optional,
+    Tuple,
     Type,
     TypeVar,
     cast,
@@ -18,6 +20,7 @@ from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.parameters import RunnableParameters
+from qualibrate.utils.logger_m import logger
 from qualibrate.utils.type_protocols import TargetType
 
 CreateParametersType = TypeVar("CreateParametersType", bound=RunnableParameters)
@@ -30,6 +33,11 @@ def file_is_calibration_instance(file: Path, klass: str) -> bool:
 
     contents = file.read_text()
     return f"{klass}(" in contents
+
+
+run_modes_ctx: ContextVar[Optional[RunModes]] = ContextVar(
+    "run_modes", default=None
+)
 
 
 class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
@@ -49,9 +57,9 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         )
         self._parameters = self.parameters_class()
         self.description = description
-        self.modes = (
-            self.__class__.modes.model_copy() if modes is None else modes
-        )
+
+        self.modes = self.get_run_modes(modes)
+
         self.filepath: Optional[Path] = None
 
         self._state_updates: dict[str, Any] = {}
@@ -81,6 +89,26 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         )
         return cast(Type[CreateParametersType], model)
 
+    @classmethod
+    def get_run_modes(cls, modes: Optional[RunModes] = None) -> RunModes:
+        """Determines the run modes for the QRunnable.
+
+        If modes are provided, they are returned.
+        If no modes are provided, the context run modes are returned.
+        If no context run modes are provided, the default run modes are returned.
+        """
+        if modes is not None:
+            return modes
+
+        context_run_modes = run_modes_ctx.get()
+        if context_run_modes is not None:
+            return context_run_modes.model_copy()
+        elif cls.modes is not None:
+            return cls.modes.model_copy()
+        else:
+            logger.warning("Run modes were not provided. Using default")
+            return RunModes()
+
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         return {
             "name": self.name,
@@ -104,7 +132,12 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         pass
 
     @abstractmethod
-    def run(self, **passed_parameters: Any) -> BaseRunSummary:
+    def run(
+        self, **passed_parameters: Any
+    ) -> Tuple[
+        "QRunnable[CreateParametersType, RunParametersType]",
+        BaseRunSummary,
+    ]:
         pass
 
     @property

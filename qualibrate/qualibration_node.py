@@ -1,6 +1,7 @@
 import traceback
 from collections import UserDict, UserList
 from contextlib import contextmanager
+from contextvars import ContextVar
 from copy import copy
 from datetime import datetime
 from functools import partialmethod
@@ -12,6 +13,7 @@ from typing import (
     Generator,
     Optional,
     Sequence,
+    Tuple,
     Type,
     cast,
 )
@@ -26,7 +28,11 @@ from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.models.run_summary.node import NodeRunSummary
 from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.parameters import NodeParameters
-from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
+from qualibrate.q_runnnable import (
+    QRunnable,
+    file_is_calibration_instance,
+    run_modes_ctx,
+)
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
@@ -44,13 +50,18 @@ NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
 QNodeBaseType = QRunnable[NodeCreateParametersType, NodeRunParametersType]
 
+external_parameters_ctx: ContextVar[Optional[Tuple[str, NodeParameters]]] = (
+    ContextVar("external_parameters", default=None)
+)
+last_executed_node_ctx: ContextVar[Optional["QualibrationNode"]] = ContextVar(
+    "last_executed_node", default=None
+)
+
 
 class QualibrationNode(
     QRunnable[NodeCreateParametersType, NodeRunParametersType],
 ):
     storage_manager: Optional[StorageManager] = None
-    last_executed_node: Optional["QualibrationNode"] = None
-    _external_parameters: Optional[NodeParameters] = None
 
     def __init__(
         self,
@@ -80,12 +91,14 @@ class QualibrationNode(
                 "Node instantiated in inspection mode", instance=self
             )
 
-        self.__class__.last_executed_node = self
+        last_executed_node_ctx.set(self)
 
         self._warn_if_external_and_interactive_mpl()
 
-        if self._external_parameters is not None:
-            self._parameters = self._external_parameters
+        external_parameters = external_parameters_ctx.get()
+        if external_parameters is not None:
+            self.name = external_parameters[0]
+            self._parameters = external_parameters[1]
 
     @classmethod
     def _validate_passed_parameters_options(
@@ -229,7 +242,7 @@ class QualibrationNode(
 
     def run(
         self, interactive: bool = True, **passed_parameters: Any
-    ) -> BaseRunSummary:
+    ) -> Tuple["QualibrationNode", BaseRunSummary]:
         logger.info(
             f"Run node {self.name} with parameters: {passed_parameters}"
         )
@@ -246,12 +259,18 @@ class QualibrationNode(
         created_at = datetime.now()
         run_error: Optional[RunError] = None
 
-        cls = self.__class__
-        original_modes = cls.modes
-        try:
-            cls.modes = RunModes(
-                external=True, interactive=interactive, inspection=False
+        if run_modes_ctx.get() is not None:
+            logger.error(
+                "Run modes context is already set to %s",
+                run_modes_ctx.get(),
             )
+        run_modes_token = run_modes_ctx.set(
+            RunModes(external=True, interactive=interactive, inspection=False)
+        )
+        external_parameters_token = external_parameters_ctx.set(
+            (self.name, parameters)
+        )
+        try:
             self._parameters = parameters
             self.run_node_file(self.filepath)
         except Exception as ex:
@@ -263,18 +282,23 @@ class QualibrationNode(
             logger.exception("", exc_info=ex)
             raise
         finally:
-            cls.modes = original_modes
+            run_modes_ctx.reset(run_modes_token)
+            external_parameters_ctx.reset(external_parameters_token)
             run_summary = self._post_run(
                 created_at, initial_targets, parameters, run_error
             )
-        return run_summary
+
+        last_executed_node = last_executed_node_ctx.get()
+        if last_executed_node is None:
+            logger.warning(f"Last executed node not set after running {self}")
+            last_executed_node = self
+
+        return last_executed_node, run_summary
 
     def run_node_file(self, node_filepath: Path) -> None:
         mpl_backend = matplotlib.get_backend()
         # Appending dir with nodes can cause issues with relative imports
         try:
-            # Temporarily set the singleton instance to this node
-            self.__class__._external_parameters = self.parameters
             matplotlib.use("agg")
             _module = import_from_path(
                 get_module_name(node_filepath), node_filepath
@@ -367,9 +391,13 @@ class QualibrationNode(
     @classmethod
     def scan_folder_for_instances(cls, path: Path) -> Dict[str, QNodeBaseType]:
         nodes: Dict[str, QNodeBaseType] = {}
+        if run_modes_ctx.get() is not None:
+            logger.error(
+                "Run modes context is already set to %s",
+                run_modes_ctx.get(),
+            )
+        run_modes_token = run_modes_ctx.set(RunModes(inspection=True))
         try:
-            cls.modes.inspection = True
-
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
                     continue
@@ -382,7 +410,7 @@ class QualibrationNode(
                     )
 
         finally:
-            cls.modes.inspection = False
+            run_modes_ctx.reset(run_modes_token)
         return nodes
 
     @classmethod

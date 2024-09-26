@@ -6,4 +6,4 @@ __all__ = ["RunModes"]
 class RunModes(BaseModel):
     inspection: bool = False
     interactive: bool = False
-    external: bool = True
+    external: bool = False

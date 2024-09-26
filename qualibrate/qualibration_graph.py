@@ -30,7 +30,11 @@ from qualibrate.parameters import (
     GraphParameters,
     NodesParameters,
 )
-from qualibrate.q_runnnable import QRunnable, file_is_calibration_instance
+from qualibrate.q_runnnable import (
+    QRunnable,
+    file_is_calibration_instance,
+    run_modes_ctx,
+)
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger_m import logger
@@ -117,7 +121,12 @@ class QualibrationGraph(
     def scan_folder_for_instances(cls, path: Path) -> Dict[str, QGraphBaseType]:
         graphs: Dict[str, QGraphBaseType] = {}
         try:
-            cls.modes.inspection = True
+            if run_modes_ctx.get() is not None:
+                logger.error(
+                    "Run modes context is already set to %s",
+                    run_modes_ctx.get(),
+                )
+            run_modes_token = run_modes_ctx.set(RunModes(inspection=True))
 
             for file in sorted(path.iterdir()):
                 if not file_is_calibration_instance(file, cls.__name__):
@@ -131,7 +140,7 @@ class QualibrationGraph(
                         f"{file.name}.\nError message: {e}"
                     )
         finally:
-            cls.modes.inspection = False
+            run_modes_ctx.reset(run_modes_token)
         return graphs
 
     @classmethod
@@ -250,7 +259,9 @@ class QualibrationGraph(
         logger.debug(f"Graph run summary {self.run_summary}")
         return self.run_summary
 
-    def run(self, **passed_parameters: Any) -> BaseRunSummary:
+    def run(
+        self, **passed_parameters: Any
+    ) -> Tuple["QualibrationGraph", BaseRunSummary]:
         """
         :param passed_parameters: Graph parameters. Should contain `nodes` key.
         """
@@ -270,7 +281,7 @@ class QualibrationGraph(
             raise
         finally:
             run_summary = self._post_run(created_at, run_error)
-        return run_summary
+        return self, run_summary
 
     def _get_qnode_or_error(self, node_name: str) -> QualibrationNode:
         node = self._nodes.get(node_name)
