@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from contextvars import ContextVar
 from copy import copy
 from pathlib import Path
 from typing import (
@@ -7,11 +8,11 @@ from typing import (
     Generic,
     Mapping,
     Optional,
+    Tuple,
     Type,
     TypeVar,
     cast,
 )
-from contextvars import ContextVar
 
 from pydantic import create_model
 
@@ -19,8 +20,8 @@ from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.parameters import RunnableParameters
-from qualibrate.utils.type_protocols import TargetType
 from qualibrate.utils.logger_m import logger
+from qualibrate.utils.type_protocols import TargetType
 
 CreateParametersType = TypeVar("CreateParametersType", bound=RunnableParameters)
 RunParametersType = TypeVar("RunParametersType", bound=RunnableParameters)
@@ -131,7 +132,12 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         pass
 
     @abstractmethod
-    def run(self, **passed_parameters: Any) -> BaseRunSummary:
+    def run(
+        self, **passed_parameters: Any
+    ) -> Tuple[
+        "QRunnable[CreateParametersType, RunParametersType]",
+        BaseRunSummary,
+    ]:
         pass
 
     @property

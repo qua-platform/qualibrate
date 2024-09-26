@@ -149,9 +149,9 @@ class BasicOrchestrator(QualibrationOrchestrator):
                     )
                 )
             # Suppose that all nodes are successfully finish
-            nx_graph.nodes[node_to_run][
-                QualibrationGraph.STATUS_FIELD
-            ] = new_status
+            nx_graph.nodes[node_to_run][QualibrationGraph.STATUS_FIELD] = (
+                new_status
+            )
             if new_status == NodeStatus.successful:
                 for successor in successors[node_to_run]:
                     self._execution_queue.put(successor)

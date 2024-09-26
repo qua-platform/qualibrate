@@ -32,8 +32,8 @@ from qualibrate.parameters import (
 )
 from qualibrate.q_runnnable import (
     QRunnable,
-    run_modes_ctx,
     file_is_calibration_instance,
+    run_modes_ctx,
 )
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.exceptions import StopInspection
@@ -259,7 +259,9 @@ class QualibrationGraph(
         logger.debug(f"Graph run summary {self.run_summary}")
         return self.run_summary
 
-    def run(self, **passed_parameters: Any) -> BaseRunSummary:
+    def run(
+        self, **passed_parameters: Any
+    ) -> Tuple["QualibrationGraph", BaseRunSummary]:
         """
         :param passed_parameters: Graph parameters. Should contain `nodes` key.
         """
@@ -279,7 +281,7 @@ class QualibrationGraph(
             raise
         finally:
             run_summary = self._post_run(created_at, run_error)
-        return run_summary
+        return self, run_summary
 
     def _get_qnode_or_error(self, node_name: str) -> QualibrationNode:
         node = self._nodes.get(node_name)
