@@ -14,11 +14,13 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Type,
     cast,
 )
 
 import matplotlib
 from matplotlib.rcsetup import interactive_bk
+from pydantic import ValidationError
 
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
@@ -64,12 +66,16 @@ class QualibrationNode(
     def __init__(
         self,
         name: str,
-        parameters: NodeCreateParametersType,
+        parameters: Optional[NodeCreateParametersType] = None,
         description: Optional[str] = None,
         *,
+        parameters_class: Optional[Type[NodeCreateParametersType]] = None,
         modes: Optional[RunModes] = None,
     ):
         logger.info(f"Creating node {name}")
+        parameters = self.__class__._validate_passed_parameters_options(
+            name, parameters, parameters_class
+        )
         super(QualibrationNode, self).__init__(
             name,
             parameters,
@@ -93,6 +99,33 @@ class QualibrationNode(
         if external_parameters is not None:
             self.name = external_parameters[0]
             self._parameters = external_parameters[1]
+
+    @classmethod
+    def _validate_passed_parameters_options(
+        cls,
+        name: str,
+        parameters: Optional[NodeCreateParametersType],
+        parameters_class: Optional[Type[NodeCreateParametersType]],
+    ) -> NodeCreateParametersType:
+        if parameters is not None:
+            if parameters_class is not None:
+                logger.warning(
+                    "Passed both parameters and parameters_class to the node "
+                    f"'{name}'. Please use only parameters argument"
+                )
+            return parameters
+        if parameters_class is None:
+            return NodeCreateParametersType()
+        logger.warning(
+            "parameters_class argument is deprecated. Please use "
+            f"parameters argument for initializing node '{name}'."
+        )
+        try:
+            return parameters_class()
+        except ValidationError as e:
+            raise ValueError(
+                f"Can't instantiate parameters class of node '{name}'"
+            ) from e
 
     def __copy__(self) -> "QualibrationNode":
         modes = self.modes.model_copy(update={"inspection": False})
