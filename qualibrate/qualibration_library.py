@@ -44,8 +44,6 @@ class QualibrationLibrary:
         )
 
     def rescan(self) -> None:
-        self.nodes = {}
-        self.graphs = {}
         self._scan()
 
     @classmethod
