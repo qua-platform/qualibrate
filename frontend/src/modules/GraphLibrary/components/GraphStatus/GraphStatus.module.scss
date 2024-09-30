@@ -15,12 +15,21 @@
   width: 60%;
 }
 
-.upperContainer {
-  color: rgb(217 213 212);
-  min-width: 33%;
+.headingWrapper {
+  max-height: 10%;
 }
 
-.resultsContainer {
+.graphAndHistoryWrapper {
+  max-height: calc(90% - 20px);
+}
+
+.leftContainer {
+  color: rgb(217 213 212);
+  min-width: 33%;
+  max-height: calc(100% - 20px);
+}
+
+.rightContainer {
   display: flex;
   flex-direction: column;
   width: 50%;
