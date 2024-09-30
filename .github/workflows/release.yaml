@@ -21,6 +21,8 @@ jobs:
       - name: Create release notes
         run: |
           cat > notes.md <<- EOM
+          Individual release notes can be found in the respective packages.
+          
           Qualibrate App package version:$(ls qualibrate-wheels/qualibrate_app-* | cut -d'-' -f3)
           Qualibrate Runner package version:$(ls qualibrate-wheels/qualibrate_runner-* | cut -d'-' -f3)
           Qualibrate Core package version:$(ls qualibrate-wheels/qualibrate_core-* | cut -d'-' -f3)
