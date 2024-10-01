@@ -377,7 +377,7 @@ def _get_user_storage() -> Path:
 @click.option(
     "--runner-address",
     type=str,  # TODO: add type check for addr
-    default="http://localhost:8001/execution",
+    default="http://localhost:8001/execution/",
     show_default=True,
     help=(
         "Address of `qualibrate-runner` service. If the service is spawned by "
