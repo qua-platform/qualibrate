@@ -22,6 +22,15 @@
   justify-content: space-between;
 }
 
+.searchAndRefresh {
+  display: flex;
+  gap: 30px;
+}
+
+.buttonWrapper {
+  padding-top: 10px;
+}
+
 .listWrapper {
   flex-grow: 1;
   border: 2px solid var(--border-color);

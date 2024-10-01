@@ -38,6 +38,7 @@ interface IGraphContext {
   setWorkflowGraphElements: Dispatch<SetStateAction<ElementDefinition[] | undefined>>;
   lastRunInfo?: LastRunInfo;
   setLastRunInfo: Dispatch<SetStateAction<LastRunInfo | undefined>>;
+  fetchAllCalibrationGraphs: () => void;
 }
 
 const GraphContext = React.createContext<IGraphContext>({
@@ -58,6 +59,7 @@ const GraphContext = React.createContext<IGraphContext>({
 
   lastRunInfo: undefined,
   setLastRunInfo: noop,
+  fetchAllCalibrationGraphs: noop,
 });
 
 export const useGraphContext = () => useContext<IGraphContext>(GraphContext);
@@ -76,12 +78,12 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
       const lastRunResponseResult = lastRunResponse.result as StatusResponseType;
       if (lastRunResponseResult && lastRunResponseResult.status !== "error") {
         setLastRunInfo({
-          workflowName: (lastRunResponse.result as { name: string }).name,
+          workflowName: (lastRunResponse.result as { name: string })?.name,
           nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
         });
       } else {
         setLastRunInfo({
-          workflowName: (lastRunResponse.result as { name: string }).name,
+          workflowName: (lastRunResponse.result as { name: string })?.name,
           nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
           status: "error",
           errorMessage: JSON.stringify(lastRunResponse.error),
@@ -143,7 +145,6 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
     if (response.isOk) {
       const allFetchedGraphs = response.result! as GraphMap;
       const updatedGraphs = updateAllGraphs(allFetchedGraphs);
-
       setAllGraphs(updatedGraphs);
     } else if (response.error) {
       console.log(response.error);
@@ -212,6 +213,7 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
         setWorkflowGraphElements,
         lastRunInfo,
         setLastRunInfo,
+        fetchAllCalibrationGraphs,
       }}
     >
       {props.children}
