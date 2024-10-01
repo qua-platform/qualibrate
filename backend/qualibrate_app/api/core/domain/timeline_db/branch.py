@@ -65,7 +65,7 @@ class BranchTimelineDb(BranchBase):
                 raise QJsonDbException("Can't load latest snapshot of branch")
             return latest[1][0]
         res = request_with_db(
-            f"/branch/{self.name}/is_snapshot_belong",
+            f"branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
             host=self._settings.timeline_db.address,
             db_name=self._settings.qualibrate.project,
@@ -85,7 +85,7 @@ class BranchTimelineDb(BranchBase):
                 raise QJsonDbException("Can't load latest node of branch")
             return latest[1][0]
         res = request_with_db(
-            f"/branch/{self.name}/is_snapshot_belong",
+            f"branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
             host=self._settings.timeline_db.address,
             db_name=self._settings.qualibrate.project,

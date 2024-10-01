@@ -100,7 +100,7 @@ class RootTimelineDb(RootBase):
     ) -> Any:
         data_path_joined = ".".join(map(str, data_path))
         result = request_with_db(
-            f"/snapshot/{snapshot_id}/search/data/values",
+            f"snapshot/{snapshot_id}/search/data/values",
             params={"data_path": data_path_joined},
             db_name=self._settings.qualibrate.project,
             host=self._settings.timeline_db.address,

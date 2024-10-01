@@ -20,7 +20,7 @@ from qualibrate_app.config import (
 class ProjectsManagerTimelineDb(ProjectsManagerBase):
     def _check_db_project_exists(self, project_name: str) -> bool:
         response = request_with_db(
-            "/database/connect",
+            "database/connect",
             db_name=project_name,
             host=self._settings.timeline_db.address,
             timeout=self._settings.timeline_db.timeout,
@@ -56,7 +56,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         if any(project.name == project_name for project in self.list()):
             raise QValueException(f"Project {project_name} already exists.")
         response = request_with_db(
-            "/database/create",
+            "database/create",
             db_name=project_name,
             host=self._settings.timeline_db.address,
             timeout=self._settings.timeline_db.timeout,
@@ -75,7 +75,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
 
     def list(self) -> Sequence[Project]:
         response = requests.get(
-            urljoin(str(self._settings.timeline_db.address), "/database/list"),
+            urljoin(str(self._settings.timeline_db.address), "database/list"),
             timeout=self._settings.timeline_db.timeout,
         )
         if response.status_code != 200:
