@@ -18,6 +18,7 @@ from qualibrate_composite.config import (
     QualibrateSettings,
     get_config_file,
 )
+from qualibrate_composite.config.references.resolvers import resolve_references
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
@@ -292,13 +293,15 @@ def write_config(
     common_config = reorder_common_config_entries(common_config)
     if confirm:
         _confirm(config_file, common_config)
-    qapp_q_conf = common_config.get(QAPP_Q_CONFIG_KEY, {})
-    user_storage = qapp_q_conf.get("storage", {}).get("location")
-    project = qapp_q_conf.get("project")
-    if user_storage is not None:
+    storage = common_config.get(QAPP_Q_CONFIG_KEY, {}).get("storage", {})
+    if "location" in storage:
+        config_with_resolved_refs = resolve_references(common_config)
+        qapp_q_conf = config_with_resolved_refs[QAPP_Q_CONFIG_KEY]
+        user_storage = qapp_q_conf["storage"]["location"]
         user_storage_path = Path(user_storage)
         user_storage_path.mkdir(parents=True, exist_ok=True)
-        if project is not None:
+        project = qapp_q_conf.get("project")
+        if project is not None and project not in user_storage_path.parts:
             project_path = user_storage_path / project
             project_path.mkdir(parents=True, exist_ok=True)
     if not config_file.parent.exists():

@@ -1,55 +1,19 @@
-import os
 import sys
-from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Any, ClassVar, Optional, Union
+from typing import Any, Optional, Union
 
-from fastapi import Depends
-from pydantic import HttpUrl, field_serializer
-from pydantic_core.core_schema import FieldSerializationInfo
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from qualibrate_app.config.references.resolvers import resolve_references
+
+from qualibrate_composite.config.vars import (
+    DEFAULT_CONFIG_FILENAME,
+    DEFAULT_QUALIBRATE_CONFIG_FILENAME,
+    QUALIBRATE_PATH,
+)
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
-
-CONFIG_KEY = "qualibrate_composite"
-QUALIBRATE_PATH = Path().home() / ".qualibrate"
-DEFAULT_CONFIG_FILENAME = "config.toml"
-DEFAULT_QUALIBRATE_CONFIG_FILENAME = "qualibrate.toml"
-CONFIG_PATH_ENV_NAME = "QUALIBRATE_COMPOSITE_CONFIG_FILE"
-
-
-class RemoteServiceBase(BaseSettings):
-    spawn: bool
-    address: HttpUrl
-    timeout: float
-
-    @field_serializer("address")
-    def serialize_http_url(
-        self, url: HttpUrl, _info: FieldSerializationInfo
-    ) -> str:
-        return str(url)
-
-
-class QualibrateApp(BaseSettings):
-    spawn: bool
-
-
-class QualibrateRunner(RemoteServiceBase):
-    pass
-
-
-class QualibrateSettings(BaseSettings):
-    model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
-        extra="ignore",
-    )
-    password: Optional[str] = None
-
-    app: QualibrateApp
-    runner: QualibrateRunner
 
 
 def _get_config_file_from_dir(
@@ -90,16 +54,3 @@ def read_config_file(
     if not solve_references:
         return config
     return resolve_references(config)  # type: ignore
-
-
-@lru_cache
-def get_config_path() -> Path:
-    return get_config_file(os.environ.get(CONFIG_PATH_ENV_NAME))
-
-
-@lru_cache
-def get_settings(
-    config_path: Annotated[Path, Depends(get_config_path)],
-) -> QualibrateSettings:
-    config = read_config_file(config_path, solve_references=True)
-    return QualibrateSettings(**(config.get(CONFIG_KEY, {})))
