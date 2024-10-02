@@ -31,7 +31,7 @@ class RootTimelineDb(RootBase):
             "snapshot/n_latest",
             params={"page": page, "per_page": per_page, "reverse": reverse},
             db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             timeout=self._settings.timeline_db.timeout,
         )
         if result.status_code != 200:
@@ -103,7 +103,7 @@ class RootTimelineDb(RootBase):
             f"snapshot/{snapshot_id}/search/data/values",
             params={"data_path": data_path_joined},
             db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             timeout=self._settings.timeline_db.timeout,
         )
         if result.status_code != 200:

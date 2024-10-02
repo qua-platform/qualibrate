@@ -22,7 +22,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         response = request_with_db(
             "database/connect",
             db_name=project_name,
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             timeout=self._settings.timeline_db.timeout,
         )
         return response.status_code == 200 and response.json() is True
@@ -58,7 +58,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         response = request_with_db(
             "database/create",
             db_name=project_name,
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             timeout=self._settings.timeline_db.timeout,
             method=requests.post,
         )
@@ -75,7 +75,9 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
 
     def list(self) -> Sequence[Project]:
         response = requests.get(
-            urljoin(str(self._settings.timeline_db.address), "database/list"),
+            urljoin(
+                self._settings.timeline_db.address_with_root, "database/list"
+            ),
             timeout=self._settings.timeline_db.timeout,
         )
         if response.status_code != 200:

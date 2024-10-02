@@ -125,7 +125,9 @@ def update_entity(
     if updated:
         try:
             requests.post(
-                urljoin(str(settings.runner.address), "record_state_update"),
+                urljoin(
+                    settings.runner.address_with_root, "record_state_update"
+                ),
                 params={"key": data_path},
                 cookies=cookies,
                 timeout=settings.runner.timeout,
