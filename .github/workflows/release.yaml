@@ -35,4 +35,4 @@ jobs:
           --notes-file notes.md
           --verify-tag --latest
           --draft
-          "dist/qualibrate_core-${GITHUB_REF_NAME#v}.tar.gz"
+          "dist/qualibrate-${GITHUB_REF_NAME#v}.tar.gz"
