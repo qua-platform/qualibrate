@@ -7,10 +7,10 @@ readme = "README.md"
 packages = [{ include = "qualibrate" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 pydantic = "^2.7.3"
 qualang_tools = { version = ">0.17.4", python = ">=3.8,<3.12" }
-networkx = "3.1"                                                # max available version with python 3.8 support
+networkx = "~3.2.0"                                                # max available version with python 3.8 support
 jsonpointer = "^3.0.0"
 
 
@@ -45,7 +45,6 @@ module = [
     "qualibrate_app.*",
     "qualibrate_runner.*",
     "jsonpointer",
-    "networkx",
 ]
 ignore_missing_imports = true
 
