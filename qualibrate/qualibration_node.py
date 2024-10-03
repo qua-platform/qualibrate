@@ -202,18 +202,19 @@ class QualibrationNode(
 
     def _post_run(
         self,
+        last_executed_node: "QualibrationNode",
         created_at: datetime,
         initial_targets: Sequence[TargetType],
         parameters: NodeParameters,
         run_error: Optional[RunError],
     ) -> NodeRunSummary:
-        outcomes = self.outcomes
+        outcomes = last_executed_node.outcomes
         if self.parameters is not None and (targets := self.parameters.targets):
             lost_targets_outcomes = set(targets) - set(outcomes.keys())
             outcomes.update(
                 {target: Outcome.SUCCESSFUL for target in lost_targets_outcomes}
             )
-        self.outcomes = {
+        self.outcomes = last_executed_node.outcomes = {
             name: Outcome(outcome) for name, outcome in outcomes.items()
         }
         self.run_summary = NodeRunSummary(
@@ -284,14 +285,20 @@ class QualibrationNode(
         finally:
             run_modes_ctx.reset(run_modes_token)
             external_parameters_ctx.reset(external_parameters_token)
-            run_summary = self._post_run(
-                created_at, initial_targets, parameters, run_error
-            )
+            last_executed_node = last_executed_node_ctx.get()
+            if last_executed_node is None:
+                logger.warning(
+                    f"Last executed node not set after running {self}"
+                )
+                last_executed_node = self
 
-        last_executed_node = last_executed_node_ctx.get()
-        if last_executed_node is None:
-            logger.warning(f"Last executed node not set after running {self}")
-            last_executed_node = self
+            run_summary = self._post_run(
+                last_executed_node,
+                created_at,
+                initial_targets,
+                parameters,
+                run_error,
+            )
 
         return last_executed_node, run_summary
 

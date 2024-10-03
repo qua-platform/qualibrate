@@ -25,7 +25,7 @@ def test_node_outcomes():
             nodes,
         )
         node = nodes["node_part_outcome"]
-        node.run()
+        node, _summary = node.run()
         assert node.outcomes == {
             "q0": Outcome.SUCCESSFUL,
             "q1": Outcome.FAILED,

@@ -1,8 +1,11 @@
+from typing import ClassVar
+
 from qualibrate import NodeParameters, QualibrationNode
 from qualibrate.models.outcome import Outcome
 
 
 class Parameters(NodeParameters):
+    targets_name: ClassVar[str] = "qubits"
     qubits: list[str] = ["q0", "q1", "q2"]
 
 
