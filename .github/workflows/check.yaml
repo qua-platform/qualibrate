@@ -1,0 +1,37 @@
+# This workflow is used for automatically running checks on adding commit to 
+# pull requests. This workflow triggers poe (poethepoet) commands: type, lint, 
+# format. The commands are defined in pyproject.toml.
+
+name: Format; lint; type; tests
+on:
+  pull_request
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: "poetry"
+          cache-dependency-path: poetry.lock
+
+      - name: Install python deps
+        run: poetry install --with dev --with test
+
+      - name: Check python package typing
+        run: poetry run poe type
+
+      - name: Lint python package
+        run: poetry run poe lint
+
+      - name: Check format python package
+        run: poetry run poe format
+
+      - name: Run tests
+        run: poetry run pytest
