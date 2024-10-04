@@ -18,6 +18,7 @@ types-networkx = "~3.2.1.20240918"
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2.2"
 pytest-mock = "^3.14.0"
+quam = {git = "https://github.com/qua-platform/quam"}
 
 
 [tool.poetry.group.dev.dependencies]
