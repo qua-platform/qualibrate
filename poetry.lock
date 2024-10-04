@@ -1535,13 +1535,13 @@ six = ">=1.5"
 
 [[package]]
 name = "qm-octave"
-version = "2.1.2"
+version = "2.1.0"
 description = "SDK to control an Octave with QUA"
 optional = false
-python-versions = "<3.12,>=3.7"
+python-versions = ">=3.7,<3.12"
 files = [
-    {file = "qm_octave-2.1.2-py3-none-any.whl", hash = "sha256:6db47481d6cf58c0f0b0a20f5eaabe5a0460e02b8f8a21c58d291fb2936cb640"},
-    {file = "qm_octave-2.1.2.tar.gz", hash = "sha256:de1fa37d8dfcdbf1db356a38df4919ba605cca1b10c69a798d578270d2961e73"},
+    {file = "qm_octave-2.1.0-py3-none-any.whl", hash = "sha256:b909596fbbb183af3555cd737fa12ffb899afef0c3f804762e0aedd29abd9838"},
+    {file = "qm_octave-2.1.0.tar.gz", hash = "sha256:ca142a6656a0e1cd83ecbb8a2050096274468656a724ad041db6178c28864bfe"},
 ]
 
 [package.dependencies]
@@ -1558,13 +1558,13 @@ protobuf = [
 
 [[package]]
 name = "qm-qua"
-version = "1.2.1a2"
+version = "1.1.7"
 description = "QUA language SDK to control a Quantum Computer"
 optional = false
-python-versions = "<3.12,>=3.8"
+python-versions = ">=3.8,<3.12"
 files = [
-    {file = "qm_qua-1.2.1a2-py3-none-any.whl", hash = "sha256:beda54fbaafb5a7392ca0e03c1b701dc3c3cea2ff6775788934f755dbc21c8d6"},
-    {file = "qm_qua-1.2.1a2.tar.gz", hash = "sha256:d9819c63b1d3a42a5ecfd0dc49364731d483b6ba56866112a8840e4f07dbfdf1"},
+    {file = "qm_qua-1.1.7-py3-none-any.whl", hash = "sha256:6466d8925478c615fb41c10d92661f9a514f77ed6ce93d7b8385e07d87d43aa4"},
+    {file = "qm_qua-1.1.7.tar.gz", hash = "sha256:ef1d586a439116ef3da2b153be850969c15ee29a3d3a53abce869a73ab8706db"},
 ]
 
 [package.dependencies]
@@ -1580,13 +1580,13 @@ grpcio = [
     {version = ">=1.39.0,<2.0.0", markers = "python_version >= \"3.8\" and python_version < \"3.11\""},
 ]
 grpclib = {version = ">=0.4.5,<0.5.0", markers = "python_version >= \"3.10\""}
-httpx = {version = ">=0.23.3,<1", extras = ["http2"]}
+httpx = {version = ">=0.23.3,<0.24.0", extras = ["http2"]}
 marshmallow = ">=3.20.1,<4.0.0"
 marshmallow-polyfield = ">=5.7,<6.0"
 numpy = ">=1.17.0,<2.0.0"
 plotly = ">=5.13.0,<6.0.0"
 protobuf = ">=3.17.3,<5"
-qm-octave = "2.1.2"
+qm-octave = "2.1.0"
 tinydb = ">=4.6.1,<5.0.0"
 typing-extensions = ">=4.5,<5.0"
 
@@ -1619,7 +1619,7 @@ interplot = ["dill (>=0.3.4,<0.4.0)", "ipython (>=7.31.1,<8.0.0)", "pypiwin32 (>
 
 [[package]]
 name = "quam"
-version = "0.3.3"
+version = "0.3.4"
 description = "Quantum Abstract Machine (QuAM) facilitates development of abstraction layers in experiments."
 optional = false
 python-versions = ">=3.8"
@@ -1633,14 +1633,15 @@ qualang-tools = ">=0.15.0"
 typeguard = ">=4.1.0"
 
 [package.extras]
+build = ["build (>=1.2.1)", "setuptools (>=71)", "setuptools-scm (>=8.1.0)"]
 dev = ["black (>=23.7.0)", "flake8 (>=5.0.1)", "ipykernel (>=6.24.0)", "pyproject-flake8 (>=5.0.0)", "pytest (>=7.1.2)", "pytest-cov (>=4.1.0)", "pytest-mock (>=3.6.1)"]
 docs = ["mkdocs-gen-files", "mkdocs-jupyter", "mkdocstrings[python] (>=0.18)"]
 
 [package.source]
 type = "git"
 url = "https://github.com/qua-platform/quam"
-reference = "HEAD"
-resolved_reference = "4d7435e4cb169ee785da9ba6ae8eb8848997c805"
+reference = "v0.3.4-beta"
+resolved_reference = "261a23cd2a64734217200edbc8f22e5908531df4"
 
 [[package]]
 name = "rfc3986"
@@ -1771,6 +1772,26 @@ numpy = ">=1.22.4,<2.3"
 dev = ["cython-lint (>=0.12.2)", "doit (>=0.36.0)", "mypy", "pycodestyle", "pydevtool", "rich-click", "ruff", "types-psutil", "typing_extensions"]
 doc = ["jupyterlite-pyodide-kernel", "jupyterlite-sphinx (>=0.12.0)", "jupytext", "matplotlib (>=3.5)", "myst-nb", "numpydoc", "pooch", "pydata-sphinx-theme (>=0.15.2)", "sphinx (>=5.0.0)", "sphinx-design (>=0.4.0)"]
 test = ["array-api-strict", "asv", "gmpy2", "hypothesis (>=6.30)", "mpmath", "pooch", "pytest", "pytest-cov", "pytest-timeout", "pytest-xdist", "scikit-umfpack", "threadpoolctl"]
+
+[[package]]
+name = "setuptools"
+version = "75.1.0"
+description = "Easily download, build, install, upgrade, and uninstall Python packages"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "setuptools-75.1.0-py3-none-any.whl", hash = "sha256:35ab7fd3bcd95e6b7fd704e4a1539513edad446c097797f2985e0e4b960772f2"},
+    {file = "setuptools-75.1.0.tar.gz", hash = "sha256:d59a21b17a275fb872a9c3dae73963160ae079f1049ed956880cd7c09b120538"},
+]
+
+[package.extras]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)", "ruff (>=0.5.2)"]
+core = ["importlib-metadata (>=6)", "importlib-resources (>=5.10.2)", "jaraco.collections", "jaraco.functools", "jaraco.text (>=3.7)", "more-itertools", "more-itertools (>=8.8)", "packaging", "packaging (>=24)", "platformdirs (>=2.6.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
+cover = ["pytest-cov"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier", "towncrier (<24.7)"]
+enabler = ["pytest-enabler (>=2.2)"]
+test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
+type = ["importlib-metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (==1.11.*)", "pytest-mypy"]
 
 [[package]]
 name = "six"
@@ -1925,4 +1946,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "3cdb0d693a449008e60f825fba235b6fa2520a7c2c785042ade678f266f947c4"
+content-hash = "42ce9e72fc74207ae7df72af23ae8c299a486911afa4977d293f79816c2b8896"
