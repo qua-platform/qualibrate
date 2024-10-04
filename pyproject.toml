@@ -44,6 +44,8 @@ module = [
     "qualang_tools.*",
     "quam.*",
     "jsonpointer",
+    "qualibrate_app.config",
+    "qualibrate_runner.config"
 ]
 ignore_missing_imports = true
 
