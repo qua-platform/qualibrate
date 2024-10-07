@@ -19,14 +19,35 @@ __all__ = ["BasicOrchestrator"]
 
 
 class BasicOrchestrator(QualibrationOrchestrator):
+    """
+    A basic orchestrator that manages the execution of nodes in a graph.
+    This orchestrator firstly run nodes without predecessors. And then just
+    walk through directed graph for resolving nodes that can be executed
+    (all predecessors are completed).
+
+    Args:
+        skip_failed (bool): If True, skip failed nodes and continue execution.
+
+    """
+
     def __init__(self, skip_failed: bool = False):
+        """
+        Initializes a new instance of the BasicOrchestrator.
+
+        """
         super().__init__(skip_failed=skip_failed)
         self._execution_queue: Queue[QualibrationNode] = Queue()
 
     def _is_execution_finished(self) -> bool:
+        """
+        Checks whether the execution is finished.
+
+        Returns:
+            bool: True if the execution is finished, False otherwise.
+        """
         if self._graph is None:
             return True
-        if self._execution_queue.qsize() == 0:  # finished if queue is empty
+        if self._execution_queue.qsize() == 0:
             return True
         return all(
             map(
@@ -38,17 +59,40 @@ class BasicOrchestrator(QualibrationOrchestrator):
         )
 
     def cleanup(self) -> None:
+        """
+        Cleans up the orchestrator state.
+
+        Clears the execution queue and calls the parent cleanup method.
+        """
         super().cleanup()
         with self._execution_queue.mutex:
             self._execution_queue.queue.clear()
 
     @property
     def nx_graph(self) -> nx.DiGraph[QualibrationNode]:
+        """
+        Gets the networkx representation of the graph.
+
+        Returns:
+            nx.DiGraph[QualibrationNode]: The directed graph.
+
+        Raises:
+            ValueError: If the graph is not specified.
+        """
         if self._graph is None:
             raise ValueError("Graph is not specified")
         return self._graph._graph
 
     def check_node_successful(self, node: QualibrationNode) -> bool:
+        """
+        Checks if a node was successfully executed.
+
+        Args:
+            node (QualibrationNode): The node to check.
+
+        Returns:
+            bool: True if the node is successful, False otherwise.
+        """
         if self._graph is None:
             return False
         return bool(
@@ -57,6 +101,13 @@ class BasicOrchestrator(QualibrationOrchestrator):
         )
 
     def get_next_node(self) -> Optional[QualibrationNode]:
+        """
+        Gets the next node to execute.
+
+        Returns:
+            Optional[QualibrationNode]:
+                The next node to execute, or None if not found.
+        """
         while not self._execution_queue.empty():
             node_to_run = self._execution_queue.get()
             if all(
@@ -68,6 +119,17 @@ class BasicOrchestrator(QualibrationOrchestrator):
     def traverse_graph(
         self, graph: QualibrationGraph, targets: Sequence[Any]
     ) -> None:
+        """
+        Traverses the graph and orchestrates node execution.
+
+        Args:
+            graph (QualibrationGraph): The graph to traverse.
+            targets (Sequence[Any]): The target nodes to execute.
+
+        Raises:
+            RuntimeError:
+                If graph parameters are not specified or no next node is found.
+        """
         logger.info(f"Traverse graph {graph.name} with targets {targets}")
         if self._is_stopped:
             return

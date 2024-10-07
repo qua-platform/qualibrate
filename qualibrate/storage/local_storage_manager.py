@@ -12,6 +12,20 @@ if TYPE_CHECKING:
 
 
 class LocalStorageManager(StorageManager):
+    """
+    Manages local storage of calibration nodes and their machine states.
+
+    The `LocalStorageManager` class is responsible for saving the state of
+    `QualibrationNode` instances to a local file system. It extends the
+    `StorageManager` abstract base class, providing a concrete implementation
+    that uses a specified root folder for data storage.
+
+    Args:
+        root_data_folder (Path): The root folder where data should be saved.
+        active_machine_path (Optional[Path]): Optional path for saving the
+            current active machine state.
+    """
+
     machine_content_mapping = {"wiring.json": {"wiring", "network"}}
 
     def __init__(
@@ -23,6 +37,27 @@ class LocalStorageManager(StorageManager):
         self.snapshot_idx = None
 
     def save(self, node: "QualibrationNode") -> None:
+        """
+        Saves the state of the specified node to local storage.
+
+        This method saves the results of the node to the root data folder.
+        It also saves the machine state, either as a JSON file or as a folder
+        with specific content mappings, depending on the structure of the
+        machine. Optionally, it can also save the active machine state to a
+        specified path.
+
+        Args:
+            node (QualibrationNode): The node whose state needs to be saved.
+
+        Side Effects:
+            - Saves the node's results and machine state in the root data
+                folder.
+            - Updates the `snapshot_idx` to reflect the newly saved node state.
+            - Optionally saves the machine state to the active path if specified.
+
+        Raises:
+            AssertionError: If `self.data_handler.path` is not of type `Path`.
+        """
         logger.info(f"Saving node {node.name} to local storage")
 
         # Save results

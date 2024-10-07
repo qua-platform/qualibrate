@@ -41,7 +41,15 @@ run_modes_ctx: ContextVar[Optional[RunModes]] = ContextVar(
 
 
 class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
-    modes = RunModes()
+    """
+    Abstract base class representing a runnable task.
+
+    Args:
+        name (str): The name of the runnable.
+        parameters (CreateParametersType): Parameters to initialize the runnable.
+        description (Optional[str]): Description of the runnable.
+        modes (Optional[RunModes]): Optional run modes for the runnable.
+    """
 
     def __init__(
         self,
@@ -68,12 +76,26 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self.run_summary: Optional[BaseRunSummary] = None
 
     def cleanup(self) -> None:
+        """
+        Cleans up the state of the runnable.
+
+        Sets `run_summary` to None.
+        """
         self.run_summary = None
 
     @staticmethod
     def build_parameters_class_from_instance(
         parameters: CreateParametersType,
     ) -> Type[CreateParametersType]:
+        """
+        Builds a parameter class from a given instance.
+
+        Args:
+            parameters (CreateParametersType): The parameters instance.
+
+        Returns:
+            Type[CreateParametersType]: A new parameter class type.
+        """
         fields = {
             name: copy(field) for name, field in parameters.model_fields.items()
         }
@@ -91,11 +113,17 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
 
     @classmethod
     def get_run_modes(cls, modes: Optional[RunModes] = None) -> RunModes:
-        """Determines the run modes for the QRunnable.
-
+        """
+        Determines the run modes for the QRunnable.
         If modes are provided, they are returned.
         If no modes are provided, the context run modes are returned.
         If no context run modes are provided, the default run modes are returned.
+
+        Args:
+            modes (Optional[RunModes]): Run modes, if provided.
+
+        Returns:
+            RunModes: The resolved run modes.
         """
         if modes is not None:
             return modes
@@ -110,6 +138,15 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             return RunModes()
 
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
+        """
+        Serializes the runnable into a dictionary representation.
+
+        Args:
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+            Mapping[str, Any]: Serialized dictionary representation.
+        """
         return {
             "name": self.name,
             "parameters": self.parameters_class.serialize(),
@@ -118,10 +155,25 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
 
     @property
     def state_updates(self) -> Mapping[str, Any]:
+        """
+        Gets the state updates of the runnable.
+
+        Returns:
+            Mapping[str, Any]: A dictionary of state updates.
+        """
         return self._state_updates
 
     @abstractmethod
     def stop(self, **kwargs: Any) -> bool:
+        """
+        Stops the runnable.
+
+        Args:
+            **kwargs (Any): Additional arguments.
+
+        Returns:
+            bool: True if stopped successfully, False otherwise.
+        """
         pass
 
     @classmethod
@@ -129,6 +181,15 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
     def scan_folder_for_instances(
         cls, path: Path
     ) -> Dict[str, "QRunnable[CreateParametersType, RunParametersType]"]:
+        """
+        Scans a folder for runnable instances.
+
+        Args:
+            path (Path): The folder path to scan.
+
+        Returns:
+            Dict[str, QRunnable]: A dictionary of runnable instances.
+        """
         pass
 
     @abstractmethod
@@ -138,14 +199,37 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         "QRunnable[CreateParametersType, RunParametersType]",
         BaseRunSummary,
     ]:
+        """
+        Runs the runnable with the provided parameters.
+
+        Args:
+            **passed_parameters (Any): Parameters to run the runnable.
+
+        Returns:
+            Tuple[QRunnable, BaseRunSummary]: The executed runnable and summary.
+        """
         pass
 
     @property
     def parameters(self) -> CreateParametersType:
+        """
+        Gets the parameters of the runnable.
+
+        Returns:
+            CreateParametersType: The parameters instance.
+        """
         return self._parameters
 
     @parameters.setter
     def parameters(self, new_parameters: CreateParametersType) -> None:
+        """
+        Sets new parameters for the runnable.
+        If external mode is enabled and parameters already specified that new
+        parameters won't be assigned.
+
+        Args:
+            new_parameters (CreateParametersType): New parameters to set.
+        """
         if self.modes.external and self._parameters is not None:
             return
         self._parameters.model_validate(new_parameters.model_dump())

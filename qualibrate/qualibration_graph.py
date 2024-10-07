@@ -59,6 +59,32 @@ _OrchestratorGraphType = Union[
 class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType]
 ):
+    """
+    Represents a graph of nodes for calibration purposes.
+
+    The `QualibrationGraph` class manages a directed graph composed of nodes
+    (`QualibrationNode`) and containing reference to orchestrator for executing
+    the entire graph. It supports defining connectivity, creating parameters for
+    execution, and serializing the graph's state.
+
+    Args:
+        name (str): Name of the graph.
+        parameters (GraphCreateParametersType): Parameters for creating the
+            graph.
+        nodes (Mapping[str, QualibrationNode]): A mapping of node names to
+            nodes.
+        connectivity (Sequence[Tuple[str, str]]): Adjacency list representing
+            node connectivity as pairs of node names.
+        orchestrator (Optional[QualibrationOrchestrator]): Orchestrator for the
+            graph. Defaults to None.
+        description (Optional[str]): Description of the graph. Defaults to None.
+        modes (Optional[RunModes]): Modes to configure the graph behavior.
+            Defaults to None.
+
+    Raises:
+        StopInspection: If the graph is instantiated in inspection mode.
+    """
+
     STATUS_FIELD = "status"
     _node_init_args = {STATUS_FIELD: NodeStatus.pending, "retries": 0}
 
@@ -73,12 +99,6 @@ class QualibrationGraph(
         *,
         modes: Optional[RunModes] = None,
     ):
-        """
-        :param name: graph name
-        :param parameters: parameters
-        :param connectivity: Adjacency list.
-            Format: `{"name_1": ["name_2", "name_3"], "name_2": ["name_3"]}`
-        """
         super().__init__(name, parameters, description=description, modes=modes)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
@@ -106,6 +126,20 @@ class QualibrationGraph(
     def _validate_nodes_names_mapping(
         nodes: Mapping[str, QualibrationNode],
     ) -> Mapping[str, QualibrationNode]:
+        """
+        Validates the mapping of nodes and ensures unique names.
+
+        If the provided node names do not match the actual node names, a copy
+        of the node is created with the correct name.
+
+        Args:
+            nodes (Mapping[str, QualibrationNode]): Mapping of node names to
+                nodes.
+
+        Returns:
+            Mapping[str, QualibrationNode]: A valid mapping of node names to
+                nodes.
+        """
         new_nodes = {}
         for name, node in nodes.items():
             if name != node.name:
@@ -119,6 +153,19 @@ class QualibrationGraph(
     # TODO: logic commonly same with node so need to move to
     @classmethod
     def scan_folder_for_instances(cls, path: Path) -> Dict[str, QGraphBaseType]:
+        """
+        Scans a folder for graph instances and returns them.
+
+        This method scans the specified folder for graph files that represent
+        valid instances of `QualibrationGraph`.
+
+        Args:
+            path (Path): The folder to scan for graph files.
+
+        Returns:
+            Dict[str, QGraphBaseType]: A dictionary of graph names to their
+                corresponding instances.
+        """
         graphs: Dict[str, QGraphBaseType] = {}
         try:
             if run_modes_ctx.get() is not None:
@@ -147,6 +194,20 @@ class QualibrationGraph(
     def scan_graph_file(
         cls, file: Path, graphs: Dict[str, QGraphBaseType]
     ) -> None:
+        """
+        Scans a graph file and adds its instance to the given dictionary.
+
+        This method inspects the content of a given graph file and adds a valid
+        `QualibrationGraph` to the provided dictionary.
+
+        Args:
+            file (Path): The file to scan for a graph.
+            graphs (Dict[str, QGraphBaseType]): The dictionary to add valid
+                graphs to.
+
+        Raises:
+            StopInspection: Used to stop execution once inspection completes.
+        """
         logger.info(f"Scanning graph file {file}")
         try:
             # TODO Think of a safer way to execute the code
@@ -163,6 +224,17 @@ class QualibrationGraph(
         graph: "QualibrationGraph",
         graphs: Dict[str, QGraphBaseType],
     ) -> None:
+        """
+        Adds a graph to the library dictionary.
+
+        If a graph with the same name already exists, it overwrites it with
+        a warning.
+
+        Args:
+            graph (QualibrationGraph): The graph to add.
+            graphs (Dict[str, QGraphBaseType]): The dictionary to store the
+                graph.
+        """
         if graph.name in graphs:
             logger.warning(
                 f'Graph "{graph.name}" already exists in library, overwriting'
@@ -171,6 +243,12 @@ class QualibrationGraph(
         graphs[graph.name] = graph
 
     def cleanup(self) -> None:
+        """
+        Cleans up the graph and resets nodes to their initial states.
+
+        This method is used to clear any progress made during execution by
+        resetting nodes to their initial states.
+        """
         super().cleanup()
         nx.set_node_attributes(
             self._graph,
@@ -180,6 +258,15 @@ class QualibrationGraph(
             self._orchestrator.cleanup()
 
     def completed_count(self) -> int:
+        """
+        Returns the count of completed nodes in the graph.
+
+        This method calculates how many nodes in the graph have been completed
+        (i.e., they are no longer pending).
+
+        Returns:
+            int: The count of nodes that have been completed.
+        """
         return int(
             sum(
                 map(
@@ -194,6 +281,20 @@ class QualibrationGraph(
     def _get_all_nodes_parameters(
         self, nodes_parameters: Mapping[str, Any]
     ) -> Mapping[str, Any]:
+        """
+        Retrieves parameters for all nodes, providing defaults if unspecified.
+
+        This method extracts the parameters for each node in the graph.
+        If parameters are missing for any node, it assigns default values.
+
+        Args:
+            nodes_parameters (Mapping[str, Any]): Dictionary containing
+                parameters for nodes, keyed by node names.
+
+        Returns:
+            Mapping[str, Any]: A dictionary containing parameters for all nodes,
+            ensuring that each node has a corresponding entry.
+        """
         nodes_class = self.full_parameters_class.model_fields[
             "nodes"
         ].annotation
@@ -203,6 +304,20 @@ class QualibrationGraph(
         }
 
     def _orchestrator_or_error(self) -> "QualibrationOrchestrator":
+        """
+        Retrieves the orchestrator for the graph or raises an error if missing.
+
+        This method returns the orchestrator associated with the graph.
+        If no orchestrator is specified, it raises an error indicating
+        that an orchestrator is required for execution.
+
+        Returns:
+            QualibrationOrchestrator: The orchestrator used to manage graph
+                execution.
+
+        Raises:
+            ValueError: If no orchestrator is specified for the graph.
+        """
         if self._orchestrator is None:
             ex = ValueError("Orchestrator not specified")
             logger.exception("", exc_info=ex)
@@ -210,6 +325,16 @@ class QualibrationGraph(
         return self._orchestrator
 
     def _run(self, **passed_parameters: Any) -> None:
+        """
+        Runs the graph by traversing nodes using the orchestrator.
+
+        This method performs the actual execution of the graph by validating
+        the passed parameters and invoking the orchestrator to traverse through
+        the graph.
+
+        Args:
+            **passed_parameters (Any): Parameters passed for graph execution.
+        """
         orchestrator = self._orchestrator_or_error()
         self.cleanup()
         nodes = self._get_all_nodes_parameters(
@@ -234,6 +359,22 @@ class QualibrationGraph(
         created_at: datetime,
         run_error: Optional[RunError],
     ) -> GraphRunSummary:
+        """
+        Finalizes the graph execution and generates a summary.
+
+        This method updates the outcomes of the graph, creates a summary
+        with information about the execution, including successful and failed
+        targets, and logs the summary.
+
+        Args:
+            created_at (datetime): Timestamp when the graph run was started.
+            run_error (Optional[RunError]): Details of any error encountered
+                during execution.
+
+        Returns:
+            GraphRunSummary: A summary object containing details about the
+                graph run.
+        """
         self.outcomes = self._orchestrator_or_error().final_outcomes
         self.run_summary = GraphRunSummary(
             name=self.name,
@@ -263,7 +404,21 @@ class QualibrationGraph(
         self, **passed_parameters: Any
     ) -> Tuple["QualibrationGraph", BaseRunSummary]:
         """
-        :param passed_parameters: Graph parameters. Should contain `nodes` key.
+        Runs the graph using the given parameters.
+
+        This method orchestrates the execution of all nodes in the graph,
+        following the specified connectivity and using the provided parameters.
+
+        Args:
+            **passed_parameters (Any): Graph parameters to use for the
+                execution. Should include the `nodes` key.
+
+        Returns:
+            Tuple[QualibrationGraph, BaseRunSummary]: The graph and a summary of
+            the execution, including outcomes and other details.
+
+        Raises:
+            RunError: If any error occurs during graph execution.
         """
         logger.info(
             f"Run graph {self.name} with parameters: {passed_parameters}"
@@ -284,18 +439,57 @@ class QualibrationGraph(
         return self, run_summary
 
     def _get_qnode_or_error(self, node_name: str) -> QualibrationNode:
+        """
+        Retrieves a node by name or raises an error if the node is not found.
+
+        This method fetches a node from the graph using the given name.
+        If the node is not found in the graph, an error is raised.
+
+        Args:
+            node_name (str): The name of the node to retrieve.
+
+        Returns:
+            QualibrationNode: The node associated with the given name.
+
+        Raises:
+            ValueError: If no node with the specified name exists.
+        """
         node = self._nodes.get(node_name)
         if node is None:
             raise ValueError(f"Unknown node with name {node_name}")
         return node
 
     def _add_node_by_name(self, node_name: str) -> QualibrationNode:
+        """
+        Adds a node to the graph by name, if not already present.
+
+        This method adds the node identified by `node_name` to the graph,
+        including initializing it with default attributes.
+
+        Args:
+            node_name (str): The name of the node to add.
+
+        Returns:
+            QualibrationNode: The node that was added or already exists in the
+                graph.
+        """
         node = self._get_qnode_or_error(node_name)
         if node not in self._graph:
             self._graph.add_node(node, **self.__class__._node_init_args)
         return node
 
     def _build_parameters_class(self) -> Type[GraphRunParametersType]:
+        """
+        Builds a class for the parameters used in running the graph.
+
+        This method dynamically creates a model class that combines the
+        parameters for the graph itself and its nodes, to be used during the
+        graph's execution.
+
+        Returns:
+            Type[GraphRunParametersType]: The parameter class to be used for
+                execution.
+        """
         nodes_parameters_class = create_model(
             "GraphNodesParameters",
             __base__=NodesParameters,
@@ -313,6 +507,21 @@ class QualibrationGraph(
         return execution_parameters_class
 
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
+        """
+        Serializes the graph into a dictionary format.
+
+        This method provides a JSON-serializable representation of the graph,
+        including nodes, parameters, connectivity, orchestrator.
+
+        Args:
+            **kwargs (Any): Additional arguments for serialization.
+
+        Keyword Args:
+            cytoscape (bool): Is it needed to include cytoscape information.
+                Defaults to `False`.
+        Returns:
+            Mapping[str, Any]: Serialized representation of the graph.
+        """
         data = dict(super().serialize())
         cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters_class.serialize()
@@ -352,6 +561,17 @@ class QualibrationGraph(
     def nx_graph_export(
         self, node_names_only: bool = False
     ) -> Mapping[str, Any]:
+        """
+        Exports the graph as a networkx adjacency list.
+
+        Args:
+            node_names_only (bool): If True, only node names are included in
+                the adjacency list. Defaults to False.
+
+        Returns:
+            Mapping[str, Any]: A dictionary representing the adjacency list of
+            the graph.
+        """
         data = dict(nx.readwrite.adjacency_data(self._graph))
         for key in ("multigraph", "directed", "graph"):
             data.pop(key)
@@ -367,6 +587,20 @@ class QualibrationGraph(
     def cytoscape_representation(
         self, serialized: Mapping[str, Any]
     ) -> Sequence[Mapping[str, Any]]:
+        """
+        Returns a Cytoscape-compatible representation of the graph.
+
+        This method generates nodes and edges in a format that can be used with
+        Cytoscape for visualization purposes.
+
+        Args:
+            serialized (Mapping[str, Any]): Serialized representation of the
+                graph.
+
+        Returns:
+            Sequence[Mapping[str, Any]]: List of nodes and edges for Cytoscape
+                visualization.
+        """
         nodes = [
             {
                 "group": "nodes",
@@ -389,6 +623,21 @@ class QualibrationGraph(
         return [*nodes, *edges]
 
     def stop(self, **kwargs: Any) -> bool:
+        """
+        Stops the execution of the graph or nodes within it.
+
+        This method stops the orchestrator associated with the graph and
+        optionally stops any active nodes.
+
+        Args:
+            **kwargs (Any): Additional arguments.
+
+        Keyword Args:
+            stop_graph_node (bool): Is it needed to stop running node.
+
+        Returns:
+            bool: True if successful in stopping execution, False otherwise.
+        """
         logger.debug(f"Stop graph {self.name}")
         stop_node: Optional[bool] = kwargs.get("stop_graph_node", None)
         node_stop = True
