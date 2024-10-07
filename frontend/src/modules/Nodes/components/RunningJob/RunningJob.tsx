@@ -9,6 +9,7 @@ import { RightArrowIcon } from "../../../../ui-lib/Icons/RightArrowIcon";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import { EditIcon } from "../../../../ui-lib/Icons/EditIcon";
 import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
+import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
 
 interface StateUpdateComponentProps {
   key: string;
@@ -112,35 +113,6 @@ const GetStateUpdates: React.FC<{
   );
 };
 
-const NodeStatusErrorWrapper: React.FC<{
-  runningNodeInfo: RunningNodeInfo | undefined;
-}> = (props) => {
-  const { runningNodeInfo } = props;
-  let errorMessage = runningNodeInfo?.error?.error_class;
-  if (errorMessage) {
-    errorMessage += ": ";
-  }
-  if (runningNodeInfo?.error?.message) {
-    errorMessage += runningNodeInfo?.error?.message;
-  }
-
-  return (
-    <>
-      {/*{runningNodeInfo?.error && <div className={styles.stateTitle}>Error traceback:</div>}*/}
-      <div className={styles.nodeStatusErrorWrapper}>
-        {runningNodeInfo?.error?.error_class && <div>Error occurred:</div>}
-        <div className={styles.nodeStatusErrorWrapper}> {errorMessage}</div>
-        {runningNodeInfo?.error?.traceback?.length && runningNodeInfo?.error?.traceback?.length > 0 && <div>Error traceback:</div>}
-        {(runningNodeInfo?.error?.traceback ?? []).map((row, index) => (
-          <div key={`${row}-${index}`} className={styles.nodeStatusErrorWrapper}>
-            {row}
-          </div>
-        ))}
-      </div>
-    </>
-  );
-};
-
 export const RunningJob: React.FC = () => {
   const { runningNode, runningNodeInfo, isNodeRunning, setIsNodeRunning } = useNodesContext();
 
@@ -227,7 +199,7 @@ export const RunningJob: React.FC = () => {
         </div>
       )}
       <GetStateUpdates runningNodeInfo={runningNodeInfo} />
-      <NodeStatusErrorWrapper runningNodeInfo={runningNodeInfo} />
+      <ErrorStatusWrapper error={runningNodeInfo?.error} />
     </div>
   );
 };

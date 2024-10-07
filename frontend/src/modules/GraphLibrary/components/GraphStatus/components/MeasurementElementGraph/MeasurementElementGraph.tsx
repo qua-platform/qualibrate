@@ -6,6 +6,7 @@ import { useGraphContext } from "../../../../context/GraphContext";
 import { CircularProgress } from "@mui/material";
 import { SnapshotsApi } from "../../../../../Snapshots/api/SnapshotsApi";
 import BlueButton from "../../../../../../ui-lib/components/Button/BlueButton";
+import { ErrorStatusWrapper } from "../../../../../common/Error/ErrorStatusWrapper";
 
 interface IProps {
   workflowGraphElements: cytoscape.ElementDefinition[];
@@ -24,11 +25,14 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
     lastRunInfo?.nodesTotal !== null
       ? `${lastRunInfo?.nodesCompleted}/${lastRunInfo?.nodesTotal} node${lastRunInfo?.nodesCompleted > 1 ? "s" : ""} completed`
       : "";
-  // const graphProgressMessage = lastRunInfo?.nodesCompleted
-  //   ? `${lastRunInfo?.nodesCompleted} node${lastRunInfo?.nodesCompleted > 1 ? "s" : ""} completed`
-  //   : undefined;
   const runDurationMessage = lastRunInfo?.runDuration ? `${lastRunInfo?.runDuration}s` : undefined;
-
+  const statusMessage = lastRunInfo?.error
+    ? "error"
+    : lastRunInfo?.active
+      ? "running"
+      : lastRunInfo?.status !== "error"
+        ? "finished"
+        : lastRunInfo.status;
   const handleStopClick = () => {
     SnapshotsApi.stopNodeRunning();
   };
@@ -40,18 +44,13 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
         <div className={styles.lowerContainer}>
           <div className={styles.lowerUpperContainer}>
             <div className={styles.lowerUpperLeftContainer}>
-              <div>Status: {lastRunInfo?.active ? "running" : lastRunInfo?.status !== "error" ? "finished" : lastRunInfo.status}</div>
+              <div>Status: {statusMessage}</div>
               <div>Graph progress: {graphProgressMessage ?? <CircularProgress size="2rem" />}</div>
               <div>Run duration: {runDurationMessage ?? <CircularProgress size="2rem" />}</div>
+              <ErrorStatusWrapper error={lastRunInfo?.error} />
             </div>
             <div className={styles.lowerUpperRightContainer}>
-              {lastRunInfo?.active && (
-                <BlueButton className={styles.stopButton} onClick={handleStopClick}>
-                  Stop
-                </BlueButton>
-              )}
-              {/*<GlobalElementParameters title={"Graph parameters"} parameters={{ Qubits: "q0, q1, q2" }} />*/}
-              {/*<GlobalElementParameters title={"Orchestrator parameters"} parameters={{ "Skip failed": "true" }} />*/}
+              {lastRunInfo?.active && <BlueButton onClick={handleStopClick}>Stop</BlueButton>}
             </div>
           </div>
           <div className={styles.lowerLowerContainer}>
