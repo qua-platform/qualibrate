@@ -11,7 +11,7 @@ def test_node_outcomes():
         QualibrationNode.modes.inspection = True
         try:
             importlib.import_module(
-                "tests.example_calibration_scripts.1_node_with_partial_outcomes"
+                "tests.integration.example_calibration_scripts.1_node_with_partial_outcomes"
             )
         except StopInspection:
             pass
