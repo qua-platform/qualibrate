@@ -18,6 +18,8 @@ types-networkx = "~3.2.1.20240918"
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2.2"
 pytest-mock = "^3.14.0"
+quam = {git = "https://github.com/qua-platform/quam", tag = "v0.3.4-beta", python=">=3.8,<3.12"}
+setuptools = "^75.1.0"  # it's required for qm -> betterproto -> pkg_resources (contains in setuptools)
 
 
 [tool.poetry.group.dev.dependencies]
@@ -44,6 +46,8 @@ module = [
     "qualang_tools.*",
     "quam.*",
     "jsonpointer",
+    "qualibrate_app.config",
+    "qualibrate_runner.config"
 ]
 ignore_missing_imports = true
 

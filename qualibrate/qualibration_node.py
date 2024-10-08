@@ -190,6 +190,9 @@ class QualibrationNode(
                 "resorting to default configuration"
             )
             logger.warning(msg)
+            if find_spec("qualibrate_app") is None:
+                logger.warning("Can't import qualibrate_app for saving node")
+                return
             from qualibrate_app.config import get_config_path, get_settings
 
             config_path = get_config_path()
