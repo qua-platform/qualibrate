@@ -118,6 +118,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
                 logger.debug(f"Node completed. Result: {node_result}")
             except Exception as ex:
                 new_status = NodeStatus.failed
+                executed_node = node_to_run
                 nx_graph.nodes[node_to_run]["error"] = str(ex)
                 logger.exception(
                     (
