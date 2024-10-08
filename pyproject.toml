@@ -2,7 +2,7 @@
 name = "qualibrate-core"
 version = "0.2.0"
 description = ""
-authors = ["Serwan Asaad <serwan.asaad@quantum-machines.co>"]
+authors = ["Quantum Machines <info@quantum-machines.co>"]
 readme = "README.md"
 packages = [{ include = "qualibrate" }]
 
