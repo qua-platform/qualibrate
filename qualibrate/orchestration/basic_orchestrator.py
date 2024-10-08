@@ -43,7 +43,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
             self._execution_queue.queue.clear()
 
     @property
-    def nx_graph(self) -> nx.DiGraph[QualibrationNode]:
+    def nx_graph(self) -> "nx.DiGraph[QualibrationNode]":
         if self._graph is None:
             raise ValueError("Graph is not specified")
         return self._graph._graph
