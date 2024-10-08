@@ -9,7 +9,7 @@ from qualibrate.orchestration.qualibration_orchestrator import (
 from qualibrate.parameters import (
     GraphParameters,
 )
-from qualibrate.qualibration_graph import NodeStatus, QualibrationGraph
+from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
 
 
