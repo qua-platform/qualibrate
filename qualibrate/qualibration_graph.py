@@ -82,7 +82,7 @@ class QualibrationGraph(
         super().__init__(name, parameters, description=description, modes=modes)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
-        self._graph: nx.DiGraph[QualibrationNode] = nx.DiGraph()
+        self._graph: "nx.DiGraph[QualibrationNode]" = nx.DiGraph()
         self._orchestrator = orchestrator
         self._initial_targets: Sequence[TargetType] = []
         for node_name in self._nodes:
