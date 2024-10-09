@@ -2,7 +2,7 @@
 name = "qualibrate"
 version = "0.1.0"
 description = ""
-authors = ["Maxim V4S <maxim.d@v4scale.com>"]
+authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate"
 packages = [{ include = "qualibrate_composite" }]
 readme = "README.md"
