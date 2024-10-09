@@ -106,7 +106,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
         Gets the next node to execute.
 
         Returns:
-            Optional[QualibrationNode]: The next node to execute, or None 
+            Optional[QualibrationNode]: The next node to execute, or None
                 if there are no more nodes to be executed
         """
         while not self._execution_queue.empty():
