@@ -3,6 +3,7 @@ import { NodeDTO, NodeMap } from "../components/NodeElement/NodeElement";
 import noop from "../../../common/helpers";
 import { NodesApi } from "../api/NodesAPI";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
+import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 
 export interface StateUpdateObject {
   key?: string | number;
@@ -22,7 +23,7 @@ export interface RunningNodeInfo {
   status?: string;
   lastRunNodeName?: string;
   state_updates?: StateUpdate;
-  error?: NodeStatusError;
+  error?: ErrorObject;
   idx?: string;
 }
 
@@ -60,12 +61,6 @@ interface NodesContextProviderProps {
   children: React.JSX.Element;
 }
 
-export interface NodeStatusError {
-  error_class: string;
-  message: string;
-  traceback?: string[];
-}
-
 export interface NodeStatusErrorWithDetails {
   detail: { msg: string; type: string }[];
 }
@@ -73,7 +68,7 @@ export interface NodeStatusErrorWithDetails {
 export interface StatusResponseType {
   idx: number;
   status: string;
-  error?: NodeStatusError;
+  error?: ErrorObject;
   name: string;
   state_updates?: StateUpdate;
   run_result?: {

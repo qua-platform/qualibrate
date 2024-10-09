@@ -17,7 +17,6 @@
   position: relative;
   overflow: hidden;
   height: 100%;
-
   color: #ffffff;
   font-family: var(--font-family-cond), serif;
 }
@@ -56,7 +55,7 @@
   font-style: normal;
   font-weight: 400;
   line-height: 16px;
-  color: rgba(33, 33, 37, 0.4);
+  color: rgb(33 33 37 / 40%);
 }
 
 .form {
@@ -86,7 +85,7 @@
 .input {
   background: #fff;
   color: #2b2c32;
-  border: 1px solid rgba(194, 209, 214, 0.5);
+  border: 1px solid rgb(194 209 214 / 50%);
   width: 100%;
 }
 
@@ -96,8 +95,8 @@
   color: white !important;
 
   &:disabled {
-    background-color: rgba(33, 33, 37, 0.1) !important;
-    color: rgba(33, 33, 37, 0.5) !important;
+    background-color: rgb(33 33 37 / 10%) !important;
+    color: rgb(33 33 37 / 50%) !important;
   }
 }
 
