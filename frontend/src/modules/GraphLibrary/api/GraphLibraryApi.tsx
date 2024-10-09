@@ -9,6 +9,7 @@ import {
 } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { Measurement } from "../components/GraphStatus/context/GraphStatusContext";
+import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 
 export class GraphLibraryApi extends Api {
   constructor() {
@@ -53,6 +54,7 @@ export class GraphLibraryApi extends Api {
       nodes_completed: number;
       nodes_total: number;
       run_duration: number;
+      error: ErrorObject;
       run_results: { parameters: { nodes: { [key: string]: string }[] } };
     }>
   > {

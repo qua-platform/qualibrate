@@ -2,7 +2,7 @@
   "name": "entropy-frontend-ui",
   "version": "1.0.0",
   "description": "Web Interface for Entropy",
-  "author": "QM & V4Scale",
+  "author": "QM",
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",

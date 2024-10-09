@@ -6,6 +6,7 @@ import { ElementDefinition } from "cytoscape";
 import { InputParameter } from "../../common/Parameters/Parameters";
 import { NodesApi } from "../../Nodes/api/NodesAPI";
 import { StatusResponseType } from "../../Nodes/context/NodesContext";
+import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 
 interface GraphProviderProps {
   children: React.JSX.Element;
@@ -18,6 +19,7 @@ interface LastRunInfo {
   nodesTotal?: number;
   runDuration?: number;
   status?: string;
+  error?: ErrorObject;
   errorMessage?: string;
 }
 
@@ -84,7 +86,7 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
           workflowName: (lastRunResponse.result as { name: string }).name,
           nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
           status: "error",
-          errorMessage: JSON.stringify(lastRunResponse.error),
+          error: lastRunResponse.error as ErrorObject,
         });
         console.log("last run status was error");
       }
@@ -168,6 +170,7 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
         nodesCompleted: response.result?.nodes_completed,
         nodesTotal: response.result?.nodes_total,
         runDuration: response.result?.run_duration,
+        error: response.result?.error,
       });
     } else if (response.error) {
       console.log(response.error);
