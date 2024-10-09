@@ -26,7 +26,8 @@ class BasicOrchestrator(QualibrationOrchestrator):
     (all predecessors are completed).
 
     Args:
-        skip_failed (bool): If True, skip failed nodes and continue execution.
+        skip_failed (bool): If True, when a target (qubit) fails in a node,
+            it is excluded from being a target for any future nodes.
 
     """
 
@@ -105,8 +106,8 @@ class BasicOrchestrator(QualibrationOrchestrator):
         Gets the next node to execute.
 
         Returns:
-            Optional[QualibrationNode]:
-                The next node to execute, or None if not found.
+            Optional[QualibrationNode]: The next node to execute, or None 
+                if there are no more nodes to be executed
         """
         while not self._execution_queue.empty():
             node_to_run = self._execution_queue.get()
