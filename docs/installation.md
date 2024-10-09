@@ -1,4 +1,4 @@
-# QUAlibrate Installation Guide
+# Installation Guide
 
 This guide will provide a detailed walkthrough for installing QUAlibrate, a user-programmed calibration software for large-scale quantum computers. This guide will help you set up QUAlibrate, configure it properly, and verify your installation to ensure everything is working smoothly.
 
@@ -54,7 +54,7 @@ source {environment_name}/bin/activate
 ///
 
 
-## Step 1: Install QUAlibrate
+## :two: Install QUAlibrate
 
 To install QUAlibrate, simply run the following command:
 
@@ -70,7 +70,7 @@ This step will also install the following essential QUAlibrate components:
 - **qualibrate-app**: Provides a web app from which calibrations can be run through a graphical user interface (GUI).
 - **qualibrate-runner**: A local server that can execute calibration jobs from the web app.
 
-## Step 2: Run the Configuration Setup
+## :three: Run the Configuration Setup
 
 After installing QUAlibrate, you need to create a configuration file. The configuration file contains important settings, such as default paths and connection details, that can be edited later if needed.
 
@@ -95,7 +95,7 @@ qualibrate config --app-user-storage DATA_LOCATION --runner-calibration-library-
 
 where `DATA_LOCATION` and `LIBRARY_FOLDER` need to be modified accordingly.   
 
-## Step 3: Verify Installation
+## :four: Verify Installation
 
 To verify that QUAlibrate is installed correctly, you can start the QUAlibrate web interface:
 

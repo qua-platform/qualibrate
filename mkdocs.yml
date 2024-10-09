@@ -45,6 +45,7 @@ extra_css:
 nav:
   - index.md
   - installation.md
+  - configuration.md
   # - demonstration.md
   # - "QuAM Components":
   #   - "components/index.md"
