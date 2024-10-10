@@ -45,11 +45,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
               <div>Run duration: {runDurationMessage ?? <CircularProgress size="2rem" />}</div>
             </div>
             <div className={styles.lowerUpperRightContainer}>
-              {lastRunInfo?.active && (
-                <BlueButton className={styles.stopButton} onClick={handleStopClick}>
-                  Stop
-                </BlueButton>
-              )}
+              {lastRunInfo?.active && <BlueButton onClick={handleStopClick}>Stop</BlueButton>}
               {/*<GlobalElementParameters title={"Graph parameters"} parameters={{ Qubits: "q0, q1, q2" }} />*/}
               {/*<GlobalElementParameters title={"Orchestrator parameters"} parameters={{ "Skip failed": "true" }} />*/}
             </div>

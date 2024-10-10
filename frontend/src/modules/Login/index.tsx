@@ -17,10 +17,6 @@ export const Login = () => {
   };
 
   useEffect(() => {
-    login("");
-  }, []);
-
-  useEffect(() => {
     validate(password);
   }, [password]);
 
