@@ -1619,12 +1619,14 @@ interplot = ["dill (>=0.3.4,<0.4.0)", "ipython (>=7.31.1,<8.0.0)", "pypiwin32 (>
 
 [[package]]
 name = "quam"
-version = "0.3.4"
+version = "0.3.5"
 description = "Quantum Abstract Machine (QuAM) facilitates development of abstraction layers in experiments."
 optional = false
 python-versions = ">=3.8"
-files = []
-develop = false
+files = [
+    {file = "quam-0.3.5-py3-none-any.whl", hash = "sha256:4bf7dec084fc6aa181b9e84bb41c8e3dc01dabe7c0a2fc86dd24fddeed13722f"},
+    {file = "quam-0.3.5.tar.gz", hash = "sha256:2cbdbc1c6742201107fde7bf246d63e21be17fcc78cd6f3f1681f71f25644eef"},
+]
 
 [package.dependencies]
 numpy = ">=1.21.2"
@@ -1636,12 +1638,6 @@ typeguard = ">=4.1.0"
 build = ["build (>=1.2.1)", "setuptools (>=71)", "setuptools-scm (>=8.1.0)"]
 dev = ["black (>=23.7.0)", "flake8 (>=5.0.1)", "ipykernel (>=6.24.0)", "pyproject-flake8 (>=5.0.0)", "pytest (>=7.1.2)", "pytest-cov (>=4.1.0)", "pytest-mock (>=3.6.1)"]
 docs = ["mkdocs-gen-files", "mkdocs-jupyter", "mkdocstrings[python] (>=0.18)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/qua-platform/quam"
-reference = "v0.3.4-beta"
-resolved_reference = "261a23cd2a64734217200edbc8f22e5908531df4"
 
 [[package]]
 name = "rfc3986"
@@ -1843,13 +1839,13 @@ files = [
 
 [[package]]
 name = "tinydb"
-version = "4.8.0"
+version = "4.8.1"
 description = "TinyDB is a tiny, document oriented database optimized for your happiness :)"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = "<4.0,>=3.8"
 files = [
-    {file = "tinydb-4.8.0-py3-none-any.whl", hash = "sha256:30c06d12383d7c332e404ca6a6103fb2b32cbf25712689648c39d9a6bd34bd3d"},
-    {file = "tinydb-4.8.0.tar.gz", hash = "sha256:6dd686a9c5a75dfa9280088fd79a419aefe19cd7f4bd85eba203540ef856d564"},
+    {file = "tinydb-4.8.1-py3-none-any.whl", hash = "sha256:1c7c507ef520c789f94f1f5786f0722a98a59a85031a2e81e2accc701721f07f"},
+    {file = "tinydb-4.8.1.tar.gz", hash = "sha256:09c4c6a239da9be676b948f1f28074cffd1cf08e7af920c1df50424cc8bee8d6"},
 ]
 
 [[package]]
@@ -1946,4 +1942,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "42ce9e72fc74207ae7df72af23ae8c299a486911afa4977d293f79816c2b8896"
+content-hash = "c3bba5f3bc0017510d807298169ff48e6b1c9eb309bea21f422343b0399e21fa"

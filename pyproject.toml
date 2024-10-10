@@ -9,7 +9,7 @@ packages = [{ include = "qualibrate" }]
 [tool.poetry.dependencies]
 python = "^3.9"
 pydantic = "^2.7.3"
-qualang_tools = { version = ">0.17.4", python = ">=3.8,<3.12" }
+qualang_tools = { version = ">0.17.4", python = ">=3.9,<3.12" }
 networkx = "~3.2.0"                                                # max available version with python 3.8 support
 jsonpointer = "^3.0.0"
 types-networkx = "~3.2.1.20240918"
@@ -18,7 +18,7 @@ types-networkx = "~3.2.1.20240918"
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2.2"
 pytest-mock = "^3.14.0"
-quam = {git = "https://github.com/qua-platform/quam", tag = "v0.3.4-beta", python=">=3.8,<3.12"}
+quam = { version = "^0.3.5", python = ">=3.9,<3.12" }
 setuptools = "^75.1.0"  # it's required for qm -> betterproto -> pkg_resources (contains in setuptools)
 
 
