@@ -1,3 +1,4 @@
+from functools import cached_property
 from typing import ClassVar
 
 from pydantic import HttpUrl, field_serializer
@@ -19,6 +20,11 @@ class RemoteServiceBase(BaseSettings):
         self, url: HttpUrl, _info: FieldSerializationInfo
     ) -> str:
         return str(url)
+
+    @cached_property
+    def address_with_root(self) -> str:
+        address = str(self.address)
+        return address if address.endswith("/") else address + "/"
 
 
 class JsonTimelineDBBase(RemoteServiceBase):

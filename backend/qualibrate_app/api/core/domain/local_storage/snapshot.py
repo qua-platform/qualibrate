@@ -14,6 +14,7 @@ from typing import (
     Union,
     cast,
 )
+from urllib.parse import urljoin
 
 import jsonpatch
 import jsonpointer
@@ -404,7 +405,7 @@ class SnapshotLocalStorage(SnapshotBase):
                 Optional[MutableMapping[str, str]], kwargs.get("cookies")
             )
             last_run_response = requests.get(
-                f"{self._settings.runner.address}/last_run/",
+                urljoin(self._settings.runner.address_with_root, "last_run/"),
                 cookies=cookies,
             )
         except requests.exceptions.ConnectionError:

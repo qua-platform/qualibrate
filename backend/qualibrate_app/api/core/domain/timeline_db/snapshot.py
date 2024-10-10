@@ -42,7 +42,7 @@ class SnapshotTimelineDb(SnapshotBase):
             f"snapshot/{self.id}/",
             params=params,
             db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             timeout=self._settings.timeline_db.timeout,
         )
         no_snapshot_ex = QJsonDbException("Snapshot data wasn't retrieved.")
@@ -98,7 +98,7 @@ class SnapshotTimelineDb(SnapshotBase):
             f"snapshot/{self.id}/history",
             params={"page": page, "per_page": per_page, "reverse": reverse},
             db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             timeout=self._settings.timeline_db.timeout,
         )
         if result.status_code != 200:
@@ -124,7 +124,7 @@ class SnapshotTimelineDb(SnapshotBase):
             "action/compare",
             params={"left_id": self.id, "right_id": other_snapshot_int},
             db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             timeout=self._settings.timeline_db.timeout,
         )
         if response.status_code != 200:

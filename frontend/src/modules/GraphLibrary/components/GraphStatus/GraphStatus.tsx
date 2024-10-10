@@ -16,15 +16,16 @@ const GraphStatus = () => {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.upperContainer}>
-        <div>
+      <div className={styles.leftContainer}>
+        <div className={styles.headingWrapper}>
           <PageName>{heading}</PageName>
         </div>
-        {workflowGraphElements && <MeasurementElementGraph workflowGraphElements={workflowGraphElements} />}
-
-        <MeasurementHistory listOfMeasurements={allMeasurements} />
+        <div className={styles.graphAndHistoryWrapper}>
+          {workflowGraphElements && <MeasurementElementGraph workflowGraphElements={workflowGraphElements} />}
+          <MeasurementHistory listOfMeasurements={allMeasurements} />
+        </div>
       </div>
-      <div className={styles.resultsContainer}>
+      <div className={styles.rightContainer}>
         <Results jsonObject={result} />
         <Results title={"QuAM"} jsonObject={diffData} />
       </div>

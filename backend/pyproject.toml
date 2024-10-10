@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "qualibrate-app"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
-authors = ["Maxim V4S <maxim.d@v4scale.com>"]
+authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate-app"
 packages = [{ include = "qualibrate_app" }]
 readme = "README.md"
