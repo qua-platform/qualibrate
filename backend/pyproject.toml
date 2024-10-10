@@ -19,10 +19,9 @@ tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 requests = "^2.31.0"
 jsonpatch = "^1.33"
-
-# TODO: replace after publishing or relases on gh
-json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
-qualibrate-runner = {path = "../../qualibrate-runner", optional = true, develop = true, extras=["qualibrary"]}
+qualibrate-runner = {version="^0.2.0"}
+# TODO: replace after publishing timeline-db
+# json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
 
 [tool.poetry.extras]
 json-timeline-db = ["json-timeline-database"]
@@ -33,6 +32,9 @@ mypy = "^1.8.0"
 ruff = "^0.1.15"
 types-requests = "^2.31.0.20240218"
 poethepoet = "^0.25.0"
+
+#[tool.poetry.group.qm-dev.dependencies]
+#qualibrate-runner = {path = "../../qualibrate-runner", optional = true, develop = true, extras=["qualibrary"]}
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
