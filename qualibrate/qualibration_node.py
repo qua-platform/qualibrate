@@ -61,6 +61,25 @@ last_executed_node_ctx: ContextVar[Optional["QualibrationNode"]] = ContextVar(
 class QualibrationNode(
     QRunnable[NodeCreateParametersType, NodeRunParametersType],
 ):
+    """
+    Represents a qualibration node (that can be run independently or as part
+    of graph), responsible for executing specific tasks with defined parameters
+     and modes.
+
+    Args:
+        name (str): The name of the node.
+        parameters (Optional[NodeCreateParametersType]): Parameters
+            passed to the node for its initialization. Defaults to None.
+        description (Optional[str]): A description of the node.
+            Defaults to None.
+        parameters_class (Optional[Type[NodeCreateParametersType]]):
+            Class used for node parameters validation. Defaults to None.
+        modes (Optional[RunModes]): Execution modes. Defaults to None.
+
+    Raises:
+        StopInspection: Raised if the node is instantiated in inspection mode.
+    """
+
     storage_manager: Optional[StorageManager] = None
 
     def __init__(
@@ -107,6 +126,26 @@ class QualibrationNode(
         parameters: Optional[NodeCreateParametersType],
         parameters_class: Optional[Type[NodeCreateParametersType]],
     ) -> NodeCreateParametersType:
+        """
+        Validates passed parameters and parameters class. If parameters
+        passed then the instance will be used. If parameters class is passed,
+        an attempt will be made to instantiate it. If neither parameters nor
+        parameter class are passed, then the default base parameters will be
+        used.
+
+        Args:
+            name (str): The name of the node.
+            parameters (Optional[NodeCreateParametersType]): Parameters for the
+                node.
+            parameters_class (Optional[Type[NodeCreateParametersType]]):
+                Parameters class.
+
+        Returns:
+            NodeCreateParametersType: Validated parameters.
+
+        Raises:
+            ValueError: If parameters class instantiation fails.
+        """
         if parameters is not None:
             if parameters_class is not None:
                 logger.warning(
@@ -128,6 +167,16 @@ class QualibrationNode(
             ) from e
 
     def __copy__(self) -> "QualibrationNode":
+        """
+        Creates a shallow copy of the node.
+
+        This method copies the node, including its parameters, name, modes,
+        and filepath, while resetting inspection-related modes to maintain
+        consistency.
+
+        Returns:
+            QualibrationNode: A copy of the node.
+        """
         modes = self.modes.model_copy(update={"inspection": False})
         instance = self.__class__(
             self.name, self.parameters_class(), self.description, modes=modes
@@ -139,6 +188,23 @@ class QualibrationNode(
     def copy(
         self, name: Optional[str] = None, **node_parameters: Any
     ) -> "QualibrationNode":
+        """
+        Creates a modified copy of the node with updated parameters.
+
+        The method allows the user to update parameters and assign a new name.
+        If a new name is not provided, the copied node retains the same name as
+        the original.
+
+        Args:
+            name (Optional[str]): A new name for the node. Defaults to None.
+            node_parameters (Any): Additional parameters for the copied node.
+
+        Returns:
+            QualibrationNode: A copied node with the new parameters and name.
+
+        Raises:
+            ValueError: If the name provided is not a string.
+        """
         logger.info(
             f"Copying node with name {self.name} with parameters "
             f"{name = }, {node_parameters = }"
@@ -159,6 +225,14 @@ class QualibrationNode(
         return instance
 
     def _warn_if_external_and_interactive_mpl(self) -> None:
+        """
+        Checks backend configuration and issues a warning if incompatible.
+
+        Specifically, if the node is set to run in external mode and uses
+        an interactive matplotlib backend, it switches to a non-interactive
+        backend and logs a warning message.
+
+        """
         mpl_backend = matplotlib.get_backend()
         if self.modes.external and mpl_backend in interactive_bk:
             matplotlib.use("agg")
@@ -178,11 +252,29 @@ class QualibrationNode(
 
     @property
     def snapshot_idx(self) -> Optional[int]:
+        """
+        Returns the snapshot index from the storage manager.
+
+        Retrieves the snapshot index that reflects the current state in
+        the associated storage, if any.
+
+        Returns:
+            Optional[int]: Snapshot index or None.
+        """
         if self.storage_manager is None:
             return None
         return self.storage_manager.snapshot_idx
 
     def save(self) -> None:
+        """
+        Saves the current state of the node to the storage manager.
+
+        If no storage manager is assigned, the method attempts to create
+        a default configuration for storage and logs a warning message.
+
+        Raises:
+            ImportError: Raised if required configurations are not accessible.
+        """
         if self.storage_manager is None:
             # TODO: fully depend on qualibrate. Need to remove this dependency.
             msg = (
@@ -211,6 +303,24 @@ class QualibrationNode(
         parameters: NodeParameters,
         run_error: Optional[RunError],
     ) -> NodeRunSummary:
+        """
+        Finalizes the node's execution and creates a summary.
+
+        This method updates the outcomes for the last executed node,
+        generates a summary, and logs the summary details. It is used
+        to encapsulate the results of the node run, including the error
+        (if any), state changes, and outcomes for each target.
+
+        Args:
+            last_executed_node (QualibrationNode): The node that was last executed.
+            created_at (datetime): The timestamp when the run started.
+            initial_targets (Sequence[TargetType]): Targets at the start of the run.
+            parameters (NodeParameters): Parameters used in the run.
+            run_error (Optional[RunError]): Details of any error that occurred.
+
+        Returns:
+            NodeRunSummary: A summary object containing execution details.
+        """
         outcomes = last_executed_node.outcomes
         if self.parameters is not None and (targets := self.parameters.targets):
             lost_targets_outcomes = set(targets) - set(outcomes.keys())
@@ -247,6 +357,28 @@ class QualibrationNode(
     def run(
         self, interactive: bool = True, **passed_parameters: Any
     ) -> Tuple["QualibrationNode", BaseRunSummary]:
+        """
+        Runs the node with given parameters, potentially interactively.
+
+        This function executes the node using parameters passed either
+        directly or pre-configured in the node. It captures initial
+        conditions, manages execution state, and logs errors or completion
+        status.
+
+        Args:
+            interactive (bool): Whether the node should be run interactively.
+            **passed_parameters (Any): Additional parameters to pass when
+                running the node.
+
+        Returns:
+            Tuple[QualibrationNode, BaseRunSummary]: The executed node and
+            a summary of the run including outcomes, errors, and execution
+            details.
+
+        Raises:
+            RuntimeError: Raised if the node filepath is not provided, or
+                execution
+        """
         logger.info(
             f"Run node {self.name} with parameters: {passed_parameters}"
         )
@@ -306,6 +438,18 @@ class QualibrationNode(
         return last_executed_node, run_summary
 
     def run_node_file(self, node_filepath: Path) -> None:
+        """
+        Executes the provided node file.
+
+        This method runs the code in the given node file, ensuring that
+        any interactive backends are temporarily disabled during the
+        execution to avoid conflicts. Once the file has been executed,
+        the original matplotlib backend is restored.
+
+        Args:
+            node_filepath (Path): Path to the file that contains the node's
+                execution logic.
+        """
         mpl_backend = matplotlib.get_backend()
         # Appending dir with nodes can cause issues with relative imports
         try:
@@ -317,6 +461,20 @@ class QualibrationNode(
             matplotlib.use(mpl_backend)
 
     def stop(self, **kwargs: Any) -> bool:
+        """
+        Halts the execution of the node if currently running.
+
+        The method attempts to connect to the node's machine and stops
+        the running job. If the necessary environment or conditions are
+        not present, it will return False.
+
+        Args:
+            **kwargs (Any): Additional keyword arguments that might be used
+                for stopping the node.
+
+        Returns:
+            bool: True if the node is successfully stopped, False otherwise.
+        """
         logger.debug(f"Stop node {self.name}")
         if find_spec("qm") is None:
             return False
@@ -342,6 +500,21 @@ class QualibrationNode(
     def record_state_updates(
         self, interactive_only: bool = True
     ) -> Generator[None, None, None]:
+        """
+        Records state updates for the node during execution.
+
+        This method wraps around node operations to record all state updates
+        that occur, specifically during interactive execution. It uses
+        custom `__setattr__` and `__setitem__` functions for relevant classes
+        to record these changes.
+
+        Args:
+            interactive_only (bool): Whether to only record in interactive
+                mode. Defaults to True.
+
+        Yields:
+            None: Allows wrapped operations to execute while recording state updates.
+        """
         if not self.modes.interactive and interactive_only:
             yield
             return
@@ -400,6 +573,20 @@ class QualibrationNode(
 
     @classmethod
     def scan_folder_for_instances(cls, path: Path) -> Dict[str, QNodeBaseType]:
+        """
+        Scans a directory for node instances and returns them.
+
+        This method scans a folder to locate all node files that are valid
+        instances of `QualibrationNode`. It sets an inspection mode to avoid
+        executing the nodes during scanning.
+
+        Args:
+            path (Path): The directory to scan for node files.
+
+        Returns:
+            Dict[str, QualibrationNode]: A dictionary of node names to their
+            corresponding node instances.
+        """
         nodes: Dict[str, QNodeBaseType] = {}
         if run_modes_ctx.get() is not None:
             logger.error(
@@ -427,6 +614,21 @@ class QualibrationNode(
     def scan_node_file(
         cls, file: Path, nodes: Dict[str, QNodeBaseType]
     ) -> None:
+        """
+        Scans a node file and adds its instance to the provided dictionary.
+
+        This method scans the content of a given file to identify if it
+        contains a valid `QualibrationNode`. If so, it adds the node to
+        the given nodes dictionary for further processing.
+
+        Args:
+            file (Path): The node file to scan.
+            nodes (Dict[str, QualibrationNode]): Dictionary to add valid
+                nodes to.
+
+        Raises:
+            StopInspection: Used to stop execution once inspection completes.
+        """
         logger.info(f"Scanning node file {file}")
         try:
             # TODO Think of a safer way to execute the code
@@ -443,6 +645,16 @@ class QualibrationNode(
         node: "QualibrationNode",
         nodes: Dict[str, QNodeBaseType],
     ) -> None:
+        """
+        Adds a node instance to the node dictionary.
+
+        If a node with the same name already exists in the dictionary,
+        this method overwrites the existing entry with a warning.
+
+        Args:
+            node (QualibrationNode): The node instance to add.
+            nodes (Dict[str, QualibrationNode]): Dictionary to store nodes.
+        """
         if node.name in nodes:
             logger.warning(
                 f'Node "{node.name}" already exists in library, overwriting'
@@ -451,25 +663,65 @@ class QualibrationNode(
         nodes[node.name] = node
 
 
+def _record_state_update(
+    node: Optional[QualibrationNode],
+    reference: str,
+    attr: str,
+    old: Any,
+    val: Any,
+) -> None:
+    """
+    Records state updates for an attribute or item in the node.
+
+    This function stores information about changes made to an attribute
+    or item of a node, including the previous value and the new value.
+    If the node is provided, the change details are saved in the node's
+    `_state_updates` dictionary.
+
+    Args:
+        node (Optional[QualibrationNode]): The node where the state update
+            will be recorded. If None, no action is performed.
+        reference (str): The reference key to identify the updated attribute
+            or item.
+        attr (str): The name of the attribute or item key that is updated.
+        old (Any): The old value of the attribute or item before the update.
+        val (Any): The new value of the attribute or item.
+    """
+    if node is None:
+        return
+    if isinstance(old, UserList):
+        old = list(old)
+    elif isinstance(old, UserDict):
+        old = dict(old)
+    node._state_updates[reference] = {
+        "key": reference,
+        "attr": attr,
+        "old": old,
+        "new": val,
+    }
+
+
 def _record_state_update_getattr(
     quam_obj: GetRefProtocol,
     attr: str,
     val: Any = None,
     node: Optional[QualibrationNode] = None,
 ) -> None:
-    reference = quam_obj.get_reference(attr)
-    old = getattr(quam_obj, attr)
-    if isinstance(old, UserList):
-        old = list(old)
-    elif isinstance(old, UserDict):
-        old = dict(old)
-    if node:
-        node._state_updates[reference] = {
-            "key": reference,
-            "attr": attr,
-            "old": old,
-            "new": val,
-        }
+    """
+    Records item state updates in a Quam collection object.
+
+    For details see `_record_state_update`.
+
+    Args:
+        quam_obj (GetRefProtocol): The Quam object whose attribute is updated.
+        attr (str): The name of the attribute being updated.
+        val (Any, optional): The new value of the attribute. Defaults to None.
+        node (Optional[QualibrationNode], optional): The node where the state
+            update will be recorded. Defaults to None.
+    """
+    _record_state_update(
+        node, quam_obj.get_reference(attr), attr, getattr(quam_obj, attr), val
+    )
 
 
 def _record_state_update_getitem(
@@ -478,16 +730,19 @@ def _record_state_update_getitem(
     val: Any = None,
     node: Optional[QualibrationNode] = None,
 ) -> None:
-    reference = quam_obj.get_reference(attr)
-    old = quam_obj[attr]
-    if isinstance(old, UserList):
-        old = list(old)
-    elif isinstance(old, UserDict):
-        old = dict(old)
-    if node:
-        node._state_updates[reference] = {
-            "key": reference,
-            "attr": attr,
-            "old": old,
-            "new": val,
-        }
+    """
+    Records item state updates in a Quam collection object.
+
+    For details see `_record_state_update`.
+
+    Args:
+        quam_obj (GetRefGetItemProtocol): The Quam object whose item is being
+            updated.
+        attr (str): The key/index of the item being updated.
+        val (Any, optional): The new value of the item. Defaults to None.
+        node (Optional[QualibrationNode], optional): The node where the state
+            update will be recorded. Defaults to None.
+    """
+    _record_state_update(
+        node, quam_obj.get_reference(attr), attr, quam_obj[attr], val
+    )
