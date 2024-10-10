@@ -61,12 +61,12 @@ Using `NodeParameters` allows parameters to be modified externally, such as thro
 
 
 ### Creating the `QualibrationNode`
-Next, we instantiate the `QualibrationNode` with a unique name (`"emulated_data"`) and provide an instance of the `Parameters` class:
+Next, we instantiate the `QualibrationNode` with a unique name (`"emulated_calibration"`) and provide an instance of the `Parameters` class:
 ```python
-node = QualibrationNode("emulated_data", parameters=Parameters())
+node = QualibrationNode("emulated_calibration", parameters=Parameters())
 ```
 
-This will enable the `QualibrationLibrary` to run this calibration node externally, provided that the script is located in the `calibration_library_folder` of the [configuration file](/configuration).
+This will enable the `QualibrationLibrary` to run this calibration node externally, provided that the script is located in the `calibration_library_folder` of the [configuration file](configuration.md).
 
 !!! warning "Avoid significant code before this point"
     
@@ -116,7 +116,7 @@ Finally, the registered results are saved using the following command:
 node.save()
 ```
 
-This saves the results in the location specified by `qualibrate.storage.location` in the [configuration file](/configuration).
+This saves the results in the location specified by `qualibrate.storage.location` in the [configuration file](configuration.md).
 
 ## Fully Converted Node
 
@@ -133,7 +133,7 @@ class Parameters(NodeParameters):
     num_points: int = 101
 
 # Create QualibrationNode
-node = QualibrationNode("emulated_data", parameters=Parameters())
+node = QualibrationNode("emulated_calibration", parameters=Parameters())
 
 # Generate data using node parameters
 offset = np.random.rand() * 3
@@ -188,7 +188,7 @@ node.machine = QuAM.load()
 
 This step automatically includes a snapshot of QUAM when saving the node using `node.save()`.
 
-Additionally, if `active_machine.path` is set in the [configuration file](/configuration), it will be updated when saving the node.
+Additionally, if `active_machine.path` is set in the [configuration file](configuration.md), it will be updated when saving the node.
 
 
 Finally, the `QualibrationNode` also provides a way to record any changes to QUAM interactively by encapsulating these state updates as follows:
