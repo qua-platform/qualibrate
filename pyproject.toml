@@ -13,7 +13,7 @@ click = "^8.1.7"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 jsonpatch = "^1.33"
-qualibrate-core = {path = "../qualibrate-core", optional = true}
+qualibrate-core = {version = "^0.2.0", optional = true}
 
 [tool.poetry.extras]
 qualibrary = ["qualibrate-core"]
@@ -22,6 +22,9 @@ qualibrary = ["qualibrate-core"]
 mypy = "^1.10.0"
 ruff = "^0.4.5"
 poethepoet = "^0.26.1"
+
+#[tool.poetry.group.qm-dev.dependencies]
+#qualibrate-core = {path = "../qualibrate-core", optional = true}
 
 [tool.poetry.scripts]
 qualibrate-runner = "qualibrate_runner.__main__:main"
