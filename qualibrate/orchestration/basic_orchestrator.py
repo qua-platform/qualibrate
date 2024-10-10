@@ -70,7 +70,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
             self._execution_queue.queue.clear()
 
     @property
-    def nx_graph(self) -> nx.DiGraph[QualibrationNode]:
+    def nx_graph(self) -> "nx.DiGraph[QualibrationNode]":
         """
         Gets the networkx representation of the graph.
 
@@ -181,6 +181,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
                 logger.debug(f"Node completed. Result: {node_result}")
             except Exception as ex:
                 new_status = NodeStatus.failed
+                executed_node = node_to_run
                 nx_graph.nodes[node_to_run]["error"] = str(ex)
                 logger.exception(
                     (
