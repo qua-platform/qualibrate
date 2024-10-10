@@ -51,6 +51,8 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         modes (Optional[RunModes]): Optional run modes for the runnable.
     """
 
+    modes = RunModes()
+
     def __init__(
         self,
         name: str,
