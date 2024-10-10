@@ -17,15 +17,15 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: dist
-          pattern: python-package-sdist
+          pattern: python-package-*
       - name: Create release notes
         run: |
           cat > notes.md <<- EOM
           Individual release notes can be found in the respective packages.
           
-          Qualibrate App package version:$(ls qualibrate-wheels/qualibrate_app-* | cut -d'-' -f3)
-          Qualibrate Runner package version:$(ls qualibrate-wheels/qualibrate_runner-* | cut -d'-' -f3)
-          Qualibrate Core package version:$(ls qualibrate-wheels/qualibrate_core-* | cut -d'-' -f3)
+          Qualibrate App package version: $(poetry show qualibrate-app | awk '/version/ { print $3 }')
+          Qualibrate Runner package version: $(poetry show qualibrate-runner | awk '/version/ { print $3 }')
+          Qualibrate Core package version: $(poetry show qualibrate-core | awk '/version/ { print $3 }')
           EOM
       - name: Create release
         env:
@@ -35,4 +35,5 @@ jobs:
           --notes-file notes.md
           --verify-tag --latest
           --draft
+          "dist/qualibrate-${GITHUB_REF_NAME#v}-py3-none-any.whl"
           "dist/qualibrate-${GITHUB_REF_NAME#v}.tar.gz"
