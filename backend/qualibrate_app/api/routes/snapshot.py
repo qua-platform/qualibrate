@@ -1,4 +1,5 @@
 from typing import Annotated, Any, Mapping, Optional, Type, Union
+from urllib.parse import urljoin
 
 import requests
 from fastapi import APIRouter, Body, Cookie, Depends, Path, Query
@@ -124,7 +125,9 @@ def update_entity(
     if updated:
         try:
             requests.post(
-                f"{settings.runner.address}/record_state_update",
+                urljoin(
+                    settings.runner.address_with_root, "record_state_update"
+                ),
                 params={"key": data_path},
                 cookies=cookies,
                 timeout=settings.runner.timeout,

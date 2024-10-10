@@ -19,7 +19,11 @@ except ImportError:
     runner_app = None
 
 
-app = FastAPI(title="Qualibrate")
+app = FastAPI(
+    title="Qualibrate",
+    openapi_url="/qm_app_openapi.json",
+    docs_url="/qm_app_docs",
+)
 _settings = get_settings(get_config_path())
 
 origins = [

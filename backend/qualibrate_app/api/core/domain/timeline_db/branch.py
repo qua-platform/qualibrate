@@ -46,7 +46,7 @@ class BranchTimelineDb(BranchBase):
         result = request_with_db(
             f"branch/{self._name}/",
             db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             timeout=self._settings.timeline_db.timeout,
         )
         no_branch_ex = QJsonDbException("Branch data wasn't retrieved.")
@@ -65,9 +65,9 @@ class BranchTimelineDb(BranchBase):
                 raise QJsonDbException("Can't load latest snapshot of branch")
             return latest[1][0]
         res = request_with_db(
-            f"/branch/{self.name}/is_snapshot_belong",
+            f"branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             db_name=self._settings.qualibrate.project,
             timeout=self._settings.timeline_db.timeout,
         )
@@ -85,9 +85,9 @@ class BranchTimelineDb(BranchBase):
                 raise QJsonDbException("Can't load latest node of branch")
             return latest[1][0]
         res = request_with_db(
-            f"/branch/{self.name}/is_snapshot_belong",
+            f"branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             db_name=self._settings.qualibrate.project,
             timeout=self._settings.timeline_db.timeout,
         )
@@ -113,7 +113,7 @@ class BranchTimelineDb(BranchBase):
                 "per_page": per_page,
                 "reverse": reverse,
             },
-            host=self._settings.timeline_db.address,
+            host=self._settings.timeline_db.address_with_root,
             db_name=self._settings.qualibrate.project,
             timeout=self._settings.timeline_db.timeout,
         )

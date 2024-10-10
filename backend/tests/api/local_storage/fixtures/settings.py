@@ -39,11 +39,11 @@ def settings(
         ),
         metadata_out_path="data_path",
         timeline_db=JsonTimelineDBBase(
-            address="http://localhost:8000",
+            address="http://localhost:8000/",
             timeout=0,
         ),
         runner=QualibrateRunnerBase(
-            address="http://localhost:8001/execution",
+            address="http://localhost:8001/execution/",
             timeout=1,
         ),
         active_machine=ActiveMachineSettings(path=active_machine_path),

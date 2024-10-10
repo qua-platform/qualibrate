@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Callable, Mapping, Optional
+from typing import Any, Callable, Mapping, Optional, Union
 from urllib.parse import urljoin
 
 import requests
@@ -16,7 +16,7 @@ def request_with_db(
     db_name: str,
     timeout: float,
     method: Callable[..., requests.Response] = requests.get,
-    host: HttpUrl,
+    host: Union[HttpUrl, str],
     **kwargs: Any,
 ) -> requests.Response:
     if params is None:
