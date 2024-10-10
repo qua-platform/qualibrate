@@ -40,6 +40,7 @@ interface IGraphContext {
   setWorkflowGraphElements: Dispatch<SetStateAction<ElementDefinition[] | undefined>>;
   lastRunInfo?: LastRunInfo;
   setLastRunInfo: Dispatch<SetStateAction<LastRunInfo | undefined>>;
+  fetchAllCalibrationGraphs: (rescan?: boolean) => void;
 }
 
 const GraphContext = React.createContext<IGraphContext>({
@@ -60,6 +61,7 @@ const GraphContext = React.createContext<IGraphContext>({
 
   lastRunInfo: undefined,
   setLastRunInfo: noop,
+  fetchAllCalibrationGraphs: noop,
 });
 
 export const useGraphContext = () => useContext<IGraphContext>(GraphContext);
@@ -78,12 +80,12 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
       const lastRunResponseResult = lastRunResponse.result as StatusResponseType;
       if (lastRunResponseResult && lastRunResponseResult.status !== "error") {
         setLastRunInfo({
-          workflowName: (lastRunResponse.result as { name: string }).name,
+          workflowName: (lastRunResponse.result as { name: string })?.name,
           nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
         });
       } else {
         setLastRunInfo({
-          workflowName: (lastRunResponse.result as { name: string }).name,
+          workflowName: (lastRunResponse.result as { name: string })?.name,
           nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
           status: "error",
           error: lastRunResponse.error as ErrorObject,
@@ -140,12 +142,11 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
     return updatedGraphs;
   };
 
-  const fetchAllCalibrationGraphs = async () => {
-    const response = await GraphLibraryApi.fetchAllGraphs();
+  const fetchAllCalibrationGraphs = async (rescan = false) => {
+    const response = await GraphLibraryApi.fetchAllGraphs(rescan);
     if (response.isOk) {
       const allFetchedGraphs = response.result! as GraphMap;
       const updatedGraphs = updateAllGraphs(allFetchedGraphs);
-
       setAllGraphs(updatedGraphs);
     } else if (response.error) {
       console.log(response.error);
@@ -215,6 +216,7 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
         setWorkflowGraphElements,
         lastRunInfo,
         setLastRunInfo,
+        fetchAllCalibrationGraphs,
       }}
     >
       {props.children}
