@@ -7,6 +7,7 @@ import { OFFLINE_MODE } from "../../../dev.config";
 interface IAuthContext {
   login: (password: string) => void;
   isAuthorized: boolean;
+  triedLoginWithEmptyString: boolean;
   authError: string | undefined;
 }
 
@@ -23,6 +24,7 @@ export const useAuthContext = (): IAuthContext => {
 export function AuthContextProvider(props: PropsWithChildren<ReactNode>): React.ReactElement {
   const { children } = props;
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+  const [triedLoginWithEmptyString, setTriedLoginWithEmptyString] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
 
@@ -41,12 +43,6 @@ export function AuthContextProvider(props: PropsWithChildren<ReactNode>): React.
     const token = getCookieStartingWith(cookiePrefix);
     return token !== null;
   };
-  useEffect(() => {
-    if (checkIfThereIsCookie()) {
-      setIsAuthorized(true);
-      navigate(HOME_URL);
-    }
-  }, []);
 
   const login = useCallback(
     async (password: string) => {
@@ -62,12 +58,30 @@ export function AuthContextProvider(props: PropsWithChildren<ReactNode>): React.
     },
     [setIsAuthorized]
   );
+  useEffect(() => {
+    const initializeAuth = async () => {
+      if (checkIfThereIsCookie()) {
+        setIsAuthorized(true);
+        navigate(HOME_URL);
+      } else {
+        login("").then(() => {
+          setTriedLoginWithEmptyString(true);
+        });
+        if (checkIfThereIsCookie()) {
+          setIsAuthorized(true);
+          navigate(HOME_URL);
+        }
+      }
+    };
+    initializeAuth();
+  }, [navigate]);
 
   return (
     <AuthContext.Provider
       value={{
         login,
         isAuthorized,
+        triedLoginWithEmptyString,
         authError,
       }}
     >
