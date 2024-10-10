@@ -143,7 +143,7 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
   };
 
   const fetchAllCalibrationGraphs = async (rescan = false) => {
-    const response = await GraphLibraryApi.fetchAllGraphs();
+    const response = await GraphLibraryApi.fetchAllGraphs(rescan);
     if (response.isOk) {
       const allFetchedGraphs = response.result! as GraphMap;
       const updatedGraphs = updateAllGraphs(allFetchedGraphs);
