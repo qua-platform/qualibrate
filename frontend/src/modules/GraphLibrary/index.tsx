@@ -20,7 +20,7 @@ const GraphLibrary = () => {
         <div className={styles.searchAndRefresh}>
           <GraphSearch />
           <div className={styles.buttonWrapper}>
-            <BlueButton onClick={fetchAllCalibrationGraphs}>Refresh</BlueButton>
+            <BlueButton onClick={() => fetchAllCalibrationGraphs(true)}>Refresh</BlueButton>
           </div>
         </div>
         <GraphList />

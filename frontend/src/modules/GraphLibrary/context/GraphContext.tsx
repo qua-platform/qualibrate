@@ -40,7 +40,7 @@ interface IGraphContext {
   setWorkflowGraphElements: Dispatch<SetStateAction<ElementDefinition[] | undefined>>;
   lastRunInfo?: LastRunInfo;
   setLastRunInfo: Dispatch<SetStateAction<LastRunInfo | undefined>>;
-  fetchAllCalibrationGraphs: () => void;
+  fetchAllCalibrationGraphs: (rescan?: boolean) => void;
 }
 
 const GraphContext = React.createContext<IGraphContext>({
@@ -142,7 +142,7 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
     return updatedGraphs;
   };
 
-  const fetchAllCalibrationGraphs = async () => {
+  const fetchAllCalibrationGraphs = async (rescan = false) => {
     const response = await GraphLibraryApi.fetchAllGraphs();
     if (response.isOk) {
       const allFetchedGraphs = response.result! as GraphMap;
