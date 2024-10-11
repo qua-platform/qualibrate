@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-core"
-version = "0.2.0"
+version = "0.2.1"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 readme = "README.md"
@@ -10,7 +10,7 @@ packages = [{ include = "qualibrate" }]
 python = "^3.9"
 pydantic = "^2.7.3"
 qualang_tools = { version = ">0.17.4", python = ">=3.9,<3.12" }
-networkx = "~3.2.0"                                                # max available version with python 3.8 support
+networkx = "~3.2.0"                                             # max available version with python 3.8 support
 jsonpointer = "^3.0.0"
 types-networkx = "~3.2.1.20240918"
 
@@ -19,7 +19,7 @@ types-networkx = "~3.2.1.20240918"
 pytest = "^8.2.2"
 pytest-mock = "^3.14.0"
 quam = { version = "^0.3.5", python = ">=3.9,<3.12" }
-setuptools = "^75.1.0"  # it's required for qm -> betterproto -> pkg_resources (contains in setuptools)
+setuptools = "^75.1.0"                                # it's required for qm -> betterproto -> pkg_resources (contains in setuptools)
 
 
 [tool.poetry.group.dev.dependencies]
@@ -47,7 +47,7 @@ module = [
     "quam.*",
     "jsonpointer",
     "qualibrate_app.config",
-    "qualibrate_runner.config"
+    "qualibrate_runner.config",
 ]
 ignore_missing_imports = true
 
