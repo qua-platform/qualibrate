@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Calibration Library in QUAlibrate serves as a central location for storing and organizing calibration nodes and graphs. This library allows users to easily manage, update, and execute various calibration routines, providing a streamlined process for configuring quantum systems. Calibration nodes in the library are modular components that can be included as part of a calibration graph or executed externally, for example, through the web app.&#x20;
+The Calibration Library in QUAlibrate serves as a central location for storing and organizing calibration nodes and graphs. This library allows users to easily manage, update, and execute various calibration routines, providing a streamlined process for configuring quantum systems. Calibration nodes in the library are modular components that can be included as part of a calibration graph or executed externally, for example, through the [QUAlibrate Web App](web_app.md).
 
 ## Loading the Calibration Library
 
@@ -57,7 +57,7 @@ Note that the keyword arguments correspond to those defined in the `Parameters` 
 
 ## Loading and running a calibration graph
 
-Similar to calibration nodes, a [calibration graph](calibrationgraphs.md) can also be defined in the libraryfolder. A graph with name "singlequbit_tuneup" can be accessed using
+Similar to calibration nodes, a [calibration graph](calibration_graphs.md) can also be defined in the library folder. A graph with name "single_qubit_tuneup" can be accessed using
 
 ```python
 single_qubit_graph = library.graphs["single_qubit_tuneup"]

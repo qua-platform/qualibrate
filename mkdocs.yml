@@ -11,7 +11,7 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-  favicon: assets/logo.svg
+  favicon: assets/logo.png
   palette:
     - scheme: entropy-bright
       toggle:

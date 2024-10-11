@@ -67,8 +67,8 @@ This command will fetch the latest stable version of QUAlibrate from PyPI and in
 This step will also install the following essential QUAlibrate components:
 
 - **qualibrate-core**: Contains all the features needed to create and run calibration nodes and graphs.
-- **qualibrate-app**: Provides a web app from which calibrations can be run through a graphical user interface (GUI).
-- **qualibrate-runner**: A local server that can execute calibration jobs from the web app.
+- **qualibrate-app**: Provides a [Web App](web_app.md) from which calibrations can be run through a graphical user interface (GUI).
+- **qualibrate-runner**: A local server that can execute calibration jobs from the [QUAlibrate Web App](web_app.md).
 
 ## :three: Run the Configuration Setup
 
