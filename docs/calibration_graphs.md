@@ -160,3 +160,37 @@ graph.run(qubits=["q1", "q2", "q3"])
 
 This script can be executed from any IDE or terminal. Additionally, it can also be run from the QUAlibrate Web App, provided it is saved in the `qualibrate_runner.calibration_library_folder` path specified in the [configuration file](configuration.md).
 
+## QualibrationOrchestrator
+
+The `QualibrationOrchestrator` is responsible for running a `QualibrationGraph`, i.e. deciding which `QualibrationNode` to execute next and what `targets` (e.g. qubits) should be calibrated in that node.
+This decision process typically relies on the node outcomes of executed nodes.
+The choices that a `QualibrationOrchestrator` makes include
+
+- What should happen to a target if its calibration failed in a node? Should it be dropped from further calibrations, or should the failed calibration be remedied, for example by attempting the same or a previous calibration again?
+- If multiple calibration nodes can be executed next, which one has priority?
+- Should the next `QualibrationNode` run on multiple targets simultaneously, or on one at a time?
+
+There is no single right answer to this question, and therefore different subclasses of `QualibrationOrchestrator` are created that implement different graph traversal algorithm.
+Currently, QUAlibrate has the `BasicOrchestrator` that implements a straightforward graph traversal.
+Additional orchestrators will be added to QUAlibrate in the future, and users can also implement custom graph traversal algorithms by subclassing the `QualibrationOrchestrator`.
+
+
+### BasicOrchestrator
+
+The `BasicOrchestrator` is a straightforward graph traversal algorithm with a single parameter `skip_failed`, which determines whether to continue calibrating failed targets.
+The functionality of this algorithm is described here.
+
+1. For each target, collect all nodes that have not yet been executed and whose predecessors have been executed.
+2. Run each of these nodes, grouping targets together that are executed on the same node.
+   If a node outcome `failed` for a target, then the action depends on `skip_failed`:
+   a. `skip_failed = True` → Remove the target from any further calibrations
+   b. `skip_failed = False` → ignore the node outcome and keep using the target for further calibration.
+3. Repeat 1 and 2 until the list of nodes in Step 1 is empty.
+
+The `BasicOrchestrator` can be instantiated as follows:
+
+```python
+from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
+
+orchestrator = BasicOrchestrator(skip_failed=True)
+```
