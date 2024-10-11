@@ -70,10 +70,10 @@ qualibrate start
 ```
 
 The interface will be available at [http://localhost:8001](http://localhost:8001).
-
+<!-- 
 ## Contributing
 
-We welcome contributions from the community! If you want to report a bug, suggest a new feature, or contribute code, please refer to our [contribution guidelines](https://github.com/qua-platform/qualibrate/blob/main/CONTRIBUTING.md).
+We welcome contributions from the community! If you want to report a bug, suggest a new feature, or contribute code, please refer to our [contribution guidelines](https://github.com/qua-platform/qualibrate/blob/main/CONTRIBUTING.md). -->
 
 ## License
 
