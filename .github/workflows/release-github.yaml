@@ -18,6 +18,9 @@ jobs:
         with:
           path: dist
           pattern: python-package-*
+          merge-multiple: true
+      - name: Install poetry
+        run: pipx install poetry
       - name: Create release notes
         run: |
           cat > notes.md <<- EOM
