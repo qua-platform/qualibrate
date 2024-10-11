@@ -20,7 +20,7 @@ from typing import (
 
 import matplotlib
 from matplotlib.rcsetup import interactive_bk
-from pydantic import ValidationError
+from pydantic import ValidationError, create_model
 
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
@@ -154,7 +154,24 @@ class QualibrationNode(
                 )
             return parameters
         if parameters_class is None:
-            return NodeCreateParametersType()
+            fields = {
+                name: copy(field)
+                for name, field in NodeParameters.model_fields.items()
+            }
+            # Create subclass of NodeParameters. It's needed because otherwise
+            # there will be an issue with type checking of subclasses.
+            # For example: NodeRunSummary.parameters
+            new_model = create_model(  # type: ignore
+                NodeParameters.__name__,
+                __doc__=NodeParameters.__doc__,
+                __base__=NodeParameters,
+                __module__=NodeParameters.__module__,
+                **{
+                    name: (info.annotation, info)
+                    for name, info in fields.items()
+                },
+            )
+            return cast(NodeParameters, new_model())
         logger.warning(
             "parameters_class argument is deprecated. Please use "
             f"parameters argument for initializing node '{name}'."
