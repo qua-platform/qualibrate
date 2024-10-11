@@ -17,8 +17,14 @@ library = QualibrationLibrary.get_active_library()
 This will use the folder path specified by `qualibrate_runner.calibration_library_folder` if it is defined in the [configuration file](configuration.md). Alternatively, a custom folder can be specified using the keyword argument `library_folder`:
 
 ```python
-library = QualibrationLibrary.get_active_library(library_folder="/path/to/custom/folder")
+library = QualibrationLibrary(library_folder="/path/to/custom/folder")
 ```
+
+<!-- ///details | Why use `QualibrationLibrary.get_active_library()`?
+The class method `QualibrationLibrary.get_active_library()` return an instance of `QualibrationLibrary`, so why would we not simply call `QualibrationLibrary()`?
+The reason 
+
+/// -->
 
 ## Example: Loading and Running a Calibration Node
 
