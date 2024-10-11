@@ -13,7 +13,6 @@ QUAlibrate is an open-source calibration platform designed specifically for quan
 - **Quantum Abstract Machine (QUAM)**: Digitally represent your full quantum setup for easier management and calibration.
 - **Community-Driven**: Fully open source, supporting collaboration and customization.
 
-
 ## Installation
 
 To get started, follow these steps:
@@ -33,17 +32,19 @@ To get started, follow these steps:
 
    Hit `Y` to accept the default options, which will create a configuration file in `~/.qualibrate/config.toml`. Any settings can be modified afterwards.
 
-## Next steps
+## Next Steps
+
+For detailed instructions on using QUAlibrate, including creating calibration nodes, building calibration graphs, and using the web app, please visit our comprehensive [documentation website](https://www.github.io/qua-platform/qualibrate).
 
 ### Documentation
 
-Once QUAlibrate has been installed, it can be used to create and run calibration nodes and calibration graphs. This can be done either through the frontend, or through the web app. We recommend following the documentation which provides in-depth explanations on each of the QUAlibrate topics.
+Once QUAlibrate has been installed, it can be used to create and run calibration nodes and calibration graphs. This can be done either through the frontend or through the web app. We recommend following the documentation, which provides in-depth explanations on each of the QUAlibrate topics.
 
-### Transform scripts into a calibration node
+### Transform Scripts into a Calibration Node
 
 QUAlibrate can easily convert calibration scripts into a calibration node using the `QualibrationNode`, which provides a simple and efficient way to encapsulate calibration routines.
 
-```
+```python
 from qualibrate import QualibrationNode
 
 # Instantiate a QualibrationNode with a unique name
@@ -59,21 +60,17 @@ node.results = {...}
 node.save()  # Save results
 ```
 
-This conversion automatically handles data saving, and allows the calibration node to be called externally, for example as part of a calibration graph, or through the QUAlibrate web app.
+This conversion automatically handles data saving and allows the calibration node to be called externally, for example as part of a calibration graph or through the QUAlibrate web app.
 
-### Run the QUAlibrate web app
+### Run the QUAlibrate Web App
 
 You can start the QUAlibrate web interface using:
 
-```
+```bash
 qualibrate start
 ```
 
 The interface will be available at [http://localhost:8001](http://localhost:8001).
-<!-- 
-## Contributing
-
-We welcome contributions from the community! If you want to report a bug, suggest a new feature, or contribute code, please refer to our [contribution guidelines](https://github.com/qua-platform/qualibrate/blob/main/CONTRIBUTING.md). -->
 
 ## License
 
