@@ -170,7 +170,7 @@ node.save()
 ```
 
 This node can still be executed directly from any code editor and shouldn't cause any different behaviour. 
-The advantage is that it can now also be called externally, for example as part of a calibration graph, or through the QUAlibrate web app.
+The advantage is that it can now also be called externally, for example as part of a calibration graph, or through the [QUAlibrate Web App](web_app.md).
 
 ## Combining QUAM with QUAlibrate
 
@@ -198,6 +198,6 @@ with node.record_state_updates():
     # Modify the resonance frequency of a qubit
     machine.qubits["q0"].f_01 = 5.1e9
 ```
-This will simply update the values if the script is executed normally. However, if the node is executed through the web app, any changes will be presented as a proposed state update to the user, allowing them to interactively accept or decline the changes based on the measurement outcomes.
+This will simply update the values if the script is executed normally. However, if the node is executed through the [QUAlibrate Web App](web_app.md), any changes will be presented as a proposed state update to the user, allowing them to interactively accept or decline the changes based on the measurement outcomes.
 
 Note that this action should be performed before calling `node.save()`.

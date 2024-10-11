@@ -158,7 +158,7 @@ graph = QualibrationGraph(
 graph.run(qubits=["q1", "q2", "q3"])
 ```
 
-This script can be executed from any IDE or terminal. Additionally, it can also be run from the QUAlibrate Web App, provided it is saved in the `qualibrate_runner.calibration_library_folder` path specified in the [configuration file](configuration.md).
+This script can be executed from any IDE or terminal. Additionally, it can also be run from the [QUAlibrate Web App](web_app.md), provided it is saved in the `qualibrate_runner.calibration_library_folder` path specified in the [configuration file](configuration.md).
 
 ## QualibrationOrchestrator
 

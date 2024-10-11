@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Calibration Library in QUAlibrate serves as a central location for storing and organizing calibration nodes and graphs. This library allows users to easily manage, update, and execute various calibration routines, providing a streamlined process for configuring quantum systems. Calibration nodes in the library are modular components that can be included as part of a calibration graph or executed externally, for example, through the web app.&#x20;
+The Calibration Library in QUAlibrate serves as a central location for storing and organizing calibration nodes and graphs. This library allows users to easily manage, update, and execute various calibration routines, providing a streamlined process for configuring quantum systems. Calibration nodes in the library are modular components that can be included as part of a calibration graph or executed externally, for example, through the [QUAlibrate Web App](web_app.md).
 
 ## Loading the Calibration Library
 
