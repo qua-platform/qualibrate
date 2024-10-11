@@ -13,8 +13,10 @@ QUAlibrate is an open-source calibration platform designed specifically for quan
 - **Quantum Abstract Machine (QUAM)**: Digitally represent your full quantum setup for easier management and calibration.
 - **Community-Driven**: Fully open source, supporting collaboration and customization.
 
+
 ## Installation
 
+QUAlibrate requires Python ≥ 3.9.
 To get started, follow these steps:
 
 1. **Install QUAlibrate**
