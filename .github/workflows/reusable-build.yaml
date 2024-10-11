@@ -25,7 +25,7 @@ jobs:
         run: poetry install
 
       - name: Build python package
-        run: poetry build -f sdist
+        run: poetry build
 
       - uses: actions/upload-artifact@v4
         id: upload-sdist
