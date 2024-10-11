@@ -34,7 +34,7 @@ To get started, follow these steps:
 
 ## Next Steps
 
-For detailed instructions on using QUAlibrate, including creating calibration nodes, building calibration graphs, and using the web app, please visit our comprehensive [documentation website](https://www.github.io/qua-platform/qualibrate).
+For detailed instructions on using QUAlibrate, including creating calibration nodes, building calibration graphs, and using the web app, please visit our comprehensive documentation website https://qua-platform.github.io/qualibrate/.
 
 ### Documentation
 
