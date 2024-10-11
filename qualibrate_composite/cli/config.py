@@ -118,9 +118,9 @@ def _qualibrate_config_from_sources(
             if not_default_arg or (
                 timeline_db_mapping[arg_key] not in from_file["timeline_db"]
             ):
-                from_file["timeline_db"][
-                    timeline_db_mapping[arg_key]
-                ] = arg_value
+                from_file["timeline_db"][timeline_db_mapping[arg_key]] = (
+                    arg_value
+                )
         elif arg_key in runner_mapping.keys():
             if not_default_arg or (
                 runner_mapping[arg_key] not in from_file["runner"]

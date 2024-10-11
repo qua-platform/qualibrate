@@ -25,7 +25,7 @@ jobs:
         run: poetry install
 
       - name: Build python package
-        run: poetry build -f sdist
+        run: poetry build
 
       - uses: actions/upload-artifact@v4
         id: upload-sdist
@@ -36,11 +36,11 @@ jobs:
           retention-days: 3
           if-no-files-found: error
 
-#      - uses: actions/upload-artifact@v4
-#        id: upload-wheel
-#        name: Upload wheel
-#        with:
-#          name: python-package-wheel
-#          path: dist/qualibrate-*.whl
-#          retention-days: 3
-#          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        id: upload-wheel
+        name: Upload wheel
+        with:
+          name: python-package-wheel
+          path: dist/qualibrate-*.whl
+          retention-days: 3
+          if-no-files-found: error
