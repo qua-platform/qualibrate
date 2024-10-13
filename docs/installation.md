@@ -124,7 +124,3 @@ pip install --upgrade qualibrate
 ```
 
 This ensures you always have the latest features and bug fixes.
-
-## Next Steps
-
-TODO write me
