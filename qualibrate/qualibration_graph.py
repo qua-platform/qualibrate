@@ -524,7 +524,7 @@ class QualibrationGraph(
         """
         data = dict(super().serialize())
         cytoscape = bool(kwargs.get("cytoscape", False))
-        parameters = self.full_parameters_class.serialize()
+        parameters = self.full_parameters_class.serialize(**kwargs)
         nx_data: Dict[str, Any] = dict(
             self.nx_graph_export(node_names_only=True)
         )

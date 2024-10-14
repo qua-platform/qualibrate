@@ -111,6 +111,8 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             __module__=parameters.__class__.__module__,
             **{name: (info.annotation, info) for name, info in fields.items()},
         )
+        if hasattr(parameters, "targets_name"):
+            model.targets_name = parameters.targets_name
         return cast(Type[CreateParametersType], model)
 
     @classmethod
@@ -151,7 +153,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         """
         return {
             "name": self.name,
-            "parameters": self.parameters_class.serialize(),
+            "parameters": self.parameters_class.serialize(**kwargs),
             "description": self.description,
         }
 
