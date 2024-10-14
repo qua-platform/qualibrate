@@ -26,7 +26,9 @@ def _get_subpath_value_wildcard(
     if not isinstance(obj, (Mapping, Sequence)):
         return []
     iter_function = cast(
-        Callable[..., tuple[Union[str, int], Any]],
+        Callable[
+            ..., Union[Sequence[tuple[str, Any]], Sequence[tuple[int, Any]]]
+        ],
         enumerate if isinstance(obj, Sequence) else dict.items,
     )
     return list(
