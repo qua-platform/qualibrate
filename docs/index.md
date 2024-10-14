@@ -21,15 +21,6 @@ QUAlibrate is a comprehensive platform that enables users to create, manage, and
 3. **Run Calibrations**: Start running calibration nodes or graphs through either the Python interface or the web app. Learn more about each method in the [Calibration Nodes](calibration_nodes.md) and [Calibration Graphs](calibration_graphs.md) sections.
 4. **Use the Web App**: Access and operate your calibration routines through an easy-to-use web interface. More information is available on the [Web App](web_app.md) page.
 
-## Documentation Roadmap
-Explore the following sections to dive deeper into QUAlibrate:
-- **[Installation](installation.md)**: Step-by-step instructions for installing QUAlibrate.
-- **[Calibration Nodes](calibration_nodes.md)**: Learn how to create and use individual calibration nodes.
-- **[Calibration Library](calibration_library.md)**: Understand how to organize and manage calibration nodes and graphs.
-- **[Calibration Graphs](calibration_graphs.md)**: Discover how to build complex calibration workflows that adapt to outcomes in real-time.
-- **[Web App](web_app.md)**: A guide to using the QUAlibrate web app for calibration operations.
-- **[Configuration](configuration.md)**: Details on the QUAlibrate configuration file
-
 ## Core Components
 
 ### [Calibration Nodes](calibration_nodes.md)

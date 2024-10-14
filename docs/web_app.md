@@ -49,4 +49,4 @@ Here you can see the progress of the graph execution, including the results of e
 The `Data` page shows the results of all nodes that have been executed.
 This includes the node results, but also the QUAM state, and any updates to QUAM that occured while executing this node.
 
-![Node Page](assets/web_app/node_page.png){ max-width="700px" }
+![Node Page](assets/web_app/data_page.png){ max-width="700px" }

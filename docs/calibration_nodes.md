@@ -13,14 +13,15 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Define input parameters
-span = 20
+span = 20e3
 num_points = 101
 
 # Generate data
-offset = np.random.rand() * 3
+offset = np.random.rand() * span / 5
+width = span / 20
 noise_factor = 0.2
 sweep_values = np.linspace(-span / 2, span / 2, num_points)
-gaussian = np.exp(-((sweep_values + offset) ** 2))
+gaussian = np.exp(-((sweep_values + offset) / width) ** 2)
 noise = noise_factor * np.random.rand(num_points)
 data = gaussian + noise
 
@@ -54,7 +55,7 @@ Instead of defining parameters as standalone variables, we group them together i
 
 ```python
 class Parameters(NodeParameters):
-    span: float = 20
+    span: float = 20e3
     num_points: int = 101
 ```
 Using `NodeParameters` allows parameters to be modified externally, such as through the QUAlibrate web interface. For example, this makes it easy to adapt calibration settings for different hardware configurations without changing the code.
@@ -129,21 +130,22 @@ from qualibrate import NodeParameters, QualibrationNode
 
 # Define input parameters for QualibrationNode
 class Parameters(NodeParameters):
-    span: float = 20
+    span: float = 20e3
     num_points: int = 101
 
 # Create QualibrationNode
 node = QualibrationNode("emulated_calibration", parameters=Parameters())
 
 # Generate data using node parameters
-offset = np.random.rand() * 3
+offset = np.random.rand() * node.parameters.span / 5
+width = node.parameters.span / 20
 noise_factor = 0.2
 sweep_values = np.linspace(
     -node.parameters.span / 2, 
     node.parameters.span / 2, 
     node.parameters.num_points
 )
-gaussian = np.exp(-((sweep_values + offset) ** 2))
+gaussian = np.exp(-((sweep_values + offset) / width) ** 2)
 noise = noise_factor * np.random.rand(node.parameters.num_points)
 data = gaussian + noise
 

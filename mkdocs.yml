@@ -30,7 +30,7 @@ theme:
   # - navigation.tabs  # Add tabs to the top of the page
   # - navigation.sections  # Expand sections in the navigation
   - navigation.top # Add "back to top" button when scrolling back up
-  - toc.integrate  # Invlude TOC in left sidebar instead of separate right
+  - toc.integrate  # Include TOC in left sidebar instead of separate right
   - search.suggest
   - search.highlight
   - content.tabs.link

@@ -6,7 +6,7 @@ This guide will provide a detailed walkthrough for installing QUAlibrate, a user
 
 /// tab | For Windows
 - Windows 10 (build 1809 and later), or Windows 11
-- 3.9 ≤ Python ≤ 3.11, we recommend Python 3.10 or 3.11
+- Python ≥ 3.9, we recommend Python 3.10 or higher
 
 /// details | Using a virtual environment in Windows
     type: tip

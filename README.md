@@ -16,10 +16,11 @@ QUAlibrate is an open-source calibration platform designed specifically for quan
 
 ## Installation
 
-QUAlibrate requires Python ≥ 3.9.
-To get started, follow these steps:
+**Requirements**
+QUAlibrate requires Python ≥ 3.9. It is also recommended to use a [virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
 
 1. **Install QUAlibrate**
+   Run the following command in a terminal:
 
    ```bash
    pip install qualibrate
