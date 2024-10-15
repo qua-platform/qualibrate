@@ -4,7 +4,7 @@
 
 QUAlibrate-Runner is a subpackage of QUAlibrate that acts as a local server for executing calibration tasks. It allows the QUAlibrate-App to remotely initiate calibration nodes or graphs on quantum processing units (QPUs), decoupling the web interface from the execution environment for flexibility and scalability. The server must be started from a location with access to quantum control hardware to properly execute calibration tasks.
 
-The server must be launched in a Python environment that includes the required packages such as `quam` and `qm-qua`, which are essential for interacting with quantum hardware and executing calibration routines effectively.
+The server must be launched in a Python environment that includes the required packages such as [QUAM](https://github.com/qua-platform/quam/) and [qm-qua](https://pypi.org/project/qm-qua/), which are essential for interacting with quantum hardware and executing calibration routines effectively.
 
 ## Installation
 
