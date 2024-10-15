@@ -15,7 +15,7 @@ These components provide a scalable and modular approach to quantum calibration,
 
 ## Getting Started
 
-To understand how to use the core components of QUAlibrate-Core, please visit the main [QUAlibrate documentation website](https://www.github.io/qua-platform/qualibrate) for detailed guides and examples. For general information about QUAlibrate, including installation and usage instructions, see the [main QUAlibrate repository](https://github.com/qua-platform/qualibrate).
+To understand how to use the core components of QUAlibrate-Core, please visit the main [QUAlibrate documentation website](https://qua-platform.github.io/qualibrate/) for detailed guides and examples. For general information about QUAlibrate, including installation and usage instructions, see the [main QUAlibrate repository](https://github.com/qua-platform/qualibrate).
 
 ## Installation
 
