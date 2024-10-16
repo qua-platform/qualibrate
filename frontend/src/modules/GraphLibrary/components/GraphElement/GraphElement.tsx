@@ -29,8 +29,16 @@ interface TransformedGraph {
 export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrationGraphKey, calibrationGraph }) => {
   const [errorObject, setErrorObject] = useState<unknown>(undefined);
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
-  const { workflowGraphElements, setSelectedWorkflowName, allGraphs, setAllGraphs, selectedWorkflowName, lastRunInfo, setLastRunInfo } =
-    useGraphContext();
+  const {
+    workflowGraphElements,
+    setSelectedWorkflowName,
+    allGraphs,
+    setAllGraphs,
+    selectedWorkflowName,
+    lastRunInfo,
+    setLastRunInfo,
+    fetchWorkflowGraph,
+  } = useGraphContext();
   const { openTab } = useFlexLayoutContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string, workflow?: NodeDTO | GraphWorkflow) => {
@@ -123,7 +131,8 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   return (
     <div
       className={classNames(styles.wrapper, show ? styles.calibrationGraphSelected : "")}
-      onClick={() => {
+      onClick={async () => {
+        await fetchWorkflowGraph(calibrationGraphKey);
         setSelectedItemName(calibrationGraphKey);
         setSelectedWorkflowName(calibrationGraphKey);
       }}

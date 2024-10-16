@@ -41,6 +41,7 @@ interface IGraphContext {
   lastRunInfo?: LastRunInfo;
   setLastRunInfo: Dispatch<SetStateAction<LastRunInfo | undefined>>;
   fetchAllCalibrationGraphs: (rescan?: boolean) => void;
+  fetchWorkflowGraph: (nodeName: string) => void;
 }
 
 const GraphContext = React.createContext<IGraphContext>({
@@ -62,6 +63,8 @@ const GraphContext = React.createContext<IGraphContext>({
   lastRunInfo: undefined,
   setLastRunInfo: noop,
   fetchAllCalibrationGraphs: noop,
+
+  fetchWorkflowGraph: noop,
 });
 
 export const useGraphContext = () => useContext<IGraphContext>(GraphContext);
@@ -217,6 +220,7 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
         lastRunInfo,
         setLastRunInfo,
         fetchAllCalibrationGraphs,
+        fetchWorkflowGraph,
       }}
     >
       {props.children}
