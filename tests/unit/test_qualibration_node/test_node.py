@@ -161,15 +161,21 @@ class TestQualibrationNode:
         )
 
     def test__validate_passed_parameters_options_with_none(self, mocker):
-        default_parameters = MagicMock()
-        mocker.patch(
-            "qualibrate.qualibration_node.NodeCreateParametersType",
-            return_value=default_parameters,
+        mocked_create_model = mocker.patch(
+            "qualibrate.qualibration_node.create_model"
         )
-        result = QualibrationNode._validate_passed_parameters_options(
+        params = mocker.patch(
+            "qualibrate.qualibration_node.NodeParameters",
+            __name__="a",
+            __doc__="str",
+            __module__="module",
+        )
+        QualibrationNode._validate_passed_parameters_options(
             name="test_node", parameters=None, parameters_class=None
         )
-        assert result == default_parameters
+        mocked_create_model.assert_called_once_with(
+            "a", __doc__="str", __base__=params, __module__="module"
+        )
 
     def test__validate_passed_parameters_options_parameters_class_instantiation_failure(
         self, mock_logger
