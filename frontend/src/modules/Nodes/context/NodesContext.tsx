@@ -28,6 +28,7 @@ export interface RunningNodeInfo {
 }
 
 interface INodesContext {
+  responseError?: ErrorObject;
   runningNode?: NodeDTO;
   runningNodeInfo?: RunningNodeInfo;
   setRunningNode: (selectedNode: NodeDTO) => void;
@@ -145,7 +146,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         const error = lastRunResponseResult && lastRunResponseResult.error ? lastRunResponseResult.error : undefined;
         setRunningNodeInfo({
           ...runningNodeInfo,
-          status: "error",
+          status: "idle",
           error,
         });
         console.log("last run status was error");
