@@ -108,6 +108,7 @@ class QualibrationGraph(
         for node_name in self._nodes:
             self._add_node_by_name(node_name)
         for v_name, x_name in connectivity:
+            # TODO: replace with `self._get_qnode_or_error`
             v = self._add_node_by_name(v_name)
             x = self._add_node_by_name(x_name)
             if not self._graph.has_edge(v, x):
@@ -144,6 +145,7 @@ class QualibrationGraph(
         for name, node in nodes.items():
             if name != node.name:
                 node = node.copy(name)
+                print("res", node)
                 logger.warning(
                     f"{node} has to be copied due to conflicting name ({name})"
                 )
@@ -474,7 +476,10 @@ class QualibrationGraph(
                 graph.
         """
         node = self._get_qnode_or_error(node_name)
+        print(node)
         if node not in self._graph:
+            print("call add to graph")
+            print(self._graph)
             self._graph.add_node(node, **self.__class__._node_init_args)
         return node
 
