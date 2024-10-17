@@ -1,8 +1,8 @@
-from qualibrate.parameters import NodeParameters
+from qualibrate.parameters import RunnableParameters
 
 
 def test_parameters_empty_serialization():
-    class Parameters(NodeParameters):
+    class Parameters(RunnableParameters):
         qubits: list[str] = []
 
     parameters = Parameters()
@@ -19,7 +19,7 @@ def test_parameters_empty_serialization():
 
 
 def test_parameters_default_types_serialization():
-    class Parameters(NodeParameters):
+    class Parameters(RunnableParameters):
         qubits: list[str] = []
         bool_val: bool = False
         int_val: int = 0
