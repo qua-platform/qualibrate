@@ -144,11 +144,19 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         }
       } else {
         const error = lastRunResponseResult && lastRunResponseResult.error ? lastRunResponseResult.error : undefined;
-        setRunningNodeInfo({
-          ...runningNodeInfo,
-          status: "idle",
-          error,
-        });
+        if (!lastRunResponseResult) {
+          setRunningNodeInfo({
+            ...runningNodeInfo,
+            status: "idle",
+            error,
+          });
+        } else if (lastRunResponseResult && lastRunResponseResult.status === "error") {
+          setRunningNodeInfo({
+            ...runningNodeInfo,
+            status: "error",
+            error,
+          });
+        }
         console.log("last run status was error");
       }
     } else {
