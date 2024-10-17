@@ -24,7 +24,10 @@ get_runnables_router = APIRouter()
 def get_nodes(
     nodes: Annotated[Mapping[str, QualibrationNode], Depends(get_qnodes)],
 ) -> Mapping[str, Any]:
-    return {node_name: node.serialize() for node_name, node in nodes.items()}
+    return {
+        node_name: node.serialize(exclude_targets=True)
+        for node_name, node in nodes.items()
+    }
 
 
 @get_runnables_router.get("/get_graphs")
@@ -42,7 +45,7 @@ def get_graphs(
 def get_node(
     node: Annotated[QualibrationNode, Depends(get_qnode)],
 ) -> Mapping[str, Any]:
-    return cast(Mapping[str, Any], node.serialize())
+    return cast(Mapping[str, Any], node.serialize(exclude_targets=True))
 
 
 @get_runnables_router.get("/get_graph")
