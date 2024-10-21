@@ -116,9 +116,7 @@ class QualibrationGraph(
                 "Graph instantiated in inspection mode", instance=self
             )
 
-    def _add_nodes_and_connections(
-        self
-    ) -> None:
+    def _add_nodes_and_connections(self) -> None:
         for node_name in self._nodes:
             self._add_node_by_name(node_name)
         for v_name, x_name in self._connectivity:
