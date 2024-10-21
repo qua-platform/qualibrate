@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Generator
 
 import pytest
+from pydantic import Field
 
 from qualibrate.models.execution_history import ExecutionHistoryItem
 from qualibrate.models.node_status import NodeStatus
@@ -24,7 +25,9 @@ def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
 @pytest.fixture
 def graph_params() -> GraphParameters:
     class GP(GraphParameters):
-        qubits: list[str] = ["q1", "q2", "q3", "q4"]
+        qubits: list[str] = Field(
+            default_factory=lambda: ["q1", "q2", "q3", "q4"]
+        )
         retries: int = 2
 
     return GP()

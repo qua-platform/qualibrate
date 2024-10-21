@@ -1,8 +1,10 @@
+from pydantic import Field
+
 from qualibrate import NodeParameters, QualibrationNode
 
 
 class Parameters(NodeParameters):
-    qubits: list[str] = []
+    qubits: list[str] = Field(default_factory=list)
 
     int_value: int = 2
 

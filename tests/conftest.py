@@ -1,4 +1,5 @@
 import pytest
+from pydantic import Field
 
 from qualibrate import NodeParameters, QualibrationNode
 
@@ -6,7 +7,7 @@ from qualibrate import NodeParameters, QualibrationNode
 @pytest.fixture
 def node():
     class Parameters(NodeParameters):
-        qubits: list[str] = []
+        qubits: list[str] = Field(default_factory=list)
 
         str_value: str = "test"
         int_value: int = 1

@@ -1,8 +1,10 @@
+from pydantic import Field
+
 from qualibrate import QualibrationNode, NodeParameters
 
 
 class Parameters(NodeParameters):
-    qubits: list[str] = []
+    qubits: list[str] = Field(default_factory=list)
 
     sampling_points: int = 100
 

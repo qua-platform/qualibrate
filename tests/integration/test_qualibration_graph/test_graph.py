@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any, Generator, Sequence
 
 import pytest
+from pydantic import Field
 
 from qualibrate.orchestration.qualibration_orchestrator import (
     QualibrationOrchestrator,
@@ -23,7 +24,7 @@ def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
 @pytest.fixture
 def graph_params() -> GraphParameters:
     class GP(GraphParameters):
-        qubits: list[str] = []
+        qubits: list[str] = Field(default_factory=list)
         retries: int = 2
 
     return GP(retries=1)

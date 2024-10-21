@@ -1,9 +1,11 @@
+from pydantic import Field
+
 from qualibrate import NodeParameters, QualibrationNode
 from qualibrate.models.outcome import Outcome
 
 
 class Parameters(NodeParameters):
-    qubits: list[str] = []
+    qubits: list[str] = Field(default_factory=list)
 
     str_value: str = "test"
 

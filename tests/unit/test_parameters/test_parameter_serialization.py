@@ -1,16 +1,17 @@
+from pydantic import Field
+
 from qualibrate.parameters import RunnableParameters
 
 
 def test_parameters_empty_serialization():
     class Parameters(RunnableParameters):
-        qubits: list[str] = []
+        qubits: list[str] = Field(default_factory=list)
 
     parameters = Parameters()
     serialized = parameters.serialize()
 
     assert serialized == {
         "qubits": {
-            "default": [],
             "items": {"type": "string"},
             "title": "Qubits",
             "type": "array",
@@ -20,7 +21,7 @@ def test_parameters_empty_serialization():
 
 def test_parameters_default_types_serialization():
     class Parameters(RunnableParameters):
-        qubits: list[str] = []
+        qubits: list[str] = Field(default_factory=list)
         bool_val: bool = False
         int_val: int = 0
         float_val: float = 0.0
@@ -43,7 +44,6 @@ def test_parameters_default_types_serialization():
         },
         "str_val": {"default": "", "title": "Str Val", "type": "string"},
         "qubits": {
-            "default": [],
             "items": {"type": "string"},
             "title": "Qubits",
             "type": "array",

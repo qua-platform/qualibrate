@@ -1,6 +1,7 @@
 from typing import Type
 
 import pytest
+from pydantic import Field
 
 from qualibrate.parameters import NodeParameters
 from qualibrate.qualibration_node import QualibrationNode
@@ -9,7 +10,7 @@ from qualibrate.qualibration_node import QualibrationNode
 @pytest.fixture
 def params_with_req() -> Type[NodeParameters]:
     class Parameters(NodeParameters):
-        qubits: list[str] = []
+        qubits: list[str] = Field(default_factory=list)
         req_str_param: str
         int_param: int = 1
         float_param: float = 2.0

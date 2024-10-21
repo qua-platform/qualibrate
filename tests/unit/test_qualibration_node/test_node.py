@@ -3,6 +3,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock
 
 import pytest
+from pydantic import Field
 
 from qualibrate import QualibrationNode
 from qualibrate.models.outcome import Outcome
@@ -257,7 +258,9 @@ class TestQualibrationNode:
 
     def test__post_run(self, mocker):
         class P(NodeCreateParametersType):
-            qubits: list[str] = ["target1", "target2", "target3"]
+            qubits: list[str] = Field(
+                default_factory=lambda: ["target1", "target2", "target3"]
+            )
 
         node = QualibrationNode(name="test_node")
         last_executed_node = MagicMock()
@@ -300,7 +303,9 @@ class TestQualibrationNode:
         mock_last_executed_node_ctx,
     ):
         class P(NodeCreateParametersType):
-            qubits: list[str] = ["target1", "target2"]
+            qubits: list[str] = Field(
+                default_factory=lambda: ["target1", "target2"]
+            )
 
         node = QualibrationNode(name="test_node")
         node.filepath = Path("test_path")
@@ -351,7 +356,9 @@ class TestQualibrationNode:
         mock_last_executed_node_ctx,
     ):
         class P(NodeCreateParametersType):
-            qubits: list[str] = ["target1", "target2"]
+            qubits: list[str] = Field(
+                default_factory=lambda: ["target1", "target2"]
+            )
 
         node = QualibrationNode(name="test_node")
         node.filepath = Path("test_path")
