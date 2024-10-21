@@ -10,6 +10,7 @@ from typing import (
 )
 
 from qualibrate.utils.logger_m import logger
+from qualibrate.utils.naming import get_full_class_path
 from qualibrate.utils.parameters import recursive_properties_solver
 from qualibrate.utils.type_protocols import TargetType
 from qualibrate.utils.types_parsing import types_conversion
@@ -32,7 +33,7 @@ __all__ = [
 
 class RunnableParameters(BaseModel):
     @classmethod
-    def serialize(cls) -> Mapping[str, Any]:
+    def serialize(cls, **kwargs: Any) -> Mapping[str, Any]:
         schema = cls.model_json_schema()
         properties = schema["properties"]
         return recursive_properties_solver(properties, schema)
@@ -94,9 +95,36 @@ class TargetParameter(BaseModel):
             raise ValueError(f"Targets must be an iterable of {TargetType}")
         setattr(self, self.targets_name, new_targets)
 
+    @classmethod
+    def serialize_targets(
+        cls,
+        parameters: Mapping[str, Any],
+        exclude_targets: bool = False,
+    ) -> Mapping[str, Any]:
+        if exclude_targets:
+            return {
+                k: {**v, "is_targets": False}
+                for k, v in parameters.items()
+                if k != cls.targets_name
+            }
+        else:
+            return {
+                k: {**v, "is_targets": k == cls.targets_name}
+                for k, v in parameters.items()
+            }
+
 
 class NodeParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[Optional[str]] = "qubits"
+
+    @classmethod
+    def serialize(
+        cls, exclude_targets: bool = False, **kwargs: Any
+    ) -> Mapping[str, Any]:
+        return cls.serialize_targets(
+            super().serialize(),
+            exclude_targets,
+        )
 
 
 class NodesParameters(RunnableParameters):
@@ -108,6 +136,12 @@ class GraphParameters(RunnableParameters, TargetParameter):
 
     qubits: List[TargetType] = Field(default_factory=list)
 
+    @classmethod
+    def serialize(
+        cls, exclude_targets: bool = False, **kwargs: Any
+    ) -> Mapping[str, Any]:
+        return cls.serialize_targets(super().serialize(), exclude_targets)
+
 
 class OrchestratorParameters(RunnableParameters):
     pass
@@ -116,3 +150,41 @@ class OrchestratorParameters(RunnableParameters):
 class ExecutionParameters(RunnableParameters):
     parameters: GraphParameters = Field(default_factory=GraphParameters)
     nodes: NodesParameters = Field(default_factory=NodesParameters)
+
+    @classmethod
+    def serialize(cls, **kwargs: Any) -> Mapping[str, Any]:
+        serialized = super().serialize()
+        updated_serialized = {}
+        if len(serialized) > 2:
+            updated_serialized = {
+                k: v
+                for k, v in serialized.items()
+                if k not in ("parameters", "nodes")
+            }
+        exclude_targets = kwargs.get("exclude_targets", None)
+        exclude_parameters_targets = (
+            exclude_targets if exclude_targets is not None else False
+        )
+        exclude_nodes_targets = (
+            exclude_targets if exclude_targets is not None else True
+        )
+        parameters_class = cls.model_fields["parameters"].annotation
+        if parameters_class is None:
+            raise RuntimeError("Graph parameters class can't be none")
+        if not issubclass(parameters_class, GraphParameters):
+            raise RuntimeError(
+                "Graph parameters class should be subclass of "
+                f"{get_full_class_path(GraphParameters)}"
+            )
+
+        updated_serialized["parameters"] = parameters_class.serialize_targets(
+            serialized["parameters"], exclude_targets=exclude_parameters_targets
+        )
+        updated_serialized["nodes"] = {
+            node_name: NodeParameters.serialize_targets(
+                params, exclude_targets=exclude_nodes_targets
+            )
+            for node_name, params in serialized["nodes"].items()
+        }
+
+        return updated_serialized
