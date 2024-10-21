@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any, Generator, Sequence
 
 import pytest
+from pydantic import Field
 
 from qualibrate.orchestration.qualibration_orchestrator import (
     QualibrationOrchestrator,
@@ -23,7 +24,7 @@ def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
 @pytest.fixture
 def graph_params() -> GraphParameters:
     class GP(GraphParameters):
-        qubits: list[str] = []
+        qubits: list[str] = Field(default_factory=list)
         retries: int = 2
 
     return GP(retries=1)
@@ -72,7 +73,8 @@ def test_serialize(
         "description": "some description",
         "orchestrator": {
             "__class__": (
-                "tests.test_qualibration_graph.test_graph.Orchestrator"
+                "tests.unit.test_qualibration_graph.test_graph_export"
+                ".Orchestrator"
             ),
             "parameters": {},
         },
@@ -156,7 +158,6 @@ def test_serialize(
                 "type": "integer",
             },
             "qubits": {
-                "default": [],
                 "is_targets": True,
                 "items": {"type": "string"},
                 "title": "Qubits",
@@ -210,113 +211,3 @@ def test_cytoscape(
             },
         },
     ]
-
-
-def test_run_sequence(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
-    g = QualibrationGraph(
-        "graph_name",
-        graph_params,
-        qualibration_lib.nodes,
-        [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
-        orchestrator=Orchestrator(),
-    )
-    g.run(
-        **graph_params.model_dump(),
-        nodes={
-            "test_node": {},
-            "one_more_node": {},
-            "test_cal": {},
-        },
-    )
-
-
-def test_run_multi_predecessors(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
-    g = QualibrationGraph(
-        "graph_name",
-        graph_params,
-        qualibration_lib.nodes,
-        [
-            ("test_node", "test_cal"),
-            ("test_node", "one_more_node"),
-            ("one_more_node", "test_cal"),
-        ],
-        orchestrator=Orchestrator(),
-    )
-    g.run(
-        retries=4,
-        nodes={
-            "test_node": {
-                "str_value": "test_custom",
-                "int_value": 100,
-                "float_value": 0.2,
-            },
-            "one_more_node": {
-                "str_value": "test_custom_more",
-                "float_value": 0.4,
-            },
-            "test_cal": {
-                "resonator": "test_custom",
-                "sampling_points": 20,
-            },
-        },
-    )
-
-
-def test_run_multi_nodes_instances(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
-    test_node_1 = qualibration_lib.nodes["test_node"]
-    one_more_node = qualibration_lib.nodes["one_more_node"]
-    test_cal = qualibration_lib.nodes["test_cal"]
-    test_node_2 = test_node_1.copy("test_node_2")
-    one_more_node_2 = one_more_node.copy("one_more_node_2")
-    nodes = [test_node_1, test_node_2, one_more_node, one_more_node_2, test_cal]
-    g = QualibrationGraph(
-        "graph_name",
-        graph_params,
-        {n.name: n for n in nodes},
-        [
-            ("test_node", "test_cal"),
-            # --
-            ("test_node", "test_node_2"),
-            ("test_node_2", "one_more_node_2"),
-            # ---
-            ("test_node", "one_more_node"),
-            ("one_more_node", "test_cal"),
-            # ---
-            ("test_node", "one_more_node_2"),
-            ("one_more_node_2", "test_cal"),
-        ],
-        orchestrator=Orchestrator(),
-    )
-    g.run(
-        retries=4,
-        nodes={
-            "test_node": {
-                "str_value": "test_custom",
-                "int_value": 100,
-                "float_value": 0.2,
-            },
-            "test_node_2": {
-                "str_value": "test_custom-2",
-                "int_value": 200,
-                "float_value": 0.4,
-            },
-            "one_more_node": {
-                "str_value": "test_custom_more",
-                "float_value": 0.4,
-            },
-            "one_more_node_2": {
-                "str_value": "test_custom_more-2",
-                "float_value": 0.8,
-            },
-            "test_cal": {
-                "resonator": "test_custom",
-                "sampling_points": 20,
-            },
-        },
-    )

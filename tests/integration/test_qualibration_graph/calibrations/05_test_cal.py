@@ -1,3 +1,5 @@
+from pydantic import Field
+
 from qualibrate import QualibrationNode, NodeParameters
 from quam.components import *
 import numpy as np
@@ -6,7 +8,7 @@ from matplotlib import pyplot as plt
 
 
 class Parameters(NodeParameters):
-    qubits: list[str] = []
+    qubits: list[str] = Field(default_factory=list)
 
     resonator: str = "q1.resonator"
     sampling_points: int = 100

@@ -108,6 +108,7 @@ class QualibrationGraph(
         for node_name in self._nodes:
             self._add_node_by_name(node_name)
         for v_name, x_name in connectivity:
+            # TODO: replace with `self._get_qnode_or_error`
             v = self._add_node_by_name(v_name)
             x = self._add_node_by_name(x_name)
             if not self._graph.has_edge(v, x):

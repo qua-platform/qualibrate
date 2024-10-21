@@ -44,7 +44,11 @@ from qualibrate.utils.type_protocols import (
     TargetType,
 )
 
-__all__ = ["QualibrationNode"]
+__all__ = [
+    "QualibrationNode",
+    "NodeCreateParametersType",
+    "NodeRunParametersType",
+]
 
 NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
