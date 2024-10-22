@@ -3,9 +3,11 @@ from pathlib import Path
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    from qualibrate import QualibrationLibrary
+    from qualibrate import NodeParameters, QualibrationLibrary, QualibrationNode
 
     library_folder = Path(__file__).parent.parent / "calibrations"
-    library = QualibrationLibrary(library_folder=library_folder)
+    library = QualibrationLibrary[QualibrationNode[NodeParameters]](
+        library_folder=library_folder
+    )
 
     print(library.nodes)

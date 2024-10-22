@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
 if TYPE_CHECKING:
+    from qualibrate.parameters import NodeParameters
     from qualibrate.qualibration_node import QualibrationNode
 
 
-class StorageManager(ABC):
+NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[NodeParameters]")
+
+
+class StorageManager(ABC, Generic[NodeTypeVar]):
     """
     Abstract base class for managing the storage of calibration nodes.
 
@@ -17,7 +21,7 @@ class StorageManager(ABC):
     snapshot_idx: Optional[int] = None
 
     @abstractmethod
-    def save(self, node: "QualibrationNode") -> None:
+    def save(self, node: NodeTypeVar) -> None:
         """
         Saves the current state of the provided node.
 

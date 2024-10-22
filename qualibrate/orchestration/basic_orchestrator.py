@@ -1,11 +1,11 @@
 import traceback
 from datetime import datetime
 from queue import Queue
-from typing import Any, Optional, Sequence
+from typing import Any, Generic, Optional, Sequence
 
 import networkx as nx
 
-from qualibrate import QualibrationGraph, QualibrationNode
+from qualibrate import QualibrationGraph
 from qualibrate.models.execution_history import ExecutionHistoryItem
 from qualibrate.models.node_status import NodeStatus
 from qualibrate.models.outcome import Outcome
@@ -13,12 +13,15 @@ from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.orchestration.qualibration_orchestrator import (
     QualibrationOrchestrator,
 )
+from qualibrate.qualibration_graph import NodeTypeVar
 from qualibrate.utils.logger_m import logger
 
 __all__ = ["BasicOrchestrator"]
 
 
-class BasicOrchestrator(QualibrationOrchestrator):
+class BasicOrchestrator(
+    QualibrationOrchestrator[NodeTypeVar], Generic[NodeTypeVar]
+):
     """
     A basic orchestrator that manages the execution of nodes in a graph.
     This orchestrator firstly run nodes without predecessors. And then just
@@ -37,7 +40,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
 
         """
         super().__init__(skip_failed=skip_failed)
-        self._execution_queue: Queue[QualibrationNode] = Queue()
+        self._execution_queue: Queue[NodeTypeVar] = Queue()
 
     def _is_execution_finished(self) -> bool:
         """
@@ -70,7 +73,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
             self._execution_queue.queue.clear()
 
     @property
-    def nx_graph(self) -> "nx.DiGraph[QualibrationNode]":
+    def nx_graph(self) -> "nx.DiGraph[NodeTypeVar]":
         """
         Gets the networkx representation of the graph.
 
@@ -84,7 +87,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
             raise ValueError("Graph is not specified")
         return self._graph._graph
 
-    def check_node_successful(self, node: QualibrationNode) -> bool:
+    def check_node_successful(self, node: NodeTypeVar) -> bool:
         """
         Checks if a node was successfully executed.
 
@@ -101,7 +104,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
             == NodeStatus.successful
         )
 
-    def get_next_node(self) -> Optional[QualibrationNode]:
+    def get_next_node(self) -> Optional[NodeTypeVar]:
         """
         Gets the next node to execute.
 
@@ -118,7 +121,7 @@ class BasicOrchestrator(QualibrationOrchestrator):
         return None
 
     def traverse_graph(
-        self, graph: QualibrationGraph, targets: Sequence[Any]
+        self, graph: QualibrationGraph[NodeTypeVar], targets: Sequence[Any]
     ) -> None:
         """
         Traverses the graph and orchestrates node execution.
