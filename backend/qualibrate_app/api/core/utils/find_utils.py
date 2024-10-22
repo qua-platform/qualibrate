@@ -47,6 +47,34 @@ def _check_key_valid(obj: Any, key: Union[str, int]) -> bool:
     return False
 
 
+def get_subpath_value_mapping(
+    obj: Mapping[str, Any],
+    target_path: Sequence[Union[str, int]],
+    current_path: list[Union[str, int]],
+    key: str,
+) -> DocumentSequenceType:
+    if len(target_path) == 1:
+        return [{"key": current_path + [key], "value": obj[key]}]
+    else:
+        return get_subpath_value(
+            obj[key], target_path[1:], current_path + [key]
+        )
+
+
+def get_subpath_value_sequence(
+    obj: Sequence[Any],
+    target_path: Sequence[Union[str, int]],
+    current_path: list[Union[str, int]],
+    key: int,
+) -> DocumentSequenceType:
+    if len(target_path) == 1:
+        return [{"key": current_path + [key], "value": obj[key]}]
+    else:
+        return get_subpath_value(
+            obj[key], target_path[1:], current_path + [key]
+        )
+
+
 def get_subpath_value(
     obj: Union[Mapping[str, Any], Sequence[Any]],
     target_path: Sequence[Union[str, int]],
@@ -62,13 +90,13 @@ def get_subpath_value(
     key_valid = _check_key_valid(obj, key)
     if not key_valid:
         return []
-    cast_f = str if isinstance(obj, Mapping) else int
-    if len(target_path) == 1:
-        return [{"key": current_path + [key], "value": obj[cast_f(key)]}]
-    else:
-        return get_subpath_value(
-            obj[cast_f(key)], target_path[1:], current_path + [key]
+    if isinstance(obj, Mapping):
+        return get_subpath_value_mapping(
+            obj, target_path, current_path, cast(str, key)
         )
+    return get_subpath_value_sequence(
+        obj, target_path, current_path, cast(int, key)
+    )
 
 
 def get_subpath_value_on_any_depth(
