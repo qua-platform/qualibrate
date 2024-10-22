@@ -11,15 +11,15 @@ include = [{ path = "qualibrate_static/**/*", format = ["sdist", "wheel"] }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-fastapi = "^0.111.0"
-uvicorn = "^0.29.0"
+fastapi = "^0.115.2"
+uvicorn = "^0.32.0"
 pydantic-settings = "^2.1.0"
 click = "^8.1.7"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 requests = "^2.31.0"
 jsonpatch = "^1.33"
-qualibrate-runner = {version="^0.2.0"}
+qualibrate-runner = {version="^0.2.2", optional = true }
 # TODO: replace after publishing timeline-db
 # json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
 
