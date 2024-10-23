@@ -148,3 +148,10 @@ class SnapshotTimelineDb(SnapshotBase):
         **kwargs: Mapping[str, Any],
     ) -> Optional[Mapping[str, Any]]:
         return None
+
+    def extract_state_update_types(
+        self,
+        paths: Sequence[str],
+        **kwargs: Mapping[str, Any],
+    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+        return {}

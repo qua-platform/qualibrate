@@ -32,6 +32,7 @@ from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
     find_latest_node_id,
     find_n_latest_nodes_ids,
 )
+from qualibrate_app.api.core.schemas.state_updates import StateUpdates
 from qualibrate_app.api.core.types import (
     DocumentSequenceType,
     DocumentType,
@@ -395,11 +396,10 @@ class SnapshotLocalStorage(SnapshotBase):
             return {"type": "null"}
         return {"type": item_type}
 
-    def _extract_state_updates_type_from_runner(
+    def get_state_updates_from_runner(
         self,
-        path: str,
         **kwargs: Any,
-    ) -> Optional[Mapping[str, Any]]:
+    ) -> Optional[StateUpdates]:
         try:
             cookies = cast(
                 Optional[MutableMapping[str, str]], kwargs.get("cookies")
@@ -416,16 +416,42 @@ class SnapshotLocalStorage(SnapshotBase):
             data = last_run_response.json()
         except RequestsJSONDecodeError:
             return None
-        state_update = data.get("state_updates", {}).get(path)
-        if state_update is None:
+        if data is None:
             return None
-        new_state = state_update.get("new", object)
-        if new_state is object:
+        return StateUpdates(state_updates=data.get("state_updates", {}))
+
+    def _extract_state_update_type_from_runner(
+        self,
+        path: str,
+        state_updates: Optional[StateUpdates] = None,
+        **kwargs: Any,
+    ) -> Optional[Mapping[str, Any]]:
+        if state_updates is None:
+            state_updates = self.get_state_updates_from_runner(**kwargs)
+        if state_updates is None or path not in state_updates.state_updates:
             return None
+        new_state = state_updates.state_updates[path].new
         return self._conversion_type_from_value(new_state)
 
-    def _extract_state_updates_from_quam_state(
-        self, path: str
+    def extract_state_update_types_from_runner(
+        self,
+        paths: Sequence[str],
+        state_updates: Optional[StateUpdates] = None,
+        **kwargs: Any,
+    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+        if state_updates is None:
+            state_updates = self.get_state_updates_from_runner(**kwargs)
+        if state_updates is None:
+            return {}
+        return {
+            path: self._extract_state_update_type_from_runner(
+                path, state_updates
+            )
+            for path in paths
+        }
+
+    def get_quam_state(
+        self,
     ) -> Optional[Mapping[str, Any]]:
         try:
             quam_state_file: Path = self.node_path / "quam_state.json"
@@ -434,23 +460,63 @@ class SnapshotLocalStorage(SnapshotBase):
         if not quam_state_file.is_file():
             return None
         try:
-            quam_state = json.loads(quam_state_file.read_text())
+            return cast(
+                Mapping[str, Any], json.loads(quam_state_file.read_text())
+            )
         except json.JSONDecodeError:
+            return None
+
+    def _extract_state_update_type_from_quam_state(
+        self, path: str, quam_state: Optional[Mapping[str, Any]] = None
+    ) -> Optional[Mapping[str, Any]]:
+        if quam_state is None:
+            quam_state = self.get_quam_state()
+        if quam_state is None:
             return None
         quam_item = jsonpointer.resolve_pointer(quam_state, path[1:], object)
         if quam_item is object:
             return None
         return self._conversion_type_from_value(quam_item)
 
+    def extract_state_update_types_from_quam_state(
+        self,
+        paths: Sequence[str],
+        quam_state: Optional[Mapping[str, Any]] = None,
+    ) -> Optional[Mapping[str, Any]]:
+        if quam_state is None:
+            quam_state = self.get_quam_state()
+        if quam_state is None:
+            return None
+        return {
+            path: self._extract_state_update_type_from_quam_state(
+                path, quam_state
+            )
+            for path in paths
+        }
+
     def extract_state_update_type(
         self,
         path: str,
         **kwargs: Mapping[str, Any],
     ) -> Optional[Mapping[str, Any]]:
-        _type = self._extract_state_updates_type_from_runner(path, **kwargs)
+        _type = self._extract_state_update_type_from_runner(
+            path, None, **kwargs
+        )
         if _type is not None:
             return _type
-        return self._extract_state_updates_from_quam_state(path)
+        return self._extract_state_update_type_from_quam_state(path)
+
+    def extract_state_update_types(
+        self,
+        paths: Sequence[str],
+        **kwargs: Mapping[str, Any],
+    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+        types = self.extract_state_update_types_from_runner(
+            paths, None, **kwargs
+        )
+        if types is not None:
+            return types
+        return self.extract_state_update_types_from_quam_state(paths)
 
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         if self.load_type < SnapshotLoadType.Data:

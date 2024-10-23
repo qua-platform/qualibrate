@@ -50,6 +50,13 @@ class SnapshotBaseCustom(SnapshotBase):
     ) -> Optional[Mapping[str, Any]]:
         raise NotImplementedError
 
+    def extract_state_update_types(
+        self,
+        paths: Sequence[str],
+        **kwargs: Mapping[str, Any],
+    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+        raise NotImplementedError
+
 
 def test__items_keys():
     assert SnapshotBase._items_keys == ("data", "metadata")

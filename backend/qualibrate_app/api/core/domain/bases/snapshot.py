@@ -129,5 +129,13 @@ class SnapshotBase(IDump, ABC):
         pass
 
     @abstractmethod
+    def extract_state_update_types(
+        self,
+        paths: Sequence[str],
+        **kwargs: Mapping[str, Any],
+    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+        pass
+
+    @abstractmethod
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         pass
