@@ -105,14 +105,7 @@ class QualibrationGraph(
         self._graph: "nx.DiGraph[QualibrationNode]" = nx.DiGraph()
         self._orchestrator = orchestrator
         self._initial_targets: Sequence[TargetType] = []
-        for node_name in self._nodes:
-            self._add_node_by_name(node_name)
-        for v_name, x_name in connectivity:
-            # TODO: replace with `self._get_qnode_or_error`
-            v = self._add_node_by_name(v_name)
-            x = self._add_node_by_name(x_name)
-            if not self._graph.has_edge(v, x):
-                self._graph.add_edge(v, x)
+        self._add_nodes_and_connections()
         self.full_parameters_class = self._build_parameters_class()
         self.full_parameters: GraphRunParametersType = (
             self.full_parameters_class()
@@ -122,6 +115,26 @@ class QualibrationGraph(
             raise StopInspection(
                 "Graph instantiated in inspection mode", instance=self
             )
+
+    def _add_nodes_and_connections(self) -> None:
+        for node_name in self._nodes:
+            self._add_node_by_name(node_name)
+        for v_name, x_name in self._connectivity:
+            try:
+                v = self._get_qnode_or_error(v_name)
+                x = self._get_qnode_or_error(x_name)
+            except ValueError as ex:
+                issued_node_name = (
+                    ex.args[1] if len(ex.args) > 1 else f"{v_name} or {x_name}"
+                )
+                raise ValueError(
+                    f'Error creating QualibrationGraph "{self.name}": Could '
+                    f"not add connection ({v_name}, {x_name}) because node "
+                    f'with name "{issued_node_name}" has not been registered. '
+                    f"Available node names: {tuple(self._nodes.keys())}"
+                )
+            if not self._graph.has_edge(v, x):
+                self._graph.add_edge(v, x)
 
     @staticmethod
     def _validate_nodes_names_mapping(
@@ -457,7 +470,7 @@ class QualibrationGraph(
         """
         node = self._nodes.get(node_name)
         if node is None:
-            raise ValueError(f"Unknown node with name {node_name}")
+            raise ValueError(f"Unknown node with name {node_name}", node_name)
         return node
 
     def _add_node_by_name(self, node_name: str) -> QualibrationNode:

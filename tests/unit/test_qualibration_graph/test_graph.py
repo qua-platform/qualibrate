@@ -87,7 +87,9 @@ class TestQualibrationGraph:
         mocked_add_node.assert_has_calls(
             [mocker.call("node1"), mocker.call("node2")], any_order=True
         )
-        mock_nx_graph.add_edge.assert_called_once_with("node1", "node2")
+        mock_nx_graph.add_edge.assert_called_once_with(
+            nodes["node1"], nodes["node2"]
+        )
 
     def test_init_graph_with_inspection_mode(self, pre_setup_graph_init):
         (nodes, _, _, _) = pre_setup_graph_init
