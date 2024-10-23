@@ -1,6 +1,6 @@
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Any, Dict, Mapping, Optional, cast
+from typing import Any, Dict, Generic, Mapping, Optional, cast
 
 from qualibrate.models.run_summary.graph import GraphRunSummary
 from qualibrate.models.run_summary.node import NodeRunSummary
@@ -8,14 +8,14 @@ from qualibrate.parameters import (
     ExecutionParameters,
     NodeParameters,
 )
-from qualibrate.qualibration_graph import QualibrationGraph
+from qualibrate.qualibration_graph import NodeTypeVar, QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.logger_m import logger
 
 __all__ = ["QualibrationLibrary"]
 
 
-class QualibrationLibrary:
+class QualibrationLibrary(Generic[NodeTypeVar]):
     """
     Manages a collection of Qualibration nodes and graphs for calibration purposes.
 
@@ -35,13 +35,13 @@ class QualibrationLibrary:
             Calls `_scan()` if `library_folder` is provided.
     """
 
-    active_library: Optional["QualibrationLibrary"] = None
+    active_library: Optional["QualibrationLibrary[NodeTypeVar]"] = None
 
     def __init__(
         self, library_folder: Optional[Path] = None, set_active: bool = True
     ):
-        self.nodes: Dict[str, QualibrationNode] = {}
-        self.graphs: Dict[str, QualibrationGraph] = {}
+        self.nodes: Dict[str, NodeTypeVar] = {}
+        self.graphs: Dict[str, QualibrationGraph[NodeTypeVar]] = {}
         self._library_folder = library_folder
 
         if set_active:
@@ -64,11 +64,11 @@ class QualibrationLibrary:
             logger.warning("Can't rescan library without specified folder.")
             return
         self.nodes = cast(
-            Dict[str, QualibrationNode],
+            Dict[str, NodeTypeVar],
             QualibrationNode.scan_folder_for_instances(self._library_folder),
         )
         self.graphs = cast(
-            Dict[str, QualibrationGraph],
+            Dict[str, QualibrationGraph[NodeTypeVar]],
             QualibrationGraph.scan_folder_for_instances(self._library_folder),
         )
 
@@ -84,7 +84,7 @@ class QualibrationLibrary:
     @classmethod
     def get_active_library(
         cls, library_folder: Optional[Path] = None, create: bool = True
-    ) -> "QualibrationLibrary":
+    ) -> "QualibrationLibrary[NodeTypeVar]":
         """
         Gets or creates the active library instance.
 
@@ -151,7 +151,7 @@ class QualibrationLibrary:
             "graphs": [graph.serialize() for graph in self.graphs.values()],
         }
 
-    def get_nodes(self) -> Mapping[str, QualibrationNode]:
+    def get_nodes(self) -> Mapping[str, NodeTypeVar]:
         """
         Returns all nodes available in the library.
 
@@ -160,7 +160,7 @@ class QualibrationLibrary:
         """
         return self.nodes
 
-    def get_graphs(self) -> Mapping[str, QualibrationGraph]:
+    def get_graphs(self) -> Mapping[str, QualibrationGraph[NodeTypeVar]]:
         """
         Returns all graphs available in the library.
 

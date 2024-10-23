@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Dict, Generic, List, Mapping, Optional, Sequence
 
 from pydantic import create_model
 
@@ -9,15 +9,17 @@ from qualibrate.models.execution_history import (
 )
 from qualibrate.models.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
-from qualibrate.qualibration_graph import QualibrationGraph
-from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.qualibration_graph import NodeTypeVar, QualibrationGraph
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.naming import get_full_class_path
 
 __all__ = ["QualibrationOrchestrator"]
 
 
-class QualibrationOrchestrator(ABC):
+# NodeType = TypeVar("NodeType", bound=QualibrationNode[NodeParameters])
+
+
+class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
     """
     Abstract base class for orchestrating the execution of nodes in a
     calibration graph.
@@ -31,7 +33,7 @@ class QualibrationOrchestrator(ABC):
     """
 
     def __init__(self, **parameters: Any):
-        self._graph: Optional[QualibrationGraph] = None
+        self._graph: Optional[QualibrationGraph[NodeTypeVar]] = None
         self._is_stopped: bool = False
         self.parameters_class = create_model(
             "OrchestratorParameters",
@@ -44,11 +46,11 @@ class QualibrationOrchestrator(ABC):
         self.initial_targets: Optional[List[Any]] = None
         self.targets: Optional[List[Any]] = None
         self._execution_history: List[ExecutionHistoryItem] = []
-        self._active_node: Optional[QualibrationNode] = None
+        self._active_node: Optional[NodeTypeVar] = None
         self.final_outcomes: Dict[Any, Outcome] = {}
 
     @property
-    def active_node(self) -> Optional[QualibrationNode]:
+    def active_node(self) -> Optional[NodeTypeVar]:
         """
         Gets the currently active node.
 
@@ -119,7 +121,7 @@ class QualibrationOrchestrator(ABC):
 
     @abstractmethod
     def traverse_graph(
-        self, graph: QualibrationGraph, targets: Sequence[Any]
+        self, graph: QualibrationGraph[NodeTypeVar], targets: Sequence[Any]
     ) -> None:
         """
         Abstract method for traversing a graph.

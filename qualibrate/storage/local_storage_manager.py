@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
 from qualang_tools.results import DataHandler
 
@@ -8,10 +8,14 @@ from qualibrate.storage.storage_manager import StorageManager
 from qualibrate.utils.logger_m import logger
 
 if TYPE_CHECKING:
+    from qualibrate.parameters import NodeParameters
     from qualibrate.qualibration_node import QualibrationNode
 
 
-class LocalStorageManager(StorageManager):
+NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[NodeParameters]")
+
+
+class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
     """
     Manages local storage of calibration nodes and their machine states.
 
@@ -36,7 +40,7 @@ class LocalStorageManager(StorageManager):
         self.active_machine_path = active_machine_path
         self.snapshot_idx = None
 
-    def save(self, node: "QualibrationNode") -> None:
+    def save(self, node: NodeTypeVar) -> None:
         """
         Saves the state of the specified node to local storage.
 
