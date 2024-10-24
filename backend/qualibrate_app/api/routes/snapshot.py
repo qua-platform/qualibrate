@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Mapping, Optional, Type, Union
+from typing import Annotated, Any, Mapping, Optional, Type, Union, cast
 from urllib.parse import urljoin
 
 import requests
@@ -19,6 +19,9 @@ from qualibrate_app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
+from qualibrate_app.api.core.schemas.state_updates import (
+    StateUpdateRequestItems,
+)
 from qualibrate_app.api.core.types import DocumentSequenceType, IdType
 from qualibrate_app.api.core.utils.types_parsing import types_conversion
 from qualibrate_app.api.dependencies.search import get_search_path
@@ -95,7 +98,7 @@ def compare_by_id(
 
 
 @snapshot_router.post("/update_entry")
-def update_entity(
+def update_entry(
     *,
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
     data_path: Annotated[
@@ -134,6 +137,56 @@ def update_entity(
             )
         except requests.exceptions.ConnectionError:
             pass
+    return updated
+
+
+@snapshot_router.post("/update_entries")
+def update_entries(
+    *,
+    snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+    state_updates: StateUpdateRequestItems,
+    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
+    qualibrate_token: Annotated[
+        Union[str, None], Cookie(alias="Qualibrate-Token")
+    ] = None,
+) -> bool:
+    """
+    Updates entries in a snapshot based on provided state updates.
+
+    This endpoint extracts state update types for the provided paths and
+    converts the update values according to the extracted types. It then applies
+    the updates to the snapshot. If the update is successful, it attempts to
+    record the state updates with the runner.
+    """
+    cookies = (
+        {"Qualibrate-Token": qualibrate_token}
+        if qualibrate_token is not None
+        else {}
+    )
+    types = snapshot.extract_state_update_types(
+        [item.data_path for item in state_updates.items], cookies=cookies
+    )
+    values = {
+        item.data_path: types_conversion(
+            item.value, cast(Mapping[str, Any], types[item.data_path])
+        )
+        for item in state_updates.items
+        if types.get(item.data_path) is not None
+    }
+    updated = snapshot.update_entry(values)
+    if updated:
+        for data_path in values:
+            try:
+                requests.post(
+                    urljoin(
+                        settings.runner.address_with_root, "record_state_update"
+                    ),
+                    params={"key": data_path},
+                    cookies=cookies,
+                    timeout=settings.runner.timeout,
+                )
+            except requests.exceptions.ConnectionError:
+                pass
     return updated
 
 
