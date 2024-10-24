@@ -1,5 +1,3 @@
-from typing import Type
-
 import pytest
 from pydantic import Field
 
@@ -8,7 +6,7 @@ from qualibrate.qualibration_node import QualibrationNode
 
 
 @pytest.fixture
-def params_with_req() -> Type[NodeParameters]:
+def params_with_req() -> type[NodeParameters]:
     class Parameters(NodeParameters):
         qubits: list[str] = Field(default_factory=list)
         req_str_param: str
@@ -20,7 +18,7 @@ def params_with_req() -> Type[NodeParameters]:
 
 @pytest.fixture
 def node_with_req_param(
-    params_with_req: Type[NodeParameters],
+    params_with_req: type[NodeParameters],
 ) -> QualibrationNode:
     yield QualibrationNode(
         "node_name", params_with_req(req_str_param="a"), "node description"
@@ -54,7 +52,7 @@ def test_copy_without_parameters_instance(
 
 
 def test_copy_with_parameters_instance(
-    params_with_req: Type[NodeParameters], node_with_req_param: QualibrationNode
+    params_with_req: type[NodeParameters], node_with_req_param: QualibrationNode
 ):
     node = node_with_req_param
     node.modes.external = False

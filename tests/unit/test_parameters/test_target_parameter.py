@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Optional
+from typing import ClassVar, Optional
 
 import pytest
 from pydantic import ValidationError
@@ -10,7 +10,7 @@ from qualibrate.utils.type_protocols import TargetType
 class TestTargetParameter:
     class SampleTargetParameter(TargetParameter):
         targets_name: ClassVar[Optional[str]] = "test_targets"
-        test_targets: Optional[List[TargetType]] = None
+        test_targets: Optional[list[TargetType]] = None
         other_field: Optional[str] = None
 
     def test_prepare_targets_with_targets_name(self):
@@ -43,7 +43,8 @@ class TestTargetParameter:
         assert instance.test_targets == ["1", "2", "3"]
         assert instance.targets == ["1", "2", "3"]
         logger_mock.warning.assert_called_once_with(
-            "You specified `targets` and `test_targets` (marked as targets name) fields. `test_targets` will be ignored.",
+            "You specified `targets` and `test_targets` (marked as targets "
+            "name) fields. `test_targets` will be ignored.",
         )
 
     def test_prepare_targets_without_targets_name(self):

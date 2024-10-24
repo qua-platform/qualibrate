@@ -57,7 +57,8 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             - Saves the node's results and machine state in the root data
                 folder.
             - Updates the `snapshot_idx` to reflect the newly saved node state.
-            - Optionally saves the machine state to the active path if specified.
+            - Optionally saves the machine state to the active path if
+                specified.
 
         Raises:
             AssertionError: If `self.data_handler.path` is not of type `Path`.

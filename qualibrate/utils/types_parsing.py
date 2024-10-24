@@ -1,19 +1,20 @@
 # duplication of qualibrate_runner/core/types_parsing.py
 
 import sys
+from collections.abc import Mapping
+from typing import Any, Optional, Union
 
 if sys.version_info >= (3, 10):
     from types import NoneType
 else:
     NoneType = type(None)
-from typing import Any, Dict, List, Mapping, Optional, Type, Union
 
 NOT_NONE_BASIC_TYPES = Union[bool, int, float, str]
 BASIC_TYPES = Union[NOT_NONE_BASIC_TYPES, NoneType]
-LIST_TYPES = Union[List[bool], List[int], List[float], List[str]]
+LIST_TYPES = Union[list[bool], list[int], list[float], list[str]]
 VALUE_TYPES_WITHOUT_REC = Union[BASIC_TYPES, LIST_TYPES]
 INPUT_CONVERSION_TYPE = Union[
-    VALUE_TYPES_WITHOUT_REC, Dict[str, "INPUT_CONVERSION_TYPE"]
+    VALUE_TYPES_WITHOUT_REC, dict[str, "INPUT_CONVERSION_TYPE"]
 ]
 
 
@@ -91,7 +92,7 @@ BASIC_PARSERS = {
     NoneType: parse_none,
 }
 
-STR_TO_TYPE: Mapping[str, Type[BASIC_TYPES]] = {
+STR_TO_TYPE: Mapping[str, type[BASIC_TYPES]] = {
     "integer": int,
     "number": float,
     "boolean": bool,
@@ -101,7 +102,7 @@ STR_TO_TYPE: Mapping[str, Type[BASIC_TYPES]] = {
 
 
 def parse_typed_list(
-    value: List[Any], item_type: Type[BASIC_TYPES]
+    value: list[Any], item_type: type[BASIC_TYPES]
 ) -> LIST_TYPES:
     if len(value) == 0:
         return value
@@ -114,9 +115,9 @@ def parse_typed_list(
 
 def parse_list(
     value: VALUE_TYPES_WITHOUT_REC,
-    item_type: Optional[Type[BASIC_TYPES]],
+    item_type: Optional[type[BASIC_TYPES]],
 ) -> VALUE_TYPES_WITHOUT_REC:
-    if isinstance(value, List):
+    if isinstance(value, list):
         if item_type is None:
             return value
         return parse_typed_list(value, item_type)
@@ -142,7 +143,7 @@ def types_conversion(value: Any, expected_type: Mapping[str, Any]) -> Any:
                 new[k] = v
         return new
     if "anyOf" in expected_type:
-        # suppose that only `Type | None` is possible
+        # suppose that only `type | None` is possible
         none = parse_none(value)
         if none is None:
             return None
@@ -152,13 +153,13 @@ def types_conversion(value: Any, expected_type: Mapping[str, Any]) -> Any:
     if "type" in expected_type:
         if expected_type.get("type") == "array":
             # array
-            item_type: Optional[Type[BASIC_TYPES]] = (
+            item_type: Optional[type[BASIC_TYPES]] = (
                 STR_TO_TYPE.get(expected_type["items"]["type"])
                 if "items" in expected_type
                 else None
             )
             return parse_list(value, item_type)
-        if expected_type.get("type") in STR_TO_TYPE.keys():
+        if expected_type.get("type") in STR_TO_TYPE:
             expected = STR_TO_TYPE[expected_type["type"]]
             parser = BASIC_PARSERS[expected]
             return parser(value)

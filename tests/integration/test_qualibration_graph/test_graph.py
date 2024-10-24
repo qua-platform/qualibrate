@@ -1,5 +1,6 @@
+from collections.abc import Generator, Sequence
 from pathlib import Path
-from typing import Any, Generator, Sequence
+from typing import Any
 
 import pytest
 from pydantic import Field

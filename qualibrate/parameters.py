@@ -1,13 +1,13 @@
 import sys
+from collections.abc import Mapping, Sequence
 from typing import (
     Any,
     ClassVar,
-    List,
-    Mapping,
     Optional,
-    Sequence,
     cast,
 )
+
+from pydantic import BaseModel, Field, model_validator
 
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.naming import get_full_class_path
@@ -20,7 +20,6 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
-from pydantic import BaseModel, Field, model_validator
 
 __all__ = [
     "ExecutionParameters",
@@ -75,13 +74,13 @@ class TargetParameter(BaseModel):
         return self
 
     @property
-    def targets(self) -> Optional[List[TargetType]]:
+    def targets(self) -> Optional[list[TargetType]]:
         if (
             self.targets_name is None
             or self.targets_name not in self.model_fields
         ):
             return None
-        return cast(List[TargetType], getattr(self, self.targets_name))
+        return cast(list[TargetType], getattr(self, self.targets_name))
 
     @targets.setter
     def targets(self, new_targets: Sequence[TargetType]) -> None:
@@ -89,7 +88,8 @@ class TargetParameter(BaseModel):
             return
         if self.targets_name not in self.model_fields:
             raise ValueError(
-                f"Targets name ({self.targets_name}) specified but field does not exist"
+                f"Targets name ({self.targets_name}) specified but field does "
+                "not exist"
             )
         if not isinstance(new_targets, Sequence):
             raise ValueError(f"Targets must be an iterable of {TargetType}")
@@ -134,7 +134,7 @@ class NodesParameters(RunnableParameters):
 class GraphParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[Optional[str]] = "qubits"
 
-    qubits: List[TargetType] = Field(default_factory=list)
+    qubits: list[TargetType] = Field(default_factory=list)
 
     @classmethod
     def serialize(
@@ -161,7 +161,7 @@ class ExecutionParameters(RunnableParameters):
                 for k, v in serialized.items()
                 if k not in ("parameters", "nodes")
             }
-        exclude_targets = kwargs.get("exclude_targets", None)
+        exclude_targets = kwargs.get("exclude_targets")
         exclude_parameters_targets = (
             exclude_targets if exclude_targets is not None else False
         )

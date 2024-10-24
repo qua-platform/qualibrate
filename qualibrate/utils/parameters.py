@@ -1,11 +1,12 @@
-from typing import Any, Dict, Mapping
+from collections.abc import Mapping, MutableMapping
+from typing import Any
 
 from jsonpointer import resolve_pointer
 
 
 def recursive_properties_solver(
-    properties: Dict[str, Any], schema: Mapping[str, Any]
-) -> Dict[str, Any]:
+    properties: MutableMapping[str, Any], schema: Mapping[str, Any]
+) -> MutableMapping[str, Any]:
     for name, structure in properties.items():
         if (
             "allOf" in structure

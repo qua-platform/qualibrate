@@ -1,16 +1,12 @@
 import traceback
+from collections.abc import Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Generic,
-    Mapping,
     Optional,
-    Sequence,
-    Tuple,
-    Type,
     TypeVar,
     cast,
 )
@@ -72,7 +68,7 @@ class QualibrationGraph(
             graph.
         nodes (Mapping[str, QualibrationNode]): A mapping of node names to
             nodes.
-        connectivity (Sequence[Tuple[str, str]]): Adjacency list representing
+        connectivity (Sequence[tuple[str, str]]): Adjacency list representing
             node connectivity as pairs of node names.
         orchestrator (Optional[QualibrationOrchestrator]): Orchestrator for the
             graph. Defaults to None.
@@ -92,7 +88,7 @@ class QualibrationGraph(
         name: str,
         parameters: GraphCreateParametersType,
         nodes: Mapping[str, NodeTypeVar],
-        connectivity: Sequence[Tuple[str, str]],
+        connectivity: Sequence[tuple[str, str]],
         orchestrator: Optional["QualibrationOrchestrator[NodeTypeVar]"] = None,
         description: Optional[str] = None,
         *,
@@ -101,7 +97,7 @@ class QualibrationGraph(
         super().__init__(name, parameters, description=description, modes=modes)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity
-        self._graph: "nx.DiGraph[NodeTypeVar]" = nx.DiGraph()
+        self._graph: nx.DiGraph[NodeTypeVar] = nx.DiGraph()
         self._orchestrator = orchestrator
         self._initial_targets: Sequence[TargetType] = []
         self._add_nodes_and_connections()
@@ -131,7 +127,7 @@ class QualibrationGraph(
                     f"not add connection ({v_name}, {x_name}) because node "
                     f'with name "{issued_node_name}" has not been registered. '
                     f"Available node names: {tuple(self._nodes.keys())}"
-                )
+                ) from ex
             if not self._graph.has_edge(v, x):
                 self._graph.add_edge(v, x)
 
@@ -166,7 +162,7 @@ class QualibrationGraph(
 
     # TODO: logic commonly same with node so need to move to
     @classmethod
-    def scan_folder_for_instances(cls, path: Path) -> Dict[str, QGraphBaseType]:
+    def scan_folder_for_instances(cls, path: Path) -> dict[str, QGraphBaseType]:
         """
         Scans a folder for graph instances and returns them.
 
@@ -177,10 +173,10 @@ class QualibrationGraph(
             path (Path): The folder to scan for graph files.
 
         Returns:
-            Dict[str, QGraphBaseType]: A dictionary of graph names to their
+            dict[str, QGraphBaseType]: A dictionary of graph names to their
                 corresponding instances.
         """
-        graphs: Dict[str, QGraphBaseType] = {}
+        graphs: dict[str, QGraphBaseType] = {}
         try:
             if run_modes_ctx.get() is not None:
                 logger.error(
@@ -206,7 +202,7 @@ class QualibrationGraph(
 
     @classmethod
     def scan_graph_file(
-        cls, file: Path, graphs: Dict[str, QGraphBaseType]
+        cls, file: Path, graphs: dict[str, QGraphBaseType]
     ) -> None:
         """
         Scans a graph file and adds its instance to the given dictionary.
@@ -216,7 +212,7 @@ class QualibrationGraph(
 
         Args:
             file (Path): The file to scan for a graph.
-            graphs (Dict[str, QGraphBaseType]): The dictionary to add valid
+            graphs (dict[str, QGraphBaseType]): The dictionary to add valid
                 graphs to.
 
         Raises:
@@ -236,7 +232,7 @@ class QualibrationGraph(
     def add_graph(
         cls,
         graph: "QualibrationGraph[NodeTypeVar]",
-        graphs: Dict[str, QGraphBaseType],
+        graphs: dict[str, QGraphBaseType],
     ) -> None:
         """
         Adds a graph to the library dictionary.
@@ -246,7 +242,7 @@ class QualibrationGraph(
 
         Args:
             graph (QualibrationGraph): The graph to add.
-            graphs (Dict[str, QGraphBaseType]): The dictionary to store the
+            graphs (dict[str, QGraphBaseType]): The dictionary to store the
                 graph.
         """
         if graph.name in graphs:
@@ -302,7 +298,7 @@ class QualibrationGraph(
         If parameters are missing for any node, it assigns default values.
 
         Args:
-            nodes_parameters (Mapping[str, Any]): Dictionary containing
+            nodes_parameters (Mapping[str, Any]): dictionary containing
                 parameters for nodes, keyed by node names.
 
         Returns:
@@ -314,7 +310,7 @@ class QualibrationGraph(
         ].annotation
         return {
             name: nodes_parameters.get(name, {})
-            for name in cast(NodesParameters, nodes_class).model_fields.keys()
+            for name in cast(NodesParameters, nodes_class).model_fields
         }
 
     def _orchestrator_or_error(self) -> "QualibrationOrchestrator[NodeTypeVar]":
@@ -416,7 +412,7 @@ class QualibrationGraph(
 
     def run(
         self, **passed_parameters: Any
-    ) -> Tuple["QualibrationGraph[NodeTypeVar]", BaseRunSummary]:
+    ) -> tuple["QualibrationGraph[NodeTypeVar]", BaseRunSummary]:
         """
         Runs the graph using the given parameters.
 
@@ -428,7 +424,7 @@ class QualibrationGraph(
                 execution. Should include the `nodes` key.
 
         Returns:
-            Tuple[QualibrationGraph, BaseRunSummary]: The graph and a summary of
+            tuple[QualibrationGraph, BaseRunSummary]: The graph and a summary of
             the execution, including outcomes and other details.
 
         Raises:
@@ -493,7 +489,7 @@ class QualibrationGraph(
             self._graph.add_node(node, **self.__class__._node_init_args)
         return node
 
-    def _build_parameters_class(self) -> Type[GraphRunParametersType]:
+    def _build_parameters_class(self) -> type[GraphRunParametersType]:
         """
         Builds a class for the parameters used in running the graph.
 
@@ -502,7 +498,7 @@ class QualibrationGraph(
         graph's execution.
 
         Returns:
-            Type[GraphRunParametersType]: The parameter class to be used for
+            The parameter class to be used for
                 execution.
         """
         nodes_parameters_class = create_model(
@@ -540,7 +536,7 @@ class QualibrationGraph(
         data = dict(super().serialize())
         cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters_class.serialize(**kwargs)
-        nx_data: Dict[str, Any] = dict(
+        nx_data: dict[str, Any] = dict(
             self.nx_graph_export(node_names_only=True)
         )
         data.update(
@@ -591,9 +587,7 @@ class QualibrationGraph(
         for key in ("multigraph", "directed", "graph"):
             data.pop(key)
         if node_names_only:
-            for i, (node, adjacency) in enumerate(
-                zip(data["nodes"], data["adjacency"])
-            ):
+            for node, adjacency in zip(data["nodes"], data["adjacency"]):
                 node["id"] = node["id"].name
                 for adj in adjacency:
                     adj["id"] = adj["id"].name
@@ -654,13 +648,12 @@ class QualibrationGraph(
             bool: True if successful in stopping execution, False otherwise.
         """
         logger.debug(f"Stop graph {self.name}")
-        stop_node: Optional[bool] = kwargs.get("stop_graph_node", None)
+        stop_node: Optional[bool] = kwargs.get("stop_graph_node")
         node_stop = True
         orchestrator = self._orchestrator
         if orchestrator is None:
             return False
-        if stop_node:
-            if node := orchestrator.active_node:
-                node_stop = node.stop()
+        if stop_node and (node := orchestrator.active_node):
+            node_stop = node.stop()
         orchestrator.stop()
         return node_stop

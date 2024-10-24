@@ -1,15 +1,12 @@
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from contextvars import ContextVar
 from copy import copy
 from pathlib import Path
 from typing import (
     Any,
-    Dict,
     Generic,
-    Mapping,
     Optional,
-    Tuple,
-    Type,
     TypeVar,
     cast,
 )
@@ -45,10 +42,10 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
     Abstract base class representing a runnable task.
 
     Args:
-        name (str): The name of the runnable.
-        parameters (CreateParametersType): Parameters to initialize the runnable.
-        description (Optional[str]): Description of the runnable.
-        modes (Optional[RunModes]): Optional run modes for the runnable.
+        name: The name of the runnable.
+        parameters: Parameters to initialize the runnable.
+        description: Description of the runnable.
+        modes: Optional run modes for the runnable.
     """
 
     modes = RunModes()
@@ -74,7 +71,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
 
         self._state_updates: dict[str, Any] = {}
 
-        self.outcomes: Dict[TargetType, Outcome] = {}
+        self.outcomes: dict[TargetType, Outcome] = {}
         self.run_summary: Optional[BaseRunSummary] = None
 
     def cleanup(self) -> None:
@@ -88,7 +85,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
     @staticmethod
     def build_parameters_class_from_instance(
         parameters: CreateParametersType,
-    ) -> Type[CreateParametersType]:
+    ) -> type[CreateParametersType]:
         """
         Builds a parameter class from a given instance.
 
@@ -96,7 +93,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             parameters (CreateParametersType): The parameters instance.
 
         Returns:
-            Type[CreateParametersType]: A new parameter class type.
+            A new parameter class type.
         """
         fields = {
             name: copy(field) for name, field in parameters.model_fields.items()
@@ -113,7 +110,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         )
         if hasattr(parameters, "targets_name"):
             model.targets_name = parameters.targets_name
-        return cast(Type[CreateParametersType], model)
+        return cast(type[CreateParametersType], model)
 
     @classmethod
     def get_run_modes(cls, modes: Optional[RunModes] = None) -> RunModes:
@@ -121,7 +118,8 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         Determines the run modes for the QRunnable.
         If modes are provided, they are returned.
         If no modes are provided, the context run modes are returned.
-        If no context run modes are provided, the default run modes are returned.
+        If no context run modes are provided, the default run modes are
+        returned.
 
         Args:
             modes (Optional[RunModes]): Run modes, if provided.
@@ -184,7 +182,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
     @abstractmethod
     def scan_folder_for_instances(
         cls, path: Path
-    ) -> Dict[str, "QRunnable[CreateParametersType, RunParametersType]"]:
+    ) -> dict[str, "QRunnable[CreateParametersType, RunParametersType]"]:
         """
         Scans a folder for runnable instances.
 
@@ -192,14 +190,14 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             path (Path): The folder path to scan.
 
         Returns:
-            Dict[str, QRunnable]: A dictionary of runnable instances.
+            dict[str, QRunnable]: A dictionary of runnable instances.
         """
         pass
 
     @abstractmethod
     def run(
         self, **passed_parameters: Any
-    ) -> Tuple[
+    ) -> tuple[
         "QRunnable[CreateParametersType, RunParametersType]",
         BaseRunSummary,
     ]:
@@ -210,7 +208,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             **passed_parameters (Any): Parameters to run the runnable.
 
         Returns:
-            Tuple[QRunnable, BaseRunSummary]: The executed runnable and summary.
+            tuple[QRunnable, BaseRunSummary]: The executed runnable and summary.
         """
         pass
 
