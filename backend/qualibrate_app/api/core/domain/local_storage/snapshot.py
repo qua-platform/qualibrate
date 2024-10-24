@@ -271,11 +271,17 @@ def _default_snapshot_content_loader(
 
 class SnapshotLocalStorage(SnapshotBase):
     """
+    A class for managing local storage of snapshots, inheriting from `SnapshotBase`.
+
     Args:
-        id: id of snapshot
+        id: The identifier of the snapshot.
+        content: The content of the snapshot. Defaults to None.
+        snapshot_loader: Function to load snapshot content. Defaults to `_default_snapshot_content_loader`.
+        snapshot_updater: Function to update snapshot content. Defaults to `_default_snapshot_content_updater`.
+        settings: The application settings for Qualibrate.
 
     Notes:
-        Expected structure of content root
+        Expected structure of content root:
         - base_path
             - %Y-%m-%d
                 - #{idx}_{name}_%H%M%S  # node
@@ -294,6 +300,7 @@ class SnapshotLocalStorage(SnapshotBase):
         *,
         settings: QualibrateAppSettings,
     ):
+        """Initializes the SnapshotLocalStorage instance."""
         super().__init__(id=id, content=content, settings=settings)
         self._snapshot_loader = snapshot_loader
         self._snapshot_updater = snapshot_updater
@@ -301,6 +308,12 @@ class SnapshotLocalStorage(SnapshotBase):
 
     @property
     def node_path(self) -> NodePath:
+        """
+        Returns the path to the node.
+
+        Returns:
+            The path to the node.
+        """
         if self._node_path is None:
             self._node_path = IdToLocalPath().get_or_raise(
                 self._settings.qualibrate.project,
@@ -310,6 +323,12 @@ class SnapshotLocalStorage(SnapshotBase):
         return self._node_path
 
     def load(self, load_type: SnapshotLoadType) -> None:
+        """
+        Loads snapshot content based on the specified load type.
+
+        Args:
+            load_type: The type of content to load.
+        """
         if load_type <= self._load_type:
             return None
         content = self._snapshot_loader(
@@ -320,15 +339,37 @@ class SnapshotLocalStorage(SnapshotBase):
 
     @property
     def created_at(self) -> Optional[datetime]:
+        """
+        Returns the creation date of the snapshot.
+
+        Returns:
+            The creation date or None if not available.
+        """
         return self.content.get("created_at")
 
     @property
     def parents(self) -> Optional[list[IdType]]:
+        """
+        Returns the list of parent snapshot IDs.
+
+        Returns:
+            The parent IDs or None if not available.
+        """
         return self.content.get("parents")
 
     def search(
         self, search_path: Sequence[Union[str, int]], load: bool = False
     ) -> Optional[DocumentSequenceType]:
+        """
+        Searches for a value in the snapshot data at a specified path.
+
+        Args:
+            search_path: The path to search.
+            load: Whether to load the data before searching. Defaults to False.
+
+        Returns:
+            The found value or None if not found.
+        """
         if load:
             self.load(SnapshotLoadType.Data)
         if self.data is None:
@@ -338,7 +379,17 @@ class SnapshotLocalStorage(SnapshotBase):
     def get_latest_snapshots(
         self, page: int = 1, per_page: int = 50, reverse: bool = False
     ) -> Tuple[int, Sequence[SnapshotBase]]:
-        # first in history is current
+        """
+        Retrieves the latest snapshots. First item in sequence is current.
+
+        Args:
+            page: The page number. Defaults to 1.
+            per_page: The number of snapshots per page. Defaults to 50.
+            reverse: Whether to reverse the order. Defaults to False.
+
+        Returns:
+            Total number of snapshots and a sequence of the latest snapshots.
+        """
         total = find_latest_node_id(self._settings.qualibrate.storage.location)
         self.load(SnapshotLoadType.Metadata)
         if page == 1 and per_page == 1:
@@ -363,6 +414,18 @@ class SnapshotLocalStorage(SnapshotBase):
     def compare_by_id(
         self, other_snapshot_id: int
     ) -> Mapping[str, Mapping[str, Any]]:
+        """
+        Compares the current snapshot with another snapshot by ID.
+
+        Args:
+            other_snapshot_id: The ID of the other snapshot.
+
+        Returns:
+            The comparison result as a mapping.
+
+        Raises:
+            QValueException: If comparing with the same snapshot ID or if data cannot be loaded.
+        """
         if self.id == other_snapshot_id:
             raise QValueException("Can't compare snapshots with same id")
         self.load(SnapshotLoadType.Data)
@@ -384,6 +447,15 @@ class SnapshotLocalStorage(SnapshotBase):
 
     @staticmethod
     def _conversion_type_from_value(value: Any) -> Mapping[str, Any]:
+        """
+        Determines the type of given value for JSON schema conversion.
+
+        Args:
+            value: The value to analyze.
+
+        Returns:
+            A mapping indicating the type.
+        """
         if isinstance(value, list):
             if len(value) == 0:
                 return {"type": "array"}
@@ -400,6 +472,15 @@ class SnapshotLocalStorage(SnapshotBase):
         self,
         **kwargs: Any,
     ) -> Optional[StateUpdates]:
+        """
+        Retrieves state updates from the runner.
+
+        Args:
+            **kwargs: Additional arguments such as cookies for the request.
+
+        Returns:
+            The state updates or None if retrieval fails.
+        """
         try:
             cookies = cast(
                 Optional[MutableMapping[str, str]], kwargs.get("cookies")
@@ -426,6 +507,17 @@ class SnapshotLocalStorage(SnapshotBase):
         state_updates: Optional[StateUpdates] = None,
         **kwargs: Any,
     ) -> Optional[Mapping[str, Any]]:
+        """
+        Extracts the state update type for a specific path from the runner.
+
+        Args:
+            path: The path to extract the state update type from.
+            state_updates: Pre-fetched state updates. Defaults to None.
+            **kwargs: Additional arguments for retrieving state updates.
+
+        Returns:
+            The type mapping for the state update, or None if not found.
+        """
         if state_updates is None:
             state_updates = self.get_state_updates_from_runner(**kwargs)
         if state_updates is None or path not in state_updates.state_updates:
@@ -439,6 +531,17 @@ class SnapshotLocalStorage(SnapshotBase):
         state_updates: Optional[StateUpdates] = None,
         **kwargs: Any,
     ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+        """
+        Extracts state update types for multiple paths from the runner.
+
+        Args:
+            paths: A sequence of paths to extract state update types for.
+            state_updates: Pre-fetched state updates. Defaults to None.
+            **kwargs: Additional arguments for retrieving state updates.
+
+        Returns:
+            A mapping of paths to their respective state update types.
+        """
         if state_updates is None:
             state_updates = self.get_state_updates_from_runner(**kwargs)
         if state_updates is None:
@@ -453,6 +556,12 @@ class SnapshotLocalStorage(SnapshotBase):
     def get_quam_state(
         self,
     ) -> Optional[Mapping[str, Any]]:
+        """
+        Retrieves the QuAM state from the snapshot.
+
+        Returns:
+            The QuAM state data or None if not available.
+        """
         try:
             quam_state_file: Path = self.node_path / "quam_state.json"
         except QFileNotFoundException:
@@ -469,6 +578,16 @@ class SnapshotLocalStorage(SnapshotBase):
     def _extract_state_update_type_from_quam_state(
         self, path: str, quam_state: Optional[Mapping[str, Any]] = None
     ) -> Optional[Mapping[str, Any]]:
+        """
+        Extracts the state update type for a specific path from the QuAM state.
+
+        Args:
+            path: The path to extract the state update type from.
+            quam_state: Pre-fetched QuAM state. Defaults to None.
+
+        Returns:
+            The type mapping for the state update, or None if not found.
+        """
         if quam_state is None:
             quam_state = self.get_quam_state()
         if quam_state is None:
@@ -483,6 +602,16 @@ class SnapshotLocalStorage(SnapshotBase):
         paths: Sequence[str],
         quam_state: Optional[Mapping[str, Any]] = None,
     ) -> Optional[Mapping[str, Any]]:
+        """
+        Extracts state update types for multiple paths from the QuAM state.
+
+        Args:
+            paths: A sequence of paths to extract state update types for.
+            quam_state: Pre-fetched QuAM state. Defaults to None.
+
+        Returns:
+            A mapping of paths to their respective state update types.
+        """
         if quam_state is None:
             quam_state = self.get_quam_state()
         if quam_state is None:
@@ -499,6 +628,16 @@ class SnapshotLocalStorage(SnapshotBase):
         path: str,
         **kwargs: Mapping[str, Any],
     ) -> Optional[Mapping[str, Any]]:
+        """
+        Extracts the state update type for a specific path from either the runner or QuAM state.
+
+        Args:
+            path: The path to extract the state update type from.
+            **kwargs: Additional arguments for retrieving state updates.
+
+        Returns:
+            The type mapping for the state update, or None if not found.
+        """
         _type = self._extract_state_update_type_from_runner(
             path, None, **kwargs
         )
@@ -511,6 +650,16 @@ class SnapshotLocalStorage(SnapshotBase):
         paths: Sequence[str],
         **kwargs: Mapping[str, Any],
     ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+        """
+        Extracts state update types for multiple paths from either the runner or QuAM state.
+
+        Args:
+            paths: A sequence of paths to extract state update types for.
+            **kwargs: Additional arguments for retrieving state updates.
+
+        Returns:
+            A mapping of paths to their respective state update types.
+        """
         types = self.extract_state_update_types_from_runner(
             paths, None, **kwargs
         )
@@ -519,6 +668,18 @@ class SnapshotLocalStorage(SnapshotBase):
         return self.extract_state_update_types_from_quam_state(paths)
 
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
+        """
+        Updates the snapshot data with specified updates.
+
+        Args:
+            updates: A mapping of paths to new values for the update.
+
+        Returns:
+            True if the update was successful, False otherwise.
+
+        Raises:
+            QPathException: If an unknown path is encountered during the update.
+        """
         if self.load_type < SnapshotLoadType.Data:
             self.load(SnapshotLoadType.Data)
         data = self.data

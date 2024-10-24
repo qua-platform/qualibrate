@@ -150,6 +150,14 @@ def update_entries(
         Union[str, None], Cookie(alias="Qualibrate-Token")
     ] = None,
 ) -> bool:
+    """
+    Updates entries in a snapshot based on provided state updates.
+
+    This endpoint extracts state update types for the provided paths and
+    converts the update values according to the extracted types. It then applies
+    the updates to the snapshot. If the update is successful, it attempts to
+    record the state updates with the runner.
+    """
     cookies = (
         {"Qualibrate-Token": qualibrate_token}
         if qualibrate_token is not None
@@ -167,7 +175,7 @@ def update_entries(
     }
     updated = snapshot.update_entry(values)
     if updated:
-        for data_path in values.keys():
+        for data_path in values:
             try:
                 requests.post(
                     urljoin(
