@@ -23,7 +23,7 @@ setuptools = "^75.1.0"                                # it's required for qm -> 
 
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.4.8"
+ruff = "^0.7.0"
 mypy = "^1.10.0"
 poethepoet = "^0.27.0"
 
