@@ -13,5 +13,5 @@ class StopInspection(Exception):
         *args: Any,
         instance: QRunnable[CreateParametersType, RunParametersType],
     ):
-        super(StopInspection, self).__init__(*args, instance)
+        super().__init__(*args, instance)
         self.instance = instance

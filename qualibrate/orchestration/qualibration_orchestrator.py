@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, List, Mapping, Optional, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any, Generic, Optional
 
 from pydantic import create_model
 
@@ -16,9 +17,6 @@ from qualibrate.utils.naming import get_full_class_path
 __all__ = ["QualibrationOrchestrator"]
 
 
-# NodeType = TypeVar("NodeType", bound=QualibrationNode[NodeParameters])
-
-
 class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
     """
     Abstract base class for orchestrating the execution of nodes in a
@@ -29,7 +27,8 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
     clean up resources, and serialize the orchestrator's current state.
 
     Args:
-        **parameters (Any): Keyword arguments for initializing the orchestrator parameters.
+        **parameters: Keyword arguments for initializing the orchestrator
+            parameters.
     """
 
     def __init__(self, **parameters: Any):
@@ -43,11 +42,11 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
             },
         )
         self._parameters = self.parameters_class()
-        self.initial_targets: Optional[List[Any]] = None
-        self.targets: Optional[List[Any]] = None
-        self._execution_history: List[ExecutionHistoryItem] = []
+        self.initial_targets: Optional[list[Any]] = None
+        self.targets: Optional[list[Any]] = None
+        self._execution_history: list[ExecutionHistoryItem] = []
         self._active_node: Optional[NodeTypeVar] = None
-        self.final_outcomes: Dict[Any, Outcome] = {}
+        self.final_outcomes: dict[Any, Outcome] = {}
 
     @property
     def active_node(self) -> Optional[NodeTypeVar]:

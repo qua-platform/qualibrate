@@ -68,7 +68,7 @@ class TestBasicOrchestrator:
         orchestrator = BasicOrchestrator()
         orchestrator._graph = None
         with pytest.raises(ValueError, match="Graph is not specified"):
-            orchestrator.nx_graph
+            orchestrator.nx_graph  # noqa: B018
 
     def test_nx_graph_returns_correct_value(self, mocker):
         orchestrator = BasicOrchestrator()

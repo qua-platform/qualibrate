@@ -178,7 +178,7 @@ class TestQualibrationNode:
             "a", __doc__="str", __base__=params, __module__="module"
         )
 
-    def test__validate_passed_parameters_options_parameters_class_instantiation_failure(
+    def test__validate_passed_parameters_options_parameters_class_instantiation_failure(  # noqa: E501
         self, mock_logger
     ):
         parameters_class = MagicMock(

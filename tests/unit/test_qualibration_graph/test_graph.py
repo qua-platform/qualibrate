@@ -130,7 +130,8 @@ class TestQualibrationGraph:
         assert result["new_name"] == "copied_instance"
         node.copy.assert_called_once_with("new_name")
         mock_logger.warning.assert_called_once_with(
-            "copied_instance has to be copied due to conflicting name (new_name)"
+            "copied_instance has to be copied due to conflicting name "
+            "(new_name)"
         )
 
     def test_add_node_by_name(

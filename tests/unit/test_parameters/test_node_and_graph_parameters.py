@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 import pytest
 
@@ -7,11 +7,11 @@ from qualibrate.parameters import GraphParameters, NodeParameters
 
 class TestCreateParameters:
     class SampleNodeParameters(NodeParameters):
-        qubits: Optional[List[str]] = None
+        qubits: Optional[list[str]] = None
         other_param: str = "test"
 
     class SampleGraphParameters(GraphParameters):
-        qubits: Optional[List[str]] = None
+        qubits: Optional[list[str]] = None
         other_param: str = "test"
 
     def test_node_targets_name(self):

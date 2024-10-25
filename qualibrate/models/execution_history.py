@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Dict, Optional, Sequence
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
@@ -23,7 +24,7 @@ class ExecutionHistoryItem(BaseModel):
     run_end: datetime
     parameters: NodeParameters
     error: Optional[RunError] = None
-    outcomes: Dict[TargetType, Outcome] = Field(default_factory=dict)
+    outcomes: dict[TargetType, Outcome] = Field(default_factory=dict)
 
     @computed_field
     def run_duration(self) -> float:

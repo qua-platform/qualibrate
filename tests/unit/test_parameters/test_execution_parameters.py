@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 import pytest
 from pydantic import Field
@@ -14,21 +14,21 @@ from qualibrate.utils.type_protocols import TargetType
 
 
 class Node1(NodeParameters):
-    qubits: Optional[List[TargetType]] = Field(
+    qubits: Optional[list[TargetType]] = Field(
         default_factory=lambda: ["a", "b", "c"]
     )
     int_value: int = 1
 
 
 class Node2(NodeParameters):
-    qubits: Optional[List[TargetType]] = Field(
+    qubits: Optional[list[TargetType]] = Field(
         default_factory=lambda: ["d", "e", "f"]
     )
     float_value: float = 2.0
 
 
 class Graph(GraphParameters):
-    qubits: List[TargetType] = Field(default_factory=lambda: ["1", "2", "3"])
+    qubits: list[TargetType] = Field(default_factory=lambda: ["1", "2", "3"])
     str_value: str = "test"
 
 
@@ -200,6 +200,9 @@ class TestExecutionParameters:
 
             with pytest.raises(
                 RuntimeError,
-                match="Graph parameters class should be subclass of qualibrate.parameters.GraphParameters",
+                match=(
+                    "Graph parameters class should be subclass of "
+                    "qualibrate.parameters.GraphParameters"
+                ),
             ):
                 ExecutionParameters.serialize()

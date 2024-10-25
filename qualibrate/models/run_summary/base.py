@@ -1,5 +1,6 @@
+from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field, computed_field, field_serializer
 
@@ -17,13 +18,13 @@ class BaseRunSummary(BaseModel):
     created_at: datetime
     completed_at: datetime
     parameters: Optional[RunnableParameters] = None
-    outcomes: Dict[TargetType, Outcome]
+    outcomes: dict[TargetType, Outcome]
     error: Optional[RunError] = None
 
     initial_targets: Sequence[TargetType] = Field(default_factory=list)
-    successful_targets: List[TargetType] = Field(default_factory=list)
-    failed_targets: List[TargetType] = Field(default_factory=list)
-    dropped_targets: Optional[List[TargetType]] = None
+    successful_targets: list[TargetType] = Field(default_factory=list)
+    failed_targets: list[TargetType] = Field(default_factory=list)
+    dropped_targets: Optional[list[TargetType]] = None
     state_updates: Mapping[str, Any] = Field(default_factory=dict)
 
     @computed_field

@@ -1,8 +1,9 @@
 import logging
+from collections.abc import Mapping
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from types import TracebackType
-from typing import Mapping, Optional, Union
+from typing import Optional, Union
 
 try:
     from qualibrate_app.config import get_config_path, get_settings

@@ -1,7 +1,8 @@
 import traceback
+from collections.abc import Sequence
 from datetime import datetime
 from queue import Queue
-from typing import Any, Generic, Optional, Sequence
+from typing import Any, Generic, Optional
 
 import networkx as nx
 

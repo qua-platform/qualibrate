@@ -1,6 +1,7 @@
+from collections.abc import Mapping
 from importlib.util import find_spec
 from pathlib import Path
-from typing import Any, Dict, Generic, Mapping, Optional, cast
+from typing import Any, Generic, Optional, cast
 
 from qualibrate.models.run_summary.graph import GraphRunSummary
 from qualibrate.models.run_summary.node import NodeRunSummary
@@ -17,7 +18,8 @@ __all__ = ["QualibrationLibrary"]
 
 class QualibrationLibrary(Generic[NodeTypeVar]):
     """
-    Manages a collection of Qualibration nodes and graphs for calibration purposes.
+    Manages a collection of Qualibration nodes and graphs for calibration
+    purposes.
 
     This class provides functionality to load, manage, and run nodes and graphs
     from a given library folder. It supports scanning the folder to identify
@@ -25,9 +27,9 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
     managing an active instance of the library.
 
     Args:
-        library_folder (Optional[Path]): The folder containing the calibration
-            nodes and graphs. Defaults to None.
-        set_active (bool): Whether to set this instance as the active library.
+        library_folder: The folder containing the calibration nodes and graphs.
+            Defaults to None.
+        set_active: Whether to set this instance as the active library.
             Defaults to True.
 
     Side Effects:
@@ -40,8 +42,8 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
     def __init__(
         self, library_folder: Optional[Path] = None, set_active: bool = True
     ):
-        self.nodes: Dict[str, NodeTypeVar] = {}
-        self.graphs: Dict[str, QualibrationGraph[NodeTypeVar]] = {}
+        self.nodes: dict[str, NodeTypeVar] = {}
+        self.graphs: dict[str, QualibrationGraph[NodeTypeVar]] = {}
         self._library_folder = library_folder
 
         if set_active:
@@ -64,11 +66,11 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
             logger.warning("Can't rescan library without specified folder.")
             return
         self.nodes = cast(
-            Dict[str, NodeTypeVar],
+            dict[str, NodeTypeVar],
             QualibrationNode.scan_folder_for_instances(self._library_folder),
         )
         self.graphs = cast(
-            Dict[str, QualibrationGraph[NodeTypeVar]],
+            dict[str, QualibrationGraph[NodeTypeVar]],
             QualibrationGraph.scan_folder_for_instances(self._library_folder),
         )
 
@@ -94,13 +96,13 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
         configurations are used to create the library.
 
         Args:
-            library_folder (Optional[Path]): Path to the folder containing the
-                library resources. Defaults to None.
-            create (bool): Whether to create a new instance if none exists.
-                Defaults to True.
+            library_folder: Path to the folder containing the library resources.
+                Defaults to None.
+            create: Whether to create a new instance if none exists. Defaults
+                to True.
 
         Returns:
-            QualibrationLibrary: The active library instance.
+            The active library instance.
 
         Raises:
             RuntimeError: If no library is instantiated and `create` is False,
@@ -136,7 +138,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
         contains library folder path.
 
         Returns:
-            Mapping[str, Any]: A dictionary containing serialized data.
+            A dictionary containing serialized data.
         """
         return {
             "__class__": (
@@ -156,7 +158,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
         Returns all nodes available in the library.
 
         Returns:
-            Mapping[str, QualibrationNode]: Dictionary of nodes keyed by their names.
+            Dictionary of nodes keyed by their names.
         """
         return self.nodes
 
@@ -165,7 +167,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
         Returns all graphs available in the library.
 
         Returns:
-            Mapping[str, QualibrationGraph]: Dictionary of graphs keyed by their names.
+            Dictionary of graphs keyed by their names.
         """
         return self.graphs
 
@@ -179,14 +181,15 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
         `input_parameters` and returns a summary of the run.
 
         Args:
-            node_name (str): The name of the node to run.
-            input_parameters (NodeParameters): The parameters to use for the run.
+            node_name: The name of the node to run.
+            input_parameters: The parameters to use for the run.
 
         Returns:
-            NodeRunSummary: Summary of the node run containing outcomes and details.
+            Summary of the node run containing outcomes and details.
 
         Raises:
-            KeyError: If the specified `node_name` does not exist in the library.
+            KeyError: If the specified `node_name` does not exist in the
+                library.
         """
         node = self.nodes[node_name]
         return cast(NodeRunSummary, node.run(**input_parameters.model_dump()))
@@ -201,14 +204,15 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
         `input_parameters` and returns a summary of the graph's execution.
 
         Args:
-            graph_name (str): The name of the graph to run.
-            input_parameters (ExecutionParameters): The parameters for executing the graph.
+            graph_name: The name of the graph to run.
+            input_parameters: The parameters for executing the graph.
 
         Returns:
-            GraphRunSummary: Summary of the graph execution containing outcomes and details.
+            Summary of the graph execution containing outcomes and details.
 
         Raises:
-            KeyError: If the specified `graph_name` does not exist in the library.
+            KeyError: If the specified `graph_name` does not exist in the
+                library.
         """
         graph = self.graphs[graph_name]
         return cast(
