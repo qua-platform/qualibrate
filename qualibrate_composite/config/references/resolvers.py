@@ -1,5 +1,6 @@
 from collections import defaultdict
-from typing import Any, List, Mapping, Optional, Sequence, Set, Tuple, cast
+from collections.abc import Mapping, Sequence
+from typing import Any, Optional, cast
 
 import jsonpatch
 import jsonpointer
@@ -14,7 +15,7 @@ TEMPLATE_START = "${#"
 def find_references_in_str(
     to_search: str, config_path: str
 ) -> Sequence[Reference]:
-    to_resolve: List[Reference] = []
+    to_resolve: list[Reference] = []
     template_start_index = to_search.find(TEMPLATE_START)
     while template_start_index != -1:
         template_end_index = to_search.find("}", template_start_index)
@@ -53,7 +54,7 @@ def find_all_references(
 
 def check_cycles_in_references(
     references: Mapping[str, Sequence[str]],
-) -> Tuple[bool, Optional[Sequence[str]]]:
+) -> tuple[bool, Optional[Sequence[str]]]:
     """Return True if the references has a cycle.
 
     >>> check_cycles_in_references({"a": ("b",), "b": ("c",), "c": ("a",)})
@@ -62,8 +63,8 @@ def check_cycles_in_references(
     (False, None)
 
     """
-    path: List[str] = []
-    visited: Set[str] = set()
+    path: list[str] = []
+    visited: set[str] = set()
     cycled_item: str = ""
 
     def visit(vertex: str) -> bool:
