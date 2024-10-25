@@ -21,7 +21,7 @@ qualibrary = ["qualibrate-core"]
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"
-ruff = "^0.4.5"
+ruff = "^0.7.0"
 poethepoet = "^0.26.1"
 
 #[tool.poetry.group.qm-dev.dependencies]
