@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Any, Optional, Union
 
 from qualibrate_app.api.core.domain.bases.branch import BranchBase
 from qualibrate_app.api.core.domain.bases.node import NodeBase
@@ -32,7 +33,7 @@ class RootBase(ABC):
         page: int = 1,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, Sequence[SnapshotBase]]:
+    ) -> tuple[int, Sequence[SnapshotBase]]:
         pass
 
     @abstractmethod
@@ -41,7 +42,7 @@ class RootBase(ABC):
         page: int = 1,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, Sequence[NodeBase]]:
+    ) -> tuple[int, Sequence[NodeBase]]:
         pass
 
     @abstractmethod

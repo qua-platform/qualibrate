@@ -1,8 +1,9 @@
 import json
 from base64 import b64encode
+from collections.abc import Mapping
 from enum import IntEnum
 from pathlib import Path
-from typing import Any, Mapping, Optional
+from typing import Any, Optional
 
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.models.storage import Storage as StorageModel
@@ -67,8 +68,8 @@ class DataFileStorage(IDump):
         with data_file.open("r") as file:
             try:
                 content = json.load(file)
-            except json.JSONDecodeError:
-                raise QValueException("Unexpected data format.")
+            except json.JSONDecodeError as ex:
+                raise QValueException("Unexpected data format.") from ex
         if not isinstance(content, Mapping):
             raise QValueException("Unexpected data format.")
         content = dict(content)

@@ -1,4 +1,5 @@
-from typing import Any, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Any, Optional, Union
 
 from qualibrate_app.api.core.domain.bases.root import RootBase
 from qualibrate_app.api.core.domain.timeline_db.branch import BranchTimelineDb
@@ -26,7 +27,7 @@ class RootTimelineDb(RootBase):
         page: int,
         per_page: int,
         reverse: bool,
-    ) -> Tuple[int, DocumentSequenceType]:
+    ) -> tuple[int, DocumentSequenceType]:
         result = request_with_db(
             "snapshot/n_latest",
             params={"page": page, "per_page": per_page, "reverse": reverse},
@@ -70,7 +71,7 @@ class RootTimelineDb(RootBase):
         page: int = 1,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, Sequence[SnapshotTimelineDb]]:
+    ) -> tuple[int, Sequence[SnapshotTimelineDb]]:
         total, snapshots = self._get_latest_snapshots(page, per_page, reverse)
         return total, [
             SnapshotTimelineDb(
@@ -84,7 +85,7 @@ class RootTimelineDb(RootBase):
         page: int = 1,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, Sequence[NodeTimelineDb]]:
+    ) -> tuple[int, Sequence[NodeTimelineDb]]:
         total, snapshots = self._get_latest_snapshots(page, per_page, reverse)
         return total, [
             NodeTimelineDb(

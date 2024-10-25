@@ -1,4 +1,5 @@
-from typing import Any, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Any, Optional, Union
 
 from qualibrate_app.api.core.domain.bases.branch import BranchBase
 from qualibrate_app.api.core.domain.bases.node import NodeBase
@@ -53,7 +54,7 @@ class RootLocalStorage(RootBase):
         page: int = 1,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, Sequence[SnapshotBase]]:
+    ) -> tuple[int, Sequence[SnapshotBase]]:
         return BranchLocalStorage(
             "main", settings=self._settings
         ).get_latest_snapshots(page, per_page, reverse)
@@ -63,7 +64,7 @@ class RootLocalStorage(RootBase):
         page: int = 1,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, Sequence[NodeBase]]:
+    ) -> tuple[int, Sequence[NodeBase]]:
         return BranchLocalStorage(
             "main", settings=self._settings
         ).get_latest_nodes(page, per_page, reverse)

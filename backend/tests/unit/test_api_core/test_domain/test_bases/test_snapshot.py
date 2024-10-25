@@ -1,5 +1,6 @@
+from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any, Mapping, Optional, Sequence, Union
+from typing import Any, Optional, Union
 from unittest.mock import PropertyMock
 
 import pytest

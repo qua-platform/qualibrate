@@ -1,6 +1,6 @@
+from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Sequence
 
 from pydantic import ValidationError
 
@@ -41,7 +41,9 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
                 ex.errors(include_url=False, include_input=False),
             )
             if next(storage_not_exists, None) is not None:
-                raise QValueException(f"Invalid project name '{project_name}'")
+                raise QValueException(
+                    f"Invalid project name '{project_name}'"
+                ) from None
             raise
         self._settings.qualibrate.project = qs.qualibrate.project
         self._settings.qualibrate.storage.location = (

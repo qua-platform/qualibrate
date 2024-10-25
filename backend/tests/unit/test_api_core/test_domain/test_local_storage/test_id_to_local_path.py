@@ -99,10 +99,8 @@ class TestIdToLocalPath:
 
     def test_get_from_new_project(self, mocker):
         patched_id2plp = mocker.patch(
-            (
-                "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
-                "._IdToProjectLocalPath"
-            )
+            "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
+            "._IdToProjectLocalPath"
         )
         patched_id2plp.return_value.get.return_value = "some_path"
         assert self.id2lp._project_to_path == {}
@@ -115,10 +113,8 @@ class TestIdToLocalPath:
         p2plp.get.return_value = "some_path"
         self.id2lp._project_to_path = {"project": p2plp}
         patched_id2plp = mocker.patch(
-            (
-                "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
-                "._IdToProjectLocalPath"
-            )
+            "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
+            "._IdToProjectLocalPath"
         )
         assert self.id2lp.get("project", 1, "path") == "some_path"
         assert tuple(self.id2lp._project_to_path.keys()) == ("project",)

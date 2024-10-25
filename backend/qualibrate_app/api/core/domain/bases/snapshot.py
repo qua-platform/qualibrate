@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from collections.abc import Mapping, Sequence
 from datetime import datetime
 from enum import IntEnum
-from typing import Any, ClassVar, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, ClassVar, Optional, Union
 
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
@@ -108,7 +109,7 @@ class SnapshotBase(IDump, ABC):
     @abstractmethod
     def get_latest_snapshots(
         self, page: int = 1, per_page: int = 50, reverse: bool = False
-    ) -> Tuple[int, Sequence["SnapshotBase"]]:
+    ) -> tuple[int, Sequence["SnapshotBase"]]:
         pass
 
     @abstractmethod

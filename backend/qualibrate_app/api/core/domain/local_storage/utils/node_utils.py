@@ -1,7 +1,8 @@
+from collections.abc import Generator
 from datetime import date
 from functools import partial
 from pathlib import Path
-from typing import Any, Callable, Generator, List, Optional, Tuple
+from typing import Any, Callable, Optional
 
 from qualibrate_app.api.core.domain.local_storage._id_to_local_path import (
     IdToLocalPath,
@@ -84,8 +85,8 @@ def find_n_latest_nodes_ids(
     max_node_path_date = (
         max_node_path.date if max_node_path is not None else None
     )
-    date_filters: List[
-        Tuple[Callable[[NodesDatePath], bool], Tuple[Any, ...]]
+    date_filters: list[
+        tuple[Callable[[NodesDatePath], bool], tuple[Any, ...]]
     ] = [
         (Path.is_dir, tuple()),
         (_validate_date_range, (min_node_path_date, max_node_path_date)),
@@ -105,7 +106,7 @@ def find_n_latest_nodes_ids(
         node_path_ids = {
             int(path.stem[1:].split("_")[0]): path for path in node_paths
         }
-        for node_id, node in sorted(
+        for _, node in sorted(
             node_path_ids.items(),
             key=lambda x: x[0],
             reverse=True,

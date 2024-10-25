@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Annotated, Sequence
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 

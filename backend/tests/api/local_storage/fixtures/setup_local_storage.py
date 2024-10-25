@@ -1,7 +1,8 @@
 import json
+from collections.abc import Generator
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
 import pytest
 
