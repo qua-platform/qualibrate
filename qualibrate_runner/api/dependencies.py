@@ -1,5 +1,6 @@
+from collections.abc import Mapping
 from functools import cache
-from typing import Annotated, Mapping, cast
+from typing import Annotated
 
 from fastapi import Depends, HTTPException
 from qualibrate.qualibration_graph import QualibrationGraph
@@ -39,13 +40,13 @@ def get_library(
 def get_nodes(
     library: Annotated[QualibrationLibrary, Depends(get_library)],
 ) -> Mapping[str, QualibrationNode]:
-    return cast(Mapping[str, QualibrationNode], library.get_nodes())
+    return library.get_nodes()
 
 
 def get_graphs(
     library: Annotated[QualibrationLibrary, Depends(get_library)],
 ) -> Mapping[str, QualibrationGraph]:
-    return cast(Mapping[str, QualibrationGraph], library.get_graphs())
+    return library.get_graphs()
 
 
 def get_node(

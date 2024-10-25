@@ -1,4 +1,5 @@
-from typing import Annotated, Any, Mapping, Type, cast
+from collections.abc import Mapping
+from typing import Annotated, Any, cast
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -44,7 +45,7 @@ def submit_node_run(
             detail="Already running",
         )
     validate_input_parameters(
-        cast(Type[BaseModel], node.parameters_class), input_parameters
+        cast(type[BaseModel], node.parameters_class), input_parameters
     )
     background_tasks.add_task(run_node, node, input_parameters, state)
     return f"Node job {node.name} is submitted"

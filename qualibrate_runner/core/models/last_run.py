@@ -1,6 +1,7 @@
+from collections.abc import Mapping
 from datetime import datetime
 from enum import Enum
-from typing import Any, Mapping, Optional, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, Field, computed_field
 from qualibrate.models.run_summary.graph import GraphRunSummary
