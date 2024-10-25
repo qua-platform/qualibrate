@@ -22,7 +22,7 @@ qualibrate-app = "^0.2.1"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
-ruff = "^0.1.15"
+ruff = "^0.7.0"
 poethepoet = "^0.25.0"
 
 #[tool.poetry.group.qm-dev.dependencies]
