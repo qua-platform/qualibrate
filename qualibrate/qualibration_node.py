@@ -545,11 +545,12 @@ class QualibrationNode(
             from quam.core import (
                 QuamBase,
                 QuamComponent,
-                Quamdict,
+                QuamDict,
                 QuamList,
                 QuamRoot,
             )
-        except ImportError:
+        except ImportError as ex:
+            print(ex)
             yield
             return
 
@@ -557,9 +558,9 @@ class QualibrationNode(
             QuamBase,
             QuamComponent,
             QuamRoot,
-            Quamdict,
+            QuamDict,
         )
-        quam_classes_sequences = (QuamList, Quamdict)
+        quam_classes_sequences = (QuamList, QuamDict)
 
         cls_setattr_funcs = {
             cls: cls.__dict__["__setattr__"]
