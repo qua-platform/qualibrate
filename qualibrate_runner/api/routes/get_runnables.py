@@ -1,4 +1,5 @@
-from typing import Annotated, Any, Mapping, Sequence, cast
+from collections.abc import Mapping, Sequence
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
 from qualibrate.qualibration_graph import QualibrationGraph
@@ -45,7 +46,7 @@ def get_graphs(
 def get_node(
     node: Annotated[QualibrationNode, Depends(get_qnode)],
 ) -> Mapping[str, Any]:
-    return cast(Mapping[str, Any], node.serialize(exclude_targets=True))
+    return node.serialize(exclude_targets=True)
 
 
 @get_runnables_router.get("/get_graph")
@@ -53,14 +54,11 @@ def get_graph(
     graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
     cytoscape: bool = False,
 ) -> Mapping[str, Any]:
-    return cast(Mapping[str, Any], graph.serialize(cytoscape=cytoscape))
+    return graph.serialize(cytoscape=cytoscape)
 
 
 @get_runnables_router.get("/get_graph/cytoscape")
 def get_graph_cytoscape(
     graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
 ) -> Sequence[Mapping[str, Any]]:
-    return cast(
-        Sequence[Mapping[str, Any]],
-        graph.cytoscape_representation(graph.serialize()),
-    )
+    return graph.cytoscape_representation(graph.serialize())

@@ -1,7 +1,8 @@
 import os
 import sys
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 import click
 import tomli_w
@@ -48,9 +49,10 @@ def _config_from_sources(
     runner_mapping: dict[str, str] = {k: k for k in config_keys}
     for arg_key, arg_value in ctx.params.items():
         not_default_arg = not_default(ctx, arg_key)
-        if arg_key in runner_mapping.keys():
-            if not_default_arg or runner_mapping[arg_key] not in from_file:
-                from_file[runner_mapping[arg_key]] = arg_value
+        if arg_key in runner_mapping and (
+            not_default_arg or runner_mapping[arg_key] not in from_file
+        ):
+            from_file[runner_mapping[arg_key]] = arg_value
     return from_file
 
 

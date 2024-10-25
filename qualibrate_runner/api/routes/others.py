@@ -1,4 +1,5 @@
-from typing import Annotated, Mapping, Optional, cast
+from collections.abc import Mapping
+from typing import Annotated, Optional, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 

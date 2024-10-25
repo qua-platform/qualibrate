@@ -1,4 +1,5 @@
-from typing import Annotated, Any, Mapping, Optional, cast
+from collections.abc import Mapping
+from typing import Annotated, Any, Optional, cast
 
 from fastapi import APIRouter, Depends
 from qualibrate.models.execution_history import ExecutionHistory

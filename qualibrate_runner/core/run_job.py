@@ -1,9 +1,12 @@
 import traceback
+from collections.abc import Mapping
 from datetime import datetime
-from typing import Any, Mapping, Type
+from typing import Any, Optional, cast
 
 from fastapi import HTTPException, status
 from pydantic import BaseModel, ValidationError
+from qualibrate.models.run_summary.graph import GraphRunSummary
+from qualibrate.models.run_summary.node import NodeRunSummary
 from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
 from qualibrate.qualibration_node import QualibrationNode
@@ -18,7 +21,7 @@ from qualibrate_runner.core.models.last_run import (
 
 
 def validate_input_parameters(
-    parameters_class: Type[BaseModel],
+    parameters_class: type[BaseModel],
     passed_parameters: Mapping[str, Any],
 ) -> BaseModel:
     try:
@@ -26,7 +29,7 @@ def validate_input_parameters(
     except ValidationError as ex:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ex.errors()
-        )
+        ) from ex
 
 
 def get_active_library_or_error() -> QualibrationLibrary:
@@ -64,15 +67,16 @@ def run_node(
         run_status = RunStatus.ERROR
         raise
     else:
-        idx = node.snapshot_idx if hasattr(node, "snapshot_idx") else -1
-        idx = idx if idx is not None else -1
+        _idx = node.snapshot_idx if hasattr(node, "snapshot_idx") else -1
+        idx = _idx if _idx is not None else -1
         run_status = RunStatus.FINISHED
     finally:
         state.last_run = LastRun(
             name=state.last_run.name,
             status=run_status,
             idx=idx,
-            run_result=node.run_summary,
+            # TODO: Make run summary generic
+            run_result=cast(Optional[NodeRunSummary], node.run_summary),
             runnable_type=state.last_run.runnable_type,
             passed_parameters=passed_input_parameters,
             started_at=state.last_run.started_at,
@@ -126,7 +130,7 @@ def run_workflow(
             name=state.last_run.name,
             status=run_status,
             idx=idx,
-            run_result=workflow.run_summary,
+            run_result=cast(Optional[GraphRunSummary], workflow.run_summary),
             started_at=state.last_run.started_at,
             completed_at=datetime.now(),
             runnable_type=state.last_run.runnable_type,
