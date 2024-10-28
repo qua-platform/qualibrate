@@ -83,6 +83,16 @@ from qualibrate import QualibrationLibrary, QualibrationGraph, GraphParameters
 from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
 ```
 
+### Loading the Calibration Library
+
+The next step is to load the calibration library:
+
+```python
+library = QualibrationLibrary.get_active_library()
+```
+
+This will scan the library folder and load all existing nodes and graphs, which allows us to use the nodes in the graph.
+
 ### Defining Graph Input Parameters
 
 Next, define the graph parameters. Typically, this only consists of the graph targets, which are `qubits` by default:
@@ -134,6 +144,8 @@ Combining all the elements from the previous sections, the final script containi
 from typing import List, Optional
 from qualibrate import QualibrationLibrary, QualibrationGraph, GraphParameters
 from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
+
+library = QualibrationLibrary.get_active_library()
 
 # Define graph target parameters
 class Parameters(GraphParameters):
