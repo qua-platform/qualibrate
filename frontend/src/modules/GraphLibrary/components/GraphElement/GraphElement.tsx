@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
-import { PlayIcon } from "../../../../ui-lib/Icons/PlayIcon";
 import { classNames } from "../../../../utils/classnames";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { GraphWorkflow } from "../GraphList";
@@ -15,6 +14,7 @@ import { GraphLibraryApi } from "../../api/GraphLibraryApi";
 import { NodeDTO } from "../../../Nodes/components/NodeElement/NodeElement";
 import { useFlexLayoutContext } from "../../../../routing/flexLayout/FlexLayoutContext";
 import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
+import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 
 export interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -132,23 +132,26 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     <div
       className={classNames(styles.wrapper, show ? styles.calibrationGraphSelected : "")}
       onClick={async () => {
-        await fetchWorkflowGraph(calibrationGraphKey);
+        await fetchWorkflowGraph(calibrationGraphKey as string);
         setSelectedItemName(calibrationGraphKey);
         setSelectedWorkflowName(calibrationGraphKey);
       }}
     >
       <div className={styles.upperContainer}>
         <div className={styles.leftContainer}>
-          <div className={styles.iconWrapper}>
-            <div onClick={handleSubmit}>
-              <PlayIcon />
-            </div>
-          </div>
           <div className={styles.titleWrapper}>{calibrationGraphKey}</div>
+          <div className={styles.runButtonWrapper}>
+            <BlueButton className={styles.runButton} disabled={!show} onClick={handleSubmit}>
+              Run
+            </BlueButton>
+          </div>
         </div>
-        <div className={styles.rightContainer}>
-          <div>{calibrationGraph?.description}</div>
-        </div>
+        &nbsp; &nbsp; &nbsp; &nbsp;
+        {calibrationGraph?.description && (
+          <div className={styles.rightContainer}>
+            <div>{calibrationGraph?.description}</div>
+          </div>
+        )}
       </div>
       <div className={styles.bottomContainer}>
         <div className={styles.parametersContainer}>

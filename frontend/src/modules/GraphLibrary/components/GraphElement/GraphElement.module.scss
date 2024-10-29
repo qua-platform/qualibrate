@@ -42,6 +42,8 @@
   display: flex;
   gap: 10px;
   text-wrap: nowrap;
+  width: 300px;
+  justify-content: space-between;
 }
 
 .rightContainer {
@@ -51,7 +53,7 @@
   padding-right: 10px;
 }
 
-.iconWrapper {
+.runButtonWrapper {
   align-content: center;
   max-height: fit-content;
   padding-right: 10px;
