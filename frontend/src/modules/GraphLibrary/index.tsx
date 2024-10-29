@@ -4,7 +4,6 @@ import styles from "./GraphLibrary.module.scss";
 import { GraphContextProvider, useGraphContext } from "./context/GraphContext";
 import PageName from "../../DEPRECATED_components/common/Page/PageName";
 import { GraphList } from "./components/GraphList";
-import { GraphSearch } from "./components/GraphElement/GraphSearch";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 
@@ -18,7 +17,7 @@ const GraphLibrary = () => {
           <PageName>{heading}</PageName>
         </div>
         <div className={styles.searchAndRefresh}>
-          <GraphSearch />
+          {/*<GraphSearch />*/}
           <div className={styles.buttonWrapper}>
             <BlueButton onClick={() => fetchAllCalibrationGraphs(true)}>Refresh</BlueButton>
           </div>
