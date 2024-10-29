@@ -97,7 +97,9 @@ const GetStateUpdates: React.FC<{
   const { runningNodeInfo } = props;
   return (
     <>
-      {runningNodeInfo?.state_updates && <div className={styles.stateTitle}>State updates:</div>}
+      {runningNodeInfo?.state_updates && Object.keys(runningNodeInfo?.state_updates).length > 0 && (
+        <div className={styles.stateTitle}>State updates:</div>
+      )}
       {runningNodeInfo?.state_updates && (
         <div className={styles.stateUpdatesTopWrapper}>
           {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject]) =>

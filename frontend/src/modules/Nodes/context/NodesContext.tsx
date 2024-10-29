@@ -27,8 +27,19 @@ export interface RunningNodeInfo {
   idx?: string;
 }
 
+export interface ErrorWithDetails {
+  detail: { input?: string; type?: string; loc?: string[]; msg: string }[];
+}
+
+export interface ResponseStatusError {
+  nodeName: string;
+  name: string;
+  msg: string;
+}
+
 interface INodesContext {
-  responseError?: ErrorObject;
+  submitNodeResponseError?: ResponseStatusError;
+  setSubmitNodeResponseError: (error: ResponseStatusError) => void;
   runningNode?: NodeDTO;
   runningNodeInfo?: RunningNodeInfo;
   setRunningNode: (selectedNode: NodeDTO) => void;
@@ -43,6 +54,8 @@ interface INodesContext {
 }
 
 const NodesContext = React.createContext<INodesContext>({
+  submitNodeResponseError: undefined,
+  setSubmitNodeResponseError: noop,
   runningNode: undefined,
   runningNodeInfo: undefined,
   setRunningNode: noop,
@@ -60,10 +73,6 @@ export const useNodesContext = (): INodesContext => useContext<INodesContext>(No
 
 interface NodesContextProviderProps {
   children: React.JSX.Element;
-}
-
-export interface NodeStatusErrorWithDetails {
-  detail: { msg: string; type: string }[];
 }
 
 export interface StatusResponseType {
@@ -85,6 +94,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const [runningNodeInfo, setRunningNodeInfo] = useState<RunningNodeInfo | undefined>(undefined);
   const [isNodeRunning, setIsNodeRunning] = useState<boolean>(false);
   const [results, setResults] = useState<unknown | object | undefined>(undefined);
+  const [submitNodeResponseError, setSubmitNodeResponseError] = useState<ResponseStatusError | undefined>(undefined);
 
   const fetchAllNodes = async () => {
     const response = await NodesApi.fetchAllNodes();
@@ -154,7 +164,6 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
           setRunningNodeInfo({
             ...runningNodeInfo,
             status: "error",
-            error,
           });
         }
         console.log("last run status was error");
@@ -195,6 +204,8 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         setRunningNode,
         runningNodeInfo,
         setRunningNodeInfo,
+        submitNodeResponseError,
+        setSubmitNodeResponseError,
         allNodes,
         setAllNodes,
         isNodeRunning,
