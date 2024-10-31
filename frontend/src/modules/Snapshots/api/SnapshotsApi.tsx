@@ -53,6 +53,20 @@ export class SnapshotsApi extends Api {
     });
   }
 
+  static updateStates(
+    snapshotId: string,
+    listOfUpdates: {
+      data_path: string;
+      value: unknown;
+    }[]
+  ): Promise<Res<boolean>> {
+    return this._fetch(this.api(UPDATE_SNAPSHOT(snapshotId)), API_METHODS.POST, {
+      headers: BASIC_HEADERS,
+      body: JSON.stringify(listOfUpdates),
+      // queryParams: { data_path, value },
+    });
+  }
+
   static stopNodeRunning(): Promise<Res<void>> {
     return this._fetch(this.api(STOP_RUNNING()), API_METHODS.POST, {
       headers: BASIC_HEADERS,

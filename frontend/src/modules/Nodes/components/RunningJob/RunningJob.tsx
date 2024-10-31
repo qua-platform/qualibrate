@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./RunningJob.module.scss";
-import { RunningNodeInfo, StateUpdateObject, useNodesContext } from "../../context/NodesContext";
+import { RunningNodeInfo, StateUpdate, StateUpdateObject, useNodesContext } from "../../context/NodesContext";
 import { CircularProgress } from "@mui/material";
 import { UpArrowIcon } from "../../../../ui-lib/Icons/UpArrowIcon";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
@@ -40,11 +40,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
                 const stateUpdateValue = customValue ? customValue : stateUpdateObject.val ?? stateUpdateObject.new!;
                 const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateValue);
                 setRunningUpdate(false);
-                if (response.isOk) {
-                  setParameterUpdated(response.result!);
-                } else {
-                  setParameterUpdated(response.result!); //TODO Check this
-                }
+                setParameterUpdated(response.result!);
                 setRunningUpdate(false);
               }
             }}
@@ -95,9 +91,33 @@ const GetStateUpdates: React.FC<{
   runningNodeInfo: RunningNodeInfo | undefined;
 }> = (props) => {
   const { runningNodeInfo } = props;
+
+  const handleClick = async (stateUpdates: StateUpdate) => {
+    let litOfUpdates = Object.entries(stateUpdates ?? {}).map(([key, stateUpdateObject]) => {
+      return {
+        data_path: key,
+        value: stateUpdateObject.val ?? stateUpdateObject.new!,
+      };
+    });
+    await SnapshotsApi.updateStates(runningNodeInfo?.idx!, litOfUpdates);
+  };
+
   return (
     <>
-      {runningNodeInfo?.state_updates && <div className={styles.stateTitle}>State updates:</div>}
+      {runningNodeInfo?.state_updates && (
+        <div className={styles.stateTitle}>
+          State updates:
+          <div className={styles.updateAll}>
+            <BlueButton
+              className={styles.updateAllButton}
+              disabled={false}
+              onClick={() => handleClick(runningNodeInfo?.state_updates ?? {})}
+            >
+              Update all
+            </BlueButton>
+          </div>
+        </div>
+      )}
       {runningNodeInfo?.state_updates && (
         <div className={styles.stateUpdatesTopWrapper}>
           {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject]) =>

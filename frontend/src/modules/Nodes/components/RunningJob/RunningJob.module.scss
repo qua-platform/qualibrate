@@ -79,8 +79,18 @@
 }
 
 .stateTitle {
+  display: flex;
   padding-top: 20px;
   padding-left: 40px;
+}
+
+.updateAll {
+  padding-left: 140px;
+}
+
+.updateAllButton {
+  height: 20px;
+  text-wrap: nowrap;
 }
 
 .stateUpdatesTopWrapper {
