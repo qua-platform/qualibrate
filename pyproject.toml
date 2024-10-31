@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-runner"
-version = "0.2.2"
+version = "0.2.3"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 readme = "README.md"
@@ -46,12 +46,12 @@ exclude = ["calibrations"]
 
 [tool.ruff.lint]
 select = [
-    "E",    # pycodestyle
-    "F",    # Pyflakes
-    "UP",   # pyupgrade
-    "B",    # flake8-bugbear
-    "SIM",  # flake8-simplify
-    "I",    # isort
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "I",   # isort
 ]
 
 [tool.ruff.lint.pycodestyle]

@@ -26,7 +26,7 @@ def get_nodes(
     nodes: Annotated[Mapping[str, QualibrationNode], Depends(get_qnodes)],
 ) -> Mapping[str, Any]:
     return {
-        node_name: node.serialize(exclude_targets=True)
+        node_name: node.serialize(exclude_targets=False)
         for node_name, node in nodes.items()
     }
 
