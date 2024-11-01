@@ -96,7 +96,6 @@ export default class FlexLayoutBuilder {
 
   removeAllOpenTabs() {
     const allTabs = this._getAllTabs();
-    console.log(allTabs);
     allTabs.forEach((tab) => {
       this.model.doAction(Actions.deleteTab(tab.getId()));
     });
