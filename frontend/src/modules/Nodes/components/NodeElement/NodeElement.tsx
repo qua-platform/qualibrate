@@ -3,11 +3,12 @@ import styles from "./NodeElement.module.scss";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 import { Checkbox, CircularProgress } from "@mui/material";
-import { NodeStatusErrorWithDetails, useNodesContext } from "../../context/NodesContext";
+import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
 import { classNames } from "../../../../utils/classnames";
 import { NodesApi } from "../../api/NodesAPI";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
+import { ErrorResponseWrapper } from "../../../common/Error/ErrorResponseWrapper";
 
 export interface NodeDTO {
   name: string;
@@ -23,7 +24,16 @@ export interface NodeMap {
 
 export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
-  const { isNodeRunning, setRunningNodeInfo, setIsNodeRunning, setRunningNode, allNodes, setAllNodes } = useNodesContext();
+  const {
+    isNodeRunning,
+    setRunningNodeInfo,
+    setSubmitNodeResponseError,
+    submitNodeResponseError,
+    setIsNodeRunning,
+    setRunningNode,
+    allNodes,
+    setAllNodes,
+  } = useNodesContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
     const updatedParameters = {
@@ -85,15 +95,15 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     if (result.isOk) {
       setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
     } else {
-      const errorWithDetails = result.error as NodeStatusErrorWithDetails;
+      const errorWithDetails = result.error as ErrorWithDetails;
+      setSubmitNodeResponseError({
+        nodeName: node.name,
+        name: `${errorWithDetails.detail[0].type ?? "Error msg"}: `,
+        msg: errorWithDetails.detail[0].msg,
+      });
       setRunningNodeInfo({
         timestampOfRun: formatDate(new Date()),
         status: "error",
-        error: {
-          error_class: errorWithDetails.detail[0].type,
-          traceback: undefined,
-          message: errorWithDetails.detail[0].msg,
-        },
       });
     }
   };
@@ -133,6 +143,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           )}
         </div>
       </div>
+      {node.name === selectedItemName && node.name === submitNodeResponseError?.nodeName && (
+        <ErrorResponseWrapper error={submitNodeResponseError} />
+      )}
       <Parameters
         parametersExpanded={true}
         showTitle={true}
