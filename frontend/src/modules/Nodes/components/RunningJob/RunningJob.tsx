@@ -93,18 +93,18 @@ const GetStateUpdates: React.FC<{
   const { runningNodeInfo } = props;
 
   const handleClick = async (stateUpdates: StateUpdate) => {
-    let litOfUpdates = Object.entries(stateUpdates ?? {}).map(([key, stateUpdateObject]) => {
+    const litOfUpdates = Object.entries(stateUpdates ?? {}).map(([key, stateUpdateObject]) => {
       return {
         data_path: key,
         value: stateUpdateObject.val ?? stateUpdateObject.new!,
       };
     });
-    await SnapshotsApi.updateStates(runningNodeInfo?.idx!, litOfUpdates);
+    await SnapshotsApi.updateStates(runningNodeInfo?.idx ?? "", litOfUpdates);
   };
 
   return (
     <>
-      {runningNodeInfo?.state_updates && (
+      {runningNodeInfo?.state_updates && Object.keys(runningNodeInfo?.state_updates).length > 0 && (
         <div className={styles.stateTitle}>
           State updates:
           <div className={styles.updateAll}>
