@@ -21,8 +21,8 @@ except ImportError:
 
 app = FastAPI(
     title="Qualibrate",
-    openapi_url="/qm_app_openapi.json",
-    docs_url="/qm_app_docs",
+    openapi_url="/app_openapi.json",
+    docs_url="/app_docs",
 )
 _settings = get_settings(get_config_path())
 
