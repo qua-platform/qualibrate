@@ -4,6 +4,7 @@ import noop from "../../../common/helpers";
 import { NodesApi } from "../api/NodesAPI";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
+import { formatDateTime } from "../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
 
 export interface StateUpdateObject {
   key?: string | number;
@@ -77,13 +78,18 @@ interface NodesContextProviderProps {
 
 export interface StatusResponseType {
   idx: number;
+  completed_at?: string;
   status: string;
   error?: ErrorObject;
   name: string;
   state_updates?: StateUpdate;
   run_result?: {
+    name?: string;
+    created_at?: string;
+    completed_at?: string;
+    run_duration?: number;
     parameters?: {
-      nodes: { [key: string]: string };
+      [key: string]: string;
     };
   };
 }
@@ -161,9 +167,35 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
             error,
           });
         } else if (lastRunResponseResult && lastRunResponseResult.status === "error") {
+          if (runningNode) {
+            let parameters = {};
+            console.log("lastRunResponseResult.run_result?.parameters", lastRunResponseResult.run_result?.parameters);
+            Object.entries(lastRunResponseResult.run_result?.parameters ?? {}).forEach(([key, value]) => {
+              parameters = {
+                ...parameters,
+                [key]: {
+                  default: value,
+                  title: key,
+                  type: "string",
+                },
+              };
+            });
+            setRunningNode({
+              ...runningNode,
+              parameters,
+              // parameters: { sadada: { dadasda: "dadasda" } },
+            });
+          }
           setRunningNodeInfo({
             ...runningNodeInfo,
             status: "error",
+            timestampOfRun: formatDateTime(lastRunResponseResult.run_result?.created_at),
+            runDuration: lastRunResponseResult.run_result?.run_duration?.toString(),
+            lastRunNodeName: lastRunResponseResult.name,
+            state_updates: lastRunResponseResult.state_updates,
+            idx: lastRunResponseResult.idx.toString(),
+            // parameters: lastRunResponseResult.run_result?.parameters,
+            error,
           });
         }
         console.log("last run status was error");
