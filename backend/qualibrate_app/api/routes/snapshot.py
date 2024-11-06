@@ -1,4 +1,6 @@
-from typing import Annotated, Any, Mapping, Optional, Type, Union, cast
+import contextlib
+from collections.abc import Mapping
+from typing import Annotated, Any, Optional, Union, cast
 from urllib.parse import urljoin
 
 import requests
@@ -46,7 +48,7 @@ def _get_snapshot_instance(
     id: Annotated[IdType, Path()],
     settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> SnapshotBase:
-    snapshot_types: dict[StorageType, Type[SnapshotBase]] = {
+    snapshot_types: dict[StorageType, type[SnapshotBase]] = {
         StorageType.local_storage: SnapshotLocalStorage,
         StorageType.timeline_db: SnapshotTimelineDb,
     }
@@ -126,7 +128,7 @@ def update_entry(
         value = types_conversion(value, type_)
     updated = snapshot.update_entry({data_path: value})
     if updated:
-        try:
+        with contextlib.suppress(requests.exceptions.ConnectionError):
             requests.post(
                 urljoin(
                     settings.runner.address_with_root, "record_state_update"
@@ -135,8 +137,6 @@ def update_entry(
                 cookies=cookies,
                 timeout=settings.runner.timeout,
             )
-        except requests.exceptions.ConnectionError:
-            pass
     return updated
 
 
@@ -176,7 +176,7 @@ def update_entries(
     updated = snapshot.update_entry(values)
     if updated:
         for data_path in values:
-            try:
+            with contextlib.suppress(requests.exceptions.ConnectionError):
                 requests.post(
                     urljoin(
                         settings.runner.address_with_root, "record_state_update"
@@ -185,8 +185,6 @@ def update_entries(
                     cookies=cookies,
                     timeout=settings.runner.timeout,
                 )
-            except requests.exceptions.ConnectionError:
-                pass
     return updated
 
 

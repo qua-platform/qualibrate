@@ -1,5 +1,6 @@
+from collections.abc import Mapping
 from functools import partial
-from typing import Any, Callable, Mapping, Optional, Union
+from typing import Any, Callable, Optional, Union
 from urllib.parse import urljoin
 
 import requests

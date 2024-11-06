@@ -1,4 +1,5 @@
-from typing import Annotated, Sequence, Union
+from collections.abc import Sequence
+from typing import Annotated, Union
 
 from fastapi import Query
 

@@ -1,5 +1,6 @@
+from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any, Mapping, Optional, Sequence, Tuple, Union, cast
+from typing import Any, Optional, Union, cast
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -93,7 +94,7 @@ class SnapshotTimelineDb(SnapshotBase):
 
     def get_latest_snapshots(
         self, page: int = 1, per_page: int = 50, reverse: bool = False
-    ) -> Tuple[int, Sequence[SnapshotBase]]:
+    ) -> tuple[int, Sequence[SnapshotBase]]:
         result = request_with_db(
             f"snapshot/{self.id}/history",
             params={"page": page, "per_page": per_page, "reverse": reverse},

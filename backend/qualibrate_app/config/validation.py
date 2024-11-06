@@ -1,13 +1,10 @@
 import warnings
+from collections.abc import Mapping
 from copy import deepcopy
 from pathlib import Path
 from typing import (
     Any,
-    Dict,
-    Mapping,
     Optional,
-    Tuple,
-    Type,
     TypeVar,
 )
 
@@ -55,8 +52,8 @@ def get_config_solved_references_or_print_error(
 
 
 def check_config_pre_v1_and_update(
-    common_config: Dict[str, Any], qapp_config: Dict[str, Any]
-) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
+    common_config: dict[str, Any], qapp_config: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     if "config_version" in qapp_config:
         return (
             common_config[QUALIBRATE_CONFIG_KEY],
@@ -67,7 +64,8 @@ def check_config_pre_v1_and_update(
         UserWarning(
             "You are using old version of config. "
             "Please update to new structure."
-        )
+        ),
+        stacklevel=2,
     )
     qapp_config = dict(deepcopy(qapp_config))
     qualibrate_config = {
@@ -88,7 +86,7 @@ def check_config_pre_v1_and_update(
 
 def get_config_model_or_print_error(
     config: Mapping[str, Any],
-    model_type: Type[T],
+    model_type: type[T],
     config_key: str,
 ) -> Optional[T]:
     try:

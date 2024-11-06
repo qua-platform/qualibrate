@@ -1,5 +1,5 @@
 import math
-from typing import Generic, List, TypeVar
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel, computed_field
 
@@ -10,7 +10,7 @@ class PagedCollection(BaseModel, Generic[ItemT]):
     page: int
     per_page: int
     total_items: int
-    items: List[ItemT]
+    items: list[ItemT]
 
     @computed_field
     def total_pages(self) -> int:

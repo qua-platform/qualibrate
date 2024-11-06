@@ -1,4 +1,5 @@
-from typing import Any, List, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -24,4 +25,4 @@ class StateUpdateRequestItem(BaseModel):
 
 
 class StateUpdateRequestItems(BaseModel):
-    items: List[StateUpdateRequestItem]
+    items: list[StateUpdateRequestItem]

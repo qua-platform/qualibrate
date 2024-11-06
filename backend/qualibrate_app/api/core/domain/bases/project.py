@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Mapping, Sequence, Tuple
+from typing import Any
 
 from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.config import (
@@ -43,7 +44,7 @@ class ProjectsManagerBase(ABC):
 
     def _get_raw_and_resolved_ref_config(
         self, project_name: str
-    ) -> Tuple[Mapping[str, Any], Mapping[str, Any]]:
+    ) -> tuple[Mapping[str, Any], Mapping[str, Any]]:
         raw_config = read_config_file(self._config_path, solve_references=False)
         # TODO: over way to update project
         old_project_name = raw_config[QUALIBRATE_CONFIG_KEY]["project"]

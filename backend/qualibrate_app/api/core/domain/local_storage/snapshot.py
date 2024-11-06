@@ -1,16 +1,14 @@
+import contextlib
 import json
 import logging
+from collections.abc import Mapping, MutableMapping, Sequence
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import (
     Any,
     Callable,
-    Mapping,
-    MutableMapping,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -271,13 +269,16 @@ def _default_snapshot_content_loader(
 
 class SnapshotLocalStorage(SnapshotBase):
     """
-    A class for managing local storage of snapshots, inheriting from `SnapshotBase`.
+    A class for managing local storage of snapshots, inheriting from
+    `SnapshotBase`.
 
     Args:
         id: The identifier of the snapshot.
         content: The content of the snapshot. Defaults to None.
-        snapshot_loader: Function to load snapshot content. Defaults to `_default_snapshot_content_loader`.
-        snapshot_updater: Function to update snapshot content. Defaults to `_default_snapshot_content_updater`.
+        snapshot_loader: Function to load snapshot content.
+            Defaults to `_default_snapshot_content_loader`.
+        snapshot_updater: Function to update snapshot content.
+            Defaults to `_default_snapshot_content_updater`.
         settings: The application settings for Qualibrate.
 
     Notes:
@@ -295,8 +296,12 @@ class SnapshotLocalStorage(SnapshotBase):
         self,
         id: IdType,
         content: Optional[DocumentType] = None,
-        snapshot_loader: SnapshotContentLoaderType = _default_snapshot_content_loader,
-        snapshot_updater: SnapshotContentUpdaterType = _default_snapshot_content_updater,
+        snapshot_loader: SnapshotContentLoaderType = (
+            _default_snapshot_content_loader
+        ),
+        snapshot_updater: SnapshotContentUpdaterType = (
+            _default_snapshot_content_updater
+        ),
         *,
         settings: QualibrateAppSettings,
     ):
@@ -378,7 +383,7 @@ class SnapshotLocalStorage(SnapshotBase):
 
     def get_latest_snapshots(
         self, page: int = 1, per_page: int = 50, reverse: bool = False
-    ) -> Tuple[int, Sequence[SnapshotBase]]:
+    ) -> tuple[int, Sequence[SnapshotBase]]:
         """
         Retrieves the latest snapshots. First item in sequence is current.
 
@@ -405,10 +410,8 @@ class SnapshotLocalStorage(SnapshotBase):
             SnapshotLocalStorage(id, settings=self._settings) for id in ids
         ]
         for snapshot in snapshots:
-            try:
+            with contextlib.suppress(OSError):
                 snapshot.load(SnapshotLoadType.Metadata)
-            except OSError:
-                pass
         return total, [self, *snapshots]
 
     def compare_by_id(
@@ -424,7 +427,8 @@ class SnapshotLocalStorage(SnapshotBase):
             The comparison result as a mapping.
 
         Raises:
-            QValueException: If comparing with the same snapshot ID or if data cannot be loaded.
+            QValueException: If comparing with the same snapshot ID or if data
+                cannot be loaded.
         """
         if self.id == other_snapshot_id:
             raise QValueException("Can't compare snapshots with same id")
@@ -629,7 +633,8 @@ class SnapshotLocalStorage(SnapshotBase):
         **kwargs: Mapping[str, Any],
     ) -> Optional[Mapping[str, Any]]:
         """
-        Extracts the state update type for a specific path from either the runner or QuAM state.
+        Extracts the state update type for a specific path from either the
+        runner or QuAM state.
 
         Args:
             path: The path to extract the state update type from.
@@ -651,7 +656,8 @@ class SnapshotLocalStorage(SnapshotBase):
         **kwargs: Mapping[str, Any],
     ) -> Mapping[str, Optional[Mapping[str, Any]]]:
         """
-        Extracts state update types for multiple paths from either the runner or QuAM state.
+        Extracts state update types for multiple paths from either the runner
+        or QuAM state.
 
         Args:
             paths: A sequence of paths to extract state update types for.
@@ -688,7 +694,7 @@ class SnapshotLocalStorage(SnapshotBase):
 
         path_values = {
             path: jsonpointer.resolve_pointer(data, path[1:], None)
-            for path in updates.keys()
+            for path in updates
         }
         replace_updates = filter(
             lambda k: path_values[k] is not None, updates.keys()
@@ -715,7 +721,7 @@ class SnapshotLocalStorage(SnapshotBase):
                 self.node_path, new_data, patch_operations, self._settings
             )
             return res
-        except jsonpatch.JsonPatchException:
-            raise QPathException("Unknown path to update")
+        except jsonpatch.JsonPatchException as ex:
+            raise QPathException("Unknown path to update") from ex
         except OSError:
             return False
