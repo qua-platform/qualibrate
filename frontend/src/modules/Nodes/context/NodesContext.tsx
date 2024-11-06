@@ -40,7 +40,7 @@ export interface ResponseStatusError {
 
 interface INodesContext {
   submitNodeResponseError?: ResponseStatusError;
-  setSubmitNodeResponseError: (error: ResponseStatusError) => void;
+  setSubmitNodeResponseError: (error?: ResponseStatusError) => void;
   runningNode?: NodeDTO;
   runningNodeInfo?: RunningNodeInfo;
   setRunningNode: (selectedNode: NodeDTO) => void;
@@ -121,6 +121,13 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
     return new Date(year, month - 1, day, hours, minutes, seconds);
   }
 
+  const formatString = (str: string) => {
+    return str
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const fetchNodeResults = async () => {
     const lastRunResponse = await NodesApi.fetchLastRunInfo();
     if (lastRunResponse && lastRunResponse.isOk) {
@@ -175,7 +182,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
                 ...parameters,
                 [key]: {
                   default: value,
-                  title: key,
+                  title: formatString(key),
                   type: "string",
                 },
               };
@@ -189,9 +196,8 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
           setRunningNodeInfo({
             ...runningNodeInfo,
             status: "error",
-            timestampOfRun: formatDateTime(lastRunResponseResult.run_result?.created_at),
+            timestampOfRun: formatDateTime(lastRunResponseResult.run_result?.created_at ?? ""),
             runDuration: lastRunResponseResult.run_result?.run_duration?.toString(),
-            lastRunNodeName: lastRunResponseResult.name,
             state_updates: lastRunResponseResult.state_updates,
             idx: lastRunResponseResult.idx.toString(),
             // parameters: lastRunResponseResult.run_result?.parameters,

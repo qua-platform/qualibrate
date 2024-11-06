@@ -141,7 +141,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         <div className={styles.leftContainer}>
           <div className={styles.titleWrapper}>{calibrationGraphKey}</div>
           <div className={styles.runButtonWrapper}>
-            <BlueButton className={styles.runButton} disabled={!show} onClick={handleSubmit}>
+            <BlueButton disabled={!show} onClick={handleSubmit}>
               Run
             </BlueButton>
           </div>
