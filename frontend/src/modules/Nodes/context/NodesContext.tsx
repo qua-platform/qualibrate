@@ -92,6 +92,9 @@ export interface StatusResponseType {
       [key: string]: string;
     };
   };
+  passed_parameters?: {
+    [key: string]: string | number;
+  };
 }
 
 export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {
@@ -157,6 +160,22 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
                 idx: lastRunResponseResult.idx.toString(),
                 state_updates: lastRunResponseResult.state_updates,
               });
+              let parameters = {};
+              Object.entries(lastRunResponseResult.passed_parameters ?? {}).forEach(([key, value]) => {
+                parameters = {
+                  ...parameters,
+                  [key]: {
+                    default: value,
+                    title: formatString(key),
+                    type: "string",
+                  },
+                };
+              });
+              setRunningNode({
+                ...runningNode!,
+                parameters,
+                // parameters: { sadada: { dadasda: "dadasda" } },
+              });
             }
             setResults(snapshotResponse.result);
           } else {
@@ -174,25 +193,22 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
             error,
           });
         } else if (lastRunResponseResult && lastRunResponseResult.status === "error") {
-          if (runningNode) {
-            let parameters = {};
-            console.log("lastRunResponseResult.run_result?.parameters", lastRunResponseResult.run_result?.parameters);
-            Object.entries(lastRunResponseResult.run_result?.parameters ?? {}).forEach(([key, value]) => {
-              parameters = {
-                ...parameters,
-                [key]: {
-                  default: value,
-                  title: formatString(key),
-                  type: "string",
-                },
-              };
-            });
-            setRunningNode({
-              ...runningNode,
-              parameters,
-              // parameters: { sadada: { dadasda: "dadasda" } },
-            });
-          }
+          let parameters = {};
+          Object.entries(lastRunResponseResult.run_result?.parameters ?? {}).forEach(([key, value]) => {
+            parameters = {
+              ...parameters,
+              [key]: {
+                default: value,
+                title: formatString(key),
+                type: "string",
+              },
+            };
+          });
+          setRunningNode({
+            ...runningNode!,
+            parameters,
+            // parameters: { sadada: { dadasda: "dadasda" } },
+          });
           setRunningNodeInfo({
             ...runningNodeInfo,
             status: "error",
@@ -204,6 +220,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
             error,
           });
         }
+
         console.log("last run status was error");
       }
     } else {
