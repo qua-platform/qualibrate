@@ -4,62 +4,34 @@ from collections.abc import Mapping
 from importlib.util import find_spec
 from itertools import filterfalse
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import click
 import tomli_w
 from click.core import ParameterSource
-
-from qualibrate_composite.config import (
-    CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
-)
-from qualibrate_composite.config import (
-    DEFAULT_CONFIG_FILENAME,
-    QUALIBRATE_PATH,
-    QualibrateSettings,
-    get_config_file,
-)
-from qualibrate_composite.config.references.resolvers import resolve_references
+from qualibrate_config.file import get_config_file
+from qualibrate_config.references.resolvers import resolve_references
+from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY as QAPP_Q_CONFIG_KEY
+from qualibrate_config.vars import QUALIBRATE_PATH
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
 else:
     import tomllib
 
+
 try:
     qualibrate_app = find_spec("qualibrate_app")
-    from qualibrate_app.config import (
-        ACTIVE_MACHINE_CONFIG_KEY as QAPP_AM_CONFIG_KEY,
-    )
-    from qualibrate_app.config import (
-        CONFIG_KEY as QAPP_CONFIG_KEY,
-    )
-    from qualibrate_app.config import QUALIBRATE_CONFIG_KEY as QAPP_Q_CONFIG_KEY
-    from qualibrate_app.config import (
-        ActiveMachineSettingsSetup,
-        QualibrateAppSettingsSetup,
-        StorageType,
-    )
-    from qualibrate_app.config import (
-        QualibrateSettingsSetup as QualibrateAppQSettingsSetup,
-    )
+    from qualibrate_app.config import CONFIG_KEY as QAPP_CONFIG_KEY
+    from qualibrate_app.config import QualibrateAppSettingsSetup
 except ImportError:
     QAPP_CONFIG_KEY = None
-    QAPP_Q_CONFIG_KEY = None
-    QAPP_AM_CONFIG_KEY = None
 
-    from qualibrate_composite.cli._sub_configs import (
-        ActiveMachineSettingsSetup,
-        QualibrateAppQSettingsSetup,
-        QualibrateAppSettingsSetup,
-        StorageType,
-    )
+    from qualibrate_composite.cli._sub_configs import QualibrateAppSettingsSetup
 try:
-    qualibrate = find_spec("qualibrate")
+    qualibrate = find_spec("qualibrate_runner")
 
-    from qualibrate_runner.config import (
-        CONFIG_KEY as RUNNER_CONFIG_KEY,
-    )
+    from qualibrate_runner.config import CONFIG_KEY as RUNNER_CONFIG_KEY
     from qualibrate_runner.config import QualibrateRunnerSettings
 except ImportError:
     RUNNER_CONFIG_KEY = None
@@ -68,7 +40,7 @@ except ImportError:
         QualibrateRunnerSettings,
     )
 
-__all__ = ["config_command"]
+# __all__ = ["config_command"]
 
 
 def not_default(ctx: click.Context, arg_key: str) -> bool:
@@ -80,13 +52,15 @@ def not_default(ctx: click.Context, arg_key: str) -> bool:
 
 def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
     """Returns config and path to file"""
-    config_file = get_config_file(config_path, raise_not_exists=False)
+    config_file = get_config_file(
+        config_path, QUALIBRATE_COMPOSITE_CONFIG_KEY, raise_not_exists=False
+    )
     if config_file.is_file():
         return tomllib.loads(config_file.read_text()), config_path
     return {}, config_file
 
 
-def _qualibrate_config_from_sources(
+def _qualibrate_composite_config_from_sources(
     ctx: click.Context, from_file: dict[str, Any]
 ) -> dict[str, Any]:
     qualibrate_composite_mapping = {"qualibrate_password": "password"}
@@ -150,10 +124,16 @@ def _print_config(data: Mapping[str, Any], depth: int = 0) -> None:
         _print_config(mapping_v, depth + 1)
 
 
-def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
+def _print_and_confirm(
+    config_file: Path,
+    exported_data: dict[str, Any],
+    check_generator: bool,
+) -> None:
     click.echo(f"Config file path: {config_file}")
     click.echo(click.style("Generated config:", bold=True))
     _print_config(exported_data)
+    if check_generator:
+        exit(0)
     confirmed = click.confirm("Do you confirm config?", default=True)
     if not confirmed:
         click.echo(
@@ -271,7 +251,7 @@ def _get_qapp_q_config(
 def reorder_common_config_entries(data: dict[str, Any]) -> dict[str, Any]:
     sorted_keys = (
         QAPP_Q_CONFIG_KEY,
-        QUALIBRATE_CONFIG_KEY,
+        QUALIBRATE_COMPOSITE_CONFIG_KEY,
         QAPP_CONFIG_KEY,
         RUNNER_CONFIG_KEY,
         QAPP_AM_CONFIG_KEY,
@@ -287,12 +267,13 @@ def write_config(
     common_config: dict[str, Any],
     qs: QualibrateSettings,
     confirm: bool = True,
+    check_generator: bool = False,
 ) -> None:
     exported_data = qs.model_dump(mode="json", exclude_none=True)
-    common_config[QUALIBRATE_CONFIG_KEY] = exported_data
+    common_config[QUALIBRATE_COMPOSITE_CONFIG_KEY] = exported_data
     common_config = reorder_common_config_entries(common_config)
-    if confirm:
-        _confirm(config_file, common_config)
+    if confirm or check_generator:
+        _print_and_confirm(config_file, common_config, check_generator)
     storage = common_config.get(QAPP_Q_CONFIG_KEY, {}).get("storage", {})
     if "location" in storage:
         config_with_resolved_refs = resolve_references(common_config)
@@ -328,222 +309,237 @@ def _get_user_storage() -> Path:
     )
 
 
-@click.command(name="config")
-@click.option(
-    "--config-path",
-    type=click.Path(
-        exists=False,
-        path_type=Path,
-    ),
-    default=QUALIBRATE_PATH / DEFAULT_CONFIG_FILENAME,
-    show_default=True,
-    help=(
-        "Path to the configuration file. If the path points to a file, it will "
-        "be read and the old configuration will be reused, except for the "
-        "variables specified by the user. If the file does not exist, a new one"
-        " will be created. If the path points to a directory, a check will be "
-        "made to see if files with the default name exist."
-    ),
-)
-@click.option(
-    "--auto-accept",
-    type=bool,
-    is_flag=True,
-    default=False,
-    show_default=True,
-    help=(
-        "Flag responsible for whether to skip confirmation of the generated "
-        "config."
-    ),
-)
-@click.option(
-    "--qualibrate-password",
-    type=str,
-    default=None,
-    help=(
-        "Password used to authorize users. By default, no password is used. "
-        "Everyone has access to the API. If a password is specified during "
-        "configuration, you must log in to access the API."
-    ),
-)
-@click.option(
-    "--spawn-runner",
-    type=bool,  # TODO: add type check for addr
-    default=True,
-    show_default=True,
-    help=(
-        "This flag indicates whether the `qualibrate-runner` service should be "
-        "started. This service is designed to run nodes and graphs. The service"
-        " can be spawned independently."
-    ),
-)
-@click.option(
-    "--runner-address",
-    type=str,  # TODO: add type check for addr
-    default="http://localhost:8001/execution/",
-    show_default=True,
-    help=(
-        "Address of `qualibrate-runner` service. If the service is spawned by "
-        "the `qualibrate` then the default address should be kept as is. If you"
-        " are running the service separately, you must specify its address."
-    ),
-)
-@click.option(
-    "--runner-timeout",
-    type=float,
-    default=1.0,
-    show_default=True,
-    help=(
-        "Maximum waiting time for a response from the `qualibrate-runner` "
-        "service."
-    ),
-)
-@click.option(
-    "--runner-calibration-library-resolver",
-    type=str,
-    default="qualibrate.QualibrationLibrary",
-    show_default=True,
-    help=(
-        "String contains python path to the class that represents qualibration "
-        "library."
-    ),
-)
-@click.option(
-    "--runner-calibration-library-folder",
-    type=click.Path(file_okay=False, dir_okay=True),
-    default=_get_calibrations_path(),
-    show_default=True,
-    help="Path to the folder contains calibration nodes and graphs.",
-)
-@click.option(
-    "--spawn-app",
-    type=bool,
-    default=True,
-    show_default=True,
-    help=(
-        "This flag indicates whether the `qualibrate-app` service should be "
-        "started. This service is designed to getting info about snapshots. "
-        "The service can be spawned independently."
-    ),
-)
-@click.option(
-    "--app-static-site-files",
-    type=click.Path(file_okay=False, dir_okay=True),
-    default=_get_qapp_static_file_path(),
-    show_default=True,
-    help="Path to the frontend build static files.",
-)
-@click.option(
-    "--app-storage-type",
-    type=click.Choice([t.value for t in StorageType]),
-    default="local_storage",
-    show_default=True,
-    callback=lambda ctx, param, value: StorageType(value),
-    help=(
-        "Type of storage. Only `local_storage` is supported now. Use specified "
-        "local path as the database."
-    ),
-)
-@click.option(
-    "--app-user-storage",
-    type=click.Path(file_okay=False, dir_okay=True),
-    default=_get_user_storage(),
-    show_default=True,
-    help=(
-        "Path to the local user storage. Used for storing nodes output data."
-    ),
-)
-@click.option(
-    "--app-project",
-    type=str,
-    default="init_project",
-    show_default=True,
-    help=(
-        "The name of qualibrate app project that will be used for storing runs "
-        "results and resolving them."
-    ),
-)
-@click.option(
-    "--app-metadata-out-path",
-    type=str,
-    default="data_path",
-    show_default=True,
-    help=(
-        "Key of metadata that's used for resolving path where a node results "
-        "should be stored to or resolved from."
-    ),
-)
-@click.option(
-    "--active-machine-path",
-    type=click.Path(file_okay=False, dir_okay=True),
-    default=None,
-    show_default=True,
-    help=(
-        "The path to the directory where the active machine state should be "
-        "stored."
-    ),
-)
-@click.option(
-    "--log-folder",
-    type=click.Path(file_okay=False, resolve_path=True, path_type=Path),
-    default=QUALIBRATE_PATH / "logs",
-    help="The path to the directory where the logs should be stored to.",
-    show_default=True,
-)
-@click.pass_context
-def config_command(
-    ctx: click.Context,
-    config_path: Path,
-    auto_accept: bool,
-    qualibrate_password: Optional[str],
-    spawn_app: bool,
-    spawn_runner: bool,
-    runner_address: str,
-    runner_timeout: float,
-    runner_calibration_library_resolver: str,
-    runner_calibration_library_folder: Path,
-    app_static_site_files: Path,
-    app_storage_type: StorageType,
-    app_user_storage: Path,
-    app_project: str,
-    app_metadata_out_path: str,
-    active_machine_path: Path,
-    log_folder: Path,
-) -> None:
-    common_config, config_file = get_config(config_path)
-    qualibrate_config = common_config.get(QUALIBRATE_CONFIG_KEY, {})
-    subconfigs = ("app", "timeline_db", "runner")
-    for subconfig in subconfigs:
-        if subconfig not in qualibrate_config:
-            qualibrate_config[subconfig] = {}
-    qualibrate_config = _qualibrate_config_from_sources(ctx, qualibrate_config)
-    qs = QualibrateSettings(**qualibrate_config)
-    if RUNNER_CONFIG_KEY is not None:
-        common_config[RUNNER_CONFIG_KEY] = _get_runner_config(
-            ctx, common_config.get(RUNNER_CONFIG_KEY, {})
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
-        )
-    if QAPP_CONFIG_KEY is not None:
-        common_config[QAPP_CONFIG_KEY] = _get_qapp_config(
-            ctx, qs, common_config.get(QAPP_CONFIG_KEY, {})
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
-        )
-    if QAPP_Q_CONFIG_KEY is not None:
-        common_config[QAPP_Q_CONFIG_KEY] = _get_qapp_q_config(
-            ctx, common_config.get(QAPP_Q_CONFIG_KEY, {})
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
-        )
-    if QAPP_AM_CONFIG_KEY is not None:
-        common_config[QAPP_AM_CONFIG_KEY] = _get_qapp_am_config(
-            ctx, common_config.get(QAPP_AM_CONFIG_KEY, {})
-        ).model_dump(
-            mode="json",
-            exclude_none=True,
-        )
-    write_config(config_file, common_config, qs, confirm=not auto_accept)
+#
+# @click.command(name="config")
+# @click.option(
+#     "--config-path",
+#     type=click.Path(
+#         exists=False,
+#         path_type=Path,
+#     ),
+#     default=QUALIBRATE_PATH / DEFAULT_CONFIG_FILENAME,
+#     show_default=True,
+#     help=(
+#         "Path to the configuration file. If the path points to a file, it will "
+#         "be read and the old configuration will be reused, except for the "
+#         "variables specified by the user. If the file does not exist, a new one"
+#         " will be created. If the path points to a directory, a check will be "
+#         "made to see if files with the default name exist."
+#     ),
+# )
+# @click.option(
+#     "--auto-accept",
+#     type=bool,
+#     is_flag=True,
+#     default=False,
+#     show_default=True,
+#     help=(
+#         "Flag responsible for whether to skip confirmation of the generated "
+#         "config."
+#     ),
+# )
+# @click.option(
+#     "--qualibrate-password",
+#     type=str,
+#     default=None,
+#     help=(
+#         "Password used to authorize users. By default, no password is used. "
+#         "Everyone has access to the API. If a password is specified during "
+#         "configuration, you must log in to access the API."
+#     ),
+# )
+# @click.option(
+#     "--spawn-runner",
+#     type=bool,  # TODO: add type check for addr
+#     default=True,
+#     show_default=True,
+#     help=(
+#         "This flag indicates whether the `qualibrate-runner` service should be "
+#         "started. This service is designed to run nodes and graphs. The service"
+#         " can be spawned independently."
+#     ),
+# )
+# @click.option(
+#     "--runner-address",
+#     type=str,  # TODO: add type check for addr
+#     default="http://localhost:8001/execution/",
+#     show_default=True,
+#     help=(
+#         "Address of `qualibrate-runner` service. If the service is spawned by "
+#         "the `qualibrate` then the default address should be kept as is. If you"
+#         " are running the service separately, you must specify its address."
+#     ),
+# )
+# @click.option(
+#     "--runner-timeout",
+#     type=float,
+#     default=1.0,
+#     show_default=True,
+#     help=(
+#         "Maximum waiting time for a response from the `qualibrate-runner` "
+#         "service."
+#     ),
+# )
+# @click.option(
+#     "--runner-calibration-library-resolver",
+#     type=str,
+#     default="qualibrate.QualibrationLibrary",
+#     show_default=True,
+#     help=(
+#         "String contains python path to the class that represents qualibration "
+#         "library."
+#     ),
+# )
+# @click.option(
+#     "--runner-calibration-library-folder",
+#     type=click.Path(file_okay=False, dir_okay=True),
+#     default=_get_calibrations_path(),
+#     show_default=True,
+#     help="Path to the folder contains calibration nodes and graphs.",
+# )
+# @click.option(
+#     "--spawn-app",
+#     type=bool,
+#     default=True,
+#     show_default=True,
+#     help=(
+#         "This flag indicates whether the `qualibrate-app` service should be "
+#         "started. This service is designed to getting info about snapshots. "
+#         "The service can be spawned independently."
+#     ),
+# )
+# @click.option(
+#     "--app-static-site-files",
+#     type=click.Path(file_okay=False, dir_okay=True),
+#     default=_get_qapp_static_file_path(),
+#     show_default=True,
+#     help="Path to the frontend build static files.",
+# )
+# @click.option(
+#     "--app-storage-type",
+#     type=click.Choice([t.value for t in StorageType]),
+#     default="local_storage",
+#     show_default=True,
+#     callback=lambda ctx, param, value: StorageType(value),
+#     help=(
+#         "Type of storage. Only `local_storage` is supported now. Use specified "
+#         "local path as the database."
+#     ),
+# )
+# @click.option(
+#     "--app-user-storage",
+#     type=click.Path(file_okay=False, dir_okay=True),
+#     default=_get_user_storage(),
+#     show_default=True,
+#     help=(
+#         "Path to the local user storage. Used for storing nodes output data."
+#     ),
+# )
+# @click.option(
+#     "--app-project",
+#     type=str,
+#     default="init_project",
+#     show_default=True,
+#     help=(
+#         "The name of qualibrate app project that will be used for storing runs "
+#         "results and resolving them."
+#     ),
+# )
+# @click.option(
+#     "--app-metadata-out-path",
+#     type=str,
+#     default="data_path",
+#     show_default=True,
+#     help=(
+#         "Key of metadata that's used for resolving path where a node results "
+#         "should be stored to or resolved from."
+#     ),
+# )
+# @click.option(
+#     "--active-machine-path",
+#     type=click.Path(file_okay=False, dir_okay=True),
+#     default=None,
+#     show_default=True,
+#     help=(
+#         "The path to the directory where the active machine state should be "
+#         "stored."
+#     ),
+# )
+# @click.option(
+#     "--log-folder",
+#     type=click.Path(file_okay=False, resolve_path=True, path_type=Path),
+#     default=QUALIBRATE_PATH / "logs",
+#     help="The path to the directory where the logs should be stored to.",
+#     show_default=True,
+# )
+# @click.option("--check-generator", is_flag=True, hidden=True)
+# @click.pass_context
+# def config_command(
+#     ctx: click.Context,
+#     config_path: Path,
+#     auto_accept: bool,
+#     qualibrate_password: Optional[str],
+#     spawn_app: bool,
+#     spawn_runner: bool,
+#     runner_address: str,
+#     runner_timeout: float,
+#     runner_calibration_library_resolver: str,
+#     runner_calibration_library_folder: Path,
+#     app_static_site_files: Path,
+#     app_storage_type: StorageType,
+#     app_user_storage: Path,
+#     app_project: str,
+#     app_metadata_out_path: str,
+#     active_machine_path: Path,
+#     log_folder: Path,
+#     check_generator: bool,
+# ) -> None:
+#     common_config, config_file = get_config(config_path)
+#     qualibrate_config = common_config.get(QUALIBRATE_COMPOSITE_CONFIG_KEY, {})
+#     subconfigs = ("app", "timeline_db", "runner")
+#     for subconfig in subconfigs:
+#         if subconfig not in qualibrate_config:
+#             qualibrate_config[subconfig] = {}
+#     qualibrate_config = _qualibrate_composite_config_from_sources(
+#         ctx, qualibrate_config
+#     )
+#     qs = QualibrateSettings(**qualibrate_config)
+#     if RUNNER_CONFIG_KEY is not None:
+#         common_config[RUNNER_CONFIG_KEY] = _get_runner_config(
+#             ctx, common_config.get(RUNNER_CONFIG_KEY, {})
+#         ).model_dump(
+#             mode="json",
+#             exclude_none=True,
+#         )
+#     if QAPP_CONFIG_KEY is not None:
+#         common_config[QAPP_CONFIG_KEY] = _get_qapp_config(
+#             ctx, qs, common_config.get(QAPP_CONFIG_KEY, {})
+#         ).model_dump(
+#             mode="json",
+#             exclude_none=True,
+#         )
+#     if QAPP_Q_CONFIG_KEY is not None:
+#         common_config[QAPP_Q_CONFIG_KEY] = _get_qapp_q_config(
+#             ctx, common_config.get(QAPP_Q_CONFIG_KEY, {})
+#         ).model_dump(
+#             mode="json",
+#             exclude_none=True,
+#         )
+#     if QAPP_AM_CONFIG_KEY is not None:
+#         common_config[QAPP_AM_CONFIG_KEY] = _get_qapp_am_config(
+#             ctx, common_config.get(QAPP_AM_CONFIG_KEY, {})
+#         ).model_dump(
+#             mode="json",
+#             exclude_none=True,
+#         )
+#     write_config(
+#         config_file,
+#         common_config,
+#         qs,
+#         confirm=not auto_accept,
+#         check_generator=check_generator,
+#     )
+#
+#
+# if __name__ == "__main__":
+#     config_command(["--app-project", "test_create"], standalone_mode=False)
