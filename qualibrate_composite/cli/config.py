@@ -1,9 +1,10 @@
 import os
 import sys
+from collections.abc import Mapping
 from importlib.util import find_spec
 from itertools import filterfalse
 from pathlib import Path
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Optional
 
 import click
 import tomli_w
@@ -67,7 +68,6 @@ except ImportError:
         QualibrateRunnerSettings,
     )
 
-
 __all__ = ["config_command"]
 
 
@@ -105,28 +105,28 @@ def _qualibrate_config_from_sources(
     }
     for arg_key, arg_value in ctx.params.items():
         not_default_arg = not_default(ctx, arg_key)
-        if arg_key in qualibrate_composite_mapping.keys():
+        if arg_key in qualibrate_composite_mapping:
             if not_default_arg or (
                 qualibrate_composite_mapping[arg_key] not in from_file
             ):
                 from_file[qualibrate_composite_mapping[arg_key]] = arg_value
-        elif arg_key in qualibrate_app_mapping.keys():
+        elif arg_key in qualibrate_app_mapping:
             if not_default_arg or (
                 qualibrate_app_mapping[arg_key] not in from_file["app"]
             ):
                 from_file["app"][qualibrate_app_mapping[arg_key]] = arg_value
-        elif arg_key in timeline_db_mapping.keys():
+        elif arg_key in timeline_db_mapping:
             if not_default_arg or (
                 timeline_db_mapping[arg_key] not in from_file["timeline_db"]
             ):
-                from_file["timeline_db"][
-                    timeline_db_mapping[arg_key]
-                ] = arg_value
-        elif arg_key in runner_mapping.keys():
-            if not_default_arg or (
-                runner_mapping[arg_key] not in from_file["runner"]
-            ):
-                from_file["runner"][runner_mapping[arg_key]] = arg_value
+                from_file["timeline_db"][timeline_db_mapping[arg_key]] = (
+                    arg_value
+                )
+        elif arg_key in runner_mapping and (
+            not_default_arg
+            or (runner_mapping[arg_key] not in from_file["runner"])
+        ):
+            from_file["runner"][runner_mapping[arg_key]] = arg_value
     return from_file
 
 
@@ -169,7 +169,7 @@ def _confirm(config_file: Path, exported_data: dict[str, Any]) -> None:
 
 
 def _get_runner_config(
-    ctx: click.Context, from_file: Dict[str, Any]
+    ctx: click.Context, from_file: dict[str, Any]
 ) -> QualibrateRunnerSettings:
     if qualibrate is None:
         raise ImportError("Qualibrate is not installed")
@@ -190,7 +190,7 @@ def _get_runner_config(
 
 
 def _get_qapp_config(
-    ctx: click.Context, qs: QualibrateSettings, from_file: Dict[str, Any]
+    ctx: click.Context, qs: QualibrateSettings, from_file: dict[str, Any]
 ) -> QualibrateAppSettingsSetup:
     args_mapping = {
         "app_static_site_files": "static_site_files",
@@ -220,7 +220,7 @@ def _get_qapp_config(
 
 
 def _get_qapp_am_config(
-    ctx: click.Context, from_file: Dict[str, Any]
+    ctx: click.Context, from_file: dict[str, Any]
 ) -> ActiveMachineSettingsSetup:
     args_mapping = {"active_machine_path": "path"}
     data = {
@@ -237,7 +237,7 @@ def _get_qapp_am_config(
 
 
 def _get_qapp_q_config(
-    ctx: click.Context, from_file: Dict[str, Any]
+    ctx: click.Context, from_file: dict[str, Any]
 ) -> QualibrateAppQSettingsSetup:
     storage_keys = {
         "app_storage_type": "type",
@@ -268,7 +268,7 @@ def _get_qapp_q_config(
     return QualibrateAppQSettingsSetup(**from_file)
 
 
-def reorder_common_config_entries(data: Dict[str, Any]) -> Dict[str, Any]:
+def reorder_common_config_entries(data: dict[str, Any]) -> dict[str, Any]:
     sorted_keys = (
         QAPP_Q_CONFIG_KEY,
         QUALIBRATE_CONFIG_KEY,
