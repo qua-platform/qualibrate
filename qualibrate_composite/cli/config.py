@@ -9,17 +9,14 @@ from typing import Any, Optional
 import click
 import tomli_w
 from click.core import ParameterSource
+from qualibrate_config.file import get_config_file
+from qualibrate_config.references.resolvers import resolve_references
+from qualibrate_config.vars import DEFAULT_CONFIG_FILENAME, QUALIBRATE_PATH
 
 from qualibrate_composite.config import (
     CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
 )
-from qualibrate_composite.config import (
-    DEFAULT_CONFIG_FILENAME,
-    QUALIBRATE_PATH,
-    QualibrateSettings,
-    get_config_file,
-)
-from qualibrate_composite.config.references.resolvers import resolve_references
+from qualibrate_composite.config import QualibrateSettings
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
@@ -80,7 +77,9 @@ def not_default(ctx: click.Context, arg_key: str) -> bool:
 
 def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
     """Returns config and path to file"""
-    config_file = get_config_file(config_path, raise_not_exists=False)
+    config_file = get_config_file(
+        config_path, QUALIBRATE_CONFIG_KEY, raise_not_exists=False
+    )
     if config_file.is_file():
         return tomllib.loads(config_file.read_text()), config_path
     return {}, config_file
