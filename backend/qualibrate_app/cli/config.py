@@ -2,28 +2,29 @@ import os
 import sys
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
 import click
 import tomli_w
 from click.core import ParameterSource
+from qualibrate_config.file import get_config_file
+from qualibrate_config.models import QualibrateSettingsSetup, StorageType
+from qualibrate_config.validation import get_config_model_or_print_error
+from qualibrate_config.vars import DEFAULT_CONFIG_FILENAME, QUALIBRATE_PATH
 
 from qualibrate_app.config import (
     CONFIG_KEY,
-    DEFAULT_CONFIG_FILENAME,
     QUALIBRATE_CONFIG_KEY,
-    QUALIBRATE_PATH,
     ActiveMachineSettingsSetup,
-    QualibrateSettingsSetup,
-    StorageType,
-    get_config_file,
 )
 from qualibrate_app.config.models import QualibrateAppSettingsSetup
 from qualibrate_app.config.validation import (
     check_config_pre_v1_and_update,
-    get_config_model_or_print_error,
 )
-from qualibrate_app.config.vars import ACTIVE_MACHINE_CONFIG_KEY
+from qualibrate_app.config.vars import (
+    ACTIVE_MACHINE_CONFIG_KEY,
+    DEFAULT_QUALIBRATE_APP_CONFIG_FILENAME,
+)
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
@@ -43,7 +44,11 @@ def not_default(ctx: click.Context, arg_key: str) -> bool:
 
 def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
     """Returns config and path to file"""
-    config_file = get_config_file(config_path, raise_not_exists=False)
+    config_file = get_config_file(
+        config_path,
+        DEFAULT_QUALIBRATE_APP_CONFIG_FILENAME,
+        raise_not_exists=False,
+    )
     if config_file.is_file():
         return tomllib.loads(config_file.read_text()), config_path
     return {}, config_file
@@ -79,9 +84,9 @@ def _config_from_sources(
             if not_default_arg or (
                 timeline_db_mapping[arg_key] not in from_file["timeline_db"]
             ):
-                from_file["timeline_db"][timeline_db_mapping[arg_key]] = (
-                    arg_value
-                )
+                from_file["timeline_db"][
+                    timeline_db_mapping[arg_key]
+                ] = arg_value
         elif arg_key in runner_mapping and (
             not_default_arg
             or (runner_mapping[arg_key] not in from_file["runner"])
@@ -298,13 +303,13 @@ def config_command(
     qass = get_config_model_or_print_error(
         qapp_config, QualibrateAppSettingsSetup, CONFIG_KEY
     )
-    if qss is None or qass is None:
+    if qss is None or ams is None or qass is None:
         return
     write_config(
         config_file,
         common_config,
-        cast(QualibrateSettingsSetup, qss),
-        cast(ActiveMachineSettingsSetup, ams),
-        cast(QualibrateAppSettingsSetup, qass),
+        qss,
+        ams,
+        qass,
         confirm=not auto_accept,
     )

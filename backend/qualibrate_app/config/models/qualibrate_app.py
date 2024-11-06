@@ -3,17 +3,19 @@ from typing import ClassVar
 
 from pydantic import DirectoryPath, field_serializer
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from qualibrate_config.models import (
+    PathSerializer,
+    QualibrateSettings,
+    Versioned,
+)
 
 from qualibrate_app.config.models.active_machine import (
     ActiveMachineSettings,
 )
-from qualibrate_app.config.models.path_serializer import PathSerializer
-from qualibrate_app.config.models.qualibrate import QualibrateSettings
 from qualibrate_app.config.models.remote_services import (
     JsonTimelineDBBase,
     QualibrateRunnerBase,
 )
-from qualibrate_app.config.models.versioned import Versioned
 
 __all__ = [
     "QualibrateAppSettings",

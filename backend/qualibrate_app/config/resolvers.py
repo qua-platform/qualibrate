@@ -1,31 +1,36 @@
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, cast
+from typing import Annotated
 
 from fastapi import Depends
+from qualibrate_config.file import get_config_file
+from qualibrate_config.models import QualibrateSettings
+from qualibrate_config.validation import (
+    get_config_model_or_print_error,
+    get_config_solved_references_or_print_error,
+)
 
-from qualibrate_app.config.file import get_config_file
 from qualibrate_app.config.models import (
     ActiveMachineSettings,
     QualibrateAppSettings,
-    QualibrateSettings,
-)
-from qualibrate_app.config.validation import (
-    get_config_model_or_print_error,
-    get_config_solved_references_or_print_error,
 )
 from qualibrate_app.config.vars import (
     ACTIVE_MACHINE_CONFIG_KEY,
     CONFIG_KEY,
     CONFIG_PATH_ENV_NAME,
+    DEFAULT_QUALIBRATE_APP_CONFIG_FILENAME,
     QUALIBRATE_CONFIG_KEY,
 )
 
 
 @lru_cache
 def get_config_path() -> Path:
-    return get_config_file(os.environ.get(CONFIG_PATH_ENV_NAME))
+    return get_config_file(
+        os.environ.get(CONFIG_PATH_ENV_NAME),
+        DEFAULT_QUALIBRATE_APP_CONFIG_FILENAME,
+        raise_not_exists=False,
+    )
 
 
 @lru_cache
@@ -54,4 +59,4 @@ def get_settings(
     )
     if qas is None:
         raise RuntimeError("Couldn't read config file")
-    return cast(QualibrateAppSettings, qas)
+    return qas

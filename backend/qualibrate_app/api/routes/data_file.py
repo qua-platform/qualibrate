@@ -1,6 +1,7 @@
 from typing import Annotated, Optional, Union
 
 from fastapi import APIRouter, Depends, Path
+from qualibrate_config.models import StorageType
 
 from qualibrate_app.api.core.domain.bases.node import NodeLoadType
 from qualibrate_app.api.core.domain.bases.storage import (
@@ -13,7 +14,6 @@ from qualibrate_app.api.core.types import DocumentType
 from qualibrate_app.api.core.utils.request_utils import HTTPException422
 from qualibrate_app.config import (
     QualibrateAppSettings,
-    StorageType,
     get_settings,
 )
 

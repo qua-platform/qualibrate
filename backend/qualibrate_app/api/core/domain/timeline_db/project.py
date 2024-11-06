@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 
 import requests
 from pydantic import ValidationError
+from qualibrate_config.models import QualibrateSettings, QualibrateSettingsSetup
 
 from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate_app.api.core.models.project import Project
@@ -13,8 +14,6 @@ from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate_app.api.exceptions.classes.values import QValueException
 from qualibrate_app.config import (
     QUALIBRATE_CONFIG_KEY,
-    QualibrateSettings,
-    QualibrateSettingsSetup,
 )
 
 

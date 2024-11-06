@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 
 import requests
 from fastapi import APIRouter, Body, Cookie, Depends, Path, Query
+from qualibrate_config.models import StorageType
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -29,7 +30,6 @@ from qualibrate_app.api.core.utils.types_parsing import types_conversion
 from qualibrate_app.api.dependencies.search import get_search_path
 from qualibrate_app.config import (
     QualibrateAppSettings,
-    StorageType,
     get_settings,
 )
 

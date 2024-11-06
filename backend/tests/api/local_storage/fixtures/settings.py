@@ -4,6 +4,9 @@ from pathlib import Path
 import pytest
 import tomli_w
 from fastapi.testclient import TestClient
+from qualibrate_config.models import QualibrateSettings
+from qualibrate_config.models.storage import StorageSettings
+from qualibrate_config.models.storage_type import StorageType
 
 from qualibrate_app.config import (
     CONFIG_KEY,
@@ -12,9 +15,6 @@ from qualibrate_app.config import (
     JsonTimelineDBBase,
     QualibrateAppSettings,
     QualibrateRunnerBase,
-    QualibrateSettings,
-    StorageSettings,
-    StorageType,
     get_config_path,
     get_settings,
 )

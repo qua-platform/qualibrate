@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from qualibrate_config.models import StorageType
 
 from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate_app.api.core.domain.local_storage.project import (
@@ -14,7 +15,6 @@ from qualibrate_app.api.core.domain.timeline_db.project import (
 from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.config import (
     QualibrateAppSettings,
-    StorageType,
     get_config_path,
     get_settings,
 )

@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
+from qualibrate_config.models import StorageType
 
 from qualibrate_app.api.core.domain.bases.branch import (
     BranchBase,
@@ -22,7 +23,6 @@ from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import IdType
 from qualibrate_app.config import (
     QualibrateAppSettings,
-    StorageType,
     get_settings,
 )
 

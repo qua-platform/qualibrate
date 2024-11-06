@@ -1,9 +1,9 @@
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel, field_serializer
-
-from qualibrate_app.config.models.path_serializer import PathSerializer
+from pydantic import field_serializer
+from pydantic_settings import BaseSettings
+from qualibrate_config.models import PathSerializer
 
 __all__ = [
     "ActiveMachineSettings",
@@ -12,7 +12,7 @@ __all__ = [
 ]
 
 
-class ActiveMachineSettingsBase(BaseModel, PathSerializer):
+class ActiveMachineSettingsBase(BaseSettings, PathSerializer):
     path: Optional[Path] = None
 
 

@@ -2,6 +2,7 @@ from collections.abc import Sequence
 from typing import Annotated, Any, Union
 
 from fastapi import APIRouter, Depends, Query
+from qualibrate_config.models import StorageType
 
 from qualibrate_app.api.core.domain.bases.branch import BranchLoadType
 from qualibrate_app.api.core.domain.bases.node import NodeLoadType
@@ -20,7 +21,6 @@ from qualibrate_app.api.core.types import IdType
 from qualibrate_app.api.dependencies.search import get_search_path
 from qualibrate_app.config import (
     QualibrateAppSettings,
-    StorageType,
     get_settings,
 )
 
