@@ -1,6 +1,14 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import { ALL_SNAPSHOTS, ONE_SNAPSHOT, SNAPSHOT_DIFF, SNAPSHOT_RESULT, STOP_RUNNING, UPDATE_SNAPSHOT } from "../../../utils/api/apiRoutes";
+import {
+  ALL_SNAPSHOTS,
+  ONE_SNAPSHOT,
+  SNAPSHOT_DIFF,
+  SNAPSHOT_RESULT,
+  STOP_RUNNING,
+  UPDATE_SNAPSHOT,
+  UPDATE_SNAPSHOTS,
+} from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { SnapshotDTO } from "../SnapshotDTO";
 
@@ -60,9 +68,9 @@ export class SnapshotsApi extends Api {
       value: unknown;
     }[]
   ): Promise<Res<boolean>> {
-    return this._fetch(this.api(UPDATE_SNAPSHOT(snapshotId)), API_METHODS.POST, {
+    return this._fetch(this.api(UPDATE_SNAPSHOTS(snapshotId)), API_METHODS.POST, {
       headers: BASIC_HEADERS,
-      body: JSON.stringify(listOfUpdates),
+      body: JSON.stringify({ items: listOfUpdates }),
       // queryParams: { data_path, value },
     });
   }
