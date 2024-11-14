@@ -1,12 +1,12 @@
 import React, { useContext } from "react";
-import { BLUE_BUTTON } from "../../utils/colors";
-import { ButtonProps } from "../../common/interfaces/ButtonProps";
-import { ButtonTypes } from "../../common/interfaces/ButtonTypes";
-import InterfaceContext from "../../contexts/InterfaceContext";
 import actionButtonStyles from "../buttons/styles/ActionButton.module.scss";
-import { classNames } from "../../utils/classnames";
 import plainButtonStyles from "../buttons/styles/PlainButton.module.scss";
 import styles from "../buttons/styles/ButtonWrapper.module.scss";
+import InterfaceContext from "../../../contexts/InterfaceContext";
+import { BLUE_BUTTON } from "../../../utils/colors";
+import { classNames } from "../../../utils/classnames";
+import { ButtonTypes } from "../../interfaces/ButtonTypes";
+import { ButtonProps } from "../../interfaces/ButtonProps";
 
 const defaultClassName = styles.button;
 const actionButtonClassName = actionButtonStyles.actionButton;
@@ -28,7 +28,7 @@ const getButtonStyles = (type: ButtonTypes, customClassName?: string) => {
  * If you just need a clickable wrap - use <button> all default styles are already reset
  *
  */
-const DEPRECATEDButton: React.FunctionComponent<ButtonProps> = ({
+const ButtonComponent: React.FunctionComponent<ButtonProps> = ({
   icon,
   iconSide,
   actionName,
@@ -101,4 +101,4 @@ const DEPRECATEDButton: React.FunctionComponent<ButtonProps> = ({
   );
 };
 
-export default DEPRECATEDButton;
+export default ButtonComponent;

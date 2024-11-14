@@ -6,7 +6,6 @@ import { InputParameter, Parameters, SingleParameter } from "../../../common/Par
 import { GraphWorkflow } from "../GraphList";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
 import { Checkbox } from "@mui/material";
-import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 import { ParameterList } from "../../../common/Parameters/ParameterList";
 import { useGraphContext } from "../../context/GraphContext";
 import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
@@ -15,6 +14,7 @@ import { NodeDTO } from "../../../Nodes/components/NodeElement/NodeElement";
 import { useFlexLayoutContext } from "../../../../routing/flexLayout/FlexLayoutContext";
 import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
+import InputField from "../../../../common/ui-components/common/Input/InputField";
 
 export interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -79,7 +79,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
           <InputField
             placeholder={key}
             value={parameter.default ? parameter.default.toString() : ""}
-            onChange={(val) => {
+            onChange={(val: boolean | number | string) => {
               updateParameter(key, val, node);
             }}
           />
@@ -141,7 +141,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         <div className={styles.leftContainer}>
           <div className={styles.titleWrapper}>{calibrationGraphKey}</div>
           <div className={styles.runButtonWrapper}>
-            <BlueButton className={styles.runButton} disabled={!show} onClick={handleSubmit}>
+            <BlueButton disabled={!show} onClick={handleSubmit}>
               Run
             </BlueButton>
           </div>
