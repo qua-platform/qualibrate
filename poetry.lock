@@ -1775,13 +1775,13 @@ simulation = ["certifi"]
 
 [[package]]
 name = "qualang-tools"
-version = "0.18.0"
+version = "0.18.1"
 description = "The qualang_tools package includes various tools related to QUA programs in Python"
 optional = false
 python-versions = "<3.12,>=3.8"
 files = [
-    {file = "qualang_tools-0.18.0-py3-none-any.whl", hash = "sha256:e89497f162e8485ff0f8a5389529db03cf69fb06e496da8835ce39cbd3e10c73"},
-    {file = "qualang_tools-0.18.0.tar.gz", hash = "sha256:d695623881784552a62727b0797e48aa68747f120cdf6e6ac8183f591fca3124"},
+    {file = "qualang_tools-0.18.1-py3-none-any.whl", hash = "sha256:392583cc63368625e35a4ccf10418b5438b704e0e117ee776595ab82f7719168"},
+    {file = "qualang_tools-0.18.1.tar.gz", hash = "sha256:f33dc0322ffc91007a6cfc96ce1bab5c03d1acaac452ed58d03f88550a5d216d"},
 ]
 
 [package.dependencies]
@@ -1802,24 +1802,28 @@ name = "qualibrate-app"
 version = "0.2.2"
 description = ""
 optional = false
-python-versions = "<4.0,>=3.9"
-files = [
-    {file = "qualibrate_app-0.2.2-py3-none-any.whl", hash = "sha256:b314f6a81578c966938517acab881088bae617045e6ff4b5b9803ac3f97a2402"},
-    {file = "qualibrate_app-0.2.2.tar.gz", hash = "sha256:af4bbaba1f1806db95c913230b856f0ac025a9df6b2b708bcb89af2b05126eb6"},
-]
+python-versions = "^3.9"
+files = []
+develop = true
 
 [package.dependencies]
-click = ">=8.1.7,<9.0.0"
-fastapi = ">=0.115.2,<0.116.0"
-jsonpatch = ">=1.33,<2.0"
-pydantic-settings = ">=2.1.0,<3.0.0"
-requests = ">=2.31.0,<3.0.0"
-tomli = {version = ">=2.0.1,<3.0.0", markers = "python_version < \"3.11\""}
-tomli-w = ">=1.0.0,<2.0.0"
-uvicorn = ">=0.32.0,<0.33.0"
+click = "^8.1.7"
+fastapi = "^0.115.2"
+jsonpatch = "^1.33"
+pydantic-settings = "^2.1.0"
+qualibrate-config = {path = "../../qualibrate-config", develop = true}
+requests = "^2.31.0"
+tomli = {version = "^2.0.1", markers = "python_version < \"3.11\""}
+tomli-w = "^1.0.0"
+uvicorn = "^0.32.0"
 
 [package.extras]
+json-timeline-db = []
 runner = ["qualibrate-runner (>=0.2.2,<0.3.0)"]
+
+[package.source]
+type = "directory"
+url = "../qualibrate-app/backend"
 
 [[package]]
 name = "qualibrate-config"
@@ -1847,41 +1851,46 @@ name = "qualibrate-core"
 version = "0.2.2"
 description = ""
 optional = false
-python-versions = "<4.0,>=3.9"
-files = [
-    {file = "qualibrate_core-0.2.2-py3-none-any.whl", hash = "sha256:a99015d19569eb1624e76fc57ce826210961237fb8eae882eb6800cb0083d371"},
-    {file = "qualibrate_core-0.2.2.tar.gz", hash = "sha256:c229bd9dda4cbe36897b286a4740d0ff2e8aa978e745ab414dc742bc8c6cbe4c"},
-]
+python-versions = "^3.9"
+files = []
+develop = true
 
 [package.dependencies]
-jsonpointer = ">=3.0.0,<4.0.0"
-networkx = ">=3.2.0,<3.3.0"
-pydantic = ">=2.7.3,<3.0.0"
+jsonpointer = "^3.0.0"
+networkx = "~3.2.0"
+pydantic = "^2.7.3"
 qualang_tools = {version = ">0.17.4", markers = "python_version >= \"3.9\" and python_version < \"3.12\""}
-types-networkx = ">=3.2.1.20240918,<3.3.0.0"
+types-networkx = "~3.2.1.20240918"
+
+[package.source]
+type = "directory"
+url = "../qualibrate-core"
 
 [[package]]
 name = "qualibrate-runner"
 version = "0.2.3"
 description = ""
 optional = false
-python-versions = "<4.0,>=3.9"
-files = [
-    {file = "qualibrate_runner-0.2.3-py3-none-any.whl", hash = "sha256:292c0b2caee7fb5c4dae0b227b857a64a2b86f10b5dc7197b36e85f00d019bff"},
-    {file = "qualibrate_runner-0.2.3.tar.gz", hash = "sha256:80d7548cfdde9a0914fecdebba06532974dc4e99539ff36c326646394f9a6ac4"},
-]
+python-versions = "^3.9"
+files = []
+develop = true
 
 [package.dependencies]
-click = ">=8.1.7,<9.0.0"
-fastapi = ">=0.115.2,<0.116.0"
-jsonpatch = ">=1.33,<2.0"
-pydantic-settings = ">=2.2.1,<3.0.0"
-tomli = {version = ">=2.0.1,<3.0.0", markers = "python_version < \"3.11\""}
-tomli-w = ">=1.0.0,<2.0.0"
-uvicorn = ">=0.32.0,<0.33.0"
+click = "^8.1.7"
+fastapi = "^0.115.2"
+jsonpatch = "^1.33"
+pydantic-settings = "^2.2.1"
+qualibrate-config = {path = "../qualibrate-config", develop = true}
+tomli = {version = "^2.0.1", markers = "python_version < \"3.11\""}
+tomli-w = "^1.0.0"
+uvicorn = "^0.32.0"
 
 [package.extras]
 qualibrary = ["qualibrate-core (>=0.2.0,<0.3.0)"]
+
+[package.source]
+type = "directory"
+url = "../qualibrate-runner"
 
 [[package]]
 name = "requests"
@@ -2222,4 +2231,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.12"
-content-hash = "2c81722e83bb2187058607c75856847fe86073b7fe9a9bcf8239b3ad6b944261"
+content-hash = "2340821b062cecfcab661dbd32edc17e814c433134d075eaa11d4100311261b2"
