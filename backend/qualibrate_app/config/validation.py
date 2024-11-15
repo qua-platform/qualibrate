@@ -4,10 +4,13 @@ from typing import (
     Any,
 )
 
-from qualibrate_app.config.vars import (
+from qualibrate_config.vars import (
     ACTIVE_MACHINE_CONFIG_KEY,
-    CONFIG_KEY,
     QUALIBRATE_CONFIG_KEY,
+)
+
+from qualibrate_app.config.vars import (
+    CONFIG_KEY,
 )
 
 

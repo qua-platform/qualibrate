@@ -3,7 +3,7 @@ from base64 import b64encode
 from collections.abc import Mapping
 from enum import IntEnum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.models.storage import Storage as StorageModel
@@ -24,7 +24,9 @@ class DataFileStorage(IDump):
 
     def __init__(self, path: Path, settings: QualibrateAppSettings):
         if not path.is_dir():
-            rel_path = path.relative_to(settings.qualibrate.storage.location)
+            rel_path = path.relative_to(
+                cast(Path, settings.qualibrate.storage.location)
+            )
             raise QFileNotFoundException(f"{rel_path} does not exist.")
         self._path = path
         self._load_type = StorageLoadType.Empty
@@ -34,7 +36,7 @@ class DataFileStorage(IDump):
     @property
     def path(self) -> Path:
         return self._path.relative_to(
-            self._settings.qualibrate.storage.location
+            cast(Path, self._settings.qualibrate.storage.location)
         )
 
     @property

@@ -5,22 +5,27 @@ from typing import Annotated
 
 from fastapi import Depends
 from qualibrate_config.file import get_config_file
-from qualibrate_config.models import QualibrateSettings
-from qualibrate_config.validation import (
-    get_config_model_or_print_error,
-    get_config_solved_references_or_print_error,
+from qualibrate_config.resolvers import (
+    get_active_machine_config_path,
+    get_active_machine_settings,
+    get_config_dict,
+    get_config_model,
+    get_qualibrate_config_path,
+    get_qualibrate_settings,
+)
+from qualibrate_config.storage import STORAGE
+from qualibrate_config.vars import (
+    ACTIVE_MACHINE_CONFIG_KEY,
+    QUALIBRATE_CONFIG_KEY,
 )
 
 from qualibrate_app.config.models import (
-    ActiveMachineSettings,
     QualibrateAppSettings,
 )
 from qualibrate_app.config.vars import (
-    ACTIVE_MACHINE_CONFIG_KEY,
     CONFIG_KEY,
     CONFIG_PATH_ENV_NAME,
     DEFAULT_QUALIBRATE_APP_CONFIG_FILENAME,
-    QUALIBRATE_CONFIG_KEY,
 )
 
 
@@ -35,28 +40,23 @@ def get_config_path() -> Path:
 
 @lru_cache
 def get_settings(
-    config_path: Annotated[Path, Depends(get_config_path)],
+    am_config_path: Annotated[Path, Depends(get_active_machine_config_path)],
+    app_config_path: Annotated[Path, Depends(get_config_path)],
+    q_config_path: Annotated[Path, Depends(get_qualibrate_config_path)],
 ) -> QualibrateAppSettings:
-    config = get_config_solved_references_or_print_error(config_path)
-    if config is None:
-        raise RuntimeError("Couldn't read config file")
-    qs = get_config_model_or_print_error(
-        config.get(QUALIBRATE_CONFIG_KEY, {}),
-        QualibrateSettings,
-        QUALIBRATE_CONFIG_KEY,
+    ams = get_active_machine_settings(am_config_path, STORAGE)
+    qs = get_qualibrate_settings(q_config_path, STORAGE)
+    qas_config = get_config_dict(
+        app_config_path,
+        CONFIG_KEY,
+        STORAGE,
     )
-    ams = get_config_model_or_print_error(
-        config.get(ACTIVE_MACHINE_CONFIG_KEY, {}),
-        ActiveMachineSettings,
-        ACTIVE_MACHINE_CONFIG_KEY,
-    )
-    qas_config = config.get(CONFIG_KEY, {})
     qas_config.update(
         {QUALIBRATE_CONFIG_KEY: qs, ACTIVE_MACHINE_CONFIG_KEY: ams}
     )
-    qas = get_config_model_or_print_error(
-        qas_config, QualibrateAppSettings, CONFIG_KEY
+    return get_config_model(
+        app_config_path,
+        CONFIG_KEY,
+        QualibrateAppSettings,
+        {CONFIG_KEY: qas_config},
     )
-    if qas is None:
-        raise RuntimeError("Couldn't read config file")
-    return qas

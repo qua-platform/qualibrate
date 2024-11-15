@@ -1,6 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from qualibrate_config.resolvers import (
+    get_active_machine_config_path,
+    get_qualibrate_config_path,
+)
 from starlette.middleware.cors import CORSMiddleware
 
 from qualibrate_app.api.__main__ import api_router
@@ -24,7 +28,11 @@ app = FastAPI(
     openapi_url="/app_openapi.json",
     docs_url="/app_docs",
 )
-_settings = get_settings(get_config_path())
+_settings = get_settings(
+    get_active_machine_config_path(),
+    get_config_path(),
+    get_qualibrate_config_path(),
+)
 
 origins = [
     "http://localhost:8002",

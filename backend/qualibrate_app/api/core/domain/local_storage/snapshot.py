@@ -87,7 +87,7 @@ def _read_minified_node_content(
     )
     id_local_path = IdToLocalPath()
     project = settings.qualibrate.project
-    user_storage = settings.qualibrate.storage.location
+    user_storage = cast(Path, settings.qualibrate.storage.location)
     parents = list(
         filter(
             lambda p_id: id_local_path.get(project, p_id, user_storage), parents
@@ -132,7 +132,11 @@ def _read_metadata_node_content(
     node_metadata.setdefault("name", f_node_name)
     node_metadata.setdefault(
         settings.metadata_out_path,
-        str(snapshot_path.relative_to(settings.qualibrate.storage.location)),
+        str(
+            snapshot_path.relative_to(
+                cast(Path, settings.qualibrate.storage.location)
+            )
+        ),
     )
     return node_metadata
 
@@ -202,11 +206,12 @@ def _default_snapshot_content_updater(
     with node_filepath.open("w") as f:
         json.dump(node_info, f, indent=4)
 
-    if not settings.active_machine.path:
+    am_path = cast(Optional[Path], settings.active_machine.path)
+    if not am_path:
         logger.info("No active machine path to update")
         pass
-    elif settings.active_machine.path.is_dir():
-        logger.info(f"Updating quam state dir {settings.active_machine.path}")
+    elif am_path.is_dir():
+        logger.info(f"Updating quam state dir {am_path}")
         contents = deepcopy(dict(new_snapshot))
         content_mapping = {"wiring.json": {"wiring", "network"}}
 
@@ -216,20 +221,16 @@ def _default_snapshot_content_updater(
                 for key in content_keys
                 if key in contents
             }
-            logger.info(f"Writing {filename} to {settings.active_machine.path}")
-            (settings.active_machine.path / filename).write_text(
+            logger.info(f"Writing {filename} to {am_path}")
+            (am_path / filename).write_text(
                 json.dumps(wiring_snapshot, indent=4)
             )
 
-        logger.info(f"Writing state.json to {settings.active_machine.path}")
-        (settings.active_machine.path / "state.json").write_text(
-            json.dumps(contents, indent=4)
-        )
+        logger.info(f"Writing state.json to {am_path}")
+        (am_path / "state.json").write_text(json.dumps(contents, indent=4))
     else:
-        logger.info(f"Updating quam state file {settings.active_machine.path}")
-        settings.active_machine.path.write_text(
-            json.dumps(new_snapshot, indent=4)
-        )
+        logger.info(f"Updating quam state file {am_path}")
+        am_path.write_text(json.dumps(new_snapshot, indent=4))
 
     return True
 
@@ -323,7 +324,7 @@ class SnapshotLocalStorage(SnapshotBase):
             self._node_path = IdToLocalPath().get_or_raise(
                 self._settings.qualibrate.project,
                 self._id,
-                self._settings.qualibrate.storage.location,
+                cast(Path, self._settings.qualibrate.storage.location),
             )
         return self._node_path
 
@@ -395,12 +396,15 @@ class SnapshotLocalStorage(SnapshotBase):
         Returns:
             Total number of snapshots and a sequence of the latest snapshots.
         """
-        total = find_latest_node_id(self._settings.qualibrate.storage.location)
+        storage_location = cast(
+            Path, self._settings.qualibrate.storage.location
+        )
+        total = find_latest_node_id(storage_location)
         self.load(SnapshotLoadType.Metadata)
         if page == 1 and per_page == 1:
             return total, [self]
         ids = find_n_latest_nodes_ids(
-            self._settings.qualibrate.storage.location,
+            storage_location,
             page,
             per_page,
             self._settings.qualibrate.project,

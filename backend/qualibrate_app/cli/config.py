@@ -2,29 +2,31 @@ import os
 import sys
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 import click
 import tomli_w
 from click.core import ParameterSource
 from qualibrate_config.file import get_config_file
-from qualibrate_config.models import QualibrateSettingsSetup, StorageType
+from qualibrate_config.models import (
+    ActiveMachineSettingsSetup,
+    QualibrateSettingsSetup,
+    StorageType,
+)
 from qualibrate_config.validation import get_config_model_or_print_error
-from qualibrate_config.vars import DEFAULT_CONFIG_FILENAME, QUALIBRATE_PATH
+from qualibrate_config.vars import (
+    ACTIVE_MACHINE_CONFIG_KEY,
+    DEFAULT_CONFIG_FILENAME,
+    QUALIBRATE_CONFIG_KEY,
+    QUALIBRATE_PATH,
+)
 
 from qualibrate_app.config import (
     CONFIG_KEY,
-    QUALIBRATE_CONFIG_KEY,
-    ActiveMachineSettingsSetup,
-)
-from qualibrate_app.config.models import QualibrateAppSettingsSetup
-from qualibrate_app.config.validation import (
-    check_config_pre_v1_and_update,
-)
-from qualibrate_app.config.vars import (
-    ACTIVE_MACHINE_CONFIG_KEY,
     DEFAULT_QUALIBRATE_APP_CONFIG_FILENAME,
 )
+from qualibrate_app.config.models import QualibrateAppSettingsSetup
+from qualibrate_app.config.validation import check_config_pre_v1_and_update
 
 if sys.version_info[:2] < (3, 11):
     import tomli as tomllib
@@ -157,12 +159,13 @@ def write_config(
         _confirm(
             config_file, qs_exported_data, am_exported_data, qas_exported_data
         )
-    qss.storage.location.mkdir(parents=True, exist_ok=True)
+    storage_location = cast(Path, qss.storage.location)
+    storage_location.mkdir(parents=True, exist_ok=True)
     if qss.project:
-        project_path = qss.storage.location / qss.project
+        project_path = storage_location / qss.project
         project_path.mkdir(parents=True, exist_ok=True)
     if qss.log_folder:
-        qss.log_folder.mkdir(parents=True, exist_ok=True)
+        cast(Path, qss.log_folder).mkdir(parents=True, exist_ok=True)
     if not config_file.parent.exists():
         config_file.parent.mkdir(parents=True)
     common_config[CONFIG_KEY] = qas_exported_data

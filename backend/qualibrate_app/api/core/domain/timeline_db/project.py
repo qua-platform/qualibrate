@@ -1,20 +1,19 @@
 from collections.abc import Sequence
 from datetime import datetime
+from pathlib import Path
 from typing import Union, cast
 from urllib.parse import urljoin
 
 import requests
 from pydantic import ValidationError
 from qualibrate_config.models import QualibrateSettings, QualibrateSettingsSetup
+from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
 from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.api.core.utils.request_utils import request_with_db
 from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate_app.api.exceptions.classes.values import QValueException
-from qualibrate_app.config import (
-    QUALIBRATE_CONFIG_KEY,
-)
 
 
 class ProjectsManagerTimelineDb(ProjectsManagerBase):
@@ -68,7 +67,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         new_project_path = self._resolve_new_project_path(
             project_name,
             self._settings.qualibrate.project,
-            self._settings.qualibrate.storage.location,
+            cast(Path, self._settings.qualibrate.storage.location),
         )
         new_project_path.mkdir(parents=True, exist_ok=True)
         return project_name

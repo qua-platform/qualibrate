@@ -1,6 +1,7 @@
 from abc import ABC
 from enum import IntEnum
-from typing import Optional
+from pathlib import Path
+from typing import Optional, cast
 
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.domain.bases.snapshot import (
@@ -71,7 +72,7 @@ class NodeBase(IDump, ABC):
             return
         rel_output_path = metadata[self._settings.metadata_out_path]
         abs_output_path = resolve_and_check_relative(
-            self._settings.qualibrate.storage.location,
+            cast(Path, self._settings.qualibrate.storage.location),
             metadata[self._settings.metadata_out_path],
         )
         if not abs_output_path.is_dir():

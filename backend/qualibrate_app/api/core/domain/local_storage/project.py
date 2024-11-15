@@ -1,8 +1,10 @@
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
+from typing import cast
 
 from pydantic import ValidationError
+from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
 from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate_app.api.core.models.project import Project
@@ -10,7 +12,6 @@ from qualibrate_app.api.core.utils.path.node import NodePath
 from qualibrate_app.api.exceptions.classes.values import QValueException
 from qualibrate_app.config import (
     CONFIG_KEY,
-    QUALIBRATE_CONFIG_KEY,
     QualibrateAppSettings,
 )
 
@@ -54,7 +55,7 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
         new_project_path = self._resolve_new_project_path(
             project_name,
             self._settings.qualibrate.project,
-            self._settings.qualibrate.storage.location,
+            cast(Path, self._settings.qualibrate.storage.location),
         )
         if new_project_path.is_dir():
             raise QValueException(f"Project {project_name} already exists.")
@@ -112,7 +113,7 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
     def list(self) -> Sequence[Project]:
         base_path = self._resolve_base_projects_path(
             self._settings.qualibrate.project,
-            self._settings.qualibrate.storage.location,
+            cast(Path, self._settings.qualibrate.storage.location),
         )
         return [
             self._get_project_info(p)

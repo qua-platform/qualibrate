@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 
 from qualibrate_app.api.core.domain.bases.branch import (
     BranchBase,
@@ -42,7 +42,9 @@ class BranchLocalStorage(BranchBase):
     @property
     def created_at(self) -> datetime:
         return datetime.fromtimestamp(
-            Path(self._settings.qualibrate.storage.location).stat().st_mtime
+            cast(Path, self._settings.qualibrate.storage.location)
+            .stat()
+            .st_mtime
         ).astimezone()
 
     def load(self, load_type: BranchLoadType) -> None:
@@ -51,7 +53,7 @@ class BranchLocalStorage(BranchBase):
     def _get_latest_node_id(self, error_msg: str) -> IdType:
         id = next(
             find_n_latest_nodes_ids(
-                self._settings.qualibrate.storage.location,
+                cast(Path, self._settings.qualibrate.storage.location),
                 1,
                 1,
                 self._settings.qualibrate.project,
@@ -79,8 +81,11 @@ class BranchLocalStorage(BranchBase):
         reverse: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         # TODO: use reverse
+        storage_location = cast(
+            Path, self._settings.qualibrate.storage.location
+        )
         ids = find_n_latest_nodes_ids(
-            self._settings.qualibrate.storage.location,
+            storage_location,
             page,
             per_page,
             self._settings.qualibrate.project,
@@ -90,7 +95,7 @@ class BranchLocalStorage(BranchBase):
         ]
         for snapshot in snapshots:
             snapshot.load(SnapshotLoadType.Metadata)
-        total = find_latest_node_id(self._settings.qualibrate.storage.location)
+        total = find_latest_node_id(storage_location)
         return total, snapshots
 
     def get_latest_nodes(
@@ -100,8 +105,11 @@ class BranchLocalStorage(BranchBase):
         reverse: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
         # TODO: use reverse
+        storage_location = cast(
+            Path, self._settings.qualibrate.storage.location
+        )
         ids = find_n_latest_nodes_ids(
-            self._settings.qualibrate.storage.location,
+            storage_location,
             page,
             per_page,
             self._settings.qualibrate.project,
@@ -109,7 +117,7 @@ class BranchLocalStorage(BranchBase):
         nodes = [NodeLocalStorage(id, settings=self._settings) for id in ids]
         for node in nodes:
             node.load(NodeLoadType.Full)
-        total = find_latest_node_id(self._settings.qualibrate.storage.location)
+        total = find_latest_node_id(storage_location)
         return total, nodes
 
     def dump(self) -> BranchModel:

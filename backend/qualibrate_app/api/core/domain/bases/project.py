@@ -6,12 +6,12 @@ from typing import Any
 
 from qualibrate_config.file import read_config_file
 from qualibrate_config.references.resolvers import resolve_references
+from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
 from qualibrate_app.api.core.models.project import Project
-from qualibrate_app.config import (
-    QUALIBRATE_CONFIG_KEY,
-    QualibrateAppSettings,
-)
+from qualibrate_app.config import QualibrateAppSettings
+
+# TODO: projects manager
 
 
 class ProjectsManagerBase(ABC):

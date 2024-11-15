@@ -35,7 +35,7 @@ types-requests = "^2.31.0.20240218"
 poethepoet = "^0.25.0"
 
 #[tool.poetry.group.qm-dev.dependencies]
-#qualibrate-runner = {path = "../../qualibrate-runner", optional = true, develop = true, extras=["qualibrary"]}
+#qualibrate-runner = {path = "../../qualibrate-runner", optional = true, develop = true}
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"

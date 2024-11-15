@@ -2,20 +2,24 @@ from pathlib import Path
 from typing import ClassVar
 
 from pydantic import DirectoryPath, field_serializer
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import SettingsConfigDict
 from qualibrate_config.models import (
     PathSerializer,
     QualibrateSettings,
     Versioned,
 )
-
-from qualibrate_app.config.models.active_machine import (
+from qualibrate_config.models.active_machine import (
     ActiveMachineSettings,
 )
+from qualibrate_config.models.base.base_referenced_settings import (
+    BaseReferencedSettings,
+)
+
 from qualibrate_app.config.models.remote_services import (
     JsonTimelineDBBase,
     QualibrateRunnerBase,
 )
+from qualibrate_app.config.vars import Q_APP_SETTINGS_ENV_PREFIX
 
 __all__ = [
     "QualibrateAppSettings",
@@ -24,9 +28,11 @@ __all__ = [
 ]
 
 
-class QualibrateAppSettingsBase(BaseSettings, PathSerializer, Versioned):
+class QualibrateAppSettingsBase(
+    BaseReferencedSettings, PathSerializer, Versioned
+):
     model_config: ClassVar[SettingsConfigDict] = SettingsConfigDict(
-        extra="ignore",
+        extra="ignore", env_prefix=Q_APP_SETTINGS_ENV_PREFIX
     )
     static_site_files: Path
     metadata_out_path: str
