@@ -235,28 +235,6 @@ class TestQualibrationNode:
         node.save()
         node.storage_manager.save.assert_called_with(node=node)
 
-    def test_save_without_storage_manager_no_qualibrate_app(
-        self, mocker, mock_logger
-    ):
-        node = QualibrationNode(name="test_node")
-        node.storage_manager = None
-
-        # Mock find_spec to return None
-        mocker.patch(
-            "qualibrate.qualibration_node.find_spec", return_value=None
-        )
-        mocker.patch(
-            "qualibrate.qualibration_node.get_qualibrate_app_settings",
-            return_value=None,
-        )
-
-        node.save()
-
-        mock_logger.warning.assert_any_call(
-            "Node.storage_manager should be defined to save node, "
-            "resorting to default configuration"
-        )
-
     def test__post_run(self, mocker):
         class P(NodeCreateParametersType):
             qubits: list[str] = Field(
