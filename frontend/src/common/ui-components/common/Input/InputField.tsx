@@ -1,9 +1,8 @@
-import { IconType, InputProps } from "../../../common/interfaces/InputProps";
-
 import React, { ChangeEventHandler } from "react";
-import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Input.module.scss";
+import { IconType, InputProps } from "../../../interfaces/InputProps";
+import { classNames } from "../../../../utils/classnames";
 
 const InputField = (props: InputProps) => {
   const {

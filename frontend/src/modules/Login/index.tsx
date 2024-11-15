@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styles from "../Login/Login.module.scss";
-import InputField from "../../DEPRECATED_components/common/Input/InputField";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 import welcomeWaves from "./welcomeWaves.png";
 import { useAuthContext } from "./context/AuthContext";
+import InputField from "../../common/ui-components/common/Input/InputField";
 
 export const Login = () => {
   const [password, setPassword] = useState("");

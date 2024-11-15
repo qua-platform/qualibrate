@@ -23,7 +23,7 @@ const getButtonStyles = (type: ButtonTypes, customClassName?: string) => {
 
 /* TODO
  * This component is overcomplicated. Use buttons from:
- * ./entropy_frontend_ui/src/ui-lib/components/Button
+ * ./qualibrate_frontend_ui/src/ui-lib/components/Button
  *
  * If you just need a clickable wrap - use <button> all default styles are already reset
  *

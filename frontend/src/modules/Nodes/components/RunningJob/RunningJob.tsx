@@ -8,8 +8,8 @@ import { CheckMarkIcon } from "../../../../ui-lib/Icons/CheckMarkIcon";
 import { RightArrowIcon } from "../../../../ui-lib/Icons/RightArrowIcon";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import { EditIcon } from "../../../../ui-lib/Icons/EditIcon";
-import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
+import InputField from "../../../../common/ui-components/common/Input/InputField";
 
 interface StateUpdateComponentProps {
   key: string;
@@ -74,7 +74,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
                 <InputField
                   className={styles.newValueOfState}
                   value={customValue as string | number | readonly string[] | undefined}
-                  onChange={(val) => {
+                  onChange={(val: unknown) => {
                     setCustomValue(val);
                   }}
                 />
