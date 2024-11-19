@@ -15,7 +15,7 @@ interface StateUpdateComponentProps {
   key: string;
   stateUpdateObject: StateUpdateObject;
   runningNodeInfo?: RunningNodeInfo;
-  isAllUpdated?: boolean;
+  isAllUpdated: boolean;
 }
 
 const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
@@ -92,7 +92,7 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
 const GetStateUpdates: React.FC<{
   runningNodeInfo: RunningNodeInfo | undefined;
   isAllUpdated: boolean;
-  setIsAllUpdated?: (a: boolean) => void;
+  setIsAllUpdated: (a: boolean) => void;
 }> = (props) => {
   const { runningNodeInfo, isAllUpdated, setIsAllUpdated } = props;
 
