@@ -1605,13 +1605,13 @@ typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
 name = "pydantic-settings"
-version = "2.6.0"
+version = "2.6.1"
 description = "Settings management using Pydantic"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pydantic_settings-2.6.0-py3-none-any.whl", hash = "sha256:4a819166f119b74d7f8c765196b165f95cc7487ce58ea27dec8a5a26be0970e0"},
-    {file = "pydantic_settings-2.6.0.tar.gz", hash = "sha256:44a1804abffac9e6a30372bb45f6cafab945ef5af25e66b1c634c01dd39e0188"},
+    {file = "pydantic_settings-2.6.1-py3-none-any.whl", hash = "sha256:7fb0637c786a558d3103436278a7c4f1cfd29ba8973238a50c5bb9a55387da87"},
+    {file = "pydantic_settings-2.6.1.tar.gz", hash = "sha256:e0f92546d8a9923cb8941689abf85d6601a8c19a23e97a34b2964a2e3f813ca0"},
 ]
 
 [package.dependencies]
@@ -1811,6 +1811,27 @@ uvicorn = ">=0.32.0,<0.33.0"
 
 [package.extras]
 runner = ["qualibrate-runner (>=0.2.2,<0.3.0)"]
+
+[[package]]
+name = "qualibrate-config"
+version = "0.1.0"
+description = ""
+optional = false
+python-versions = "^3.9"
+files = []
+develop = false
+
+[package.dependencies]
+click = "^8.1.7"
+jsonpatch = "^1.33"
+pydantic = "^2.9.2"
+pydantic-settings = "^2.6.1"
+tomli = {version = "^2.0.1", markers = "python_version < \"3.11\""}
+tomli-w = "^1.0.0"
+
+[package.source]
+type = "directory"
+url = "../qualibrate-config"
 
 [[package]]
 name = "qualibrate-core"
@@ -2192,4 +2213,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9,<3.12"
-content-hash = "c4cb992f21b82631bd4a6dca17f7c7cbdcc616f0c9be191b2815283b7a94dca6"
+content-hash = "edf871e61b8db2c348e946384be8123c0a1bcb8d43f18881df9f4987f011cfa8"

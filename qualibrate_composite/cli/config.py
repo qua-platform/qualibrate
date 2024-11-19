@@ -9,6 +9,10 @@ from typing import Any, Optional
 import click
 import tomli_w
 from click.core import ParameterSource
+from qualibrate_config.cli.deprecated import (
+    DeprecatedOption,
+    DeprecatedOptionsCommand,
+)
 
 from qualibrate_composite.config import (
     CONFIG_KEY as QUALIBRATE_CONFIG_KEY,
@@ -89,7 +93,7 @@ def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
 def _qualibrate_config_from_sources(
     ctx: click.Context, from_file: dict[str, Any]
 ) -> dict[str, Any]:
-    qualibrate_composite_mapping = {"qualibrate_password": "password"}
+    qualibrate_composite_mapping = {"password": "password"}
     qualibrate_app_mapping = {
         "spawn_app": "spawn",
     }
@@ -328,7 +332,7 @@ def _get_user_storage() -> Path:
     )
 
 
-@click.command(name="config")
+@click.command(name="config", cls=DeprecatedOptionsCommand)
 @click.option(
     "--config-path",
     type=click.Path(
@@ -357,9 +361,13 @@ def _get_user_storage() -> Path:
     ),
 )
 @click.option(
+    "--password",
     "--qualibrate-password",
     type=str,
     default=None,
+    cls=DeprecatedOption,
+    deprecated=("--qualibrate-password",),
+    preferred="--password",
     help=(
         "Password used to authorize users. By default, no password is used. "
         "Everyone has access to the API. If a password is specified during "
@@ -495,7 +503,7 @@ def config_command(
     ctx: click.Context,
     config_path: Path,
     auto_accept: bool,
-    qualibrate_password: Optional[str],
+    password: Optional[str],
     spawn_app: bool,
     spawn_runner: bool,
     runner_address: str,
