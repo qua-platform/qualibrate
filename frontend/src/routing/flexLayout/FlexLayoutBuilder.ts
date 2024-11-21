@@ -2,8 +2,7 @@ import { Actions, DockLocation, Model, Node } from "flexlayout-react";
 import { BORDER_SIZE } from "../../common/layout";
 import { ModuleKey } from "../ModulesRegistry";
 
-const SINGLE_TAB_KEY: Array<ModuleKey> = ["experiments", "jobs"];
-
+const SINGLE_TAB_KEY: Array<ModuleKey> = ["nodes", "graph-library", "graph-status", "data"];
 const DEFAULT_MODEL = {
   global: { tabEnableClose: true },
   layout: {
@@ -94,12 +93,21 @@ export default class FlexLayoutBuilder {
     this._addNode(key);
   }
 
-  removeAllOpenTabs() {
-    const allTabs = this._getAllTabs();
-    allTabs.forEach((tab) => {
-      this.model.doAction(Actions.deleteTab(tab.getId()));
-    });
-  }
+  // selectTabIfExists(tabName: string) {
+  //   const allTabs = this._getAllTabs();
+  //   allTabs.forEach((tab) => {
+  //     if (tab.getId() === tabName) {
+  //       this.model.doAction(Actions.selectTab(tabName));
+  //     }
+  //   });
+  // }
+
+  // removeAllOpenTabs() {
+  // const allTabs = this._getAllTabs();
+  // allTabs.forEach((tab) => {
+  //   this.model.doAction(Actions.deleteTab(tab.getId()));
+  // });
+  // }
 }
 
 function getChildrenFromNode(node: Node): Array<Node> {
