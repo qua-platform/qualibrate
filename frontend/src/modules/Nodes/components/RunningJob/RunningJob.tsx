@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./RunningJob.module.scss";
-import { RunningNodeInfo, StateUpdateObject, useNodesContext } from "../../context/NodesContext";
+import { RunningNodeInfo, StateUpdate, StateUpdateObject, useNodesContext } from "../../context/NodesContext";
 import { CircularProgress } from "@mui/material";
 import { UpArrowIcon } from "../../../../ui-lib/Icons/UpArrowIcon";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
@@ -15,10 +15,11 @@ interface StateUpdateComponentProps {
   key: string;
   stateUpdateObject: StateUpdateObject;
   runningNodeInfo?: RunningNodeInfo;
+  isAllStatusesUpdated: boolean;
 }
 
 const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
-  const { key, stateUpdateObject, runningNodeInfo } = props;
+  const { key, stateUpdateObject, runningNodeInfo, isAllStatusesUpdated } = props;
   const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -40,16 +41,13 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
                 const stateUpdateValue = customValue ? customValue : stateUpdateObject.val ?? stateUpdateObject.new!;
                 const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateValue);
                 setRunningUpdate(false);
-                if (response.isOk) {
-                  setParameterUpdated(response.result!);
-                } else {
-                  setParameterUpdated(response.result!); //TODO Check this
-                }
+                setParameterUpdated(response.result!);
                 setRunningUpdate(false);
               }
             }}
           >
-            <UpArrowIcon />
+            {!isAllStatusesUpdated && <UpArrowIcon />}
+            {isAllStatusesUpdated && <CheckMarkIcon />}
           </div>
         )}
         <div className={styles.stateUpdateIconWrapper}>
@@ -93,12 +91,39 @@ const StateUpdateComponent: React.FC<StateUpdateComponentProps> = (props) => {
 
 const GetStateUpdates: React.FC<{
   runningNodeInfo: RunningNodeInfo | undefined;
+  isAllStatusesUpdated: boolean;
+  setIsAllStatusesUpdated: (a: boolean) => void;
 }> = (props) => {
-  const { runningNodeInfo } = props;
+  const { runningNodeInfo, isAllStatusesUpdated, setIsAllStatusesUpdated } = props;
+
+  const handleClick = async (stateUpdates: StateUpdate) => {
+    const litOfUpdates = Object.entries(stateUpdates ?? {}).map(([key, stateUpdateObject]) => {
+      return {
+        data_path: key,
+        value: stateUpdateObject.val ?? stateUpdateObject.new!,
+      };
+    });
+    const retVal = await SnapshotsApi.updateStates(runningNodeInfo?.idx ?? "", litOfUpdates);
+    if (retVal && retVal.isOk) {
+      setIsAllStatusesUpdated(retVal.result!);
+    }
+  };
+
   return (
     <>
       {runningNodeInfo?.state_updates && Object.keys(runningNodeInfo?.state_updates).length > 0 && (
-        <div className={styles.stateTitle}>State updates:</div>
+        <div className={styles.stateTitle}>
+          State updates:
+          <div className={styles.updateAll}>
+            <BlueButton
+              className={styles.updateAllButton}
+              disabled={false}
+              onClick={() => handleClick(runningNodeInfo?.state_updates ?? {})}
+            >
+              Update all
+            </BlueButton>
+          </div>
+        </div>
       )}
       {runningNodeInfo?.state_updates && (
         <div className={styles.stateUpdatesTopWrapper}>
@@ -107,6 +132,7 @@ const GetStateUpdates: React.FC<{
               key,
               stateUpdateObject,
               runningNodeInfo,
+              isAllStatusesUpdated,
             } as StateUpdateComponentProps)
           )}
         </div>
@@ -116,7 +142,8 @@ const GetStateUpdates: React.FC<{
 };
 
 export const RunningJob: React.FC = () => {
-  const { runningNode, runningNodeInfo, isNodeRunning, setIsNodeRunning } = useNodesContext();
+  const { runningNode, runningNodeInfo, isNodeRunning, setIsNodeRunning, isAllStatusesUpdated, setIsAllStatusesUpdated } =
+    useNodesContext();
 
   const getRunningJobInfo = () => {
     return (
@@ -200,7 +227,11 @@ export const RunningJob: React.FC = () => {
           {getRunningJobParameters()}
         </div>
       )}
-      <GetStateUpdates runningNodeInfo={runningNodeInfo} />
+      <GetStateUpdates
+        runningNodeInfo={runningNodeInfo}
+        isAllStatusesUpdated={isAllStatusesUpdated}
+        setIsAllStatusesUpdated={setIsAllStatusesUpdated}
+      />
       <ErrorStatusWrapper error={runningNodeInfo?.error} />
     </div>
   );

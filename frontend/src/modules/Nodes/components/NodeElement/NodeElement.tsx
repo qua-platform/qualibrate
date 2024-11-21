@@ -33,6 +33,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setRunningNode,
     allNodes,
     setAllNodes,
+    setIsAllStatusesUpdated,
   } = useNodesContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
@@ -90,6 +91,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
 
   const handleClick = async () => {
     setIsNodeRunning(true);
+    setIsAllStatusesUpdated(false);
     setRunningNode(node);
     setSubmitNodeResponseError(undefined);
     const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));

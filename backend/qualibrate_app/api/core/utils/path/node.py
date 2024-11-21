@@ -9,6 +9,30 @@ from qualibrate_app.api.core.utils.path.node_date import NodesDatePath
 __all__ = ["NodePath"]
 
 
+@lru_cache(maxsize=16)
+def _get_node_id_name_time(
+    node_path: "NodePath",
+) -> tuple[Optional[IdType], str, Optional[time]]:
+    parts = node_path.stem.split("_")
+    if len(parts) < 3:
+        return None, node_path.stem, None
+    id_str, *node_name, node_time_str = parts
+    node_id = (
+        int(id_str[1:])
+        if id_str.startswith("#") and id_str[1:].isnumeric()
+        else None
+    )
+    if node_id is None:
+        return None, node_path.stem, None
+    node_name_str = "_".join(node_name)
+
+    try:
+        node_time = datetime.strptime(node_time_str, "%H%M%S").time()
+    except ValueError:
+        node_time = None
+    return node_id, node_name_str, node_time
+
+
 class NodePath(ConcretePath):
     @cached_property
     def date_path(self) -> NodesDatePath:
@@ -22,28 +46,10 @@ class NodePath(ConcretePath):
     def datetime(self) -> datetime:
         return self.date_path.datetime
 
-    @lru_cache
     def get_node_id_name_time(
         self,
     ) -> tuple[Optional[IdType], str, Optional[time]]:
-        parts = self.stem.split("_")
-        if len(parts) < 3:
-            return None, self.stem, None
-        id_str, *node_name, node_time_str = parts
-        node_id = (
-            int(id_str[1:])
-            if id_str.startswith("#") and id_str[1:].isnumeric()
-            else None
-        )
-        if node_id is None:
-            return None, self.stem, None
-        node_name_str = "_".join(node_name)
-
-        try:
-            node_time = datetime.strptime(node_time_str, "%H%M%S").time()
-        except ValueError:
-            node_time = None
-        return node_id, node_name_str, node_time
+        return _get_node_id_name_time(self)
 
     @cached_property
     def id(self) -> Optional[IdType]:

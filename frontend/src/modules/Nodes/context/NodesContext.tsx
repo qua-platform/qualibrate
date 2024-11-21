@@ -52,6 +52,8 @@ interface INodesContext {
   results?: unknown | object;
   setResults: (value: unknown | object | undefined) => void;
   fetchAllNodes: () => void;
+  isAllStatusesUpdated: boolean;
+  setIsAllStatusesUpdated: (value: boolean) => void;
 }
 
 const NodesContext = React.createContext<INodesContext>({
@@ -68,6 +70,8 @@ const NodesContext = React.createContext<INodesContext>({
   results: undefined,
   setResults: noop,
   fetchAllNodes: noop,
+  isAllStatusesUpdated: false,
+  setIsAllStatusesUpdated: noop,
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
@@ -104,6 +108,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const [isNodeRunning, setIsNodeRunning] = useState<boolean>(false);
   const [results, setResults] = useState<unknown | object | undefined>(undefined);
   const [submitNodeResponseError, setSubmitNodeResponseError] = useState<ResponseStatusError | undefined>(undefined);
+  const [isAllStatusesUpdated, setIsAllStatusesUpdated] = useState<boolean>(false);
 
   const fetchAllNodes = async () => {
     const response = await NodesApi.fetchAllNodes();
@@ -268,6 +273,8 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         results,
         setResults,
         fetchAllNodes,
+        isAllStatusesUpdated,
+        setIsAllStatusesUpdated,
       }}
     >
       {props.children}

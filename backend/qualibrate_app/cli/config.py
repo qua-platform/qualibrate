@@ -1,7 +1,8 @@
 import os
 import sys
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Mapping, Optional, cast
+from typing import Any, Optional, cast
 
 import click
 import tomli_w
@@ -71,21 +72,21 @@ def _config_from_sources(
     }
     for arg_key, arg_value in ctx.params.items():
         not_default_arg = not_default(ctx, arg_key)
-        if arg_key in qualibrate_mapping.keys():
+        if arg_key in qualibrate_mapping:
             if not_default_arg or qualibrate_mapping[arg_key] not in from_file:
                 from_file[qualibrate_mapping[arg_key]] = arg_value
-        elif arg_key in timeline_db_mapping.keys():
+        elif arg_key in timeline_db_mapping:
             if not_default_arg or (
                 timeline_db_mapping[arg_key] not in from_file["timeline_db"]
             ):
-                from_file["timeline_db"][
-                    timeline_db_mapping[arg_key]
-                ] = arg_value
-        elif arg_key in runner_mapping.keys():
-            if not_default_arg or (
-                runner_mapping[arg_key] not in from_file["runner"]
-            ):
-                from_file["runner"][runner_mapping[arg_key]] = arg_value
+                from_file["timeline_db"][timeline_db_mapping[arg_key]] = (
+                    arg_value
+                )
+        elif arg_key in runner_mapping and (
+            not_default_arg
+            or (runner_mapping[arg_key] not in from_file["runner"])
+        ):
+            from_file["runner"][runner_mapping[arg_key]] = arg_value
     return from_file
 
 

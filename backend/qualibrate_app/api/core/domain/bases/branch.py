@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from datetime import datetime
 from enum import IntEnum
-from typing import Optional, Sequence, Tuple
+from typing import Optional
 
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.domain.bases.node import NodeBase
@@ -66,7 +67,7 @@ class BranchBase(IDump, ABC):
         page: int = 0,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, Sequence[SnapshotBase]]:
+    ) -> tuple[int, Sequence[SnapshotBase]]:
         pass
 
     @abstractmethod
@@ -75,7 +76,7 @@ class BranchBase(IDump, ABC):
         page: int = 1,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, Sequence[NodeBase]]:
+    ) -> tuple[int, Sequence[NodeBase]]:
         pass
 
     def dump(self) -> BranchModel:

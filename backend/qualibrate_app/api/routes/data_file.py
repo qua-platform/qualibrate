@@ -1,4 +1,4 @@
-from typing import Annotated, Optional, Type, Union
+from typing import Annotated, Optional, Union
 
 from fastapi import APIRouter, Depends, Path
 
@@ -25,7 +25,7 @@ def _get_storage_instance(
     settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
 ) -> DataFileStorage:
     node_types: dict[
-        StorageType, Union[Type[NodeLocalStorage], Type[NodeTimelineDb]]
+        StorageType, Union[type[NodeLocalStorage], type[NodeTimelineDb]]
     ] = {
         StorageType.local_storage: NodeLocalStorage,
         StorageType.timeline_db: NodeTimelineDb,
@@ -36,7 +36,7 @@ def _get_storage_instance(
     try:
         node.load(NodeLoadType.Full)
     except NotADirectoryError as e:
-        raise HTTPException422(detail=str(e))
+        raise HTTPException422(detail=str(e)) from None
     if node.storage is None:
         raise HTTPException422(detail="Output path not specified.")
     return node.storage

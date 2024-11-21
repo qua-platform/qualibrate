@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Optional, Sequence, Tuple
+from typing import Optional
 
 from qualibrate_app.api.core.domain.bases.branch import (
     BranchBase,
@@ -104,7 +105,7 @@ class BranchTimelineDb(BranchBase):
         page: int,
         per_page: int,
         reverse: bool,
-    ) -> Tuple[int, Sequence[DocumentType]]:
+    ) -> tuple[int, Sequence[DocumentType]]:
         result = request_with_db(
             f"branch/{self._name}/history",
             params={
@@ -131,7 +132,7 @@ class BranchTimelineDb(BranchBase):
         page: int = 0,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, list[SnapshotBase]]:
+    ) -> tuple[int, list[SnapshotBase]]:
         """Retrieve last num_snapshots from this branch"""
         total, snapshots = self._get_remote_snapshots(
             True, page, per_page, reverse
@@ -148,7 +149,7 @@ class BranchTimelineDb(BranchBase):
         page: int = 0,
         per_page: int = 50,
         reverse: bool = False,
-    ) -> Tuple[int, list[NodeBase]]:
+    ) -> tuple[int, list[NodeBase]]:
         """Retrieve last num_snapshots from this branch"""
         total, snapshots = self._get_remote_snapshots(
             False, page, per_page, reverse

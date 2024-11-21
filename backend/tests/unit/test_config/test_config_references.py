@@ -307,7 +307,7 @@ def test_resolve_references_with_cycle(mocker):
     )
     with pytest.raises(ValueError) as ex:
         ref_resolvers.resolve_references({"a": "${#/b}", "b": "${#/a}"})
-    assert ex.type == ValueError
+    assert ex.type is ValueError
     assert ex.value.args == (f"Config contains cycle: {cycle}",)
 
 

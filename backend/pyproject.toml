@@ -29,7 +29,7 @@ runner = ["qualibrate-runner"]
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
-ruff = "^0.1.15"
+ruff = "^0.7.0"
 types-requests = "^2.31.0.20240218"
 poethepoet = "^0.25.0"
 
@@ -57,12 +57,25 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 80
-extend-select = ["I"]
 target-version = "py39"
 
+[tool.ruff.lint]
+extend-select = [
+    "E",    # pycodestyle
+    "F",    # Pyflakes
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "I",    # isort
+]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 80
+max-doc-length = 80
+
 [tool.poe.tasks]
-lint = "ruff ."
-lint-fix = "ruff --fix ."
+lint = "ruff check ."
+lint-fix = "ruff check --fix ."
 format = "ruff format --check ."
 format-fix = "ruff format ."
 type = "mypy ."

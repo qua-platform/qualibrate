@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Sequence, Union, cast
+from typing import Union, cast
 from urllib.parse import urljoin
 
 import requests
