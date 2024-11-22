@@ -38,12 +38,11 @@
 }
 
 .leftContainer {
-  align-content: center;
+  place-content: center space-between;
   display: flex;
   gap: 10px;
   text-wrap: nowrap;
   width: 300px;
-  justify-content: space-between;
 }
 
 .rightContainer {
