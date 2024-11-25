@@ -245,15 +245,16 @@ class TestQualibrationNode:
         mocker.patch(
             "qualibrate.qualibration_node.find_spec", return_value=None
         )
+        mocker.patch(
+            "qualibrate.qualibration_node.get_qualibrate_app_settings",
+            return_value=None
+        )
 
         node.save()
 
         mock_logger.warning.assert_any_call(
             "Node.storage_manager should be defined to save node, "
             "resorting to default configuration"
-        )
-        mock_logger.warning.assert_any_call(
-            "Can't import qualibrate_app for saving node"
         )
 
     def test__post_run(self, mocker):

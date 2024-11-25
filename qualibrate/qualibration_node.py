@@ -310,6 +310,8 @@ class QualibrationNode(
             )
             logger.warning(msg)
             settings = get_qualibrate_app_settings()
+            if settings is None:
+                return
             self.storage_manager = LocalStorageManager(
                 root_data_folder=settings.qualibrate.storage.location,  # type: ignore
                 active_machine_path=settings.active_machine.path,  # type: ignore
