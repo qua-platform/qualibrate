@@ -1,17 +1,17 @@
 {
-  "name": "entropy-frontend-ui",
+  "name": "qualibrate-frontend-ui",
   "version": "1.0.0",
-  "description": "Web Interface for Entropy",
+  "description": "Web Interface for QUAlibrate",
   "author": "QM",
   "license": "MIT",
   "private": true,
-  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "browserslist": "> 1%, last 2 versions, not dead",
   "homepage": "/",
   "scripts": {
     "build": "webpack",
     "start": "webpack serve --open",
     "start:local:dev": "env-cmd -f .env webpack serve --open",
-    "start:dev": "API_URL=https://dev.entropy-lab.io/ webpack serve --open",
+    "start:dev": "API_URL=https://dev.qualibrate-lab.io/ webpack serve --open",
     "clean": "rimraf ./dist",
     "start:testServer": "node scripts/testServer.js",
     "lint": "run-s lint:code lint:style",
@@ -19,7 +19,7 @@
     "lint:style": "stylelint --fix -f verbose src/**/*.scss",
     "lint:fix": "npm run lint:code -- --fix && npm run lint:style -- --fix",
     "start:local": "cross-env API_URL=http://localhost/ npm run start",
-    "prepare": "cd .. && husky install entropy_frontend_ui/.husky",
+    "prepare": "cd .. && husky install qualibrate_frontend_ui/.husky",
     "format": "prettier --write src public package.json"
   },
   "pre-commit": [
@@ -70,6 +70,7 @@
     "@textea/json-viewer": "^3.4.0",
     "assets": "3.0.1",
     "babel-loader": "^9.1.3",
+    "caniuse-lite": "^1.0.30001680",
     "copy-webpack-plugin": "^11.0.0",
     "cross-env": "7.0.3",
     "css-hot-loader": "1.4.4",

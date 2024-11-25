@@ -1,9 +1,8 @@
-import DEPRECATEDButton from "../../DEPRECATED_components/buttons/ButtonWrapper";
+import ButtonComponent from "../../common/ui-components/buttons/ButtonWrapper";
 import { ButtonTypes } from "../../common/interfaces/ButtonTypes";
 import React from "react";
 import { WorkflowPlaceHolderIcon } from "../Icons/WorkflowPlaceholderIcon";
 import { classNames } from "../../utils/classnames";
-import styles from "../../DEPRECATED_components/common/styles/LoadingBar.module.scss";
 
 const DEFAULT_LOADING_PHRASE = "Loading...";
 
@@ -30,12 +29,12 @@ const LoadingBar = ({ text = DEFAULT_LOADING_PHRASE, icon = <WorkflowPlaceHolder
       return <span key={(error as { detail: string }).detail}>{(error as { detail: string }).detail}</span>;
     }
   };
-  const retryButton = callback && <DEPRECATEDButton actionName="Retry" type={ButtonTypes.ACTION} onClickCallback={callback} />;
+  const retryButton = callback && <ButtonComponent actionName="Retry" type={ButtonTypes.ACTION} onClickCallback={callback} />;
 
   return (
-    <div className={classNames(styles.loadingBar, className)} style={{ whiteSpace: "pre-wrap" }}>
+    <div className={classNames(className)} style={{ whiteSpace: "pre-wrap" }}>
       {icon}
-      <div className={styles.error}>{formatError(text)}</div>
+      <div>{formatError(text)}</div>
       {actionButton || retryButton}
     </div>
   );

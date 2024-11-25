@@ -1,0 +1,141 @@
+@import "../../../../assets/styles/variables";
+@import "../../../../assets/styles/base";
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  max-height: 32%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--popup-background);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.dot {
+  margin-right: 10px;
+  height: 12px;
+  width: 12px;
+  background-color: limegreen;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.stopButtonWrapper {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 10px;
+}
+
+.stopButton {
+  background-color: #e02525;
+}
+
+.infoWrapper {
+  overflow: scroll;
+  display: flex;
+}
+
+.runInfo {
+  padding-left: 30px;
+  padding-top: 20px;
+  width: 50%;
+}
+
+.runInfoRow {
+  padding-top: 7px;
+}
+
+.parameterInfo {
+  width: 50%;
+  padding-top: 20px;
+}
+
+.parameterTitleWrapper {
+  display: flex;
+}
+
+.parameterValues {
+  display: flex;
+  padding-left: 30px;
+}
+
+.parameterLabel {
+  padding-right: 10px;
+  padding-top: 5px;
+}
+
+.parameterValue {
+  padding-top: 5px;
+}
+
+.stateTitle {
+  display: flex;
+  padding-top: 20px;
+  padding-left: 40px;
+}
+
+.updateAll {
+  padding-left: 140px;
+}
+
+.updateAllButton {
+  height: 20px;
+  text-wrap: nowrap;
+}
+
+.stateUpdatesTopWrapper {
+  overflow: scroll;
+}
+
+.stateUpdateWrapper {
+  display: flex;
+  padding-left: 50px;
+  padding-top: 5px;
+}
+
+.stateUpdateIconWrapper {
+  width: 32px;
+  vertical-align: middle;
+}
+
+.stateUpdateComponentTextWrapper {
+  padding-left: 10px;
+}
+
+.stateUpdateKeyText {
+  font-weight: bold;
+}
+
+.stateUpdateValueText {
+  font-size: 12px;
+}
+
+.stateUpdateValueTextWrapper {
+  padding-top: 5px;
+  align-items: center;
+  display: flex;
+}
+
+.editIconWrapper {
+  padding-left: 5px;
+}
+
+.newValueOfState {
+  padding-left: 5px;
+
+  input {
+    font-size: 12px;
+    padding: 0 !important;
+    height: 20px !important;
+  }
+}

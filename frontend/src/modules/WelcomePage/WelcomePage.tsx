@@ -5,16 +5,17 @@ import BannerGuide from "./components/BannerGuide";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { CircleListIcon } from "../../ui-lib/Icons/CircleListIcon";
 import { CircleRocketIcon } from "../../ui-lib/Icons/CircleRocketIcon";
-import InputField from "../../DEPRECATED_components/common/Input/InputField";
 import LinkPlaceholder from "./components/LinkPlaceholder";
 import MainLayout from "../../ui-lib/layouts/MainLayout";
 import { NotebookIcon } from "../../ui-lib/Icons/NotebookIcon";
-import PageName from "../../DEPRECATED_components/common/Page/PageName";
-import PageSection from "../../DEPRECATED_components/common/Page/PageSection";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
 import styles from "./WelcomePage.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import { IconType } from "../../common/interfaces/InputProps";
+import React from "react";
+import PageSection from "../../common/ui-components/common/Page/PageSection";
+import InputField from "../../common/ui-components/common/Input/InputField";
+import PageName from "../../common/ui-components/common/Page/PageName";
 
 const WelcomePage = () => {
   const { openTab } = useFlexLayoutContext();
@@ -33,7 +34,7 @@ const WelcomePage = () => {
               icon={<SearchIcon height={18} width={18} />}
             />
           </PageSection>
-          <PageSection className={styles.entropyGuideFrame} sectionName="New to QUAlibrate?">
+          <PageSection className={styles.qualibrateGuideFrame} sectionName="New to QUAlibrate?">
             <div className={styles.bannerList}>
               <BannerGuide
                 name="See what QUAlibrate is"

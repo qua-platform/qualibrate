@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { SelectProps } from "../../../common/interfaces/SelectProps";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Input.module.scss";
+import { SelectProps } from "../../../interfaces/SelectProps";
 
 const SelectField = (props: SelectProps) => {
   const [value, setValue] = useState(props.value ?? "");

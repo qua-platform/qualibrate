@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { bottomMenuItems, menuItems } from "../../routing/ModulesRegistry";
-import EntropyLogoSmallIcon from "../../ui-lib/Icons/EntropyLogoSmall";
 import MenuItem from "./MenuItem";
 import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
 import ThemeToggle from "../themeModule/ThemeToggle";
@@ -9,6 +8,7 @@ import styles from "./styles/SidebarMenu.module.scss";
 import cyKeys from "../../utils/cyKeys";
 import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/GlobalThemeContext";
 import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
+import QUAlibrateLogoSmallIcon from "../../ui-lib/Icons/QualibrateLogoSmall";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
@@ -29,8 +29,8 @@ const SidebarMenu: React.FunctionComponent = () => {
         onMouseLeave={() => (!pinSideMenu ? setMinify(true) : {})}
       >
         <div className={containerClassName}>
-          <button onClick={() => setShowPopup(true)} className={styles.entropyLogo} data-cy={cyKeys.HOME_PAGE}>
-            {minify ? <EntropyLogoSmallIcon /> : <QUAlibrateLogoIcon />}
+          <button onClick={() => setShowPopup(true)} className={styles.qualibrateLogo} data-cy={cyKeys.HOME_PAGE}>
+            {minify ? <QUAlibrateLogoSmallIcon /> : <QUAlibrateLogoIcon />}
           </button>
           <div className={styles.menuContent}>
             <div className={styles.menuUpperContent}>

@@ -4,9 +4,6 @@ import { ACTIVE_TEXT } from "../../utils/colors";
 import { AddIcon } from "../../ui-lib/Icons/AddIcon";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { IconType } from "../../common/interfaces/InputProps";
-import InputField from "../../DEPRECATED_components/common/Input/InputField";
-import PageName from "../../DEPRECATED_components/common/Page/PageName";
-import PageSection from "../../DEPRECATED_components/common/Page/PageSection";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
 import React, { useEffect, useState } from "react";
 import ProjectList from "./components/ProjectList";
@@ -15,6 +12,9 @@ import cyKeys from "../../utils/cyKeys";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import LoaderPage from "../../ui-lib/loader/LoaderPage";
 import { ProjectDTO } from "./ProjectDTO";
+import PageName from "../../common/ui-components/common/Page/PageName";
+import PageSection from "../../common/ui-components/common/Page/PageSection";
+import InputField from "../../common/ui-components/common/Input/InputField";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
@@ -35,7 +35,7 @@ const Project = () => {
     return <LoaderPage />;
   }
 
-  const heading: string = activeProject ? `Currently active project is ${activeProject}` : "Welcome to EntropyLab";
+  const heading: string = activeProject ? `Currently active project is ${activeProject}` : "Welcome to QUAlibrate";
 
   return (
     <>

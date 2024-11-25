@@ -1,7 +1,7 @@
 // import React from "react";
 // import { IconProps } from "../../common/DEPRECATED_interfaces/IconProps";
 //
-// const EntropyLogoIcon: React.FunctionComponent<IconProps> = ({ width = 130, height = 49 }) => {
+// const QualibrateLogoIcon: React.FunctionComponent<IconProps> = ({ width = 130, height = 49 }) => {
 //   return (
 //     <svg width={width} height={height} viewBox="0 0 210.15 64.55">
 //       <g id="Layer_1-2">
@@ -71,4 +71,4 @@
 //   );
 // }
 //
-// export default EntropyLogoIcon;
+// export default QualibrateLogoIcon;

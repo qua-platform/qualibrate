@@ -1,7 +1,7 @@
 import React from "react";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 import { Checkbox, CircularProgress } from "@mui/material";
 import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
 import { classNames } from "../../../../utils/classnames";
@@ -9,6 +9,7 @@ import { NodesApi } from "../../api/NodesAPI";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
 import { ErrorResponseWrapper } from "../../../common/Error/ErrorResponseWrapper";
+import InputField from "../../../../common/ui-components/common/Input/InputField";
 
 export interface NodeDTO {
   name: string;
@@ -61,7 +62,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           <InputField
             placeholder={key}
             value={parameter.default ? parameter.default.toString() : ""}
-            onChange={(val) => {
+            onChange={(val: boolean | number | string) => {
               updateParameter(key, val);
             }}
           />
