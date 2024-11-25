@@ -313,8 +313,8 @@ class QualibrationNode(
             if settings is None:
                 return
             self.storage_manager = LocalStorageManager(
-                root_data_folder=settings.qualibrate.storage.location,  # type: ignore
-                active_machine_path=settings.active_machine.path,  # type: ignore
+                root_data_folder=settings.qualibrate.storage.location,
+                active_machine_path=settings.active_machine.path,
             )
         self.storage_manager.save(
             node=cast("QualibrationNode[NodeParameters]", self)

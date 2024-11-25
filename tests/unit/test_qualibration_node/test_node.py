@@ -247,7 +247,7 @@ class TestQualibrationNode:
         )
         mocker.patch(
             "qualibrate.qualibration_node.get_qualibrate_app_settings",
-            return_value=None
+            return_value=None,
         )
 
         node.save()
