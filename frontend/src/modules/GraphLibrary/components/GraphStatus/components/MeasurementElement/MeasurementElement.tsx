@@ -5,16 +5,16 @@ import { classNames } from "../../../../../../utils/classnames";
 import { useSelectionContext } from "../../../../../common/context/SelectionContext";
 import { GlobalElementParameters } from "../../../../../common/GlobalElementParameters/GlobalElementParameters";
 
+export const formatDateTime = (dateTimeString: string) => {
+  const [date, time] = dateTimeString.split("T");
+  const [timeWithoutMilliseconds] = time.split(".");
+  return `${date} ${timeWithoutMilliseconds}`;
+};
 export const MeasurementElement: React.FC<{ element: Measurement }> = ({ element }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   // const { isNodeRunning, setRunningNodeInfo, setIsNodeRunning, setRunningNode, allNodes, setAllNodes } = useNodesContext();
   const { fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
 
-  const formatDateTime = (dateTimeString: string) => {
-    const [date, time] = dateTimeString.split("T");
-    const [timeWithoutMilliseconds] = time.split(".");
-    return `${date} ${timeWithoutMilliseconds}`;
-  };
   return (
     <div
       className={classNames(

@@ -94,6 +94,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setIsNodeRunning(true);
     setIsAllStatusesUpdated(false);
     setRunningNode(node);
+    setSubmitNodeResponseError(undefined);
     const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
     if (result.isOk) {
       setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });

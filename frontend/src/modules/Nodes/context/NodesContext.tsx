@@ -4,6 +4,7 @@ import noop from "../../../common/helpers";
 import { NodesApi } from "../api/NodesAPI";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
+import { formatDateTime } from "../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
 
 export interface StateUpdateObject {
   key?: string | number;
@@ -39,7 +40,7 @@ export interface ResponseStatusError {
 
 interface INodesContext {
   submitNodeResponseError?: ResponseStatusError;
-  setSubmitNodeResponseError: (error: ResponseStatusError) => void;
+  setSubmitNodeResponseError: (error?: ResponseStatusError) => void;
   runningNode?: NodeDTO;
   runningNodeInfo?: RunningNodeInfo;
   setRunningNode: (selectedNode: NodeDTO) => void;
@@ -81,14 +82,22 @@ interface NodesContextProviderProps {
 
 export interface StatusResponseType {
   idx: number;
+  completed_at?: string;
   status: string;
   error?: ErrorObject;
   name: string;
   state_updates?: StateUpdate;
   run_result?: {
+    name?: string;
+    created_at?: string;
+    completed_at?: string;
+    run_duration?: number;
     parameters?: {
-      nodes: { [key: string]: string };
+      [key: string]: string;
     };
+  };
+  passed_parameters?: {
+    [key: string]: string | number;
   };
 }
 
@@ -120,6 +129,13 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
     return new Date(year, month - 1, day, hours, minutes, seconds);
   }
 
+  const formatString = (str: string) => {
+    return str
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   const fetchNodeResults = async () => {
     const lastRunResponse = await NodesApi.fetchLastRunInfo();
     if (lastRunResponse && lastRunResponse.isOk) {
@@ -149,6 +165,22 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
                 idx: lastRunResponseResult.idx.toString(),
                 state_updates: lastRunResponseResult.state_updates,
               });
+              let parameters = {};
+              Object.entries(lastRunResponseResult.passed_parameters ?? {}).forEach(([key, value]) => {
+                parameters = {
+                  ...parameters,
+                  [key]: {
+                    default: value,
+                    title: formatString(key),
+                    type: "string",
+                  },
+                };
+              });
+              setRunningNode({
+                ...runningNode!,
+                parameters,
+                // parameters: { sadada: { dadasda: "dadasda" } },
+              });
             }
             setResults(snapshotResponse.result);
           } else {
@@ -166,11 +198,34 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
             error,
           });
         } else if (lastRunResponseResult && lastRunResponseResult.status === "error") {
+          let parameters = {};
+          Object.entries(lastRunResponseResult.run_result?.parameters ?? {}).forEach(([key, value]) => {
+            parameters = {
+              ...parameters,
+              [key]: {
+                default: value,
+                title: formatString(key),
+                type: "string",
+              },
+            };
+          });
+          setRunningNode({
+            ...runningNode!,
+            parameters,
+            // parameters: { sadada: { dadasda: "dadasda" } },
+          });
           setRunningNodeInfo({
             ...runningNodeInfo,
             status: "error",
+            timestampOfRun: formatDateTime(lastRunResponseResult.run_result?.created_at ?? ""),
+            runDuration: lastRunResponseResult.run_result?.run_duration?.toString(),
+            state_updates: lastRunResponseResult.state_updates,
+            idx: lastRunResponseResult.idx.toString(),
+            // parameters: lastRunResponseResult.run_result?.parameters,
+            error,
           });
         }
+
         console.log("last run status was error");
       }
     } else {
