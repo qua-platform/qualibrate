@@ -11,6 +11,7 @@ from typing import (
     Any,
     Optional,
     TypeVar,
+    Union,
     cast,
 )
 
@@ -34,6 +35,7 @@ from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger_m import logger
+from qualibrate.utils.node.comined_method import InstanceOrClassMethod
 from qualibrate.utils.node.content import read_node_content, read_node_data
 from qualibrate.utils.node.loaders.base_loader import BaseLoader
 from qualibrate.utils.node.loaders.quam_loader import QuamLoader
@@ -316,7 +318,7 @@ class QualibrationNode(
             node=cast("QualibrationNode[NodeParameters]", self)
         )
 
-    def load_from_id(
+    def _load_from_id(
         self,
         node_id: int,
         base_path: Optional[Path] = None,
@@ -351,6 +353,27 @@ class QualibrationNode(
         if data is not None:
             self.results = data
         return self
+
+    @InstanceOrClassMethod
+    def load_from_id(
+        caller: Union[
+            "QualibrationNode[ParametersType]",
+            type["QualibrationNode[ParametersType]"],
+        ],
+        node_id: int,
+        base_path: Optional[Path] = None,
+        custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
+    ) -> Optional["QualibrationNode[ParametersType]"]:
+        instance: QualibrationNode[ParametersType] = (
+            caller(name=f"loaded_from_id_{node_id}")
+            if isinstance(caller, type)
+            else caller
+        )
+        return instance._load_from_id(
+            node_id=node_id,
+            base_path=base_path,
+            custom_loaders=custom_loaders,
+        )
 
     def _post_run(
         self,
