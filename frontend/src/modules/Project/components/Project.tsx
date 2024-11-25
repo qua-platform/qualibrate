@@ -1,10 +1,10 @@
 import React, { useCallback } from "react";
 import ProjectInfo from "./ProjectInfo";
-import SelectField from "../../../DEPRECATED_components/common/Input/SelectField";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 import cyKeys from "../../../utils/cyKeys";
+import SelectField from "../../../common/ui-components/common/Input/SelectField";
 
 const SelectRuntime = <SelectField options={["Localhost"]} onChange={() => {}} />;
 

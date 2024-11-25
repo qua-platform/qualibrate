@@ -1,4 +1,4 @@
-# EntropyLab Frontend (UI)
+# QUAlibrate Frontend (UI)
 
 ## Stack:
 

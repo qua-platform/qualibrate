@@ -1,9 +1,9 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
-import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 import { SearchIcon } from "../../../../ui-lib/Icons/SearchIcon";
 import { IconType } from "../../../../common/interfaces/InputProps";
+import InputField from "../../../../common/ui-components/common/Input/InputField";
 
 export const GraphSearch: React.FC = () => {
   return (

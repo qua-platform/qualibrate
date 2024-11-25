@@ -1,7 +1,7 @@
 import React from "react";
 import { IconProps } from "../../common/interfaces/IconProps";
 
-const EntropyLogoSmallIcon: React.FunctionComponent<IconProps> = ({ width = 26, height = 23 }) => {
+const QUAlibrateLogoSmallIcon: React.FunctionComponent<IconProps> = ({ width = 26, height = 23 }) => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 26 23" fill="none">
       <g clipPath="url(#clip0_350_4146)">
@@ -31,4 +31,4 @@ const EntropyLogoSmallIcon: React.FunctionComponent<IconProps> = ({ width = 26, 
   );
 };
 
-export default EntropyLogoSmallIcon;
+export default QUAlibrateLogoSmallIcon;

@@ -2,12 +2,12 @@ import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphStatus.module.scss";
 import { GraphStatusContextProvider, useGraphStatusContext } from "./context/GraphStatusContext";
-import PageName from "../../../../DEPRECATED_components/common/Page/PageName";
 import { Results } from "../../../Nodes/components/Results/Results";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
 import { SelectionContextProvider } from "../../../common/context/SelectionContext";
 import { GraphContextProvider, useGraphContext } from "../../context/GraphContext";
+import PageName from "../../../../common/ui-components/common/Page/PageName";
 
 const GraphStatus = () => {
   const heading = "Run calibration graph";

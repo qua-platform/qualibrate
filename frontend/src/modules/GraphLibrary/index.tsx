@@ -2,10 +2,10 @@ import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphLibrary.module.scss";
 import { GraphContextProvider, useGraphContext } from "./context/GraphContext";
-import PageName from "../../DEPRECATED_components/common/Page/PageName";
 import { GraphList } from "./components/GraphList";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
+import PageName from "../../common/ui-components/common/Page/PageName";
 
 const GraphLibrary = () => {
   const heading = "Run calibration graph";
