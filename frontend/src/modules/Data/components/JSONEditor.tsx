@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import jp from "jsonpath";
 import { defineDataType, JsonViewer, Path } from "@textea/json-viewer";
-import InputField from "../../../DEPRECATED_components/common/Input/InputField";
+import InputField from "../../../common/ui-components/common/Input/InputField";
 
 export const JSONEditor = ({ title, jsonDataProp, height }: { title: string; jsonDataProp: object; height: string }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");

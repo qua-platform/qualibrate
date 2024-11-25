@@ -6,8 +6,8 @@ import { CircularProgress } from "@mui/material";
 import { CheckMarkIcon } from "../../../../ui-lib/Icons/CheckMarkIcon";
 import { RightArrowIcon } from "../../../../ui-lib/Icons/RightArrowIcon";
 import { EditIcon } from "../../../../ui-lib/Icons/EditIcon";
-import InputField from "../../../../DEPRECATED_components/common/Input/InputField";
 import { RunningNodeInfo, StateUpdateObject } from "../../context/NodesContext";
+import InputField from "../../../../common/ui-components/common/Input/InputField";
 
 export interface StateUpdateProps {
   key: string;
