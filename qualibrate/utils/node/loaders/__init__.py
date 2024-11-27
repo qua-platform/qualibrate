@@ -14,6 +14,8 @@ __all__ = [
     "NumpyArrayLoader",
     "ImageLoader",
     "XarrayLoader",
+    "DEFAULT_LOADERS",
+    "SUPPORTED_EXTENSIONS",
 ]
 
 

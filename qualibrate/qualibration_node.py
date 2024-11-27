@@ -1,5 +1,5 @@
 import traceback
-from collections.abc import Generator, Sequence
+from collections.abc import Generator, Mapping, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import copy
@@ -36,12 +36,14 @@ from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.node.comined_method import InstanceOrClassMethod
-from qualibrate.utils.node.content import read_node_content, read_node_data
+from qualibrate.utils.node.content import (
+    parse_node_content,
+    read_node_content,
+    read_node_data,
+)
 from qualibrate.utils.node.loaders.base_loader import BaseLoader
-from qualibrate.utils.node.loaders.quam_loader import QuamLoader
 from qualibrate.utils.node.path_solver import (
     get_node_dir_path,
-    get_node_quam_filepath,
 )
 from qualibrate.utils.node.record_state_update import (
     record_state_update_getattr,
@@ -325,6 +327,7 @@ class QualibrationNode(
         node_id: int,
         base_path: Optional[Path] = None,
         custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
+        build_params_class: bool = False,
     ) -> Optional["QualibrationNode[ParametersType]"]:
         if base_path is None:
             try:
@@ -345,12 +348,25 @@ class QualibrationNode(
             return None
         node_content = read_node_content(node_dir, node_id, base_path)
         if node_content is not None:
-            quam_filepath = get_node_quam_filepath(
-                node_content["data"], node_dir
+            quam_machine, parameters = parse_node_content(
+                node_content,
+                node_id,
+                node_dir,
+                build_params_class,
             )
-            if quam_filepath is not None:
-                quam_machine = QuamLoader().load(quam_filepath)
+            if quam_machine is not None:
                 self.machine = quam_machine
+            if parameters is not None:
+                if build_params_class:
+                    self.parameters_class = cast(
+                        ParametersType, parameters
+                    ).__class__
+                    self._parameters = cast(ParametersType, parameters)
+                else:
+                    self._parameters = self.parameters.model_construct(
+                        **cast(Mapping[str, Any], parameters)
+                    )
+
         data = read_node_data(node_dir, node_id, base_path, custom_loaders)
         if data is not None:
             self.results = data
@@ -375,6 +391,7 @@ class QualibrationNode(
             node_id=node_id,
             base_path=base_path,
             custom_loaders=custom_loaders,
+            build_params_class=isinstance(caller, type),
         )
 
     def _post_run(
@@ -742,3 +759,13 @@ class QualibrationNode(
             )
 
         nodes[node.name] = node
+
+
+if __name__ == "__main__":
+    from pathlib import Path
+
+    # path = Path("/home/maxim_v4s/Downloads/")
+    path = Path.home().joinpath(".qualibrate/user_storage/init_project")
+    node = QualibrationNode.load_from_id(12)
+    print(node.results)
+    print(node.parameters)
