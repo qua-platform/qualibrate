@@ -1,5 +1,4 @@
 import traceback
-from collections import UserDict, UserList
 from collections.abc import Generator, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -12,6 +11,7 @@ from typing import (
     Any,
     Optional,
     TypeVar,
+    Union,
     cast,
 )
 
@@ -19,6 +19,7 @@ import matplotlib
 from matplotlib.rcsetup import interactive_bk
 from pydantic import ValidationError, create_model
 
+from qualibrate.config.utils import get_qualibrate_app_settings
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.base import BaseRunSummary
@@ -34,12 +35,20 @@ from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger_m import logger
-from qualibrate.utils.read_files import get_module_name, import_from_path
-from qualibrate.utils.type_protocols import (
-    GetRefGetItemProtocol,
-    GetRefProtocol,
-    TargetType,
+from qualibrate.utils.node.comined_method import InstanceOrClassMethod
+from qualibrate.utils.node.content import read_node_content, read_node_data
+from qualibrate.utils.node.loaders.base_loader import BaseLoader
+from qualibrate.utils.node.loaders.quam_loader import QuamLoader
+from qualibrate.utils.node.path_solver import (
+    get_node_dir_path,
+    get_node_quam_filepath,
 )
+from qualibrate.utils.node.record_state_update import (
+    record_state_update_getattr,
+    record_state_update_getitem,
+)
+from qualibrate.utils.read_files import get_module_name, import_from_path
+from qualibrate.utils.type_protocols import TargetType
 
 __all__ = [
     "QualibrationNode",
@@ -300,19 +309,72 @@ class QualibrationNode(
                 "resorting to default configuration"
             )
             logger.warning(msg)
-            if find_spec("qualibrate_app") is None:
-                logger.warning("Can't import qualibrate_app for saving node")
+            settings = get_qualibrate_app_settings()
+            if settings is None:
                 return
-            from qualibrate_app.config import get_config_path, get_settings
-
-            config_path = get_config_path()
-            settings = get_settings(config_path)
             self.storage_manager = LocalStorageManager(
                 root_data_folder=settings.qualibrate.storage.location,
                 active_machine_path=settings.active_machine.path,
             )
         self.storage_manager.save(
             node=cast("QualibrationNode[NodeParameters]", self)
+        )
+
+    def _load_from_id(
+        self,
+        node_id: int,
+        base_path: Optional[Path] = None,
+        custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
+    ) -> Optional["QualibrationNode[ParametersType]"]:
+        if base_path is None:
+            try:
+                settings = get_qualibrate_app_settings(raise_ex=True)
+            except ModuleNotFoundError as ex:
+                # TODO: update error msg when settings
+                #  will be resolved without q_app
+                logger.exception(
+                    "Failed to load qualibrate app settings", exc_info=ex
+                )
+                return None
+            base_path = Path(settings.qualibrate.storage.location)  # type: ignore
+        node_dir = get_node_dir_path(node_id, base_path)
+        if node_dir is None:
+            logger.error(
+                f"Node directory with id {node_id} wasn't found in {base_path}"
+            )
+            return None
+        node_content = read_node_content(node_dir, node_id, base_path)
+        if node_content is not None:
+            quam_filepath = get_node_quam_filepath(
+                node_content["data"], node_dir
+            )
+            if quam_filepath is not None:
+                quam_machine = QuamLoader().load(quam_filepath)
+                self.machine = quam_machine
+        data = read_node_data(node_dir, node_id, base_path, custom_loaders)
+        if data is not None:
+            self.results = data
+        return self
+
+    @InstanceOrClassMethod
+    def load_from_id(
+        caller: Union[
+            "QualibrationNode[ParametersType]",
+            type["QualibrationNode[ParametersType]"],
+        ],
+        node_id: int,
+        base_path: Optional[Path] = None,
+        custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
+    ) -> Optional["QualibrationNode[ParametersType]"]:
+        instance: QualibrationNode[ParametersType] = (
+            caller(name=f"loaded_from_id_{node_id}")
+            if isinstance(caller, type)
+            else caller
+        )
+        return instance._load_from_id(
+            node_id=node_id,
+            base_path=base_path,
+            custom_loaders=custom_loaders,
         )
 
     def _post_run(
@@ -575,11 +637,11 @@ class QualibrationNode(
         try:
             for cls in cls_setattr_funcs:
                 cls.__setattr__ = partialmethod(
-                    _record_state_update_getattr, node=self
+                    record_state_update_getattr, node=self
                 )
             for cls in cls_setitem_funcs:
                 cls.__setitem__ = partialmethod(
-                    _record_state_update_getitem, node=self
+                    record_state_update_getitem, node=self
                 )
             yield
         finally:
@@ -680,86 +742,3 @@ class QualibrationNode(
             )
 
         nodes[node.name] = node
-
-
-def _record_state_update(
-    node: Optional[QualibrationNode[ParametersType]],
-    reference: str,
-    attr: str,
-    old: Any,
-    val: Any,
-) -> None:
-    """
-    Records state updates for an attribute or item in the node.
-
-    This function stores information about changes made to an attribute
-    or item of a node, including the previous value and the new value.
-    If the node is provided, the change details are saved in the node's
-    `_state_updates` dictionary.
-
-    Args:
-        node: The node where the state update will be recorded. If None, no
-            action is performed.
-        reference: The reference key to identify the updated attribute or item.
-        attr: The name of the attribute or item key that is updated.
-        old: The old value of the attribute or item before the update.
-        val: The new value of the attribute or item.
-    """
-    if node is None:
-        return
-    if isinstance(old, UserList):
-        old = list(old)
-    elif isinstance(old, UserDict):
-        old = dict(old)
-    node._state_updates[reference] = {
-        "key": reference,
-        "attr": attr,
-        "old": old,
-        "new": val,
-    }
-
-
-def _record_state_update_getattr(
-    quam_obj: GetRefProtocol,
-    attr: str,
-    val: Any = None,
-    node: Optional[QualibrationNode[ParametersType]] = None,
-) -> None:
-    """
-    Records item state updates in a Quam collection object.
-
-    For details see `_record_state_update`.
-
-    Args:
-        quam_obj: The Quam object whose attribute is updated.
-        attr: The name of the attribute being updated.
-        val: The new value of the attribute. Defaults to None.
-        node: The node where the state update will be recorded. Defaults to
-            None.
-    """
-    _record_state_update(
-        node, quam_obj.get_reference(attr), attr, getattr(quam_obj, attr), val
-    )
-
-
-def _record_state_update_getitem(
-    quam_obj: GetRefGetItemProtocol,
-    attr: str,
-    val: Any = None,
-    node: Optional[QualibrationNode[ParametersType]] = None,
-) -> None:
-    """
-    Records item state updates in a Quam collection object.
-
-    For details see `_record_state_update`.
-
-    Args:
-        quam_obj: The Quam object whose item is being updated.
-        attr: The key/index of the item being updated.
-        val: The new value of the item. Defaults to None.
-        node: The node where the state update will be recorded. Defaults to
-            None.
-    """
-    _record_state_update(
-        node, quam_obj.get_reference(attr), attr, quam_obj[attr], val
-    )
