@@ -67,7 +67,13 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
         # Save results
         self.data_handler.name = node.name
-        DataHandler.node_data = {"quam": "./quam_state.json"}
+        DataHandler.node_data = {
+            "quam": "./quam_state.json",
+            "parameters": {
+                "model": node.parameters.model_dump(mode="json"),
+                "schema": node.parameters.__class__.model_json_schema(),
+            },
+        }
         node_contents = (
             self.data_handler.generate_node_contents()
         )  # TODO directly access idx
