@@ -27,6 +27,7 @@ export const StateUpdateComponent: React.FC<StateUpdateProps> = (props) => {
       <div>
         {!runningUpdate && !parameterUpdated && (
           <div
+            className={styles.upArrowIconWrapper}
             onClick={async () => {
               if (
                 runningNodeInfo &&
