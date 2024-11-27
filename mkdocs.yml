@@ -13,15 +13,15 @@ theme:
     code: Roboto Mono
   favicon: assets/logo.png
   palette:
-    - scheme: entropy-bright
+    - scheme: qualibrate-bright
       toggle:
         icon: material/brightness-7
         name: Switch to high contrast mode
-    - scheme: entropy-high-contrast
+    - scheme: qualibrate-high-contrast
       toggle:
         icon: material/brightness-6
         name: Switch to dark mode
-    - scheme: entropy-dark 
+    - scheme: qualibrate-dark 
       toggle:
         icon: material/brightness-5
         name: Switch to light mode

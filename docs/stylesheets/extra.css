@@ -1,4 +1,4 @@
-[data-md-color-scheme="entropy-bright"] {
+[data-md-color-scheme="qualibrate-bright"] {
     --md-primary-fg-color: #404044;
     --md-accent-fg-color: #3082CF;
     --md-typeset-a-color: #3082CF;
@@ -7,7 +7,7 @@
     --md-tabs-color: #464647;
 }
 
-[data-md-color-scheme="entropy-high-contrast"] {
+[data-md-color-scheme="qualibrate-high-contrast"] {
     --md-primary-fg-color: #404044;
     --md-accent-fg-color: #3082CF;
     --md-typeset-a-color: #3082CF;
@@ -17,7 +17,7 @@
     --md-typeset-color: black;
 }
 
-[data-md-color-scheme="entropy-dark"] {
+[data-md-color-scheme="qualibrate-dark"] {
     --md-primary-fg-color: #404044;
     --md-accent-fg-color: #3082CF;
     --md-typeset-a-color: #3082CF;
