@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-core"
-version = "0.2.2"
+version = "0.2.3"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 readme = "README.md"
@@ -10,7 +10,7 @@ packages = [{ include = "qualibrate" }]
 python = "^3.9"
 pydantic = "^2.7.3"
 qualang_tools = { version = ">0.17.4", python = ">=3.9,<3.12" }
-networkx = "~3.2.0"       # max available version with python 3.9 support
+networkx = "~3.2.0"                                             # max available version with python 3.9 support
 jsonpointer = "^3.0.0"
 types-networkx = "~3.2.1.20240918"
 datamodel-code-generator = "^0.26.3"
@@ -36,12 +36,12 @@ exclude = ["calibrations"]
 
 [tool.ruff.lint]
 select = [
-    "E",    # pycodestyle
-    "F",    # Pyflakes
-    "UP",   # pyupgrade
-    "B",    # flake8-bugbear
-    "SIM",  # flake8-simplify
-    "I",    # isort
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "I",   # isort
 ]
 
 [tool.ruff.lint.pycodestyle]
