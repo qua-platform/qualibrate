@@ -3,16 +3,34 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime
 from itertools import chain
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
+import datamodel_code_generator as dmcg
+from datamodel_code_generator.format import DatetimeClassType
+from datamodel_code_generator.model import get_data_model_types
+from datamodel_code_generator.parser.jsonschema import JsonSchemaParser
+from pydantic import Field  # noqa: F401
+
+from qualibrate import NodeParameters
 from qualibrate.utils.logger_m import logger
-from qualibrate.utils.node.loaders import DEFAULT_LOADERS, SUPPORTED_EXTENSIONS
+from qualibrate.utils.node.loaders import (
+    DEFAULT_LOADERS,
+    SUPPORTED_EXTENSIONS,
+    QuamLoader,
+)
 from qualibrate.utils.node.loaders.base_loader import BaseLoader
 from qualibrate.utils.node.path_solver import (
     get_data_filepath,
     get_node_dir_path,
     get_node_filepath,
+    get_node_quam_filepath,
     resolve_and_check_relative,
+)
+
+DATA_MODEL_TYPES = get_data_model_types(
+    dmcg.DataModelType.PydanticV2BaseModel,
+    target_python_version=dmcg.PythonVersion.PY_311,
+    target_datetime_class=DatetimeClassType.Datetime,
 )
 
 
@@ -152,6 +170,26 @@ def read_node_content(
     return node_content
 
 
+def parse_node_content(
+    node_content: Mapping[str, Any],
+    node_id: int,
+    node_dir: Path,
+    build_params_class: bool,
+) -> tuple[Optional[Any], Optional[Union[NodeParameters, Mapping[str, Any]]]]:
+    quam_machine = None
+    if "data" in node_content:
+        quam_filepath = get_node_quam_filepath(node_content["data"], node_dir)
+        if quam_filepath is not None:
+            quam_machine = QuamLoader().load(quam_filepath)
+    parameters_data = node_content.get("data", {}).get("parameters")
+    if parameters_data is None:
+        return quam_machine, None
+    if not isinstance(parameters_data, dict):
+        return quam_machine, None
+    parameters = load_parameters(parameters_data, node_id, build_params_class)
+    return quam_machine, parameters
+
+
 def _get_filename_and_subreference(
     filepath: Union[str, Path],
 ) -> tuple[Path, Optional[str]]:
@@ -249,3 +287,39 @@ def read_node_data(
         results, loaders_instances, supported_extensions, node_dir
     )
     return results
+
+
+def load_parameters(
+    parameters: Mapping[str, Any],
+    node_id: int,
+    build_params_class: bool,
+) -> Optional[Union[NodeParameters, Mapping[str, Any]]]:
+    model = parameters.get("model")
+    if not build_params_class:
+        return model
+    schema = parameters.get("schema")
+    if schema is None or model is None:
+        return None
+    class_name = f"LoadedNode{node_id}Parameters"
+    parser = JsonSchemaParser(
+        json.dumps(schema),
+        data_model_type=DATA_MODEL_TYPES.data_model,
+        data_model_root_type=DATA_MODEL_TYPES.root_model,
+        data_model_field_type=DATA_MODEL_TYPES.field_model,
+        data_type_manager_type=DATA_MODEL_TYPES.data_type_manager,
+        use_standard_collections=True,
+        use_generic_container_types=True,
+        class_name=class_name,
+        base_class="qualibrate.parameters.NodeParameters",
+        additional_imports=["datetime.datetime"],
+        dump_resolve_reference_action=(
+            DATA_MODEL_TYPES.dump_resolve_reference_action
+        ),
+    )
+    model_class_str = str(parser.parse())
+    exec(model_class_str)
+    params_class = locals().get(class_name)
+
+    if params_class is None:
+        logger.error("Can't build parameters class correctly")
+    return cast(NodeParameters, params_class).model_validate(model)
