@@ -22,8 +22,8 @@ qualibrate-app = "^0.2.1"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
-ruff = "^0.7.0"
-poethepoet = "^0.25.0"
+ruff = "^0.8.0"
+poethepoet = "^0.31.1"
 
 #[tool.poetry.group.qm-dev.dependencies]
 #qualibrate-app = {path = "../qualibrate-app/backend", develop = true}
