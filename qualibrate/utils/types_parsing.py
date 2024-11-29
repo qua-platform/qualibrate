@@ -19,6 +19,16 @@ INPUT_CONVERSION_TYPE = Union[
 
 
 def parse_bool(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
+    """
+    Parses a value into a boolean if possible.
+
+    Args:
+        value: The input value to parse.
+
+    Returns:
+        - A boolean value if the input is convertible to boolean.
+        - The original value if it cannot be parsed into a boolean.
+    """
     if isinstance(value, bool):
         return value
     if isinstance(value, str):
@@ -35,6 +45,16 @@ def parse_bool(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
 
 
 def parse_int(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
+    """
+    Parses a value into an integer if possible.
+
+    Args:
+        value: The input value to parse.
+
+    Returns:
+        - An integer if the input is convertible to an integer.
+        - The original value if it cannot be parsed into an integer.
+    """
     if isinstance(value, bool):
         return int(value)
     if isinstance(value, int):
@@ -53,6 +73,16 @@ def parse_int(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
 
 
 def parse_float(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
+    """
+    Parses a value into a float if possible.
+
+    Args:
+        value: The input value to parse.
+
+    Returns:
+        - A float if the input is convertible to a float.
+        - The original value if it cannot be parsed into a float.
+    """
     if isinstance(value, float):
         return value
     if isinstance(value, int):
@@ -66,6 +96,17 @@ def parse_float(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
 
 
 def parse_str(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
+    """
+    Parses a value into a string, removing surrounding quotes if present.
+
+    Args:
+        value: The input value to parse.
+
+    Returns:
+        - A string with surrounding quotes removed if the input is a quoted
+          string.
+        - The original value if no parsing is required.
+    """
     if (
         isinstance(value, str)
         and len(value) > 1
@@ -79,6 +120,16 @@ def parse_str(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
 
 
 def parse_none(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
+    """
+    Parses a value into None if applicable.
+
+    Args:
+        value: The input value to parse.
+
+    Returns:
+        - None if the input is None or an empty string.
+        - The original value if no parsing is required.
+    """
     if value is None or (isinstance(value, str) and not value):
         return None
     return value
@@ -104,6 +155,18 @@ STR_TO_TYPE: Mapping[str, type[BASIC_TYPES]] = {
 def parse_typed_list(
     value: list[Any], item_type: type[BASIC_TYPES]
 ) -> LIST_TYPES:
+    """
+    Parses a list, converting each element to a specified type.
+
+    Args:
+        value: The input list to parse.
+        item_type: The type to which each element in the list should be
+            converted.
+
+    Returns:
+        A list with each element converted to the specified type, or the
+            original list if conversion fails.
+    """
     if len(value) == 0:
         return value
     parser = BASIC_PARSERS[item_type]
@@ -117,6 +180,20 @@ def parse_list(
     value: VALUE_TYPES_WITHOUT_REC,
     item_type: Optional[type[BASIC_TYPES]],
 ) -> VALUE_TYPES_WITHOUT_REC:
+    """
+    Parses a value into a list, optionally converting elements to a specified
+    type.
+
+    Args:
+        value: The input value to parse. Can be a list or a string
+            representation of a list.
+        item_type: The type to which each element in the list should be
+            converted, or None to skip type conversion.
+
+    Returns:
+        A parsed list with optionally converted elements, or the original value
+        if parsing is not possible.
+    """
     if isinstance(value, list):
         if item_type is None:
             return value
@@ -133,6 +210,18 @@ def parse_list(
 
 
 def types_conversion(value: Any, expected_type: Mapping[str, Any]) -> Any:
+    """
+    Recursively converts a value to match the expected type.
+
+    Args:
+        value: The input value to convert.
+        expected_type: A mapping that describes the expected type or schema,
+            including possible nested structures.
+
+    Returns:
+        The converted value matching the expected type or schema, or the
+        original value if no conversion is applicable.
+    """
     if isinstance(value, Mapping):
         # has sub items
         new = {}

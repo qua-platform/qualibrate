@@ -14,6 +14,8 @@ __all__ = ["ExecutionHistory", "ExecutionHistoryItem"]
 
 
 class ExecutionHistoryItem(BaseModel):
+    """Represents an item of graph execution history."""
+
     model_config = ConfigDict()
 
     name: str
@@ -28,8 +30,11 @@ class ExecutionHistoryItem(BaseModel):
 
     @computed_field
     def run_duration(self) -> float:
+        """Time in seconds node run"""
         return round((self.run_end - self.run_start).total_seconds(), 3)
 
 
 class ExecutionHistory(BaseModel):
+    """Represents a graph execution history."""
+
     items: Sequence[ExecutionHistoryItem]
