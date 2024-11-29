@@ -13,7 +13,7 @@ interface IProps {
 }
 
 export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
-  const { setSelectedNodeNameInWorkflow } = useGraphContext();
+  const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
   const cy = useRef<cytoscape.Core>();
   const divRef = useRef(null);
 
@@ -79,6 +79,19 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
       }
     }
   }, [elements]);
+
+  useEffect(() => {
+    if (selectedNodeNameInWorkflow) {
+      cy.current?.nodes().unselect();
+      const targetNode = cy.current?.getElementById(selectedNodeNameInWorkflow);
+      console.log("targetNode", targetNode, selectedNodeNameInWorkflow);
+      if (targetNode) {
+        targetNode.select();
+      }
+    } else {
+      cy.current?.nodes().unselect();
+    }
+  }, [selectedNodeNameInWorkflow]);
 
   useEffect(() => {
     const onClickN = (e: EventObject) => {

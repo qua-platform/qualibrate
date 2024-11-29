@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styles from "./MeasurementElement.module.scss";
 import { GlobalParameterStructure, Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { classNames } from "../../../../../../utils/classnames";
@@ -17,17 +17,6 @@ export const MeasurementElement: React.FC<{ element: Measurement }> = ({ element
   // const { isNodeRunning, setRunningNodeInfo, setIsNodeRunning, setRunningNode, allNodes, setAllNodes } = useNodesContext();
   const { fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
 
-  useEffect(() => {
-    if (selectedNodeNameInWorkflow) {
-      if (element.snapshot_idx) {
-        fetchResultsAndDiffData(element.snapshot_idx);
-      } else {
-        setResult({});
-        setDiffData({});
-      }
-    }
-  }, [selectedNodeNameInWorkflow]);
-
   const measurementSelected =
     selectedItemName && (selectedItemName === element.snapshot_idx?.toString() || selectedItemName === element.name);
   const cytoscapeNodeSelected =
@@ -38,7 +27,7 @@ export const MeasurementElement: React.FC<{ element: Measurement }> = ({ element
       className={classNames(styles.rowWrapper, (measurementSelected || cytoscapeNodeSelected) && styles.nodeSelected)}
       onClick={() => {
         setSelectedItemName(element.snapshot_idx ? element.snapshot_idx.toString() : element.name);
-        setSelectedNodeNameInWorkflow(element.snapshot_idx ? element.snapshot_idx.toString() : element.name);
+        setSelectedNodeNameInWorkflow(element.name);
         if (element.snapshot_idx) {
           fetchResultsAndDiffData(element.snapshot_idx);
         } else {
