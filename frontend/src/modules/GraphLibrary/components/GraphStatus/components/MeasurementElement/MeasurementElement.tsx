@@ -26,7 +26,7 @@ export const MeasurementElement: React.FC<{ element: Measurement }> = ({ element
     <div
       className={classNames(styles.rowWrapper, (measurementSelected || cytoscapeNodeSelected) && styles.nodeSelected)}
       onClick={() => {
-        setSelectedItemName(element.snapshot_idx ? element.snapshot_idx.toString() : element.name);
+        setSelectedItemName(element.name);
         setSelectedNodeNameInWorkflow(element.name);
         if (element.snapshot_idx) {
           fetchResultsAndDiffData(element.snapshot_idx);

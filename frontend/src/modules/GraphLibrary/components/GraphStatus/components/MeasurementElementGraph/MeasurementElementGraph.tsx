@@ -10,7 +10,7 @@ import { ErrorStatusWrapper } from "../../../../../common/Error/ErrorStatusWrapp
 
 interface IProps {
   workflowGraphElements: cytoscape.ElementDefinition[];
-  onCytoscapeNodeClick?: () => void;
+  onCytoscapeNodeClick?: (name: string) => void;
   active?: boolean;
   nodesCompleted?: number;
   runDuration?: number;

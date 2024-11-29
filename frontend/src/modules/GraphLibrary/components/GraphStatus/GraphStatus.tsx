@@ -11,9 +11,23 @@ import PageName from "../../../../common/ui-components/common/Page/PageName";
 
 const GraphStatus = () => {
   const heading = "Run calibration graph";
-  const { setSelectedItemName } = useSelectionContext();
+  const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements } = useGraphContext();
-  const { allMeasurements, result, diffData } = useGraphStatusContext();
+  const { allMeasurements, result, diffData, fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
+
+  const getMeasurementId = (measurementName: string) => {
+    return allMeasurements?.find((measurement) => measurement.name === measurementName)?.snapshot_idx;
+  };
+  const handleOnCytoscapeNodeClick = (name: string) => {
+    const measurementId = getMeasurementId(name);
+    if (measurementId) {
+      setSelectedItemName(name);
+      fetchResultsAndDiffData(measurementId);
+    } else {
+      setResult({});
+      setDiffData({});
+    }
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -23,10 +37,7 @@ const GraphStatus = () => {
         </div>
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
-            <MeasurementElementGraph
-              workflowGraphElements={workflowGraphElements}
-              onCytoscapeNodeClick={() => setSelectedItemName(undefined)}
-            />
+            <MeasurementElementGraph workflowGraphElements={workflowGraphElements} onCytoscapeNodeClick={handleOnCytoscapeNodeClick} />
           )}
           <MeasurementHistory listOfMeasurements={allMeasurements} />
         </div>
