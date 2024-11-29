@@ -5,12 +5,13 @@ import { GraphStatusContextProvider, useGraphStatusContext } from "./context/Gra
 import { Results } from "../../../Nodes/components/Results/Results";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
-import { SelectionContextProvider } from "../../../common/context/SelectionContext";
+import { SelectionContextProvider, useSelectionContext } from "../../../common/context/SelectionContext";
 import { GraphContextProvider, useGraphContext } from "../../context/GraphContext";
 import PageName from "../../../../common/ui-components/common/Page/PageName";
 
 const GraphStatus = () => {
   const heading = "Run calibration graph";
+  const { setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements } = useGraphContext();
   const { allMeasurements, result, diffData } = useGraphStatusContext();
 
@@ -21,7 +22,12 @@ const GraphStatus = () => {
           <PageName>{heading}</PageName>
         </div>
         <div className={styles.graphAndHistoryWrapper}>
-          {workflowGraphElements && <MeasurementElementGraph workflowGraphElements={workflowGraphElements} />}
+          {workflowGraphElements && (
+            <MeasurementElementGraph
+              workflowGraphElements={workflowGraphElements}
+              onCytoscapeNodeClick={() => setSelectedItemName(undefined)}
+            />
+          )}
           <MeasurementHistory listOfMeasurements={allMeasurements} />
         </div>
       </div>

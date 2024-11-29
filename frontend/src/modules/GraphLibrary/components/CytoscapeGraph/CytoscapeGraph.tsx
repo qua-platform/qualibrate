@@ -9,9 +9,10 @@ cytoscape.warnings(false);
 
 interface IProps {
   elements: ElementDefinition[];
+  onNodeClick?: () => void;
 }
 
-export default function CytoscapeGraph({ elements }: IProps) {
+export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
   const { setSelectedNodeNameInWorkflow } = useGraphContext();
   const cy = useRef<cytoscape.Core>();
   const divRef = useRef(null);
@@ -82,6 +83,9 @@ export default function CytoscapeGraph({ elements }: IProps) {
   useEffect(() => {
     const onClickN = (e: EventObject) => {
       setSelectedNodeNameInWorkflow((e.target.data() as { id: string }).id);
+      if (onNodeClick) {
+        onNodeClick();
+      }
     };
     cy.current?.nodes().on("click", onClickN);
 
