@@ -84,7 +84,6 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
     if (selectedNodeNameInWorkflow) {
       cy.current?.nodes().unselect();
       const targetNode = cy.current?.getElementById(selectedNodeNameInWorkflow);
-      console.log("targetNode", targetNode, selectedNodeNameInWorkflow);
       if (targetNode) {
         targetNode.select();
       }
