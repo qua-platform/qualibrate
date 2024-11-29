@@ -1,4 +1,5 @@
 import json
+import warnings
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from itertools import chain
@@ -9,7 +10,7 @@ import datamodel_code_generator as dmcg
 from datamodel_code_generator.format import DatetimeClassType
 from datamodel_code_generator.model import get_data_model_types
 from datamodel_code_generator.parser.jsonschema import JsonSchemaParser
-from pydantic import Field  # noqa: F401
+from pydantic import Field, PydanticDeprecatedSince20  # noqa: F401
 
 from qualibrate import NodeParameters
 from qualibrate.utils.logger_m import logger
@@ -174,7 +175,7 @@ def read_node_content(
     """
     node_filepath = get_node_filepath(node_dir)
     if not node_filepath.is_file():
-        logger.error(f"Node file with id {node_id} wasn't found in {node_id}")
+        logger.error(f"Node file with id {node_id} wasn't found in {base_path}")
         return None
     node_content = read_raw_node_file(node_filepath, base_path)
     content = read_minified_node_content(
@@ -451,8 +452,11 @@ def load_parameters(
             DATA_MODEL_TYPES.dump_resolve_reference_action
         ),
     )
-    model_class_str = str(parser.parse())
-    exec(model_class_str)
+    # PydanticDeprecatedSince20
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=PydanticDeprecatedSince20)
+        model_class_str = str(parser.parse())
+        exec(model_class_str)
     params_class = locals().get(class_name)
 
     if params_class is None:
