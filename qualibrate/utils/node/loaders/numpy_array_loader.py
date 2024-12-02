@@ -43,6 +43,7 @@ class NumpyArrayLoader(BaseLoader):
         if file_path in self.filepath_to_array:
             file_content = self.filepath_to_array[file_path]
         else:
+            self.__class__.validate_file_exists(file_path)
             file_content = np.load(file_path)
             self.filepath_to_array[file_path] = file_content
         subref = kwargs.get("subref")
@@ -53,6 +54,4 @@ class NumpyArrayLoader(BaseLoader):
                 f"Loaded file {file_path} is not representation of "
                 f"multiple NumPy arrays"
             )
-        if subref in file_content:
-            return file_content[subref]
-        return None
+        return file_content.get(subref)

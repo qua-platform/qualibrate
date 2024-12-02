@@ -20,6 +20,8 @@ datamodel-code-generator = "^0.26.3"
 pytest = "^8.2.2"
 pytest-mock = "^3.14.0"
 quam = { version = "^0.3.5", python = ">=3.9,<3.12" }
+xarray = "^2024.1.0,<2024.09.0"
+pillow = "^11.0.0"
 setuptools = "^75.1.0"                                # it's required for qm -> betterproto -> pkg_resources (contains in setuptools)
 
 
@@ -27,7 +29,6 @@ setuptools = "^75.1.0"                                # it's required for qm -> 
 ruff = "^0.7.0"
 mypy = "^1.10.0"
 poethepoet = "^0.27.0"
-xarray = "^2024.1.0,<2024.09.0"
 
 [tool.ruff]
 line-length = 80

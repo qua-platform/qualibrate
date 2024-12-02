@@ -31,4 +31,5 @@ class XarrayLoader(BaseLoader):
             return None
         from xarray import open_dataset
 
+        self.__class__.validate_file_exists(file_path)
         return open_dataset(file_path)

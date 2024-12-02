@@ -31,4 +31,5 @@ class ImageLoader(BaseLoader):
             return None
         from PIL import Image
 
+        self.__class__.validate_file_exists(file_path)
         return Image.open(file_path)

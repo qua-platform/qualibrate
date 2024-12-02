@@ -27,5 +27,6 @@ class JSONLoader(BaseLoader):
         Returns:
             The parsed JSON content.
         """
+        self.__class__.validate_file_exists(file_path)
         with open(file_path) as f:
             return json.load(f)

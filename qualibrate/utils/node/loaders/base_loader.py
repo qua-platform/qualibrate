@@ -24,7 +24,14 @@ class BaseLoader(ABC):
         Returns:
             True if the extension is supported, False otherwise.
         """
-        return extension in cls.file_extensions
+        return extension.lower() in cls.file_extensions
+
+    @classmethod
+    def validate_file_exists(cls, file_path: Path) -> None:
+        if not file_path.is_file():
+            raise FileNotFoundError(
+                f"Can't load file '{file_path}' by loader {cls.__name__}"
+            )
 
     @abstractmethod
     def load(self, file_path: Path, **kwargs: Any) -> Any:
