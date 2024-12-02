@@ -19,6 +19,7 @@ const GraphStatus = () => {
     return allMeasurements?.find((measurement) => measurement.name === measurementName)?.snapshot_idx;
   };
   const handleOnCytoscapeNodeClick = (name: string) => {
+    setSelectedItemName(undefined);
     const measurementId = getMeasurementId(name);
     if (measurementId) {
       setSelectedItemName(name);
