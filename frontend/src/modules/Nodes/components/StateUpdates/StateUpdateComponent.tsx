@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { UpArrowIcon } from "../../../../ui-lib/Icons/UpArrowIcon";

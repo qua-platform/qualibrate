@@ -11,7 +11,7 @@ import PageName from "../../../../common/ui-components/common/Page/PageName";
 
 const GraphStatus = () => {
   const heading = "Run calibration graph";
-  const { selectedItemName, setSelectedItemName } = useSelectionContext();
+  const { setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements } = useGraphContext();
   const { allMeasurements, result, diffData, fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
 
