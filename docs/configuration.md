@@ -141,9 +141,9 @@ stored to or resolved from.
 **Default**: `"data_path"`  
 **Config entry**: `qualibrate_app.metadata_out_path`
 
-The path to the directory where the active machine state should be stored. 
-
 ### `--active-machine-path`
+
+The path to the directory where the active machine state should be stored. 
 
 **Default**: `None`  
 **Config entry**: `active_machine.path`
