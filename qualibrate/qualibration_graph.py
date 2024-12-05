@@ -112,6 +112,19 @@ class QualibrationGraph(
             )
 
     def _add_nodes_and_connections(self) -> None:
+        """
+        Adds nodes and their connections to the internal graph representation.
+
+        This method iterates over the registered nodes and connectivity data to:
+        - Add nodes to the graph based on their names.
+        - Add edges (connections) between nodes if both nodes exist.
+
+        Raises:
+            ValueError: If a connection references a node that has not been
+                registered. The error message includes the offending node name
+                and the available node names.
+        """
+
         for node_name in self._nodes:
             self._add_node_by_name(node_name)
         for v_name, x_name in self._connectivity:

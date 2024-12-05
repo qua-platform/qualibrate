@@ -1,4 +1,5 @@
 import json
+import warnings
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from itertools import chain
@@ -9,7 +10,7 @@ import datamodel_code_generator as dmcg
 from datamodel_code_generator.format import DatetimeClassType
 from datamodel_code_generator.model import get_data_model_types
 from datamodel_code_generator.parser.jsonschema import JsonSchemaParser
-from pydantic import Field  # noqa: F401
+from pydantic import Field, PydanticDeprecatedSince20  # noqa: F401
 
 from qualibrate import NodeParameters
 from qualibrate.utils.logger_m import logger
@@ -39,6 +40,23 @@ def read_raw_node_file(
     base_path: Path,
     raise_ex: bool = True,
 ) -> dict[str, Any]:
+    """
+    Reads and parses a JSON file into a dictionary.
+
+    Args:
+        node_filepath: Path to the JSON file to be read.
+        base_path: Base path for relative path for errors.
+        raise_ex: Whether to raise an exception if the JSON
+            file cannot be parsed. Defaults to True.
+
+    Returns:
+        The parsed JSON data as a dictionary. Returns an
+        empty dictionary if parsing fails and `raise_ex` is False.
+
+    Raises:
+        JSONDecodeError: If the JSON file cannot be parsed and `raise_ex`
+        is True.
+    """
     try:
         with node_filepath.open("r") as f:
             return dict(json.load(f))
@@ -121,19 +139,6 @@ def read_metadata_node_content(
     return node_metadata
 
 
-def get_data_node_filepath(
-    node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
-) -> Optional[Path]:
-    node_data = dict(node_info.get("data", {}))
-    quam_relative_path = node_data.get("quam", "./state.json")
-    quam_file_path = node_filepath.parent.joinpath(quam_relative_path).resolve()
-    if not quam_file_path.is_relative_to(snapshot_path):
-        raise FileNotFoundError("Unknown quam data path")
-    if quam_file_path.is_file():
-        return quam_file_path
-    return None
-
-
 def read_data_node_content(
     node_info: Mapping[str, Any], node_filepath: Path, node_dir: Path
 ) -> Optional[dict[str, Any]]:
@@ -153,9 +158,24 @@ def read_node_content(
     base_path: Path,
     data_path_key: str = "data_path",
 ) -> Optional[Mapping[str, Any]]:
+    """
+    Finds a node file in the given directory, reads the file, and processes
+    the contents of the node.
+
+    Args:
+        node_dir: The directory containing the node files.
+        node_id: The identifier of the node.
+        base_path: The base path of all nodes for relative path operations.
+        data_path_key: The key used to locate the data path in the node's
+            content. Defaults to "data_path".
+
+    Returns:
+        A dictionary containing the processed node content, or None if the
+        node file is not found.
+    """
     node_filepath = get_node_filepath(node_dir)
     if not node_filepath.is_file():
-        logger.error(f"Node file with id {node_id} wasn't found in {node_id}")
+        logger.error(f"Node file with id {node_id} wasn't found in {base_path}")
         return None
     node_content = read_raw_node_file(node_filepath, base_path)
     content = read_minified_node_content(
@@ -176,6 +196,22 @@ def parse_node_content(
     node_dir: Path,
     build_params_class: bool,
 ) -> tuple[Optional[Any], Optional[Union[NodeParameters, Mapping[str, Any]]]]:
+    """
+    Parses the content of a node to extract its machine and parameters.
+
+    Args:
+        node_content: The content of the node as a dictionary.
+        node_id: The identifier of the node.
+        node_dir: The directory containing the node files.
+        build_params_class: Whether to construct the parameters as a
+            `NodeParameters` class instance.
+
+    Returns:
+        A tuple containing:
+        - The machine object (`quam_machine`) if it exists, or None otherwise.
+        - The parameters as a `NodeParameters` instance, a mapping, or None
+          if no parameters are found or the format is invalid.
+    """
     quam_machine = None
     if "data" in node_content:
         quam_filepath = get_node_quam_filepath(node_content["data"], node_dir)
@@ -193,6 +229,25 @@ def parse_node_content(
 def _get_filename_and_subreference(
     filepath: Union[str, Path],
 ) -> tuple[Path, Optional[str]]:
+    """
+    Extracts the base filename and subreference from a given file path.
+
+    Example:
+        Detail about example (I'm feeding the chicken)
+        ::
+            _get_filename_and_subreference(
+                "./arrays.npz#fit_results.qubitC3.resonator_frequency"
+            )  # (Path("arrays.npz"), "fit_results.qubitC3.resonator_frequency")
+
+    Args:
+        filepath: The file path, which may include a subreference separated
+            by a `#` character.
+
+    Returns:
+        A tuple containing:
+        - The file path with the base filename (excluding the subreference).
+        - The subreference as a string if present, or None otherwise.
+    """
     filepath = Path(filepath)
     name_str = filepath.name
     name, *subref = name_str.split("#")
@@ -201,13 +256,25 @@ def _get_filename_and_subreference(
 
 
 def _check_supported_reference(
-    value: Any,
+    filename: Any,
     supported_extensions: set[str],
 ) -> bool:
-    if not isinstance(value, str) or "." not in value:
+    """
+    Checks if a given reference has a supported file extension.
+
+    Args:
+        filename: The value to be checked, expected to be a string representing
+            a file path with an optional subreference.
+        supported_extensions: A set of supported file extensions
+            (e.g., {".npz", ".json"}).
+
+    Returns:
+        True if the reference has a supported file extension, False otherwise.
+    """
+    if not isinstance(filename, str) or "." not in filename:
         return False
-    filepath, _ = _get_filename_and_subreference(value)
     # remove ref from array.npz#ref
+    filepath, _ = _get_filename_and_subreference(filename)
     return filepath.suffix in supported_extensions
 
 
@@ -216,6 +283,22 @@ def read_reference(
     loaders: Sequence[BaseLoader],
     node_dir: Path,
 ) -> Any:
+    """
+    Resolves and loads a reference file using the provided loaders.
+
+    Args:
+        reference: The reference string, which includes the file path and
+            optionally a subreference (e.g., "file.npz#subref").
+        loaders: A sequence of loader instances used to load the files.
+        node_dir: The base node directory against which the file path is
+            resolved.
+
+    Returns:
+        The loaded content from the reference file if successfully processed
+        by a loader, or the original reference string if the file cannot be
+        resolved or loaded.
+
+    """
     filepath, subreference = _get_filename_and_subreference(reference)
     try:
         filepath = resolve_and_check_relative(node_dir, filepath)
@@ -254,6 +337,21 @@ def _resolve_references(
     supported_extensions: set[str],
     node_dir: Path,
 ) -> None:
+    """
+    Recursively resolves references within a nested dictionary.
+
+    Args:
+        raw_data: The dictionary containing potential reference values to
+            resolve.
+        loaders: A sequence of loader instances used to load reference files.
+        supported_extensions: A set of file extensions that are supported for
+            resolution.
+        node_dir: The base directory for resolving relative file paths.
+
+    Returns:
+        None. The `raw_data` dictionary is modified in place, replacing
+        reference values with their resolved content.
+    """
     for key, value in raw_data.items():
         if isinstance(value, dict):
             _resolve_references(value, loaders, supported_extensions, node_dir)
@@ -269,6 +367,22 @@ def read_node_data(
     base_path: Path,
     custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
 ) -> Optional[dict[str, Any]]:
+    """
+    Reads and processes node data (results), resolving references within the
+    data.
+
+    Args:
+        node_dir: The directory containing the node files.
+        node_id: The identifier of the node.
+        base_path: The base path of all nodes for resolving relative paths and
+            logging.
+        custom_loaders: An optional sequence of custom loader classes to
+            handle specific file types. Defaults to None.
+
+    Returns:
+        A dictionary containing the processed node data with resolved
+        references, or None if the node file is not found.
+    """
     data_filepath = get_data_filepath(node_dir)
     if not data_filepath.is_file():
         logger.error(f"Node file with id {node_id} wasn't found in {base_path}")
@@ -294,6 +408,28 @@ def load_parameters(
     node_id: int,
     build_params_class: bool,
 ) -> Optional[Union[NodeParameters, Mapping[str, Any]]]:
+    """
+    Loads and optionally builds a parameters class from the provided data.
+
+    Args:
+        parameters: A mapping containing the parameters data, including
+            "model" and "schema".
+        node_id: The identifier of the node, used to generate a unique class
+            name.
+        build_params_class: Whether to build a custom parameters class based
+            on the provided schema.
+
+    Returns:
+        - If `build_params_class` is False, returns the model dump (dict)
+          directly from the `parameters` mapping.
+        - If `build_params_class` is True, returns an instance of the
+          dynamically created `NodeParameters` subclass, or None if the schema
+          or model is missing or the class cannot be built.
+
+    Notes:
+        This function dynamically generates and executes a Python class
+        definition based on the provided JSON schema.
+    """
     model = parameters.get("model")
     if not build_params_class:
         return model
@@ -316,8 +452,11 @@ def load_parameters(
             DATA_MODEL_TYPES.dump_resolve_reference_action
         ),
     )
-    model_class_str = str(parser.parse())
-    exec(model_class_str)
+    # PydanticDeprecatedSince20
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=PydanticDeprecatedSince20)
+        model_class_str = str(parser.parse())
+        exec(model_class_str)
     params_class = locals().get(class_name)
 
     if params_class is None:

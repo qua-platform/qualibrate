@@ -329,6 +329,22 @@ class QualibrationNode(
         custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
         build_params_class: bool = False,
     ) -> Optional["QualibrationNode[ParametersType]"]:
+        """
+        Loads a node by its identifier, parsing its content and data.
+
+        Args:
+            node_id: The unique identifier of the node.
+            base_path: The base directory where node data is stored. If None,
+                attempts to retrieve the path from qualibrate app settings.
+            custom_loaders: An optional sequence of custom loader classes
+                for handling specific file types.
+            build_params_class: Whether to dynamically build a parameters class
+                based on the node schema.
+
+        Returns:
+            The current `QualibrationNode` instance with the loaded data,
+            or None if loading fails.
+        """
         if base_path is None:
             try:
                 settings = get_qualibrate_app_settings(raise_ex=True)
@@ -382,6 +398,23 @@ class QualibrationNode(
         base_path: Optional[Path] = None,
         custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
     ) -> Optional["QualibrationNode[ParametersType]"]:
+        """
+        Class or instance method to load a node by its identifier.
+
+        Args:
+            caller: The class or instance calling this method. If called on
+                a class, creates a new instance; otherwise, modifies the
+                existing instance.
+            node_id: The unique identifier of the node.
+            base_path: The base directory where node data is stored. If None,
+                attempts to retrieve the path from qualibrate app settings.
+            custom_loaders: An optional sequence of custom loader classes
+                for handling specific file types.
+
+        Returns:
+            A `QualibrationNode` instance with the loaded data, or None if
+            loading fails.
+        """
         instance: QualibrationNode[ParametersType] = (
             caller(name=f"loaded_from_id_{node_id}")
             if isinstance(caller, type)

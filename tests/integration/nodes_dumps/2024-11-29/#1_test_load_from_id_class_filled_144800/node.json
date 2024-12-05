@@ -1,0 +1,123 @@
+{
+    "created_at": "2024-11-29T14:48:00+05:00",
+    "metadata": {
+        "name": "test_types",
+        "data_path": "2024-11-26/#2_test_load_from_id_class_filled_144800"
+    },
+    "data": {
+        "quam": "./quam_state.json",
+        "parameters": {
+            "model": {
+                "qubits": [
+                    "c",
+                    "b"
+                ],
+                "str_value": "test",
+                "int_value": 4,
+                "float_value": 1.0,
+                "bool_value": false,
+                "list_str": [
+                    "a",
+                    "b"
+                ],
+                "list_int": [
+                    1,
+                    2
+                ],
+                "list_float": [
+                    1.1,
+                    2.2
+                ],
+                "list_bool": [
+                    true,
+                    false
+                ]
+            },
+            "schema": {
+                "properties": {
+                    "qubits": {
+                        "default": [
+                            "a",
+                            "b"
+                        ],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Qubits",
+                        "type": "array"
+                    },
+                    "str_value": {
+                        "default": "test",
+                        "title": "Str Value",
+                        "type": "string"
+                    },
+                    "int_value": {
+                        "default": 4,
+                        "title": "Int Value",
+                        "type": "integer"
+                    },
+                    "float_value": {
+                        "default": 1.0,
+                        "title": "Float Value",
+                        "type": "number"
+                    },
+                    "bool_value": {
+                        "default": false,
+                        "title": "Bool Value",
+                        "type": "boolean"
+                    },
+                    "list_str": {
+                        "default": [
+                            "a",
+                            "b"
+                        ],
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "List Str",
+                        "type": "array"
+                    },
+                    "list_int": {
+                        "default": [
+                            1,
+                            2
+                        ],
+                        "items": {
+                            "type": "integer"
+                        },
+                        "title": "List Int",
+                        "type": "array"
+                    },
+                    "list_float": {
+                        "default": [
+                            1.1,
+                            2.2
+                        ],
+                        "items": {
+                            "type": "number"
+                        },
+                        "title": "List Float",
+                        "type": "array"
+                    },
+                    "list_bool": {
+                        "default": [
+                            true,
+                            false
+                        ],
+                        "items": {
+                            "type": "boolean"
+                        },
+                        "title": "List Bool",
+                        "type": "array"
+                    }
+                },
+                "title": "Parameters",
+                "type": "object"
+            }
+        }
+    },
+    "id": 2,
+    "parents": [
+        1
+    ]
+}

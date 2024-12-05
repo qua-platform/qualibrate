@@ -4,6 +4,7 @@ from types import ModuleType
 
 
 def get_module_name(file_path: Path) -> str:
+    """Create module name from file path."""
     return f"_node_{file_path.stem}"
 
 
