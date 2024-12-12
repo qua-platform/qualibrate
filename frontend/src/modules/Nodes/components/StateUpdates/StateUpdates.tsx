@@ -1,6 +1,7 @@
 import React from "react";
 import { RunningNodeInfo, StateUpdate } from "../../context/NodesContext";
-import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
+import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi"; // eslint-disable-next-line css-modules/no-unused-class
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import { StateUpdateComponent, StateUpdateProps } from "./StateUpdateComponent";

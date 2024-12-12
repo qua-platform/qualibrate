@@ -40,6 +40,7 @@ interface IGraphContext {
   result: unknown | undefined;
   setResult: Dispatch<SetStateAction<object | undefined>>;
   fetchResultsAndDiffData: (snapshotId: number) => void;
+  fetchAllMeasurements: () => Promise<Measurement[] | undefined>;
 }
 
 const GraphContext = React.createContext<IGraphContext>({
@@ -59,6 +60,7 @@ const GraphContext = React.createContext<IGraphContext>({
   setResult: () => {},
 
   fetchResultsAndDiffData: () => {},
+  fetchAllMeasurements: async () => undefined,
 });
 
 export const useGraphStatusContext = () => useContext<IGraphContext>(GraphContext);
@@ -75,10 +77,12 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
     if (response.isOk) {
       if (response.result && response.result.items) {
         setAllMeasurements(response.result.items);
+        return response.result.items;
       }
     } else if (response.error) {
       console.log(response.error);
     }
+    return [];
   };
 
   const fetchResultsAndDiffData = (snapshotId: number) => {
@@ -141,6 +145,7 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
         result,
         setResult,
         fetchResultsAndDiffData,
+        fetchAllMeasurements,
       }}
     >
       {props.children}
