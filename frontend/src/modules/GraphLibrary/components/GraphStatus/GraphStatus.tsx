@@ -13,7 +13,7 @@ const GraphStatus = () => {
   const heading = "Run calibration graph";
   const { setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements } = useGraphContext();
-  const { allMeasurements, setAllMeasurements, result, diffData, fetchResultsAndDiffData, setResult, setDiffData, fetchAllMeasurements } =
+  const { allMeasurements, result, diffData, fetchResultsAndDiffData, setResult, setDiffData, fetchAllMeasurements } =
     useGraphStatusContext();
 
   const getMeasurementId = (measurementName: string, measurements: Measurement[]) => {
