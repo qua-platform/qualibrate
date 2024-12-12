@@ -7,7 +7,8 @@ import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
 import { StateUpdates } from "../StateUpdates/StateUpdates";
 
 export const RunningJob: React.FC = () => {
-  const { runningNode, runningNodeInfo, isNodeRunning, setIsNodeRunning } = useNodesContext();
+  const { runningNode, runningNodeInfo, isNodeRunning, setIsNodeRunning, updateAllButtonPressed, setUpdateAllButtonPressed } =
+    useNodesContext();
 
   const getRunningJobInfo = () => {
     return (
@@ -91,7 +92,11 @@ export const RunningJob: React.FC = () => {
           {getRunningJobParameters()}
         </div>
       )}
-      <StateUpdates runningNodeInfo={runningNodeInfo} />
+      <StateUpdates
+        runningNodeInfo={runningNodeInfo}
+        updateAllButtonPressed={updateAllButtonPressed}
+        setUpdateAllButtonPressed={setUpdateAllButtonPressed}
+      />
       <ErrorStatusWrapper error={runningNodeInfo?.error} />
     </div>
   );

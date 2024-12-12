@@ -13,10 +13,11 @@ export interface StateUpdateProps {
   key: string;
   stateUpdateObject: StateUpdateObject;
   runningNodeInfo?: RunningNodeInfo;
+  updateAllButtonPressed: boolean;
 }
 
 export const StateUpdateComponent: React.FC<StateUpdateProps> = (props) => {
-  const { key, stateUpdateObject, runningNodeInfo } = props;
+  const { key, stateUpdateObject, runningNodeInfo, updateAllButtonPressed } = props;
   const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -44,12 +45,12 @@ export const StateUpdateComponent: React.FC<StateUpdateProps> = (props) => {
               }
             }}
           >
-            <UpArrowIcon />
+            {!updateAllButtonPressed && <UpArrowIcon />}
           </div>
         )}
         <div className={styles.stateUpdateIconWrapper}>
           {runningUpdate && !parameterUpdated && <CircularProgress size={32} />}
-          {!runningUpdate && parameterUpdated && <CheckMarkIcon />}
+          {((!runningUpdate && parameterUpdated) || updateAllButtonPressed) && <CheckMarkIcon />}
         </div>
       </div>
       <div key={key} className={styles.stateUpdateComponentTextWrapper}>

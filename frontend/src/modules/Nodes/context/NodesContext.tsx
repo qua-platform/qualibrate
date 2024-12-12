@@ -54,6 +54,8 @@ interface INodesContext {
   fetchAllNodes: () => void;
   isAllStatusesUpdated: boolean;
   setIsAllStatusesUpdated: (value: boolean) => void;
+  updateAllButtonPressed: boolean;
+  setUpdateAllButtonPressed: (a: boolean) => void;
 }
 
 const NodesContext = React.createContext<INodesContext>({
@@ -72,6 +74,8 @@ const NodesContext = React.createContext<INodesContext>({
   fetchAllNodes: noop,
   isAllStatusesUpdated: false,
   setIsAllStatusesUpdated: noop,
+  updateAllButtonPressed: false,
+  setUpdateAllButtonPressed: noop,
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
@@ -109,6 +113,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const [results, setResults] = useState<unknown | object | undefined>(undefined);
   const [submitNodeResponseError, setSubmitNodeResponseError] = useState<ResponseStatusError | undefined>(undefined);
   const [isAllStatusesUpdated, setIsAllStatusesUpdated] = useState<boolean>(false);
+  const [updateAllButtonPressed, setUpdateAllButtonPressed] = useState<boolean>(false);
 
   const fetchAllNodes = async () => {
     const response = await NodesApi.fetchAllNodes();
@@ -275,6 +280,8 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         fetchAllNodes,
         isAllStatusesUpdated,
         setIsAllStatusesUpdated,
+        updateAllButtonPressed,
+        setUpdateAllButtonPressed,
       }}
     >
       {props.children}

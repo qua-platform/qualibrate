@@ -35,6 +35,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     allNodes,
     setAllNodes,
     setIsAllStatusesUpdated,
+    setUpdateAllButtonPressed,
   } = useNodesContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
@@ -91,6 +92,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
   }
 
   const handleClick = async () => {
+    setUpdateAllButtonPressed(false);
     setIsNodeRunning(true);
     setIsAllStatusesUpdated(false);
     setRunningNode(node);
