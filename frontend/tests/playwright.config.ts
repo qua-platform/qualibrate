@@ -18,12 +18,17 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
+    headless: true,
+    baseURL: 'http://127.0.0.1:8001/', // Update base URL for your app
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     screenshot: 'only-on-failure', // Take screenshots only on failure
     video: 'retain-on-failure', // Record videos only for failed tests
   },  
+  globalSetup: './tests/global-setup.ts', // Path to your global setup file
+  globalTeardown: './tests/global-teardown.ts', // Path to your global teardown file
+
   projects: [
     {
       name: 'Chromium',

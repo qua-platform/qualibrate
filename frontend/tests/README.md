@@ -1,7 +1,10 @@
 # End to End Workflow Navigation Testing 
 
+![Playwright Tests](https://github.com/qua-platform/qualibrate-app/actions/workflows/playwright-tests.yaml/badge.svg)
+
+
 ### Overview
-The following tests are designed to validate the functionality and correctness of [user workflows](https://quantum-machines.atlassian.net/wiki/spaces/hlsw/pages/3223912481/QAPP+UX+Design+Brief#User-workflows) in the QUAlibrate application.
+This is a front-end testing suite for integration workflows for the QUAlibrate Application. The following tests are designed to validate the functionality and correctness of [user workflows](https://quantum-machines.atlassian.net/wiki/spaces/hlsw/pages/3223912481/QAPP+UX+Design+Brief#User-workflows) section of the online documentation. 
 
 ---
 
@@ -63,24 +66,32 @@ Once the server is running, access the application at http://127.0.0.1:8001/.
    - Verify that the graph parameters are displayed.
       - You see the calibration nodes populated on the left hands side 
       - You see the calibration graph populated the right hand side 
-   - Ensure the qubits section is editable to include qubits such as `Q0`, `Q2`, and `Q3`.
+   - Ensure the qubits section is editable to include qubits such as `q0`, `q2`, and `q3`.
 3. **Modify Node-Specific Parameters**:
-   - Navigate to a specific node in the calibration graph.
-   - Update a parameter, such as changing the sampling points from `100` to `1000`.
+   - Navigate to a specific node in the calibration graph and click on the `qubit_spectroscopy` node. 
+      - verify that its parameters are expanded and are now visable 
+      - varify `parameters` qubit parameter has calapsed 
+   - Navigate to the calibration graph and click the middle `Rabi` node 
+      - varify that the `qubit_spectroscopy` parameters have calapsed 
+      - varify that the `Rabi` parameters are visible 
+   - For `Rabi`, update a parameter, such as changing the sampling points from `100` to `1000`.
    - Ensure that the updated parameter value is correctly reflected.
+   - Expand the Ramsey node it too also works correctly 
 4. **Run the Calibration Graph**:
    - Click the "Play" button to start running the graph.
    - Verify that the application navigates to the "Graph Status" page.
-   - Confirm that the graph status shows `Running` and that progress (e.g., "1 out of 3 nodes completed") is displayed.
+   - Confirm that the graph status shows `running` and that progress (e.g., "1 out of 3 nodes completed") is displayed.
 5. **Monitor Graph Execution**:
    - Wait for the graph to finish executing.
-   - Verify that the status updates to `Finished` and displays the total runtime (e.g., `12 seconds`).
+   - Verify that the status updates to `finished` and displays the total runtime (e.g., `12 seconds`).
 6. **View Results**:
+   - Confirm nodes populated in Execution History are expandable and shows the Status, Parameters, and Outcomes sections.  
    - Check the results section to ensure that data (e.g., qubit spectroscopy) is displayed.
-   - Confirm that failed nodes or operations are clearly marked, along with the corresponding parameters.
+   - ~~Confirm that failed nodes or operations are clearly marked, along with the corresponding parameters.~~
+   - Confirm the QuAM state window is visible 
 7. **Inspect Additional Nodes**:
    - Navigate through the results of other nodes in the graph (e.g., `Rabi` and `Ramsey`).
-   - Verify that all available results are displayed, or confirm that no results are present if the node has not generated data.
+   - ~~Verify that all available results are displayed, or confirm that no results are present if the node has not generated data.~~
 
 
 ## Workflow 3: Viewing Past Data
