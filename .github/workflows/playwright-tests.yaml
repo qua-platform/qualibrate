@@ -37,14 +37,7 @@ jobs:
     - name: Create Qualibrate Configuration
       run: |
         source .venv/bin/activate
-        qualibrate config --auto-accept \
-          --spawn-runner True \
-          --runner-address "http://localhost:8001/execution/" \
-          --runner-timeout 2.0 \
-          --app-storage-type local_storage \
-          --app-user-storage "./user_storage" \
-          --app-project "ci_project" \
-          --log-folder "./logs"
+        qualibrate config --auto-accept
 
     - name: Install Node.js
       uses: actions/setup-node@v3
@@ -52,11 +45,30 @@ jobs:
         node-version: '18'
 
     - name: Install Playwright Dependencies
+      working-directory: ./frontend/tests # Set working directory
       run: |
         npm install
         npx playwright install --with-deps
 
-    - name: Run Playwright Tests
+    # - name: Run Playwright Tests
+    #   working-directory: ./frontend/tests # Set working directory
+    #   run: |
+    #     ../../../.venv/bin/python -m playwright test --config=playwright.config.ts
+
+    - name: Run Playwright Tests (Workflow 1)
+      working-directory: ./frontend/tests/e2e
       run: |
-        source .venv/bin/activate
-        npx playwright test --config=playwright.config.ts
+        . ../../../.venv/bin/activate  # POSIX-compliant activation
+        qualibrate start &
+        npx playwright test e2e/workflow1.test.ts
+
+    - name: Run Playwright Tests (Workflow 2)
+      working-directory: ./frontend/tests/e2e
+      run: |
+        . ../../../.venv/bin/activate  # POSIX-compliant activation
+        qualibrate start &
+        npx playwright test e2e/workflow2.test.ts
+
+    # - name: Run Playwright Tests (Workflow 2)
+    #   working-directory: ./frontend/tests/e2e
+    #   run: npm run test:workflow2

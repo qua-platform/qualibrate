@@ -5,8 +5,8 @@
   "scripts": {    
     "test": "playwright test",
     "build": "tsc",
-    "test:workflow1": "playwright test frontend/tests/e2e/workflow1.test.ts",
-    "test:workflow2": "playwright test frontend/tests/e2e/workflow2.test.ts",
+    "test:workflow1": "playwright test e2e/workflow1.test.ts",
+    "test:workflow2": "playwright test e2e/workflow2.test.ts",
     "test:ci": "npx playwright test --reporter=github",
     "test:master": "playwright test tests/master.test.ts"
   },
