@@ -37,9 +37,14 @@ jobs:
     - name: Create Qualibrate Configuration
       run: |
         source .venv/bin/activate
-        # qualibrate config --create       
-        yes | qualibrate config            # Create the Qualibrate configuration file
-
+        qualibrate config --auto-accept \
+          --spawn-runner True \
+          --runner-address "http://localhost:8001/execution/" \
+          --runner-timeout 2.0 \
+          --app-storage-type local_storage \
+          --app-user-storage "./user_storage" \
+          --app-project "ci_project" \
+          --log-folder "./logs"
 
     - name: Install Node.js
       uses: actions/setup-node@v3
@@ -48,7 +53,7 @@ jobs:
 
     - name: Install Playwright Dependencies
       run: |
-        npm ci
+        npm install
         npx playwright install --with-deps
 
     - name: Run Playwright Tests
