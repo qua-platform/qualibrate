@@ -1,7 +1,6 @@
 # End to End Workflow Navigation Testing 
 
-![Playwright Tests](https://github.com/qua-platform/qualibrate-app/actions/workflows/playwright-tests.yaml/badge.svg)
-
+[![Playwright Tests](https://github.com/qua-platform/qualibrate-app/actions/workflows/playwright-tests.yaml/badge.svg)](https://github.com/qua-platform/qualibrate-app/actions/workflows/playwright-tests.yaml)
 
 ### Overview
 This is a front-end testing suite for integration workflows for the QUAlibrate Application. The following tests are designed to validate the functionality and correctness of [user workflows](https://quantum-machines.atlassian.net/wiki/spaces/hlsw/pages/3223912481/QAPP+UX+Design+Brief#User-workflows) section of the online documentation. 
