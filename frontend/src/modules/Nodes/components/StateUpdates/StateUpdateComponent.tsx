@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { UpArrowIcon } from "../../../../ui-lib/Icons/UpArrowIcon";
@@ -13,11 +14,12 @@ export interface StateUpdateProps {
   key: string;
   stateUpdateObject: StateUpdateObject;
   runningNodeInfo?: RunningNodeInfo;
+  setRunningNodeInfo?: (a: RunningNodeInfo) => void;
   updateAllButtonPressed: boolean;
 }
 
 export const StateUpdateComponent: React.FC<StateUpdateProps> = (props) => {
-  const { key, stateUpdateObject, runningNodeInfo, updateAllButtonPressed } = props;
+  const { key, stateUpdateObject, runningNodeInfo, setRunningNodeInfo, updateAllButtonPressed } = props;
   const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -39,7 +41,14 @@ export const StateUpdateComponent: React.FC<StateUpdateProps> = (props) => {
                 setRunningUpdate(true);
                 const stateUpdateValue = customValue ? customValue : stateUpdateObject.val ?? stateUpdateObject.new!;
                 const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, key, stateUpdateValue);
-                setRunningUpdate(false);
+
+                const stateUpdate = { ...stateUpdateObject, stateUpdated: response.result! };
+                if (setRunningNodeInfo) {
+                  setRunningNodeInfo({
+                    ...runningNodeInfo,
+                    state_updates: { ...runningNodeInfo.state_updates, [key]: stateUpdate },
+                  });
+                }
                 setParameterUpdated(response.result!);
                 setRunningUpdate(false);
               }

@@ -12,6 +12,8 @@ export interface StateUpdateObject {
   old?: string | number | object | number[];
   val?: string | number | object | number[];
   new?: string | number | object | number[];
+  updated?: boolean;
+  stateUpdated?: boolean;
 }
 
 export interface StateUpdate {
@@ -150,17 +152,24 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         if (lastRunResponseResult.idx) {
           const snapshotResponse = await SnapshotsApi.fetchSnapshotResult(idx);
           if (snapshotResponse && snapshotResponse.isOk) {
+            const state_updates: StateUpdate = {};
+            if (lastRunResponseResult.state_updates) {
+              Object.entries(lastRunResponseResult.state_updates).forEach(([key, graph]) => {
+                state_updates[key] = { ...graph, stateUpdated: false };
+              });
+            }
             if (runningNodeInfo && runningNodeInfo.timestampOfRun) {
               const startDateAndTime: Date = parseDateString(runningNodeInfo?.timestampOfRun);
               const now: Date = new Date();
               const diffInMs = now.getTime() - startDateAndTime.getTime();
+
               const diffInSeconds = Math.floor(diffInMs / 1000);
               setRunningNodeInfo({
                 ...runningNodeInfo,
                 runDuration: diffInSeconds.toFixed(2),
                 status: lastRunResponseResult.status,
                 idx: lastRunResponseResult.idx.toString(),
-                state_updates: lastRunResponseResult.state_updates,
+                state_updates,
               });
             } else if (!runningNodeInfo?.timestampOfRun) {
               setRunningNodeInfo({
@@ -168,7 +177,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
                 lastRunNodeName: lastRunResponseResult.name,
                 status: lastRunResponseResult.status,
                 idx: lastRunResponseResult.idx.toString(),
-                state_updates: lastRunResponseResult.state_updates,
+                state_updates,
               });
               let parameters = {};
               Object.entries(lastRunResponseResult.passed_parameters ?? {}).forEach(([key, value]) => {

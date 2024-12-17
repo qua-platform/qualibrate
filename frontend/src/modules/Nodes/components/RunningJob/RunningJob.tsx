@@ -1,4 +1,5 @@
 import React from "react";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
 import { useNodesContext } from "../../context/NodesContext";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
@@ -7,8 +8,15 @@ import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
 import { StateUpdates } from "../StateUpdates/StateUpdates";
 
 export const RunningJob: React.FC = () => {
-  const { runningNode, runningNodeInfo, isNodeRunning, setIsNodeRunning, updateAllButtonPressed, setUpdateAllButtonPressed } =
-    useNodesContext();
+  const {
+    runningNode,
+    runningNodeInfo,
+    setRunningNodeInfo,
+    isNodeRunning,
+    setIsNodeRunning,
+    updateAllButtonPressed,
+    setUpdateAllButtonPressed,
+  } = useNodesContext();
 
   const getRunningJobInfo = () => {
     return (
@@ -94,6 +102,7 @@ export const RunningJob: React.FC = () => {
       )}
       <StateUpdates
         runningNodeInfo={runningNodeInfo}
+        setRunningNodeInfo={setRunningNodeInfo}
         updateAllButtonPressed={updateAllButtonPressed}
         setUpdateAllButtonPressed={setUpdateAllButtonPressed}
       />
