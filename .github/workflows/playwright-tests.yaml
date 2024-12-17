@@ -81,5 +81,4 @@ jobs:
         qualibrate start &
         sleep 5  # Wait for the server to start
         npx playwright test e2e/workflow1.test.ts
-
-
+        
