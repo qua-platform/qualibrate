@@ -1,0 +1,34 @@
+{
+  "name": "qualibrate",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {    
+    "test": "playwright test",
+    "build": "tsc",
+    "test:workflow1": "playwright test e2e/workflow1.test.ts",
+    "test:workflow2": "playwright test e2e/workflow2.test.ts",
+    "test:ci": "npx playwright test --reporter=github",
+    "test:master": "playwright test tests/master.test.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "playwright": "^1.49.0"
+  },
+  "playwright": {
+    "browsers": [
+      "chromium",
+      "firefox",
+      "webkit",
+      "msedge"
+    ]
+  }
+}
+
