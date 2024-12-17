@@ -19,7 +19,6 @@ tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 requests = "^2.31.0"
 jsonpatch = "^1.33"
-qualibrate-runner = {version="^0.2.2", optional = true }
 qualibrate-config = {path = "../../qualibrate-config", develop = true}
 # TODO: replace after publishing timeline-db
 # json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
@@ -33,9 +32,6 @@ mypy = "^1.8.0"
 ruff = "^0.7.0"
 types-requests = "^2.31.0.20240218"
 poethepoet = "^0.25.0"
-
-#[tool.poetry.group.qm-dev.dependencies]
-#qualibrate-runner = {path = "../../qualibrate-runner", optional = true, develop = true}
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
@@ -53,13 +49,7 @@ exclude = ['tests/']
 
 [[tool.mypy.overrides]]
 # TODO: add py.typed to json_timeline_database and remove from ignore imports
-module = [
-    "jsonpatch",
-    "jsonpointer",
-    "json_timeline_database.*",
-    "qualibrate",
-    "qualibrate_runner.*",
-]
+module = ["jsonpatch", "jsonpointer", "json_timeline_database.*"]
 ignore_missing_imports = true
 
 [tool.ruff]
