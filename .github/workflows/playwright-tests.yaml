@@ -16,11 +16,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Checkout the main repository (qualibrate-app)
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
+    # Checkout the private calibration scripts repository
+    - name: Checkout Calibration Scripts
+      uses: actions/checkout@v4
+      with:
+        repository: 'qua-platform/qualibrate-examples'  # Private repo
+        path: 'qualibrate-examples'
+        token: ${{ secrets.QUALIBRATION_EXAMPLES_TOKEN }}
+
+    # Install Python and create virtual environment
     - name: Install Python and Create Environment
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
@@ -29,46 +39,60 @@ jobs:
         python -m venv .venv
         source .venv/bin/activate
         pip install --upgrade pip
-        pip install qualibrate             # Install Qualibrate package
-        pip install quam                   # Install Quam package
-        # pip install quam_libs            # Install Quam libraries
-        # pip install quam_libs.components # Install Quam components
+        pip install qualibrate
+        pip install quam
 
+    # Install dependencies required for calibration scripts
+    - name: Install Calibration Dependencies
+      run: |
+        source .venv/bin/activate
+        pip install xarray
+        pip install -r qualibrate-examples/requirements.txt || true  # Install additional dependencies if they exist
+
+    # Copy calibration scripts to the default Qualibrate calibration folder
+    - name: Copy Calibration Scripts
+      run: |
+        mkdir -p ~/.qualibrate/calibrations
+        cp -r qualibrate-examples/calibrations/* ~/.qualibrate/calibrations/
+
+    # Create Qualibrate configuration
     - name: Create Qualibrate Configuration
       run: |
         source .venv/bin/activate
         qualibrate config --auto-accept
 
+    # Install Node.js
     - name: Install Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
 
     - name: Install Playwright Dependencies
-      working-directory: ./frontend/tests # Set working directory
+      working-directory: ./frontend/tests
       run: |
         npm install
         npx playwright install --with-deps
 
-    # - name: Run Playwright Tests
-    #   working-directory: ./frontend/tests # Set working directory
-    #   run: |
-    #     ../../../.venv/bin/python -m playwright test --config=playwright.config.ts
-
+    # Run Playwright Tests (Workflow 1)
     - name: Run Playwright Tests (Workflow 1)
       working-directory: ./frontend/tests/e2e
       run: |
-        . ../../../.venv/bin/activate  # POSIX-compliant activation
+        . ../../../.venv/bin/activate
         qualibrate start &
+        sleep 5  # Wait for the server to start
         npx playwright test e2e/workflow1.test.ts
 
+    # Stop the server and clear state
+    - name: Stop Qualibrate Server and Clear State
+      run: |
+        pkill -f "qualibrate start" || true
+        rm -rf ~/.qualibrate/calibrations/*
+
+    # Run Playwright Tests (Workflow 2)
     - name: Run Playwright Tests (Workflow 2)
       working-directory: ./frontend/tests/e2e
       run: |
-        . ../../../.venv/bin/activate  # POSIX-compliant activation
+        . ../../../.venv/bin/activate
         qualibrate start &
+        sleep 5  # Wait for the server to start
         npx playwright test e2e/workflow2.test.ts
-
-    # - name: Run Playwright Tests (Workflow 2)
-    #   working-directory: ./frontend/tests/e2e
-    #   run: npm run test:workflow2
