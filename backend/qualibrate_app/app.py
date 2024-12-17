@@ -1,10 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from qualibrate_config.resolvers import (
-    get_active_machine_config_path,
-    get_qualibrate_config_path,
-)
 from starlette.middleware.cors import CORSMiddleware
 
 from qualibrate_app.api.__main__ import api_router
@@ -17,10 +13,6 @@ try:
     from json_timeline_database.app import app as json_timeline_db_app
 except ImportError:
     json_timeline_db_app = None
-try:
-    from qualibrate_runner.app import app as runner_app
-except ImportError:
-    runner_app = None
 
 
 app = FastAPI(
@@ -28,11 +20,7 @@ app = FastAPI(
     openapi_url="/app_openapi.json",
     docs_url="/app_docs",
 )
-_settings = get_settings(
-    get_active_machine_config_path(),
-    get_config_path(),
-    get_qualibrate_config_path(),
-)
+_settings = get_settings(get_config_path())
 
 origins = [
     "http://localhost:8002",
@@ -52,10 +40,12 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api")
 
+if _settings.app is None or not _settings.app.static_site_files.is_dir():
+    raise RuntimeError("No static files found in config.toml")
 # Directory should exist
 app.mount(
     "/",
-    StaticFiles(directory=_settings.static_site_files, html=True),
+    StaticFiles(directory=_settings.app.static_site_files, html=True),
     name="static",
 )
 

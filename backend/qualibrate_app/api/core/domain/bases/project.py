@@ -5,23 +5,24 @@ from pathlib import Path
 from typing import Any
 
 from qualibrate_config.file import read_config_file
+from qualibrate_config.models import QualibrateConfig
 from qualibrate_config.references.resolvers import resolve_references
 from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
+from qualibrate_app.api.core.domain.bases.base_with_settings import (
+    DomainWithConfigBase,
+)
 from qualibrate_app.api.core.models.project import Project
-from qualibrate_app.config import QualibrateAppSettings
-
-# TODO: projects manager
 
 
-class ProjectsManagerBase(ABC):
-    def __init__(self, settings: QualibrateAppSettings, config_path: Path):
-        self._settings = settings
+class ProjectsManagerBase(DomainWithConfigBase, ABC):
+    def __init__(self, settings: QualibrateConfig, config_path: Path):
+        super().__init__(settings)
         self._config_path = config_path
 
     @property
     def project(self) -> str:
-        return self._settings.qualibrate.project
+        return self._settings.project
 
     @project.setter
     def project(self, value: str) -> None:
@@ -31,9 +32,8 @@ class ProjectsManagerBase(ABC):
     def _active_project_setter(self, value: str) -> None:
         pass
 
-    @abstractmethod
     def _set_user_storage_project(self, project_name: str) -> None:
-        pass
+        self._settings.project = project_name
 
     @abstractmethod
     def create(self, project_name: str) -> str:
@@ -47,7 +47,7 @@ class ProjectsManagerBase(ABC):
         self, project_name: str
     ) -> tuple[Mapping[str, Any], Mapping[str, Any]]:
         raw_config = read_config_file(self._config_path, solve_references=False)
-        # TODO: over way to update project
+        # TODO: over way to update project;
         old_project_name = raw_config[QUALIBRATE_CONFIG_KEY]["project"]
         if old_project_name == project_name:
             return raw_config, deepcopy(raw_config)
@@ -69,8 +69,9 @@ class ProjectsManagerBase(ABC):
             )
         return raw_config, new_config
 
+    @classmethod
     def _resolve_base_projects_path(
-        self, project_name: str, user_storage: Path
+        cls, project_name: str, user_storage: Path
     ) -> Path:
         if project_name not in user_storage.parts:
             # project name isn't part of user storage path;
@@ -81,8 +82,9 @@ class ProjectsManagerBase(ABC):
         )
         return user_storage.parents[project_name_index_from_end]
 
+    @classmethod
     def _resolve_new_project_path(
-        self,
+        cls,
         new_project_name: str,
         current_project_name: str,
         current_user_storage: Path,
@@ -94,7 +96,7 @@ class ProjectsManagerBase(ABC):
         project_name_index_from_start = current_user_storage.parts.index(
             current_project_name
         )
-        base_project_path = self._resolve_base_projects_path(
+        base_project_path = cls._resolve_base_projects_path(
             current_project_name, current_user_storage
         )
         return base_project_path.joinpath(

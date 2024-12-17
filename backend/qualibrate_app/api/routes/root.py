@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from typing import Annotated, Any, Union
 
 from fastapi import APIRouter, Depends, Query
-from qualibrate_config.models import StorageType
+from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate_app.api.core.domain.bases.branch import BranchLoadType
 from qualibrate_app.api.core.domain.bases.node import NodeLoadType
@@ -20,7 +20,6 @@ from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import IdType
 from qualibrate_app.api.dependencies.search import get_search_path
 from qualibrate_app.config import (
-    QualibrateAppSettings,
     get_settings,
 )
 
@@ -28,13 +27,13 @@ root_router = APIRouter(prefix="/root", tags=["root"])
 
 
 def _get_root_instance(
-    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> RootBase:
     root_types = {
         StorageType.local_storage: RootLocalStorage,
         StorageType.timeline_db: RootTimelineDb,
     }
-    return root_types[settings.qualibrate.storage.type](settings=settings)
+    return root_types[settings.storage.type](settings=settings)
 
 
 @root_router.get("/branch")

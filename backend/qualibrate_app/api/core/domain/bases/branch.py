@@ -4,12 +4,16 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Optional
 
+from qualibrate_config.models import QualibrateConfig
+
+from qualibrate_app.api.core.domain.bases.base_with_settings import (
+    DomainWithConfigBase,
+)
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.domain.bases.node import NodeBase
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
 from qualibrate_app.api.core.models.branch import Branch as BranchModel
 from qualibrate_app.api.core.types import DocumentType, IdType
-from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["BranchBase", "BranchLoadType"]
 
@@ -19,16 +23,16 @@ class BranchLoadType(IntEnum):
     Full = 1
 
 
-class BranchBase(IDump, ABC):
+class BranchBase(DomainWithConfigBase, IDump, ABC):
     def __init__(
         self,
         name: str,
         content: Optional[DocumentType] = None,
         *,
-        settings: QualibrateAppSettings,
+        settings: QualibrateConfig,
     ):
+        super().__init__(settings)
         self._name = name
-        self._settings = settings
         if content is None:
             self.content = {}
             self._load_type = BranchLoadType.Empty

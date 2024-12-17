@@ -1,7 +1,7 @@
 from typing import Annotated, Optional, Union
 
 from fastapi import APIRouter, Depends, Path
-from qualibrate_config.models import StorageType
+from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate_app.api.core.domain.bases.node import NodeLoadType
 from qualibrate_app.api.core.domain.bases.storage import (
@@ -13,7 +13,6 @@ from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
 from qualibrate_app.api.core.types import DocumentType
 from qualibrate_app.api.core.utils.request_utils import HTTPException422
 from qualibrate_app.config import (
-    QualibrateAppSettings,
     get_settings,
 )
 
@@ -22,7 +21,7 @@ data_file_router = APIRouter(prefix="/data_file/{node_id}", tags=["data file"])
 
 def _get_storage_instance(
     node_id: Annotated[int, Path()],
-    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> DataFileStorage:
     node_types: dict[
         StorageType, Union[type[NodeLocalStorage], type[NodeTimelineDb]]
@@ -30,9 +29,7 @@ def _get_storage_instance(
         StorageType.local_storage: NodeLocalStorage,
         StorageType.timeline_db: NodeTimelineDb,
     }
-    node = node_types[settings.qualibrate.storage.type](
-        node_id, settings=settings
-    )
+    node = node_types[settings.storage.type](node_id, settings=settings)
     try:
         node.load(NodeLoadType.Full)
     except NotADirectoryError as e:

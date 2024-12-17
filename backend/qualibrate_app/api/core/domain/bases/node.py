@@ -1,8 +1,12 @@
 from abc import ABC
 from enum import IntEnum
-from pathlib import Path
-from typing import Optional, cast
+from typing import Optional
 
+from qualibrate_config.models import QualibrateConfig
+
+from qualibrate_app.api.core.domain.bases.base_with_settings import (
+    DomainWithConfigBase,
+)
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -18,9 +22,10 @@ from qualibrate_app.api.core.utils.path.common import resolve_and_check_relative
 from qualibrate_app.api.exceptions.classes.storage import (
     QNotADirectoryException,
 )
-from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["NodeBase", "NodeLoadType"]
+
+from qualibrate_app.config.vars import METADATA_OUT_PATH
 
 
 class NodeLoadType(IntEnum):
@@ -29,18 +34,18 @@ class NodeLoadType(IntEnum):
     Full = 2
 
 
-class NodeBase(IDump, ABC):
+class NodeBase(DomainWithConfigBase, IDump, ABC):
     def __init__(
         self,
         node_id: IdType,
         snapshot: SnapshotBase,
-        settings: QualibrateAppSettings,
+        settings: QualibrateConfig,
     ) -> None:
+        super().__init__(settings)
         self._node_id = node_id
         self._load_type = NodeLoadType.Empty
         self._snapshot = snapshot
         self._storage: Optional[DataFileStorage] = None
-        self._settings = settings
 
     @property
     def load_type(self) -> NodeLoadType:
@@ -65,15 +70,15 @@ class NodeBase(IDump, ABC):
     def _fill_storage(self) -> None:
         metadata = self._snapshot.metadata
         if metadata is None or not isinstance(
-            metadata.get(self._settings.metadata_out_path), str
+            metadata.get(METADATA_OUT_PATH), str
         ):
             self._storage = None
             self._load_type = NodeLoadType.Snapshot
             return
-        rel_output_path = metadata[self._settings.metadata_out_path]
+        rel_output_path = metadata[METADATA_OUT_PATH]
         abs_output_path = resolve_and_check_relative(
-            cast(Path, self._settings.qualibrate.storage.location),
-            metadata[self._settings.metadata_out_path],
+            self._settings.storage.location,
+            metadata[METADATA_OUT_PATH],
         )
         if not abs_output_path.is_dir():
             raise QNotADirectoryException(

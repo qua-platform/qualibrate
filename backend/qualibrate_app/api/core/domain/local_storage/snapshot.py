@@ -17,6 +17,7 @@ from urllib.parse import urljoin
 import jsonpatch
 import jsonpointer
 import requests
+from qualibrate_config.models import QualibrateConfig
 from requests import JSONDecodeError as RequestsJSONDecodeError
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
@@ -45,21 +46,22 @@ from qualibrate_app.api.exceptions.classes.storage import (
     QPathException,
 )
 from qualibrate_app.api.exceptions.classes.values import QValueException
-from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["SnapshotLocalStorage"]
+
+from qualibrate_app.config.vars import METADATA_OUT_PATH
 
 logger = logging.getLogger(__name__)
 
 SnapshotContentLoaderType = Callable[
-    [NodePath, SnapshotLoadType, QualibrateAppSettings], DocumentType
+    [NodePath, SnapshotLoadType, QualibrateConfig], DocumentType
 ]
 SnapshotContentUpdaterType = Callable[
     [
         NodePath,
         Mapping[str, Any],
         Sequence[Mapping[str, Any]],
-        QualibrateAppSettings,
+        QualibrateConfig,
     ],
     bool,
 ]
@@ -69,7 +71,7 @@ def _read_minified_node_content(
     node_info: Mapping[str, Any],
     f_node_id: Optional[int],
     node_filepath: Path,
-    settings: QualibrateAppSettings,
+    settings: QualibrateConfig,
 ) -> dict[str, Any]:
     """
     Args:
@@ -86,8 +88,8 @@ def _read_minified_node_content(
         "parents", [node_id - 1] if node_id and node_id > 0 else []
     )
     id_local_path = IdToLocalPath()
-    project = settings.qualibrate.project
-    user_storage = cast(Path, settings.qualibrate.storage.location)
+    project = settings.project
+    user_storage = settings.storage.location
     parents = list(
         filter(
             lambda p_id: id_local_path.get(project, p_id, user_storage), parents
@@ -116,7 +118,7 @@ def _read_metadata_node_content(
     node_info: Mapping[str, Any],
     f_node_name: str,
     snapshot_path: Path,
-    settings: QualibrateAppSettings,
+    settings: QualibrateConfig,
 ) -> dict[str, Any]:
     """
     Args:
@@ -131,12 +133,8 @@ def _read_metadata_node_content(
     node_metadata = dict(node_info.get("metadata", {}))
     node_metadata.setdefault("name", f_node_name)
     node_metadata.setdefault(
-        settings.metadata_out_path,
-        str(
-            snapshot_path.relative_to(
-                cast(Path, settings.qualibrate.storage.location)
-            )
-        ),
+        METADATA_OUT_PATH,
+        str(snapshot_path.relative_to(settings.storage.location)),
     )
     return node_metadata
 
@@ -181,7 +179,7 @@ def _default_snapshot_content_updater(
     snapshot_path: NodePath,
     new_snapshot: Mapping[str, Any],
     patches: Sequence[Mapping[str, Any]],
-    settings: QualibrateAppSettings,
+    settings: QualibrateConfig,
 ) -> bool:
     node_filepath = _get_node_filepath(snapshot_path)
     if not node_filepath.is_file():
@@ -238,7 +236,7 @@ def _default_snapshot_content_updater(
 def _default_snapshot_content_loader(
     snapshot_path: NodePath,
     load_type: SnapshotLoadType,
-    settings: QualibrateAppSettings,
+    settings: QualibrateConfig,
     raw: bool = False,
 ) -> DocumentType:
     node_filepath = _get_node_filepath(snapshot_path)
@@ -304,7 +302,7 @@ class SnapshotLocalStorage(SnapshotBase):
             _default_snapshot_content_updater
         ),
         *,
-        settings: QualibrateAppSettings,
+        settings: QualibrateConfig,
     ):
         """Initializes the SnapshotLocalStorage instance."""
         super().__init__(id=id, content=content, settings=settings)
@@ -322,9 +320,9 @@ class SnapshotLocalStorage(SnapshotBase):
         """
         if self._node_path is None:
             self._node_path = IdToLocalPath().get_or_raise(
-                self._settings.qualibrate.project,
+                self._settings.project,
                 self._id,
-                cast(Path, self._settings.qualibrate.storage.location),
+                self._settings.storage.location,
             )
         return self._node_path
 
@@ -396,9 +394,7 @@ class SnapshotLocalStorage(SnapshotBase):
         Returns:
             Total number of snapshots and a sequence of the latest snapshots.
         """
-        storage_location = cast(
-            Path, self._settings.qualibrate.storage.location
-        )
+        storage_location = self._settings.storage.location
         total = find_latest_node_id(storage_location)
         self.load(SnapshotLoadType.Metadata)
         if page == 1 and per_page == 1:
@@ -407,7 +403,7 @@ class SnapshotLocalStorage(SnapshotBase):
             storage_location,
             page,
             per_page,
-            self._settings.qualibrate.project,
+            self._settings.project,
             max_node_id=(self.id or total) - 1,
         )
         snapshots = [
@@ -489,6 +485,9 @@ class SnapshotLocalStorage(SnapshotBase):
         Returns:
             The state updates or None if retrieval fails.
         """
+        if self._settings.runner is None:
+            logger.warning("Runner config is not set")
+            return None
         try:
             cookies = cast(
                 Optional[MutableMapping[str, str]], kwargs.get("cookies")

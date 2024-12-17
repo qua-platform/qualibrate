@@ -5,12 +5,7 @@ from typing import (
 )
 
 from qualibrate_config.vars import (
-    ACTIVE_MACHINE_CONFIG_KEY,
     QUALIBRATE_CONFIG_KEY,
-)
-
-from qualibrate_app.config.vars import (
-    CONFIG_KEY,
 )
 
 
@@ -20,7 +15,7 @@ def check_config_pre_v1_and_update(
     if "config_version" in qapp_config:
         return (
             common_config[QUALIBRATE_CONFIG_KEY],
-            common_config[ACTIVE_MACHINE_CONFIG_KEY],
+            common_config["active_machine"],
             qapp_config,
         )
     warnings.warn(
@@ -35,7 +30,7 @@ def check_config_pre_v1_and_update(
         "storage": {
             "type": qapp_config.pop("storage_type"),
             "location": qapp_config.pop("user_storage").replace(
-                f"#/{CONFIG_KEY}/project",
+                "#/qualibrate_app/project",
                 f"#/{QUALIBRATE_CONFIG_KEY}/project",
             ),
         },

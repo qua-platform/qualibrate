@@ -3,13 +3,14 @@ from base64 import b64encode
 from collections.abc import Mapping
 from enum import IntEnum
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Optional
+
+from qualibrate_config.models import QualibrateConfig
 
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.models.storage import Storage as StorageModel
 from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate_app.api.exceptions.classes.values import QValueException
-from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["DataFileStorage", "StorageLoadType"]
 
@@ -22,11 +23,9 @@ class StorageLoadType(IntEnum):
 class DataFileStorage(IDump):
     data_file_name = "data.json"
 
-    def __init__(self, path: Path, settings: QualibrateAppSettings):
+    def __init__(self, path: Path, settings: QualibrateConfig):
         if not path.is_dir():
-            rel_path = path.relative_to(
-                cast(Path, settings.qualibrate.storage.location)
-            )
+            rel_path = path.relative_to(settings.storage.location)
             raise QFileNotFoundException(f"{rel_path} does not exist.")
         self._path = path
         self._load_type = StorageLoadType.Empty
@@ -35,9 +34,7 @@ class DataFileStorage(IDump):
 
     @property
     def path(self) -> Path:
-        return self._path.relative_to(
-            cast(Path, self._settings.qualibrate.storage.location)
-        )
+        return self._path.relative_to(self._settings.storage.location)
 
     @property
     def data(self) -> Optional[Mapping[str, Any]]:

@@ -1,6 +1,5 @@
 from collections.abc import Sequence
-from pathlib import Path
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 from qualibrate_app.api.core.domain.bases.branch import BranchBase
 from qualibrate_app.api.core.domain.bases.node import NodeBase
@@ -29,10 +28,10 @@ class RootLocalStorage(RootBase):
     def _get_latest_node_id(self, error_msg: str) -> IdType:
         id = next(
             find_n_latest_nodes_ids(
-                cast(Path, self._settings.qualibrate.storage.location),
+                self._settings.storage.location,
                 1,
                 1,
-                self._settings.qualibrate.project,
+                self._settings.project,
             ),
             None,
         )

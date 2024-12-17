@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 import requests
 from fastapi import APIRouter, Body, Cookie, Depends, Path, Query
-from qualibrate_config.models import StorageType
+from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -13,6 +13,7 @@ from qualibrate_app.api.core.domain.bases.snapshot import (
 )
 from qualibrate_app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
+    logger,
 )
 from qualibrate_app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
@@ -26,10 +27,10 @@ from qualibrate_app.api.core.schemas.state_updates import (
     StateUpdateRequestItems,
 )
 from qualibrate_app.api.core.types import DocumentSequenceType, IdType
+from qualibrate_app.api.core.utils.request_utils import get_runner_config
 from qualibrate_app.api.core.utils.types_parsing import types_conversion
 from qualibrate_app.api.dependencies.search import get_search_path
 from qualibrate_app.config import (
-    QualibrateAppSettings,
     get_settings,
 )
 
@@ -46,15 +47,13 @@ def is_float(string: str) -> bool:
 
 def _get_snapshot_instance(
     id: Annotated[IdType, Path()],
-    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> SnapshotBase:
     snapshot_types: dict[StorageType, type[SnapshotBase]] = {
         StorageType.local_storage: SnapshotLocalStorage,
         StorageType.timeline_db: SnapshotTimelineDb,
     }
-    return snapshot_types[settings.qualibrate.storage.type](
-        id=id, settings=settings
-    )
+    return snapshot_types[settings.storage.type](id=id, settings=settings)
 
 
 @snapshot_router.get("/")
@@ -113,7 +112,7 @@ def update_entry(
         ),
     ],
     value: Annotated[Any, Body()],
-    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
     qualibrate_token: Annotated[
         Union[str, None], Cookie(alias="Qualibrate-Token")
     ] = None,
@@ -128,14 +127,17 @@ def update_entry(
         value = types_conversion(value, type_)
     updated = snapshot.update_entry({data_path: value})
     if updated:
+        try:
+            runner_config = get_runner_config(settings)
+        except RuntimeError as ex:
+            logger.exception(str(ex))
+            return False
         with contextlib.suppress(requests.exceptions.ConnectionError):
             requests.post(
-                urljoin(
-                    settings.runner.address_with_root, "record_state_update"
-                ),
+                urljoin(runner_config.address_with_root, "record_state_update"),
                 params={"key": data_path},
                 cookies=cookies,
-                timeout=settings.runner.timeout,
+                timeout=runner_config.timeout,
             )
     return updated
 
@@ -145,7 +147,7 @@ def update_entries(
     *,
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
     state_updates: StateUpdateRequestItems,
-    settings: Annotated[QualibrateAppSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
     qualibrate_token: Annotated[
         Union[str, None], Cookie(alias="Qualibrate-Token")
     ] = None,
@@ -175,15 +177,20 @@ def update_entries(
     }
     updated = snapshot.update_entry(values)
     if updated:
+        try:
+            runner_config = get_runner_config(settings)
+        except RuntimeError as ex:
+            logger.exception(str(ex))
+            return False
         for data_path in values:
             with contextlib.suppress(requests.exceptions.ConnectionError):
                 requests.post(
                     urljoin(
-                        settings.runner.address_with_root, "record_state_update"
+                        runner_config.address_with_root, "record_state_update"
                     ),
                     params={"key": data_path},
                     cookies=cookies,
-                    timeout=settings.runner.timeout,
+                    timeout=runner_config.timeout,
                 )
     return updated
 
