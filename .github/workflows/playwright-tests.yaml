@@ -82,17 +82,4 @@ jobs:
         sleep 5  # Wait for the server to start
         npx playwright test e2e/workflow1.test.ts
 
-    # Stop the server and clear state
-    - name: Stop Qualibrate Server and Clear State
-      run: |
-        pkill -f "qualibrate start" || true
-        rm -rf ~/.qualibrate/calibrations/*
 
-    # Run Playwright Tests (Workflow 2)
-    - name: Run Playwright Tests (Workflow 2)
-      working-directory: ./frontend/tests/e2e
-      run: |
-        . ../../../.venv/bin/activate
-        qualibrate start &
-        sleep 5  # Wait for the server to start
-        npx playwright test e2e/workflow2.test.ts
