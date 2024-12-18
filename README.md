@@ -83,3 +83,4 @@ For developers who want to contribute to QUAlibrate-App or run the app locally w
 
 QUAlibrate-App is licensed under the BSD-3 license. See the [LICENSE](https://github.com/qua-platform/qualibrate-app/blob/main/LICENSE) file for more details.
 
+# Trigger PR
