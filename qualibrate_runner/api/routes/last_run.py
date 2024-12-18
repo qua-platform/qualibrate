@@ -35,6 +35,8 @@ def get_workflow_status(
     return WorkflowStatus(
         status=last_run.status if last_run else RunStatus.FINISHED,
         active=state.is_running,
+        # TODO: remove type ignore
+        active_node_name=graph.active_node_name,  # type: ignore[attr-defined]
         nodes_completed=graph.completed_count(),
         nodes_total=len(graph._nodes),
         run_duration=run_duration,
