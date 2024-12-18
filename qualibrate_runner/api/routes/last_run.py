@@ -9,6 +9,7 @@ from qualibrate_runner.api.dependencies import get_state
 from qualibrate_runner.config import State
 from qualibrate_runner.core.models.last_run import LastRun, RunStatus
 from qualibrate_runner.core.models.workflow import WorkflowStatus
+from qualibrate_runner.core.types import QGraphType
 
 last_run_router = APIRouter(prefix="/last_run")
 
@@ -26,7 +27,7 @@ def get_workflow_status(
 ) -> Optional[WorkflowStatus]:
     if not isinstance(state.run_item, QualibrationGraph):
         return None
-    graph: QualibrationGraph = state.run_item
+    graph: QGraphType = state.run_item
     last_run = state.last_run
     run_duration = float(
         last_run.run_duration if last_run else 0.0  # type: ignore
@@ -34,6 +35,8 @@ def get_workflow_status(
     return WorkflowStatus(
         status=last_run.status if last_run else RunStatus.FINISHED,
         active=state.is_running,
+        # TODO: remove type ignore
+        active_node_name=graph.active_node_name,  # type: ignore[attr-defined]
         nodes_completed=graph.completed_count(),
         nodes_total=len(graph._nodes),
         run_duration=run_duration,
@@ -48,7 +51,7 @@ def get_execution_history(
 ) -> Optional[Mapping[str, Any]]:
     if not isinstance(state.run_item, QualibrationGraph):
         return None
-    graph: QualibrationGraph = state.run_item
+    graph: QGraphType = state.run_item
     orch = graph._orchestrator
     if orch is None:
         raise RuntimeError("No graph orchestrator")
