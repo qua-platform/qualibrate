@@ -2,8 +2,6 @@ from collections.abc import Mapping, Sequence
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
-from qualibrate.qualibration_graph import QualibrationGraph
-from qualibrate.qualibration_node import QualibrationNode
 
 from qualibrate_runner.api.dependencies import (
     get_graph as get_qgraph,
@@ -17,13 +15,14 @@ from qualibrate_runner.api.dependencies import (
 from qualibrate_runner.api.dependencies import (
     get_nodes as get_qnodes,
 )
+from qualibrate_runner.core.types import QGraphType, QNodeType
 
 get_runnables_router = APIRouter()
 
 
 @get_runnables_router.get("/get_nodes")
 def get_nodes(
-    nodes: Annotated[Mapping[str, QualibrationNode], Depends(get_qnodes)],
+    nodes: Annotated[Mapping[str, QNodeType], Depends(get_qnodes)],
 ) -> Mapping[str, Any]:
     return {
         node_name: node.serialize(exclude_targets=False)
@@ -33,7 +32,7 @@ def get_nodes(
 
 @get_runnables_router.get("/get_graphs")
 def get_graphs(
-    graphs: Annotated[Mapping[str, QualibrationNode], Depends(get_qgraphs)],
+    graphs: Annotated[Mapping[str, QNodeType], Depends(get_qgraphs)],
     cytoscape: bool = False,
 ) -> Mapping[str, Any]:
     return {
@@ -44,14 +43,14 @@ def get_graphs(
 
 @get_runnables_router.get("/get_node")
 def get_node(
-    node: Annotated[QualibrationNode, Depends(get_qnode)],
+    node: Annotated[QNodeType, Depends(get_qnode)],
 ) -> Mapping[str, Any]:
     return node.serialize(exclude_targets=True)
 
 
 @get_runnables_router.get("/get_graph")
 def get_graph(
-    graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
+    graph: Annotated[QGraphType, Depends(get_qgraph)],
     cytoscape: bool = False,
 ) -> Mapping[str, Any]:
     return graph.serialize(cytoscape=cytoscape)
@@ -59,6 +58,6 @@ def get_graph(
 
 @get_runnables_router.get("/get_graph/cytoscape")
 def get_graph_cytoscape(
-    graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
+    graph: Annotated[QGraphType, Depends(get_qgraph)],
 ) -> Sequence[Mapping[str, Any]]:
     return graph.cytoscape_representation(graph.serialize())

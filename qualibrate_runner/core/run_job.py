@@ -7,9 +7,7 @@ from fastapi import HTTPException, status
 from pydantic import BaseModel, ValidationError
 from qualibrate.models.run_summary.graph import GraphRunSummary
 from qualibrate.models.run_summary.node import NodeRunSummary
-from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
-from qualibrate.qualibration_node import QualibrationNode
 
 from qualibrate_runner.config import State
 from qualibrate_runner.core.models.last_run import (
@@ -18,6 +16,7 @@ from qualibrate_runner.core.models.last_run import (
     RunnableType,
     RunStatus,
 )
+from qualibrate_runner.core.types import QGraphType, QLibraryType, QNodeType
 
 
 def validate_input_parameters(
@@ -32,14 +31,15 @@ def validate_input_parameters(
         ) from ex
 
 
-def get_active_library_or_error() -> QualibrationLibrary:
-    if QualibrationLibrary.active_library is None:
+def get_active_library_or_error() -> QLibraryType:
+    # TODO: Access to generic instance variables via class is ambiguous
+    if QualibrationLibrary.active_library is None:  # type: ignore[misc]
         raise RuntimeError("Qualibration library is not exist")
-    return QualibrationLibrary.active_library
+    return QualibrationLibrary.active_library  # type: ignore[misc]
 
 
 def run_node(
-    node: QualibrationNode,
+    node: QNodeType,
     passed_input_parameters: Mapping[str, Any],
     state: State,
 ) -> None:
@@ -87,7 +87,7 @@ def run_node(
 
 
 def run_workflow(
-    workflow: QualibrationGraph,
+    workflow: QGraphType,
     passed_input_parameters: Mapping[str, Any],
     state: State,
 ) -> None:

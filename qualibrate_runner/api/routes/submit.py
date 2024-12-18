@@ -3,8 +3,6 @@ from typing import Annotated, Any, cast
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
-from qualibrate.qualibration_graph import QualibrationGraph
-from qualibrate.qualibration_node import QualibrationNode
 
 from qualibrate_runner.api.dependencies import (
     get_graph as get_qgraph,
@@ -23,6 +21,7 @@ from qualibrate_runner.core.run_job import (
     run_workflow,
     validate_input_parameters,
 )
+from qualibrate_runner.core.types import QGraphType, QNodeType
 
 submit_router = APIRouter(prefix="/submit")
 
@@ -31,7 +30,7 @@ submit_router = APIRouter(prefix="/submit")
 def submit_node_run(
     input_parameters: Mapping[str, Any],
     state: Annotated[State, Depends(get_state)],
-    node: Annotated[QualibrationNode, Depends(get_qnode)],
+    node: Annotated[QNodeType, Depends(get_qnode)],
     background_tasks: BackgroundTasks,
 ) -> str:
     # TODO:
@@ -55,7 +54,7 @@ def submit_node_run(
 def submit_workflow_run(
     input_parameters: Mapping[str, Any],
     state: Annotated[State, Depends(get_state)],
-    graph: Annotated[QualibrationGraph, Depends(get_qgraph)],
+    graph: Annotated[QGraphType, Depends(get_qgraph)],
     background_tasks: BackgroundTasks,
 ) -> str:
     if state.is_running:
