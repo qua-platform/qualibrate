@@ -4,7 +4,9 @@ import { CytoscapeLayout } from "./config/Cytoscape";
 
 import styles from "./CytoscapeGraph.module.scss";
 import { useGraphContext } from "../../context/GraphContext";
+import klay from "cytoscape-klay";
 
+cytoscape.use(klay);
 cytoscape.warnings(false);
 
 interface IProps {
@@ -43,7 +45,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
     {
       selector: "edge",
       style: {
-        width: 3,
+        width: 5,
         "line-color": "#cbc4c4",
         "target-arrow-color": "#cbc4c4",
         "target-arrow-shape": "triangle",
