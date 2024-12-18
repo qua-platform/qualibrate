@@ -10,17 +10,9 @@ from qualibrate_composite.api.routes import base_router
 from qualibrate_composite.config import get_config_path, get_settings
 
 try:
-    from qualibrate_app.app import app as qualibrate_app_app
-except ImportError:
-    qualibrate_app_app = None
-try:
     from json_timeline_database.app import app as json_timeline_db_app
 except ImportError:
     json_timeline_db_app = None
-try:
-    from qualibrate_runner.app import app as runner_app
-except ImportError:
-    runner_app = None
 
 
 app = FastAPI(title="Qualibrate")
@@ -43,20 +35,26 @@ app.add_middleware(
 app.include_router(base_router)
 
 if _settings.runner.spawn:
-    if runner_app is None:
+    try:
+        from qualibrate_runner.app import app as runner_app
+    except ImportError as ex:
         raise ImportError(
             "Can't import qualibrate_runner instance. "
             "Check that you have installed it."
-        )
+        ) from ex
+
     runner_app.add_middleware(RunnerAuthMiddleware)
     app.mount("/execution", runner_app, name="qualibrate_runner")
 
 if _settings.app.spawn:
-    if qualibrate_app_app is None:
+    try:
+        from qualibrate_app.app import app as qualibrate_app_app
+    except ImportError as ex:
         raise ImportError(
-            "Can't import qualibrate_runner instance. "
+            "Can't import qualibrate_app instance. "
             "Check that you have installed it."
-        )
+        ) from ex
+
     qualibrate_app_app.add_middleware(QualibrateAppAuthMiddleware)
     app.mount("/", qualibrate_app_app, name="qualibrate_runner")
 
