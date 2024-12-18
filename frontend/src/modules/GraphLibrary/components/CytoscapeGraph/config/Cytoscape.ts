@@ -1,7 +1,7 @@
 export const CytoscapeLayout = {
-  name: "breadthfirst",
-  fit: true,
-  directed: true,
-  padding: 30,
-  spacingFactor: 2.4,
+    name: "grid",
+    fit: true,
+    padding: 30,
+    spacingFactor: 1.5,
+    animate: true,
 };
