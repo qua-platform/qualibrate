@@ -35,13 +35,25 @@ app.add_middleware(
 app.include_router(base_router)
 
 if _settings.runner.spawn:
-    from qualibrate_runner.app import app as runner_app
+    try:
+        from qualibrate_runner.app import app as runner_app
+    except ImportError as ex:
+        raise ImportError(
+            "Can't import qualibrate_runner instance. "
+            "Check that you have installed it."
+        ) from ex
 
     runner_app.add_middleware(RunnerAuthMiddleware)
     app.mount("/execution", runner_app, name="qualibrate_runner")
 
 if _settings.app.spawn:
-    from qualibrate_app.app import app as qualibrate_app_app
+    try:
+        from qualibrate_app.app import app as qualibrate_app_app
+    except ImportError as ex:
+        raise ImportError(
+            "Can't import qualibrate_app instance. "
+            "Check that you have installed it."
+        ) from ex
 
     qualibrate_app_app.add_middleware(QualibrateAppAuthMiddleware)
     app.mount("/", qualibrate_app_app, name="qualibrate_runner")
