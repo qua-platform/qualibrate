@@ -301,6 +301,14 @@ class QualibrationGraph(
             )
         )
 
+    @property
+    def active_node_name(self) -> Optional[str]:
+        return (
+            self._orchestrator.active_node_name
+            if self._orchestrator is not None
+            else None
+        )
+
     def _get_all_nodes_parameters(
         self, nodes_parameters: Mapping[str, Any]
     ) -> Mapping[str, Any]:
