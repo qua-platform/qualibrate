@@ -36,7 +36,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -e "./backend[fe_tests]"
+        pip install "./backend[fe_tests]"
+        pip install xarray
 
     # Copy calibration scripts to the default Qualibrate calibration folder
     - name: Copy Calibration Scripts
