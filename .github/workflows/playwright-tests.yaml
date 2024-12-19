@@ -36,18 +36,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m venv .venv
-        source .venv/bin/activate
-        pip install --upgrade pip
-        pip install qualibrate
-        pip install quam
-
-    # Install dependencies required for calibration scripts
-    - name: Install Calibration Dependencies
-      run: |
-        source .venv/bin/activate
-        pip install xarray
-        pip install -r qualibrate-examples/requirements.txt || true  # Install additional dependencies if they exist
+        pip install -e "./backend[fe_tests]"
 
     # Copy calibration scripts to the default Qualibrate calibration folder
     - name: Copy Calibration Scripts
@@ -58,7 +47,6 @@ jobs:
     # Create Qualibrate configuration
     - name: Create Qualibrate Configuration
       run: |
-        source .venv/bin/activate
         qualibrate config --auto-accept
 
     # Install Node.js
@@ -77,8 +65,5 @@ jobs:
     - name: Run Playwright Tests (Workflow 1)
       working-directory: ./frontend/tests/e2e
       run: |
-        . ../../../.venv/bin/activate
-        qualibrate start &
-        sleep 5  # Wait for the server to start
-        npx playwright test e2e/workflow1.test.ts
+        npx playwright test e2e/workflow1.test.ts  # This line should not reference a specific workflow, but a suite of workflows
         

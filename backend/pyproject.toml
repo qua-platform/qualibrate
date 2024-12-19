@@ -10,7 +10,7 @@ readme = "README.md"
 include = [{ path = "qualibrate_static/**/*", format = ["sdist", "wheel"] }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.9, <3.12"
 fastapi = "^0.115.2"
 uvicorn = "^0.32.0"
 pydantic-settings = "^2.1.0"
@@ -33,13 +33,15 @@ ruff = "^0.7.0"
 types-requests = "^2.31.0.20240218"
 poethepoet = "^0.25.0"
 
-#[tool.poetry.group.qm-dev.dependencies]
-#qualibrate-runner = {path = "../../qualibrate-runner", optional = true, develop = true, extras=["qualibrary"]}
-
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
 pytest-mock = "^3.12.0"
 httpx = "^0.27.0"
+
+[tool.poetry.group.fe_test.dependencies]
+quam = "^0.3.8"
+qualibrate = "^0.1.4"
+# Try to find an xarray version that is compatible with this (poetry add xarray --group fe_test)
 
 [tool.poetry.scripts]
 qualibrate-app = "qualibrate_app.__main__:main"
