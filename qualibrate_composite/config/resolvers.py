@@ -4,22 +4,37 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import Depends
+from qualibrate_config.models import QualibrateCompositeConfig, QualibrateConfig
+from qualibrate_config.resolvers import (
+    get_qualibrate_config,
+    get_qualibrate_config_path,
+)
 
-from qualibrate_composite.config.file import get_config_file, read_config_file
-from qualibrate_composite.config.models.composite import QualibrateSettings
-from qualibrate_composite.config.vars import CONFIG_KEY, CONFIG_PATH_ENV_NAME
+from qualibrate_composite.config.vars import (
+    CONFIG_PATH_ENV_NAME,
+)
 
 __all__ = ["get_config_path", "get_settings"]
 
 
 @lru_cache
 def get_config_path() -> Path:
-    return get_config_file(os.environ.get(CONFIG_PATH_ENV_NAME))
+    path = os.environ.get(CONFIG_PATH_ENV_NAME)
+    if path is not None:
+        return Path(path)
+    return get_qualibrate_config_path()
 
 
 @lru_cache
 def get_settings(
     config_path: Annotated[Path, Depends(get_config_path)],
-) -> QualibrateSettings:
-    config = read_config_file(config_path, solve_references=True)
-    return QualibrateSettings(**(config.get(CONFIG_KEY, {})))
+) -> QualibrateConfig:
+    return get_qualibrate_config(config_path)
+
+
+def get_composite_settings(
+    config: Annotated[QualibrateConfig, Depends(get_settings)],
+) -> QualibrateCompositeConfig:
+    if config.composite is None:
+        raise RuntimeError("Composite part not specified in config.toml")
+    return config.composite

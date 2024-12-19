@@ -2,9 +2,10 @@ from typing import Annotated, Optional
 
 from fastapi import APIRouter, Body, Depends, Response, status
 from fastapi.responses import JSONResponse
+from qualibrate_config.models import QualibrateConfig
 
 from qualibrate_composite.api.auth_middleware import encoded_password
-from qualibrate_composite.config import QualibrateSettings, get_settings
+from qualibrate_composite.config import get_settings
 
 base_router = APIRouter()
 
@@ -13,7 +14,7 @@ AUTH_COOKIE_LIFETIME = 7 * 24 * 60 * 60
 
 @base_router.get("/login_required")
 def login_required(
-    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> bool:
     return settings.password is not None
 
@@ -22,7 +23,7 @@ def login_required(
 def login(
     password: Annotated[Optional[str], Body()] = None,
     *,
-    settings: Annotated[QualibrateSettings, Depends(get_settings)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> Response:
     if settings.password is None or password == settings.password:
         response = Response()
