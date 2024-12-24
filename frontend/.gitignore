@@ -10,7 +10,6 @@ logs
 **/*.back.*
 
 dist
-assets
 
 node_modules
 bower_components
