@@ -1,4 +1,5 @@
 import React from "react";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./MeasurementElement.module.scss";
 import { GlobalParameterStructure, Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { classNames } from "../../../../../../utils/classnames";

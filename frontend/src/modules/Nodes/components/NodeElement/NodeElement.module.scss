@@ -2,41 +2,54 @@
   justify-content: space-between;
   font-style: normal;
   font-weight: 500;
-  border: 2px solid var(--border-color);
-  border-radius: 7px;
-  padding: 10px;
-  margin-top: 2px;
-  margin-bottom: 2px;
+  border: 4px solid var(--border-color);
+  border-radius: 8px;
+  margin-top: 3px;
+  margin-bottom: 6px;
+  position: relative;
+  background-color: var(--popup-background);
+  border-left-color: #A5ACB6;
+  padding: 25px 20px 10px;
+  min-height: 30px;
 }
 
 .nodeSelected {
-  background-color: var(--selected-node);
+  border-left-color: #00D59A;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
   flex-direction: row;
-  padding-bottom: 10px;
   max-width: 100%;
 }
 
 .dot {
   min-height: 7px;
   min-width: 7px;
-  background-color: #bbb;
+  background-color: #A5ACB6;
   border-radius: 50%;
   display: inline-block;
 }
 
+.dotSelected {
+  background-color: #00D59A;
+}
+
+.dotWrapper {
+  padding-right: 10px;
+  padding-left: 30px;
+  display: inline-flex;
+  max-width: 80%;
+}
+
 .titleOrNameWrapper {
-  max-width: calc(100% - 127px);
+  max-width: 80%;
+  width: 20%;
   display: flex;
   flex: 1;
-  font-size: 18px;
-  align-items: center;
-  padding-bottom: 20px;
-  gap: 10px;
+  font-size: 16px;
+  font-weight: bolder;
 }
 
 .titleOrName {
@@ -44,24 +57,20 @@
   max-width: 100%;
 }
 
-.description {
+.descriptionWrapper {
+  padding-left: 10px;
   align-content: center;
-  font-size: 12px;
-  width: 100%;
-  padding: 15px;
+  text-align: right;
 }
 
-.runButtonWrapper {
-  width: 80px;
-  padding-left: 10px;
-  padding-right: 10px;
-  align-content: center;
+.description {
+  max-width: 100%;
+}
+
+.descriptionText {
+  font-size: 13px;
 }
 
 .updateAllButton {
-  width: 80px;
-}
-
-.runButton {
   width: 80px;
 }

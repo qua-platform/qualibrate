@@ -1,11 +1,9 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import { Checkbox, CircularProgress } from "@mui/material";
-import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
+import { Checkbox } from "@mui/material";
+import { useNodesContext } from "../../context/NodesContext";
 import { classNames } from "../../../../utils/classnames";
-import { NodesApi } from "../../api/NodesAPI";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
 import { ErrorResponseWrapper } from "../../../common/Error/ErrorResponseWrapper";
@@ -26,16 +24,16 @@ export interface NodeMap {
 export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const {
-    isNodeRunning,
-    setRunningNodeInfo,
-    setSubmitNodeResponseError,
+    // isNodeRunning,
+    // setRunningNodeInfo,
+    // setSubmitNodeResponseError,
     submitNodeResponseError,
-    setIsNodeRunning,
-    setRunningNode,
+    // setIsNodeRunning,
+    // setRunningNode,
     allNodes,
     setAllNodes,
-    setIsAllStatusesUpdated,
-    setUpdateAllButtonPressed,
+    // setIsAllStatusesUpdated,
+    // setUpdateAllButtonPressed,
   } = useNodesContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
@@ -70,49 +68,49 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         );
     }
   };
-  const transformInputParameters = (parameters: InputParameter) => {
-    return Object.entries(parameters).reduce(
-      (acc, [key, parameter]) => {
-        acc[key] = parameter.default ?? null;
-        return acc;
-      },
-      {} as { [key: string]: boolean | number | string | null }
-    );
-  };
+  // const transformInputParameters = (parameters: InputParameter) => {
+  //   return Object.entries(parameters).reduce(
+  //     (acc, [key, parameter]) => {
+  //       acc[key] = parameter.default ?? null;
+  //       return acc;
+  //     },
+  //     {} as { [key: string]: boolean | number | string | null }
+  //   );
+  // };
 
-  function formatDate(date: Date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
+  // function formatDate(date: Date) {
+  //   const year = date.getFullYear();
+  //   const month = String(date.getMonth() + 1).padStart(2, "0");
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   const hours = String(date.getHours()).padStart(2, "0");
+  //   const minutes = String(date.getMinutes()).padStart(2, "0");
+  //   const seconds = String(date.getSeconds()).padStart(2, "0");
+  //
+  //   return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+  // }
 
-    return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
-  }
-
-  const handleClick = async () => {
-    setUpdateAllButtonPressed(false);
-    setIsNodeRunning(true);
-    setIsAllStatusesUpdated(false);
-    setRunningNode(node);
-    setSubmitNodeResponseError(undefined);
-    const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
-    if (result.isOk) {
-      setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
-    } else {
-      const errorWithDetails = result.error as ErrorWithDetails;
-      setSubmitNodeResponseError({
-        nodeName: node.name,
-        name: `${errorWithDetails.detail[0].type ?? "Error msg"}: `,
-        msg: errorWithDetails.detail[0].msg,
-      });
-      setRunningNodeInfo({
-        timestampOfRun: formatDate(new Date()),
-        status: "error",
-      });
-    }
-  };
+  // const handleClick = async () => {
+  //   setUpdateAllButtonPressed(false);
+  //   setIsNodeRunning(true);
+  //   setIsAllStatusesUpdated(false);
+  //   setRunningNode(node);
+  //   setSubmitNodeResponseError(undefined);
+  //   const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
+  //   if (result.isOk) {
+  //     setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
+  //   } else {
+  //     const errorWithDetails = result.error as ErrorWithDetails;
+  //     setSubmitNodeResponseError({
+  //       nodeName: node.name,
+  //       name: `${errorWithDetails.detail[0].type ?? "Error msg"}: `,
+  //       msg: errorWithDetails.detail[0].msg,
+  //     });
+  //     setRunningNodeInfo({
+  //       timestampOfRun: formatDate(new Date()),
+  //       status: "error",
+  //     });
+  //   }
+  // };
 
   const insertSpaces = (str: string, interval = 40) => {
     let result = "";
@@ -131,22 +129,17 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     >
       <div className={styles.row}>
         <div className={styles.titleOrNameWrapper}>
-          <div className={styles.dot}></div>
           <div className={styles.titleOrName}>{insertSpaces(node.title ?? node.name)}</div>
         </div>
-        <div className={styles.description}>{node.description}</div>
-        <div className={styles.runButtonWrapper}>
-          {isNodeRunning && node.name === selectedItemName && <CircularProgress />}
-          {isNodeRunning && node.name !== selectedItemName && (
-            <BlueButton className={styles.runButton} disabled={true} onClick={() => handleClick()}>
-              Run
-            </BlueButton>
-          )}
-          {!isNodeRunning && (
-            <BlueButton className={styles.runButton} disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
-              Run
-            </BlueButton>
-          )}
+        <div className={styles.descriptionWrapper}>
+          <div className={styles.description}>
+            <div className={styles.descriptionText}>{node.description}</div>
+          </div>
+        </div>
+        <div className={styles.dotWrapper}>
+          <div>
+            <div className={classNames(styles.dot, selectedItemName === node.name && styles.dotSelected)} />
+          </div>
         </div>
       </div>
       {node.name === selectedItemName && node.name === submitNodeResponseError?.nodeName && (
