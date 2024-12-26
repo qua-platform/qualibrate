@@ -3,9 +3,9 @@ import React from "react";
 import styles from "./RunningJob.module.scss";
 import { useNodesContext } from "../../context/NodesContext";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
 import { StateUpdates } from "../StateUpdates/StateUpdates";
+import { StopIcon } from "../../../../ui-lib/Icons/StopIcon";
 
 export const RunningJob: React.FC = () => {
   const {
@@ -20,18 +20,41 @@ export const RunningJob: React.FC = () => {
 
   const getRunningJobInfo = () => {
     return (
-      <div className={styles.runInfo}>
-        {runningNodeInfo?.lastRunNodeName && (
-          <div className={styles.runInfoRow}>Last run node:&nbsp;&nbsp;{runningNodeInfo?.lastRunNodeName}</div>
-        )}
-        {runningNodeInfo?.timestampOfRun && (
-          <div className={styles.runInfoRow}>Run start:&nbsp;&nbsp;{runningNodeInfo?.timestampOfRun}</div>
-        )}
-        {runningNodeInfo?.status && <div className={styles.runInfoRow}>Status:&nbsp;&nbsp;{runningNodeInfo?.status}</div>}
-        {runningNodeInfo?.runDuration && (
-          <div className={styles.runInfoRow}>Run duration:&nbsp;&nbsp;{runningNodeInfo?.runDuration}&nbsp;seconds</div>
-        )}
-        {runningNodeInfo?.idx && <div className={styles.runInfoRow}>idx:&nbsp;&nbsp;{runningNodeInfo?.idx}</div>}
+      <div className={styles.runInfoWrapper}>
+        <div className={styles.runInfoColumn}>
+          {runningNodeInfo?.lastRunNodeName && (
+            <div className={styles.runInfoRow}>
+              <div className={styles.jobInfoKey}>Last run node:&nbsp;&nbsp;</div>
+              <div className={styles.jobInfoValue}>{runningNodeInfo?.lastRunNodeName}</div>
+            </div>
+          )}
+          {runningNodeInfo?.timestampOfRun && (
+            <div className={styles.runInfoRow}>
+              <div className={styles.jobInfoKey}>Run start:&nbsp;&nbsp;</div>
+              <div className={styles.jobInfoValue}>{runningNodeInfo?.timestampOfRun}</div>
+            </div>
+          )}
+          {runningNodeInfo?.runDuration && (
+            <div className={styles.runInfoRow}>
+              <div className={styles.jobInfoKey}>Run duration:&nbsp;&nbsp;</div>
+              <div className={styles.jobInfoValue}>{runningNodeInfo?.runDuration}&nbsp;s</div>
+            </div>
+          )}
+        </div>
+        <div className={styles.runInfoColumn}>
+          {runningNodeInfo?.status && (
+            <div className={styles.runInfoRow}>
+              <div className={styles.jobInfoKeySecondColumn}>Status:&nbsp;&nbsp;</div>
+              <div className={styles.jobInfoValue}>{runningNodeInfo?.status}</div>
+            </div>
+          )}
+          {runningNodeInfo?.idx && (
+            <div className={styles.runInfoRow}>
+              <div className={styles.jobInfoKeySecondColumn}>idx:&nbsp;&nbsp;</div>
+              <div className={styles.jobInfoValue}>{runningNodeInfo?.idx}</div>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -83,14 +106,17 @@ export const RunningJob: React.FC = () => {
     <div className={styles.wrapper}>
       <div className={styles.title}>
         <div className={styles.dot}></div>
-        <div>
-          Running job {runningNode?.name ? ":" : ""}&nbsp;&nbsp;{runningNode?.name ? insertSpaces(runningNode?.name) : ""}
+        <div className={styles.runningJobWrapper}>
+          <div className={styles.runningJobNameWrapper}>
+            <div>Running job{runningNode?.name ? ":" : ""}</div>
+            <div className={styles.runningJobName}>&nbsp;&nbsp;{runningNode?.name ? insertSpaces(runningNode?.name) : ""}</div>
+          </div>
         </div>
         {isNodeRunning && (
           <div className={styles.stopButtonWrapper}>
-            <BlueButton className={styles.stopButton} onClick={handleStopClick}>
-              Stop
-            </BlueButton>
+            <div onClick={handleStopClick}>
+              <StopIcon />
+            </div>
           </div>
         )}
       </div>
