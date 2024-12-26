@@ -4,8 +4,9 @@ from collections.abc import Mapping
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from types import TracebackType
-from typing import Literal, Optional, Union, get_args
+from typing import Any, Literal, Optional, Union, get_args
 
+from pythonjsonlogger.json import JsonFormatter
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
     get_qualibrate_config_path,
@@ -33,17 +34,24 @@ __all__ = [
     "ALLOWED_LOG_LEVEL_NAMES",
 ]
 
-LOG_FORMAT = (
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s "
-    "(%(filename)s:%(lineno)d)"
-)
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 
 class QualibrateFormatter(logging.Formatter):
     formatter = logging.Formatter(LOG_FORMAT)
 
+    def __init__(
+        self, *args: Any, default_msec_format: str = "%s.%03d", **kwargs: Any
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.formatter.default_msec_format = default_msec_format
+
     def format(self, record: logging.LogRecord) -> str:
         return self.formatter.format(record)
+
+
+class QualibrateJsonFormatter(QualibrateFormatter):
+    formatter = JsonFormatter(LOG_FORMAT)
 
 
 class ConsoleFormatter(QualibrateFormatter):
@@ -129,7 +137,7 @@ class LazyInitLogger(logging.Logger):
             backupCount=3,
         )
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(QualibrateFormatter())
+        file_handler.setFormatter(QualibrateJsonFormatter())
         self.addHandler(file_handler)
 
         qm_logger = logging.getLogger("qm")
