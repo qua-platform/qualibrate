@@ -5,7 +5,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from qualibrate_config.file import get_config_file
-from qualibrate_config.models import CalibrationLibraryConfig
+from qualibrate_config.models import CalibrationLibraryConfig, QualibrateConfig
 from qualibrate_config.resolvers import get_qualibrate_config
 
 from qualibrate_runner.config.vars import (
@@ -13,7 +13,7 @@ from qualibrate_runner.config.vars import (
     DEFAULT_QUALIBRATE_RUNNER_CONFIG_FILENAME,
 )
 
-__all__ = ["get_config_path", "get_settings"]
+__all__ = ["get_config_path", "get_settings", "get_cl_settings"]
 
 
 @lru_cache
@@ -27,6 +27,13 @@ def get_config_path() -> Path:
 
 @lru_cache
 def get_settings(
+    config_path: Annotated[Path, Depends(get_config_path)],
+) -> QualibrateConfig:
+    return get_qualibrate_config(config_path)
+
+
+@lru_cache
+def get_cl_settings(
     config_path: Annotated[Path, Depends(get_config_path)],
 ) -> CalibrationLibraryConfig:
     q_config = get_qualibrate_config(config_path)

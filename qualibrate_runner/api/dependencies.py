@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate_config.models import CalibrationLibraryConfig
 
-from qualibrate_runner.config import State, get_settings
+from qualibrate_runner.config import State, get_cl_settings
 from qualibrate_runner.core.types import QGraphType, QLibraryType, QNodeType
 
 
@@ -16,7 +16,7 @@ def get_state() -> State:
 
 @cache
 def get_cached_library(
-    config: Annotated[CalibrationLibraryConfig, Depends(get_settings)],
+    config: Annotated[CalibrationLibraryConfig, Depends(get_cl_settings)],
 ) -> QLibraryType:
     return cast(QLibraryType, config.resolver(config.folder))
 
