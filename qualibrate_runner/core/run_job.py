@@ -32,10 +32,7 @@ def validate_input_parameters(
 
 
 def get_active_library_or_error() -> QLibraryType:
-    # TODO: Access to generic instance variables via class is ambiguous
-    if QualibrationLibrary.active_library is None:  # type: ignore[misc]
-        raise RuntimeError("Qualibration library is not exist")
-    return QualibrationLibrary.active_library  # type: ignore[misc]
+    return QualibrationLibrary.get_active_library(create=False)
 
 
 def run_node(
