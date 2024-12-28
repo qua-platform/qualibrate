@@ -28,22 +28,27 @@ def check_running(
 @others_router.get("/output_logs")
 def get_output_logs(
     after: datetime,
+    before: Optional[datetime] = None,
     num_entries: int = 100,
     *,
     config: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> list[dict[str, Any]]:
+    """
+    Return core logs within specified time range but
+    with amount not greater than `num_entries`
+    """
     log_folder = config.log_folder
     if log_folder is None:
         return []
     out_logs: list[dict[str, Any]] = []
     q_log_files = filter(Path.is_file, log_folder.iterdir())
-    filter_log_date_after = partial(filter_log_date, after=after)
+    filter_log_date_after = partial(filter_log_date, after=after, before=before)
     for log_file in sorted(q_log_files, reverse=True):
         with open(log_file) as f:
-            lines_after_date = filter(
+            lines_date_filtered = filter(
                 filter_log_date_after, map(parse_log_line, f)
             )
-            file_logs = islice(lines_after_date, num_entries - len(out_logs))
+            file_logs = islice(lines_date_filtered, num_entries - len(out_logs))
             out_logs.extend(file_logs)
             if len(out_logs) == num_entries:
                 return out_logs
