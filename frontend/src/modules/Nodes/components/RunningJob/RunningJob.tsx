@@ -6,6 +6,8 @@ import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
 import { StateUpdates } from "../StateUpdates/StateUpdates";
 import { StopIcon } from "../../../../ui-lib/Icons/StopIcon";
+import { RunningJobInfoSection } from "./RunningJobInfoSection";
+import { RunningJobParameters } from "./RunningJobParameters";
 
 export const RunningJob: React.FC = () => {
   const {
@@ -18,74 +20,6 @@ export const RunningJob: React.FC = () => {
     setUpdateAllButtonPressed,
   } = useNodesContext();
 
-  const getRunningJobInfo = () => {
-    return (
-      <div className={styles.runInfoWrapper}>
-        <div className={styles.runInfoColumn}>
-          {runningNodeInfo?.lastRunNodeName && (
-            <div className={styles.runInfoRow}>
-              <div className={styles.jobInfoKey}>Last run node:&nbsp;&nbsp;</div>
-              <div className={styles.jobInfoValue}>{runningNodeInfo?.lastRunNodeName}</div>
-            </div>
-          )}
-          {runningNodeInfo?.timestampOfRun && (
-            <div className={styles.runInfoRow}>
-              <div className={styles.jobInfoKey}>Run start:&nbsp;&nbsp;</div>
-              <div className={styles.jobInfoValue}>{runningNodeInfo?.timestampOfRun}</div>
-            </div>
-          )}
-          {runningNodeInfo?.runDuration && (
-            <div className={styles.runInfoRow}>
-              <div className={styles.jobInfoKey}>Run duration:&nbsp;&nbsp;</div>
-              <div className={styles.jobInfoValue}>{runningNodeInfo?.runDuration}&nbsp;s</div>
-            </div>
-          )}
-        </div>
-        <div className={styles.runInfoColumn}>
-          {runningNodeInfo?.status && (
-            <div className={styles.runInfoRow}>
-              <div className={styles.jobInfoKeySecondColumn}>Status:&nbsp;&nbsp;</div>
-              <div className={styles.jobInfoValue}>{runningNodeInfo?.status}</div>
-            </div>
-          )}
-          {runningNodeInfo?.idx && (
-            <div className={styles.runInfoRow}>
-              <div className={styles.jobInfoKeySecondColumn}>idx:&nbsp;&nbsp;</div>
-              <div className={styles.jobInfoValue}>{runningNodeInfo?.idx}</div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const getRunningJobParameters = () => {
-    return (
-      <>
-        {Object.entries(runningNode?.parameters ?? {}).length > 0 && (
-          <div className={styles.parameterInfo}>
-            <div className={styles.parameterTitleWrapper}>
-              {/*<div className={styles.arrowIconWrapper} onClick={() => setExpanded(!expanded)}>*/}
-              {/*  <ArrowIcon options={{ rotationDegree: expanded ? 0 : -90 }} />*/}
-              {/*</div>*/}
-              Parameters:
-            </div>
-            <div>
-              {
-                // expanded &&
-                Object.entries(runningNode?.parameters ?? {}).map(([key, parameter]) => (
-                  <div key={key} className={styles.parameterValues}>
-                    <div className={styles.parameterLabel}>{parameter.title}:</div>
-                    <div className={styles.parameterValue}>{parameter.default?.toString()}</div>
-                  </div>
-                ))
-              }
-            </div>
-          </div>
-        )}
-      </>
-    );
-  };
   const insertSpaces = (str: string, interval = 40) => {
     let result = "";
     for (let i = 0; i < str.length; i += interval) {
@@ -120,19 +54,19 @@ export const RunningJob: React.FC = () => {
           </div>
         )}
       </div>
-      {runningNodeInfo && (
-        <div className={styles.infoWrapper}>
-          {getRunningJobInfo()}
-          {getRunningJobParameters()}
+      {runningNodeInfo && <RunningJobInfoSection />}
+      <div className={styles.parameterStatesWrapper}>
+        <div className={styles.parameterColumnWrapper}>{runningNodeInfo && <RunningJobParameters />}</div>
+        <div className={styles.statesColumnWrapper}>
+          <StateUpdates
+            runningNodeInfo={runningNodeInfo}
+            setRunningNodeInfo={setRunningNodeInfo}
+            updateAllButtonPressed={updateAllButtonPressed}
+            setUpdateAllButtonPressed={setUpdateAllButtonPressed}
+          />
         </div>
-      )}
-      <StateUpdates
-        runningNodeInfo={runningNodeInfo}
-        setRunningNodeInfo={setRunningNodeInfo}
-        updateAllButtonPressed={updateAllButtonPressed}
-        setUpdateAllButtonPressed={setUpdateAllButtonPressed}
-      />
-      <ErrorStatusWrapper error={runningNodeInfo?.error} />
+      </div>
+      {runningNodeInfo?.error && <ErrorStatusWrapper error={runningNodeInfo?.error} />}
     </div>
   );
 };

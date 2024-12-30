@@ -4,9 +4,10 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  max-height: 32%;
-  padding: 30px;
+  max-height: 52%;
+  //padding: 30px;
   color: #A5ACB6;
+  padding-bottom: 28px;
 }
 
 .title {
@@ -50,19 +51,39 @@
   background-color: #e02525;
 }
 
-.infoWrapper {
-  overflow: scroll;
+.parameterStatesWrapper {
+  display: flex;
+}
+
+.parameterColumnWrapper {
+  width: 50%;
+  margin-top: 12px;
+  margin-right: 6px;
+  background-color: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.statesColumnWrapper {
+  width: 50%;
+  margin-top: 12px;
+  margin-left: 6px;
+  background-color: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
 }
 
 .runInfoWrapper {
   display: flex;
   width: 100%;
-  padding-left: 30px;
+  padding-left: 20px;
   margin-top: 20px;
-  padding-top: 20px;
+  padding-top: 16px;
   padding-bottom: 20px;
   font-size: 14px;
   background-color: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
 }
 
 .runInfoColumn {
@@ -95,27 +116,34 @@
   padding-top: 7px;
 }
 
-.parameterInfo {
-  width: 50%;
-  padding-top: 20px;
+.parametersWrapper {
+  padding-top: 16px;
+  padding-left: 20px;
 }
 
 .parameterTitleWrapper {
   display: flex;
+  margin-bottom: 15px;
+  font-size: 14px;
 }
 
 .parameterValues {
   display: flex;
-  padding-left: 30px;
+  width: 100%;
+  font-size: 12px;
 }
 
 .parameterLabel {
   padding-right: 10px;
-  padding-top: 5px;
+  padding-top: 10px;
+  width: 100px;
+  font-size: 12px;
 }
 
 .parameterValue {
-  padding-top: 5px;
+  padding-top: 10px;
+  color: white;
+  font-size: 14px;
 }
 
 .stateTitle {

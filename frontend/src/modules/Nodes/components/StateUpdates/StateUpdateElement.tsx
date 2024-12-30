@@ -18,7 +18,7 @@ export interface StateUpdateProps {
   updateAllButtonPressed: boolean;
 }
 
-export const StateUpdateComponent: React.FC<StateUpdateProps> = (props) => {
+export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
   const { key, stateUpdateObject, runningNodeInfo, setRunningNodeInfo, updateAllButtonPressed } = props;
   const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);

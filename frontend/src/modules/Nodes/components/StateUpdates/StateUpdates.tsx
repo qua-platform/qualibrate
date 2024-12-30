@@ -4,7 +4,7 @@ import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import { StateUpdateComponent, StateUpdateProps } from "./StateUpdateComponent";
+import { StateUpdateElement, StateUpdateProps } from "./StateUpdateElement";
 
 export const StateUpdates: React.FC<{
   runningNodeInfo: RunningNodeInfo | undefined;
@@ -49,7 +49,7 @@ export const StateUpdates: React.FC<{
       {runningNodeInfo?.state_updates && (
         <div className={styles.stateUpdatesTopWrapper}>
           {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject]) =>
-            StateUpdateComponent({
+            StateUpdateElement({
               key,
               stateUpdateObject,
               runningNodeInfo,
