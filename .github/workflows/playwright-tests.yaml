@@ -42,7 +42,9 @@ jobs:
         run: npm run build
 
       - name: Install poetry
-        run: pipx install poetry
+        run: | 
+          pipx install poetry
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
       - uses: actions/setup-python@v5
         with:
@@ -115,15 +117,7 @@ jobs:
       # Start Qualibrate Server
       - name: Start Qualibrate Server
         run: |
-          nohup qualibrate start > qualibrate-server.log 2>&1 &
-          for i in {1..15}; do
-            if curl -s http://localhost:8001/ > /dev/null; then
-              break
-            fi
-            sleep 2
-          done
-          # Uncomment the line below to debug server status
-          # curl -v http://localhost:8001/
+          qualibrate start 
 
       # Verify Calibration Nodes in the UI
       - name: Verify Calibration Nodes
