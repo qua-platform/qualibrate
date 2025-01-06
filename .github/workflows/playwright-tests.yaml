@@ -1,4 +1,3 @@
-# CI configuration for Playwright with Python and Qualibrate setup
 name: Playwright Tests
 
 on:
@@ -16,28 +15,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the main repository (qualibrate-app)
-    - name: Checkout repository
+    # Checkout the main repository
+    - name: Checkout Repository
       uses: actions/checkout@v4
 
     # Checkout the private calibration scripts repository
     - name: Checkout Calibration Scripts
       uses: actions/checkout@v4
       with:
-        repository: 'qua-platform/qualibrate-examples'  # Private repo
+        repository: 'qua-platform/qualibrate-examples'
         path: 'qualibrate-examples'
         token: ${{ secrets.QUALIBRATION_EXAMPLES_TOKEN }}
 
-    # Install Python and create virtual environment
-    - name: Install Python and Create Environment
+    # Install Python dependencies globally
+    - name: Install Python and Dependencies
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
-    - name: Install dependencies
+    - name: Install Dependencies
       run: |
-        pip install "./backend[fe_tests]"
-        pip install xarray
+        pip install --upgrade pip
+        pip install qualibrate quam xarray
 
     # Copy calibration scripts to the default Qualibrate calibration folder
     - name: Copy Calibration Scripts
@@ -45,12 +44,24 @@ jobs:
         mkdir -p ~/.qualibrate/calibrations
         cp -r qualibrate-examples/calibrations/* ~/.qualibrate/calibrations/
 
-    # Create Qualibrate configuration
+    # Prepare directories and static files
+    - name: Prepare Directories
+      run: |
+        mkdir -p ~/.qualibrate/user_storage/my_project
+        mkdir -p ./backend/qualibrate_static
+        echo "<html><body>Static Content</body></html>" > ./backend/qualibrate_static/index.html
+
+    # Create Qualibrate Configuration
     - name: Create Qualibrate Configuration
       run: |
-        qualibrate config --auto-accept
+        qualibrate config --auto-accept \
+          --runner-calibration-library-folder ~/.qualibrate/calibrations \
+          --app-static-site-files ./backend/qualibrate_static \
+          --app-user-storage ~/.qualibrate/user_storage/my_project
+        # Uncomment the line below to debug the configuration file
+        # cat ~/.qualibrate/config.toml
 
-    # Install Node.js
+    # Install Node.js and Playwright
     - name: Install Node.js
       uses: actions/setup-node@v3
       with:
@@ -62,9 +73,36 @@ jobs:
         npm install
         npx playwright install --with-deps
 
-    # Run Playwright Tests (Workflow 1)
-    - name: Run Playwright Tests (Workflow 1)
-      working-directory: ./frontend/tests/e2e
+    # Start Qualibrate Server
+    - name: Start Qualibrate Server
       run: |
-        npx playwright test e2e/workflow1.test.ts  # This line should not reference a specific workflow, but a suite of workflows
-        
+        nohup qualibrate start > qualibrate-server.log 2>&1 &
+        for i in {1..15}; do
+          if curl -s http://localhost:8001/ > /dev/null; then
+            break
+          fi
+          sleep 2
+        done
+        # Uncomment the line below to debug server status
+        # curl -v http://localhost:8001/
+
+    # Verify Calibration Nodes in the UI
+    - name: Verify Calibration Nodes
+      run: |
+        curl -s http://localhost:8001/api/calibrations | jq || echo "Calibration nodes not accessible."
+
+    # Run Playwright Tests
+    - name: Run Playwright Tests
+      working-directory: ./frontend/tests/e2e
+      env:
+        DEBUG: pw:api
+      run: |
+        npx playwright test
+
+    # Inspect Server Logs (on failure)
+    - name: Inspect Server Logs
+      if: failure()
+      run: |
+        echo "Server Logs:"
+        cat qualibrate-server.log
+
