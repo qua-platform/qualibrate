@@ -56,11 +56,14 @@ jobs:
         run: cp -r frontend/dist backend/qualibrate_static
 
       - name: Install qualibrate-app
-        poetry install
+        run: pip install .
+        working-directory: backend
+      #   poetry install
 
       - name: Install qualibrate-core and qualibrate-runner
         run: pip install git+https://github.com/qua-platform/qualibrate-runner.git \
-          git+https://github.com/qua-platform/qualibrate-core.git
+          git+https://github.com/qua-platform/qualibrate-core.git \
+          git+https://github.com/qua-platform/qualibrate.git
 
       # Checkout the private calibration scripts repository
       - name: Checkout Calibration Scripts
