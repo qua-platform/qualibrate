@@ -41,48 +41,26 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      - name: Install poetry
-        run: | 
-          pipx install poetry
-          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+      # - name: Install poetry
+      #   run: | 
+      #     pipx install poetry
+      #     echo "${HOME}/.local/bin" >> $GITHUB_PATH
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-          cache: "poetry"
-          cache-dependency-path: backend/poetry.lock
+          # cache: "poetry"
+          # cache-dependency-path: backend/poetry.lock
 
       - name: Copy built FE to BE
         run: cp -r frontend/dist backend/qualibrate_static
 
-      - name: Install python deps
-        run: poetry install
-        working-directory: backend
+      - name: Install qualibrate-app
+        poetry install
 
-      - name: Install Playwright Test Dependencies
-        run: pip install quam xarray
-
-      - name: Checkout qualibrate-core
-        uses: actions/checkout@v4
-        with:
-          repository: 'qua-platform/qualibrate-core'
-          path: 'qualibrate-core'
-
-      - name: Install qualibrate-core
-        run: pip install -e ./qualibrate-core
-
-      - name: Checkout qualibrate-runner
-        uses: actions/checkout@v4
-        with:
-          repository: 'qua-platform/qualibrate-runner'
-          path: 'qualibrate-runner'
-
-      - name: Install qualibrate-runner
-        run: pip install -e ./qualibrate-runner
-
-      # - name: Install qualibrate-core and qualibrate-runner
-      #   run: pip install git+https://github.com/qua-platform/qualibrate-runner.git \
-      #     git+https://github.com/qua-platform/qualibrate-core.git
+      - name: Install qualibrate-core and qualibrate-runner
+        run: pip install git+https://github.com/qua-platform/qualibrate-runner.git \
+          git+https://github.com/qua-platform/qualibrate-core.git
 
       # Checkout the private calibration scripts repository
       - name: Checkout Calibration Scripts
@@ -91,6 +69,9 @@ jobs:
           repository: 'qua-platform/qualibrate-examples'
           path: 'qualibrate-examples'
           token: ${{ secrets.QUALIBRATION_EXAMPLES_TOKEN }}
+
+      - name: Install Playwright Test Dependencies
+        run: pip install quam xarray
 
       # Prepare directories and static files
       # - name: Prepare Directories
@@ -133,9 +114,9 @@ jobs:
           npx playwright test
 
       # Inspect Server Logs (on failure)
-      - name: Inspect Server Logs
-        if: failure()
-        run: |
-          echo "Server Logs:"
-          cat qualibrate-server.log
+      # - name: Inspect Server Logs
+      #   if: failure()
+      #   run: |
+      #     echo "Server Logs:"
+      #     cat qualibrate-server.log
 
