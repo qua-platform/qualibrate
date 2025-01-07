@@ -39,8 +39,8 @@ if _settings.runner.spawn:
         from qualibrate_runner.app import app as runner_app
     except ImportError as ex:
         raise ImportError(
-            "Can't import qualibrate_runner instance. "
-            "Check that you have installed it."
+            f"Can't import qualibrate_runner instance. "
+            f"Check that you have installed it. Original error: {ex}"
         ) from ex
 
     runner_app.add_middleware(RunnerAuthMiddleware)
@@ -53,6 +53,7 @@ if _settings.app.spawn:
         raise ImportError(
             "Can't import qualibrate_app instance. "
             "Check that you have installed it."
+            f"Original error: {ex}"
         ) from ex
 
     qualibrate_app_app.add_middleware(QualibrateAppAuthMiddleware)
@@ -60,9 +61,7 @@ if _settings.app.spawn:
 
 
 def main(port: int, host: str, reload: bool) -> None:
-    uvicorn.run(
-        "qualibrate_composite.app:app", port=port, host=host, reload=reload
-    )
+    uvicorn.run("qualibrate_composite.app:app", port=port, host=host, reload=reload)
 
 
 if __name__ == "__main__":
