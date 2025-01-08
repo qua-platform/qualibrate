@@ -86,40 +86,57 @@ jobs:
         run: |
           qualibrate config --auto-accept \
             --runner-calibration-library-folder ~/qualibrate-examples/calibrations \
-            --app-static-site-files ./backend/qualibrate_static \
             --app-user-storage ~/.qualibrate/user_storage
           # Uncomment the line below to debug the configuration file
-          # cat ~/.qualibrate/config.toml
+          cat ~/.qualibrate/config.toml
+          ls ./qualibrate-examples/calibrations 
+
+      - name: Scan Calibration Library
+        run: |
+          python -c "import logging; logging.basicConfig(level=logging.DEBUG); from qualibrate import QualibrationLibrary; QualibrationLibrary.get_active_library()"
+
 
       # Install Node.js and Playwright
       - name: Install Playwright Dependencies
         working-directory: ./frontend/tests
         run: |
           npm install
-          npx playwright install --with-deps
+          # npx playwright install --with-deps
+          npx playwright install-deps chromium # chrome only for now 
+          npx playwright install chromium
+
+      # - name: Copy Calibration Scripts
+      #   run: |
+      #     mkdir -p ~/.qualibrate/calibrations
+      #     cp -r qualibrate-examples/calibrations/* ~/.qualibrate/calibrations/
+      #     ls -R ~/.qualibrate/calibrations # Debugging calibration scripts
 
       # Start Qualibrate Server
       - name: Start Qualibrate Server
         run: |
-          qualibrate start 
+          nohup qualibrate start > qualibrate-server.log 2>&1 &
+          for i in {1..15}; do
+            if curl -s http://localhost:8001/ > /dev/null; then
+              echo "Server is up and running"
+              break
+            fi
+            echo "Waiting for server to start..."
+            sleep 2
+          done
+          curl -v http://localhost:8001/
 
-      # Verify Calibration Nodes in the UI
-      - name: Verify Calibration Nodes
-        run: |
-          curl -s http://localhost:8001/api/calibrations | jq || echo "Calibration nodes not accessible."
+        
 
       # Run Playwright Tests
       - name: Run Playwright Tests
         working-directory: ./frontend/tests/e2e
-        env:
-          DEBUG: pw:api
         run: |
           npx playwright test
 
       # Inspect Server Logs (on failure)
-      # - name: Inspect Server Logs
-      #   if: failure()
-      #   run: |
-      #     echo "Server Logs:"
-      #     cat qualibrate-server.log
+      - name: Inspect Server Logs
+        if: failure()
+        run: |
+          echo "Server Logs:"
+          cat qualibrate-server.log
 
