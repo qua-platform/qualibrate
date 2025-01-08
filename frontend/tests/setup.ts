@@ -9,14 +9,28 @@ test.beforeEach(async () => {
   // console.log('Cleared browser state');
 
   console.log('Starting Qualibrate server...');
-  serverProcess = spawn('bash', ['-c', 'source .venv/bin/activate && qualibrate start']);
+
+  const fs = require('fs');
+
+  const filePath = '.venv/bin/activate';
+
+  if (fs.existsSync(filePath)) {
+
+      console.log('Spawning QUAlibrate from virtual Environment .venv.');
+      serverProcess = spawn('bash', ['-c', 'source .venv/bin/activate && qualibrate start']);
+
+  } else {
+      console.log('No virtual environment found. Spawning QUAlibrate.');
+      serverProcess = spawn('bash', ['-c', 'qualibrate start']); 
+  }
+
 
   // Log server output for debugging
   serverProcess.stdout.on('data', (data) => console.log(`SERVER: ${data}`));
   serverProcess.stderr.on('data', (data) => console.error(`SERVER ERR: ${data}`));
 
   // Poll for server readiness
-  let serverReady = false;``
+  let serverReady = false;
   const maxRetries = 10;
   for (let i = 0; i < maxRetries; i++) {
     try {

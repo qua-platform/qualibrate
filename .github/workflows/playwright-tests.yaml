@@ -133,10 +133,10 @@ jobs:
         run: |
           npx playwright test
 
-      # Inspect Server Logs (on failure)
-      - name: Inspect Server Logs
-        if: failure()
-        run: |
-          echo "Server Logs:"
-          cat qualibrate-server.log
+      # # Inspect Server Logs (on failure)
+      # - name: Inspect Server Logs
+      #   if: failure()
+      #   run: |
+      #     echo "Server Logs:"
+      #     cat qualibrate-server.log
 
