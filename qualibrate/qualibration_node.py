@@ -16,7 +16,10 @@ from typing import (
 )
 
 import matplotlib
-from matplotlib.rcsetup import interactive_bk
+from matplotlib.backends import (  # type: ignore[attr-defined]
+    BackendFilter,
+    backend_registry,
+)
 from pydantic import ValidationError, create_model
 
 from qualibrate.config.utils import get_qualibrate_app_settings
@@ -263,7 +266,10 @@ class QualibrationNode(
 
         """
         mpl_backend = matplotlib.get_backend()
-        if self.modes.external and mpl_backend in interactive_bk:
+        if self.modes.external and mpl_backend in cast(
+            list[str],
+            backend_registry.list_builtin(BackendFilter.INTERACTIVE),  # type: ignore[no-untyped-call]
+        ):
             matplotlib.use("agg")
             logger.warning(
                 f"Using interactive matplotlib backend '{mpl_backend}' in "
