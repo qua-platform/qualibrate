@@ -41,11 +41,6 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-      # - name: Install poetry
-      #   run: | 
-      #     pipx install poetry
-      #     echo "${HOME}/.local/bin" >> $GITHUB_PATH
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -60,11 +55,10 @@ jobs:
         working-directory: backend
       #   poetry install
 
-      - name: Install qualibrate-core and qualibrate-runner
+      - name: Install qualibrate-core and qualibrate-runner and qualibrate-composite
         run: pip install git+https://github.com/qua-platform/qualibrate-runner.git \
           git+https://github.com/qua-platform/qualibrate-core.git \
           git+https://github.com/qua-platform/qualibrate.git
-
       # Checkout the private calibration scripts repository
       - name: Checkout Calibration Scripts
         uses: actions/checkout@v4
@@ -76,25 +70,18 @@ jobs:
       - name: Install Playwright Test Dependencies
         run: pip install quam xarray
 
-      # Prepare directories and static files
-      # - name: Prepare Directories
-      #   run: |
-      #     mkdir -p ~/.qualibrate/user_storage/my_project
+      - name: Create directory for user storage
+        run: mkdir -p data
 
       # Create Qualibrate Configuration
       - name: Create Qualibrate Configuration
         run: |
           qualibrate config --auto-accept \
-            --runner-calibration-library-folder ~/qualibrate-examples/calibrations \
-            --app-user-storage ~/.qualibrate/user_storage
+            --runner-calibration-library-folder $GITHUB_WORKSPACE/qualibrate-examples/calibrations \
+            --app-user-storage $GITHUB_WORKSPACE/data
           # Uncomment the line below to debug the configuration file
-          cat ~/.qualibrate/config.toml
-          ls ./qualibrate-examples/calibrations 
-
-      - name: Scan Calibration Library
-        run: |
-          python -c "import logging; logging.basicConfig(level=logging.DEBUG); from qualibrate import QualibrationLibrary; QualibrationLibrary.get_active_library()"
-
+        #   cat /root/.qualibrate/config.toml
+        #   ls $GITHUB_WORKSPACE/qualibrate-examples/calibrations 
 
       # Install Node.js and Playwright
       - name: Install Playwright Dependencies
@@ -104,12 +91,6 @@ jobs:
           # npx playwright install --with-deps
           npx playwright install-deps chromium # chrome only for now 
           npx playwright install chromium
-
-      # - name: Copy Calibration Scripts
-      #   run: |
-      #     mkdir -p ~/.qualibrate/calibrations
-      #     cp -r qualibrate-examples/calibrations/* ~/.qualibrate/calibrations/
-      #     ls -R ~/.qualibrate/calibrations # Debugging calibration scripts
 
       # Start Qualibrate Server
       - name: Start Qualibrate Server
@@ -125,18 +106,8 @@ jobs:
           done
           curl -v http://localhost:8001/
 
-        
-
       # Run Playwright Tests
       - name: Run Playwright Tests
         working-directory: ./frontend/tests/e2e
         run: |
           npx playwright test
-
-      # # Inspect Server Logs (on failure)
-      # - name: Inspect Server Logs
-      #   if: failure()
-      #   run: |
-      #     echo "Server Logs:"
-      #     cat qualibrate-server.log
-
