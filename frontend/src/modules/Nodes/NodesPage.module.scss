@@ -8,7 +8,21 @@
   border-radius: var(--border-radius);
 }
 
-.nodesContainer {
+.nodesContainerTop {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  max-width: 600px;
+  overflow: hidden;
+  flex-grow: 1;
+  color: rgb(217 213 212);
+  margin-left: 20px;
+  margin-right: 20px;
+  height: calc(100% - 20px);
+  background-color: var(--background-color);
+}
+
+.nodesContainerDown {
   display: flex;
   flex-direction: column;
   width: 50%;

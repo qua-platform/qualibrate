@@ -15,14 +15,14 @@ const NodesPage = () => {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.nodesContainer}>
+      <div className={styles.nodesContainerTop}>
         <div className={styles.titleWrapper}>
           <PageName>{heading}</PageName>
           <BlueButton onClick={() => fetchAllNodes()}>Refresh</BlueButton>
         </div>
         <NodeElementList listOfNodes={allNodes} />
       </div>
-      <div className={styles.nodesContainer}>
+      <div className={styles.nodesContainerDown}>
         <RunningJob />
         <Results />
       </div>
