@@ -25,7 +25,6 @@ qualibrate-config = {path = "../../qualibrate-config", develop = true}
 
 [tool.poetry.extras]
 json-timeline-db = ["json-timeline-database"]
-runner = ["qualibrate-runner"]
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
