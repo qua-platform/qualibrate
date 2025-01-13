@@ -1,14 +1,11 @@
 from collections.abc import Mapping
 from functools import cache
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import Depends, HTTPException
+from qualibrate_config.models import CalibrationLibraryConfig
 
-from qualibrate_runner.config import (
-    QualibrateRunnerSettings,
-    State,
-    get_settings,
-)
+from qualibrate_runner.config import State, get_settings
 from qualibrate_runner.core.types import QGraphType, QLibraryType, QNodeType
 
 
@@ -19,11 +16,9 @@ def get_state() -> State:
 
 @cache
 def get_cached_library(
-    settings: Annotated[QualibrateRunnerSettings, Depends(get_settings)],
+    config: Annotated[CalibrationLibraryConfig, Depends(get_settings)],
 ) -> QLibraryType:
-    return settings.calibration_library_resolver(
-        settings.calibration_library_folder
-    )
+    return cast(QLibraryType, config.resolver(config.folder))
 
 
 def get_library(
