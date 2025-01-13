@@ -9,12 +9,13 @@ packages = [{ include = "qualibrate" }]
 [tool.poetry.dependencies]
 python = "^3.9,<3.13"
 pydantic = "^2.10.4"
-qualang_tools = { version = ">=0.18.2", python = ">=3.9,<3.13" }
+qualang-tools = { version = ">=0.18.2", python = ">=3.9,<3.13" }
 networkx = "~3.2.0"         # max available version with python 3.9 support
 jsonpointer = "^3.0.0"
 types-networkx = "~3.2.1.20240918"
 datamodel-code-generator = "^0.26.3"
 matplotlib = "^3.9.4"
+qualibrate-config = "^0.1.0"
 
 
 [tool.poetry.group.test.dependencies]
@@ -31,6 +32,8 @@ ruff = "^0.8.0"
 mypy = "^1.10.0"
 poethepoet = "^0.31.1"
 
+#[tool.poetry.group.qm-dev.dependencies]
+#qualibrate-config = {path = "../qualibrate-config", develop = true}
 
 [tool.ruff]
 line-length = 80
