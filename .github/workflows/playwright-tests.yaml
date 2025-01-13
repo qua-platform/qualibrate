@@ -15,16 +15,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the main repository
+      # Step 1: Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Step 2: Set up Node.js
       - name: Use Node.js
         id: node-setup
         uses: actions/setup-node@v4
         with:
           node-version: "20.x"
 
+      # Step 3: Cache frontend dependencies
       - uses: actions/cache@v4
         id: frontend-cache-id
         with:
@@ -32,34 +34,37 @@ jobs:
           key: npm-${{ hashFiles('frontend/**/package-lock.json') }}
           restore-keys: npm-
 
-      - name: Install npm deps
+      # Step 4: Install frontend dependencies
+      - name: Install npm dependencies
         if: steps.frontend-cache-id.outputs.cache-hit != 'true'
         working-directory: frontend
         run: npm ci
 
+      # Step 5: Build the frontend
       - name: Build frontend
         working-directory: frontend
         run: npm run build
 
+      # Step 6: Set up Python environment
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
-          # cache: "poetry"
-          # cache-dependency-path: backend/poetry.lock
 
+      # Step 7: Copy built frontend to backend
       - name: Copy built FE to BE
         run: cp -r frontend/dist backend/qualibrate_static
 
+      # Step 8: Install backend dependencies
       - name: Install qualibrate-app
         run: pip install .
         working-directory: backend
-      #   poetry install
 
-      - name: Install qualibrate-core and qualibrate-runner and qualibrate-composite
+      - name: Install qualibrate-core, qualibrate-runner, and qualibrate-composite
         run: pip install git+https://github.com/qua-platform/qualibrate-runner.git \
           git+https://github.com/qua-platform/qualibrate-core.git \
           git+https://github.com/qua-platform/qualibrate.git
-      # Checkout the private calibration scripts repository
+
+      # Step 9: Checkout calibration scripts repository
       - name: Checkout Calibration Scripts
         uses: actions/checkout@v4
         with:
@@ -67,32 +72,30 @@ jobs:
           path: 'qualibrate-examples'
           token: ${{ secrets.QUALIBRATION_EXAMPLES_TOKEN }}
 
+      # Step 10: Install Playwright test dependencies
       - name: Install Playwright Test Dependencies
         run: pip install quam xarray
 
+      # Step 11: Create directory for user storage
       - name: Create directory for user storage
         run: mkdir -p data
 
-      # Create Qualibrate Configuration
+      # Step 12: Create Qualibrate configuration
       - name: Create Qualibrate Configuration
         run: |
           qualibrate config --auto-accept \
             --runner-calibration-library-folder $GITHUB_WORKSPACE/qualibrate-examples/calibrations \
             --app-user-storage $GITHUB_WORKSPACE/data
-          # Uncomment the line below to debug the configuration file
-        #   cat /root/.qualibrate/config.toml
-        #   ls $GITHUB_WORKSPACE/qualibrate-examples/calibrations 
 
-      # Install Node.js and Playwright
+      # Step 13: Install Node.js and Playwright dependencies
       - name: Install Playwright Dependencies
         working-directory: ./frontend/tests
         run: |
           npm install
-          # npx playwright install --with-deps
-          npx playwright install-deps chromium # chrome only for now 
+          npx playwright install-deps chromium
           npx playwright install chromium
 
-      # Start Qualibrate Server
+      # Step 14: Start Qualibrate Server
       - name: Start Qualibrate Server
         run: |
           nohup qualibrate start > qualibrate-server.log 2>&1 &
@@ -106,8 +109,7 @@ jobs:
           done
           curl -v http://localhost:8001/
 
-      # Run Playwright Tests
+      # Step 15: Run Playwright tests
       - name: Run Playwright Tests
         working-directory: ./frontend/tests/e2e
-        run: |
-          npx playwright test
+        run: npx playwright test
