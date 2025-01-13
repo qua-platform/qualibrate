@@ -38,7 +38,6 @@ httpx = "^0.27.0"
 
 [tool.poetry.group.fe_test.dependencies]
 quam = "^0.3.8"
-qualibrate = "^0.1.4"
 # Try to find an xarray version that is compatible with this (poetry add xarray --group fe_test)
 
 [tool.poetry.scripts]
