@@ -2,12 +2,12 @@ import os
 from pathlib import Path
 
 import click
-
-from qualibrate_app.config import (
-    CONFIG_PATH_ENV_NAME,
+from qualibrate_config.vars import (
     DEFAULT_CONFIG_FILENAME,
     QUALIBRATE_PATH,
 )
+
+from qualibrate_app.config import CONFIG_PATH_ENV_NAME
 
 
 @click.command(name="start")

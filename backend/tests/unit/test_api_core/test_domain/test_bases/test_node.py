@@ -14,6 +14,7 @@ from qualibrate_app.api.core.models.storage import Storage
 from qualibrate_app.api.exceptions.classes.storage import (
     QNotADirectoryException,
 )
+from qualibrate_app.config.vars import METADATA_OUT_PATH
 
 
 class NodeBaseCustom(NodeBase):
@@ -104,11 +105,11 @@ def test__fill_storage_no_output_path(mocker, settings):
     node_path = "data_path"
 
     class _Snapshot:
-        metadata = {settings.metadata_out_path: node_path}
+        metadata = {METADATA_OUT_PATH: node_path}
 
     resolve_patched = mocker.patch(
         "qualibrate_app.api.core.domain.bases.node.resolve_and_check_relative",
-        return_value=settings.qualibrate.storage.location / "node",
+        return_value=settings.storage.location / "node",
     )
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     dfs_patched = mocker.patch(
@@ -120,17 +121,17 @@ def test__fill_storage_no_output_path(mocker, settings):
     assert ex.type == QNotADirectoryException
     assert ex.value.args == (f"{node_path} is not a directory",)
     resolve_patched.assert_called_once_with(
-        settings.qualibrate.storage.location, node_path
+        settings.storage.location, node_path
     )
     dfs_patched.assert_not_called()
 
 
 def test__fill_storage_valid(mocker, settings):
     rel_node_path = "data_path"
-    abs_node_path = settings.qualibrate.storage.location / rel_node_path
+    abs_node_path = settings.storage.location / rel_node_path
 
     class _Snapshot:
-        metadata = {settings.metadata_out_path: rel_node_path}
+        metadata = {METADATA_OUT_PATH: rel_node_path}
 
     resolve_patched = mocker.patch(
         "qualibrate_app.api.core.domain.bases.node.resolve_and_check_relative",
@@ -143,7 +144,7 @@ def test__fill_storage_valid(mocker, settings):
     n = NodeBaseCustom(1, _Snapshot(), settings=settings)
     assert n._fill_storage() is None
     resolve_patched.assert_called_once_with(
-        settings.qualibrate.storage.location, rel_node_path
+        settings.storage.location, rel_node_path
     )
     dfs_patched.assert_called_once_with(abs_node_path, settings)
 

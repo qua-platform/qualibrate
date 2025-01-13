@@ -3,8 +3,9 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from qualibrate_config.models import QualibrateConfig
 
-from qualibrate_app.config import QualibrateAppSettings, get_config_path
+from qualibrate_app.config import get_config_path
 
 
 def test_project_list(
@@ -69,26 +70,26 @@ def test_project_active_get(client_custom_settings: TestClient):
 def test_project_active_set_same(
     tmp_path: Path,
     client_custom_settings: TestClient,
-    settings: QualibrateAppSettings,
+    settings: QualibrateConfig,
 ):
     config_path = tmp_path / "config.toml"
     client_custom_settings.app.dependency_overrides[get_config_path] = (
         lambda: config_path
     )
-    assert settings.qualibrate.project == "project"
+    assert settings.project == "project"
     response = client_custom_settings.post(
         "/api/projects/active", params={"active_project": "project"}
     )
     assert response.status_code == 200
     assert response.json() == "project"
-    assert settings.qualibrate.project == "project"
+    assert settings.project == "project"
 
 
 def test_project_active_set_other(
     tmp_path: Path,
     local_storage_path: Path,
     client_custom_settings: TestClient,
-    settings: QualibrateAppSettings,
+    settings: QualibrateConfig,
 ):
     new_project = "new_project"
     config_path = tmp_path / "config.toml"
@@ -96,10 +97,10 @@ def test_project_active_set_other(
         lambda: config_path
     )
     (local_storage_path / new_project).mkdir()
-    assert settings.qualibrate.project == "project"
+    assert settings.project == "project"
     response = client_custom_settings.post(
         "/api/projects/active", params={"active_project": "new_project"}
     )
     assert response.status_code == 200
     assert response.json() == new_project
-    assert settings.qualibrate.project == new_project
+    assert settings.project == new_project
