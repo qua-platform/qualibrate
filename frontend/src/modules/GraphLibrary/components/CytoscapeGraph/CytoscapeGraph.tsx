@@ -4,15 +4,18 @@ import { CytoscapeLayout } from "./config/Cytoscape";
 
 import styles from "./CytoscapeGraph.module.scss";
 import { useGraphContext } from "../../context/GraphContext";
+import klay from "cytoscape-klay";
 
+cytoscape.use(klay);
 cytoscape.warnings(false);
 
 interface IProps {
   elements: ElementDefinition[];
+  onNodeClick?: (name: string) => void;
 }
 
-export default function CytoscapeGraph({ elements }: IProps) {
-  const { setSelectedNodeNameInWorkflow } = useGraphContext();
+export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
+  const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
   const cy = useRef<cytoscape.Core>();
   const divRef = useRef(null);
 
@@ -42,7 +45,7 @@ export default function CytoscapeGraph({ elements }: IProps) {
     {
       selector: "edge",
       style: {
-        width: 3,
+        width: 5,
         "line-color": "#cbc4c4",
         "target-arrow-color": "#cbc4c4",
         "target-arrow-shape": "triangle",
@@ -80,8 +83,23 @@ export default function CytoscapeGraph({ elements }: IProps) {
   }, [elements]);
 
   useEffect(() => {
+    if (selectedNodeNameInWorkflow) {
+      cy.current?.nodes().unselect();
+      const targetNode = cy.current?.getElementById(selectedNodeNameInWorkflow);
+      if (targetNode) {
+        targetNode.select();
+      }
+    } else {
+      cy.current?.nodes().unselect();
+    }
+  }, [selectedNodeNameInWorkflow]);
+
+  useEffect(() => {
     const onClickN = (e: EventObject) => {
       setSelectedNodeNameInWorkflow((e.target.data() as { id: string }).id);
+      if (onNodeClick) {
+        onNodeClick((e.target.data() as { id: string }).id);
+      }
     };
     cy.current?.nodes().on("click", onClickN);
 

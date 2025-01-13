@@ -10,12 +10,13 @@ import { ErrorStatusWrapper } from "../../../../../common/Error/ErrorStatusWrapp
 
 interface IProps {
   workflowGraphElements: cytoscape.ElementDefinition[];
+  onCytoscapeNodeClick?: (name: string) => void;
   active?: boolean;
   nodesCompleted?: number;
   runDuration?: number;
 }
 
-export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements }) => {
+export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements, onCytoscapeNodeClick }) => {
   const title = "Calibration Graph Progress";
   const { lastRunInfo } = useGraphContext();
   const graphProgressMessage =
@@ -54,7 +55,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
             </div>
           </div>
           <div className={styles.lowerLowerContainer}>
-            <CytoscapeGraph elements={workflowGraphElements} />
+            <CytoscapeGraph elements={workflowGraphElements} onNodeClick={onCytoscapeNodeClick} />
           </div>
         </div>
       </div>

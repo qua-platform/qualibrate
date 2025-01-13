@@ -2,7 +2,7 @@ import { Actions, DockLocation, Model, Node } from "flexlayout-react";
 import { BORDER_SIZE } from "../../common/layout";
 import { ModuleKey } from "../ModulesRegistry";
 
-const SINGLE_TAB_KEY: Array<ModuleKey> = ["nodes", "graph-library", "graph-status", "data"];
+const SINGLE_TAB_KEY: Array<ModuleKey> = ["nodes", "graph-library", "data"];
 const DEFAULT_MODEL = {
   global: { tabEnableClose: true },
   layout: {
