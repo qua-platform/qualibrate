@@ -1,7 +1,11 @@
 from collections.abc import Mapping
-from importlib.util import find_spec
 from pathlib import Path
 from typing import Any, Generic, Optional, cast
+
+from qualibrate_config.resolvers import (
+    get_qualibrate_config,
+    get_qualibrate_config_path,
+)
 
 from qualibrate.models.run_summary.graph import GraphRunSummary
 from qualibrate.models.run_summary.node import NodeRunSummary
@@ -116,17 +120,11 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
             raise ex
         if library_folder is None:
             logger.warning("Getting calibration path from config")
-            if find_spec("qualibrate_runner") is not None:
-                from qualibrate_runner.config import (
-                    get_config_path,
-                    get_settings,
-                )
-
-                config_path = get_config_path()
-                settings = get_settings(config_path)
-                library_folder = settings.calibration_library_folder
-            if library_folder is None:
-                raise RuntimeError("Can't resolve default calibrations folder")
+            q_config_path = get_qualibrate_config_path()
+            q_config = get_qualibrate_config(q_config_path)
+            if q_config.calibration_library is None:
+                raise RuntimeError("Can't resolve default calibrations config")
+            library_folder = q_config.calibration_library.folder
         return QualibrationLibrary(library_folder=library_folder)
 
     def serialize(self) -> Mapping[str, Any]:

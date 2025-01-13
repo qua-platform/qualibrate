@@ -21,8 +21,11 @@ from matplotlib.backends import (  # type: ignore[attr-defined]
     backend_registry,
 )
 from pydantic import ValidationError, create_model
+from qualibrate_config.resolvers import (
+    get_qualibrate_config,
+    get_qualibrate_config_path,
+)
 
-from qualibrate.config.utils import get_qualibrate_app_settings
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.base import BaseRunSummary
@@ -311,18 +314,15 @@ class QualibrationNode(
             ImportError: Raised if required configurations are not accessible.
         """
         if self.storage_manager is None:
-            # TODO: fully depend on qualibrate. Need to remove this dependency.
             msg = (
                 "Node.storage_manager should be defined to save node, "
                 "resorting to default configuration"
             )
             logger.warning(msg)
-            settings = get_qualibrate_app_settings()
-            if settings is None:
-                return
+            q_config_path = get_qualibrate_config_path()
+            qs = get_qualibrate_config(q_config_path)
             self.storage_manager = LocalStorageManager(
-                root_data_folder=settings.qualibrate.storage.location,
-                active_machine_path=settings.active_machine.path,
+                root_data_folder=qs.storage.location,
             )
         self.storage_manager.save(
             node=cast("QualibrationNode[NodeParameters]", self)
@@ -352,16 +352,9 @@ class QualibrationNode(
             or None if loading fails.
         """
         if base_path is None:
-            try:
-                settings = get_qualibrate_app_settings(raise_ex=True)
-            except ModuleNotFoundError as ex:
-                # TODO: update error msg when settings
-                #  will be resolved without q_app
-                logger.exception(
-                    "Failed to load qualibrate app settings", exc_info=ex
-                )
-                return None
-            base_path = Path(settings.qualibrate.storage.location)  # type: ignore
+            q_config_path = get_qualibrate_config_path()
+            qs = get_qualibrate_config(q_config_path)
+            base_path = qs.storage.location
         node_dir = get_node_dir_path(node_id, base_path)
         if node_dir is None:
             logger.error(
