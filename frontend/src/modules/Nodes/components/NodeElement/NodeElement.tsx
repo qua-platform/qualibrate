@@ -149,7 +149,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
             Run
           </BlueButton>
         )}
-        {!isNodeRunning && (
+        {!isNodeRunning && node.name === selectedItemName && (
           <BlueButton disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
             Run
           </BlueButton>
@@ -158,14 +158,16 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
       {node.name === selectedItemName && node.name === submitNodeResponseError?.nodeName && (
         <ErrorResponseWrapper error={submitNodeResponseError} />
       )}
-      <Parameters
-        parametersExpanded={true}
-        showTitle={true}
-        key={node.name}
-        show={selectedItemName === node.name}
-        currentItem={node}
-        getInputElement={getInputElement}
-      />
+      {Object.keys(node?.parameters ?? {}).length > 0 && (
+        <Parameters
+          parametersExpanded={true}
+          showTitle={true}
+          key={node.name}
+          show={selectedItemName === node.name}
+          currentItem={node}
+          getInputElement={getInputElement}
+        />
+      )}
     </div>
   );
 };
