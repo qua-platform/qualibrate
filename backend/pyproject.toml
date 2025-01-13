@@ -12,20 +12,18 @@ include = [{ path = "qualibrate_static/**/*", format = ["sdist", "wheel"] }]
 [tool.poetry.dependencies]
 python = "^3.9"
 fastapi = "^0.115.2"
-uvicorn = "^0.32.0"
-pydantic-settings = "^2.1.0"
+uvicorn = "^0.34.0"
 click = "^8.1.7"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 requests = "^2.31.0"
 jsonpatch = "^1.33"
-qualibrate-runner = { version = "^0.2.2", optional = true }
+qualibrate-config = "^0.1.0"
 # TODO: replace after publishing timeline-db
 # json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
 
 [tool.poetry.extras]
 json-timeline-db = ["json-timeline-database"]
-runner = ["qualibrate-runner"]
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
@@ -33,13 +31,13 @@ ruff = "^0.7.0"
 types-requests = "^2.31.0.20240218"
 poethepoet = "^0.25.0"
 
-#[tool.poetry.group.qm-dev.dependencies]
-#qualibrate-runner = {path = "../../qualibrate-runner", optional = true, develop = true, extras=["qualibrary"]}
-
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0.0"
 pytest-mock = "^3.12.0"
 httpx = "^0.27.0"
+
+#[tool.poetry.group.qm-dev.dependencies]
+#qualibrate-config = {path = "../../qualibrate-config", develop = true}
 
 [tool.poetry.scripts]
 qualibrate-app = "qualibrate_app.__main__:main"
@@ -52,13 +50,7 @@ exclude = ['tests/']
 
 [[tool.mypy.overrides]]
 # TODO: add py.typed to json_timeline_database and remove from ignore imports
-module = [
-    "jsonpatch",
-    "jsonpointer",
-    "json_timeline_database.*",
-    "qualibrate",
-    "qualibrate_runner.*",
-]
+module = ["jsonpatch", "jsonpointer", "json_timeline_database.*"]
 ignore_missing_imports = true
 
 [tool.ruff]

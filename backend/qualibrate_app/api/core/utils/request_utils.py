@@ -6,8 +6,20 @@ from urllib.parse import urljoin
 import requests
 from fastapi import HTTPException
 from pydantic import HttpUrl
+from qualibrate_config.models import (
+    QualibrateConfig,
+    QualibrateRunnerRemoteServiceConfig,
+)
 
 HTTPException422 = partial(HTTPException, status_code=422)
+
+
+def get_runner_config(
+    config: QualibrateConfig,
+) -> QualibrateRunnerRemoteServiceConfig:
+    if config.runner is None:
+        raise RuntimeError("Qualibrate runner remote service is not configured")
+    return config.runner
 
 
 def request_with_db(

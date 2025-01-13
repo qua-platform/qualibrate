@@ -2,18 +2,22 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from typing import Any, Optional, Union
 
+from qualibrate_config.models import QualibrateConfig
+
+from qualibrate_app.api.core.domain.bases.base_with_settings import (
+    DomainWithConfigBase,
+)
 from qualibrate_app.api.core.domain.bases.branch import BranchBase
 from qualibrate_app.api.core.domain.bases.node import NodeBase
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
 from qualibrate_app.api.core.types import IdType
-from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["RootBase"]
 
 
-class RootBase(ABC):
-    def __init__(self, settings: QualibrateAppSettings):
-        self._settings = settings
+class RootBase(DomainWithConfigBase, ABC):
+    def __init__(self, settings: QualibrateConfig):
+        super().__init__(settings)
 
     @abstractmethod
     def get_branch(self, branch_name: str) -> BranchBase:

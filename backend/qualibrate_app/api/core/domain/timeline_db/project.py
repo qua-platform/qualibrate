@@ -1,21 +1,14 @@
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Union, cast
 from urllib.parse import urljoin
 
 import requests
-from pydantic import ValidationError
 
 from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.api.core.utils.request_utils import request_with_db
 from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate_app.api.exceptions.classes.values import QValueException
-from qualibrate_app.config import (
-    QUALIBRATE_CONFIG_KEY,
-    QualibrateSettings,
-    QualibrateSettingsSetup,
-)
 
 
 class ProjectsManagerTimelineDb(ProjectsManagerBase):
@@ -36,22 +29,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         self._set_user_storage_project(value)
 
     def _set_user_storage_project(self, project_name: str) -> None:
-        raw_config, new_config = self._get_raw_and_resolved_ref_config(
-            project_name
-        )
-        qs_dict = new_config.get(QUALIBRATE_CONFIG_KEY, {})
-        qs: Union[QualibrateSettings, QualibrateSettingsSetup]
-        try:
-            qs = QualibrateSettings(**qs_dict)
-        except ValidationError as ex:
-            errors = ex.errors(include_url=False, include_input=False)
-            if len(errors) != 1 or not (
-                errors[0]["type"] == "path_not_directory"
-            ):
-                raise
-            qs = QualibrateSettingsSetup(**qs_dict)
-        self._settings.qualibrate.project = cast(str, qs.project)
-        self._settings.qualibrate.storage.location = qs.storage.location
+        super()._set_user_storage_project(project_name)
 
     def create(self, project_name: str) -> str:
         if any(project.name == project_name for project in self.list()):
@@ -68,8 +46,8 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
             raise QJsonDbException(f"Can't create project {project_name}.")
         new_project_path = self._resolve_new_project_path(
             project_name,
-            self._settings.qualibrate.project,
-            self._settings.qualibrate.storage.location,
+            self._settings.project,
+            self._settings.storage.location,
         )
         new_project_path.mkdir(parents=True, exist_ok=True)
         return project_name

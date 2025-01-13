@@ -18,7 +18,7 @@ def test_data_file_name():
 
 
 def test_storage_creation_path_not_exists(mocker, settings):
-    node_path = settings.qualibrate.storage.location / "node_path"
+    node_path = settings.storage.location / "node_path"
     mocker.patch("pathlib.Path.is_dir", return_value=False)
     with pytest.raises(QFileNotFoundException) as ex:
         DataFileStorage(node_path, settings)
@@ -27,7 +27,7 @@ def test_storage_creation_path_not_exists(mocker, settings):
 
 
 def test_storage_creation_valid(mocker, settings):
-    node_path = settings.qualibrate.storage.location / "node_path"
+    node_path = settings.storage.location / "node_path"
     mocker.patch("pathlib.Path.is_dir", return_value=True)
     dfs = DataFileStorage(node_path, settings=settings)
     assert dfs._path == node_path
@@ -39,9 +39,7 @@ class TestDataFileStorage:
     @pytest.fixture(autouse=True, scope="function")
     def create_dfs(self, settings):
         self.node_rel_path = Path("node_path")
-        self.node_abs_path = (
-            settings.qualibrate.storage.location / self.node_rel_path
-        )
+        self.node_abs_path = settings.storage.location / self.node_rel_path
         self.node_abs_path.mkdir(parents=True)
         self.dfs = DataFileStorage(self.node_abs_path, settings)
 

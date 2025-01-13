@@ -12,12 +12,17 @@ from qualibrate_app.api.core.utils.path.node import NodePath
 from qualibrate_app.api.core.utils.path.node_date import NodesDatePath
 
 
-def find_latest_node(base_path: Path) -> NodePath:
-    return max(map(NodePath, base_path.glob("*/#*")), key=lambda p: p.id or -1)
+def find_latest_node(base_path: Path) -> Optional[NodePath]:
+    return max(
+        map(NodePath, base_path.glob("*/#*")),
+        key=lambda p: p.id or -1,  # type: ignore[union-attr]
+        default=None,
+    )
 
 
 def find_latest_node_id(base_path: Path) -> IdType:
-    return find_latest_node(base_path).id or -1
+    latest_node = find_latest_node(base_path)
+    return (latest_node.id or -1) if latest_node else -1
 
 
 def _validate_date_range(

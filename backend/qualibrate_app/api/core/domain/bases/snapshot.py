@@ -4,6 +4,11 @@ from datetime import datetime
 from enum import IntEnum
 from typing import Any, ClassVar, Optional, Union
 
+from qualibrate_config.models import QualibrateConfig
+
+from qualibrate_app.api.core.domain.bases.base_with_settings import (
+    DomainWithConfigBase,
+)
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import (
@@ -14,7 +19,6 @@ from qualibrate_app.api.core.types import (
 from qualibrate_app.api.core.utils.find_utils import (
     get_subpath_value_on_any_depth,
 )
-from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["SnapshotBase", "SnapshotLoadType"]
 
@@ -27,7 +31,7 @@ class SnapshotLoadType(IntEnum):
     Full = 4
 
 
-class SnapshotBase(IDump, ABC):
+class SnapshotBase(DomainWithConfigBase, IDump, ABC):
     _items_keys: ClassVar[tuple[str, ...]] = ("data", "metadata")
 
     def __init__(
@@ -35,10 +39,10 @@ class SnapshotBase(IDump, ABC):
         id: IdType,
         content: Optional[DocumentType] = None,
         *,
-        settings: QualibrateAppSettings,
+        settings: QualibrateConfig,
     ):
+        super().__init__(settings)
         self._id = id
-        self._settings = settings
         if content is None:
             self._load_type = SnapshotLoadType.Empty
             self.content = {}
