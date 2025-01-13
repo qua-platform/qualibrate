@@ -2,8 +2,8 @@ from collections.abc import Mapping
 from typing import Annotated, Any, Optional, cast
 
 from fastapi import APIRouter, Depends
+from qualibrate import QualibrationGraph
 from qualibrate.models.execution_history import ExecutionHistory
-from qualibrate.qualibration_graph import QualibrationGraph
 
 from qualibrate_runner.api.dependencies import get_state
 from qualibrate_runner.config import State

@@ -44,7 +44,7 @@ class LastRun(BaseModel):
     run_result: Optional[Union[NodeRunSummary, GraphRunSummary]] = None
     state_updates: Union[
         Mapping[str, StateUpdate], Mapping[str, Mapping[str, StateUpdate]]
-    ] = Field(default_factory=dict)  # type: ignore[arg-type]
+    ] = Field(default_factory=lambda: dict())
     error: Optional[RunError] = None
 
     @computed_field
