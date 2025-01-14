@@ -1,4 +1,5 @@
 import os
+import warnings
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Optional
@@ -40,6 +41,18 @@ def get_quam_state_path(
     if root is None:
         return None
     quam_state_path = root._raw_dict.get("quam", {}).get("state_path")
-    if quam_state_path is None:
+    if quam_state_path is not None:
+        return Path(quam_state_path)
+    active_machine_path = root._raw_dict.get("active_machine", {}).get("path")
+    if active_machine_path is None:
         return None
-    return Path(quam_state_path)
+    warnings.warn(
+        (
+            'The config entry "active_machine.path" has been deprecated in '
+            'favor of "quam.state_path". Please update the qualibrate config '
+            "(~/.qualibrate/config.toml) accordingly."
+        ),
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return Path(active_machine_path)
