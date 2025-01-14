@@ -59,7 +59,7 @@
 .parameterColumnWrapper {
   width: 50%;
   margin-top: 12px;
-  padding-bottom: 12px;
+  padding-bottom: 3px;
   margin-right: 6px;
   background-color: var(--popup-background);
   border: 1px solid var(--border-color);
@@ -77,11 +77,10 @@
 
 .runInfoWrapper {
   display: flex;
-  width: 100%;
   padding-left: 20px;
   margin-top: 20px;
-  padding-top: 16px;
-  padding-bottom: 20px;
+  padding-top: 6px;
+  padding-bottom: 10px;
   font-size: 14px;
   background-color: var(--popup-background);
   border: 1px solid var(--border-color);
@@ -119,7 +118,7 @@
 }
 
 .parametersWrapper {
-  padding-top: 16px;
+  padding-top: 6px;
   padding-left: 20px;
 }
 

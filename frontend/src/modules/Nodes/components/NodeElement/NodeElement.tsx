@@ -144,13 +144,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           </div>
         </div>
         {isNodeRunning && node.name === selectedItemName && <CircularProgress />}
-        {isNodeRunning && node.name !== selectedItemName && (
-          <BlueButton disabled={true} onClick={() => handleClick()}>
-            Run
-          </BlueButton>
-        )}
+
         {!isNodeRunning && node.name === selectedItemName && (
-          <BlueButton disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
+          <BlueButton className={styles.runButtonWrapper} disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
             Run
           </BlueButton>
         )}

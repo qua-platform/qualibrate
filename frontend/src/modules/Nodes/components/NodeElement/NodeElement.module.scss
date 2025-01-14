@@ -8,7 +8,7 @@
   margin-bottom: 6px;
   position: relative;
   background-color: var(--popup-background);
-  border-left-color: #A5ACB6;
+  border-left-color: rgb(165, 172, 182, 0.4);
   padding: 10px 17px 10px;
   min-height: 19px;
 }
@@ -27,13 +27,17 @@
 .dot {
   min-height: 7px;
   min-width: 7px;
-  background-color: #A5ACB6;
+  background-color: rgb(165, 172, 182, 0.2);
   border-radius: 50%;
   display: inline-block;
 }
 
 .dotSelected {
   background-color: #00D59A;
+}
+
+.runButtonWrapper {
+  max-height: 19px;
 }
 
 .dotWrapper {
