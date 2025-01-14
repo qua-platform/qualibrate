@@ -8,8 +8,8 @@
   margin-bottom: 6px;
   position: relative;
   background-color: var(--popup-background);
-  border-left-color: rgb(165, 172, 182, 0.4);
-  padding: 10px 17px 10px;
+  border-left-color: rgb(165 172 182 / 40%);
+  padding: 10px 17px;
   min-height: 19px;
 }
 
@@ -27,7 +27,7 @@
 .dot {
   min-height: 7px;
   min-width: 7px;
-  background-color: rgb(165, 172, 182, 0.2);
+  background-color: rgb(165 172 182 / 20%);
   border-radius: 50%;
   display: inline-block;
 }

@@ -27,7 +27,7 @@ const NodesPage = () => {
           <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results />
+          <Results showSearch={false} />
         </div>
       </div>
     </div>
