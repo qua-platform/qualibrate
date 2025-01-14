@@ -34,7 +34,11 @@ app.add_middleware(
 )
 app.include_router(base_router)
 
-if _settings.runner.spawn:
+
+composite = _settings.composite
+if composite is None:
+    raise RuntimeError("There is no config for qualibrate composite")
+if composite.runner.spawn:
     try:
         from qualibrate_runner.app import app as runner_app
     except ImportError as ex:
@@ -46,7 +50,7 @@ if _settings.runner.spawn:
     runner_app.add_middleware(RunnerAuthMiddleware)
     app.mount("/execution", runner_app, name="qualibrate_runner")
 
-if _settings.app.spawn:
+if composite is not None and composite.app.spawn:
     try:
         from qualibrate_app.app import app as qualibrate_app_app
     except ImportError as ex:
