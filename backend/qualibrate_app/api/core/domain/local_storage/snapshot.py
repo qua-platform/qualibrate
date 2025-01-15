@@ -46,10 +46,10 @@ from qualibrate_app.api.exceptions.classes.storage import (
     QPathException,
 )
 from qualibrate_app.api.exceptions.classes.values import QValueException
+from qualibrate_app.config.resolvers import get_quam_state_path
+from qualibrate_app.config.vars import METADATA_OUT_PATH
 
 __all__ = ["SnapshotLocalStorage"]
-
-from qualibrate_app.config.vars import METADATA_OUT_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -204,7 +204,7 @@ def _default_snapshot_content_updater(
     with node_filepath.open("w") as f:
         json.dump(node_info, f, indent=4)
 
-    am_path = cast(Optional[Path], settings.active_machine.path)
+    am_path = get_quam_state_path(settings)
     if not am_path:
         logger.info("No active machine path to update")
         pass
