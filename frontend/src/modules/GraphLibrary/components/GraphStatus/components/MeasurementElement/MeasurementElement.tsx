@@ -15,27 +15,31 @@ export const formatDateTime = (dateTimeString: string) => {
 export const MeasurementElement: React.FC<{ element: Measurement }> = ({ element }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
-  // const { isNodeRunning, setRunningNodeInfo, setIsNodeRunning, setRunningNode, allNodes, setAllNodes } = useNodesContext();
-  const { fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
+  const { fetchResultsAndDiffData, setResult, setDiffData, trackLatest, setTrackLatest } = useGraphStatusContext();
 
   const measurementSelected =
     selectedItemName && (selectedItemName === element.snapshot_idx?.toString() || selectedItemName === element.name);
   const cytoscapeNodeSelected =
     selectedNodeNameInWorkflow &&
     (selectedNodeNameInWorkflow === element.snapshot_idx?.toString() || selectedNodeNameInWorkflow === element.name);
+
+  const handleOnClick = () => {
+    if (selectedItemName !== element.name && trackLatest) {
+      setTrackLatest(false);
+    }
+    setSelectedItemName(element.name);
+    setSelectedNodeNameInWorkflow(element.name);
+    if (element.snapshot_idx) {
+      fetchResultsAndDiffData(element.snapshot_idx);
+    } else {
+      setResult({});
+      setDiffData({});
+    }
+  };
   return (
     <div
       className={classNames(styles.rowWrapper, (measurementSelected || cytoscapeNodeSelected) && styles.nodeSelected)}
-      onClick={() => {
-        setSelectedItemName(element.name);
-        setSelectedNodeNameInWorkflow(element.name);
-        if (element.snapshot_idx) {
-          fetchResultsAndDiffData(element.snapshot_idx);
-        } else {
-          setResult({});
-          setDiffData({});
-        }
-      }}
+      onClick={handleOnClick}
     >
       <div className={styles.row}>
         <div className={styles.titleOrName}>

@@ -31,6 +31,9 @@ interface IGraphContext {
   selectedMeasurement?: Measurement;
   setSelectedMeasurement: (measurement: Measurement) => void;
 
+  trackLatest: boolean;
+  setTrackLatest: (track: boolean) => void;
+
   workflowGraphElements?: ElementDefinition[];
   setWorkflowGraphElements: Dispatch<SetStateAction<ElementDefinition[] | undefined>>;
 
@@ -49,6 +52,9 @@ const GraphContext = React.createContext<IGraphContext>({
 
   selectedMeasurement: undefined,
   setSelectedMeasurement: noop,
+
+  trackLatest: false,
+  setTrackLatest: noop,
 
   workflowGraphElements: undefined,
   setWorkflowGraphElements: noop,
@@ -71,6 +77,7 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
   const [workflowGraphElements, setWorkflowGraphElements] = useState<ElementDefinition[] | undefined>(undefined);
   const [diffData, setDiffData] = useState<unknown | undefined>(undefined);
   const [result, setResult] = useState<unknown | undefined>(undefined);
+  const [trackLatest, setTrackLatest] = useState<boolean>(false);
 
   const fetchAllMeasurements = async () => {
     const response = await GraphLibraryApi.fetchExecutionHistory();
@@ -138,6 +145,8 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
         setAllMeasurements,
         selectedMeasurement,
         setSelectedMeasurement,
+        trackLatest,
+        setTrackLatest,
         workflowGraphElements,
         setWorkflowGraphElements,
         diffData,

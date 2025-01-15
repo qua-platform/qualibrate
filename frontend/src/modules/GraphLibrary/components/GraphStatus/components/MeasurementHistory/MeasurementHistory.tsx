@@ -1,9 +1,11 @@
-import React from "react";
-import styles from "./MeasurementHistory.module.scss";
-import { Measurement } from "../../context/GraphStatusContext";
-import { MeasurementElementList } from "../MeasurementElementList/MeasurementElementList";
-
+import React, { useEffect } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
+import styles from "./MeasurementHistory.module.scss";
+import { Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
+import { MeasurementElementList } from "../MeasurementElementList/MeasurementElementList";
+import { Checkbox } from "@mui/material";
+import { useSelectionContext } from "../../../../../common/context/SelectionContext";
+import { useGraphContext } from "../../../../context/GraphContext";
 
 export interface IMeasurementHistoryListProps {
   title?: string;
@@ -11,14 +13,46 @@ export interface IMeasurementHistoryListProps {
 }
 
 export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ title = "Execution history", listOfMeasurements }) => {
+  const { allMeasurements, fetchResultsAndDiffData, setResult, setDiffData, trackLatest, setTrackLatest } = useGraphStatusContext();
+  const { setSelectedNodeNameInWorkflow } = useGraphContext();
+  const { setSelectedItemName } = useSelectionContext();
+
+  const handleOnClick = () => {
+    setTrackLatest(!trackLatest);
+  };
+
+  useEffect(() => {
+    if (trackLatest) {
+      if (allMeasurements) {
+        const element = allMeasurements[0];
+        if (element) {
+          setSelectedItemName(element?.name);
+          setSelectedNodeNameInWorkflow(allMeasurements[0]?.name);
+
+          if (element.snapshot_idx) {
+            fetchResultsAndDiffData(element.snapshot_idx);
+          } else {
+            setResult({});
+            setDiffData({});
+          }
+        }
+      }
+    }
+  }, [trackLatest, allMeasurements]);
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.titleRow}>
         <div className={styles.title}>{title}</div>
-        {/*<div>*/}
-        {/*  <Checkbox checked={false} inputProps={{ "aria-label": "controlled" }} />*/}
-        {/*  Track latest*/}
-        {/*</div>*/}
+        <div className={styles.trackLatestWrapper}>
+          <Checkbox
+            className={styles.trackLatestCheckbox}
+            checked={trackLatest}
+            inputProps={{ "aria-label": "controlled" }}
+            onClick={handleOnClick}
+          />
+          Track latest
+        </div>
       </div>
       {listOfMeasurements && listOfMeasurements?.length > 0 && (
         <div className={styles.contentContainer}>
