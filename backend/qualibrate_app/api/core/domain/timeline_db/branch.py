@@ -2,6 +2,8 @@ from collections.abc import Sequence
 from datetime import datetime
 from typing import Optional
 
+from qualibrate_config.models import QualibrateConfig
+
 from qualibrate_app.api.core.domain.bases.branch import (
     BranchBase,
     BranchLoadType,
@@ -18,7 +20,6 @@ from qualibrate_app.api.core.domain.timeline_db.snapshot import (
 from qualibrate_app.api.core.types import DocumentType, IdType
 from qualibrate_app.api.core.utils.request_utils import request_with_db
 from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["BranchTimelineDb"]
 
@@ -29,7 +30,7 @@ class BranchTimelineDb(BranchBase):
         name: str,
         content: Optional[DocumentType] = None,
         *,
-        settings: QualibrateAppSettings,
+        settings: QualibrateConfig,
     ):
         super().__init__(name, content, settings=settings)
 
@@ -44,11 +45,12 @@ class BranchTimelineDb(BranchBase):
     def load(self, load_type: BranchLoadType) -> None:
         if self._load_type == BranchLoadType.Full:
             return
+        timeline_db_config = self.timeline_db_config
         result = request_with_db(
             f"branch/{self._name}/",
-            db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address_with_root,
-            timeout=self._settings.timeline_db.timeout,
+            db_name=self._settings.project,
+            host=timeline_db_config.address_with_root,
+            timeout=timeline_db_config.timeout,
         )
         no_branch_ex = QJsonDbException("Branch data wasn't retrieved.")
         if result.status_code != 200:
@@ -65,12 +67,13 @@ class BranchTimelineDb(BranchBase):
             if len(latest) != 1:
                 raise QJsonDbException("Can't load latest snapshot of branch")
             return latest[1][0]
+        timeline_db_config = self.timeline_db_config
         res = request_with_db(
             f"branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
-            host=self._settings.timeline_db.address_with_root,
-            db_name=self._settings.qualibrate.project,
-            timeout=self._settings.timeline_db.timeout,
+            host=timeline_db_config.address_with_root,
+            db_name=self._settings.project,
+            timeout=timeline_db_config.timeout,
         )
         snapshot_belonged_to_branch = bool(res.json())
         if not snapshot_belonged_to_branch:
@@ -85,12 +88,13 @@ class BranchTimelineDb(BranchBase):
             if len(latest) != 1:
                 raise QJsonDbException("Can't load latest node of branch")
             return latest[1][0]
+        timeline_db_config = self.timeline_db_config
         res = request_with_db(
             f"branch/{self.name}/is_snapshot_belong",
             params={"snapshot_id": id},
-            host=self._settings.timeline_db.address_with_root,
-            db_name=self._settings.qualibrate.project,
-            timeout=self._settings.timeline_db.timeout,
+            host=timeline_db_config.address_with_root,
+            db_name=self._settings.project,
+            timeout=timeline_db_config.timeout,
         )
         snapshot_belonged_to_branch = bool(res.json())
         if not snapshot_belonged_to_branch:
@@ -106,6 +110,7 @@ class BranchTimelineDb(BranchBase):
         per_page: int,
         reverse: bool,
     ) -> tuple[int, Sequence[DocumentType]]:
+        timeline_db_config = self.timeline_db_config
         result = request_with_db(
             f"branch/{self._name}/history",
             params={
@@ -114,9 +119,9 @@ class BranchTimelineDb(BranchBase):
                 "per_page": per_page,
                 "reverse": reverse,
             },
-            host=self._settings.timeline_db.address_with_root,
-            db_name=self._settings.qualibrate.project,
-            timeout=self._settings.timeline_db.timeout,
+            host=timeline_db_config.address_with_root,
+            db_name=self._settings.project,
+            timeout=timeline_db_config.timeout,
         )
         if result.status_code != 200:
             raise QJsonDbException("Branch history wasn't retrieved.")

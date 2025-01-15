@@ -2,6 +2,10 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime
 from typing import Any, Optional, Union, cast
 
+from qualibrate_config.models import (
+    QualibrateConfig,
+)
+
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadType,
@@ -15,7 +19,6 @@ from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 from qualibrate_app.api.core.utils.request_utils import request_with_db
 from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate_app.config import QualibrateAppSettings
 
 __all__ = ["SnapshotTimelineDb"]
 
@@ -26,7 +29,7 @@ class SnapshotTimelineDb(SnapshotBase):
         id: IdType,
         content: Optional[DocumentType] = None,
         *,
-        settings: QualibrateAppSettings,
+        settings: QualibrateConfig,
     ):
         super().__init__(id, content, settings=settings)
 
@@ -39,12 +42,13 @@ class SnapshotTimelineDb(SnapshotBase):
         elif load_type >= SnapshotLoadType.Data:
             fields = None
         params = None if fields is None else {"fields": fields}
+        timeline_db_config = self.timeline_db_config
         result = request_with_db(
             f"snapshot/{self.id}/",
             params=params,
-            db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address_with_root,
-            timeout=self._settings.timeline_db.timeout,
+            db_name=self._settings.project,
+            host=timeline_db_config.address_with_root,
+            timeout=timeline_db_config.timeout,
         )
         no_snapshot_ex = QJsonDbException("Snapshot data wasn't retrieved.")
         if result.status_code != 200:
@@ -95,12 +99,13 @@ class SnapshotTimelineDb(SnapshotBase):
     def get_latest_snapshots(
         self, page: int = 1, per_page: int = 50, reverse: bool = False
     ) -> tuple[int, Sequence[SnapshotBase]]:
+        timeline_db_config = self.timeline_db_config
         result = request_with_db(
             f"snapshot/{self.id}/history",
             params={"page": page, "per_page": per_page, "reverse": reverse},
-            db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address_with_root,
-            timeout=self._settings.timeline_db.timeout,
+            db_name=self._settings.project,
+            host=timeline_db_config.address_with_root,
+            timeout=timeline_db_config.timeout,
         )
         if result.status_code != 200:
             raise QJsonDbException("Snapshot history wasn't retrieved.")
@@ -121,12 +126,13 @@ class SnapshotTimelineDb(SnapshotBase):
     ) -> Mapping[str, Mapping[str, Any]]:
         if self.id == other_snapshot_int:
             return {}
+        timeline_db_config = self.timeline_db_config
         response = request_with_db(
             "action/compare",
             params={"left_id": self.id, "right_id": other_snapshot_int},
-            db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address_with_root,
-            timeout=self._settings.timeline_db.timeout,
+            db_name=self._settings.project,
+            host=timeline_db_config.address_with_root,
+            timeout=timeline_db_config.timeout,
         )
         if response.status_code != 200:
             raise QJsonDbException("Difference wasn't retrieved.")

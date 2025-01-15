@@ -28,12 +28,13 @@ class RootTimelineDb(RootBase):
         per_page: int,
         reverse: bool,
     ) -> tuple[int, DocumentSequenceType]:
+        timeline_db_config = self.timeline_db_config
         result = request_with_db(
             "snapshot/n_latest",
             params={"page": page, "per_page": per_page, "reverse": reverse},
-            db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address_with_root,
-            timeout=self._settings.timeline_db.timeout,
+            db_name=self._settings.project,
+            host=timeline_db_config.address_with_root,
+            timeout=timeline_db_config.timeout,
         )
         if result.status_code != 200:
             raise QJsonDbException("Latest snapshots wasn't retrieved.")
@@ -100,12 +101,13 @@ class RootTimelineDb(RootBase):
         self, snapshot_id: IdType, data_path: Sequence[Union[str, int]]
     ) -> Any:
         data_path_joined = ".".join(map(str, data_path))
+        timeline_db_config = self.timeline_db_config
         result = request_with_db(
             f"snapshot/{snapshot_id}/search/data/values",
             params={"data_path": data_path_joined},
-            db_name=self._settings.qualibrate.project,
-            host=self._settings.timeline_db.address_with_root,
-            timeout=self._settings.timeline_db.timeout,
+            db_name=self._settings.project,
+            host=timeline_db_config.address_with_root,
+            timeout=timeline_db_config.timeout,
         )
         if result.status_code != 200:
             raise QJsonDbException("Branch history wasn't retrieved.")

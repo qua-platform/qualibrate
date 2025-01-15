@@ -4,50 +4,42 @@ from pathlib import Path
 import pytest
 import tomli_w
 from fastapi.testclient import TestClient
+from qualibrate_config.models import QualibrateConfig
+from qualibrate_config.models.qualibrate import QualibrateTopLevelConfig
+from qualibrate_config.models.storage_type import StorageType
 
-from qualibrate_app.config import (
-    CONFIG_KEY,
-    QUALIBRATE_CONFIG_KEY,
-    ActiveMachineSettings,
-    JsonTimelineDBBase,
-    QualibrateAppSettings,
-    QualibrateRunnerBase,
-    QualibrateSettings,
-    StorageSettings,
-    StorageType,
-    get_config_path,
-    get_settings,
-)
+from qualibrate_app.config import get_config_path, get_settings
 
 
 @pytest.fixture
 def settings(
     tmp_path: Path, default_local_storage_project: Path
-) -> Generator[QualibrateAppSettings, None, None]:
+) -> Generator[QualibrateConfig, None, None]:
     static = tmp_path / "static"
     static.mkdir()
-    active_machine_path = tmp_path / "active_machine_path"
-    active_machine_path.mkdir()
-    yield QualibrateAppSettings(
-        static_site_files=static,
-        qualibrate=QualibrateSettings(
-            project=default_local_storage_project.name,
-            storage=StorageSettings(
-                type=StorageType.local_storage,
-                location=default_local_storage_project,
-            ),
-        ),
-        metadata_out_path="data_path",
-        timeline_db=JsonTimelineDBBase(
-            address="http://localhost:8000/",
-            timeout=0,
-        ),
-        runner=QualibrateRunnerBase(
-            address="http://localhost:8001/execution/",
-            timeout=1,
-        ),
-        active_machine=ActiveMachineSettings(path=active_machine_path),
+    top = QualibrateTopLevelConfig(
+        {
+            "qualibrate": dict(
+                project=default_local_storage_project.name,
+                app={
+                    "static_site_files": static,
+                    "timeline_db": dict(
+                        address="http://localhost:8000/",
+                        timeout=0,
+                    ),
+                },
+                storage=dict(
+                    type=StorageType.local_storage,
+                    location=default_local_storage_project,
+                ),
+                runner=dict(
+                    address="http://localhost:8001/execution/",
+                    timeout=1,
+                ),
+            )
+        }
     )
+    yield top.qualibrate
 
 
 @pytest.fixture
@@ -56,18 +48,10 @@ def settings_path(tmp_path: Path) -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def settings_path_filled(settings: QualibrateAppSettings, settings_path: Path):
+def settings_path_filled(settings: QualibrateConfig, settings_path: Path):
     with settings_path.open("wb") as fin:
         tomli_w.dump(
-            {
-                CONFIG_KEY: settings.model_dump(
-                    exclude={"qualibrate"}, mode="json", exclude_none=True
-                ),
-                QUALIBRATE_CONFIG_KEY: settings.qualibrate.model_dump(
-                    mode="json",
-                    exclude_none=True,
-                ),
-            },
+            settings._root.serialize(),
             fin,
         )
     yield settings_path
@@ -76,12 +60,12 @@ def settings_path_filled(settings: QualibrateAppSettings, settings_path: Path):
 @pytest.fixture
 def client_custom_settings(
     mocker,
-    settings: QualibrateSettings,
+    settings: QualibrateConfig,
     settings_path_filled: Path,
 ) -> Generator[TestClient, None, None]:
     get_config_path.cache_clear()
     mocker.patch(
-        "qualibrate_app.config.resolvers.get_config_file",
+        "qualibrate_config.resolvers.get_config_file",
         return_value=settings_path_filled,
     )
     # TODO: fix patch settings
