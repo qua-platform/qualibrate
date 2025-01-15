@@ -101,6 +101,7 @@ class QualibrationNode(
     storage_manager: Optional[
         StorageManager["QualibrationNode[NodeParameters]"]
     ] = None
+    active_node: Optional["QualibrationNode[ParametersType]"] = None
 
     def __init__(
         self,
@@ -129,7 +130,9 @@ class QualibrationNode(
             raise StopInspection(
                 "Node instantiated in inspection mode", instance=self
             )
-
+        if name == "wf_node1":
+            print("init", id(self))
+        self.__class__.active_node = self
         last_executed_node_ctx.set(self)
 
         self._warn_if_external_and_interactive_mpl()
@@ -605,14 +608,20 @@ class QualibrationNode(
         Returns:
             True if the node is successfully stopped, False otherwise.
         """
-        logger.debug(f"Stop node {self.name}")
+        active_node = self.__class__.active_node
+        print("stop", id(active_node))
+        if active_node is None:
+            return False
+        logger.debug(f"Stop node {active_node.name}")
         if find_spec("qm") is None:
             return False
-        qmm = getattr(self.machine, "qmm", None)
+        qmm = getattr(active_node.machine, "qmm", None)
         if not qmm:
-            if self.machine is None or not hasattr(self.machine, "connect"):
+            if active_node.machine is None or not hasattr(
+                active_node.machine, "connect"
+            ):
                 return False
-            qmm = self.machine.connect()
+            qmm = active_node.machine.connect()
         if hasattr(qmm, "list_open_qms"):
             ids = qmm.list_open_qms()
         elif hasattr(qmm, "list_open_quantum_machines"):
