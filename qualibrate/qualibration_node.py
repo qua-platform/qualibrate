@@ -130,8 +130,6 @@ class QualibrationNode(
             raise StopInspection(
                 "Node instantiated in inspection mode", instance=self
             )
-        if name == "wf_node1":
-            print("init", id(self))
         self.__class__.active_node = self
         last_executed_node_ctx.set(self)
 
@@ -609,10 +607,10 @@ class QualibrationNode(
             True if the node is successfully stopped, False otherwise.
         """
         active_node = self.__class__.active_node
-        print("stop", id(active_node))
+        logger.debug(f"Stop node {active_node} with id {id(active_node)}")
         if active_node is None:
             return False
-        logger.debug(f"Stop node {active_node.name}")
+        logger.info(f"Stop node {active_node.name}")
         if find_spec("qm") is None:
             return False
         qmm = getattr(active_node.machine, "qmm", None)
