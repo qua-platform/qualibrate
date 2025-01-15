@@ -17,8 +17,7 @@ const MainModularPage = () => {
     if (!isAuthorized) {
       navigate(LOGIN_URL);
     } else {
-      openTab("graph-status");
-      // openTab("nodes");
+      openTab("nodes");
     }
   }, [isAuthorized]);
 
