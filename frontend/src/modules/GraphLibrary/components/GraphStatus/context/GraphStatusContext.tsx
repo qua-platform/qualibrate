@@ -77,7 +77,7 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
   const [workflowGraphElements, setWorkflowGraphElements] = useState<ElementDefinition[] | undefined>(undefined);
   const [diffData, setDiffData] = useState<unknown | undefined>(undefined);
   const [result, setResult] = useState<unknown | undefined>(undefined);
-  const [trackLatest, setTrackLatest] = useState<boolean>(false);
+  const [trackLatest, setTrackLatest] = useState<boolean>(true);
 
   const fetchAllMeasurements = async () => {
     const response = await GraphLibraryApi.fetchExecutionHistory();
