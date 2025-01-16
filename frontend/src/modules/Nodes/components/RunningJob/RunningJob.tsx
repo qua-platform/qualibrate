@@ -3,7 +3,6 @@ import React from "react";
 import styles from "./RunningJob.module.scss";
 import { useNodesContext } from "../../context/NodesContext";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
-import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
 import { StateUpdates } from "../StateUpdates/StateUpdates";
 import { StopIcon } from "../../../../ui-lib/Icons/StopIcon";
 import { RunningJobInfoSection } from "./RunningJobInfoSection";
@@ -66,7 +65,6 @@ export const RunningJob: React.FC = () => {
           />
         </div>
       </div>
-      {runningNodeInfo?.error && <ErrorStatusWrapper error={runningNodeInfo?.error} />}
     </div>
   );
 };
