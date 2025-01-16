@@ -8,24 +8,23 @@ packages = [{ include = "qualibrate_composite" }]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.12"
+python = "^3.9,<3.13"
 fastapi = "^0.115.2"
-# TODO: uvicorn 0.34
-uvicorn = "^0.32.0"
+uvicorn = "^0.34.0"
 pydantic = "^2.7.4"
 pydantic-settings = "^2.3.4"
 click = "^8.1.7"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
-qualibrate-core = "^0.2.3"
-qualibrate-runner = "^0.2.3"
-qualibrate-app = "^0.2.3"
-qualibrate-config = "^0.1.0"
+qualibrate-core = "^0.2.4"
+qualibrate-runner = "^0.2.4"
+qualibrate-app = "^0.2.5"
+qualibrate-config = "^0.1.1"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
-ruff = "^0.7.0"
-poethepoet = "^0.25.0"
+ruff = "^0.8.0"
+poethepoet = "^0.31.1"
 
 #[tool.poetry.group.qm-dev.dependencies]
 #qualibrate-config = {path = "../qualibrate-config", develop = true}
