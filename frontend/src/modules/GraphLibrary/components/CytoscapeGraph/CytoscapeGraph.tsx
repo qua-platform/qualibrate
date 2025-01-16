@@ -15,6 +15,22 @@ interface IProps {
 }
 
 export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
+  const getNodeIcon = (nodeName: string) => {
+    return `/assets/icons/${nodeName}.svg`;
+  };
+
+  const wrapCytoscapeElements = (elements: cytoscape.ElementDefinition[]) => {
+    return elements.map((el) => {
+      return {
+        ...el,
+        style: {
+          backgroundImage: getNodeIcon(el.group ? el.group.toString() : ""),
+        },
+      };
+    });
+  };
+
+  const cytoscapeElements = wrapCytoscapeElements(elements);
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
   const cy = useRef<cytoscape.Core>();
   const divRef = useRef(null);
@@ -59,7 +75,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
       if (!cy.current) {
         cy.current = cytoscape({
           container: divRef.current,
-          elements,
+          elements: cytoscapeElements,
           style,
           layout: CytoscapeLayout,
           zoom: 1,
