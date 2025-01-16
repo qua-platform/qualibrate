@@ -2,10 +2,18 @@
   overflow: scroll;
   max-height: 150px;
   padding: 20px;
+  padding-top: 0px;
   flex: none;
+}
+
+.statusErrorHeaderWrapper {
+  padding-left: 0px;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  font-weight: bold;
 }
 
 .statusErrorRowWrapper {
   overflow: scroll;
-  padding-left: 52px;
+  padding-left: 0px;
 }

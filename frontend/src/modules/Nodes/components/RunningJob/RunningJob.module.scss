@@ -64,6 +64,7 @@
   background-color: var(--popup-background);
   border: 1px solid var(--border-color);
   border-radius: 4px;
+  overflow: scroll;
 }
 
 .statesColumnWrapper {
@@ -124,8 +125,8 @@
 
 .parameterTitleWrapper {
   display: flex;
-  margin-bottom: 15px;
   font-size: 14px;
+  font-weight: bold;
   padding: 10px 15px 1px 6px;
 }
 
@@ -151,7 +152,8 @@
 .stateWrapper {
   display: flex;
   font-size: 14px;
-  padding: 16px 15px 15px 20px;
+  font-weight: bold;
+  padding: 16px 15px 1px 20px;
 }
 
 .stateTitle {
