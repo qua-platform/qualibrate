@@ -47,8 +47,8 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
             <div className={styles.lowerUpperLeftContainer}>
               <div>Status: {statusMessage}</div>
               <div>Graph progress: {graphProgressMessage ?? <CircularProgress size="2rem" />}</div>
+              {lastRunInfo?.error && <ErrorStatusWrapper error={lastRunInfo?.error} />}
               <div>Run duration: {runDurationMessage ?? <CircularProgress size="2rem" />}</div>
-              <ErrorStatusWrapper error={lastRunInfo?.error} />
             </div>
             <div className={styles.lowerUpperRightContainer}>
               {lastRunInfo?.active && <BlueButton onClick={handleStopClick}>Stop</BlueButton>}
