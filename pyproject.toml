@@ -18,7 +18,7 @@ tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 qualibrate-core = "^0.2.4"
 qualibrate-runner = "^0.2.4"
-qualibrate-app = "^0.2.4"
+qualibrate-app = "^0.2.5"
 qualibrate-config = "^0.1.1"
 
 [tool.poetry.group.dev.dependencies]
