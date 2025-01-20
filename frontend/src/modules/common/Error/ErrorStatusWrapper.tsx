@@ -23,9 +23,9 @@ export const ErrorStatusWrapper: React.FC<{
   return (
     <>
       <div className={styles.statusErrorWrapper}>
-        {error?.error_class && <div>Error occurred:</div>}
-        <div className={styles.statusErrorWrapper}> {errorMessage}</div>
-        {error?.traceback?.length && error?.traceback?.length > 0 && <div>Error traceback:</div>}
+        {error?.error_class && <div className={styles.statusErrorHeaderWrapper}>Error occurred:</div>}
+        <div className={styles.statusErrorRowWrapper}> {errorMessage}</div>
+        {error?.traceback?.length && error?.traceback?.length > 0 && <div className={styles.statusErrorHeaderWrapper}>Error traceback:</div>}
         {(error?.traceback ?? []).map((row, index) => (
           <div key={`${row}-${index}`} className={styles.statusErrorRowWrapper}>
             {row}

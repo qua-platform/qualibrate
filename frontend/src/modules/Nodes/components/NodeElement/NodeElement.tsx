@@ -1,15 +1,15 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import { Checkbox, CircularProgress } from "@mui/material";
 import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
 import { classNames } from "../../../../utils/classnames";
-import { NodesApi } from "../../api/NodesAPI";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
 import { ErrorResponseWrapper } from "../../../common/Error/ErrorResponseWrapper";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
+import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
+import { NodesApi } from "../../api/NodesAPI";
 
 export interface NodeDTO {
   name: string;
@@ -131,35 +131,39 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     >
       <div className={styles.row}>
         <div className={styles.titleOrNameWrapper}>
-          <div className={styles.dot}></div>
           <div className={styles.titleOrName}>{insertSpaces(node.title ?? node.name)}</div>
         </div>
-        <div className={styles.description}>{node.description}</div>
-        <div className={styles.runButtonWrapper}>
-          {isNodeRunning && node.name === selectedItemName && <CircularProgress />}
-          {isNodeRunning && node.name !== selectedItemName && (
-            <BlueButton className={styles.runButton} disabled={true} onClick={() => handleClick()}>
-              Run
-            </BlueButton>
-          )}
-          {!isNodeRunning && (
-            <BlueButton className={styles.runButton} disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
-              Run
-            </BlueButton>
-          )}
+        <div className={styles.descriptionWrapper}>
+          <div className={styles.description}>
+            <div className={styles.descriptionText}>{node.description}</div>
+          </div>
         </div>
+        <div className={styles.dotWrapper}>
+          <div>
+            <div className={classNames(styles.dot, selectedItemName === node.name && styles.dotSelected)} />
+          </div>
+        </div>
+        {isNodeRunning && node.name === selectedItemName && <CircularProgress />}
+
+        {!isNodeRunning && node.name === selectedItemName && (
+          <BlueButton className={styles.runButtonWrapper} disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
+            Run
+          </BlueButton>
+        )}
       </div>
       {node.name === selectedItemName && node.name === submitNodeResponseError?.nodeName && (
         <ErrorResponseWrapper error={submitNodeResponseError} />
       )}
-      <Parameters
-        parametersExpanded={true}
-        showTitle={true}
-        key={node.name}
-        show={selectedItemName === node.name}
-        currentItem={node}
-        getInputElement={getInputElement}
-      />
+      {Object.keys(node?.parameters ?? {}).length > 0 && (
+        <Parameters
+          parametersExpanded={true}
+          showTitle={true}
+          key={node.name}
+          show={selectedItemName === node.name}
+          currentItem={node}
+          getInputElement={getInputElement}
+        />
+      )}
     </div>
   );
 };

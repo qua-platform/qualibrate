@@ -2,8 +2,19 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import jp from "jsonpath";
 import { defineDataType, JsonViewer, Path } from "@textea/json-viewer";
 import InputField from "../../../common/ui-components/common/Input/InputField";
+import styles from "./JSONEditor.module.scss";
 
-export const JSONEditor = ({ title, jsonDataProp, height }: { title: string; jsonDataProp: object; height: string }) => {
+export const JSONEditor = ({
+  title,
+  jsonDataProp,
+  height,
+  showSearch = true,
+}: {
+  title: string;
+  jsonDataProp: object;
+  height: string;
+  showSearch: boolean;
+}) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);
 
@@ -100,9 +111,11 @@ export const JSONEditor = ({ title, jsonDataProp, height }: { title: string; jso
         marginRight: "20px",
       }}
     >
-      <h1 style={{ paddingTop: "20px", paddingBottom: "5px" }}>{title}</h1>
+      <h1 className={styles.title}>{title}</h1>
 
-      <InputField value={searchTerm} title={"Search"} onChange={(_e, event) => handleSearch(event.target.value, event)}></InputField>
+      {showSearch && (
+        <InputField value={searchTerm} title={"Search"} onChange={(_e, event) => handleSearch(event.target.value, event)}></InputField>
+      )}
       <JsonViewer
         rootName={false}
         onSelect={(path) => handleOnSelect(path)}

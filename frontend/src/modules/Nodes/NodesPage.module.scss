@@ -3,36 +3,70 @@
 
 .wrapper {
   height: 100%;
-  display: flex;
   background: var(--background-color);
   border-radius: var(--border-radius);
 }
 
-.nodesContainer {
+.nodesAndRunningJobInfoWrapper {
+  height: calc(100% - 80px);
+  display: flex;
+}
+
+.nodesContainerTop {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+  flex-grow: 1;
+  color: rgb(217 213 212);
+  background-color: var(--background-color);
+}
+
+.nodesContainerDown {
+  min-width: 500px;
   display: flex;
   flex-direction: column;
   width: 50%;
   overflow: hidden;
   flex-grow: 1;
   color: rgb(217 213 212);
-  margin-left: 20px;
-  margin-right: 20px;
-  height: calc(100% - 20px);
-  background-color: var(--background-color);
+  //background-color: var(--background-color);
+  //padding-top: 33px;
+  padding-top: 5px;
+  //border: 1px solid blue;
+  border: 1px solid #42424C;
+  padding-right: 30px;
+  background: #28292F;
+}
+
+.nodeResultWrapper {
+  height: 50%;
+}
+
+.nodeRunningJobInfoWrapper {
+  padding-left: 20px;
+  padding-top: 10px
 }
 
 .titleWrapper {
   display: flex;
-  justify-content: space-between;
+  padding-left: 30px;
+  background-color: #28292F;
+}
+
+.nodeElementListWrapper {
+  padding: 14px 20px;
+  background: #28292F;
+  border: 1px solid var(--border-color);
+  overflow: scroll;
+  height: 100%;
 }
 
 .listWrapper {
   flex-grow: 1;
-  border: 2px solid var(--border-color);
-  padding: 0 2px 2px;;
-  background-color: var(--popup-background);
   max-width: 100%;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 .dot {

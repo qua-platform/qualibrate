@@ -3,8 +3,9 @@ import { RunningNodeInfo, StateUpdate } from "../../context/NodesContext";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import { StateUpdateComponent, StateUpdateProps } from "./StateUpdateComponent";
+import { StateUpdateElement, StateUpdateProps } from "./StateUpdateElement";
+import { Button } from "@mui/material";
+import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
 
 export const StateUpdates: React.FC<{
   runningNodeInfo: RunningNodeInfo | undefined;
@@ -31,32 +32,42 @@ export const StateUpdates: React.FC<{
 
   return (
     <>
-      {Object.entries(runningNodeInfo?.state_updates ?? {}).filter(([, stateUpdateObject]) => !stateUpdateObject.stateUpdated).length >
-        0 && (
+      {/*{Object.entries(runningNodeInfo?.state_updates ?? {}).filter(([, stateUpdateObject]) => !stateUpdateObject.stateUpdated).length >*/}
+      {/*  0 && (*/}
+      <div className={styles.stateWrapper}>
         <div className={styles.stateTitle}>
-          State updates:
-          <div className={styles.updateAll}>
-            <BlueButton
+          State updates&nbsp;
+          {runningNodeInfo?.state_updates && Object.keys(runningNodeInfo?.state_updates).length > 0
+            ? `(${Object.keys(runningNodeInfo?.state_updates).length})`
+            : ""}
+        </div>
+        {updateAllButtonPressed ||
+          (Object.entries(runningNodeInfo?.state_updates ?? {}).filter(([, stateUpdateObject]) => !stateUpdateObject.stateUpdated).length >
+            0 && (
+            <Button
               className={styles.updateAllButton}
               disabled={updateAllButtonPressed}
               onClick={() => handleClick(runningNodeInfo?.state_updates ?? {})}
             >
-              Update all
-            </BlueButton>
-          </div>
-        </div>
-      )}
+              Accept All
+            </Button>
+          ))}
+      </div>
+      {/*// )}*/}
       {runningNodeInfo?.state_updates && (
         <div className={styles.stateUpdatesTopWrapper}>
-          {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject]) =>
-            StateUpdateComponent({
+          {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject], index) =>
+            StateUpdateElement({
               key,
+              index,
               stateUpdateObject,
               runningNodeInfo,
               setRunningNodeInfo,
               updateAllButtonPressed,
             } as StateUpdateProps)
           )}
+
+          {runningNodeInfo?.error && <ErrorStatusWrapper error={runningNodeInfo?.error} />}
         </div>
       )}
     </>

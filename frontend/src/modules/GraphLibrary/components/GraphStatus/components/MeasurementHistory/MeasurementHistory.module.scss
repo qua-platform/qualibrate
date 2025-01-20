@@ -13,7 +13,27 @@
 }
 
 .title {
-  font-size: 18px;
+  color: #FFF;
+  font-family: "Roboto Condensed", serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.trackLatestWrapper {
+  color: #C6CDD6;
+  font-family: Roboto, serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.trackLatestCheckbox {
+  svg {
+    color: #42424C;
+  }
 }
 
 .contentContainer {

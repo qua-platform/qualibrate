@@ -4,11 +4,10 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  max-height: 32%;
-  padding: 10px;
-  margin-top: 10px;
-  border: 1px solid var(--border-color);
-  background-color: var(--popup-background);
+  max-height: 52%;
+  //padding: 30px;
+  color: #A5ACB6;
+  padding-bottom: 28px;
 }
 
 .title {
@@ -17,6 +16,18 @@
   gap: 10px;
   font-size: 20px;
   vertical-align: middle;
+}
+
+.runningJobWrapper {
+  display: inline-flex;
+}
+
+.runningJobNameWrapper {
+  display: inline-flex;
+}
+
+.runningJobName {
+  color: white;
 }
 
 .dot {
@@ -40,72 +51,271 @@
   background-color: #e02525;
 }
 
-.infoWrapper {
-  overflow: scroll;
+.parameterStatesWrapper {
   display: flex;
+  max-height: 220px;
 }
 
-.runInfo {
-  padding-left: 30px;
-  padding-top: 20px;
+.parameterColumnWrapper {
   width: 50%;
+  margin-top: 12px;
+  padding-bottom: 3px;
+  margin-right: 6px;
+  background-color: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: scroll;
+}
+
+.statesColumnWrapper {
+  width: 50%;
+  margin-top: 12px;
+  margin-left: 6px;
+  background-color: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.runInfoWrapper {
+  display: flex;
+  padding-left: 20px;
+  margin-top: 20px;
+  padding-top: 6px;
+  padding-bottom: 10px;
+  font-size: 14px;
+  background-color: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.runInfoColumn {
+  display: grid;
+  width: 50%;
+}
+
+.jobInfoKey {
+  display: inline-flex;
+  width: 100px;
+}
+
+.jobInfoKeySecondColumn {
+  display: inline-flex;
+  width: 50px;
+}
+
+.jobInfoValue {
+  display: inline-flex;
+  color: white;
+  word-break: break-all;
+}
+
+.jobInfoValueText {
+  color: #A5ACB6;
 }
 
 .runInfoRow {
+  display: inline-flex;
   padding-top: 7px;
 }
 
-.parameterInfo {
-  width: 50%;
-  padding-top: 20px;
+.parametersWrapper {
+  padding-top: 6px;
+  padding-left: 20px;
 }
 
 .parameterTitleWrapper {
   display: flex;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 15px 1px 6px;
 }
 
 .parameterValues {
   display: flex;
-  padding-left: 30px;
+  width: 100%;
+  font-size: 12px;
 }
 
 .parameterLabel {
   padding-right: 10px;
-  padding-top: 5px;
+  padding-top: 10px;
+  width: 100px;
+  font-size: 12px;
 }
 
 .parameterValue {
-  padding-top: 5px;
+  padding-top: 10px;
+  color: white;
+  font-size: 14px;
+}
+
+.stateWrapper {
+  display: flex;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 16px 15px 1px 20px;
 }
 
 .stateTitle {
-  display: flex;
-  padding-top: 20px;
-  padding-left: 40px;
-}
-
-.updateAll {
-  padding-left: 140px;
+  width: 100%;
+  text-wrap-mode: nowrap;
 }
 
 .updateAllButton {
+  font-family: Roboto, serif;
   height: 20px;
   text-wrap: nowrap;
+  font-size: 14px;
+  color: #3CDEF8 !important;
+  text-transform: none !important;
 }
 
 .stateUpdatesTopWrapper {
-  overflow: scroll;
+  overflow-y: scroll;
+  max-height: calc(100% - 51px);
+  margin-bottom: 10px;
 }
 
 .stateUpdateWrapper {
-  display: flex;
-  padding-left: 50px;
-  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 20px;
 }
 
-.stateUpdateIconWrapper {
-  width: 32px;
-  vertical-align: middle;
+.stateUpdateOrderNumberAndTitleWrapper {
+  font-family: Roboto, serif;
+  font-size: 12px;
+  display: flex;
+}
+
+.stateUpdateOrderNumber {
+  color: #A5ACB6;
+}
+
+.stateUpdateOrderKey {
+  padding-left: 7px;
+  color: white;
+}
+
+.stateUpdateValueWrapper {
+  display: flex;
+  padding-left: 12px;
+  padding-top: 8px;
+  padding-bottom: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stateUpdateValueOld {
+  display: flex;
+  align-items: center;
+}
+
+.stateUpdateRightArrowIconWrapper {
+  padding-left: 5px;
+  padding-right: 5px;
+  align-content: center;
+}
+
+.stateUpdateUndoIconWrapper {
+  padding-left: 12px;
+  padding-top: 3px;
+
+  svg {
+    cursor: pointer;
+  }
+}
+
+.stateUpdateValueNew {
+  display: flex;
+  align-items: center;
+}
+
+.valueContainer {
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 14px;
+  background-color: #42464C;
+  color: white;
+  border-radius: 6px;
+  border: 1px solid #42464C;
+  transition: all 1s ease;
+  cursor: pointer;
+  width: fit-content;
+  max-width: 100%;
+  height: fit-content;
+  align-items: center;
+  outline: none !important;
+  //display: inline-block;
+  //padding: 2px 4px;
+  //font-size: 14px;
+  //background-color: #42464c;
+  //color: white;
+  //border-radius: 6px;
+  //border: 1px solid #42464c;
+  //transition: all 0.2s ease;
+  //cursor: pointer;
+  //width: auto; /* Širina automatski prati sadržaj */
+  //min-width: 50px; /* Minimalna širina */
+  //max-width: 100%; /* Maksimalna širina (za mobilne uređaje) */
+  //overflow: hidden;
+  //white-space: nowrap; /* Sprečava prelom */
+  //text-overflow: ellipsis; /* Dodaje "..." ako je tekst predugačak */
+}
+
+.valueContainerHovered {
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 14px;
+  background-color: rgb(44 203 229 / 10%);
+  color: #3CDEF8;
+  border-radius: 6px;
+  border: 1px solid rgb(44 203 229 / 10%);
+  cursor: pointer;
+
+}
+
+.valueContainerEditable {
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 14px;
+  color: #3CDEF8;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid rgb(44 203 229 / 10%);
+  background: rgb(44 203 229 / 10%);
+}
+
+.valueContainerDisabled {
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 14px;
+  color: #32FFC6;
+  border-radius: 6px;
+  border: 1px solid rgb(0 213 154 / 10%);
+  background: rgb(0 213 154 / 10%);
+
+}
+
+input:focus {
+  outline: none !important;
+}
+
+.stateUpdateIconBeforeWrapper {
+  margin-left: auto;
+  padding-right: 13px;
+  display: flex;
+  align-items: center;
+
+  svg {
+    cursor: pointer;
+  }
+}
+
+.stateUpdateIconAfterWrapper {
+  margin-left: auto;
+  padding-right: 13px;
+  display: flex;
+  align-items: center;
 }
 
 .stateUpdateComponentTextWrapper {
