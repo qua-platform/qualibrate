@@ -15,9 +15,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout repositories
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate-app
+          path: qualibrate-app
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install core
+        uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate-core
+          path: qualibrate-core
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install runner
+        uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate-runner
+          path: qualibrate-runner
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install composite
+        uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate
+          path: qualibrate-composite
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install config
+        uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate-config
+          path: qualibrate-config
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Step 2: Set up Node.js
       - name: Use Node.js
@@ -30,39 +62,40 @@ jobs:
       - uses: actions/cache@v4
         id: frontend-cache-id
         with:
-          path: frontend/node_modules
-          key: npm-${{ hashFiles('frontend/**/package-lock.json') }}
+          path: qualibrate-app/frontend/node_modules
+          key: npm-${{ hashFiles('qualibrate-app/frontend/**/package-lock.json') }}
           restore-keys: npm-
 
       # Step 4: Install frontend dependencies
       - name: Install npm dependencies
         if: steps.frontend-cache-id.outputs.cache-hit != 'true'
-        working-directory: frontend
+        working-directory: qualibrate-app/frontend
         run: npm ci
 
       # Step 5: Build the frontend
       - name: Build frontend
-        working-directory: frontend
+        working-directory: qualibrate-app/frontend
         run: npm run build
 
       # Step 6: Set up Python environment
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
+          cache-dependency-path: |
+            qualibrate-composite/poetry.lock
+            qualibrate-app/backend/poetry.lock
+            qualibrate-runner/poetry.lock
+            qualibrate-core/poetry.lock
+            qualibrate-config/poetry.lock
 
       # Step 7: Copy built frontend to backend
       - name: Copy built FE to BE
-        run: cp -r frontend/dist backend/qualibrate_static
+        run: cp -r qualibrate-app/frontend/dist qualibrate-app/backend/qualibrate_static
 
-      # Step 8: Install backend dependencies
-      - name: Install qualibrate-app
-        run: pip install .
-        working-directory: backend
-
-      - name: Install qualibrate-core, qualibrate-runner, and qualibrate-composite
-        run: pip install git+https://github.com/qua-platform/qualibrate-runner.git \
-          git+https://github.com/qua-platform/qualibrate-core.git \
-          git+https://github.com/qua-platform/qualibrate.git
+      # Step 8: Install qualibrate packages
+      - name: Install qualibrate packages
+        run: |
+          pip install ./qualibrate-composite ./qualibrate-app/backend ./qualibrate-runner ./qualibrate-core ./qualibrate-config
 
       # Step 9: Checkout calibration scripts repository
       - name: Checkout Calibration Scripts
@@ -84,12 +117,12 @@ jobs:
       - name: Create Qualibrate Configuration
         run: |
           qualibrate config --auto-accept \
-            --runner-calibration-library-folder $GITHUB_WORKSPACE/qualibrate-examples/calibrations \
-            --app-user-storage $GITHUB_WORKSPACE/data
+            --calibration-library-folder $GITHUB_WORKSPACE/qualibrate-examples/calibrations \
+            --storage-location $GITHUB_WORKSPACE/data
 
       # Step 13: Install Node.js and Playwright dependencies
       - name: Install Playwright Dependencies
-        working-directory: ./frontend/tests
+        working-directory: ./qualibrate-app/frontend/tests
         run: |
           npm install
           npx playwright install-deps chromium
@@ -111,5 +144,5 @@ jobs:
 
       # Step 15: Run Playwright tests
       - name: Run Playwright Tests
-        working-directory: ./frontend/tests/e2e
+        working-directory: ./qualibrate-app/frontend/tests/e2e
         run: npx playwright test
