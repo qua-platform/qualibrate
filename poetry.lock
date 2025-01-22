@@ -2304,15 +2304,15 @@ interplot = ["dill (>=0.3.4,<0.4.0)", "ipython (>=8.10.0,<9.0.0)", "pypiwin32 (>
 
 [[package]]
 name = "qualibrate-config"
-version = "0.1.0"
+version = "0.1.2"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 markers = "python_version >= \"3.12\" or python_version <= \"3.11\""
 files = [
-    {file = "qualibrate_config-0.1.0-py3-none-any.whl", hash = "sha256:cb9dfd862997e72068617f4e490232249e3052d24ec9fc8c8d0a49e28f103d5c"},
-    {file = "qualibrate_config-0.1.0.tar.gz", hash = "sha256:a54f2ef80a7bc6c2172bfda52c16c333eaf2be8a6ad8fb8cd008cb6ea7348930"},
+    {file = "qualibrate_config-0.1.2-py3-none-any.whl", hash = "sha256:888f892eecc7c3a7383738951a7cb23a1da15933264fd798522c19c9ba2c90b9"},
+    {file = "qualibrate_config-0.1.2.tar.gz", hash = "sha256:cb6700125cfeccb137c57cb995b03aaa5ce57e968f00c235e05186ae7ce6a763"},
 ]
 
 [package.dependencies]
@@ -2823,4 +2823,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.13"
-content-hash = "3bc67743579978ab187c25ec9b61815e025da796cec66c0ef70f9f23a9fd1513"
+content-hash = "0b1135242b3d9d2f3b0951037563cdae5862c85ae4109cfc933e56e899dda1c4"
