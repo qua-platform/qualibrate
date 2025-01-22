@@ -14,6 +14,32 @@ const MainModularPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkVersion = async () => {
+      const localVersion = localStorage.getItem("appVersion");
+      try {
+        const response = await fetch("/assets/manifest.json");
+        const { version } = await response.json();
+
+        if (localVersion && version !== localVersion) {
+          handleRefresh();
+        }
+
+        // Update the local storage with the current version
+        localStorage.setItem("appVersion", version);
+      } catch (error) {
+        console.error("Failed to fetch version:", error);
+      }
+    };
+
+    checkVersion();
+  }, []);
+
+  const handleRefresh = () => {
+    // @ts-ignore
+    window.location.reload(true); // Hard refresh to clear cache
+  };
+
+  useEffect(() => {
     if (!isAuthorized) {
       navigate(LOGIN_URL);
     } else {
