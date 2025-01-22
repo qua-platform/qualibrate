@@ -2261,14 +2261,14 @@ uvicorn = ">=0.34.0,<0.35.0"
 
 [[package]]
 name = "qualibrate-config"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_config-0.1.1-py3-none-any.whl", hash = "sha256:00da8e17274412f7d3ca8db7cced94e22d7177cb4ef1eef15d85fcb0854c7f7c"},
-    {file = "qualibrate_config-0.1.1.tar.gz", hash = "sha256:bd414a633ee3d5837717610abec2d2e40f5116258646124c0fd1634b75bd9635"},
+    {file = "qualibrate_config-0.1.2-py3-none-any.whl", hash = "sha256:888f892eecc7c3a7383738951a7cb23a1da15933264fd798522c19c9ba2c90b9"},
+    {file = "qualibrate_config-0.1.2.tar.gz", hash = "sha256:cb6700125cfeccb137c57cb995b03aaa5ce57e968f00c235e05186ae7ce6a763"},
 ]
 
 [package.dependencies]
@@ -2281,14 +2281,14 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.2.4"
+version = "0.2.5"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_core-0.2.4-py3-none-any.whl", hash = "sha256:f36626cd885354c7ef323be453db2f7def391bb7ff7e270958fe318d900bf7d8"},
-    {file = "qualibrate_core-0.2.4.tar.gz", hash = "sha256:ffec33ca2b03e9573d743e7e059c2eb9cf745aefaae9f20d3dcc7424a2bb9692"},
+    {file = "qualibrate_core-0.2.5-py3-none-any.whl", hash = "sha256:cef41b152f7894715a578cdc237fd8a8a265282a83c450e83021ec57ab8cb0c6"},
+    {file = "qualibrate_core-0.2.5.tar.gz", hash = "sha256:1ca1410aeca1528773a1cbb9a5b62ba529db5eeca6d4d93777362ca07e663c2f"},
 ]
 
 [package.dependencies]
@@ -2298,7 +2298,7 @@ matplotlib = ">=3.9.4,<4.0.0"
 networkx = ">=3.2.0,<3.3.0"
 pydantic = ">=2.10.4,<3.0.0"
 qualang-tools = {version = ">=0.18.2", markers = "python_version >= \"3.9\" and python_version < \"3.13\""}
-qualibrate-config = ">=0.1.0,<0.2.0"
+qualibrate-config = ">=0.1.2,<0.2.0"
 types-networkx = ">=3.2.1.20240918,<3.3.0.0"
 
 [[package]]
@@ -2768,4 +2768,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.13"
-content-hash = "bd5efae478d95748a51739a93d6700d306ca2c704d878495101b89e1048f2513"
+content-hash = "ff3bd1c36b9741f250e5a8ba34b392bb711c2e90318b0e02f81f10c418ea926f"
