@@ -21,13 +21,13 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   await expect(page.locator('[class^="NodesPage-module__listWrapper__"]')).toBeVisible(); // node library is visible
   const testCalTab = await page.locator('[class^="NodeElement-module__rowWrapper__"] >> text=test_cal');
   await expect(testCalTab).toBeVisible(); // test_cal 'calibration node tab' is visible in the node library 
-  await expect(page.getByText('test_calRun')).toBeVisible(); // test_cal label is visible in the node library 
+  await expect(page.getByText('test_cal').first()).toBeVisible(); // test_cal label is visible in the node library 
   // Check that the test_cal node has no visible parameters
   await expect(page.getByText('ParametersResonator:Sampling').first()).toBeHidden();
   
   // 3. Select a Calibration Node
   // Click the test_cal node.
-  await page.getByText('test_calRun').click();
+  await page.getByText('test_cal').first().click();
   // Check that the 3 different labels exist
   await expect(page.getByText('ParametersResonator:Sampling').first()).toBeVisible();
   await expect(page.locator('div').filter({ hasText: /^Resonator:$/ }).first()).toBeVisible();
@@ -74,7 +74,6 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   await expect(page.getByText('Sampling Points:1000')).toBeVisible();  // Job status changes to finished upon completion, along with other stats.
   await expect(page.getByText('Status: finished')).toBeVisible(); // status changes to finished 
   await expect(page.locator('[class^="RunningJob-module__dot__"]')).toHaveCSS('background-color', 'rgb(50, 205, 50)'); // green color 
-  
   // parameters here match parameters in node parameter feilds 
   await expect(page.getByRole('textbox', { name: 'resonator' })).toHaveValue('q2.resonator');
   await expect(page.locator('[class^="RunningJob-module__wrapper__"]')).toContainText('Resonator:q2.resonator');
@@ -100,18 +99,17 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   // Verify the State Updates section displays suggested changes.
   await expect(page.locator('[class^="RunningJob-module__stateUpdateWrapper__"]').first()).toBeVisible();
   await expect(page.locator('[class^="RunningJob-module__stateUpdatesTopWrapper__"] > div:nth-child(2)')).toBeVisible();
-  await expect(page.locator('#root')).toContainText('#/channels/ch1/intermediate_frequency100000000 50000000');
-  await expect(page.locator('#root')).toContainText('#/channels/ch2/intermediate_frequency[1,2,3] [1,2,4]');
+  await expect(page.locator('div').filter({ hasText: /^100000000$/ }).first()).toBeVisible();
+  await expect(page.locator('div').filter({ hasText: /^\[1,2,3\]$/ }).first()).toBeVisible();
   // Update intermediate frequency
-  await page.locator('[class^="RunningJob-module__editIconWrapper__"] > svg').first().click();
-  await page.getByRole('textbox', { name: 'Enter a value' }).click();
-  await page.getByRole('textbox', { name: 'Enter a value' }).fill('20000000'); // Manually updating the frequency to 20000000 
-  await page.locator('[class^="RunningJob-module__stateUpdateWrapper__"] > div > div').first().click();
-  await expect(page.locator('[class^="RunningJob-module__stateUpdateIconWrapper__"] > svg')).toBeVisible(); // Green checkmark icon appears 
+  await page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).getByRole('textbox').click();
+  await page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).getByRole('textbox').fill('20000000');
+  await page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).getByRole('img').nth(1).click();
+  await expect(page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).getByRole('img').nth(2)).toBeVisible();
+  await expect(page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).locator('path').nth(1)).toBeVisible();
   // Update channels from [1,2,4] to [1,2,4,5]
-  await page.locator('[class^="RunningJob-module__editIconWrapper__"] > svg').click();
-  await page.getByPlaceholder('Enter a value').nth(1).click();
-  await page.getByPlaceholder('Enter a value').nth(1).fill('[1,2,4,5]'); // manually updating the channels to [1,2,4,5] 
-  await page.locator('[class^="RunningJob-module__stateUpdatesTopWrapper__"] > div:nth-child(2) > div > div > svg').click();
-  await expect(page.locator('div:nth-child(2) > div > [class^="RunningJob-module__stateUpdateIconWrapper__"] > svg')).toBeVisible(); // Green checkmark icon appears
+  await page.locator('div').filter({ hasText: /^2#\/channels\/ch2\/intermediate_frequency\[1,2,3\]$/ }).getByRole('textbox').dblclick();
+  await page.locator('div').filter({ hasText: /^2#\/channels\/ch2\/intermediate_frequency\[1,2,3\]$/ }).getByRole('textbox').fill('[1,2,4,5]');
+  await page.locator('div').filter({ hasText: /^2#\/channels\/ch2\/intermediate_frequency\[1,2,3\]$/ }).getByRole('img').nth(1).click();
+  await expect(page.locator('div').filter({ hasText: /^\[1,2,3\]\[1,2,4,5\]$/ }).locator('path').nth(1)).toBeVisible(); // Green checkmark icon appears
 });
