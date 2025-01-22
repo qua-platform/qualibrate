@@ -26,6 +26,7 @@ from qualibrate_config.resolvers import (
     get_qualibrate_config_path,
 )
 
+from qualibrate.config.resolvers import get_quam_state_path
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.base import BaseRunSummary
@@ -322,8 +323,10 @@ class QualibrationNode(
             logger.warning(msg)
             q_config_path = get_qualibrate_config_path()
             qs = get_qualibrate_config(q_config_path)
+            state_path = get_quam_state_path(qs)
             self.storage_manager = LocalStorageManager(
                 root_data_folder=qs.storage.location,
+                active_machine_path=state_path,
             )
         self.storage_manager.save(
             node=cast("QualibrationNode[NodeParameters]", self)
