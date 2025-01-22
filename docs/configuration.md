@@ -43,7 +43,7 @@ on: 1) the old config file, if it existed; 2) default values; 3) values entered
 by the user. Confirmation will also be requested whether the file was generated
 correctly.
 
-### `--qualibrate-password`
+### `--password`
 
 Password used to authorize users.
 
@@ -109,7 +109,7 @@ Path to the frontend build static files.
 **Default**: `<env_libs_path>/qualibrate_static`  
 **Config entry**: `qualibrate_app.static_site_files`
 
-### `--app-storage-type`
+### `--storage-type`
 
 Type of storage. Only `local_storage` is supported now. Use specified local
 path as the database.
@@ -117,7 +117,7 @@ path as the database.
 **Default**: "local_storage"  
 **Config entry**: `qualibrate.storage.type`
 
-### `--app-user-storage`
+### `--storage-location`
 
 Path to the local user storage. Used for storing nodes output data.
 `${...}` - config reference.
@@ -125,7 +125,7 @@ Path to the local user storage. Used for storing nodes output data.
 **Default**: `~/.qualibrate/user_storage/${#/qualibrate/project}`  
 **Config entry**: `qualibrate.storage.location`
 
-### `--app-project`
+### `--project`
 
 The name of qualibrate app project that will be used for storing runs results
 and resolving them.
@@ -133,20 +133,12 @@ and resolving them.
 **Default**: `"init_project"`  
 **Config entry**: `qualibrate.project`
 
-### `--app-metadata-out-path`
-
-Key of metadata that's used for resolving path where a node results should be 
-stored to or resolved from.
-
-**Default**: `"data_path"`  
-**Config entry**: `qualibrate_app.metadata_out_path`
-
-### `--active-machine-path`
+### `--quam-state-path`
 
 The path to the directory where the active machine state should be stored. 
 
 **Default**: `None`  
-**Config entry**: `active_machine.path`
+**Config entry**: `quam.state_path`
 
 ### `--log-folder`
 

@@ -190,7 +190,7 @@ node.machine = QuAM.load()
 
 This step automatically includes a snapshot of QUAM when saving the node using `node.save()`.
 
-Additionally, if `active_machine.path` is set in the [configuration file](configuration.md), it will be updated when saving the node.
+Additionally, if `quam.state_path` is set in the [configuration file](configuration.md), it will be updated when saving the node.
 
 
 Finally, the `QualibrationNode` also provides a way to record any changes to QUAM interactively by encapsulating these state updates as follows:
