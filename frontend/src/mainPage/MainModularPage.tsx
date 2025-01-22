@@ -35,8 +35,12 @@ const MainModularPage = () => {
   }, []);
 
   const handleRefresh = () => {
-    // @ts-ignore
-    window.location.reload(true); // Hard refresh to clear cache
+    try {
+      // @ts-expect-error
+      window.location.reload(true); // Hard refresh to clear cache
+    } catch (error) {
+      console.error("Failed to do the hard refresh and clear the cache:", error);
+    }
   };
 
   useEffect(() => {
