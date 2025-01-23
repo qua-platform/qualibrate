@@ -36,27 +36,27 @@ export const RunningJob: React.FC = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.title}>
-        <div className={styles.dot}></div>
-        <div className={styles.runningJobWrapper}>
-          <div className={styles.runningJobNameWrapper}>
-            <div>Running job{runningNode?.name ? ":" : ""}</div>
-            <div className={styles.runningJobName}>&nbsp;&nbsp;{runningNode?.name ? insertSpaces(runningNode?.name) : ""}</div>
+    <div className={styles.wrapper} data-testid="running-job-wrapper">
+      <div className={styles.title} data-testid="running-job-title">
+        <div className={styles.dot} data-testid="running-job-dot"></div>
+        <div className={styles.runningJobWrapper} data-testid="running-job-name-wrapper">
+          <div className={styles.runningJobNameWrapper} data-testid="running-job-name-container">
+            <div data-testid="running-job-text">Running job{runningNode?.name ? ":" : ""}</div>
+            <div className={styles.runningJobName} data-testid="running-job-name">&nbsp;&nbsp;{runningNode?.name ? insertSpaces(runningNode?.name) : ""}</div>
           </div>
         </div>
         {isNodeRunning && (
-          <div className={styles.stopButtonWrapper}>
-            <div onClick={handleStopClick}>
+          <div className={styles.stopButtonWrapper} data-testid="stop-button-wrapper">
+            <div onClick={handleStopClick} data-testid="stop-button">
               <StopIcon />
             </div>
           </div>
         )}
       </div>
-      {runningNodeInfo && <RunningJobInfoSection />}
-      <div className={styles.parameterStatesWrapper}>
-        <div className={styles.parameterColumnWrapper}>{runningNodeInfo && <RunningJobParameters />}</div>
-        <div className={styles.statesColumnWrapper}>
+      {runningNodeInfo && <RunningJobInfoSection data-testid="running-job-info-section" />}
+      <div className={styles.parameterStatesWrapper} data-testid="parameter-states-wrapper">
+        <div className={styles.parameterColumnWrapper} data-testid="parameter-column-wrapper">{runningNodeInfo && <RunningJobParameters />}</div>
+        <div className={styles.statesColumnWrapper} data-testid="states-column-wrapper">
           <StateUpdates
             runningNodeInfo={runningNodeInfo}
             setRunningNodeInfo={setRunningNodeInfo}

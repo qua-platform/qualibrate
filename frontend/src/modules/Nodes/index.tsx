@@ -14,23 +14,23 @@ const NodesPage = () => {
   const { allNodes, fetchAllNodes } = useNodesContext();
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.titleWrapper}>
-        <PageName>{heading}</PageName>
+    <div className={styles.wrapper} data-testid="nodes-page-wrapper">
+      <div className={styles.titleWrapper} data-testid="title-wrapper">
+        <PageName data-testid="page-name">{heading}</PageName>
         &nbsp;
-        <BlueButton onClick={() => fetchAllNodes()}>Refresh</BlueButton>
+        <BlueButton onClick={() => fetchAllNodes()} data-testid="refresh-button">Refresh</BlueButton>
       </div>
-      <div className={styles.nodesAndRunningJobInfoWrapper}>
-        <div className={styles.nodesContainerTop}>
-          <div className={styles.nodeElementListWrapper}>
+      <div className={styles.nodesAndRunningJobInfoWrapper} data-testid="nodes-and-job-wrapper">
+        <div className={styles.nodesContainerTop} data-testid="nodes-container-top">
+          <div className={styles.nodeElementListWrapper} data-testid="node-element-list-wrapper">
             <NodeElementList listOfNodes={allNodes} />
           </div>
         </div>
-        <div className={styles.nodesContainerDown}>
-          <div className={styles.nodeRunningJobInfoWrapper}>
+        <div className={styles.nodesContainerDown} data-testid="nodes-container-down">
+          <div className={styles.nodeRunningJobInfoWrapper} data-testid="running-job-info-wrapper">
             <RunningJob />
           </div>
-          <Results showSearch={false} />
+          <Results showSearch={false} data-testid="results-component" />
         </div>
       </div>
     </div>
