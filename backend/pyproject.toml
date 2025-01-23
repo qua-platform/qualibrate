@@ -36,6 +36,9 @@ pytest = "^8.0.0"
 pytest-mock = "^3.12.0"
 httpx = "^0.27.0"
 
+#[tool.poetry.group.qm-dev.dependencies]
+#qualibrate-config = {path = "../../qualibrate-config", develop = true}
+
 [tool.poetry.group.fe_test.dependencies]
 quam = "^0.3.8"
 # Try to find an xarray version that is compatible with this (poetry add xarray --group fe_test)
