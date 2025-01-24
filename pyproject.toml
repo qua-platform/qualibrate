@@ -20,6 +20,7 @@ qualibrate-core = "^0.2.5"
 qualibrate-runner = "^0.2.4"
 qualibrate-app = "^0.2.5"
 qualibrate-config = "^0.1.2"
+a2wsgi = "^1.10.8"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.8.0"
@@ -51,9 +52,8 @@ exclude = ['tests/']
 module = [
     "jsonpatch",
     "jsonpointer",
-    "qualibrate_app.*",
-    "qualibrate_runner.*",
     "json_timeline_database.*",
+    "qua_dashboards.*"
 ]
 ignore_missing_imports = true
 
