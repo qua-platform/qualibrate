@@ -49,8 +49,19 @@ if composite.runner.spawn:
 
     runner_app.add_middleware(RunnerAuthMiddleware)
     app.mount("/execution", runner_app, name="qualibrate_runner")
+# TODO: remove hasattr -- needed before release config
+if hasattr(composite, "qua_dashboards") and composite.qua_dashboards.spawn:
+    try:
+        from qua_dashboards.app import app as qua_dashboard_app
+    except ImportError as ex:
+        raise ImportError(
+            "Can't import qua_dashboards instance. "
+            "Check that you have installed it."
+        ) from ex
+    from a2wsgi import WSGIMiddleware
 
-if composite is not None and composite.app.spawn:
+    app.mount("/dashboard", WSGIMiddleware(qua_dashboard_app.server))  # type: ignore[arg-type]
+if composite.app.spawn:
     try:
         from qualibrate_app.app import app as qualibrate_app_app
     except ImportError as ex:
