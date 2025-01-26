@@ -45,9 +45,9 @@ export const Parameters: React.FC<IProps> = ({
   }, [selectedNodeNameInWorkflow]);
 
   return (
-    <div className={classNames(styles.parametersWrapper, !show && styles.nodeNotSelected)} data-testid="parameters-wrapper">
+    <div className={classNames(styles.parametersWrapper, !show && styles.nodeNotSelected)} data-testid="node-parameters-wrapper">
       {showTitle && Object.entries(currentItem?.parameters ?? {}).length > 0 && (
-        <div className={styles.parameterTitle} data-testid="parameter-title">
+        <div className={styles.parameterTitle} data-testid="node-parameter-title">
           <div
             className={styles.arrowIconWrapper}
             data-testid="arrow-icon-wrapper"
