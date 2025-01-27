@@ -149,7 +149,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         {isNodeRunning && node.name === selectedItemName && <CircularProgress data-testid={`circular-progress-${nodeKey}`} />}
 
         {!isNodeRunning && node.name === selectedItemName && (
-          <BlueButton className={styles.runButtonWrapper} data-testid='run-button' disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
+          <BlueButton className={styles.runButtonWrapper} data-testid="run-button" disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
             Run
           </BlueButton>
         )}
