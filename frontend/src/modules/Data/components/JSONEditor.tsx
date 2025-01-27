@@ -79,7 +79,7 @@ export const JSONEditor = ({
       return (
         <div>
           <br />
-          <div className="figure-container" data-testid={`figure-container-image`}>
+          <div className="figure-container">
             {/* Use onClick to handle the image opening in a new window */}
             <a onClick={handleImageClick} style={{ cursor: "pointer" }}>
               <img style={{ maxWidth: "100%", height: "auto" }} src={value as string} alt="Base64 figure" />
