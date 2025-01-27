@@ -16,21 +16,21 @@ const NodesPage = () => {
   return (
     <div className={styles.wrapper} data-testid="nodes-page-wrapper">
       <div className={styles.titleWrapper} data-testid="title-wrapper">
-        <PageName data-testid="page-name">{heading}</PageName>
+        <PageName>{heading}</PageName>
         &nbsp;
         <BlueButton onClick={() => fetchAllNodes()} data-testid="refresh-button">Refresh</BlueButton>
       </div>
       <div className={styles.nodesAndRunningJobInfoWrapper} data-testid="nodes-and-job-wrapper">
-        <div className={styles.nodesContainerTop} data-testid="nodes-container-top">
-          <div className={styles.nodeElementListWrapper} data-testid="node-element-list-wrapper">
+        <div className={styles.nodesContainerTop}>
+          <div className={styles.nodeElementListWrapper}>
             <NodeElementList listOfNodes={allNodes} />
           </div>
         </div>
-        <div className={styles.nodesContainerDown} data-testid="nodes-container-down">
-          <div className={styles.nodeRunningJobInfoWrapper} data-testid="running-job-info-wrapper">
+        <div className={styles.nodesContainerDown}>
+          <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results showSearch={false} data-testid="results-component" />
+          <Results showSearch={false} />
         </div>
       </div>
     </div>

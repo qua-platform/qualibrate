@@ -17,6 +17,7 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
 
   // 2. Verify Calibration Nodes
   // Check that at least one calibration node (e.g., test_cal) is displayed in the Node Library.
+  await expect(page.getByTestId('nodes-and-job-wrapper')).toBeVisible(); // Node page loaded sucessfully
   await expect(page.getByTestId('nodes-page-wrapper')).toBeVisible(); // Node page loaded sucessfully
   await expect(page.getByTestId('title-wrapper')).toBeVisible(); // title wrapper is visible 
   await expect(page.getByTestId('title-wrapper')).toContainText('Run calibration node'); // title is correct
@@ -71,11 +72,13 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   await page.getByTestId('run-button').click();
   await expect(page.getByTestId('circular-progress-test_cal')).toBeVisible(); // spinning loading icon appears 
   await expect(page.getByTestId('run-info-value-status')).toContainText('running'); // status changes to running 
+  await expect(page.getByTestId('stop-button')).toBeVisible(); // stop button appears 
   await expect(page.getByTestId('running-job-name')).toContainText('test_cal'); 
   // Verify:
   // The Running Job section appears, showing parameters and status.
   await expect(page.getByTestId('running-job-wrapper')).toBeVisible();
   await expect(page.getByTestId('running-job-title')).toContainText('Running job: test_cal');
+  await expect(page.getByTestId('running-job-name-wrapper')).toBeVisible();
   await expect(page.getByTestId('run-info-wrapper')).toBeVisible();
   await expect(page.getByTestId('run-info-value-timestamp')).toContainText(date); // Matches the format: 2021/09/30 15:00:00
   await expect(page.getByTestId('run-info-value-duration')).toContainText(runDuration); // Matches the format: 4.00 s
@@ -98,6 +101,7 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   await expect(page.getByTestId('parameter-value-noise_factor')).toContainText('0.2');
 
   // 6. Check Results Section 
+  await expect(page.getByTestId('results-wrapper')).toBeVisible();
   // Confirm the Results section is populated with:
   const resultsFrequency = page.getByTestId('data-key-pairfrequency_shift');
   const resultsFigure = page.getByTestId('data-key-pairresults_fig');

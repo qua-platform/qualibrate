@@ -25,23 +25,22 @@ const SidebarMenu: React.FunctionComponent = () => {
     <>
       <div
         className={styles.container}
-        data-testid="sidebar-menu-container"
         onMouseEnter={() => (!pinSideMenu ? setMinify(false) : {})}
         onMouseLeave={() => (!pinSideMenu ? setMinify(true) : {})}
       >
-        <div className={containerClassName} data-testid="sidebar-menu">
-          <button onClick={() => setShowPopup(true)} className={styles.qualibrateLogo} data-testid="sidebar-logo-button" data-cy={cyKeys.HOME_PAGE}>
-            {minify ? <QUAlibrateLogoSmallIcon data-testid="sidebar-small-logo" /> : <QUAlibrateLogoIcon data-testid="sidebar-large-logo" />}
+        <div className={containerClassName}>
+          <button onClick={() => setShowPopup(true)} className={styles.qualibrateLogo} data-cy={cyKeys.HOME_PAGE}>
+            {minify ? <QUAlibrateLogoSmallIcon /> : <QUAlibrateLogoIcon />}
           </button>
-          <div className={styles.menuContent} data-testid="menu-content">
-            <div className={styles.menuUpperContent} data-testid="menu-upper-content">
+          <div className={styles.menuContent}>
+            <div className={styles.menuUpperContent}>
               {hideSideMenuItems ? [] : menuItems.map((item, index) => <MenuItem {...item} key={index} hideText={minify} data-testid={`menu-item-${index}`}/>)}
             </div>
-            <div className={styles.menuBottomContent} data-testid="menu-bottom-content">
+            <div className={styles.menuBottomContent}>
               {bottomMenuItems.map((item) => (
-                <MenuItem {...item} key={item.keyId} hideText={minify} onClick={() => {}} data-testid={`bottom-menu-item-${item.keyId}`} />
+                <MenuItem {...item} key={item.keyId} hideText={minify} onClick={() => {}} />
               ))}
-              {THEME_TOGGLE_VISIBLE && <ThemeToggle showText={!minify} data-testid="theme-toggle" />}
+              {THEME_TOGGLE_VISIBLE && <ThemeToggle showText={!minify} />}
             </div>
           </div>
         </div>

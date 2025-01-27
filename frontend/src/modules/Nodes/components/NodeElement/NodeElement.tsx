@@ -132,13 +132,13 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         setSelectedItemName(node.name);
       }}
     >
-      <div className={styles.row} data-testid={`node-row-${nodeKey}`}>
-        <div className={styles.titleOrNameWrapper} data-testid={`title-name-wrapper-${nodeKey}`}>
+      <div className={styles.row}>
+        <div className={styles.titleOrNameWrapper}>
           <div className={styles.titleOrName} data-testid={`title-or-name-${nodeKey}`}>{insertSpaces(node.title ?? node.name)}</div>
         </div>
-        <div className={styles.descriptionWrapper} data-testid={`description-wrapper-${nodeKey}`}>
+        <div className={styles.descriptionWrapper}>
           <div className={styles.description}>
-            <div className={styles.descriptionText} data-testid={`description-text-${nodeKey}`}>{node.description}</div>
+            <div className={styles.descriptionText}>{node.description}</div>
           </div>
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
@@ -155,7 +155,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         )}
       </div>
       {node.name === selectedItemName && node.name === submitNodeResponseError?.nodeName && (
-        <ErrorResponseWrapper error={submitNodeResponseError} data-testid={`error-wrapper-${nodeKey}`} />
+        <ErrorResponseWrapper error={submitNodeResponseError} />
       )}
       {Object.keys(node?.parameters ?? {}).length > 0 && (
         <Parameters

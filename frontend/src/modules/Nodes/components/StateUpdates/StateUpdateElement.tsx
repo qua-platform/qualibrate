@@ -103,14 +103,14 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
   }) => {
     return (
       <>
-        <div className={styles.stateUpdateValueOld} data-testid="value-old">
+        <div className={styles.stateUpdateValueOld}>
           <ValueComponent stateUpdateValue={oldValue} />
         </div>
-        <div className={styles.stateUpdateRightArrowIconWrapper} data-testid="right-arrow-icon-wrapper">
+        <div className={styles.stateUpdateRightArrowIconWrapper}>
           <RightArrowIcon />
         </div>
         {!parameterUpdated && (
-          <div className={styles.stateUpdateValueNew} data-testid="value-new">
+          <div className={styles.stateUpdateValueNew}>
             <ValueComponent
               stateUpdateValue={newValue}
               onClick={() => {
@@ -132,7 +132,7 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
           </div>
         )}
         {parameterUpdated && (
-          <div className={styles.stateUpdateValueNew} data-testid="value-new-updated">
+          <div className={styles.stateUpdateValueNew}>
             <ValueComponent stateUpdateValue={newValue} disabled={parameterUpdated} onChange={onChange} />
           </div>
         )}
@@ -163,8 +163,8 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
   return (
     // {!runningUpdate && !parameterUpdated && (
     <div key={`${key}-wrapper`} className={styles.stateUpdateWrapper} data-testid={`state-update-wrapper-${key}`}>
-      <div className={styles.stateUpdateOrderNumberAndTitleWrapper} data-testid={`state-update-title-wrapper-${index}`}>
-        <div className={styles.stateUpdateOrderNumber} data-testid={`state-update-order-number-${index}`}>{index + 1}</div>
+      <div className={styles.stateUpdateOrderNumberAndTitleWrapper}>
+        <div className={styles.stateUpdateOrderNumber}>{index + 1}</div>
         <div className={styles.stateUpdateOrderKey} data-testid={`state-update-key-${index}`}>{key}</div>
       </div>
       <div className={styles.stateUpdateValueWrapper} data-testid={`state-update-value-wrapper-${index}`}>

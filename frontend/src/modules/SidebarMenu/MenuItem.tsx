@@ -20,7 +20,7 @@ const MenuItem: React.FunctionComponent<Module & { hideText: boolean; onClick?: 
 
   return (
     <button onClick={onClick || (() => openTab(keyId))} className={styles.itemWrapper} data-cy={dataCy} data-testid={`menu-item-${keyId}`}>
-      {Icon && <Icon color={MENU_TEXT_COLOR} data-testid={`menu-item-icon-${keyId}`} />}
+      {Icon && <Icon color={MENU_TEXT_COLOR} />}
       {!hideText && <div data-testid={`menu-item-title-${keyId}`}>{title}</div>}
     </button>
   );
