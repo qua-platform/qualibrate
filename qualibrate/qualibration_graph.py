@@ -369,7 +369,7 @@ class QualibrationGraph(
         orchestrator = self._orchestrator_or_error()
         self.cleanup()
         nodes = self._get_all_nodes_parameters(
-            passed_parameters.get("nodes", {})
+            passed_parameters.pop("nodes", {})
         )
         self._parameters = self.parameters.model_validate(passed_parameters)
         self.full_parameters = self.full_parameters_class.model_validate(

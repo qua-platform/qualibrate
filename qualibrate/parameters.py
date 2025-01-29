@@ -7,7 +7,7 @@ from typing import (
     cast,
 )
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.naming import get_full_class_path
@@ -31,6 +31,8 @@ __all__ = [
 
 
 class RunnableParameters(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     @classmethod
     def serialize(cls, **kwargs: Any) -> Mapping[str, Any]:
         schema = cls.model_json_schema()
