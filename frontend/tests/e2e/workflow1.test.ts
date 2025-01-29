@@ -135,8 +135,6 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   ch1.getByTestId('value-input').fill('20000000');
   await expect(ch1.getByTestId('update-before-icon')).toBeVisible();
   ch1.getByTestId('update-before-icon').click(); // Click the icon to update the state 
-  ch1.getByTestId('update-before-icon').click();
-  ch1.getByTestId('update-before-icon').click(); // ch1 is bugged and currently requires three clicks to finally update to checkmark icon
   await expect(ch1.getByTestId('update-after-icon')).toBeVisible();
   // Update the state value for ch2 to [1,2,4,5]
   await expect(ch2.getByTestId('value-input')).toBeVisible();
