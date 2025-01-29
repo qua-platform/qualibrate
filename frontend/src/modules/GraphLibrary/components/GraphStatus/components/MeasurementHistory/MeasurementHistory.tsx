@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
-// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./MeasurementHistory.module.scss";
 import { Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { MeasurementElementList } from "../MeasurementElementList/MeasurementElementList";
-import { Checkbox } from "@mui/material";
 import { useSelectionContext } from "../../../../../common/context/SelectionContext";
 import { useGraphContext } from "../../../../context/GraphContext";
 
@@ -12,8 +10,18 @@ export interface IMeasurementHistoryListProps {
   listOfMeasurements?: Measurement[];
 }
 
-export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ title = "Execution history", listOfMeasurements }) => {
-  const { allMeasurements, fetchResultsAndDiffData, setResult, setDiffData, trackLatest, setTrackLatest } = useGraphStatusContext();
+export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({
+  title = "Execution history",
+  listOfMeasurements,
+}) => {
+  const {
+    allMeasurements,
+    fetchResultsAndDiffData,
+    setResult,
+    setDiffData,
+    trackLatest,
+    setTrackLatest,
+  } = useGraphStatusContext();
   const { setSelectedNodeNameInWorkflow } = useGraphContext();
   const { setSelectedItemName } = useSelectionContext();
 
@@ -45,13 +53,19 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
       <div className={styles.titleRow}>
         <div className={styles.title}>{title}</div>
         <div className={styles.trackLatestWrapper}>
-          <Checkbox
-            className={styles.trackLatestCheckbox}
-            checked={trackLatest}
-            inputProps={{ "aria-label": "controlled" }}
+          <span>Track latest</span>
+          <div
+            className={`${styles.toggleSwitch} ${
+              trackLatest ? styles.on : styles.off
+            }`}
             onClick={handleOnClick}
-          />
-          Track latest
+          >
+            <div
+              className={`${styles.toggleKnob} ${
+                trackLatest ? styles.on : styles.off
+              }`}
+            ></div>
+          </div>
         </div>
       </div>
       {listOfMeasurements && listOfMeasurements?.length > 0 && (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import styles from "./MeasurementElement.module.scss";
 import { GlobalParameterStructure, Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { classNames } from "../../../../../../utils/classnames";
@@ -48,6 +48,8 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
   const { fetchResultsAndDiffData, setResult, setDiffData, trackLatest, setTrackLatest } = useGraphStatusContext();
 
+  const expandedSectionRef = useRef<HTMLDivElement>(null);
+
   const handleSelectNode = () => {
     if (selectedItemName !== element.name && trackLatest) {
       setTrackLatest(false);
@@ -62,7 +64,16 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     }
   };
 
-  // Generate pie-chart-like gradient for the dot
+  const handleExpand = () => {
+    onExpand();
+  };
+
+  useEffect(() => {
+    if (isExpanded && expandedSectionRef.current) {
+      expandedSectionRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [isExpanded]);
+
   const getDotStyle = () => {
     if (!element.outcomes || Object.keys(element.outcomes).length === 0) {
       return { backgroundColor: "#40a8f5" }; // Blue for no qubits
@@ -77,7 +88,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     const failurePercentage = (failures / total) * 100;
 
     return {
-      background: `conic-gradient(rgb(40, 167, 70, 0.9) ${successPercentage}%,rgb(220, 53, 69, 0.9) 0 ${failurePercentage}%)`,
+      background: `conic-gradient(rgb(40, 167, 70, 0.9) ${successPercentage}%, rgb(220, 53, 69, 0.9) 0 ${failurePercentage}%)`,
     };
   };
 
@@ -104,7 +115,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
         selectedItemName === element.name && styles.nodeSelected,
         isExpanded && styles.expanded
       )}
-      onClick={onExpand} // Toggle expansion on click
+      onClick={handleExpand} // Toggle expansion on click
     >
       <div className={styles.row} onClick={handleSelectNode}>
         <div className={styles.dot} style={getDotStyle()}></div> {/* Dynamic pie chart-style dot */}
@@ -114,7 +125,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
         <div className={styles.description}>{element.description}</div>
       </div>
       {isExpanded && (
-        <div className={styles.expandedContent}>
+        <div ref={expandedSectionRef} className={styles.expandedContent}>
           {/* Top Bar */}
           <div className={styles.topBar}>
             <div className={styles.barItem}>

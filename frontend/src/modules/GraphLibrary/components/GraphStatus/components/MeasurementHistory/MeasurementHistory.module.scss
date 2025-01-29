@@ -1,7 +1,7 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0; /* Remove unnecessary spacing */
   justify-content: space-between;
   font-style: normal;
   font-weight: 500;
@@ -11,18 +11,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--bg-color-light);
-  padding: 10px 15px;
-  font-size: 18px;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #2d3338; /* Slightly lighter background for Execution history */
+  padding: 8px 12px; /* Compact padding */
+  font-size: 16px;
+  border-radius: 0px; /* Restore rounded corners */
+  border: 1px solid #23272a; /* Border around Execution history */
 }
 
 .title {
   color: #ffffff;
   font-family: "Roboto Condensed", serif;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
 }
 
@@ -33,27 +32,101 @@
   font-family: Roboto, serif;
   font-size: 14px;
   font-weight: 600;
-  gap: 10px;
+  gap: 8px;
 
   span {
-    font-size: 16px;
+    font-size: 14px; /* Slightly smaller text */
     color: #ffffff;
+  }
+
+  .toggleSwitch {
+    width: 36px; /* Narrower switch */
+    height: 12px; /* Slimmer height */
+    background-color: #4a4a4a;
+    border-radius: 6px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &.on {
+      background-color: #28a745;
+    }
+
+    &.off {
+      background-color: #4a4a4a;
+    }
+  }
+
+  .toggleKnob {
+    width: 18px; /* Smaller knob */
+    height: 18px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: -3px; /* Adjusted for new knob size */
+    left: 0;
+    transition: left 0.3s ease;
+
+    &.on {
+      left: calc(100% - 18px);
+    }
+
+    &.off {
+      left: 0;
+    }
   }
 }
 
 .contentContainer {
-  border: 1px solid var(--border-color);
-  background-color: var(--popup-background);
-  border-radius: 8px;
-  padding: 15px;
-  margin-top: 5px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #23272a; /* Subtle border for separation */
+  background-color: #232629; /* Slightly lighter than the title row */
+  border-radius: 0px; /* Restore rounded corners */
+  padding: 10px 12px; /* Compact padding */
+  margin: 0; /* Remove extra margin */
 }
 
 .lowerContainer {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 14px; /* Slightly smaller font */
   color: #c6cdd6;
+  padding: 5px 0; /* Compact spacing */
+}
+
+/* Add styling for measurement elements below */
+.measurementTab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #1f2327; /* Slightly lighter for alternating contrast */
+  padding: 10px 15px;
+  border-bottom: 1px solid #2c2f33; /* Separate tabs with a subtle line */
+  color: #c6cdd6; /* Light gray text for contrast */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #2c2f33; /* Highlight tab on hover */
+  }
+
+  &.selected {
+    background-color: #2d3338; /* Active tab styling */
+    color: #ffffff; /* White text for the active tab */
+  }
+
+  .tabDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #40a8f5; /* Default blue dot */
+  }
+
+  .tabLabel {
+    flex: 1;
+    padding-left: 10px;
+    font-size: 14px;
+    font-weight: 500;
+  }
 }

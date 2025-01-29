@@ -1,16 +1,16 @@
 .rowWrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
   background: var(--bg-color-light);
-  border: 2px solid var(--border-color);
-  border-radius: 10px;
-  margin: 15px 0;
-  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 0px; /* Reduced radius for compact design */
+  margin: 0.5px 0; /* Reduced margin for less wasted space */
+  padding: 6px; /* Reduced padding for compactness */
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 6px 15px rgba(124, 122, 122, 0.9);
+    box-shadow: 0 4px 10px rgba(124, 122, 122, 0.5); /* Subtle hover shadow */
     background-color: var(--hover-highlight);
   }
 
@@ -28,35 +28,35 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  font-size: 16px;
+  padding: 5px 0; /* Reduced padding for compactness */
+  font-size: 14px; /* Reduced font size */
 }
 
 .rectangle {
-  width: 15px;
-  height: 15px;
+  width: 12px;
+  height: 12px; /* Reduced size for compact design */
   background: var(--accent-color);
-  margin-right: 15px;
+  margin-right: 10px;
   border-radius: 3px;
 }
 
 .dot {
-  width: 12px;
-  height: 12px;
+  width: 10px; /* Reduced size for compactness */
+  height: 10px;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 8px; /* Adjusted for spacing */
   background-color: #40a8f5; /* Default blue */
 }
 
 .titleOrName {
   font-weight: bold;
-  font-size: 18px;
+  font-size: 14px; /* Adjusted for compactness */
   flex: 1;
 }
 
 .description {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 12px; /* Reduced font size */
 }
 
 .expandedContent {
