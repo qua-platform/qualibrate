@@ -134,6 +134,8 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   ch1.getByTestId('value-input').click();
   ch1.getByTestId('value-input').fill('20000000');
   await expect(ch1.getByTestId('update-before-icon')).toBeVisible();
+  await resonatorField.click(); // Clicking (anywhere) away from input feild to spawn undo button 
+  await expect(ch1.getByTestId('undo-icon-wrapper')).toBeVisible();
   ch1.getByTestId('update-before-icon').click(); // Click the icon to update the state 
   await expect(ch1.getByTestId('update-after-icon')).toBeVisible();
   // Update the state value for ch2 to [1,2,4,5]
@@ -142,6 +144,8 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   await expect(ch2.getByTestId('value-input')).toHaveValue('[1,2,4]');
   ch2.getByTestId('value-input').click();
   ch2.getByTestId('value-input').fill('[1,2,4,5]');
+  await resonatorField.click(); // Clicking (anywhere) away from input feild to spawn undo button 
+  await expect(ch2.getByTestId('undo-icon-wrapper')).toBeVisible();
   await expect(ch2.getByTestId('update-before-icon')).toBeVisible();
   ch2.getByTestId('update-before-icon').click(); // Click the icon to update the state 
   await expect(ch2.getByTestId('update-after-icon')).toBeVisible();
