@@ -1,7 +1,7 @@
 from typing import Optional
-from pydantic import ValidationError
 
 import pytest
+from pydantic import ValidationError
 
 from qualibrate.parameters import GraphParameters, NodeParameters
 
@@ -23,7 +23,7 @@ class TestCreateParameters:
             parameters_class.model_validate({"invalid_key": None})
         errors = ex.value.errors()
         assert errors[0]["type"] == "extra_forbidden"
-        assert errors[0]["loc"] ==  ('invalid_key',)
+        assert errors[0]["loc"] == ("invalid_key",)
 
     def test_node_targets_name(self):
         assert NodeParameters.targets_name == "qubits"
