@@ -1,5 +1,5 @@
-@import "../../assets/styles/variables";
-@import "../../assets/styles/base";
+@use "../../assets/styles/variables";
+@use "../../assets/styles/base";
 
 .themeToggleContainer {
   display: flex;
@@ -9,7 +9,7 @@
   width: 100%;
   box-sizing: border-box;
   white-space: pre;
-  padding-left: $sidebar_padding !important;
+  padding-left: variables.$sidebar_padding !important;
   border-right: 2px solid transparent;
   font-size: 18px;
   color: var(--menu-text-color);
