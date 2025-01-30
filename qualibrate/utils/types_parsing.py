@@ -237,7 +237,7 @@ def types_conversion(value: Any, expected_type: Mapping[str, Any]) -> Any:
         if none is None:
             return None
         expected_type_ = dict(expected_type)
-        expected_type_["type"] = expected_type_.pop("anyOf")[0]["type"]
+        expected_type_.update(expected_type_.pop("anyOf")[0])
         return types_conversion(value, expected_type_)
     if "type" in expected_type:
         if expected_type.get("type") == "array":
