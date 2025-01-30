@@ -40,7 +40,7 @@
   flex-direction: column;
   height: 100%;
 
-  @include colGap(10px);
+  @include base.colGap(10px);
 
   box-sizing: border-box;
   background-color: var(--background-color);

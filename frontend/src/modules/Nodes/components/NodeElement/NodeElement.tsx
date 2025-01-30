@@ -56,12 +56,14 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
             checked={parameter.default as boolean}
             onClick={() => updateParameter(key, !parameter.default)}
             inputProps={{ "aria-label": "controlled" }}
+            data-testid={`checkbox-${key}`}
           />
         );
       default:
         return (
           <InputField
             placeholder={key}
+            data-testid={`input-field-${key}`}
             value={parameter.default ? parameter.default.toString() : ""}
             onChange={(val: boolean | number | string) => {
               updateParameter(key, val);
@@ -125,28 +127,29 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
   return (
     <div
       className={classNames(styles.rowWrapper, selectedItemName === node.name && styles.nodeSelected)}
+      data-testid={`node-element-${nodeKey}`}
       onClick={() => {
         setSelectedItemName(node.name);
       }}
     >
       <div className={styles.row}>
         <div className={styles.titleOrNameWrapper}>
-          <div className={styles.titleOrName}>{insertSpaces(node.title ?? node.name)}</div>
+          <div className={styles.titleOrName} data-testid={`title-or-name-${nodeKey}`}>{insertSpaces(node.title ?? node.name)}</div>
         </div>
         <div className={styles.descriptionWrapper}>
           <div className={styles.description}>
             <div className={styles.descriptionText}>{node.description}</div>
           </div>
         </div>
-        <div className={styles.dotWrapper}>
+        <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
           <div>
             <div className={classNames(styles.dot, selectedItemName === node.name && styles.dotSelected)} />
           </div>
         </div>
-        {isNodeRunning && node.name === selectedItemName && <CircularProgress />}
+        {isNodeRunning && node.name === selectedItemName && <CircularProgress data-testid={`circular-progress-${nodeKey}`} />}
 
         {!isNodeRunning && node.name === selectedItemName && (
-          <BlueButton className={styles.runButtonWrapper} disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
+          <BlueButton className={styles.runButtonWrapper} data-testid="run-button" disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
             Run
           </BlueButton>
         )}
@@ -162,6 +165,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           show={selectedItemName === node.name}
           currentItem={node}
           getInputElement={getInputElement}
+          data-testid={`parameters-${nodeKey}`}
         />
       )}
     </div>

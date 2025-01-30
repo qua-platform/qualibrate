@@ -1,42 +1,26 @@
 // Playwright configuration file
 import { defineConfig } from '@playwright/test';
-import path from 'path';
 
 export default defineConfig({
-  testDir: './e2e', // Test directory for E2E tests
+  // Test directory and execution settings
+  testDir: './e2e',
+  fullyParallel: false,
+  reporter: [['list'], ['html']], // Reporting settings 
+  forbidOnly: !!process.env.CI, // Prevent `.only` in CI
+  timeout: 30000, // Global test timeout
+  retries: process.env.CI ? 2 : 0, // Retry failed tests in CI
+  workers: 1, // Number of parallel workers
+  
+  // Not nessesary to use this  
+  // globalSetup: './tests/setup.ts', 
 
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  timeout: 30000, // Test timeout in milliseconds
-
-  // Correctly resolve paths for global setup and teardown
-  globalSetup: path.resolve(__dirname, 'global-setup.ts'), // Updated path
-  globalTeardown: path.resolve(__dirname, 'global-teardown.ts'), // Updated path
-
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: [['list'], ['html']], // Use multiple reporters
-
+  // Test execution and debugging settings
   use: {
     headless: true,
-    baseURL: 'http://127.0.0.1:8001/', // base URL for the QUAlibrate app
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure', // Take screenshots only on failure
-    video: 'retain-on-failure', // Record videos only for failed tests
+    baseURL: 'http://localhost:8001/', // Base URL for the QUAlibrate app
+    trace: 'on', // Collect trace for retries
+    screenshot: 'only-on-failure', // Screenshots on failure
+    video: 'retain-on-failure', // Retain video only for failed tests
+    browserName: 'chromium', // Use Chromium browser
   },
-
-  projects: [
-    {
-      name: 'Chromium',
-      use: { browserName: 'chromium' },
-    },
-    {
-      name: 'Firefox',
-      use: { browserName: 'firefox' },
-    },
-    {
-      name: 'WebKit',
-      use: { browserName: 'webkit' },
-    },
-  ],
 });

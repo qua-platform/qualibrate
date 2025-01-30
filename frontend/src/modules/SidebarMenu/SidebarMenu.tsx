@@ -34,7 +34,7 @@ const SidebarMenu: React.FunctionComponent = () => {
           </button>
           <div className={styles.menuContent}>
             <div className={styles.menuUpperContent}>
-              {hideSideMenuItems ? [] : menuItems.map((item, index) => <MenuItem {...item} key={index} hideText={minify} />)}
+              {hideSideMenuItems ? [] : menuItems.map((item, index) => <MenuItem {...item} key={index} hideText={minify} data-testid={`menu-item-${index}`}/>)}
             </div>
             <div className={styles.menuBottomContent}>
               {bottomMenuItems.map((item) => (
