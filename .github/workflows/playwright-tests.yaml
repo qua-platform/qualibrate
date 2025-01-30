@@ -29,8 +29,8 @@ jobs:
   test:
     uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@ci_reusable_playwright
     with:
-      qualibrate: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-ref }}
-      qualibrate-app: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
-      qualibrate-runner: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-runner-ref }}
-      qualibrate-core: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-core-ref }}
-      qualibrate-config: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-config-ref }}
+      qualibrate-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-ref }}
+      qualibrate-app-ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+      qualibrate-runner-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-runner-ref }}
+      qualibrate-core-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-core-ref }}
+      qualibrate-config-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-config-ref }}
