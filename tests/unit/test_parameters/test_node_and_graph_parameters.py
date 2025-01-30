@@ -1,6 +1,7 @@
 from typing import Optional
 
 import pytest
+from pydantic import ValidationError
 
 from qualibrate.parameters import GraphParameters, NodeParameters
 
@@ -13,6 +14,16 @@ class TestCreateParameters:
     class SampleGraphParameters(GraphParameters):
         qubits: Optional[list[str]] = None
         other_param: str = "test"
+
+    @pytest.mark.parametrize(
+        "parameters_class", [SampleNodeParameters, SampleGraphParameters]
+    )
+    def test_forbid_extra_parameters(self, parameters_class):
+        with pytest.raises(ValidationError) as ex:
+            parameters_class.model_validate({"invalid_key": None})
+        errors = ex.value.errors()
+        assert errors[0]["type"] == "extra_forbidden"
+        assert errors[0]["loc"] == ("invalid_key",)
 
     def test_node_targets_name(self):
         assert NodeParameters.targets_name == "qubits"
