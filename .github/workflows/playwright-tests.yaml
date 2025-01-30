@@ -27,7 +27,7 @@ on:
 
 jobs:
   test:
-    uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@main
+    uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@ci_reusable_playwright
     with:
       qualibrate: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-ref }}
       qualibrate-app: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
