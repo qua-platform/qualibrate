@@ -14,13 +14,13 @@ const NodesPage = () => {
   const { allNodes, fetchAllNodes } = useNodesContext();
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.titleWrapper}>
+    <div className={styles.wrapper} data-testid="nodes-page-wrapper">
+      <div className={styles.titleWrapper} data-testid="title-wrapper">
         <PageName>{heading}</PageName>
         &nbsp;
-        <BlueButton onClick={() => fetchAllNodes()}>Refresh</BlueButton>
+        <BlueButton onClick={() => fetchAllNodes()} data-testid="refresh-button">Refresh</BlueButton>
       </div>
-      <div className={styles.nodesAndRunningJobInfoWrapper}>
+      <div className={styles.nodesAndRunningJobInfoWrapper} data-testid="nodes-and-job-wrapper">
         <div className={styles.nodesContainerTop}>
           <div className={styles.nodeElementListWrapper}>
             <NodeElementList listOfNodes={allNodes} />

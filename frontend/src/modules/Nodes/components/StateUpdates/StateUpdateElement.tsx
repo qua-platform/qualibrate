@@ -58,7 +58,7 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
     }, [stateUpdateValue, adjustWidth]);
 
     if (!onClick) {
-      return <div className={styles.valueContainer}>{stateUpdateValue}</div>;
+      return <div className={styles.valueContainer} data-testid="value-container">{stateUpdateValue}</div>;
     }
 
     return (
@@ -67,6 +67,7 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
           <input
             ref={inputRef}
             className={isHovered ? styles.valueContainerHovered : disabled ? styles.valueContainerDisabled : styles.valueContainerEditable}
+            data-testid="value-input"
             onMouseEnter={() => {
               if (tooltipText === undefined) {
                 setTooltipText("Edit");
@@ -120,6 +121,7 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
             {customValue !== previousValue && (
               <div
                 className={styles.stateUpdateUndoIconWrapper}
+                data-testid="undo-icon-wrapper"
                 onClick={() => {
                   setCustomValue(previousValue);
                 }}
@@ -160,12 +162,12 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
   };
   return (
     // {!runningUpdate && !parameterUpdated && (
-    <div key={`${key}-wrapper`} className={styles.stateUpdateWrapper}>
+    <div key={`${key}-wrapper`} className={styles.stateUpdateWrapper} data-testid={`state-update-wrapper-${key}`}>
       <div className={styles.stateUpdateOrderNumberAndTitleWrapper}>
         <div className={styles.stateUpdateOrderNumber}>{index + 1}</div>
-        <div className={styles.stateUpdateOrderKey}>{key}</div>
+        <div className={styles.stateUpdateOrderKey} data-testid={`state-update-key-${index}`}>{key}</div>
       </div>
-      <div className={styles.stateUpdateValueWrapper}>
+      <div className={styles.stateUpdateValueWrapper} data-testid={`state-update-value-wrapper-${index}`}>
         <ValueRow
           oldValue={JSON.stringify(stateUpdateObject.old)}
           newValue={customValue}
@@ -174,17 +176,17 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
           setParameterUpdated={setParameterUpdated}
         />
         {!runningUpdate && !parameterUpdated && !updateAllButtonPressed && (
-          <div className={styles.stateUpdateIconBeforeWrapper} onClick={handleUpdateClick}>
+          <div className={styles.stateUpdateIconBeforeWrapper} data-testid="update-before-icon" onClick={handleUpdateClick}>
             <CheckMarkBeforeIcon />
           </div>
         )}
         {runningUpdate && !parameterUpdated && (
-          <div className={styles.stateUpdateIconAfterWrapper}>
+          <div className={styles.stateUpdateIconAfterWrapper} data-testid="update-in-progress">
             <CircularProgress size={17} />
           </div>
         )}
         {(parameterUpdated || updateAllButtonPressed) && (
-          <div className={styles.stateUpdateIconAfterWrapper}>
+          <div className={styles.stateUpdateIconAfterWrapper} data-testid="update-after-icon">
             <CheckMarkAfterIcon />
           </div>
         )}

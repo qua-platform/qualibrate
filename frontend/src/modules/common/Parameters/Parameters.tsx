@@ -45,7 +45,7 @@ export const Parameters: React.FC<IProps> = ({
   }, [selectedNodeNameInWorkflow]);
 
   return (
-    <div className={classNames(styles.parametersWrapper, !show && styles.nodeNotSelected)}>
+    <div className={classNames(styles.parametersWrapper, !show && styles.nodeNotSelected)} data-testid="node-parameters-wrapper">
       {showTitle && Object.entries(currentItem?.parameters ?? {}).length > 0 && (
         <div className={styles.parameterTitle}>
           <div
@@ -63,9 +63,9 @@ export const Parameters: React.FC<IProps> = ({
         Object.entries(currentItem?.parameters ?? {}).map(([key, parameter]) => {
           if (parameter.title.toLowerCase() !== "targets name") {
             return (
-              <div key={key} className={styles.parameterValues}>
+              <div key={key} className={styles.parameterValues} data-testid={`parameter-values-${key}`}>
                 <div className={styles.parameterLabel}>{parameter.title}:</div>
-                <div className={styles.parameterValue}>{getInputElement(key, parameter, currentItem)}</div>
+                <div className={styles.parameterValue} data-testid="parameter-value">{getInputElement(key, parameter, currentItem)}</div>
               </div>
             );
           }

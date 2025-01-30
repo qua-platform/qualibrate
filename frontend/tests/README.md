@@ -31,19 +31,24 @@ To simulate GitHub Actions locally and run the tests, you can use the `act` tool
 
 To execute the Playwright tests locally using act, run the following command from qualibrate-app directory:
 ```bash
-act -j test --container-architecture linux/amd64 -s QUALIBRATION_EXAMPLES_TOKEN=<your_token>
+act -j test --container-architecture linux/amd64 -s GITHUB_TOKEN=<your_token> -s QUALIBRATION_EXAMPLES_TOKEN=<your_token>
 ```
 - -j test: Runs the test job defined in the GitHub Actions workflow file.
 - --container-architecture linux/amd64: Ensures compatibility with the workflow container.
 - Replace <your_token> with the actual token value you generated. 
-   - This will allow the GitHub Action to access the qualibrate-examples repository and pull the necessary calibration scripts which are a test-dependency. 
-      - Note: Manually entering your token isn't a requirement for runninng the tests on Github, only locally with `act`. 
+    - For GITHUB_TOKEN: 
+        - Navigate [here](https://github.com/settings/personal-access-tokens/new) and enter any token name, scroll down, click generate, then copy token and paste into script
+        - This will initially allow the playwright-tests.yaml script to checkout the necessary repositories 
+    - for QUALIBRATION_EXAMPLES_TOKEN:
+        - This will allow the GitHub Action to access the qualibrate-examples repository and pull the necessary calibration scripts which are a test-dependency. 
+        - Note: Manually entering these tokens aren't a requirement for runinng the tests on Github, only locally with `act`. 
 
 This will perform the steps as defined in the CI pipeline, including:
 - Installing dependencies.
 - Starting the qualibrate server.
 - Running the Playwright tests.
 
+(refer to qualibrate-app/.github/workflows/playwright-tests.yaml directly for more details)
 
 ## Workflow 1: Running a calibration node 
 
@@ -58,7 +63,6 @@ This will perform the steps as defined in the CI pipeline, including:
 3. **Select a Calibration Node**
     - Click the test_cal node.
     - Verify:
-        - ~~The node label and parameters are displayed.~~
         - Check that the 3 different labels exist, their feilds are modifiable, and has corresponding default parameters 
 4. **Change a node parameter value**
     - Varify that it's possible to replace the default parameter values with new ones 
