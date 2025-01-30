@@ -26,7 +26,7 @@ on:
         type: string
 
 jobs:
-  test:
+  call-reusable-playwright-tests:
     uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@ci_reusable_playwright
     with:
       qualibrate-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-ref }}
@@ -34,3 +34,4 @@ jobs:
       qualibrate-runner-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-runner-ref }}
       qualibrate-core-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-core-ref }}
       qualibrate-config-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-config-ref }}
+    secrets: inherit

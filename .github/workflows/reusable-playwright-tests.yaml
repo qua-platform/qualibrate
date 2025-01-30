@@ -29,7 +29,7 @@ on:
         required: false
         type: string
 jobs:
-  test:
+  reusable-playwright-tests:
     runs-on: ubuntu-latest
 
     steps:
