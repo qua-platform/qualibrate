@@ -1,11 +1,36 @@
-.wrapper {
-  width: 100%;
+.outerContainer {
+  width: 100%; /* Always match the outer container width */
+  max-height: 100vh; /* Ensure it doesn't exceed the viewport height */
+  height: calc(100vh - 580px); /* Adjust this value to reduce the overall height */
   display: flex;
   flex-direction: column;
-  gap: 1px; /* Reduce gap between elements for compactness */
+  background-color: var(--background-color);
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  overflow: hidden; /* Prevents inner scrolling extending beyond limits */
+  transition: width 0.3s ease; /* Smooth transition for width */
+}
+
+.wrapper {
+  width: 100%; /* Match the outer container's width */
+  flex-grow: 1;
+  overflow-y: auto; /* Enable scrolling for inner content */
+  display: flex;
+  flex-direction: column;
+  gap: 1px; /* Reduce gap for compactness */
+  max-height: 100%; /* Constrain height to the parent container */
+}
+
+.collapsedWrapper {
+  width: 100%; /* Fully utilize the outer container width when collapsed */
+}
+
+.expandedWrapper {
+  width: 100%; /* Fully utilize the outer container width when expanded */
 }
 
 .measurementElement {
+  width: 100%; /* Ensure each tab stretches fully within the wrapper */
   padding: 10px; /* Adjust padding for compact design */
   border-radius: 6px; /* Slight rounding for clean look */
   background-color: var(--bg-color-light);

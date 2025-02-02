@@ -142,25 +142,62 @@
 }
 
 .outcomeBubble {
-  padding: 5px 15px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #fff; /* Default text color */
   display: flex;
   align-items: center;
-  justify-content: center;
+  border-radius: 15px; /* Rounded badge style */
+  font-size: 12px; /* Smaller font size for compactness */
+  font-weight: bold;
+  overflow: hidden; /* Ensures rounded edges for child elements */
+  border: 0px solid;
+  min-width: 80px; /* Compact width */
+  height: 22px; /* Compact height */
   text-align: center;
 
   &.success {
-    background-color: rgba(40, 167, 69, 0.2); /* Transparent green bubble */
-    color: #28a745; /* Green text color */
-    border: 1px solid #28a745; /* Green border for definition */
+    background-color: rgba(40, 167, 69, 0.3); /* Transparent green background */
+    border-color: #28a745; /* Green border */
   }
 
   &.failure {
-    background-color: rgba(220, 53, 69, 0.2); /* Transparent red bubble */
-    color: #dc3545; /* Red text color */
-    border: 1px solid #dc3545; /* Red border for definition */
+    background-color: rgba(220, 53, 69, 0.3); /* Transparent red background */
+    border-color: #dc3545; /* Red border */
   }
+}
+
+.qubitLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(40, 167, 69, 0.3); /* Default green shading */
+  color: #ffffff; /* Light text color for visibility */
+  padding: 0 8px; /* Padding for the label */
+  font-size: 12px;
+  height: 100%;
+  flex: 0 0 auto; /* Fixed width for this section */
+  transition: background-color 0.3s ease;
+
+  /* Adjust the color based on success/failure */
+  .success & {
+    background-color: rgba(40, 167, 69, 0.3); /* Subtle green */
+  }
+
+  .failure & {
+    background-color: rgba(220, 53, 69, 0.3); /* Subtle red */
+  }
+}
+
+.divider {
+  width: 1px;
+  background-color: rgba(0, 0, 0, 0); /* Divider line */
+  height: 100%;
+}
+
+.outcomeStatus {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit; /* Inherits the color based on success/failure */
+  padding: 0 8px;
+  font-size: 12px; /* Compact font size */
 }

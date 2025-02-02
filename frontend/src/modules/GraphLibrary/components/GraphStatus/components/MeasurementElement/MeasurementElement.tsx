@@ -95,6 +95,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
   // Render outcome bubbles
   const renderOutcomeBubbles = (outcomes: GlobalParameterStructure | undefined) => {
     if (!outcomes) return null;
+  
     return Object.entries(outcomes).map(([qubit, result]) => {
       const isSuccess = result === "successful";
       return (
@@ -102,12 +103,23 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
           key={qubit}
           className={classNames(styles.outcomeBubble, isSuccess ? styles.success : styles.failure)}
         >
-          {qubit}: {result}
+          <span
+            className={styles.qubitLabel}
+            style={{
+              backgroundColor: isSuccess
+                ? "rgba(40, 167, 69, 0.6)" // Green shading for success
+                : "rgba(220, 53, 69, 0.6)", // Red shading for failure
+            }}
+          >
+            {qubit}
+          </span>
+          <span className={styles.divider}></span>
+          <span className={styles.outcomeStatus}>{result}</span>
         </span>
       );
     });
   };
-
+    
   return (
     <div
       className={classNames(
