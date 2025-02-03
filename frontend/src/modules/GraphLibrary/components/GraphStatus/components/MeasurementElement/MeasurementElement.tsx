@@ -1,9 +1,8 @@
 import React, { useRef, useEffect } from "react";
 import styles from "./MeasurementElement.module.scss";
-import { GlobalParameterStructure, Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
+import { Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { classNames } from "../../../../../../utils/classnames";
 import { useSelectionContext } from "../../../../../common/context/SelectionContext";
-import { useGraphContext } from "../../../../context/GraphContext";
 
 interface MeasurementElementProps {
   element: Measurement;
@@ -17,45 +16,18 @@ export const formatDateTime = (dateTimeString: string) => {
   return `${date} ${timeWithoutMilliseconds}`;
 };
 
-// Function to recursively render any object structure
-const renderParameters = (data: any, depth = 0) => {
-  if (typeof data === "object" && data !== null) {
-    if (Array.isArray(data)) {
-      return (
-        <ul className={styles.parameterList}>
-          {data.map((item, index) => (
-            <li key={index}>{renderParameters(item, depth + 1)}</li>
-          ))}
-        </ul>
-      );
-    } else {
-      return (
-        <ul className={styles.parameterList}>
-          {Object.entries(data).map(([key, value]) => (
-            <li key={key}>
-              <span className={styles.parameterKey}>{key}:</span> {renderParameters(value, depth + 1)}
-            </li>
-          ))}
-        </ul>
-      );
-    }
-  }
-  return <span className={styles.parameterValue}>{data === null ? "null" : data.toString()}</span>;
-};
-
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, isExpanded, onExpand }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
-  const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
   const { fetchResultsAndDiffData, setResult, setDiffData, trackLatest, setTrackLatest } = useGraphStatusContext();
 
   const expandedSectionRef = useRef<HTMLDivElement>(null);
 
+  // Handle selecting a node
   const handleSelectNode = () => {
     if (selectedItemName !== element.name && trackLatest) {
       setTrackLatest(false);
     }
     setSelectedItemName(element.name);
-    setSelectedNodeNameInWorkflow(element.name);
     if (element.snapshot_idx) {
       fetchResultsAndDiffData(element.snapshot_idx);
     } else {
@@ -64,62 +36,34 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     }
   };
 
+  // Handle expanding or collapsing the element
   const handleExpand = () => {
     onExpand();
   };
 
+  // Scroll into view when expanded
   useEffect(() => {
     if (isExpanded && expandedSectionRef.current) {
       expandedSectionRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }, [isExpanded]);
 
+  // Generate style for the dot indicator
   const getDotStyle = () => {
     if (!element.outcomes || Object.keys(element.outcomes).length === 0) {
-      return { backgroundColor: "#40a8f5" }; // Blue for no qubits
+      return { backgroundColor: "#40a8f5" }; // Default blue color for no qubits
     }
 
-    const outcomeValues = Object.values(element.outcomes);
-    const total = outcomeValues.length;
-    const successes = outcomeValues.filter((status) => status === "successful").length;
-    const failures = total - successes;
-
+    const outcomes = Object.values(element.outcomes);
+    const total = outcomes.length;
+    const successes = outcomes.filter((status) => status === "successful").length;
     const successPercentage = (successes / total) * 100;
-    const failurePercentage = (failures / total) * 100;
 
     return {
-      background: `conic-gradient(rgb(40, 167, 70, 0.9) ${successPercentage}%, rgb(220, 53, 69, 0.9) 0 ${failurePercentage}%)`,
+      background: `conic-gradient(rgb(40, 167, 70, 0.9) ${successPercentage}%, rgb(220, 53, 69, 0.9) 0)`,
     };
   };
 
-  // Render outcome bubbles
-  const renderOutcomeBubbles = (outcomes: GlobalParameterStructure | undefined) => {
-    if (!outcomes) return null;
-  
-    return Object.entries(outcomes).map(([qubit, result]) => {
-      const isSuccess = result === "successful";
-      return (
-        <span
-          key={qubit}
-          className={classNames(styles.outcomeBubble, isSuccess ? styles.success : styles.failure)}
-        >
-          <span
-            className={styles.qubitLabel}
-            style={{
-              backgroundColor: isSuccess
-                ? "rgba(40, 167, 69, 0.6)" // Green shading for success
-                : "rgba(220, 53, 69, 0.6)", // Red shading for failure
-            }}
-          >
-            {qubit}
-          </span>
-          <span className={styles.divider}></span>
-          <span className={styles.outcomeStatus}>{result}</span>
-        </span>
-      );
-    });
-  };
-    
   return (
     <div
       className={classNames(
@@ -161,7 +105,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
               <h4>Parameters</h4>
               <div className={styles.parameterContent}>
                 {Object.entries(element.parameters || {})
-                  .filter(([_, value]) => value !== null && value !== undefined) // Exclude null or undefined values
+                  .filter(([, value]) => value !== null && value !== undefined) // Exclude null or undefined values
                   .map(([key, value]) => (
                     <div className={styles.parameterItem} key={key}>
                       <span className={styles.label}>{key}:</span>
@@ -175,7 +119,30 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
             {/* Outcomes */}
             <div className={styles.outcomes}>
               <h4>Outcomes</h4>
-              <div className={styles.outcomeContainer}>{renderOutcomeBubbles(element.outcomes)}</div>
+              <div className={styles.outcomeContainer}>
+                {Object.entries(element.outcomes || {}).map(([qubit, result]) => {
+                  const isSuccess = result === "successful";
+                  return (
+                    <span
+                      key={qubit}
+                      className={classNames(styles.outcomeBubble, isSuccess ? styles.success : styles.failure)}
+                    >
+                      <span
+                        className={styles.qubitLabel}
+                        style={{
+                          backgroundColor: isSuccess
+                            ? "rgba(40, 167, 69, 0.6)" // Green shading
+                            : "rgba(220, 53, 69, 0.6)", // Red shading
+                        }}
+                      >
+                        {qubit}
+                      </span>
+                      <span className={styles.divider}></span>
+                      <span className={styles.outcomeStatus}>{result}</span>
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
