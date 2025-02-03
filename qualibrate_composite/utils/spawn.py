@@ -42,10 +42,19 @@ def spawn_qua_dashboards(app: FastAPI) -> None:
             "is not started"
         )
         return
+    path_prefix = "/dashboards"
     try:
-        from qua_dashboards.data_visualizer.app import app as qua_dashboard_app
+        from qua_dashboards.app import create_app as qua_dashboard_create_app
+
+        qua_dashboard_app = qua_dashboard_create_app(
+            f"{path_prefix.rstrip('/')}/"
+        )
     except Exception as ex:
         logging.exception("Can't import qua_dashboards", exc_info=ex)
     from a2wsgi import WSGIMiddleware
 
-    app.mount("/dashboards", WSGIMiddleware(qua_dashboard_app.server))  # type: ignore[arg-type]
+    app.mount(
+        "/dashboards",
+        WSGIMiddleware(qua_dashboard_app.server),  # type: ignore[arg-type]
+        name="qua_dashboards",
+    )
