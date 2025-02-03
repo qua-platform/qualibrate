@@ -80,7 +80,7 @@ jobs:
         with:
           repository: 'qua-platform/qualibrate-examples'
           path: 'qualibrate-examples'
-          token: ${{ secrets.QUALIBRATION_EXAMPLES_TOKEN }}
+          token: ${{ secrets.QUALIBRATE_EXAMPLES_TOKEN }}
 
       # Step 3: Set up Node.js
       - name: Use Node.js
