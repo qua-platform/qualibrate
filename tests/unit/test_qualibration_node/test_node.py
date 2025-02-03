@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, PropertyMock
 import pytest
 from pydantic import Field
 
-from qualibrate import QualibrationNode
+from qualibrate import NodeParameters, QualibrationNode
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.run_error import RunError
@@ -118,8 +118,18 @@ class TestQualibrationNode:
         mock_validate.assert_called_with("test_node", None, None)
         mock_warn_if_external.assert_not_called()
 
-    def test__validate_passed_parameters_options_with_parameters(self):
+    def test__validate_passed_parameters_options_with_invalid_parameters_type(
+        self,
+    ):
         parameters = MagicMock()
+        # Call the method
+        with pytest.raises(ValueError):
+            QualibrationNode._validate_passed_parameters_options(
+                name="test_node", parameters=parameters, parameters_class=None
+            )
+
+    def test__validate_passed_parameters_options_with_parameters(self):
+        parameters = MagicMock(spec=NodeParameters)
         # Call the method
         result = QualibrationNode._validate_passed_parameters_options(
             name="test_node", parameters=parameters, parameters_class=None
@@ -127,17 +137,31 @@ class TestQualibrationNode:
         # Should return the passed parameters
         assert result == parameters
 
+    def test__validate_passed_parameters_options_with_invalid_parameters_class(
+        self, mock_logger
+    ):
+        class Parameters:
+            pass
+
+        with pytest.raises(ValueError):
+            QualibrationNode._validate_passed_parameters_options(
+                name="test_node", parameters=None, parameters_class=Parameters
+            )
+
     def test__validate_passed_parameters_options_with_parameters_class(
         self, mock_logger
     ):
-        parameters_class = MagicMock(return_value="parameters_instance")
+        class Parameters(NodeParameters):
+            val: int = 1
+
         # Call the method
         result = QualibrationNode._validate_passed_parameters_options(
-            name="test_node", parameters=None, parameters_class=parameters_class
+            name="test_node", parameters=None, parameters_class=Parameters
         )
         # Should return instance of parameters_class
-        parameters_class.assert_called_once()
-        assert result == "parameters_instance"
+
+        assert isinstance(result, Parameters)
+        assert result.val == 1
         mock_logger.warning.assert_called_once_with(
             "parameters_class argument is deprecated. Please use "
             "parameters argument for initializing node 'test_node'."
@@ -146,7 +170,7 @@ class TestQualibrationNode:
     def test__validate_passed_parameters_options_with_both_parameters_and_class(
         self, mock_logger
     ):
-        parameters = MagicMock()
+        parameters = MagicMock(spec=NodeParameters)
         parameters_class = MagicMock()
 
         # Call the method
@@ -181,15 +205,18 @@ class TestQualibrationNode:
     def test__validate_passed_parameters_options_parameters_class_instantiation_failure(  # noqa: E501
         self, mock_logger
     ):
-        parameters_class = MagicMock(
-            side_effect=ValueError("Instantiation failed")
-        )
+        class Parameters(NodeParameters):
+            val_int: int = Field(default="a", validate_default=True)
 
-        with pytest.raises(ValueError, match="Instantiation failed"):
+        node_name = "test_node"
+        with pytest.raises(
+            ValueError,
+            match=f"Can't instantiate parameters class of node '{node_name}'",
+        ):
             QualibrationNode._validate_passed_parameters_options(
-                name="test_node",
+                name=node_name,
                 parameters=None,
-                parameters_class=parameters_class,
+                parameters_class=Parameters,
             )
         mock_logger.warning.assert_called_once()
 
