@@ -51,6 +51,7 @@ def spawn_qua_dashboards(app: FastAPI) -> None:
         )
     except Exception as ex:
         logging.exception("Can't import qua_dashboards", exc_info=ex)
+        return
     from a2wsgi import WSGIMiddleware
 
     app.mount(
