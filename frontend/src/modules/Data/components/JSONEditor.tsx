@@ -13,7 +13,7 @@ export const JSONEditor = ({
   title: string;
   jsonDataProp: object;
   height: string;
-  showSearch: boolean;
+  showSearch?: boolean;
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);

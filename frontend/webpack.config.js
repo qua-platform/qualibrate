@@ -48,6 +48,10 @@ const config = {
           from: inProject("public/assets"),
           to: inProject("dist/assets"),
         },
+        {
+          from: inProject("public/manifest.json"),
+          to: inProject("dist/manifest.json"),
+        },
       ],
     }),
     new MiniCssExtractPlugin(),

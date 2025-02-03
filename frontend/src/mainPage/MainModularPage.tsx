@@ -14,6 +14,36 @@ const MainModularPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkVersion = async () => {
+      const localVersion = localStorage.getItem("appVersion");
+      try {
+        const response = await fetch("/manifest.json");
+        const { version } = await response.json();
+
+        if (localVersion && version !== localVersion) {
+          handleRefresh();
+        }
+
+        // Update the local storage with the current version
+        localStorage.setItem("appVersion", version);
+      } catch (error) {
+        console.error("Failed to fetch version:", error);
+      }
+    };
+
+    checkVersion();
+  }, []);
+
+  const handleRefresh = () => {
+    try {
+      // @ts-expect-error: Small fix to force hard refresh in order to clear the cache
+      window.location.reload(true); // Hard refresh to clear cache
+    } catch (error) {
+      console.error("Failed to do the hard refresh and clear the cache:", error);
+    }
+  };
+
+  useEffect(() => {
     if (!isAuthorized) {
       navigate(LOGIN_URL);
     } else {
