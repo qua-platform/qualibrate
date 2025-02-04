@@ -8,3 +8,4 @@ jobs:
     uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@main
     with:
       qualibrate-runner-ref: ${{ github.head_ref }}
+    secrets: inherit
