@@ -125,8 +125,13 @@ jobs:
 
       # Step 9: Install qualibrate packages
       - name: Install qualibrate packages
-        run: |
-          pip install ./qualibrate-composite ./qualibrate-app/backend ./qualibrate-runner ./qualibrate-core ./qualibrate-config
+        run:
+          pip install --no-deps 
+          ./qualibrate-composite 
+          ./qualibrate-app/backend 
+          ./qualibrate-runner 
+          ./qualibrate-core 
+          ./qualibrate-config
 
       # Step 10: Install Playwright test dependencies
       - name: Install Playwright Test Dependencies
