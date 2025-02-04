@@ -15,7 +15,7 @@ export const Results: React.FC<{ title?: string; jsonObject?: unknown; showSearc
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} data-testid="results-wrapper">
       <JSONEditor title={title ?? "Results"} jsonDataProp={jsonData ?? {}} height={"100%"} showSearch={showSearch} />
     </div>
   );

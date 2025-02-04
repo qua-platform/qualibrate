@@ -36,18 +36,18 @@ export const RunningJob: React.FC = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.title}>
-        <div className={styles.dot}></div>
-        <div className={styles.runningJobWrapper}>
+    <div className={styles.wrapper} data-testid="running-job-wrapper">
+      <div className={styles.title} data-testid="running-job-title">
+        <div className={styles.dot} data-testid="running-job-dot"></div>
+        <div className={styles.runningJobWrapper} data-testid="running-job-name-wrapper">
           <div className={styles.runningJobNameWrapper}>
             <div>Running job{runningNode?.name ? ":" : ""}</div>
-            <div className={styles.runningJobName}>&nbsp;&nbsp;{runningNode?.name ? insertSpaces(runningNode?.name) : ""}</div>
+            <div className={styles.runningJobName} data-testid="running-job-name">&nbsp;&nbsp;{runningNode?.name ? insertSpaces(runningNode?.name) : ""}</div>
           </div>
         </div>
         {isNodeRunning && (
           <div className={styles.stopButtonWrapper}>
-            <div onClick={handleStopClick}>
+            <div onClick={handleStopClick} data-testid="stop-button">
               <StopIcon />
             </div>
           </div>
@@ -56,7 +56,7 @@ export const RunningJob: React.FC = () => {
       {runningNodeInfo && <RunningJobInfoSection />}
       <div className={styles.parameterStatesWrapper}>
         <div className={styles.parameterColumnWrapper}>{runningNodeInfo && <RunningJobParameters />}</div>
-        <div className={styles.statesColumnWrapper}>
+        <div className={styles.statesColumnWrapper} data-testid="states-column-wrapper">
           <StateUpdates
             runningNodeInfo={runningNodeInfo}
             setRunningNodeInfo={setRunningNodeInfo}

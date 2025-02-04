@@ -1,0 +1,191 @@
+name: Reusable Playwright Tests
+
+on:
+  workflow_call:
+    inputs:
+      qualibrate-ref:
+        description: 'Name of branch for qualibrate repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-app-ref:
+        description: 'Name of branch for qualibrate-app repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-runner-ref:
+        description: 'Name of branch for qualibrate-runner repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-core-ref:
+        description: 'Name of branch for qualibrate-core repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-config-ref:
+        description: 'Name of branch for qualibrate-config repo'
+        default: 'main'
+        required: false
+        type: string
+jobs:
+  reusable-playwright-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repositories
+      - name: Checkout composite
+        uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate
+          path: qualibrate-composite
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ inputs.qualibrate-ref }}
+
+      - name: Checkout App
+        uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate-app
+          path: qualibrate-app
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ inputs.qualibrate-app-ref }}
+
+      - name: Checkout runner
+        uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate-runner
+          path: qualibrate-runner
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ inputs.qualibrate-runner-ref }}
+
+      - name: Checkout core
+        uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate-core
+          path: qualibrate-core
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ inputs.qualibrate-core-ref }}
+
+      - name: Checkout config
+        uses: actions/checkout@v4
+        with:
+          repository: qua-platform/qualibrate-config
+          path: qualibrate-config
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ inputs.qualibrate-config-ref }}
+
+      # Step 2: Checkout calibration scripts repository
+      - name: Checkout Calibration Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: 'qua-platform/qualibrate-examples'
+          path: 'qualibrate-examples'
+          token: ${{ secrets.QUALIBRATE_EXAMPLES_TOKEN }}
+
+      # Step 3: Set up Node.js
+      - name: Use Node.js
+        id: node-setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      # Step 4: Cache frontend dependencies
+      - uses: actions/cache@v4
+        id: frontend-cache-id
+        with:
+          path: qualibrate-app/frontend/node_modules
+          key: npm-${{ hashFiles('qualibrate-app/frontend/**/package-lock.json') }}
+          restore-keys: npm-
+
+      # Step 5: Install frontend dependencies
+      - name: Install npm dependencies
+        if: steps.frontend-cache-id.outputs.cache-hit != 'true'
+        working-directory: qualibrate-app/frontend
+        run: npm ci
+
+      # Step 6: Build the frontend
+      - name: Build frontend
+        working-directory: qualibrate-app/frontend
+        run: npm run build
+
+      # Step 7: Copy built frontend to backend
+      - name: Copy built FE to BE
+        run: cp -r qualibrate-app/frontend/dist qualibrate-app/backend/qualibrate_static
+
+      # Step 8: Set up Python environment
+      - uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: "3.10"
+
+      # Step 9: Setup cache for qualibrate backend packages
+      - uses: actions/cache@v4
+        id: backend-cache-id
+        with:
+          path: ${{ env.pythonLocation }}
+          key: pip-${{steps.setup-python.outputs.python-version}}-${{ hashFiles('**/poetry.lock')}}
+          restore-keys: pip-${{steps.setup-python.outputs.python-version}}
+
+      # Step 10: Install qualibrate packages with deps
+      - name: Install qualibrate packages with deps
+        if: ${{ !steps.backend-cache-id.outputs.cache-hit }}
+        run:
+          pip install
+          ./qualibrate-composite
+          ./qualibrate-app/backend
+          ./qualibrate-runner
+          ./qualibrate-core
+          ./qualibrate-config
+
+      # Step 10: Install qualibrate packages without deps
+      - name: Install qualibrate packages without deps
+        if: ${{ steps.backend-cache-id.outputs.cache-hit }}
+        run:
+          pip install --force-reinstall --no-deps
+          ./qualibrate-composite 
+          ./qualibrate-app/backend 
+          ./qualibrate-runner 
+          ./qualibrate-core 
+          ./qualibrate-config
+
+      # Step 11: Install Playwright test dependencies
+      - name: Install Playwright Test Dependencies
+        run: pip install quam xarray
+
+      # Step 12: Create directory for user storage
+      - name: Create directory for user storage
+        run: mkdir -p data
+
+      # Step 13: Create Qualibrate configuration
+      - name: Create Qualibrate Configuration
+        run: |
+          qualibrate config --auto-accept \
+            --calibration-library-folder $GITHUB_WORKSPACE/qualibrate-examples/calibrations \
+            --storage-location $GITHUB_WORKSPACE/data
+
+      # Step 14: Install Node.js and Playwright dependencies
+      - name: Install Playwright Dependencies
+        working-directory: ./qualibrate-app/frontend/tests
+        run: |
+          npm install
+          npx playwright install-deps chromium
+          npx playwright install chromium
+
+      # Step 15: Start Qualibrate Server
+      - name: Start Qualibrate Server
+        run: |
+          nohup qualibrate start > qualibrate-server.log 2>&1 &
+          for i in {1..15}; do
+            if curl -s http://localhost:8001/ > /dev/null; then
+              echo "Server is up and running"
+              break
+            fi
+            echo "Waiting for server to start..."
+            sleep 2
+          done
+          curl -v http://localhost:8001/
+
+      # Step 16: Run Playwright tests
+      - name: Run Playwright Tests
+        working-directory: ./qualibrate-app/frontend/tests/e2e
+        run: npx playwright test

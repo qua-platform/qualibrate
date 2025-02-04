@@ -10,7 +10,7 @@ interface IJSONEditorProps {
   title: string;
   jsonDataProp: object;
   height: string;
-  showSearch: boolean;
+  showSearch?: boolean;
 }
 
 export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true }: IJSONEditorProps) => {
@@ -31,7 +31,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true }: I
     }
   }, [isNodeRunning]);
 
-  useEffect(() => {}, [isNodeRunning]);
+  useEffect(() => { }, [isNodeRunning]);
 
   const filterData = (data: object, term: string) => {
     if (!term) return data;

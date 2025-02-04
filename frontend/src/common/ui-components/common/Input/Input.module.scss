@@ -1,4 +1,4 @@
-@import "../../../../assets/styles/_base";
+@use "../../../../assets/styles/_base";
 
 .inputWrapper {
   position: relative;
@@ -23,7 +23,7 @@
 }
 
 .input {
-  @include input;
+  @include base.input;
 
   &.error {
     border: 1px solid rgb(255 36 99 / 30%);

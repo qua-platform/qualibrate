@@ -2,8 +2,9 @@ import { test, expect } from '@playwright/test';
 
 // Test for Workflow 1
 test('Workflow1 - Running a Calibration Node', async ({ page }) => {
-  const date = /Run start:\s+(\d{4})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
-  const runDuration = /Run duration:\s\s*\d+\.\d{2}\s+s/;
+  const date = /(\d{4})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+  const runDuration = /\d+\.\d{2}\s+s/;
+  const idx = /\d+/;
   const frequencyShift = /"frequency_shift":\d+(\.\d+)?/; 
   
   // 0. Prerequisite: 
@@ -16,27 +17,36 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
 
   // 2. Verify Calibration Nodes
   // Check that at least one calibration node (e.g., test_cal) is displayed in the Node Library.
-  const nodeLibrary = page.locator('.node-library'); 
-  await expect(nodeLibrary.isVisible()).toBeTruthy(); // node-library is showing as the landing page 
-  await expect(page.locator('[class^="NodesPage-module__listWrapper__"]')).toBeVisible(); // node library is visible
-  const testCalTab = await page.locator('[class^="NodeElement-module__rowWrapper__"] >> text=test_cal');
-  await expect(testCalTab).toBeVisible(); // test_cal 'calibration node tab' is visible in the node library 
-  await expect(page.getByText('test_cal').first()).toBeVisible(); // test_cal label is visible in the node library 
+  await expect(page.getByTestId('nodes-and-job-wrapper')).toBeVisible(); // Node page loaded sucessfully
+  await expect(page.getByTestId('nodes-page-wrapper')).toBeVisible(); // Node page loaded sucessfully
+  await expect(page.getByTestId('title-wrapper')).toBeVisible(); // title wrapper is visible 
+  await expect(page.getByTestId('title-wrapper')).toContainText('Run calibration node'); // title is correct
+  await expect(page.getByTestId('refresh-button')).toBeVisible(); // refresh button is visible
+  await expect(page.getByTestId('menu-item-nodes')).toBeVisible(); // node library is showing as the landing page 
+  await expect(page.getByTestId('node-list-wrapper')).toBeVisible(); // node library list of nodes are visible
+  await expect(page.getByTestId('node-element-test_cal')).toBeVisible(); // test_cal 'calibration node tab' is visible in the node library 
+  await expect(page.getByTestId('title-or-name-test_cal')).toBeVisible(); // test_cal label is visible in the node library 
   // Check that the test_cal node has no visible parameters
-  await expect(page.getByText('ParametersResonator:Sampling').first()).toBeHidden();
-  
+  const testCalNode = page.getByTestId('node-element-test_cal');
+  await expect(testCalNode.getByTestId('node-parameters-wrapper')).toBeHidden();
+  await expect(testCalNode.getByTestId('parameter-values-resonator')).toBeHidden();
+  await expect(testCalNode.getByTestId('parameter-values-sampling_points')).toBeHidden();
+  await expect(testCalNode.getByTestId('parameter-values-noise_factor')).toBeHidden();
+
   // 3. Select a Calibration Node
   // Click the test_cal node.
-  await page.getByText('test_cal').first().click();
+  await page.getByTestId('node-element-test_cal').click();
+  // Check that the test_cal node is runnable by containing a green dot.
+  await expect(page.getByTestId('dot-wrapper-test_cal')).toBeVisible(); 
   // Check that the 3 different labels exist
-  await expect(page.getByText('ParametersResonator:Sampling').first()).toBeVisible();
-  await expect(page.locator('div').filter({ hasText: /^Resonator:$/ }).first()).toBeVisible();
-  await expect(page.locator('div[class^="Parameters-module__parametersWrapper__"] > div:nth-child(3)').first()).toBeVisible();
-  await expect(page.locator('div:nth-child(4)').first()).toBeVisible();
+  await expect(testCalNode.getByTestId('node-parameters-wrapper')).toBeVisible();
+  await expect(testCalNode.getByTestId('parameter-values-resonator')).toBeVisible();
+  await expect(testCalNode.getByTestId('parameter-values-sampling_points')).toBeVisible();
+  await expect(testCalNode.getByTestId('parameter-values-noise_factor')).toBeVisible();
   // Has corresponding default parameters
-  const resonatorField = page.getByRole('textbox', { name: 'resonator' });
-  const samplingPointsField = page.getByRole('textbox', { name: 'sampling_points' });
-  const noiseFactorField = page.getByRole('textbox', { name: 'noise_factor' });
+  const resonatorField = testCalNode.getByTestId('input-field-resonator'); 
+  const samplingPointsField = testCalNode.getByTestId('input-field-sampling_points'); 
+  const noiseFactorField = testCalNode.getByTestId('input-field-noise_factor'); 
   await expect(resonatorField).toHaveValue('q1.resonator');
   await expect(samplingPointsField).toHaveValue('100');
   await expect(noiseFactorField).toHaveValue('0.1');
@@ -59,28 +69,39 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
 
   // 5. Run the Calibration Node
   // Click the Run button for test_cal.
-  await page.locator('div').filter({ hasText: /^test_calRun$/ }).getByRole('button').click();
-  await expect(page.getByRole('progressbar').getByRole('img')).toBeVisible(); // spinning loading icon appears 
-  await expect(page.getByText('Status: running')).toBeVisible(); // status changes to running 
-  const runningStatusInfo = await page.locator('[class^="RunningJob-module__wrapper__"]').innerText();
-  await expect(page.locator('[class^="RunningJob-module__wrapper__"]')).toContainText('Running job: test_cal');
+  await page.getByTestId('run-button').click();
+  await expect(page.getByTestId('circular-progress-test_cal')).toBeVisible(); // spinning loading icon appears 
+  await expect(page.getByTestId('run-info-value-status')).toContainText('running'); // status changes to running 
+  await expect(page.getByTestId('stop-button')).toBeVisible(); // stop button appears 
+  await expect(page.getByTestId('running-job-name')).toContainText('test_cal'); 
   // Verify:
   // The Running Job section appears, showing parameters and status.
-  await expect(page.getByText('Running job: test_cal')).toBeVisible();
-  await expect(page.locator('[class^="RunningJob-module__wrapper__"]')).toContainText(date); // Matches the format: Run start: 2021/09/30 15:00:00
-  await expect(page.locator('[class^="RunningJob-module__wrapper__"]')).toContainText(runDuration); // Matches the format: Run duration:  4.00 s
-  await expect(runningStatusInfo).toContain('Parameters');
-  await expect(page.getByText('Resonator:q2.resonator')).toBeVisible();
-  await expect(page.getByText('Sampling Points:1000')).toBeVisible();  // Job status changes to finished upon completion, along with other stats.
-  await expect(page.getByText('Status: finished')).toBeVisible(); // status changes to finished 
-  await expect(page.locator('[class^="RunningJob-module__dot__"]')).toHaveCSS('background-color', 'rgb(50, 205, 50)'); // green color 
+  await expect(page.getByTestId('running-job-wrapper')).toBeVisible();
+  await expect(page.getByTestId('running-job-title')).toContainText('Running job: test_cal');
+  await expect(page.getByTestId('running-job-name-wrapper')).toBeVisible();
+  await expect(page.getByTestId('run-info-wrapper')).toBeVisible();
+  await expect(page.getByTestId('run-info-value-timestamp')).toContainText(date); // Matches the format: 2021/09/30 15:00:00
+  await expect(page.getByTestId('run-info-value-duration')).toContainText(runDuration); // Matches the format: 4.00 s
+  // Job status changes to finished upon completion, along with other stats.
+  await expect(page.getByTestId('run-info-value-status')).toContainText('finished'); // status changes to finished 
+  await expect(page.getByTestId('run-info-value-idx')).toContainText(idx); // Matches the format of any integer number  
+  await expect(page.getByTestId('running-job-dot')).toHaveCSS('background-color', 'rgb(50, 205, 50)'); // green color 
   // parameters here match parameters in node parameter feilds 
-  await expect(page.getByRole('textbox', { name: 'resonator' })).toHaveValue('q2.resonator');
-  await expect(page.locator('[class^="RunningJob-module__wrapper__"]')).toContainText('Resonator:q2.resonator');
-  await expect(page.getByRole('textbox', { name: 'sampling_points' })).toHaveValue('1000');
-  await expect(page.locator('[class^="RunningJob-module__wrapper__"]')).toContainText('Sampling Points:1000');
+  await expect(page.getByTestId('parameters-wrapper')).toBeVisible();
+  await expect(page.getByTestId('parameter-title')).toContainText('Parameters');
+  await expect(page.getByTestId('parameters-list')).toBeVisible();
+  await expect(page.getByTestId('parameter-item-resonator')).toBeVisible();
+  await expect(resonatorField).toHaveValue('q2.resonator');
+  await expect(page.getByTestId('parameter-value-resonator')).toContainText('q2.resonator');
+  await expect(page.getByTestId('parameter-item-sampling_points')).toBeVisible();
+  await expect(samplingPointsField).toHaveValue('1000');
+  await expect(page.getByTestId('parameter-value-sampling_points')).toContainText('1000');
+  await expect(page.getByTestId('parameter-item-noise_factor')).toBeVisible();
+  await expect(noiseFactorField).toHaveValue('0.2');
+  await expect(page.getByTestId('parameter-value-noise_factor')).toContainText('0.2');
 
-  // 6. Check Results
+  // 6. Check Results Section 
+  await expect(page.getByTestId('results-wrapper')).toBeVisible();
   // Confirm the Results section is populated with:
   const resultsFrequency = page.getByTestId('data-key-pairfrequency_shift');
   const resultsFigure = page.getByTestId('data-key-pairresults_fig');
@@ -90,26 +111,42 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   await expect(resultsFigure).toContainText('"results_fig":{1 Items');
   await expect(resultsFigure).toContainText('"./results_fig.png":');
   // A generated figure.
-  await expect(resultsFigure.locator('div').filter({ hasText: '"./results_fig.png":' }).first()).toBeVisible();
-  await expect(page.locator('a')).toBeVisible(); // the pyplot image is visible 
+  await expect(resultsFigure.getByTestId('data-key-pairresults_fig../results_fig.png')).toBeVisible(); // the pyplot image is visible 
   // Data storage location.
   await expect(page.getByTestId('data-key-pairarr')).toBeVisible();
 
   // 7. Check/Update State Values
-  // Verify the State Updates section displays suggested changes.
-  await expect(page.locator('[class^="RunningJob-module__stateUpdateWrapper__"]').first()).toBeVisible();
-  await expect(page.locator('[class^="RunningJob-module__stateUpdatesTopWrapper__"] > div:nth-child(2)')).toBeVisible();
-  await expect(page.locator('div').filter({ hasText: /^100000000$/ }).first()).toBeVisible();
-  await expect(page.locator('div').filter({ hasText: /^\[1,2,3\]$/ }).first()).toBeVisible();
-  // Update intermediate frequency
-  await page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).getByRole('textbox').click();
-  await page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).getByRole('textbox').fill('20000000');
-  await page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).getByRole('img').nth(1).click();
-  await expect(page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).getByRole('img').nth(2)).toBeVisible();
-  await expect(page.locator('div').filter({ hasText: /^1#\/channels\/ch1\/intermediate_frequency100000000$/ }).locator('path').nth(1)).toBeVisible();
-  // Update channels from [1,2,4] to [1,2,4,5]
-  await page.locator('div').filter({ hasText: /^2#\/channels\/ch2\/intermediate_frequency\[1,2,3\]$/ }).getByRole('textbox').dblclick();
-  await page.locator('div').filter({ hasText: /^2#\/channels\/ch2\/intermediate_frequency\[1,2,3\]$/ }).getByRole('textbox').fill('[1,2,4,5]');
-  await page.locator('div').filter({ hasText: /^2#\/channels\/ch2\/intermediate_frequency\[1,2,3\]$/ }).getByRole('img').nth(1).click();
-  await expect(page.locator('div').filter({ hasText: /^\[1,2,3\]\[1,2,4,5\]$/ }).locator('path').nth(1)).toBeVisible(); // Green checkmark icon appears
+  // Verify the State Updates section displays suggested changes.  
+  await expect(page.getByTestId('states-column-wrapper')).toBeVisible();
+  await expect(page.getByTestId('state-updates-top-wrapper')).toBeVisible();
+  await expect(page.getByTestId('state-wrapper')).toBeVisible();
+  await expect(page.getByTestId('state-title')).toBeVisible();
+  await expect(page.getByTestId('update-all-button')).toBeVisible();
+  await expect(page.getByTestId('state-update-wrapper-#/channels/ch1/intermediate_frequency')).toBeVisible();
+  await expect(page.getByTestId('state-update-wrapper-#/channels/ch2/intermediate_frequency')).toBeVisible();
+  const ch1 = page.getByTestId('state-update-value-wrapper-0');
+  const ch2 = page.getByTestId('state-update-value-wrapper-1');
+  await expect(ch1).toBeVisible();
+  await expect(ch2).toBeVisible();
+  // Update the state value for ch1 to 20000000 
+  await expect(ch1.getByTestId('value-container')).toContainText('100000000');
+  await expect(ch1.getByTestId('value-input')).toHaveValue('50000000');
+  ch1.getByTestId('value-input').click();
+  ch1.getByTestId('value-input').fill('20000000');
+  await expect(ch1.getByTestId('update-before-icon')).toBeVisible();
+  await resonatorField.click(); // Clicking (anywhere) away from input feild to spawn undo button 
+  await expect(ch1.getByTestId('undo-icon-wrapper')).toBeVisible();
+  ch1.getByTestId('update-before-icon').click(); // Click the icon to update the state 
+  await expect(ch1.getByTestId('update-after-icon')).toBeVisible();
+  // Update the state value for ch2 to [1,2,4,5]
+  await expect(ch2.getByTestId('value-input')).toBeVisible();
+  await expect(ch2.getByTestId('value-container')).toContainText('[1,2,3]');
+  await expect(ch2.getByTestId('value-input')).toHaveValue('[1,2,4]');
+  ch2.getByTestId('value-input').click();
+  ch2.getByTestId('value-input').fill('[1,2,4,5]');
+  await resonatorField.click(); // Clicking (anywhere) away from input feild to spawn undo button 
+  await expect(ch2.getByTestId('undo-icon-wrapper')).toBeVisible();
+  await expect(ch2.getByTestId('update-before-icon')).toBeVisible();
+  ch2.getByTestId('update-before-icon').click(); // Click the icon to update the state 
+  await expect(ch2.getByTestId('update-after-icon')).toBeVisible();
 });

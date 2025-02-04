@@ -1,9 +1,9 @@
-@import "../../../assets/styles/variables.scss";
-@import "../../../assets/styles/_base.scss";
+@use "../../../assets/styles/variables.scss";
+@use "../../../assets/styles/_base.scss";
 
 .container {
   position: relative;
-  width: $sidebar_collapsed_width;
+  width: variables.$sidebar_collapsed_width;
   height: 100vh;
 }
 
@@ -11,10 +11,10 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: $sidebar_collapsed_width;
+  width: variables.$sidebar_collapsed_width;
   height: 100vh;
   box-sizing: border-box;
-  padding-top: $sidebar_padding;
+  padding-top: variables.$sidebar_padding;
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -24,12 +24,12 @@
   transition: width ease-in-out 0.3s;
 
   &.opened {
-    width: $sidebar_full_width;
+    width: variables.$sidebar_full_width;
   }
 }
 
 .qualibrateLogo {
-  padding-left: $sidebar_padding;
+  padding-left: variables.$sidebar_padding;
   height: 50px;
   margin-bottom: 50px;
 
@@ -39,7 +39,7 @@
 }
 
 .menuContent {
-  @include yScroll();
+  @include base.yScroll();
 
   flex: 1;
   width: 100%;
@@ -52,7 +52,7 @@
   display: flex;
   flex-direction: column;
 
-  @include colGap(15px);
+  @include base.colGap(15px);
 }
 
 .menuBottomContent {

@@ -1,5 +1,5 @@
-@import "../../../assets/styles/variables.scss";
-@import "../../../assets/styles/_base.scss";
+@use "../../../assets/styles/variables.scss";
+@use "../../../assets/styles/_base.scss";
 
 .header {
   height: 50px;
@@ -11,7 +11,7 @@
 
   @include rowGap(0.5rem);
 
-  font-size: $header_font_size;
+  font-size: variables.$header_font_size;
   font-family: var(--font-family-cond), monospace, serif;
 
   &.withBtmMargin {
