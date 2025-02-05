@@ -74,7 +74,7 @@ def test_run_sequence_no_error(
     assert execution_history == [
         ExecutionHistoryItem(
             name=item.name,
-            status=NodeStatus.successful,
+            status=NodeStatus.finished,
             run_start=item.run_start,
             run_end=item.run_end,
             parameters=item.parameters,
@@ -105,7 +105,7 @@ def test_run_sequence_with_error(
     execution_history = g._orchestrator._execution_history
     assert execution_history[0] == ExecutionHistoryItem(
         name=execution_history[0].name,
-        status=NodeStatus.successful,
+        status=NodeStatus.finished,
         parameters=execution_history[0].parameters,
         run_start=execution_history[0].run_start,
         run_end=execution_history[0].run_end,

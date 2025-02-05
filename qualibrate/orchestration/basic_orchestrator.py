@@ -88,7 +88,7 @@ class BasicOrchestrator(
             raise ValueError("Graph is not specified")
         return self._graph._graph
 
-    def check_node_successful(self, node: NodeTypeVar) -> bool:
+    def check_node_finished(self, node: NodeTypeVar) -> bool:
         """
         Checks if a node was successfully executed.
 
@@ -102,7 +102,7 @@ class BasicOrchestrator(
             return False
         return bool(
             self.nx_graph.nodes[node][QualibrationGraph.STATUS_FIELD]
-            == NodeStatus.successful
+            == NodeStatus.finished
         )
 
     def get_next_node(self) -> Optional[NodeTypeVar]:
@@ -116,7 +116,7 @@ class BasicOrchestrator(
         while not self._execution_queue.empty():
             node_to_run = self._execution_queue.get()
             if all(
-                map(self.check_node_successful, self.nx_graph.pred[node_to_run])
+                map(self.check_node_finished, self.nx_graph.pred[node_to_run])
             ):
                 return node_to_run
         return None
@@ -197,7 +197,7 @@ class BasicOrchestrator(
                 )
                 raise
             else:
-                new_status = NodeStatus.successful
+                new_status = NodeStatus.finished
             finally:
                 self._execution_history.append(
                     ExecutionHistoryItem(
@@ -216,7 +216,7 @@ class BasicOrchestrator(
             nx_graph.nodes[node_to_run][QualibrationGraph.STATUS_FIELD] = (
                 new_status
             )
-            if new_status == NodeStatus.successful:
+            if new_status == NodeStatus.finished:
                 for successor in successors[node_to_run]:
                     self._execution_queue.put(successor)
         self._active_node = None

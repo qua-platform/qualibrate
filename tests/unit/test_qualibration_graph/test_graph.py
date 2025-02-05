@@ -188,7 +188,7 @@ class TestQualibrationGraph:
         mock_get_node_attributes = mocker.patch(
             "qualibrate.qualibration_graph.nx.get_node_attributes",
             return_value={
-                "node1": NodeStatus.successful,
+                "node1": NodeStatus.finished,
                 "node2": NodeStatus.pending,
             },
         )
