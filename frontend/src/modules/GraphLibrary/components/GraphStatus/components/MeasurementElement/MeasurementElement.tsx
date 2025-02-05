@@ -110,7 +110,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
               <h4>Parameters</h4>
               <div className={styles.parameterContent}>
                 {Object.entries(element.parameters || {})
-                  .filter(([, value]) => value != null && value !== "") // Filter out null or empty parameters (e.g. test_list)
+                  .filter(([, value]) => value != null && value !== "") // Filter out null or empty parameters (e.g. )
                   .map(([key, value]) => (
                     <div className={styles.parameterItem} key={key}>
                       <span className={styles.label}>{key}:</span>
