@@ -11,9 +11,10 @@ interface IJSONEditorProps {
   jsonDataProp: object;
   height: string;
   showSearch?: boolean;
+  toggleSwitch?: boolean;
 }
 
-export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true }: IJSONEditorProps) => {
+export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, toggleSwitch = false }: IJSONEditorProps) => {
   const { isNodeRunning } = useNodesContext();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);
@@ -31,7 +32,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true }: I
     }
   }, [isNodeRunning]);
 
-  useEffect(() => { }, [isNodeRunning]);
+  useEffect(() => {}, [isNodeRunning]);
 
   const filterData = (data: object, term: string) => {
     if (!term) return data;
@@ -125,7 +126,8 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true }: I
         marginRight: "20px",
       }}
     >
-      <ToggleSwitch title={title} activeTab={activeTab} setActiveTab={setActiveTab} />
+      {!toggleSwitch && <h1 style={{ paddingTop: "10px", paddingBottom: "5px" }}>{title}</h1>}
+      {toggleSwitch && <ToggleSwitch title={title} activeTab={activeTab} setActiveTab={setActiveTab} />}
       {showSearch && (
         <InputField value={searchTerm} title={"Search"} onChange={(_e, event) => handleSearch(event.target.value, event)}></InputField>
       )}
