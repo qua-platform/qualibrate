@@ -5,11 +5,12 @@ import { classNames } from "../../../../../../utils/classnames";
 import { useSelectionContext } from "../../../../../common/context/SelectionContext";
 
 interface MeasurementElementProps {
-  element: Measurement;
-  isExpanded: boolean; // Prop for expanded state
-  onExpand: () => void; // Prop to toggle expansion
+  element: Measurement; // The measurement element to display
+  isExpanded: boolean; // Whether the element is currently expanded
+  onExpand: () => void; // Callback to toggle the expanded state
 }
 
+// Utility function to format date-time strings into a readable format
 export const formatDateTime = (dateTimeString: string) => {
   const [date, time] = dateTimeString.split("T");
   const [timeWithoutMilliseconds] = time.split(".");
@@ -22,36 +23,36 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
 
   const expandedSectionRef = useRef<HTMLDivElement>(null);
 
-  // Handle selecting a node
+  // Handle node selection logic
   const handleSelectNode = () => {
     if (selectedItemName !== element.name && trackLatest) {
-      setTrackLatest(false);
+      setTrackLatest(false); // Disable auto-tracking if a manual selection is made
     }
-    setSelectedItemName(element.name);
+    setSelectedItemName(element.name); // Set the selected node name
     if (element.snapshot_idx) {
-      fetchResultsAndDiffData(element.snapshot_idx);
+      fetchResultsAndDiffData(element.snapshot_idx); // Fetch results and diff data for the selected node
     } else {
-      setResult({});
+      setResult({}); // Clear results if no snapshot index is present
       setDiffData({});
     }
   };
 
-  // Handle expanding or collapsing the element
+  // Handle the expand/collapse action
   const handleExpand = () => {
     onExpand();
   };
 
-  // Scroll into view when expanded
+  // Automatically scroll to the expanded section when it is expanded
   useEffect(() => {
     if (isExpanded && expandedSectionRef.current) {
       expandedSectionRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }, [isExpanded]);
 
-  // Generate style for the dot indicator
+  // Generate a dynamic style for the dot indicator based on outcomes
   const getDotStyle = () => {
     if (!element.outcomes || Object.keys(element.outcomes).length === 0) {
-      return { backgroundColor: "#40a8f5" }; // Default blue color for no qubits
+      return { backgroundColor: "#40a8f5" }; // Default blue color if no outcomes
     }
 
     const outcomes = Object.values(element.outcomes);
@@ -59,22 +60,27 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     const successes = outcomes.filter((status) => status === "successful").length;
     const successPercentage = (successes / total) * 100;
 
+    // Create a pie-chart-like gradient to represent success vs failure
     return {
-      background: `conic-gradient(rgb(40, 167, 70, 0.9) ${successPercentage}%, rgb(220, 53, 69, 0.9) 0)`,
+      background: `conic-gradient(rgb(40, 167, 69, 0.9) ${successPercentage}%, rgb(220, 53, 69, 0.9) 0)`,
     };
   };
+
+  // Check if the element has any outcomes to display
+  const hasOutcomes = element.outcomes && Object.keys(element.outcomes).length > 0;
 
   return (
     <div
       className={classNames(
         styles.rowWrapper,
-        selectedItemName === element.name && styles.nodeSelected,
-        isExpanded && styles.expanded
+        selectedItemName === element.name && styles.nodeSelected, // Highlight the selected node
+        isExpanded && styles.expanded // Apply expanded styling
       )}
-      onClick={handleExpand} // Toggle expansion on click
+      onClick={handleExpand} // Trigger expansion/collapse on click
     >
       <div className={styles.row} onClick={handleSelectNode}>
-        <div className={styles.dot} style={getDotStyle()}></div> {/* Dynamic pie chart-style dot */}
+        {/* Dot indicator for the measurement's outcomes */}
+        <div className={styles.dot} style={getDotStyle()}></div>
         <div className={styles.titleOrName}>
           #{element.snapshot_idx} {element.name}
         </div>
@@ -82,30 +88,29 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
       </div>
       {isExpanded && (
         <div ref={expandedSectionRef} className={styles.expandedContent}>
-          {/* Top Bar */}
-          <div className={styles.topBar}>
-            <div className={styles.barItem}>
-              <span className={styles.label}>Run start:</span>{" "}
-              <span className={styles.value}>{formatDateTime(element.run_start)}</span>
+          {/* Run Info and Parameters Section */}
+          <div className={styles.runInfoAndParameters}>
+            {/* Run Info */}
+            <div className={styles.runInfo}>
+              <div className={styles.barItem}>
+                <span className={styles.label}>Status:</span>
+                <span className={styles.value}>{element.status || "Unknown"}</span>
+              </div>
+              <div className={styles.barItem}>
+                <span className={styles.label}>Run duration:</span>
+                <span className={styles.value}>{element.run_duration}s</span>
+              </div>
+              <div className={styles.barItem}>
+                <span className={styles.label}>Run start:</span>
+                <span className={styles.value}>{formatDateTime(element.run_start)}</span>
+              </div>
             </div>
-            <div className={styles.barItem}>
-              <span className={styles.label}>Run duration:</span>{" "}
-              <span className={styles.value}>{element.run_duration}s</span>
-            </div>
-            <div className={styles.barItem}>
-              <span className={styles.label}>Status:</span>{" "}
-              <span className={styles.value}>{element.status || "Unknown"}</span>
-            </div>
-          </div>
-
-          {/* Containers */}
-          <div className={styles.contentContainers}>
             {/* Parameters */}
             <div className={styles.parameters}>
               <h4>Parameters</h4>
               <div className={styles.parameterContent}>
                 {Object.entries(element.parameters || {})
-                  .filter(([, value]) => value !== null && value !== undefined) // Exclude null or undefined values
+                  .filter(([, value]) => value != null && value !== "") // Filter out null or empty parameters (e.g. test_list)
                   .map(([key, value]) => (
                     <div className={styles.parameterItem} key={key}>
                       <span className={styles.label}>{key}:</span>
@@ -116,35 +121,29 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
                   ))}
               </div>
             </div>
-            {/* Outcomes */}
+          </div>
+          {/* Outcomes Section */}
+          {hasOutcomes && (
             <div className={styles.outcomes}>
               <h4>Outcomes</h4>
               <div className={styles.outcomeContainer}>
-                {Object.entries(element.outcomes || {}).map(([qubit, result]) => {
+                {Object.entries(element.outcomes).map(([qubit, result]) => {
                   const isSuccess = result === "successful";
                   return (
                     <span
                       key={qubit}
                       className={classNames(styles.outcomeBubble, isSuccess ? styles.success : styles.failure)}
                     >
-                      <span
-                        className={styles.qubitLabel}
-                        style={{
-                          backgroundColor: isSuccess
-                            ? "rgba(40, 167, 69, 0.6)" // Green shading
-                            : "rgba(220, 53, 69, 0.6)", // Red shading
-                        }}
-                      >
-                        {qubit}
+                      <span className={classNames(styles.qubitLabel, isSuccess ? styles.success : styles.failure)}>
+                        {qubit || "N/A"} {/* Display "N/A" if qubit is null or undefined */}
                       </span>
-                      <span className={styles.divider}></span>
                       <span className={styles.outcomeStatus}>{result}</span>
                     </span>
                   );
                 })}
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
