@@ -6,5 +6,5 @@ __all__ = ["NodeStatus"]
 class NodeStatus(Enum):
     pending = "pending"
     running = "running"
-    successful = "successful"
+    finished = "finished"
     failed = "failed"

@@ -39,7 +39,7 @@ class TestBasicOrchestrator:
         # Mock pending node statuses
         mock_status = {
             "node_1": NodeStatus.pending,
-            "node_2": NodeStatus.successful,
+            "node_2": NodeStatus.finished,
         }
         mocker.patch("networkx.get_node_attributes", return_value=mock_status)
         mocker.patch.object(
@@ -79,13 +79,13 @@ class TestBasicOrchestrator:
 
         assert orchestrator.nx_graph == mock_graph._graph
 
-    def test_check_node_successful_without_graph(self):
+    def test_check_node_finished_without_graph(self):
         orchestrator = BasicOrchestrator()
         orchestrator._graph = None
         mock_node = MagicMock()
-        assert orchestrator.check_node_successful(mock_node) is False
+        assert orchestrator.check_node_finished(mock_node) is False
 
-    def test_check_node_successful_with_successful_node(self, mocker):
+    def test_check_node_finished_with_finished_node(self, mocker):
         orchestrator = BasicOrchestrator()
         orchestrator._graph = "graph"
         mock_nx_graph = mocker.patch(
@@ -94,9 +94,9 @@ class TestBasicOrchestrator:
         )
         mock_node = MagicMock()
         mock_nx_graph.return_value.nodes = {
-            mock_node: {QualibrationGraph.STATUS_FIELD: NodeStatus.successful}
+            mock_node: {QualibrationGraph.STATUS_FIELD: NodeStatus.finished}
         }
-        assert orchestrator.check_node_successful(mock_node) is True
+        assert orchestrator.check_node_finished(mock_node) is True
 
     def test_get_next_node_with_empty_queue(self):
         orchestrator = BasicOrchestrator()
@@ -117,9 +117,9 @@ class TestBasicOrchestrator:
         )
         mock_nx_graph.return_value.pred = {mock_node: []}
 
-        # Mock check_node_successful to always return True
+        # Mock check_node_finished to always return True
         mocker.patch.object(
-            orchestrator, "check_node_successful", return_value=True
+            orchestrator, "check_node_finished", return_value=True
         )
 
         assert orchestrator.get_next_node() == mock_node
