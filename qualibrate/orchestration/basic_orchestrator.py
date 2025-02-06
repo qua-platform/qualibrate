@@ -54,6 +54,8 @@ class BasicOrchestrator(
             return True
         if self._execution_queue.qsize() == 0:
             return True
+        if self.targets is None or len(self.targets) == 0:
+            return True
         return all(
             map(
                 lambda status: status != NodeStatus.pending,
