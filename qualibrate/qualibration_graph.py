@@ -94,6 +94,8 @@ class QualibrationGraph(
         *,
         modes: Optional[RunModes] = None,
     ):
+        if not isinstance(parameters, GraphParameters):
+            raise ValueError("Graph parameters must be of type GraphParameters")
         super().__init__(name, parameters, description=description, modes=modes)
         self._nodes = self._validate_nodes_names_mapping(nodes)
         self._connectivity = connectivity

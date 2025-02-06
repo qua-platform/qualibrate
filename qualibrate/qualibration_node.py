@@ -149,7 +149,9 @@ class QualibrationNode(
         parameters_class: Optional[type[ParametersType]],
     ) -> ParametersType:
         """
-        Validates passed parameters and parameters class. If parameters
+        Validates passed parameters and parameters class.
+
+        If parameters
         passed then the instance will be used. If parameters class is passed,
         an attempt will be made to instantiate it. If neither parameters nor
         parameter class are passed, then the default base parameters will be
@@ -166,7 +168,12 @@ class QualibrationNode(
         Raises:
             ValueError: If parameters class instantiation fails.
         """
+        params_type_error = ValueError(
+            "Node parameters must be of type NodeParameters"
+        )
         if parameters is not None:
+            if not isinstance(parameters, NodeParameters):
+                raise params_type_error
             if parameters_class is not None:
                 logger.warning(
                     "Passed both parameters and parameters_class to the node "
@@ -196,6 +203,8 @@ class QualibrationNode(
             "parameters_class argument is deprecated. Please use "
             f"parameters argument for initializing node '{name}'."
         )
+        if not issubclass(parameters_class, NodeParameters):
+            raise params_type_error
         try:
             return parameters_class()
         except ValidationError as e:

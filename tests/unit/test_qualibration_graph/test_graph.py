@@ -6,6 +6,7 @@ import pytest
 from qualibrate import QualibrationGraph, QualibrationNode
 from qualibrate.models.node_status import NodeStatus
 from qualibrate.models.run_mode import RunModes
+from qualibrate.parameters import GraphParameters
 from qualibrate.q_runnnable import QRunnable
 from qualibrate.utils.exceptions import StopInspection
 
@@ -75,7 +76,7 @@ class TestQualibrationGraph:
         )
         graph = QualibrationGraph(
             name="test_graph",
-            parameters=MagicMock(),
+            parameters=MagicMock(spec=GraphParameters),
             nodes=nodes,
             connectivity=connectivity,
         )
@@ -100,7 +101,7 @@ class TestQualibrationGraph:
         ) as ex:
             QualibrationGraph(
                 name="test_graph",
-                parameters=MagicMock(),
+                parameters=MagicMock(spec=GraphParameters),
                 nodes=nodes,
                 connectivity=connectivity,
                 modes=RunModes(inspection=True),
@@ -141,13 +142,12 @@ class TestQualibrationGraph:
         mocked_validate_names = mocker.patch.object(
             QualibrationGraph, "_validate_nodes_names_mapping", return_value={}
         )
-        parameters = MagicMock()
         mock_get_qnode = mocker.patch.object(
             QualibrationGraph, "_get_qnode_or_error", return_value=node
         )
         graph = QualibrationGraph(
             name="test_graph",
-            parameters=parameters,
+            parameters=MagicMock(spec=GraphParameters),
             nodes={},
             connectivity=[],
         )
@@ -166,7 +166,7 @@ class TestQualibrationGraph:
         connectivity = [("node1", "node2")]
         graph = QualibrationGraph(
             name="test_graph",
-            parameters=MagicMock(),
+            parameters=MagicMock(spec=GraphParameters),
             nodes=nodes,
             connectivity=connectivity,
             orchestrator=mock_orchestrator,
@@ -183,7 +183,6 @@ class TestQualibrationGraph:
     def test_completed_count(self, mocker, pre_setup_graph_init):
         (nodes, _, _, _) = pre_setup_graph_init
         connectivity = [("node1", "node2")]
-        parameters = MagicMock()
 
         mock_get_node_attributes = mocker.patch(
             "qualibrate.qualibration_graph.nx.get_node_attributes",
@@ -195,7 +194,7 @@ class TestQualibrationGraph:
 
         graph = QualibrationGraph(
             name="test_graph",
-            parameters=parameters,
+            parameters=MagicMock(spec=GraphParameters),
             nodes=nodes,
             connectivity=connectivity,
         )
@@ -208,12 +207,11 @@ class TestQualibrationGraph:
     def test_run_successful(self, mocker, pre_setup_graph_init):
         (nodes, _, _, _) = pre_setup_graph_init
         connectivity = [("node1", "node2")]
-        parameters = MagicMock()
         orchestrator = MagicMock()
 
         graph = QualibrationGraph(
             name="test_graph",
-            parameters=parameters,
+            parameters=MagicMock(spec=GraphParameters),
             nodes=nodes,
             connectivity=connectivity,
             orchestrator=orchestrator,
@@ -243,12 +241,11 @@ class TestQualibrationGraph:
     def test_run_error(self, mocker, pre_setup_graph_init):
         (nodes, _, _, _) = pre_setup_graph_init
         connectivity = [("node1", "node2")]
-        parameters = MagicMock()
         orchestrator = MagicMock()
 
         graph = QualibrationGraph(
             name="test_graph",
-            parameters=parameters,
+            parameters=MagicMock(spec=GraphParameters),
             nodes=nodes,
             connectivity=connectivity,
             orchestrator=orchestrator,
@@ -271,12 +268,11 @@ class TestQualibrationGraph:
     def test_stop(self, pre_setup_graph_init):
         (nodes, _, _, _) = pre_setup_graph_init
         connectivity = [("node1", "node2")]
-        parameters = MagicMock()
         orchestrator = MagicMock()
 
         graph = QualibrationGraph(
             name="test_graph",
-            parameters=parameters,
+            parameters=MagicMock(spec=GraphParameters),
             nodes=nodes,
             connectivity=connectivity,
             orchestrator=orchestrator,
@@ -295,12 +291,11 @@ class TestQualibrationGraph:
     def test_stop_without_active_node(self, pre_setup_graph_init):
         (nodes, _, _, _) = pre_setup_graph_init
         connectivity = [("node1", "node2")]
-        parameters = MagicMock()
         orchestrator = MagicMock()
 
         graph = QualibrationGraph(
             name="test_graph",
-            parameters=parameters,
+            parameters=MagicMock(spec=GraphParameters),
             nodes=nodes,
             connectivity=connectivity,
             orchestrator=orchestrator,
