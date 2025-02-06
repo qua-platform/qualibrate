@@ -131,19 +131,23 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
       {showSearch && (
         <InputField value={searchTerm} title={"Search"} onChange={(_e, event) => handleSearch(event.target.value, event)}></InputField>
       )}
-      {activeTab === "final" && (
-        <JsonViewer
-          rootName={false}
-          onSelect={(path) => handleOnSelect(path)}
-          theme={"dark"}
-          value={jsonData}
-          valueTypes={[imageDataType]}
-          displayDataTypes={false}
-          defaultInspectDepth={3}
-          style={{ overflowY: "auto", height: "100%", paddingBottom: "15px" }}
-        />
-      )}
-      {activeTab === "live" && <Iframe targetUrl={iframeURL} />}
+      <>
+        <div style={{ width: "100%", height: "100%", display: activeTab === "final" ? "block" : "none" }}>
+          <JsonViewer
+            rootName={false}
+            onSelect={(path) => handleOnSelect(path)}
+            theme={"dark"}
+            value={jsonData}
+            valueTypes={[imageDataType]}
+            displayDataTypes={false}
+            defaultInspectDepth={3}
+            style={{ overflowY: "auto", height: "100%", paddingBottom: "15px" }}
+          />
+        </div>
+        <div style={{ width: "100%", height: "100%", display: activeTab === "live" ? "block" : "none" }}>
+          <Iframe targetUrl={iframeURL} />
+        </div>
+      </>
     </div>
   );
 };
