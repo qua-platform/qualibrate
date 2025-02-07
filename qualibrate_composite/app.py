@@ -2,12 +2,13 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from qualibrate_composite.api.auth_middleware import (
-    QualibrateAppAuthMiddleware,
-    RunnerAuthMiddleware,
-)
 from qualibrate_composite.api.routes import base_router
 from qualibrate_composite.config import get_config_path, get_settings
+from qualibrate_composite.utils.spawn import (
+    spawn_qua_dashboards,
+    spawn_qualibrate_app,
+    spawn_qualibrate_runner,
+)
 
 try:
     from json_timeline_database.app import app as json_timeline_db_app
@@ -39,28 +40,12 @@ composite = _settings.composite
 if composite is None:
     raise RuntimeError("There is no config for qualibrate composite")
 if composite.runner.spawn:
-    try:
-        from qualibrate_runner.app import app as runner_app
-    except ImportError as ex:
-        raise ImportError(
-            "Can't import qualibrate_runner instance. "
-            "Check that you have installed it."
-        ) from ex
-
-    runner_app.add_middleware(RunnerAuthMiddleware)
-    app.mount("/execution", runner_app, name="qualibrate_runner")
-
-if composite is not None and composite.app.spawn:
-    try:
-        from qualibrate_app.app import app as qualibrate_app_app
-    except ImportError as ex:
-        raise ImportError(
-            "Can't import qualibrate_app instance. "
-            "Check that you have installed it."
-        ) from ex
-
-    qualibrate_app_app.add_middleware(QualibrateAppAuthMiddleware)
-    app.mount("/", qualibrate_app_app, name="qualibrate_runner")
+    spawn_qualibrate_runner(app)
+# TODO: remove hasattr -- needed before release config
+if hasattr(composite, "qua_dashboards") and composite.qua_dashboards.spawn:
+    spawn_qua_dashboards(app)
+if composite.app.spawn:
+    spawn_qualibrate_app(app)
 
 
 def main(port: int, host: str, reload: bool) -> None:
