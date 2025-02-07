@@ -9,7 +9,7 @@ class EndpointFilter(logging.Filter):
         self,
         name: str = "",
         *,
-        excluded_endpoints: list[str],
+        excluded_endpoints_starts: tuple[str, ...],
         success_status_codes: Optional[tuple[int, ...]] = None,
     ) -> None:
         """
@@ -20,7 +20,7 @@ class EndpointFilter(logging.Filter):
                 entries.
         """
         super().__init__(name)
-        self.excluded_endpoint_starts = excluded_endpoints
+        self.excluded_endpoint_starts = excluded_endpoints_starts
         self.success_status_codes = success_status_codes or (200, 204)
 
     def filter(self, record: logging.LogRecord) -> bool:
