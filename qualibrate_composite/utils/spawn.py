@@ -10,6 +10,12 @@ from qualibrate_composite.api.auth_middleware import (
 from qualibrate_composite.utils.logging_filter import EndpointFilter
 
 
+# Frequently polled endpoints that should be filtered from logs
+EXECUTION_STATUS_ENDPOINT = "/execution/is_running"
+WORKFLOW_STATUS_ENDPOINT = "/execution/last_run/workflow/status"
+WORKFLOW_HISTORY_ENDPOINT = "/execution/last_run/workflow/execution_history"
+
+
 def spawn_qualibrate_runner(app: FastAPI) -> None:
     try:
         from qualibrate_runner.app import app as runner_app
@@ -28,8 +34,7 @@ def spawn_qualibrate_app(app: FastAPI) -> None:
         from qualibrate_app.app import app as qualibrate_app_app
     except ImportError as ex:
         raise ImportError(
-            "Can't import qualibrate_app instance. "
-            "Check that you have installed it."
+            "Can't import qualibrate_app instance. " "Check that you have installed it."
         ) from ex
 
     qualibrate_app_app.add_middleware(QualibrateAppAuthMiddleware)
@@ -39,20 +44,24 @@ def spawn_qualibrate_app(app: FastAPI) -> None:
 def spawn_qua_dashboards(app: FastAPI) -> None:
     if find_spec("qua_dashboards") is None:
         logging.warning(
-            "qua_dashboards is not installed so the dashboards server "
-            "is not started"
+            "qua_dashboards is not installed so the dashboards server " "is not started"
         )
         return
     path_prefix = "/dashboards"
     logging.getLogger("uvicorn.access").addFilter(
-        EndpointFilter(excluded_endpoints=[path_prefix])
+        EndpointFilter(
+            excluded_endpoints=[
+                path_prefix,
+                EXECUTION_STATUS_ENDPOINT,
+                WORKFLOW_STATUS_ENDPOINT,
+                WORKFLOW_HISTORY_ENDPOINT,
+            ]
+        )
     )
     try:
         from qua_dashboards.app import create_app as qua_dashboard_create_app
 
-        qua_dashboard_app = qua_dashboard_create_app(
-            f"{path_prefix.rstrip('/')}/"
-        )
+        qua_dashboard_app = qua_dashboard_create_app(f"{path_prefix.rstrip('/')}/")
     except Exception as ex:
         logging.exception("Can't import qua_dashboards", exc_info=ex)
         return
