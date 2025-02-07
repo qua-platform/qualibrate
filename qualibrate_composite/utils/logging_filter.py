@@ -5,9 +5,7 @@ from typing import cast
 class EndpointFilter(logging.Filter):
     """Filter class to exclude specific endpoints from log entries."""
 
-    def __init__(
-        self, name: str = "", *, excluded_endpoints: list[str]
-    ) -> None:
+    def __init__(self, name: str = "", *, excluded_endpoints: list[str]) -> None:
         """
         Initialize the EndpointFilter class.
 
@@ -30,13 +28,18 @@ class EndpointFilter(logging.Filter):
         """
         if not record.args:
             return True
-        if len(record.args) < 3:
+        if len(record.args) < 5:
             return True
-        return any(
-            map(
-                lambda x: cast(
-                    str, cast(tuple[object, ...], record.args)[2]
-                ).startswith(x),
-                self.excluded_endpoint_starts,
-            )
-        )
+
+        # Get the endpoint path from the log record (expected to be the 3rd argument)
+        log_args = cast(tuple[object, ...], record.args)
+        endpoint_path = cast(str, log_args[2])
+        response_status_code = cast(int, log_args[4])
+        # Check if the endpoint path starts with any of the excluded patterns
+        for excluded_pattern in self.excluded_endpoint_starts:
+            if not endpoint_path.startswith(excluded_pattern):
+                continue
+            if response_status_code in [200, 204]:
+                return False
+
+        return True
