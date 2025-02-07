@@ -2,25 +2,37 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 import jp from "jsonpath";
 import { defineDataType, JsonViewer, Path } from "@textea/json-viewer";
 import InputField from "../../../common/ui-components/common/Input/InputField";
-import styles from "./JSONEditor.module.scss";
+import ToggleSwitch from "../../../common/ui-components/common/ToggleSwitch/ToggleSwitch";
+import { useNodesContext } from "../../Nodes/context/NodesContext";
+import Iframe from "../../../common/ui-components/common/Iframe/Iframe";
 
-export const JSONEditor = ({
-  title,
-  jsonDataProp,
-  height,
-  showSearch = true,
-}: {
+interface IJSONEditorProps {
   title: string;
   jsonDataProp: object;
   height: string;
   showSearch?: boolean;
-}) => {
+  toggleSwitch?: boolean;
+}
+
+export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, toggleSwitch = false }: IJSONEditorProps) => {
+  const { isNodeRunning } = useNodesContext();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);
+  const [activeTab, setActiveTab] = useState<string>("live");
 
   useEffect(() => {
     setJsonData(jsonDataProp);
   }, [jsonDataProp]);
+
+  useEffect(() => {
+    if (isNodeRunning) {
+      setActiveTab("live");
+    } else {
+      setActiveTab("final");
+    }
+  }, [isNodeRunning]);
+
+  useEffect(() => {}, [isNodeRunning]);
 
   const filterData = (data: object, term: string) => {
     if (!term) return data;
@@ -99,6 +111,9 @@ export const JSONEditor = ({
     await navigator.clipboard.writeText(searchPath);
     setJsonData(filteredData);
   };
+
+  const currentURL = new URL(window.location.href);
+  const iframeURL = `${currentURL.origin}/dashboards/data-dashboard`;
   return (
     <div
       style={{
@@ -111,21 +126,28 @@ export const JSONEditor = ({
         marginRight: "20px",
       }}
     >
-      <h1 className={styles.title}>{title}</h1>
-
+      {!toggleSwitch && <h1 style={{ paddingTop: "10px", paddingBottom: "5px" }}>{title}</h1>}
+      {toggleSwitch && <ToggleSwitch title={title} activeTab={activeTab} setActiveTab={setActiveTab} />}
       {showSearch && (
         <InputField value={searchTerm} title={"Search"} onChange={(_e, event) => handleSearch(event.target.value, event)}></InputField>
       )}
-      <JsonViewer
-        rootName={false}
-        onSelect={(path) => handleOnSelect(path)}
-        theme={"dark"}
-        value={jsonData}
-        valueTypes={[imageDataType]}
-        displayDataTypes={false}
-        defaultInspectDepth={3}
-        style={{ overflowY: "auto", height: "100%", paddingBottom: "15px" }}
-      />
+      <>
+        <div style={{ width: "100%", height: "100%", display: activeTab === "final" ? "block" : "none" }}>
+          <JsonViewer
+            rootName={false}
+            onSelect={(path) => handleOnSelect(path)}
+            theme={"dark"}
+            value={jsonData}
+            valueTypes={[imageDataType]}
+            displayDataTypes={false}
+            defaultInspectDepth={3}
+            style={{ overflowY: "auto", height: "100%", paddingBottom: "15px" }}
+          />
+        </div>
+        <div style={{ width: "100%", height: "100%", display: activeTab === "live" ? "block" : "none" }}>
+          <Iframe targetUrl={iframeURL} />
+        </div>
+      </>
     </div>
   );
 };

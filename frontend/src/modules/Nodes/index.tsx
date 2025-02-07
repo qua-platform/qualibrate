@@ -18,7 +18,9 @@ const NodesPage = () => {
       <div className={styles.titleWrapper} data-testid="title-wrapper">
         <PageName>{heading}</PageName>
         &nbsp;
-        <BlueButton onClick={() => fetchAllNodes()} data-testid="refresh-button">Refresh</BlueButton>
+        <BlueButton onClick={() => fetchAllNodes()} data-testid="refresh-button">
+          Refresh
+        </BlueButton>
       </div>
       <div className={styles.nodesAndRunningJobInfoWrapper} data-testid="nodes-and-job-wrapper">
         <div className={styles.nodesContainerTop}>
@@ -30,7 +32,7 @@ const NodesPage = () => {
           <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results showSearch={false} />
+          <Results showSearch={false} toggleSwitch={true} />
         </div>
       </div>
     </div>
