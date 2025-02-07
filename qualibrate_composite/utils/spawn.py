@@ -7,6 +7,7 @@ from qualibrate_composite.api.auth_middleware import (
     QualibrateAppAuthMiddleware,
     RunnerAuthMiddleware,
 )
+from qualibrate_composite.utils.logging_filter import EndpointFilter
 
 
 def spawn_qualibrate_runner(app: FastAPI) -> None:
@@ -43,6 +44,9 @@ def spawn_qua_dashboards(app: FastAPI) -> None:
         )
         return
     path_prefix = "/dashboards"
+    logging.getLogger("uvicorn.access").addFilter(
+        EndpointFilter(excluded_endpoints=[path_prefix])
+    )
     try:
         from qua_dashboards.app import create_app as qua_dashboard_create_app
 
