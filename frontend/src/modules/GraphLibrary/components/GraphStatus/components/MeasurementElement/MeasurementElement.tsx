@@ -8,9 +8,14 @@ import { useGraphContext } from "../../../../context/GraphContext";
 interface MeasurementElementProps {
   element: Measurement;
   isExpanded: boolean;
-  onExpand: (name: string | null) => void; 
+  onExpand: (name: string | null) => void;
 }
 
+/**
+ * Formats a date-time string into a more readable format.
+ * @param dateTimeString - The original date-time string.
+ * @returns A formatted string with date and time.
+ */
 export const formatDateTime = (dateTimeString: string) => {
   const [date, time] = dateTimeString.split("T");
   const [timeWithoutMilliseconds] = time.split(".");
@@ -22,12 +27,17 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
   const { fetchResultsAndDiffData, setResult, setDiffData, setTrackLatest } = useGraphStatusContext();
 
+  // Check if the current measurement is selected in either the list or Cytoscape graph
   const measurementSelected =
     selectedItemName && (selectedItemName === element.snapshot_idx?.toString() || selectedItemName === element.name);
   const cytoscapeNodeSelected =
     selectedNodeNameInWorkflow &&
     (selectedNodeNameInWorkflow === element.snapshot_idx?.toString() || selectedNodeNameInWorkflow === element.name);
 
+  /**
+   * Handles selecting/deselecting a measurement in the list.
+   * If already selected, it collapses the measurement.
+   */
   const handleSelectNode = () => {
     if (selectedItemName === element.name) {
       setSelectedItemName(null);
@@ -46,6 +56,9 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     }
   };
 
+  /**
+   * Handles selecting/deselecting a measurement via the Cytoscape graph.
+   */
   const handleOnClick = () => {
     if (cytoscapeNodeSelected) {
       setSelectedNodeNameInWorkflow(null);
@@ -56,6 +69,9 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     }
   };
 
+  /**
+   * Syncs the expansion state with the Cytoscape graph selection.
+   */
   useEffect(() => {
     if (cytoscapeNodeSelected && !isExpanded) {
       onExpand(element.name);
@@ -64,6 +80,10 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     }
   }, [cytoscapeNodeSelected, isExpanded, onExpand, element.name]);
 
+  /**
+   * Generates a dynamic style for the dot indicator based on the measurement outcomes.
+   * The dot displays a success/failure ratio using a conic gradient.
+   */
   const getDotStyle = () => {
     if (!element.outcomes || Object.keys(element.outcomes).length === 0) {
       return { backgroundColor: "#40a8f5" }; // Default blue color if no outcomes
@@ -86,9 +106,9 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
       className={classNames(
         styles.rowWrapper,
         (measurementSelected || cytoscapeNodeSelected) && styles.nodeSelected,
-        isExpanded && styles.expanded 
+        isExpanded && styles.expanded
       )}
-      onClick={handleOnClick} 
+      onClick={handleOnClick}
     >
       <div className={styles.row} onClick={handleSelectNode}>
         <div className={styles.dot} style={getDotStyle()}></div>
@@ -97,10 +117,11 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
         </div>
         <div className={styles.description}>{element.description}</div>
       </div>
+
       {isExpanded && (
         <div className={styles.expandedContent}>
           <div className={styles.runInfoAndParameters}>
-            {/* Run info */}
+            {/* Run Info Section */}
             <div className={styles.runInfo}>
               <div className={styles.statusItem}>
                 <span className={styles.label}>Status:</span>
@@ -115,7 +136,8 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
                 <span className={styles.value}>{formatDateTime(element.run_start)}</span>
               </div>
             </div>
-            {/* Parameters */}
+
+            {/* Parameters Section */}
             <div className={styles.parameters}>
               <h4>Parameters</h4>
               <div className={styles.parameterContent}>
@@ -132,7 +154,8 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
               </div>
             </div>
           </div>
-          {/* Outcomes */}
+
+          {/* Outcomes Section */}
           {hasOutcomes && (
             <div className={styles.outcomes}>
               <h4>Outcomes</h4>
