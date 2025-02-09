@@ -1,161 +1,144 @@
-/* Wrapper for the measurement row, controlling layout and interaction */
 .rowWrapper {
   display: flex;
-  flex-direction: column; /* Ensures vertical stacking of child elements */
-  background: var(--bg-color-light); /* Default background color */
-  border: 1px solid var(--border-color); /* Border to define boundaries */
-  border-radius: 8px; /* Rounded corners for better aesthetics */
-  margin: 0.5px 0; /* Small vertical spacing between rows */
-  padding: 6px; /* Inner spacing for content */
-  cursor: pointer; /* Indicates interactivity */
-  transition: all 0.3s ease; /* Smooth transition for hover effects */
+  flex-direction: column; 
+  background: var(--bg-color-light); 
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin: 0.5px 0; 
+  padding: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 4px 10px rgb(124 122 122 / 50%); /* Adds subtle elevation */
-    background-color: var(--hover-highlight); /* Highlights row on hover */
+    box-shadow: 0 4px 10px rgb(124 122 122 / 50%); 
+    background-color: var(--hover-highlight); 
   }
 
   &.nodeSelected {
-    border-color: var(--primary-color); /* Highlight border for selected node */
-    background: var(--bg-color-selected); /* Distinct background for selection */
+    border-color: var(--primary-color); 
+    background: var(--bg-color-selected);
   }
 
   &.expanded {
-    background: var(--bg-color-expanded); /* Background for expanded state */
+    background: var(--bg-color-expanded);
   }
 }
 
-/* Styles for the top row of the measurement element */
 .row {
   display: flex;
-  justify-content: space-between; /* Evenly distribute child elements */
-  align-items: center; /* Center-align items vertically */
-  padding: 5px 0; /* Vertical spacing for row content */
-  font-size: 14px; /* Standard font size */
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 14px;
 }
 
-/* Indicator dot for the measurement, color-coded based on outcomes */
 .dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%; /* Circular dot */
-  margin-right: 8px; /* Space between dot and content */
-  background-color: #40a8f5; /* Default blue color */
+  border-radius: 50%;
+  margin-right: 8px;
+  background-color: #40a8f5;
 }
 
-/* Styles for the title or name of the measurement */
 .titleOrName {
-  font-weight: bold; /* Emphasize text */
-  font-size: 14px; /* Standard font size */
-  flex: 1; /* Take up available space */
+  font-weight: bold;
+  font-size: 14px;
+  flex: 1;
 }
 
-/* Description text styling */
 .description {
-  color: var(--text-muted); /* Muted text for descriptions */
-  font-size: 12px; /* Slightly smaller font size */
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
-/* Expanded content section styling */
 .expandedContent {
-  padding: 15px; /* Space around content */
-  margin-top: 10px; /* Space above expanded content */
-  background: var(--bg-color-expanded); /* Background for expansion */
-  border-radius: 8px; /* Rounded corners */
+  padding: 15px;
+  margin-top: 10px;
+  background: var(--bg-color-expanded);
+  border-radius: 8px;
 }
 
-/* Wrapper for run info and parameters sections */
 .runInfoAndParameters {
   display: flex;
-  gap: 20px; /* Space between run info and parameters */
+  gap: 20px;
 }
 
-/* Shared styles for run info and parameters containers */
 .runInfo,
 .parameters {
-  flex: 1; /* Equal width for both sections */
-  background: var(--bg-color-light); /* Default background color */
-  border: 2px solid var(--border-color); /* Border for definition */
-  border-radius: 10px; /* Rounded corners */
-  padding: 15px; /* Space within the container */
+  flex: 1;
+  background: var(--bg-color-light);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 15px;
   display: flex;
-  flex-direction: column; /* Stack items vertically */
-  justify-content: space-between; /* Evenly distribute content */
-  row-gap: 10px; /* Consistent vertical spacing */
+  flex-direction: column;
+  justify-content: space-between;
+  row-gap: 10px;
 
-  /* Parameter content-specific styles */
   .parameterContent {
     display: flex;
-    flex-direction: column; /* Stack parameters vertically */
-    gap: 10px; /* Space between parameters */
+    flex-direction: column;
+    gap: 10px;
   }
 
-  /* Header styling */
   h4 {
-    font-size: 16px; /* Slightly larger font */
-    font-weight: bold; /* Bold text for emphasis */
-    color: var(--primary-color); /* Primary color for headings */
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--primary-color);
   }
 
-  /* Shared styles for run info and parameter items */
   .barItem,
   .parameterItem {
     display: grid;
-    grid-template-columns: 3fr 2fr; /* Allocate space for labels and values */
-    align-items: center; /* Vertically align content */
-    gap: 0; /* No extra gap between columns */
-    row-gap: 8px; /* Space between rows */
+    grid-template-columns: 3fr 2fr; 
+    align-items: center; 
+    gap: 0; 
+    row-gap: 8px; 
 
-    /* Label styling */
     .label {
-      text-align: left; /* Align text to the left */
-      font-weight: bold; /* Bold text for emphasis */
-      color: var(--primary-color); /* Primary color for labels */
+      text-align: left; 
+      font-weight: bold; 
+      color: var(--primary-color);
     }
 
-    /* Value styling */
     .value {
-      text-align: left; /* Align text to the left */
-      font-weight: bold; /* Bold text for emphasis */
-      color: #fff; /* Bright white for visibility */
+      text-align: left; 
+      font-weight: bold;
+      color: #fff;
     }
   }
 }
 
-/* Styling for outcomes section */
 .outcomes {
-  margin-top: 15px; /* Space above the section */
-  background: var(--bg-color-light); /* Default background color */
-  border: 2px solid var(--border-color); /* Border for separation */
-  border-radius: 10px; /* Rounded corners */
-  padding: 15px; /* Space around content */
+  margin-top: 15px;
+  background: var(--bg-color-light);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 15px;
 
-  /* Header styling for outcomes */
   h4 {
-    font-size: 16px; /* Slightly larger font */
-    font-weight: bold; /* Bold text for emphasis */
-    margin-bottom: 10px; /* Space below the header */
-    color: var(--primary-color); /* Primary color for headings */
+    font-size: 16px; 
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--primary-color);
   }
 
-  /* Wrapper for individual outcome bubbles */
   .outcomeContainer {
     display: flex;
-    gap: 10px; /* Space between outcome bubbles */
-    flex-wrap: wrap; /* Wrap to the next line if necessary */
+    gap: 10px;
+    flex-wrap: wrap;
 
-    /* Styling for individual outcome bubbles */
     .outcomeBubble {
       display: flex;
-      align-items: center; /* Center content vertically */
-      border-radius: 15px; /* Rounded pill shape */
-      font-size: 12px; /* Standard font size */
-      font-weight: bold; /* Bold text for emphasis */
-      overflow: hidden; /* Prevent content overflow */
-      min-width: 90px; /* Minimum width for consistent size */
-      height: 24px; /* Fixed height */
-      text-align: center; /* Center-align text */
-      background: inherit; /* Inherit background color */
+      align-items: center; 
+      border-radius: 15px; 
+      font-size: 12px; 
+      font-weight: bold; 
+      overflow: hidden; 
+      min-width: 90px; 
+      height: 24px; 
+      text-align: center; 
+      background: inherit; 
 
       &.success {
         background-color: rgb(40 167 69 / 30%); /* Green background for success */
@@ -166,37 +149,36 @@
         min-width: 70px; /* Reduced width for failures */
       }
 
-      /* Styling for the qubit label inside the bubble */
+      /* Styling for the left-hand-side qubit label inside the bubble */
       .qubitLabel {
         display: flex;
-        align-items: center; /* Center-align content vertically */
-        justify-content: center; /* Center-align content horizontally */
-        height: 100%; /* Full height of the bubble */
-        padding: 0 6px; /* Inner padding */
-        font-size: 12px; /* Standard font size */
-        font-weight: bold; /* Bold text for emphasis */
-        color: #fff; /* White text */
-        border-radius: 15px 0 0 15px; /* Rounded left corners */
+        align-items: center; 
+        justify-content: center; 
+        height: 100%; 
+        padding: 0 6px; 
+        font-size: 12px; 
+        font-weight: bold; 
+        color: #fff; 
+        border-radius: 15px 0 0 15px; 
 
         &.success {
-          background-color: rgb(40 167 69 / 50%); /* Darker green for success */
+          background-color: rgb(40 167 69 / 50%); /* green for success */
         }
 
         &.failure {
-          background-color: rgb(220 53 69 / 50%); /* Darker red for failure */
+          background-color: rgb(220 53 69 / 50%); /* red for failure */
         }
       }
 
-      /* Styling for the outcome status inside the bubble */
       .outcomeStatus {
-        flex: 1; /* Take remaining space */
+        flex: 1; 
         display: flex;
-        align-items: center; /* Center-align content vertically */
-        justify-content: center; /* Center-align content horizontally */
-        font-size: 12px; /* Standard font size */
-        font-weight: bold; /* Bold text for emphasis */
-        padding: 0 8px; /* Inner padding */
-        border-radius: 0 15px 15px 0; /* Rounded right corners */
+        align-items: center; 
+        justify-content: center; 
+        font-size: 12px; 
+        font-weight: bold; 
+        padding: 0 8px; 
+        border-radius: 0 15px 15px 0; 
       }
     }
   }

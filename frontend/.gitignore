@@ -9,6 +9,7 @@
 logs
 **/*.backup.*
 **/*.back.*
+.last-run.json
 
 dist
 

@@ -1,16 +1,16 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import styles from "./MeasurementElement.module.scss";
 import { Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { classNames } from "../../../../../../utils/classnames";
 import { useSelectionContext } from "../../../../../common/context/SelectionContext";
+import { useGraphContext } from "../../../../context/GraphContext";
 
 interface MeasurementElementProps {
-  element: Measurement; // The measurement element to display
-  isExpanded: boolean; // Whether the element is currently expanded
-  onExpand: () => void; // Callback to toggle the expanded state
+  element: Measurement;
+  isExpanded: boolean;
+  onExpand: (name: string | null) => void; 
 }
 
-// Utility function to format date-time strings into a readable format
 export const formatDateTime = (dateTimeString: string) => {
   const [date, time] = dateTimeString.split("T");
   const [timeWithoutMilliseconds] = time.split(".");
@@ -19,37 +19,51 @@ export const formatDateTime = (dateTimeString: string) => {
 
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, isExpanded, onExpand }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
+  const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
   const { fetchResultsAndDiffData, setResult, setDiffData, trackLatest, setTrackLatest } = useGraphStatusContext();
 
-  const expandedSectionRef = useRef<HTMLDivElement>(null);
+  const measurementSelected =
+    selectedItemName && (selectedItemName === element.snapshot_idx?.toString() || selectedItemName === element.name);
+  const cytoscapeNodeSelected =
+    selectedNodeNameInWorkflow &&
+    (selectedNodeNameInWorkflow === element.snapshot_idx?.toString() || selectedNodeNameInWorkflow === element.name);
 
-  // Handle node selection logic
   const handleSelectNode = () => {
-    if (selectedItemName !== element.name && trackLatest) {
-      setTrackLatest(false); // Disable auto-tracking if a manual selection is made
-    }
-    setSelectedItemName(element.name); // Set the selected node name
-    if (element.snapshot_idx) {
-      fetchResultsAndDiffData(element.snapshot_idx); // Fetch results and diff data for the selected node
+    if (selectedItemName === element.name) {
+      setSelectedItemName(null);
+      setTrackLatest(false);
+      onExpand(null);
     } else {
-      setResult({}); // Clear results if no snapshot index is present
-      setDiffData({});
+      setSelectedItemName(element.name);
+      setTrackLatest(false);
+      onExpand(element.name);
+      if (element.snapshot_idx) {
+        fetchResultsAndDiffData(element.snapshot_idx);
+      } else {
+        setResult({});
+        setDiffData({});
+      }
     }
   };
 
-  // Handle the expand/collapse action
-  const handleExpand = () => {
-    onExpand();
+  const handleOnClick = () => {
+    if (cytoscapeNodeSelected) {
+      setSelectedNodeNameInWorkflow(null);
+      onExpand(null);
+    } else {
+      setSelectedNodeNameInWorkflow(element.name);
+      onExpand(element.name);
+    }
   };
 
-  // Automatically scroll to the expanded section when it is expanded
   useEffect(() => {
-    if (isExpanded && expandedSectionRef.current) {
-      expandedSectionRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    if (cytoscapeNodeSelected && !isExpanded) {
+      onExpand(element.name);
+    } else if (!cytoscapeNodeSelected && isExpanded) {
+      onExpand(null);
     }
-  }, [isExpanded]);
+  }, [cytoscapeNodeSelected, isExpanded, onExpand, element.name]);
 
-  // Generate a dynamic style for the dot indicator based on outcomes
   const getDotStyle = () => {
     if (!element.outcomes || Object.keys(element.outcomes).length === 0) {
       return { backgroundColor: "#40a8f5" }; // Default blue color if no outcomes
@@ -60,26 +74,23 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     const successes = outcomes.filter((status) => status === "successful").length;
     const successPercentage = (successes / total) * 100;
 
-    // Create a pie-chart-like gradient to represent success vs failure
     return {
       background: `conic-gradient(rgb(40, 167, 69, 0.9) ${successPercentage}%, rgb(220, 53, 69, 0.9) 0)`,
     };
   };
 
-  // Check if the element has any outcomes to display
   const hasOutcomes = element.outcomes && Object.keys(element.outcomes).length > 0;
 
   return (
     <div
       className={classNames(
         styles.rowWrapper,
-        selectedItemName === element.name && styles.nodeSelected, // Highlight the selected node
-        isExpanded && styles.expanded // Apply expanded styling
+        (measurementSelected || cytoscapeNodeSelected) && styles.nodeSelected,
+        isExpanded && styles.expanded 
       )}
-      onClick={handleExpand} // Trigger expansion/collapse on click
+      onClick={handleOnClick} 
     >
       <div className={styles.row} onClick={handleSelectNode}>
-        {/* Dot indicator for the measurement's outcomes */}
         <div className={styles.dot} style={getDotStyle()}></div>
         <div className={styles.titleOrName}>
           #{element.snapshot_idx} {element.name}
@@ -87,10 +98,9 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
         <div className={styles.description}>{element.description}</div>
       </div>
       {isExpanded && (
-        <div ref={expandedSectionRef} className={styles.expandedContent}>
-          {/* Run Info and Parameters Section */}
+        <div className={styles.expandedContent}>
           <div className={styles.runInfoAndParameters}>
-            {/* Run Info */}
+            {/* Run info */}
             <div className={styles.runInfo}>
               <div className={styles.barItem}>
                 <span className={styles.label}>Status:</span>
@@ -110,7 +120,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
               <h4>Parameters</h4>
               <div className={styles.parameterContent}>
                 {Object.entries(element.parameters || {})
-                  .filter(([, value]) => value != null && value !== "") // Filter out null or empty parameters (e.g. )
+                  .filter(([, value]) => value != null && value !== "")
                   .map(([key, value]) => (
                     <div className={styles.parameterItem} key={key}>
                       <span className={styles.label}>{key}:</span>
@@ -122,7 +132,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
               </div>
             </div>
           </div>
-          {/* Outcomes Section */}
+          {/* Outcomes */}
           {hasOutcomes && (
             <div className={styles.outcomes}>
               <h4>Outcomes</h4>
@@ -135,7 +145,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
                       className={classNames(styles.outcomeBubble, isSuccess ? styles.success : styles.failure)}
                     >
                       <span className={classNames(styles.qubitLabel, isSuccess ? styles.success : styles.failure)}>
-                        {qubit || "N/A"} {/* Display "N/A" if qubit is null or undefined */}
+                        {qubit || "N/A"}
                       </span>
                       <span className={styles.outcomeStatus}>{result}</span>
                     </span>

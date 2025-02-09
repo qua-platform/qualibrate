@@ -56,13 +56,13 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({
           <span>Track latest</span>
           <div
             className={`${styles.toggleSwitch} ${
-              trackLatest ? styles.on : styles.off
+              trackLatest ? styles.toggleOn : styles.toggleOff
             }`}
             onClick={handleOnClick}
           >
             <div
               className={`${styles.toggleKnob} ${
-                trackLatest ? styles.on : styles.off
+                trackLatest ? styles.toggleOn : styles.toggleOff
               }`}
             ></div>
           </div>

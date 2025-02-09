@@ -1,7 +1,7 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: 0; /* Remove unnecessary spacing */
+  gap: 0; 
   justify-content: space-between;
   font-style: normal;
   font-weight: 500;
@@ -11,11 +11,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #2d3338; /* Slightly lighter background for Execution history */
-  padding: 8px 12px; /* Compact padding */
+  background-color: #2d3338; 
+  padding: 8px 12px; 
   font-size: 16px;
-  border-radius: 0; /* Restore rounded corners */
-  border: 1px solid #23272a; /* Border around Execution history */
+  border-radius: 0;
+  border: 1px solid #23272a; 
 }
 
 .title {
@@ -35,62 +35,62 @@
   gap: 8px;
 
   span {
-    font-size: 14px; /* Slightly smaller text */
+    font-size: 14px; 
     color: #fff;
   }
 
   .toggleSwitch {
-    width: 36px; /* Narrower switch */
-    height: 12px; /* Slimmer height */
+    width: 36px; 
+    height: 12px; 
     background-color: #4a4a4a;
     border-radius: 6px;
     position: relative;
     cursor: pointer;
     transition: background-color 0.3s ease;
 
-    &.on {
+    &.toggleOn {
       background-color: #28a745;
     }
 
-    &.off {
+    &.toggleOff {
       background-color: #4a4a4a;
     }
   }
 
   .toggleKnob {
-    width: 18px; /* Smaller knob */
+    width: 18px; 
     height: 18px;
     background-color: #fff;
     border-radius: 50%;
     box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
     position: absolute;
-    top: -3px; /* Adjusted for new knob size */
+    top: -3px; 
     left: 0;
     transition: left 0.3s ease;
 
-    &.on {
+    &.toggleOn {
       left: calc(100% - 18px);
     }
 
-    &.off {
+    &.toggleOff {
       left: 0;
     }
   }
 }
 
 .contentContainer {
-  border: 1px solid #23272a; /* Subtle border for separation */
-  background-color: #232629; /* Slightly lighter than the title row */
-  border-radius: 0; /* Restore rounded corners */
-  padding: 10px 12px; /* Compact padding */
-  margin: 0; /* Remove extra margin */
+  border: 1px solid #23272a; 
+  background-color: #232629; 
+  border-radius: 0; 
+  padding: 10px 12px; 
+  margin: 0; 
 }
 
 .lowerContainer {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px; /* Slightly smaller font */
+  font-size: 14px; 
   color: #c6cdd6;
-  padding: 5px 0; /* Compact spacing */
+  padding: 5px 0; 
 }
