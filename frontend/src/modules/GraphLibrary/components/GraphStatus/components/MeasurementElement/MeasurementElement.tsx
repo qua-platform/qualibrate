@@ -102,15 +102,15 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
           <div className={styles.runInfoAndParameters}>
             {/* Run info */}
             <div className={styles.runInfo}>
-              <div className={styles.barItem}>
+              <div className={styles.statusItem}>
                 <span className={styles.label}>Status:</span>
                 <span className={styles.value}>{element.status || "Unknown"}</span>
               </div>
-              <div className={styles.barItem}>
+              <div className={styles.statusItem}>
                 <span className={styles.label}>Run duration:</span>
                 <span className={styles.value}>{element.run_duration}s</span>
               </div>
-              <div className={styles.barItem}>
+              <div className={styles.statusItem}>
                 <span className={styles.label}>Run start:</span>
                 <span className={styles.value}>{formatDateTime(element.run_start)}</span>
               </div>
