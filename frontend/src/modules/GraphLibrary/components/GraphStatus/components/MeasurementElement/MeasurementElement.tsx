@@ -20,7 +20,7 @@ export const formatDateTime = (dateTimeString: string) => {
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, isExpanded, onExpand }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
-  const { fetchResultsAndDiffData, setResult, setDiffData, trackLatest, setTrackLatest } = useGraphStatusContext();
+  const { fetchResultsAndDiffData, setResult, setDiffData, setTrackLatest } = useGraphStatusContext();
 
   const measurementSelected =
     selectedItemName && (selectedItemName === element.snapshot_idx?.toString() || selectedItemName === element.name);
