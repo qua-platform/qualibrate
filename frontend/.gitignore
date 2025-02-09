@@ -9,7 +9,7 @@
 logs
 **/*.backup.*
 **/*.back.*
-.last-run.json
+test-results/
 
 dist
 
