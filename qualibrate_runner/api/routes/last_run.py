@@ -6,6 +6,7 @@ from qualibrate import QualibrationGraph
 from qualibrate.models.execution_history import ExecutionHistory
 
 from qualibrate_runner.api.dependencies import get_state
+from qualibrate_runner.api.utils import get_model_docstring
 from qualibrate_runner.config import State
 from qualibrate_runner.core.models.last_run import LastRun, RunStatus
 from qualibrate_runner.core.models.workflow import WorkflowStatus
@@ -14,14 +15,39 @@ from qualibrate_runner.core.types import QGraphType
 last_run_router = APIRouter(prefix="/last_run")
 
 
-@last_run_router.get("/")
+@last_run_router.get(
+    "/",
+    description="""
+Returns the currently active element (node or graph). 
+If there is no active element, then returns the last executed one.
+Check fields below.
+
+**Note**:
+
+Available only in runtime. Reset on server restart.
+""",
+    response_model=LastRun,
+    response_description=f"""
+The last run if available, `None` otherwise.
+
+{get_model_docstring(LastRun)}
+""",
+)
 def get_last_run(
     state: Annotated[State, Depends(get_state)],
 ) -> Optional[LastRun]:
     return state.last_run
 
 
-@last_run_router.get("/workflow/status")
+@last_run_router.get(
+    "/workflow/status",
+    description="""Retrieve the status of workflow.""",
+    response_description=f"""
+Workflow status if active/last run item is workflow, `None` otherwise.
+
+{get_model_docstring(WorkflowStatus)}
+""",
+)
 def get_workflow_status(
     state: Annotated[State, Depends(get_state)],
 ) -> Optional[WorkflowStatus]:
