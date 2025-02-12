@@ -2,11 +2,12 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
 if TYPE_CHECKING:
-    from qualibrate.parameters import NodeParameters
+    from typing import Any
+
     from qualibrate.qualibration_node import QualibrationNode
 
 
-NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[NodeParameters]")
+NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[Any, Any]")
 
 
 class StorageManager(ABC, Generic[NodeTypeVar]):
