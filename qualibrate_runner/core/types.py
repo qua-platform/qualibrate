@@ -1,3 +1,5 @@
+from typing import Any
+
 from qualibrate import (
     NodeParameters,
     QualibrationGraph,
@@ -7,6 +9,6 @@ from qualibrate import (
 
 __all__ = ["QNodeType", "QGraphType", "QLibraryType"]
 
-QNodeType = QualibrationNode[NodeParameters]
+QNodeType = QualibrationNode[NodeParameters, Any]
 QGraphType = QualibrationGraph[QNodeType]
 QLibraryType = QualibrationLibrary[QNodeType]
