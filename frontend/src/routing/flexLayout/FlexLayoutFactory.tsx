@@ -12,6 +12,7 @@ export const flexLayoutFactory = (node: FlexLayout.TabNode) => {
 };
 
 export const flexClassNameMapper = (defaultClassName: string): string => {
+  console.log("defaultClassName", defaultClassName);
   switch (defaultClassName) {
     case "flexlayout__layout":
       return styles.layout;
@@ -23,6 +24,8 @@ export const flexClassNameMapper = (defaultClassName: string): string => {
       return `${styles.header_panel_widget} ${defaultClassName}`;
     case "flexlayout__tab_button--selected":
       return `${styles.header_panel_widget_selected}`;
+    case "flexlayout__tabset_sizer":
+      return `${styles._tabset_header_sizer}`;
     default:
       return defaultClassName;
   }
