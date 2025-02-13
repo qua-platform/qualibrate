@@ -26,6 +26,7 @@ cypress/videos
 
 /.env
 /.idea
+/tests
 
 /tests
 

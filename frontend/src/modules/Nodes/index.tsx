@@ -6,18 +6,14 @@ import { NodeElementList } from "./components/NodeElement/NodeElementList";
 import { RunningJob } from "./components/RunningJob/RunningJob";
 import { Results } from "./components/Results/Results";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
-import PageName from "../../common/ui-components/common/Page/PageName";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 
 const NodesPage = () => {
-  const heading = "Run calibration node";
   const { allNodes, fetchAllNodes } = useNodesContext();
 
   return (
     <div className={styles.wrapper} data-testid="nodes-page-wrapper">
-      <div className={styles.titleWrapper} data-testid="title-wrapper">
-        <PageName>{heading}</PageName>
-        &nbsp;
+      <div className={styles.refreshButtonWrapper} data-testid="title-wrapper">
         <BlueButton onClick={() => fetchAllNodes()} data-testid="refresh-button">
           Refresh
         </BlueButton>
