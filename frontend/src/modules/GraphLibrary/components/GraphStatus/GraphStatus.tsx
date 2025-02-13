@@ -7,8 +7,10 @@ import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementH
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
 import { SelectionContextProvider, useSelectionContext } from "../../../common/context/SelectionContext";
 import { GraphContextProvider, useGraphContext } from "../../context/GraphContext";
+import PageName from "../../../../common/ui-components/common/Page/PageName";
 
 const GraphStatus = () => {
+  const heading = "Run calibration graph";
   const { setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements } = useGraphContext();
   const { allMeasurements, result, diffData, fetchResultsAndDiffData, setResult, setDiffData, fetchAllMeasurements } =
@@ -27,7 +29,7 @@ const GraphStatus = () => {
 
   const handleOnCytoscapeNodeClick = async (name: string) => {
     const temp = await setupAllMeasurements();
-    const measurements = temp && temp.length > 0 ? temp : (allMeasurements ?? []);
+    const measurements = temp && temp.length > 0 ? temp : allMeasurements ?? [];
     setSelectedItemName(undefined);
     const measurementId = getMeasurementId(name, measurements);
     if (measurementId) {
@@ -42,6 +44,9 @@ const GraphStatus = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.leftContainer}>
+        <div className={styles.headingWrapper}>
+          <PageName>{heading}</PageName>
+        </div>
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
             <MeasurementElementGraph workflowGraphElements={workflowGraphElements} onCytoscapeNodeClick={handleOnCytoscapeNodeClick} />

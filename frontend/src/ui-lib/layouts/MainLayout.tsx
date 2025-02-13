@@ -6,8 +6,6 @@ import styles from "./styles/Layout.module.scss";
 import ToastComponent from "../../modules/toastModule/ToastComponent";
 import QUAlibrateLogoIcon from "../Icons/QUAlibrateLogoIcon";
 import { useGlobalThemeContext } from "../../modules/themeModule/GlobalThemeContext";
-import TitleBarMenu from "../../modules/TopbarMenu/TitleBarMenu";
-import { TitleBarContextProvider } from "../../contexts/TitleBarMenuContext";
 
 const EmptyPlaceholder = (
   <div className={styles.emptyPlaceholder}>
@@ -22,15 +20,11 @@ interface Props {
 
 const MainLayout = ({ className, children }: Props) => {
   const { pinSideMenu } = useGlobalThemeContext();
+
   return (
     <div className={styles.wrapper}>
       <SidebarMenu />
-      <div className={classNames(styles.content, pinSideMenu && styles.addLeftMargin, className)}>
-        <TitleBarContextProvider>
-          <TitleBarMenu />
-          {children ?? EmptyPlaceholder}
-        </TitleBarContextProvider>
-      </div>
+      <div className={classNames(styles.content, pinSideMenu && styles.addLeftMargin, className)}>{children ?? EmptyPlaceholder}</div>
       <ToastComponent />
     </div>
   );
