@@ -10,7 +10,7 @@ import datamodel_code_generator as dmcg
 from datamodel_code_generator.format import DatetimeClassType
 from datamodel_code_generator.model import get_data_model_types
 from datamodel_code_generator.parser.jsonschema import JsonSchemaParser
-from pydantic import Field, PydanticDeprecatedSince20  # noqa: F401
+from pydantic import ConfigDict, Field, PydanticDeprecatedSince20  # noqa: F401
 
 from qualibrate import NodeParameters
 from qualibrate.utils.logger_m import logger
@@ -447,7 +447,7 @@ def load_parameters(
         use_generic_container_types=True,
         class_name=class_name,
         base_class="qualibrate.parameters.NodeParameters",
-        additional_imports=["datetime.datetime"],
+        additional_imports=["datetime.datetime", "pydantic.ConfigDict"],
         dump_resolve_reference_action=(
             DATA_MODEL_TYPES.dump_resolve_reference_action
         ),
@@ -456,6 +456,8 @@ def load_parameters(
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=PydanticDeprecatedSince20)
         model_class_str = str(parser.parse())
+        # TODO: check why ConfigDict should be imported in this file
+        #   (but not in exec code)
         exec(model_class_str)
     params_class = locals().get(class_name)
 
