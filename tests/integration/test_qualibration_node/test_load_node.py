@@ -17,7 +17,7 @@ def empty_nodes_dump_folder(tmp_path):
 @pytest.fixture
 def empty_node_dir(empty_nodes_dump_folder):
     date = empty_nodes_dump_folder / datetime.today().strftime("%Y-%m-%d")
-    time = datetime.now().time().strftime("%H:%M:%S")
+    time = datetime.now().time().strftime("%H%M%S")
     node = date / f"#1_name_{time}"
     (date / node).mkdir(exist_ok=True, parents=True)
     yield node
