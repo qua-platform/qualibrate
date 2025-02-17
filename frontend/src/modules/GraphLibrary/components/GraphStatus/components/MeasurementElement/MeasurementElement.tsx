@@ -4,6 +4,7 @@ import { Measurement, useGraphStatusContext } from "../../context/GraphStatusCon
 import { classNames } from "../../../../../../utils/classnames";
 import { useSelectionContext } from "../../../../../common/context/SelectionContext";
 import { useGraphContext } from "../../../../context/GraphContext";
+import { MeasurementElementStatusInfoAndParameters, MeasurementElementOutcomes } from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
 
 interface MeasurementElementProps {
   element: Measurement;
@@ -122,61 +123,27 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
         <div className={styles.expandedContent}>
           <div className={styles.runInfoAndParameters}>
             {/* Run Info Section */}
-            <div className={styles.runInfo}>
-              <div className={styles.statusItem}>
-                <span className={styles.label}>Status:</span>
-                <span className={styles.value}>{element.status || "Unknown"}</span>
-              </div>
-              <div className={styles.statusItem}>
-                <span className={styles.label}>Run duration:</span>
-                <span className={styles.value}>{element.run_duration}s</span>
-              </div>
-              <div className={styles.statusItem}>
-                <span className={styles.label}>Run start:</span>
-                <span className={styles.value}>{formatDateTime(element.run_start)}</span>
-              </div>
-            </div>
+            <MeasurementElementStatusInfoAndParameters
+              data={{
+                "Status": element.status || "Unknown",
+                "Run duration": `${element.run_duration}s`,
+                "Run start": formatDateTime(element.run_start),
+              }}
+              className={styles.runInfo}
+              evenlySpaced={true}
+            />
 
             {/* Parameters Section */}
-            <div className={styles.parameters}>
-              <h4>Parameters</h4>
-              <div className={styles.parameterContent}>
-                {Object.entries(element.parameters || {})
-                  .filter(([, value]) => value != null && value !== "")
-                  .map(([key, value]) => (
-                    <div className={styles.parameterItem} key={key}>
-                      <span className={styles.label}>{key}:</span>
-                      <span className={styles.value}>
-                        {Array.isArray(value) ? value.join(", ") : value?.toString() || "N/A"}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            </div>
+            <MeasurementElementStatusInfoAndParameters
+              title="Parameters"
+              data={element.parameters || {}}
+              filterEmpty={true}
+              className={styles.parameters}
+            />
           </div>
 
           {/* Outcomes Section */}
-          {hasOutcomes && (
-            <div className={styles.outcomes}>
-              <h4>Outcomes</h4>
-              <div className={styles.outcomeContainer}>
-                {Object.entries(element.outcomes).map(([qubit, result]) => {
-                  const isSuccess = result === "successful";
-                  return (
-                    <span
-                      key={qubit}
-                      className={classNames(styles.outcomeBubble, isSuccess ? styles.success : styles.failure)}
-                    >
-                      <span className={classNames(styles.qubitLabel, isSuccess ? styles.success : styles.failure)}>
-                        {qubit || "N/A"}
-                      </span>
-                      <span className={styles.outcomeStatus}>{result}</span>
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {hasOutcomes && <MeasurementElementOutcomes outcomes={element.outcomes} />}
         </div>
       )}
     </div>

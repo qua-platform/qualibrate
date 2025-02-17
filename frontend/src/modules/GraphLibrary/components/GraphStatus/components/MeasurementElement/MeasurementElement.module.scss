@@ -1,21 +1,21 @@
 .rowWrapper {
   display: flex;
-  flex-direction: column; 
-  background: var(--bg-color-light); 
+  flex-direction: column;
+  background: var(--bg-color-light);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  margin: 0.5px 0; 
+  margin: 0.5px 0;
   padding: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 4px 10px rgb(124 122 122 / 50%); 
-    background-color: var(--hover-highlight); 
+    box-shadow: 0 4px 10px rgb(124 122 122 / 50%);
+    background-color: var(--hover-highlight);
   }
 
   &.nodeSelected {
-    border-color: var(--primary-color); 
+    border-color: var(--primary-color);
     background: var(--bg-color-selected);
   }
 
@@ -61,125 +61,36 @@
 .runInfoAndParameters {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
 }
 
-.runInfo,
-.parameters {
+/* Run Info Section */
+.runInfo {
   flex: 1;
+  min-width: 260px;
+  max-width: 50%;
   background: var(--bg-color-light);
   border: 2px solid var(--border-color);
   border-radius: 10px;
   padding: 15px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  row-gap: 10px;
-
-  .parameterContent {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  h4 {
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--primary-color);
-  }
-
-  .statusItem,
-  .parameterItem {
-    display: grid;
-    grid-template-columns: 3fr 2fr; 
-    align-items: center; 
-    gap: 0; 
-    row-gap: 8px; 
-
-    .label {
-      text-align: left; 
-      font-weight: bold; 
-      color: var(--primary-color);
-    }
-
-    .value {
-      text-align: left; 
-      font-weight: bold;
-      color: #fff;
-    }
-  }
+  justify-content: space-evenly;
+  height: 110px;
 }
 
-.outcomes {
-  margin-top: 15px;
+/* Parameters Section */
+.parameters {
+  flex: 1;
+  min-width: 260px;
+  max-width: 50%;
   background: var(--bg-color-light);
   border: 2px solid var(--border-color);
   border-radius: 10px;
   padding: 15px;
-
-  h4 {
-    font-size: 16px; 
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: var(--primary-color);
-  }
-
-  .outcomeContainer {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-
-    .outcomeBubble {
-      display: flex;
-      align-items: center; 
-      border-radius: 15px; 
-      font-size: 12px; 
-      font-weight: bold; 
-      overflow: hidden; 
-      min-width: 90px; 
-      height: 24px; 
-      text-align: center; 
-      background: inherit; 
-
-      &.success {
-        background-color: rgb(40 167 69 / 30%); /* Green background for success */
-      }
-
-      &.failure {
-        background-color: rgb(220 53 69 / 30%); /* Red background for failure */
-        min-width: 70px; /* Reduced width for failures */
-      }
-
-      /* Styling for the left-hand-side qubit label inside the bubble */
-      .qubitLabel {
-        display: flex;
-        align-items: center; 
-        justify-content: center; 
-        height: 100%; 
-        padding: 0 6px; 
-        font-size: 12px; 
-        font-weight: bold; 
-        color: #fff; 
-        border-radius: 15px 0 0 15px; 
-
-        &.success {
-          background-color: rgb(40 167 69 / 50%); /* green for success */
-        }
-
-        &.failure {
-          background-color: rgb(220 53 69 / 50%); /* red for failure */
-        }
-      }
-
-      .outcomeStatus {
-        flex: 1; 
-        display: flex;
-        align-items: center; 
-        justify-content: center; 
-        font-size: 12px; 
-        font-weight: bold; 
-        padding: 0 8px; 
-        border-radius: 0 15px 15px 0; 
-      }
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
