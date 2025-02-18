@@ -56,6 +56,13 @@ def node():
     return node
 
 
+@pytest.fixture(scope="function", autouse=True)
+def remove_quam_root():
+    from quam.core import QuamBase
+
+    QuamBase._last_instantiated_root = None
+
+
 @pytest.fixture
 def machine():
     from quam.components import BasicQuAM, SingleChannel
