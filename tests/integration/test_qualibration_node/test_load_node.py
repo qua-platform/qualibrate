@@ -140,7 +140,6 @@ def test_save_and_load(
     node_for_dump.save()
     assert node_for_dump.storage_manager is not None
     assert isinstance(node_for_dump.storage_manager.snapshot_idx, int)
-    # TODO: ask @nulinspiratie about this warning
     with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore", category=UserWarning, module="quam.core.quam_classes"
