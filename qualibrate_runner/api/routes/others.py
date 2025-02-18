@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 from typing import Annotated, Optional, cast
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from qualibrate_runner.api.dependencies import (
     get_state,
@@ -22,13 +22,23 @@ others_router = APIRouter()
 def check_running(
     state: Annotated[State, Depends(get_state)],
 ) -> bool:
+    """Whether is there any running (active) item (node or graph)"""
     return state.is_running
 
 
-@others_router.post("/stop")
+@others_router.post(
+    "/stop",
+    description="Stop a currently running workflow or node.",
+    response_description=(
+        "True if a running item was stopped successfully, False otherwise."
+    ),
+)
 def stop_running(
     state: Annotated[State, Depends(get_state)],
-    stop_graph_node: bool = False,
+    stop_graph_node: Annotated[
+        bool,
+        Query(description="Whether to stop the entire graph node execution."),
+    ] = False,
 ) -> bool:
     run_item = state.run_item
     if run_item is None:
