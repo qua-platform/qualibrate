@@ -265,6 +265,8 @@ class QualibrationNode(
         instance._parameters = instance.parameters_class.model_validate(
             node_parameters
         )
+        # Base class is inherited from user passed model so don't use passed
+        # class as base for copied parameters class
         instance.parameters_class = self.build_parameters_class_from_instance(
             instance._parameters
         )
