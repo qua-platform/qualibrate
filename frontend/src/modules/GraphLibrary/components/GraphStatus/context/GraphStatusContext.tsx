@@ -22,7 +22,6 @@ export interface Measurement {
   run_start: string;
   run_end: string;
   run_duration: number;
-  status: string;
 }
 
 interface IGraphContext {

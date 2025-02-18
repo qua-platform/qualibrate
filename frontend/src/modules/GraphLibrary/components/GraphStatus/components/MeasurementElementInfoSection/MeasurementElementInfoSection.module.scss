@@ -16,20 +16,20 @@
     grid-template-columns: max-content auto;
     align-items: center;
     gap: 10px;
-    white-space: nowrap; /* Prevents wrapping */
+    white-space: nowrap;
 }
   
 .label {
     font-weight: bold;
     color: var(--primary-color);
-    min-width: 130px; /* Ensures consistent left alignment */
+    min-width: 130px;
 }
   
 .value {
     font-weight: bold;
     color: #fff;
     text-align: left;
-    white-space: nowrap; /* Prevents wrapping */
+    white-space: nowrap;
 }
   
 /* Outcomes Section */
