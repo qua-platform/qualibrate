@@ -3,6 +3,8 @@ from os import PathLike
 from pathlib import Path
 from typing import Any, Optional
 
+from qualibrate.utils.logger_m import logger
+
 
 def get_node_dir_path(id: int, base_path: Path) -> Optional[Path]:
     """
@@ -60,9 +62,19 @@ def get_node_quam_filepath(
         file, or None if the file is not found.
     """
     quam_relative_path = node_data.get("quam", "./state.json")
-    quam_file_path = resolve_and_check_relative(
-        node_dir, Path(quam_relative_path)
-    )
+    try:
+        quam_file_path = resolve_and_check_relative(
+            node_dir, Path(quam_relative_path)
+        )
+    except FileNotFoundError as ex:
+        logger.exception(
+            (
+                f"Could not resolve QUAM state file {quam_relative_path} "
+                f"of node {node_dir}"
+            ),
+            exc_info=ex,
+        )
+        return None
     if quam_file_path.is_file():
         return quam_file_path
     return None
@@ -78,5 +90,7 @@ def resolve_and_check_relative(base_path: Path, subpath: PathLike[str]) -> Path:
     """
     full = (base_path / Path(subpath)).resolve()
     if not full.is_relative_to(base_path):
-        raise FileNotFoundError(f"Subpath {subpath} isn't relative to base.")
+        raise FileNotFoundError(
+            f"Subpath {subpath} isn't relative to base {base_path}."
+        )
     return full
