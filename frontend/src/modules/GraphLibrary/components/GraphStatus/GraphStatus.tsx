@@ -11,6 +11,7 @@ import { GraphContextProvider, useGraphContext } from "../../context/GraphContex
 const GraphStatus = () => {
   const { setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements } = useGraphContext();
+  const { setTrackLatest } = useGraphStatusContext();
   const { allMeasurements, result, diffData, fetchResultsAndDiffData, setResult, setDiffData, fetchAllMeasurements } =
     useGraphStatusContext();
 
@@ -28,6 +29,7 @@ const GraphStatus = () => {
   const handleOnCytoscapeNodeClick = async (name: string) => {
     const temp = await setupAllMeasurements();
     const measurements = temp && temp.length > 0 ? temp : (allMeasurements ?? []);
+    setTrackLatest(false);
     setSelectedItemName(undefined);
     const measurementId = getMeasurementId(name, measurements);
     if (measurementId) {
