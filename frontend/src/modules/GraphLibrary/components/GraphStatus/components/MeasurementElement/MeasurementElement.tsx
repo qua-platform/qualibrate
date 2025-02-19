@@ -12,11 +12,7 @@ interface MeasurementElementProps {
   onExpand: (name: string | null) => void;
 }
 
-/**
- * Formats a date-time string into a more readable format.
- * @param dateTimeString - The original date-time string.
- * @returns A formatted string with date and time.
- */
+// Formats a date-time string into a more readable format.
 export const formatDateTime = (dateTimeString: string) => {
   const [date, time] = dateTimeString.split("T");
   const [timeWithoutMilliseconds] = time.split(".");
@@ -35,10 +31,8 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     selectedNodeNameInWorkflow &&
     (selectedNodeNameInWorkflow === element.snapshot_idx?.toString() || selectedNodeNameInWorkflow === element.name);
 
-  /**
-   * Handles selecting/deselecting a measurement in the list.
-   * If already selected, it collapses the measurement.
-   */
+  // Handles selecting/deselecting a measurement in the list.
+  // If already selected, it collapses the measurement.
   const handleSelectNode = () => {
     if (selectedItemName === element.name) {
       setSelectedItemName(null);
@@ -57,9 +51,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     }
   };
 
-  /**
-   * Handles selecting/deselecting a measurement via the Cytoscape graph.
-   */
+  // Handles selecting/deselecting a measurement via the Cytoscape graph.
   const handleOnClick = () => {
     if (cytoscapeNodeSelected) {
       setSelectedNodeNameInWorkflow(null);
@@ -70,9 +62,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     }
   };
 
-  /**
-   * Syncs the expansion state with the Cytoscape graph selection.
-   */
+  // Syncs the expansion state with the Cytoscape graph selection.
   useEffect(() => {
     if (cytoscapeNodeSelected && !isExpanded) {
       onExpand(element.name);
@@ -81,10 +71,8 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     }
   }, [cytoscapeNodeSelected, isExpanded, onExpand, element.name]);
 
-  /**
-   * Generates a dynamic style for the dot indicator based on the measurement outcomes.
-   * The dot displays a success/failure ratio using a conic gradient.
-   */
+  // Generates a dynamic style for the dot indicator based on the measurement outcomes.
+  // The dot displays a success/failure ratio using a conic gradient.
   const getDotStyle = () => {
     if (!element.outcomes || Object.keys(element.outcomes).length === 0) {
       return { backgroundColor: "#40a8f5" }; // Default blue color if no outcomes
