@@ -25,7 +25,7 @@ export const formatDateTime = (dateTimeString: string) => {
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, isExpanded, onExpand }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow, lastRunInfo } = useGraphContext();
-  const { fetchResultsAndDiffData, setResult, setDiffData, setTrackLatest } = useGraphStatusContext();
+  const { setTrackLatest } = useGraphStatusContext();
   // Syncs the expansion state with the Cytoscape graph selection.
   const [autoDisabledTrackLatest, setAutoDisabledTrackLatest] = useState(false);
 
