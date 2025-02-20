@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./MeasurementElement.module.scss";
 import { Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { classNames } from "../../../../../../utils/classnames";
@@ -12,7 +12,7 @@ import {
 interface MeasurementElementProps {
   element: Measurement;
   isExpanded: boolean;
-  onExpand: (name: string | null) => void;
+  onExpand: (name: string | undefined) => void;
 }
 
 // Formats a date-time string into a more readable format.
@@ -24,8 +24,10 @@ export const formatDateTime = (dateTimeString: string) => {
 
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, isExpanded, onExpand }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
-  const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
+  const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow, lastRunInfo } = useGraphContext();
   const { fetchResultsAndDiffData, setResult, setDiffData, setTrackLatest } = useGraphStatusContext();
+  // Syncs the expansion state with the Cytoscape graph selection.
+  const [autoDisabledTrackLatest, setAutoDisabledTrackLatest] = useState(false);
 
   // Check if the current measurement is selected in either the list or Cytoscape graph
   const measurementSelected =
@@ -36,32 +38,16 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
 
   // Handles selecting/deselecting a measurement in the list.
   // If already selected, it collapses the measurement.
-  const handleSelectNode = () => {
-    if (selectedItemName === element.name) {
-      setSelectedItemName(null);
+  const handleOnClick = () => {
       setTrackLatest(false);
-      onExpand(null);
+    if (selectedItemName === element.name) {
+      setSelectedItemName(undefined);
+      setSelectedNodeNameInWorkflow(undefined);
+      onExpand(undefined);
     } else {
       setSelectedItemName(element.name);
-      setTrackLatest(false);
-      onExpand(element.name);
-      if (element.snapshot_idx) {
-        fetchResultsAndDiffData(element.snapshot_idx);
-      } else {
-        setResult({});
-        setDiffData({});
-      }
-    }
-  };
-
-  // Handles selecting/deselecting a measurement via the Cytoscape graph.
-  const handleOnClick = () => {
-    if (cytoscapeNodeSelected) {
-      setSelectedNodeNameInWorkflow(null);
-      onExpand(null);
-    } else {
       setSelectedNodeNameInWorkflow(element.name);
-      onExpand(element.name);
+      onExpand(element.name || undefined);
     }
   };
 
@@ -70,10 +56,20 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     if (cytoscapeNodeSelected && !isExpanded) {
       onExpand(element.name);
     } else if (!cytoscapeNodeSelected && isExpanded) {
-      onExpand(null);
+      onExpand(undefined);
     }
-  }, [cytoscapeNodeSelected, isExpanded, onExpand, element.name]);
-
+  
+    // Auto disable Track Latest only when all nodes have completed processing
+    if (
+      cytoscapeNodeSelected &&
+      lastRunInfo?.nodesCompleted === lastRunInfo?.nodesTotal &&
+      !autoDisabledTrackLatest // Prevent overriding manual user changes
+    ) {
+      setTrackLatest(false);
+      setAutoDisabledTrackLatest(true); // Mark it as auto-disabled
+    }
+  }, [cytoscapeNodeSelected, isExpanded, lastRunInfo, onExpand, element.name, setTrackLatest, autoDisabledTrackLatest]);
+        
   // Generates a dynamic style for the dot indicator based on the measurement outcomes.
   // The dot displays a success/failure ratio using a conic gradient.
   const getDotStyle = () => {
@@ -102,7 +98,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
       )}
       onClick={handleOnClick}
     >
-      <div className={styles.row} onClick={handleSelectNode}>
+      <div className={styles.row} onClick={handleOnClick}>
         <div className={styles.dot} style={getDotStyle()}></div>
         <div className={styles.titleOrName}>
           #{element.snapshot_idx} {element.name}
@@ -110,7 +106,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
         <div className={styles.description}>{element.description}</div>
       </div>
 
-      {isExpanded && (
+      {(measurementSelected || cytoscapeNodeSelected) && (
         <div className={styles.expandedContent}>
           <div className={styles.runInfoAndParameters}>
             {/* Run Info Section */}
