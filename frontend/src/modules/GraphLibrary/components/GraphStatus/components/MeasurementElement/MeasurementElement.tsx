@@ -4,7 +4,10 @@ import { Measurement, useGraphStatusContext } from "../../context/GraphStatusCon
 import { classNames } from "../../../../../../utils/classnames";
 import { useSelectionContext } from "../../../../../common/context/SelectionContext";
 import { useGraphContext } from "../../../../context/GraphContext";
-import { MeasurementElementStatusInfoAndParameters, MeasurementElementOutcomes } from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
+import {
+  MeasurementElementOutcomes,
+  MeasurementElementStatusInfoAndParameters,
+} from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
 
 interface MeasurementElementProps {
   element: Measurement;
@@ -81,7 +84,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     const outcomes = Object.values(element.outcomes);
     const total = outcomes.length;
     const successes = outcomes.filter((status) => status === "successful").length;
-    const successPercentage = (successes / total) * 100;
+    const successPercentage = total !== 0 ? (successes / total) * 100 : 0;
 
     return {
       background: `conic-gradient(rgb(40, 167, 69, 0.9) ${successPercentage}%, rgb(220, 53, 69, 0.9) 0)`,
@@ -113,7 +116,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
             {/* Run Info Section */}
             <MeasurementElementStatusInfoAndParameters
               data={{
-                "Status": element.status || "Unknown",
+                Status: element.status || "Unknown",
                 "Run duration": `${element.run_duration}s`,
                 "Run start": formatDateTime(element.run_start),
               }}
