@@ -1,3 +1,8 @@
+.firstRowWrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
 .title {
   padding-top: 20px;
   padding-bottom: 5px;
@@ -7,4 +12,38 @@
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+}
+
+.switchWrapper {
+  display: flex;
+  vertical-align: middle;
+  align-self: center;
+  width: 104px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 31px;
+  border: 1px solid var(--border, #42424C);
+  align-content: center;
+}
+
+.liveWrapper {
+  display: flex;
+  //text-align-last: center;
+  align-content: center;
+  width: 50%;
+  height: 22px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  border-radius: 40px;
+  background: rgba(44, 203, 229, 0.60);
+  margin: 4px 4px 4px 4px;
+  padding: 4px 4px 4px 4px;
+}
+
+.finalrapper {
+  text-align-last: center;
+  align-content: center;
+  width: 50%;
 }

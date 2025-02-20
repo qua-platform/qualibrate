@@ -1,148 +1,37 @@
-name: Playwright Tests
+name: Playwright Tests [PR or Manual]
 
 on:
-  push:
-    branches:
-      - main
-      - integration
   pull_request:
-    branches:
-      - main
-      - integration
+  workflow_dispatch:
+    inputs:
+      qualibrate-ref:
+        description: 'Name of branch for qualibrate repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-runner-ref:
+        description: 'Name of branch for qualibrate-runner repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-core-ref:
+        description: 'Name of branch for qualibrate-core repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-config-ref:
+        description: 'Name of branch for qualibrate-config repo'
+        default: 'main'
+        required: false
+        type: string
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      # Step 1: Checkout repositories
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          repository: qua-platform/qualibrate-app
-          path: qualibrate-app
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install core
-        uses: actions/checkout@v4
-        with:
-          repository: qua-platform/qualibrate-core
-          path: qualibrate-core
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install runner
-        uses: actions/checkout@v4
-        with:
-          repository: qua-platform/qualibrate-runner
-          path: qualibrate-runner
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install composite
-        uses: actions/checkout@v4
-        with:
-          repository: qua-platform/qualibrate
-          path: qualibrate-composite
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install config
-        uses: actions/checkout@v4
-        with:
-          repository: qua-platform/qualibrate-config
-          path: qualibrate-config
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Step 2: Set up Node.js
-      - name: Use Node.js
-        id: node-setup
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.x"
-
-      # Step 3: Cache frontend dependencies
-      - uses: actions/cache@v4
-        id: frontend-cache-id
-        with:
-          path: qualibrate-app/frontend/node_modules
-          key: npm-${{ hashFiles('qualibrate-app/frontend/**/package-lock.json') }}
-          restore-keys: npm-
-
-      # Step 4: Install frontend dependencies
-      - name: Install npm dependencies
-        if: steps.frontend-cache-id.outputs.cache-hit != 'true'
-        working-directory: qualibrate-app/frontend
-        run: npm ci
-
-      # Step 5: Build the frontend
-      - name: Build frontend
-        working-directory: qualibrate-app/frontend
-        run: npm run build
-
-      # Step 6: Set up Python environment
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-          cache-dependency-path: |
-            qualibrate-composite/poetry.lock
-            qualibrate-app/backend/poetry.lock
-            qualibrate-runner/poetry.lock
-            qualibrate-core/poetry.lock
-            qualibrate-config/poetry.lock
-
-      # Step 7: Copy built frontend to backend
-      - name: Copy built FE to BE
-        run: cp -r qualibrate-app/frontend/dist qualibrate-app/backend/qualibrate_static
-
-      # Step 8: Install qualibrate packages
-      - name: Install qualibrate packages
-        run: |
-          pip install ./qualibrate-composite ./qualibrate-app/backend ./qualibrate-runner ./qualibrate-core ./qualibrate-config
-
-      # Step 9: Checkout calibration scripts repository
-      - name: Checkout Calibration Scripts
-        uses: actions/checkout@v4
-        with:
-          repository: 'qua-platform/qualibrate-examples'
-          path: 'qualibrate-examples'
-          token: ${{ secrets.QUALIBRATION_EXAMPLES_TOKEN }}
-
-      # Step 10: Install Playwright test dependencies
-      - name: Install Playwright Test Dependencies
-        run: pip install quam xarray
-
-      # Step 11: Create directory for user storage
-      - name: Create directory for user storage
-        run: mkdir -p data
-
-      # Step 12: Create Qualibrate configuration
-      - name: Create Qualibrate Configuration
-        run: |
-          qualibrate config --auto-accept \
-            --calibration-library-folder $GITHUB_WORKSPACE/qualibrate-examples/calibrations \
-            --storage-location $GITHUB_WORKSPACE/data
-
-      # Step 13: Install Node.js and Playwright dependencies
-      - name: Install Playwright Dependencies
-        working-directory: ./qualibrate-app/frontend/tests
-        run: |
-          npm install
-          npx playwright install-deps chromium
-          npx playwright install chromium
-
-      # Step 14: Start Qualibrate Server
-      - name: Start Qualibrate Server
-        run: |
-          nohup qualibrate start > qualibrate-server.log 2>&1 &
-          for i in {1..15}; do
-            if curl -s http://localhost:8001/ > /dev/null; then
-              echo "Server is up and running"
-              break
-            fi
-            echo "Waiting for server to start..."
-            sleep 2
-          done
-          curl -v http://localhost:8001/
-
-      # Step 15: Run Playwright tests
-      - name: Run Playwright Tests
-        working-directory: ./qualibrate-app/frontend/tests/e2e
-        run: npx playwright test
+  call-reusable-playwright-tests:
+    uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@main
+    with:
+      qualibrate-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-ref }}
+      qualibrate-app-ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+      qualibrate-runner-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-runner-ref }}
+      qualibrate-core-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-core-ref }}
+      qualibrate-config-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-config-ref }}
+    secrets: inherit

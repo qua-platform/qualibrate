@@ -5,6 +5,8 @@ import { CytoscapeLayout } from "./config/Cytoscape";
 import styles from "./CytoscapeGraph.module.scss";
 import { useGraphContext } from "../../context/GraphContext";
 import klay from "cytoscape-klay";
+import { useGraphStatusContext } from "../GraphStatus/context/GraphStatusContext";
+import { useSelectionContext } from "../../../common/context/SelectionContext";
 
 cytoscape.use(klay);
 cytoscape.warnings(false);
@@ -32,6 +34,8 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
 
   const cytoscapeElements = wrapCytoscapeElements(elements);
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
+  const { setSelectedItemName } = useSelectionContext();
+  const { setTrackLatest } = useGraphStatusContext();
   const cy = useRef<cytoscape.Core>();
   const divRef = useRef(null);
 
@@ -90,7 +94,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
           allElements.forEach((element) => {
             const newElement = elements?.find((s) => s.data.id === element.id());
             if (newElement) {
-              element.classes(newElement.classes);
+              element.classes(newElement.classes as string);
             }
           });
         });
@@ -112,6 +116,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
 
   useEffect(() => {
     const onClickN = (e: EventObject) => {
+      setTrackLatest(false);
       setSelectedNodeNameInWorkflow((e.target.data() as { id: string }).id);
       if (onNodeClick) {
         onNodeClick((e.target.data() as { id: string }).id);
@@ -127,6 +132,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
   useEffect(() => {
     const onClick = (e: EventObject) => {
       if (e.target === cy.current) {
+        setSelectedItemName(undefined);
         setSelectedNodeNameInWorkflow(undefined);
       }
     };
