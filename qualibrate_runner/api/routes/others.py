@@ -12,7 +12,10 @@ from qualibrate_runner.config import State
 from qualibrate_runner.config.resolvers import get_settings
 from qualibrate_runner.core.models.enums import RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
-from qualibrate_runner.utils.logs_parser import filter_log_date, parse_log_line
+from qualibrate_runner.utils.logs_parser import (
+    filter_log_date,
+    parse_log_line_with_previous,
+)
 
 others_router = APIRouter()
 
@@ -27,7 +30,7 @@ def check_running(
 
 @others_router.get("/output_logs")
 def get_output_logs(
-    after: datetime,
+    after: Optional[datetime] = None,
     before: Optional[datetime] = None,
     num_entries: int = 100,
     *,
@@ -46,7 +49,7 @@ def get_output_logs(
     for log_file in sorted(q_log_files, reverse=True):
         with open(log_file) as f:
             lines_date_filtered = filter(
-                filter_log_date_after, map(parse_log_line, f)
+                filter_log_date_after, parse_log_line_with_previous(f)
             )
             file_logs = islice(lines_date_filtered, num_entries - len(out_logs))
             out_logs.extend(file_logs)
