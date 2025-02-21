@@ -68,7 +68,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
         # Save results
         self.data_handler.name = node.name
-        DataHandler.node_data = {
+        self.data_handler.node_data = {
             "quam": "./quam_state.json",
             "parameters": {
                 "model": node.parameters.model_dump(mode="json"),
