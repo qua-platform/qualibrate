@@ -1,5 +1,5 @@
 import traceback
-from collections.abc import Generator, Mapping, Sequence
+from collections.abc import Generator, Hashable, Mapping, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import copy
@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import (
     Any,
     Generic,
-    Callable,
     Optional,
     TypeVar,
     Union,
@@ -39,6 +38,11 @@ from qualibrate.q_runnnable import (
     QRunnable,
     file_is_calibration_instance,
     run_modes_ctx,
+)
+from qualibrate.runnables.run_action.action import ActionCallableType
+from qualibrate.runnables.run_action.actions_manager import (
+    ActionDecoratorType,
+    ActionsManager,
 )
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
@@ -81,84 +85,6 @@ external_parameters_ctx: ContextVar[Optional[tuple[str, Any]]] = ContextVar(
 last_executed_node_ctx: ContextVar[Optional["QualibrationNode[Any, Any]"]] = (
     ContextVar("last_executed_node", default=None)
 )
-
-
-class Action:
-    """
-    Represents a single action to be run by a
-    QualibrationNode. It stores the decorated function.
-    """
-
-    def __init__(self, func: Callable) -> None:
-        self.func = func
-
-    def run(self, node) -> Optional[Any]:
-        """
-        Executes the stored function with the given node.
-        """
-        return self.func(node)
-
-
-class ActionManager:
-    """
-    Manages run actions for a QualibrationNode. It holds an exit flag
-    which, once set, prevents further actions from running.
-    """
-
-    def __init__(self) -> None:
-        self.exit_flag = False
-
-    def run_action(
-        self,
-        node,
-        func: Optional[Callable] = None,
-        *,
-        skip_if: bool = False,
-        exit: bool = False,
-    ) -> Callable:
-        """
-        Returns a decorator that creates an Action instance and executes
-        it immediately.
-
-        Supports usage both without parentheses:
-
-            @node.run_action
-            def action(node):
-                ...
-
-        and with parentheses:
-
-            @node.run_action(skip_if=True, exit=True)
-            def action(node):
-                ...
-
-        Behavior:
-          - If the exit flag is already set, the function is not run.
-          - If skip_if is True, the function is not run (and exit is ignored).
-          - If exit is True and skip_if is False, the function runs and then
-            the exit flag is set to skip future actions.
-        """
-        # If the exit flag is already set, return a dummy decorator.
-        if self.exit_flag:
-            if func is not None:
-                return func
-            else:
-                return lambda f: f
-
-        def decorator(f: Callable) -> Callable:
-            if skip_if:
-                # Skip this action; do not set exit even if exit=True.
-                return f
-            action = Action(f)
-            action.run(node)
-            if exit:
-                self.exit_flag = True
-            return f
-
-        if func is None:
-            return decorator
-        else:
-            return decorator(func)
 
 
 class QualibrationNode(
@@ -211,8 +137,10 @@ class QualibrationNode(
         self.results: dict[Any, Any] = {}
         self.machine: Optional[MachineType] = None
 
-        # Initialize the ActionManager to handle run_action logic.
-        self.action_manager = ActionManager()
+        # Initialize the ActionsManager to handle run_action logic.
+        self.actions_manager: ActionsManager[ParametersType, MachineType] = (
+            ActionsManager()
+        )
 
         if self.modes.inspection:
             raise StopInspection(
@@ -403,11 +331,10 @@ class QualibrationNode(
 
     def run_action(
         self,
-        func: Optional[Callable] = None,
+        func: Optional[ActionCallableType] = None,
         *,
         skip_if: bool = False,
-        exit: bool = False,
-    ) -> Callable:
+    ) -> ActionDecoratorType:
         """
         Convenience method that returns the run_action decorator
         provided by the ActionManager.
@@ -422,15 +349,8 @@ class QualibrationNode(
             def action2(node):
                 # action code; this action is skipped if
                 # skip_if is True.
-
-            @node.run_action(exit=True)
-            def action3(node):
-                # action code; after running, no further
-                # actions will execute.
         """
-        return self.action_manager.run_action(
-            self, func, skip_if=skip_if, exit=exit
-        )
+        return self.actions_manager.register_action(self, func, skip_if=skip_if)
 
     def save(self) -> None:
         """
@@ -930,6 +850,10 @@ class QualibrationNode(
             )
 
         nodes[node.name] = node
+
+    @property
+    def namespace(self) -> Mapping[Hashable, Any]:
+        return self.actions_manager.namespace
 
 
 if __name__ == "__main__":
