@@ -39,12 +39,37 @@
   display: inline-block;
 }
 
-.stopButtonWrapper {
+.stopButtonContainer {
   display: flex;
   flex: 1;
   justify-content: flex-end;
   align-items: center;
   padding-right: 10px;
+}
+
+.stopButtonWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  pointer-events: auto;
+  width: auto;
+  height: auto;
+  cursor: pointer;
+}
+
+.stopButtonWrapper div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.stopButtonWrapper div:hover {
+  background-color: rgba(255, 0, 0, 0.3);
 }
 
 .stopButton {
