@@ -36,10 +36,8 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     selectedNodeNameInWorkflow &&
     (selectedNodeNameInWorkflow === element.snapshot_idx?.toString() || selectedNodeNameInWorkflow === element.name);
 
-  // Handles selecting/deselecting a measurement in the list.
-  // If already selected, it collapses the measurement.
   const handleOnClick = () => {
-      setTrackLatest(false);
+    setTrackLatest(false);
     if (selectedItemName === element.name) {
       setSelectedItemName(undefined);
       setSelectedNodeNameInWorkflow(undefined);
@@ -58,7 +56,6 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     } else if (!cytoscapeNodeSelected && isExpanded) {
       onExpand(undefined);
     }
-  
     // Auto disable Track Latest only when all nodes have completed processing
     if (
       cytoscapeNodeSelected &&
@@ -69,7 +66,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
       setAutoDisabledTrackLatest(true); // Mark it as auto-disabled
     }
   }, [cytoscapeNodeSelected, isExpanded, lastRunInfo, onExpand, element.name, setTrackLatest, autoDisabledTrackLatest]);
-        
+
   // Generates a dynamic style for the dot indicator based on the measurement outcomes.
   // The dot displays a success/failure ratio using a conic gradient.
   const getDotStyle = () => {
@@ -87,8 +84,6 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     };
   };
 
-  const hasOutcomes = element.outcomes && Object.keys(element.outcomes).length > 0;
-
   return (
     <div
       className={classNames(
@@ -96,7 +91,6 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
         (measurementSelected || cytoscapeNodeSelected) && styles.nodeSelected,
         isExpanded && styles.expanded
       )}
-      onClick={handleOnClick}
     >
       <div className={styles.row} onClick={handleOnClick}>
         <div className={styles.dot} style={getDotStyle()}></div>
@@ -109,7 +103,6 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
       {(measurementSelected || cytoscapeNodeSelected) && (
         <div className={styles.expandedContent}>
           <div className={styles.runInfoAndParameters}>
-            {/* Run Info Section */}
             <MeasurementElementStatusInfoAndParameters
               data={{
                 Status: element.status || "Unknown",
@@ -119,8 +112,6 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
               className={styles.runInfo}
               evenlySpaced={true}
             />
-
-            {/* Parameters Section */}
             <MeasurementElementStatusInfoAndParameters
               title="Parameters"
               data={element.parameters || {}}
@@ -128,9 +119,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
               className={styles.parameters}
             />
           </div>
-
-          {/* Outcomes Section */}
-          {hasOutcomes && <MeasurementElementOutcomes outcomes={element.outcomes} />}
+          <MeasurementElementOutcomes outcomes={element.outcomes} />
         </div>
       )}
     </div>

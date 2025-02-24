@@ -10,9 +10,6 @@ interface MeasurementElementStatusInfoAndParametersProps {
   evenlySpaced?: boolean;
 }
 
-/**
- * Reusable Component for Run Info and Parameters Sections.
- */
 export const MeasurementElementStatusInfoAndParameters: React.FC<MeasurementElementStatusInfoAndParametersProps> = ({
   title,
   data,
@@ -43,28 +40,26 @@ export const MeasurementElementStatusInfoAndParameters: React.FC<MeasurementElem
   );
 };
 
-interface MeasurementElementOutcomesProps {
+export const MeasurementElementOutcomes: React.FC<{
   outcomes: object;
-}
-
-/**
- * Reusable Component for Outcomes Section.
- */
-export const MeasurementElementOutcomes: React.FC<MeasurementElementOutcomesProps> = ({ outcomes }) => {
+}> = ({ outcomes }: { outcomes: object }) => {
   return (
-    <div className={styles.outcomes}>
-      <h4>Outcomes</h4>
-      <div className={styles.outcomeContainer}>
-        {Object.entries(outcomes).map(([qubit, result]) => {
-          const isSuccess = result === "successful";
-          return (
-            <span key={qubit} className={classNames(styles.outcomeBubble, isSuccess ? styles.success : styles.failure)}>
-              <span className={classNames(styles.qubitLabel, isSuccess ? styles.success : styles.failure)}>{qubit || "N/A"}</span>
-              <span className={styles.outcomeStatus}>{result}</span>
-            </span>
-          );
-        })}
+    outcomes &&
+    Object.keys(outcomes).length > 0 && (
+      <div className={styles.outcomes}>
+        <h4>Outcomes</h4>
+        <div className={styles.outcomeContainer}>
+          {Object.entries(outcomes).map(([qubit, result]) => {
+            const isSuccess = result === "successful";
+            return (
+              <span key={qubit} className={classNames(styles.outcomeBubble, isSuccess ? styles.success : styles.failure)}>
+                <span className={classNames(styles.qubitLabel, isSuccess ? styles.success : styles.failure)}>{qubit || "N/A"}</span>
+                <span className={styles.outcomeStatus}>{result}</span>
+              </span>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    )
   );
 };
