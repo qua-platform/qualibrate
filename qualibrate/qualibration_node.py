@@ -141,6 +141,7 @@ class QualibrationNode(
         self.actions_manager: ActionsManager[ParametersType, MachineType] = (
             ActionsManager()
         )
+        self.namespace: dict[Hashable, Any] = {}
 
         if self.modes.inspection:
             raise StopInspection(
@@ -852,10 +853,6 @@ class QualibrationNode(
             )
 
         nodes[node.name] = node
-
-    @property
-    def namespace(self) -> Mapping[Hashable, Any]:
-        return self.actions_manager.namespace
 
 
 if __name__ == "__main__":

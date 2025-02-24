@@ -1,4 +1,3 @@
-from collections.abc import Hashable
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Union
 
@@ -30,7 +29,6 @@ class ActionsManager(Generic[ParametersType, MachineType]):
 
     def __init__(self) -> None:
         self.actions: dict[str, Action[ParametersType, MachineType]] = {}
-        self.namespace: dict[Hashable, Any] = {}
 
     def run_action(
         self,

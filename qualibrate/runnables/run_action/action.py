@@ -48,5 +48,5 @@ class Action(Generic[ParametersType, MachineType]):
         """
         result = self.func(node, *args, **kwargs)
         if isinstance(result, Mapping):
-            self.manager.namespace.update(result)
+            node.namespace.update(result)
         return result
