@@ -70,7 +70,7 @@
 .runInfo {
   flex: 1;
   min-width: 260px;
-  max-width: 50%;
+  max-width: 100%;
   background: var(--bg-color-light);
   border: 2px solid var(--border-color);
   border-radius: 10px;
@@ -85,7 +85,7 @@
 .parameters {
   flex: 1;
   min-width: 260px;
-  max-width: 50%;
+  max-width: 100%;
   background: var(--bg-color-light);
   border: 2px solid var(--border-color);
   border-radius: 10px;
