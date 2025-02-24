@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styles from "./MeasurementElement.module.scss";
 import { Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { classNames } from "../../../../../../utils/classnames";
@@ -11,8 +11,6 @@ import {
 
 interface MeasurementElementProps {
   element: Measurement;
-  isExpanded: boolean;
-  onExpand: (name: string | undefined) => void;
 }
 
 // Formats a date-time string into a more readable format.
@@ -22,12 +20,11 @@ export const formatDateTime = (dateTimeString: string) => {
   return `${date} ${timeWithoutMilliseconds}`;
 };
 
-export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, isExpanded, onExpand }) => {
+export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow, lastRunInfo } = useGraphContext();
-  const { setTrackLatest } = useGraphStatusContext();
-  // Syncs the expansion state with the Cytoscape graph selection.
-  const [autoDisabledTrackLatest, setAutoDisabledTrackLatest] = useState(false);
+  const { fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
+  const { trackLatest, setTrackLatest } = useGraphStatusContext();
 
   // Check if the current measurement is selected in either the list or Cytoscape graph
   const measurementSelected =
@@ -35,37 +32,6 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
   const cytoscapeNodeSelected =
     selectedNodeNameInWorkflow &&
     (selectedNodeNameInWorkflow === element.snapshot_idx?.toString() || selectedNodeNameInWorkflow === element.name);
-
-  const handleOnClick = () => {
-    setTrackLatest(false);
-    if (selectedItemName === element.name) {
-      setSelectedItemName(undefined);
-      setSelectedNodeNameInWorkflow(undefined);
-      onExpand(undefined);
-    } else {
-      setSelectedItemName(element.name);
-      setSelectedNodeNameInWorkflow(element.name);
-      onExpand(element.name || undefined);
-    }
-  };
-
-  // Syncs the expansion state with the Cytoscape graph selection.
-  useEffect(() => {
-    if (cytoscapeNodeSelected && !isExpanded) {
-      onExpand(element.name);
-    } else if (!cytoscapeNodeSelected && isExpanded) {
-      onExpand(undefined);
-    }
-    // Auto disable Track Latest only when all nodes have completed processing
-    if (
-      cytoscapeNodeSelected &&
-      lastRunInfo?.nodesCompleted === lastRunInfo?.nodesTotal &&
-      !autoDisabledTrackLatest // Prevent overriding manual user changes
-    ) {
-      setTrackLatest(false);
-      setAutoDisabledTrackLatest(true); // Mark it as auto-disabled
-    }
-  }, [cytoscapeNodeSelected, isExpanded, lastRunInfo, onExpand, element.name, setTrackLatest, autoDisabledTrackLatest]);
 
   // Generates a dynamic style for the dot indicator based on the measurement outcomes.
   // The dot displays a success/failure ratio using a conic gradient.
@@ -84,12 +50,26 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     };
   };
 
+  const handleOnClick = () => {
+    if (selectedItemName !== element.name && trackLatest) {
+      setTrackLatest(false);
+    }
+    setSelectedItemName(element.name);
+    setSelectedNodeNameInWorkflow(element.name);
+    if (element.snapshot_idx) {
+      fetchResultsAndDiffData(element.snapshot_idx);
+    } else {
+      setResult({});
+      setDiffData({});
+    }
+  };
+
   return (
     <div
       className={classNames(
         styles.rowWrapper,
         (measurementSelected || cytoscapeNodeSelected) && styles.nodeSelected,
-        isExpanded && styles.expanded
+        selectedItemName !== element.name && styles.expanded
       )}
     >
       <div className={styles.row} onClick={handleOnClick}>
