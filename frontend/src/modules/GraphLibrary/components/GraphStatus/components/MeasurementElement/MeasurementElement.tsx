@@ -10,7 +10,9 @@ import {
 } from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
 
 interface MeasurementElementProps {
+  key: string;
   element: Measurement;
+  dataMeasurementId: string;
 }
 
 // Formats a date-time string into a more readable format.
@@ -20,9 +22,9 @@ export const formatDateTime = (dateTimeString: string) => {
   return `${date} ${timeWithoutMilliseconds}`;
 };
 
-export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element }) => {
+export const MeasurementElement: React.FC<MeasurementElementProps> = ({ key, element, dataMeasurementId }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
-  const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow, lastRunInfo } = useGraphContext();
+  const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
   const { fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
   const { trackLatest, setTrackLatest } = useGraphStatusContext();
 
@@ -33,18 +35,14 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element 
     selectedNodeNameInWorkflow &&
     (selectedNodeNameInWorkflow === element.snapshot_idx?.toString() || selectedNodeNameInWorkflow === element.name);
 
-  // Generates a dynamic style for the dot indicator based on the measurement outcomes.
-  // The dot displays a success/failure ratio using a conic gradient.
   const getDotStyle = () => {
     if (!element.outcomes || Object.keys(element.outcomes).length === 0) {
       return { backgroundColor: "#40a8f5" }; // Default blue color if no outcomes
     }
-
     const outcomes = Object.values(element.outcomes);
     const total = outcomes.length;
     const successes = outcomes.filter((status) => status === "successful").length;
     const successPercentage = total !== 0 ? (successes / total) * 100 : 0;
-
     return {
       background: `conic-gradient(rgb(40, 167, 69, 0.9) ${successPercentage}%, rgb(220, 53, 69, 0.9) 0)`,
     };
@@ -63,9 +61,10 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element 
       setDiffData({});
     }
   };
-
   return (
     <div
+      key={key}
+      data-measurement-id={dataMeasurementId}
       className={classNames(
         styles.rowWrapper,
         (measurementSelected || cytoscapeNodeSelected) && styles.nodeSelected,
@@ -79,7 +78,6 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element 
         </div>
         <div className={styles.description}>{element.description}</div>
       </div>
-
       {(measurementSelected || cytoscapeNodeSelected) && (
         <div className={styles.expandedContent}>
           <div className={styles.runInfoAndParameters}>

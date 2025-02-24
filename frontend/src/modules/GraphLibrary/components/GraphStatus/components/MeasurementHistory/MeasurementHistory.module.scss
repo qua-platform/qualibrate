@@ -1,20 +1,15 @@
 .wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 0; 
-  justify-content: space-between;
   font-style: normal;
   font-weight: 500;
+  height: calc(100% - 540px);
 }
 
 .titleRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   background-color: #2d3338; 
   padding: 8px 12px; 
   font-size: 16px;
-  border-radius: 0;
   border: 1px solid #23272a; 
 }
 
@@ -79,11 +74,10 @@
 }
 
 .contentContainer {
-  border: 1px solid #23272a; 
-  background-color: #232629; 
-  border-radius: 0; 
-  padding: 10px 12px; 
-  margin: 0; 
+  background-color: #232629;
+  border: 1px solid #23272a;
+  padding: 10px 12px;
+  height: calc(100% - 60px);
 }
 
 .lowerContainer {
