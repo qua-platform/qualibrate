@@ -1,6 +1,5 @@
 .sectionTitle {
     font-size: 16px;
-    font-weight: bold;
     margin-bottom: 4px;
     color: var(--primary-color);
 }
@@ -20,13 +19,11 @@
 }
   
 .label {
-    font-weight: bold;
     color: var(--primary-color);
     min-width: 130px;
 }
   
 .value {
-    font-weight: bold;
     color: #fff;
     text-align: left;
     white-space: nowrap;
@@ -43,7 +40,6 @@
   
 .outcomes h4 {
     font-size: 16px;
-    font-weight: bold;
     margin-bottom: 10px;
     color: var(--primary-color);
 }
@@ -59,7 +55,6 @@
     align-items: center;
     border-radius: 15px;
     font-size: 12px;
-    font-weight: bold;
     overflow: hidden;
     min-width: 90px;
     height: 24px;
@@ -83,7 +78,6 @@
     height: 100%;
     padding: 0 6px;
     font-size: 12px;
-    font-weight: bold;
     color: #fff;
     border-radius: 15px 0 0 15px;
 }
@@ -102,7 +96,6 @@
     align-items: center;
     justify-content: center;
     font-size: 12px;
-    font-weight: bold;
     padding: 0 8px;
     border-radius: 0 15px 15px 0;
 }
