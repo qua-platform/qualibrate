@@ -1,5 +1,5 @@
 import traceback
-from collections.abc import Generator, Hashable, Mapping, Sequence
+from collections.abc import Generator, Mapping, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import copy
@@ -141,7 +141,7 @@ class QualibrationNode(
         self.actions_manager: ActionsManager[ParametersType, MachineType] = (
             ActionsManager()
         )
-        self.namespace: dict[Hashable, Any] = {}
+        self.namespace: dict[str, Any] = {}
 
         if self.modes.inspection:
             raise StopInspection(

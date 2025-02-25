@@ -38,7 +38,7 @@ class ActionsManager(Generic[ParametersType, MachineType]):
         **kwargs: Any,
     ) -> Optional[ActionReturnType]:
         if action := self.actions.get(action_name):
-            return action.run(node, *args, **kwargs)
+            return action.execute_run_action(node, *args, **kwargs)
         logger.warning(f"Can't run action {action_name} of node {node}")
         return None
 
@@ -80,7 +80,7 @@ class ActionsManager(Generic[ParametersType, MachineType]):
             def wrapper(
                 *args: Any, **kwargs: Any
             ) -> Optional[ActionReturnType]:
-                return action.run(node, *args, **kwargs)
+                return action.execute_run_action(node, *args, **kwargs)
 
             if skip_if:
                 # Skip this action; do not set exit even if exit=True.
