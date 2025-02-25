@@ -8,11 +8,12 @@ from qualibrate.storage.storage_manager import StorageManager
 from qualibrate.utils.logger_m import logger
 
 if TYPE_CHECKING:
-    from qualibrate.parameters import NodeParameters
+    from typing import Any
+
     from qualibrate.qualibration_node import QualibrationNode
 
 
-NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[NodeParameters]")
+NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[Any, Any]")
 
 
 class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):

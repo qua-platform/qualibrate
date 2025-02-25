@@ -23,7 +23,6 @@ from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.parameters import (
     ExecutionParameters,
     GraphParameters,
-    NodeParameters,
     NodesParameters,
 )
 from qualibrate.q_runnnable import (
@@ -44,7 +43,7 @@ if TYPE_CHECKING:
 
 __all__ = ["QGraphBaseType", "QualibrationGraph", "NodeTypeVar"]
 
-NodeTypeVar = TypeVar("NodeTypeVar", bound=QualibrationNode[NodeParameters])
+NodeTypeVar = TypeVar("NodeTypeVar", bound=QualibrationNode[Any, Any])
 GraphCreateParametersType = GraphParameters
 GraphRunParametersType = ExecutionParameters
 QGraphBaseType = QRunnable[GraphCreateParametersType, GraphRunParametersType]

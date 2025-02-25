@@ -29,7 +29,7 @@ def file_is_calibration_instance(file: Path, klass: str) -> bool:
         return False
 
     contents = file.read_text()
-    return f"{klass}(" in contents
+    return f"{klass}(" in contents or f"{klass}[" in contents
 
 
 run_modes_ctx: ContextVar[Optional[RunModes]] = ContextVar(

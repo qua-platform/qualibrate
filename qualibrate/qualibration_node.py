@@ -9,6 +9,7 @@ from importlib.util import find_spec
 from pathlib import Path
 from typing import (
     Any,
+    Generic,
     Optional,
     TypeVar,
     Union,
@@ -68,18 +69,20 @@ __all__ = [
 NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
+MachineType = TypeVar("MachineType")
 
 # TODO: use node parameters type instead of Any
 external_parameters_ctx: ContextVar[Optional[tuple[str, Any]]] = ContextVar(
     "external_parameters", default=None
 )
-last_executed_node_ctx: ContextVar[Optional["QualibrationNode[Any]"]] = (
+last_executed_node_ctx: ContextVar[Optional["QualibrationNode[Any, Any]"]] = (
     ContextVar("last_executed_node", default=None)
 )
 
 
 class QualibrationNode(
-    QRunnable[ParametersType, NodeRunParametersType],
+    QRunnable[ParametersType, ParametersType],
+    Generic[ParametersType, MachineType],
 ):
     """
     Represents a qualibration node (that can be run independently or as part
@@ -99,10 +102,10 @@ class QualibrationNode(
         StopInspection: Raised if the node is instantiated in inspection mode.
     """
 
-    storage_manager: Optional[
-        StorageManager["QualibrationNode[NodeParameters]"]
-    ] = None
-    active_node: Optional["QualibrationNode[ParametersType]"] = None
+    storage_manager: Optional[StorageManager["QualibrationNode[Any, Any]"]] = (
+        None
+    )
+    active_node: Optional["QualibrationNode[ParametersType, Any]"] = None
 
     def __init__(
         self,
@@ -125,7 +128,7 @@ class QualibrationNode(
         )
 
         self.results: dict[Any, Any] = {}
-        self.machine = None
+        self.machine: Optional[MachineType] = None
 
         if self.modes.inspection:
             raise StopInspection(
@@ -212,7 +215,7 @@ class QualibrationNode(
                 f"Can't instantiate parameters class of node '{name}'"
             ) from e
 
-    def __copy__(self) -> "QualibrationNode[ParametersType]":
+    def __copy__(self) -> "QualibrationNode[ParametersType, MachineType]":
         """
         Creates a shallow copy of the node.
 
@@ -233,7 +236,7 @@ class QualibrationNode(
 
     def copy(
         self, name: Optional[str] = None, **node_parameters: Any
-    ) -> "QualibrationNode[ParametersType]":
+    ) -> "QualibrationNode[ParametersType, MachineType]":
         """
         Creates a modified copy of the node with updated parameters.
 
@@ -335,12 +338,14 @@ class QualibrationNode(
             q_config_path = get_qualibrate_config_path()
             qs = get_qualibrate_config(q_config_path)
             state_path = get_quam_state_path(qs)
-            self.storage_manager = LocalStorageManager(
+            self.storage_manager = LocalStorageManager[
+                QualibrationNode[ParametersType, MachineType]
+            ](
                 root_data_folder=qs.storage.location,
                 active_machine_path=state_path,
             )
         self.storage_manager.save(
-            node=cast("QualibrationNode[NodeParameters]", self)
+            node=cast("QualibrationNode[NodeParameters, Any]", self)
         )
 
     def _load_from_id(
@@ -349,7 +354,7 @@ class QualibrationNode(
         base_path: Optional[Path] = None,
         custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
         build_params_class: bool = False,
-    ) -> Optional["QualibrationNode[ParametersType]"]:
+    ) -> Optional["QualibrationNode[ParametersType, MachineType]"]:
         """
         Loads a node by its identifier, parsing its content and data.
 
@@ -405,13 +410,13 @@ class QualibrationNode(
     @InstanceOrClassMethod
     def load_from_id(
         caller: Union[
-            "QualibrationNode[ParametersType]",
-            type["QualibrationNode[ParametersType]"],
+            "QualibrationNode[ParametersType, MachineType]",
+            type["QualibrationNode[ParametersType, MachineType]"],
         ],
         node_id: int,
         base_path: Optional[Path] = None,
         custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
-    ) -> Optional["QualibrationNode[ParametersType]"]:
+    ) -> Optional["QualibrationNode[ParametersType, MachineType]"]:
         """
         Class or instance method to load a node by its identifier.
 
@@ -429,7 +434,7 @@ class QualibrationNode(
             A `QualibrationNode` instance with the loaded data, or None if
             loading fails.
         """
-        instance: QualibrationNode[ParametersType] = (
+        instance: QualibrationNode[ParametersType, MachineType] = (
             caller(name=f"loaded_from_id_{node_id}")
             if isinstance(caller, type)
             else caller
@@ -443,7 +448,7 @@ class QualibrationNode(
 
     def _post_run(
         self,
-        last_executed_node: "QualibrationNode[ParametersType]",
+        last_executed_node: "QualibrationNode[ParametersType, MachineType]",
         created_at: datetime,
         initial_targets: Sequence[TargetType],
         parameters: NodeParameters,
@@ -502,7 +507,7 @@ class QualibrationNode(
 
     def run(
         self, interactive: bool = True, **passed_parameters: Any
-    ) -> tuple["QualibrationNode[ParametersType]", BaseRunSummary]:
+    ) -> tuple["QualibrationNode[ParametersType, MachineType]", BaseRunSummary]:
         """
         Runs the node with given parameters, potentially interactively.
 
@@ -723,7 +728,7 @@ class QualibrationNode(
     @classmethod
     def scan_folder_for_instances(
         cls, path: Path
-    ) -> dict[str, QRunnable[ParametersType, NodeRunParametersType]]:
+    ) -> dict[str, QRunnable[ParametersType, ParametersType]]:
         """
         Scans a directory for node instances and returns them.
 
@@ -737,7 +742,7 @@ class QualibrationNode(
         Returns:
             A dictionary of node names to their corresponding node instances.
         """
-        nodes: dict[str, QRunnable[ParametersType, NodeRunParametersType]] = {}
+        nodes: dict[str, QRunnable[ParametersType, ParametersType]] = {}
         if run_modes_ctx.get() is not None:
             logger.error(
                 "Run modes context is already set to %s",
@@ -764,7 +769,7 @@ class QualibrationNode(
     def scan_node_file(
         cls,
         file: Path,
-        nodes: dict[str, QRunnable[ParametersType, NodeRunParametersType]],
+        nodes: dict[str, QRunnable[ParametersType, ParametersType]],
     ) -> None:
         """
         Scans a node file and adds its instance to the provided dictionary.
@@ -785,7 +790,7 @@ class QualibrationNode(
             # TODO Think of a safer way to execute the code
             _module = import_from_path(get_module_name(file), file)
         except StopInspection as ex:
-            node = cast("QualibrationNode[ParametersType]", ex.instance)
+            node = cast("QualibrationNode[ParametersType, Any]", ex.instance)
             node.filepath = file
             node.modes.inspection = False
             cls.add_node(node, nodes)
@@ -793,8 +798,8 @@ class QualibrationNode(
     @classmethod
     def add_node(
         cls,
-        node: "QualibrationNode[ParametersType]",
-        nodes: dict[str, QRunnable[ParametersType, NodeRunParametersType]],
+        node: "QualibrationNode[ParametersType, MachineType]",
+        nodes: dict[str, QRunnable[ParametersType, ParametersType]],
     ) -> None:
         """
         Adds a node instance to the node dictionary.

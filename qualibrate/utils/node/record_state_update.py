@@ -17,10 +17,11 @@ __all__ = [
 ]
 
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
+MachineType = TypeVar("MachineType")
 
 
 def _record_state_update(
-    node: Optional["QualibrationNode[ParametersType]"],
+    node: Optional["QualibrationNode[ParametersType, MachineType]"],
     reference: str,
     attr: str,
     old: Any,
@@ -60,7 +61,7 @@ def record_state_update_getattr(
     quam_obj: GetRefProtocol,
     attr: str,
     val: Any = None,
-    node: Optional["QualibrationNode[ParametersType]"] = None,
+    node: Optional["QualibrationNode[ParametersType, MachineType]"] = None,
 ) -> None:
     """
     Records item state updates in a Quam collection object.
@@ -83,7 +84,7 @@ def record_state_update_getitem(
     quam_obj: GetRefGetItemProtocol,
     attr: str,
     val: Any = None,
-    node: Optional["QualibrationNode[ParametersType]"] = None,
+    node: Optional["QualibrationNode[ParametersType, MachineType]"] = None,
 ) -> None:
     """
     Records item state updates in a Quam collection object.
