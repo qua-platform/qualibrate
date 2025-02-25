@@ -1,4 +1,5 @@
 import inspect
+import sys
 from collections.abc import Mapping
 from types import FrameType
 from typing import (
@@ -51,6 +52,8 @@ class Action(Generic[ParametersType, MachineType]):
         if not isinstance(result, Mapping):
             return result
         node.namespace.update(result)
+        if not is_interactive():
+            return result
         stack = inspect.stack()
         frame_to_update = _get_frame_to_update(stack)
         if frame_to_update is None:
@@ -58,6 +61,10 @@ class Action(Generic[ParametersType, MachineType]):
 
         frame_to_update.f_locals.update(result)
         return result
+
+
+def is_interactive() -> bool:
+    return bool(getattr(sys, "ps1", sys.flags.interactive))
 
 
 def _get_frame_to_update(stack: list[inspect.FrameInfo]) -> Optional[FrameType]:
