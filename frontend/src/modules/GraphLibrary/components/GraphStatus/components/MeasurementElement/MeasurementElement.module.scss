@@ -1,58 +1,95 @@
 .rowWrapper {
-  justify-content: space-between;
-  font-style: normal;
-  font-weight: 500;
-  border: 2px solid var(--border-color);
-  border-radius: 7px;
-  padding: 10px;
-  margin-top: 2px;
-  margin-bottom: 2px;
-}
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-color-light);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin: 0.5px 0;
+  padding: 6px;
+  transition: all 0.3s ease;
 
-.nodeSelected {
-  background-color: var(--selected-node);
+  &:hover {
+    box-shadow: 0 4px 10px rgb(124 122 122 / 50%);
+    background-color: var(--hover-highlight);
+  }
+
+  &.nodeSelected {
+    border-color: var(--primary-color);
+    background: var(--bg-color-selected);
+  }
+
+  &.expanded {
+    background: var(--bg-color-expanded);
+  }
 }
 
 .row {
   display: flex;
   justify-content: space-between;
-  flex: 1;
-  flex-direction: row;
-  padding-bottom: 10px;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 14px;
 }
 
-.rectangle {
-  height: 15px;
-  width: 15px;
-  background-color: #807e7e;
-  display: inline-block;
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background-color: #40a8f5;
 }
 
 .titleOrName {
-  display: flex;
+  font-size: 14px;
   flex: 1;
-  font-size: 18px;
-  align-items: center;
-  padding-bottom: 20px;
-  gap: 5px;
+  cursor: pointer;
 }
 
 .description {
-  align-content: center;
-  font-size: 14px;
-  width: 100%;
-  padding: 15px;
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
-.lowerRow {
+.expandedContent {
+  padding: 15px;
+  margin-top: 10px;
+  background: var(--bg-color-expanded);
+  border-radius: 8px;
+}
+
+.runInfoAndParameters {
   display: flex;
-  gap: 10px;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+}
 
-  .left {
-    //width: 50%;
-  }
+/* Run Info Section */
+.runInfo {
+  flex: 1;
+  min-width: 260px;
+  max-width: 100%;
+  background: var(--bg-color-light);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 110px;
+}
 
-  .right {
-    //width: 50%;
-  }
+/* Parameters Section */
+.parameters {
+  flex: 1;
+  min-width: 260px;
+  max-width: 100%;
+  background: var(--bg-color-light);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }

@@ -1,0 +1,101 @@
+.sectionTitle {
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: var(--primary-color);
+}
+  
+.infoContent {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+  
+.infoItem {
+    display: grid;
+    grid-template-columns: max-content auto;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+  
+.label {
+    color: var(--primary-color);
+    min-width: 130px;
+}
+  
+.value {
+    color: #fff;
+    text-align: left;
+    white-space: nowrap;
+}
+  
+/* Outcomes Section */
+.outcomes {
+    margin-top: 15px;
+    background: var(--bg-color-light);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px;
+}
+  
+.outcomes h4 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+}
+  
+.outcomeContainer {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+  
+.outcomeBubble {
+    display: flex;
+    align-items: center;
+    border-radius: 15px;
+    font-size: 12px;
+    overflow: hidden;
+    min-width: 90px;
+    height: 24px;
+    text-align: center;
+    background: inherit;
+}
+  
+.outcomeBubble.success {
+    background-color: rgb(40 167 69 / 30%);
+}
+  
+.outcomeBubble.failure {
+    background-color: rgb(220 53 69 / 30%);
+    min-width: 70px;
+}
+  
+.qubitLabel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0 6px;
+    font-size: 12px;
+    color: #fff;
+    border-radius: 15px 0 0 15px;
+}
+  
+.qubitLabel.success {
+    background-color: rgb(41 166 70 / 50%);
+}
+  
+.qubitLabel.failure {
+    background-color: rgb(220 53 69 / 50%);
+}
+  
+.outcomeStatus {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    padding: 0 8px;
+    border-radius: 0 15px 15px 0;
+}

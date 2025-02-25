@@ -46,9 +46,7 @@ const GraphStatus = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.leftContainer}>
-        <div className={styles.headingWrapper}>
-          <PageName>{heading}</PageName>
-        </div>
+        <PageName>{heading}</PageName>
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
             <MeasurementElementGraph workflowGraphElements={workflowGraphElements} onCytoscapeNodeClick={handleOnCytoscapeNodeClick} />
