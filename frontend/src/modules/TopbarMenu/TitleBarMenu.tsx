@@ -5,9 +5,8 @@ import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
 
 const TitleBarMenu: React.FunctionComponent = () => {
-  const { activeTab } = useFlexLayoutContext();
+  const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
   // const { values } = useTitleBarContextProvider();
-
   return (
     <>
       <div className={styles.wrapper}>
@@ -15,6 +14,7 @@ const TitleBarMenu: React.FunctionComponent = () => {
         {/*{(values.menuCards ?? []).map((card, index) => {*/}
         {/*  return <TitleBarMenuCard key={`${card}_${index}`} card={card} />;*/}
         {/*})}*/}
+        {topBarAdditionalComponents ? topBarAdditionalComponents[activeTab ?? ""] : undefined}
         <div className={styles.menuCardsWrapper}>
           {/*<TitleBarMenuCard*/}
           {/*  key={`${"card"}_${"index"}`}*/}

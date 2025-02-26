@@ -12,7 +12,6 @@ export const flexLayoutFactory = (node: FlexLayout.TabNode) => {
 };
 
 export const flexClassNameMapper = (defaultClassName: string): string => {
-  console.log("defaultClassName", defaultClassName);
   switch (defaultClassName) {
     case "flexlayout__layout":
       return styles.layout;
