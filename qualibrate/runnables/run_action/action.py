@@ -11,7 +11,7 @@ from typing import (
 
 from typing_extensions import TypeAlias
 
-from qualibrate.parameters import NodeParameters
+from qualibrate.utils.logger_m import logger
 
 if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
@@ -65,6 +65,8 @@ def is_interactive() -> bool:
 
 def _get_frame_to_update(stack: list[inspect.FrameInfo]) -> Optional[FrameType]:
     without_args = _registered_without_args(stack)
+    if without_args is None:
+        return None
     if not without_args:
         return stack[3].frame
 
@@ -80,14 +82,15 @@ def _get_frame_to_update(stack: list[inspect.FrameInfo]) -> Optional[FrameType]:
     return None
 
 
-def _registered_without_args(stack: list[inspect.FrameInfo]) -> bool:
+def _registered_without_args(stack: list[inspect.FrameInfo]) -> Optional[bool]:
     wrapper_frame = stack[1].frame
     wrapper_code = wrapper_frame.f_code
     if (
         wrapper_code.co_name != "wrapper"
         or not wrapper_code.co_filename.endswith("action_manager.py")
     ):
-        raise RuntimeError("Can't correctly parse stack trace")
+        logger.warning("Can't correctly parse stack trace")
+        return None
     action_call_frame = stack[3].frame
     action_call_code = action_call_frame.f_code
     return (
