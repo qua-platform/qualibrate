@@ -121,6 +121,23 @@
 .parametersWrapper {
   padding-top: 6px;
   padding-left: 20px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #A5ACB6 transparent;
+}
+
+.parametersWrapper::-webkit-scrollbar {
+  width: 2px;
+}
+
+.parametersWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.parametersWrapper::-webkit-scrollbar-thumb {
+  border-radius: 2px;
 }
 
 .parameterTitleWrapper {
@@ -170,9 +187,23 @@
 }
 
 .stateUpdatesTopWrapper {
-  overflow-y: scroll;
-  max-height: calc(100% - 51px);
-  margin-bottom: 10px;
+  max-height: 170px;
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #A5ACB6 transparent;
+}
+
+.stateUpdatesTopWrapper::-webkit-scrollbar {
+  width: 2px;
+}
+
+.stateUpdatesTopWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.stateUpdatesTopWrapper::-webkit-scrollbar-thumb {
+  border-radius: 2px;
 }
 
 .stateUpdateWrapper {
