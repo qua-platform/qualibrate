@@ -157,7 +157,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
               />
             </svg>
             <span className={styles.runButtonText}>Run</span>
-          </BlueButton> 
+          </BlueButton>
         )}
       </div>
       {node.name === selectedItemName && node.name === submitNodeResponseError?.nodeName && (
