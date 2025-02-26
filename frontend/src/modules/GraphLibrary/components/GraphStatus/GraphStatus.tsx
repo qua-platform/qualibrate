@@ -7,10 +7,8 @@ import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementH
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
 import { SelectionContextProvider, useSelectionContext } from "../../../common/context/SelectionContext";
 import { GraphContextProvider, useGraphContext } from "../../context/GraphContext";
-import PageName from "../../../../common/ui-components/common/Page/PageName";
 
 const GraphStatus = () => {
-  const heading = "Run calibration graph";
   const { setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements } = useGraphContext();
   const { setTrackLatest } = useGraphStatusContext();
@@ -46,7 +44,6 @@ const GraphStatus = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.leftContainer}>
-        <PageName>{heading}</PageName>
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
             <MeasurementElementGraph workflowGraphElements={workflowGraphElements} onCytoscapeNodeClick={handleOnCytoscapeNodeClick} />

@@ -1,9 +1,12 @@
 .pageName {
   font-size: 24px;
+  font-weight: 400;
   color: var(--font);
   font-family: var(--font-family-cond), serif;
-  padding-bottom: 25px;
-  padding-right: 35px;
+  padding-right: 10px;
+  padding-left: 30px;
+  align-self: center;
+  white-space: nowrap;
 }
 
 .pageSection {
