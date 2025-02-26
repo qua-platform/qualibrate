@@ -6,9 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Generic,
     Optional,
-    TypeVar,
 )
 
 from typing_extensions import TypeAlias
@@ -19,13 +17,11 @@ if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
     from qualibrate.runnables.run_action.actions_manager import ActionsManager
 
-ParametersType = TypeVar("ParametersType", bound=NodeParameters)
-MachineType = TypeVar("MachineType")
 ActionReturnType: TypeAlias = Mapping[str, Any]
 ActionCallableType: TypeAlias = Callable[..., Optional[ActionReturnType]]
 
 
-class Action(Generic[ParametersType, MachineType]):
+class Action:
     """
     Represents a single action to be run by a
     QualibrationNode. It stores the decorated function.
@@ -34,14 +30,14 @@ class Action(Generic[ParametersType, MachineType]):
     def __init__(
         self,
         func: ActionCallableType,
-        manager: "ActionsManager[ParametersType, MachineType]",
+        manager: "ActionsManager",
     ) -> None:
         self.func = func
         self.manager = manager
 
     def execute_run_action(
         self,
-        node: "QualibrationNode[ParametersType, MachineType]",
+        node: "QualibrationNode[Any, Any]",
         *args: Any,
         **kwargs: Any,
     ) -> Optional[ActionReturnType]:

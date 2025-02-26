@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Union
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
 from typing_extensions import TypeAlias
 
@@ -7,8 +7,6 @@ from qualibrate.runnables.run_action.action import (
     Action,
     ActionCallableType,
     ActionReturnType,
-    MachineType,
-    ParametersType,
 )
 from qualibrate.utils.logger_m import logger
 
@@ -21,19 +19,19 @@ ActionDecoratorType: TypeAlias = Union[
 ]
 
 
-class ActionsManager(Generic[ParametersType, MachineType]):
+class ActionsManager:
     """
     Manages run actions for a QualibrationNode. It holds an exit flag
     which, once set, prevents further actions from running.
     """
 
     def __init__(self) -> None:
-        self.actions: dict[str, Action[ParametersType, MachineType]] = {}
+        self.actions: dict[str, Action] = {}
 
     def run_action(
         self,
         action_name: str,
-        node: "QualibrationNode[ParametersType, MachineType]",
+        node: "QualibrationNode[Any, Any]",
         *args: Any,
         **kwargs: Any,
     ) -> Optional[ActionReturnType]:

@@ -138,9 +138,7 @@ class QualibrationNode(
         self.machine: Optional[MachineType] = None
 
         # Initialize the ActionsManager to handle run_action logic.
-        self.actions_manager: ActionsManager[ParametersType, MachineType] = (
-            ActionsManager()
-        )
+        self._actions_manager = ActionsManager()
         self.namespace: dict[str, Any] = {}
 
         if self.modes.inspection:
