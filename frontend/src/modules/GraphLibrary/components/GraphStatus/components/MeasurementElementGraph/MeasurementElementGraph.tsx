@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./MeasurementElementGraph.module.scss";
 import CytoscapeGraph from "../../../CytoscapeGraph/CytoscapeGraph";
 import cytoscape from "cytoscape";
@@ -7,6 +7,7 @@ import { CircularProgress } from "@mui/material";
 import { SnapshotsApi } from "../../../../../Snapshots/api/SnapshotsApi";
 import BlueButton from "../../../../../../ui-lib/components/Button/BlueButton";
 import { ErrorStatusWrapper } from "../../../../../common/Error/ErrorStatusWrapper";
+import { classNames } from "../../../../../../utils/classnames";
 
 interface IProps {
   workflowGraphElements: cytoscape.ElementDefinition[];
@@ -17,8 +18,18 @@ interface IProps {
 }
 
 export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements, onCytoscapeNodeClick }) => {
-  const title = "Calibration Graph Progress";
   const { lastRunInfo } = useGraphContext();
+  
+  const [tuneUpName, setTuneUpName] = useState<string | undefined>(lastRunInfo?.workflowName);
+
+  useEffect(() => {
+    if (lastRunInfo?.workflowName) {
+      setTuneUpName(lastRunInfo.workflowName);
+    }
+  }, [lastRunInfo?.workflowName]);
+
+  const isRunning = lastRunInfo?.active;
+
   const graphProgressMessage =
     lastRunInfo?.nodesCompleted !== undefined &&
     lastRunInfo?.nodesCompleted !== null &&
@@ -40,7 +51,17 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.title}>{title}</div>
+      <div className={styles.calibrationTitle}>
+      <span
+        className={classNames(
+          styles.dot,
+          isRunning ? styles.blinkingYellow : lastRunInfo?.active === false ? styles.solidGreen : styles.defaultBlue
+        )}
+      />
+        <span className={styles.label}>Active Calibration Graph:</span>
+        <span className={styles.tuneUpName}>{tuneUpName || "Unknown Tune-up"}</span>
+      </div>
+
       <div className={styles.insideWrapper}>
         <div className={styles.lowerContainer}>
           <div className={styles.lowerUpperContainer}>
