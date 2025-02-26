@@ -20,13 +20,15 @@ const Data = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.explorer}>
-        <div className={styles.data}>
-          <SnapshotsTimeline
-            allSnapshots={allSnapshots}
-            selectedSnapshotId={selectedSnapshotId}
-            setSelectedSnapshotId={setSelectedSnapshotId}
-            fetchOneSnapshot={fetchOneSnapshot}
-          />
+        <div className={styles.dataWrapper}>
+          <div className={styles.data}>
+            <SnapshotsTimeline
+              allSnapshots={allSnapshots}
+              selectedSnapshotId={selectedSnapshotId}
+              setSelectedSnapshotId={setSelectedSnapshotId}
+              fetchOneSnapshot={fetchOneSnapshot}
+            />
+          </div>
           <PaginationWrapper numberOfPages={totalPages} setPageNumber={setPageNumber} />
         </div>
         <div className={styles.viewer}>

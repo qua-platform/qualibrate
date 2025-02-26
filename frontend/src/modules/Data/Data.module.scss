@@ -5,10 +5,12 @@
   height: 100%;
 }
 
-.data {
+.dataWrapper {
   min-width: 614px;
-  flex-shrink: 0;
-  width: 350px;
+}
+
+.data {
+  height: 100%;
   overflow: scroll;
 }
 
