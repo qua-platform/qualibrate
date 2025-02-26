@@ -19,7 +19,7 @@ ActionDecoratorType: TypeAlias = Union[
 ]
 
 
-class ActionsManager:
+class ActionManager:
     """
     Manages run actions for a QualibrationNode. It holds an exit flag
     which, once set, prevents further actions from running.
@@ -72,7 +72,7 @@ class ActionsManager:
         ) -> ActionCallableType:
             nonlocal node
             action = Action(f, self)
-            node.actions_manager.actions[f.__name__] = action
+            node._action_manager.actions[f.__name__] = action
 
             @wraps(f)
             def wrapper(

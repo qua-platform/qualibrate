@@ -15,7 +15,7 @@ from qualibrate.parameters import NodeParameters
 
 if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
-    from qualibrate.runnables.run_action.actions_manager import ActionsManager
+    from qualibrate.runnables.run_action.action_manager import ActionManager
 
 ActionReturnType: TypeAlias = Mapping[str, Any]
 ActionCallableType: TypeAlias = Callable[..., Optional[ActionReturnType]]
@@ -30,7 +30,7 @@ class Action:
     def __init__(
         self,
         func: ActionCallableType,
-        manager: "ActionsManager",
+        manager: "ActionManager",
     ) -> None:
         self.func = func
         self.manager = manager
@@ -85,12 +85,12 @@ def _registered_without_args(stack: list[inspect.FrameInfo]) -> bool:
     wrapper_code = wrapper_frame.f_code
     if (
         wrapper_code.co_name != "wrapper"
-        or not wrapper_code.co_filename.endswith("actions_manager.py")
+        or not wrapper_code.co_filename.endswith("action_manager.py")
     ):
         raise RuntimeError("Can't correctly parse stack trace")
     action_call_frame = stack[3].frame
     action_call_code = action_call_frame.f_code
     return (
-        action_call_code.co_filename.endswith("actions_manager.py")
+        action_call_code.co_filename.endswith("action_manager.py")
         and action_call_code.co_name == "register_action"
     )

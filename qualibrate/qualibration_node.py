@@ -40,9 +40,9 @@ from qualibrate.q_runnnable import (
     run_modes_ctx,
 )
 from qualibrate.runnables.run_action.action import ActionCallableType
-from qualibrate.runnables.run_action.actions_manager import (
+from qualibrate.runnables.run_action.action_manager import (
     ActionDecoratorType,
-    ActionsManager,
+    ActionManager,
 )
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
@@ -137,8 +137,8 @@ class QualibrationNode(
         self.results: dict[Any, Any] = {}
         self.machine: Optional[MachineType] = None
 
-        # Initialize the ActionsManager to handle run_action logic.
-        self._actions_manager = ActionsManager()
+        # Initialize the ActionManager to handle run_action logic.
+        self._action_manager = ActionManager()
         self.namespace: dict[str, Any] = {}
 
         if self.modes.inspection:
@@ -351,7 +351,7 @@ class QualibrationNode(
                 # action code; this action is skipped if
                 # skip_if is True.
         """
-        return self.actions_manager.register_action(self, func, skip_if=skip_if)
+        return self._action_manager.register_action(self, func, skip_if=skip_if)
 
     def save(self) -> None:
         """
