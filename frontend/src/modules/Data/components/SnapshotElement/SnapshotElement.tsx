@@ -5,7 +5,11 @@ import styles from "../SnapshotElement/SnapshotElement.module.scss";
 import additionalStyles from "../../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement.module.scss";
 import { MeasurementElementStatusInfoAndParameters } from "../../../GraphLibrary/components/GraphStatus/components/MeasurementElementInfoSection/MeasurementElementInfoSection";
 
-export const SnapshotElement: React.FC<{ el: SnapshotDTO; handleOnClick: () => void }> = ({ el, handleOnClick }) => {
+export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; handleOnClick: () => void }> = ({
+  el,
+  isSelected,
+  handleOnClick,
+}) => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.headerWrapper} onClick={handleOnClick}>
@@ -15,25 +19,27 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; handleOnClick: () => v
         <div className={styles.idWrapper}>#{el.id}</div>
         <div className={styles.nameWrapper}>{el.metadata?.name}</div>
       </div>
-      <div className={additionalStyles.expandedContent}>
-        <div className={additionalStyles.runInfoAndParameters}>
-          <MeasurementElementStatusInfoAndParameters
-            data={{
-              Status: "aaa",
-              "Run duration": `${"element.run_duration"}s`,
-              "Run start": "formatDateTime(element.run_start)",
-            }}
-            className={additionalStyles.runInfo}
-            evenlySpaced={true}
-          />
-          <MeasurementElementStatusInfoAndParameters
-            title="Parameters"
-            data={{}}
-            filterEmpty={true}
-            className={additionalStyles.parameters}
-          />
+      {isSelected && (
+        <div className={additionalStyles.expandedContent}>
+          <div className={additionalStyles.runInfoAndParameters}>
+            <MeasurementElementStatusInfoAndParameters
+              data={{
+                Status: "aaa",
+                "Run duration": `${"element.run_duration"}s`,
+                "Run start": "formatDateTime(element.run_start)",
+              }}
+              className={additionalStyles.runInfo}
+              evenlySpaced={true}
+            />
+            <MeasurementElementStatusInfoAndParameters
+              title="Parameters"
+              data={{}}
+              filterEmpty={true}
+              className={additionalStyles.parameters}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

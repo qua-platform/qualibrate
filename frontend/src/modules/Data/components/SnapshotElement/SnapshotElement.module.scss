@@ -5,13 +5,16 @@
   border-radius: 8px;
   margin: 0.5px 0;
   padding: 6px;
-  //height: ;
 }
+
 .headerWrapper {
   padding-top: 10px;
+  padding-bottom: 7px;
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
+
 .titleWrapper {
   padding-left: 10px;
   padding-right: 3px;
@@ -24,6 +27,7 @@
   line-height: normal;
   padding-right: 8px;
 }
+
 .nameWrapper {
   color: #FFF;
   font-family: Roboto, serif;

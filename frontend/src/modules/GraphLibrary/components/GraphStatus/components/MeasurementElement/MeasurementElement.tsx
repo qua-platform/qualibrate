@@ -10,7 +10,6 @@ import {
 } from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
 
 interface MeasurementElementProps {
-  key: string;
   element: Measurement;
   dataMeasurementId: string;
 }
@@ -22,7 +21,7 @@ export const formatDateTime = (dateTimeString: string) => {
   return `${date} ${timeWithoutMilliseconds}`;
 };
 
-export const MeasurementElement: React.FC<MeasurementElementProps> = ({ key, element, dataMeasurementId }) => {
+export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, dataMeasurementId }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
   const { fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
@@ -62,15 +61,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ key, ele
     }
   };
   return (
-    <div
-      key={key}
-      data-measurement-id={dataMeasurementId}
-      className={classNames(
-        styles.rowWrapper,
-        (measurementSelected || cytoscapeNodeSelected) && styles.nodeSelected,
-        selectedItemName !== element.name && styles.expanded
-      )}
-    >
+    <div data-measurement-id={dataMeasurementId} className={classNames(styles.rowWrapper)}>
       <div className={styles.row} onClick={handleOnClick}>
         <div className={styles.dot} style={getDotStyle()}></div>
         <div className={styles.titleOrName}>

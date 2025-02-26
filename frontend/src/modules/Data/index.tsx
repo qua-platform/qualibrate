@@ -1,22 +1,29 @@
 import React from "react";
 import styles from "../Data/Data.module.scss";
-import cyKeys from "../../utils/cyKeys";
-import { classNames } from "../../utils/classnames";
 import { SnapshotsContextProvider, useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
 import PaginationWrapper from "../Pagination/PaginationWrapper";
 import { JSONEditor } from "./components/JSONEditor";
 import { SnapshotsTimeline } from "./components/SnapshotsTimeline/SnapshotsTimeline";
 
 const Data = () => {
-  const { totalPages, setPageNumber, allSnapshots, setSelectedSnapshotId, jsonData, diffData, result, fetchOneSnapshot } =
-    useSnapshotsContext();
+  const {
+    totalPages,
+    setPageNumber,
+    allSnapshots,
+    selectedSnapshotId,
+    setSelectedSnapshotId,
+    jsonData,
+    diffData,
+    result,
+    fetchOneSnapshot,
+  } = useSnapshotsContext();
   return (
     <div className={styles.wrapper}>
-      <div className={classNames(styles.explorer)}>
-        <div className={classNames(styles.data)}>
-          <div data-cy={cyKeys.data.EXPERIMENT_LIST}></div>
+      <div className={styles.explorer}>
+        <div className={styles.data}>
           <SnapshotsTimeline
             allSnapshots={allSnapshots}
+            selectedSnapshotId={selectedSnapshotId}
             setSelectedSnapshotId={setSelectedSnapshotId}
             fetchOneSnapshot={fetchOneSnapshot}
           />
