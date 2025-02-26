@@ -1,3 +1,4 @@
+import inspect
 from functools import wraps
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union
 
@@ -7,6 +8,10 @@ from qualibrate.runnables.run_action.action import (
     Action,
     ActionCallableType,
     ActionReturnType,
+)
+from qualibrate.runnables.run_action.utils import (
+    get_defined_in_frame_names,
+    get_frame_for_keeping_names_from_manager,
 )
 from qualibrate.utils.logger_m import logger
 
@@ -27,6 +32,9 @@ class ActionManager:
 
     def __init__(self) -> None:
         self.actions: dict[str, Action] = {}
+        stack = inspect.stack()
+        frame_for_names = get_frame_for_keeping_names_from_manager(stack)
+        self.predefined_names = get_defined_in_frame_names(frame_for_names)
 
     def run_action(
         self,

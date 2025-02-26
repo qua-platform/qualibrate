@@ -1,7 +1,5 @@
 import inspect
-import sys
 from collections.abc import Mapping
-from types import FrameType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -11,6 +9,10 @@ from typing import (
 
 from typing_extensions import TypeAlias
 
+from qualibrate.runnables.run_action.utils import (
+    get_frame_to_update_from_action,
+    is_interactive,
+)
 from qualibrate.utils.logger_m import logger
 
 if TYPE_CHECKING:
@@ -35,6 +37,17 @@ class Action:
         self.func = func
         self.manager = manager
 
+    def _run_and_update_namespace(
+        self,
+        node: "QualibrationNode[Any, Any]",
+        *args: Any,
+        **kwargs: Any,
+    ) -> Optional[ActionReturnType]:
+        result = self.func(node, *args, **kwargs)
+        if isinstance(result, Mapping):
+            node.namespace.update(result)
+        return result
+
     def execute_run_action(
         self,
         node: "QualibrationNode[Any, Any]",
@@ -44,56 +57,22 @@ class Action:
         """
         Executes the stored function with the given node.
         """
-        result = self.func(node, *args, **kwargs)
-        if not isinstance(result, Mapping):
-            return result
-        node.namespace.update(result)
-        if not is_interactive():
+        result = self._run_and_update_namespace(node, *args, **kwargs)
+        if not is_interactive() or not isinstance(result, Mapping):
             return result
         stack = inspect.stack()
-        frame_to_update = _get_frame_to_update(stack)
+        frame_to_update = get_frame_to_update_from_action(stack)
         if frame_to_update is None:
             return result
-
-        frame_to_update.f_locals.update(result)
+        already_defined = set(result.keys()).intersection(
+            self.manager.predefined_names
+        )
+        if already_defined:
+            logger.warning(
+                f"Variables {tuple(already_defined)} after run action "
+                f"{self.func.__name__} won't be set (already defined)."
+            )
+        frame_to_update.f_locals.update(
+            {k: v for k, v in result.items() if k not in already_defined}
+        )
         return result
-
-
-def is_interactive() -> bool:
-    return bool(getattr(sys, "ps1", sys.flags.interactive))
-
-
-def _get_frame_to_update(stack: list[inspect.FrameInfo]) -> Optional[FrameType]:
-    without_args = _registered_without_args(stack)
-    if without_args is None:
-        return None
-    if not without_args:
-        return stack[3].frame
-
-    for i, frame_info in enumerate(stack):
-        frame = frame_info.frame
-        f_code = frame.f_code
-        if (
-            f_code.co_filename.endswith("qualibrate/qualibration_node.py")
-            and f_code.co_name == "run_action"
-            and len(stack) >= i + 1
-        ):
-            return stack[i + 1].frame
-    return None
-
-
-def _registered_without_args(stack: list[inspect.FrameInfo]) -> Optional[bool]:
-    wrapper_frame = stack[1].frame
-    wrapper_code = wrapper_frame.f_code
-    if (
-        wrapper_code.co_name != "wrapper"
-        or not wrapper_code.co_filename.endswith("action_manager.py")
-    ):
-        logger.warning("Can't correctly parse stack trace")
-        return None
-    action_call_frame = stack[3].frame
-    action_call_code = action_call_frame.f_code
-    return (
-        action_call_code.co_filename.endswith("action_manager.py")
-        and action_call_code.co_name == "register_action"
-    )
