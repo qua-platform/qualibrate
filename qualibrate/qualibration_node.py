@@ -39,6 +39,11 @@ from qualibrate.q_runnnable import (
     file_is_calibration_instance,
     run_modes_ctx,
 )
+from qualibrate.runnables.run_action.action import ActionCallableType
+from qualibrate.runnables.run_action.action_manager import (
+    ActionDecoratorType,
+    ActionManager,
+)
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
@@ -58,6 +63,8 @@ from qualibrate.utils.node.record_state_update import (
     record_state_update_getitem,
 )
 from qualibrate.utils.read_files import get_module_name, import_from_path
+
+# from qualibrate.utils.action_manager import ActionManager
 from qualibrate.utils.type_protocols import TargetType
 
 __all__ = [
@@ -129,6 +136,10 @@ class QualibrationNode(
 
         self.results: dict[Any, Any] = {}
         self.machine: Optional[MachineType] = None
+
+        # Initialize the ActionManager to handle run_action logic.
+        self._action_manager = ActionManager()
+        self.namespace: dict[str, Any] = {}
 
         if self.modes.inspection:
             raise StopInspection(
@@ -318,6 +329,29 @@ class QualibrationNode(
         if self.storage_manager is None:
             return None
         return self.storage_manager.snapshot_idx
+
+    def run_action(
+        self,
+        func: Optional[ActionCallableType] = None,
+        *,
+        skip_if: bool = False,
+    ) -> ActionDecoratorType:
+        """
+        Convenience method that returns the run_action decorator
+        provided by the ActionManager.
+
+        Usage examples:
+
+            @node.run_action
+            def action1(node):
+                # action code
+
+            @node.run_action(skip_if=True)
+            def action2(node):
+                # action code; this action is skipped if
+                # skip_if is True.
+        """
+        return self._action_manager.register_action(self, func, skip_if=skip_if)
 
     def save(self) -> None:
         """
