@@ -8,5 +8,4 @@ export interface SnapshotDTO {
     name: string;
   };
   parents: [];
-  isSelected?: boolean;
 }

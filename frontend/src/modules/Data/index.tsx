@@ -1,40 +1,24 @@
 import React from "react";
 import styles from "../Data/Data.module.scss";
 import cyKeys from "../../utils/cyKeys";
-import useModuleStyle from "../../ui-lib/hooks/useModuleStyle";
 import { classNames } from "../../utils/classnames";
 import { SnapshotsContextProvider, useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
 import PaginationWrapper from "../Pagination/PaginationWrapper";
 import { JSONEditor } from "./components/JSONEditor";
-import { TimelineGraph } from "./components/TimelineGraph";
+import { SnapshotsTimeline } from "./components/SnapshotsTimeline/SnapshotsTimeline";
 
 const Data = () => {
-  const [ref] = useModuleStyle<HTMLDivElement>();
-  const {
-    totalPages,
-    setPageNumber,
-    allSnapshots,
-    selectedSnapshotIndex,
-    setSelectedSnapshotIndex,
-    setSelectedSnapshotId,
-    jsonData,
-    diffData,
-    result,
-    setFlag,
-    fetchOneGitgraphSnapshot,
-  } = useSnapshotsContext();
+  const { totalPages, setPageNumber, allSnapshots, setSelectedSnapshotId, jsonData, diffData, result, fetchOneSnapshot } =
+    useSnapshotsContext();
   return (
-    <div ref={ref} className={styles.wrapper}>
+    <div className={styles.wrapper}>
       <div className={classNames(styles.explorer)}>
         <div className={classNames(styles.data)}>
           <div data-cy={cyKeys.data.EXPERIMENT_LIST}></div>
-          <TimelineGraph
+          <SnapshotsTimeline
             allSnapshots={allSnapshots}
-            setFlag={setFlag}
-            selectedSnapshotIndex={selectedSnapshotIndex}
-            setSelectedSnapshotIndex={setSelectedSnapshotIndex}
             setSelectedSnapshotId={setSelectedSnapshotId}
-            fetchOneGitgraphSnapshot={fetchOneGitgraphSnapshot}
+            fetchOneSnapshot={fetchOneSnapshot}
           />
           <PaginationWrapper numberOfPages={totalPages} setPageNumber={setPageNumber} />
         </div>
