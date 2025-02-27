@@ -47,7 +47,7 @@ def run_node(
         status=RunStatus.RUNNING,
         idx=-1,
         passed_parameters=passed_input_parameters,
-        started_at=datetime.now(),
+        started_at=datetime.now().astimezone(),
         runnable_type=RunnableType.NODE,
     )
     idx = -1
@@ -77,7 +77,7 @@ def run_node(
             runnable_type=state.last_run.runnable_type,
             passed_parameters=passed_input_parameters,
             started_at=state.last_run.started_at,
-            completed_at=datetime.now(),
+            completed_at=datetime.now().astimezone(),
             state_updates=node.state_updates,
             error=run_error,
         )
@@ -93,7 +93,7 @@ def run_workflow(
         name=workflow.name,
         status=run_status,
         idx=-1,
-        started_at=datetime.now(),
+        started_at=datetime.now().astimezone(),
         runnable_type=RunnableType.GRAPH,
         passed_parameters=passed_input_parameters,
     )
@@ -129,7 +129,7 @@ def run_workflow(
             idx=idx,
             run_result=cast(Optional[GraphRunSummary], workflow.run_summary),
             started_at=state.last_run.started_at,
-            completed_at=datetime.now(),
+            completed_at=datetime.now().astimezone(),
             runnable_type=state.last_run.runnable_type,
             passed_parameters=passed_input_parameters,
             state_updates=(

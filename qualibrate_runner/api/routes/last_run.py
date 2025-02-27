@@ -22,11 +22,10 @@ Returns the currently active element (node or graph).
 If there is no active element, then returns the last executed one.
 Check fields below.
 
-**Note**:
+**Note**:`
 
 Available only in runtime. Reset on server restart.
 """,
-    response_model=LastRun,
     response_description=f"""
 The last run if available, `None` otherwise.
 
