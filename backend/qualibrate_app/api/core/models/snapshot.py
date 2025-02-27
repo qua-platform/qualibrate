@@ -16,4 +16,5 @@ class SimplifiedSnapshotWithMetadata(SimplifiedSnapshot):
 
 class Snapshot(SimplifiedSnapshot):
     metadata: dict[str, Any] = Field(default_factory=dict)
+    parameters: Optional[dict[str, Any]] = None
     data: Optional[dict[str, Any]] = None

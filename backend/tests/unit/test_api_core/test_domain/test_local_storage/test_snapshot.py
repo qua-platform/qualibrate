@@ -139,27 +139,47 @@ def test__read_metadata_node_content_node_info_not_filled(mocker, settings):
     }
 
 
-def test__read_data_node_content_valid_path_specified(tmp_path):
+def test__read_data_node_content_valid_path_specified_with_parameters(tmp_path):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state_.json"
-    data_content = {"a": "b", "c": 3}
-    state_path.write_text(json.dumps(data_content))
+    state_path_content = {"a": "b", "c": 3}
+    state_path.write_text(json.dumps(state_path_content))
+    parameters_model = {"p1": "v1", "p2": 2}
+    node_info = {
+        "data": {
+            "quam": "state_.json",
+            "parameters": {"model": parameters_model},
+        },
+    }
+    assert snapshot._read_data_node_content(node_info, node_path, tmp_path) == {
+        "data": state_path_content,
+        "parameters": parameters_model,
+    }
+
+
+def test__read_data_node_content_valid_path_specified_without_parameters(
+    tmp_path,
+):
+    node_path = tmp_path / "node.json"
+    state_path = tmp_path / "state_.json"
+    state_path_content = {"a": "b", "c": 3}
+    state_path.write_text(json.dumps(state_path_content))
     node_info = {"data": {"quam": "state_.json"}}
-    assert (
-        snapshot._read_data_node_content(node_info, node_path, tmp_path)
-        == data_content
-    )
+    assert snapshot._read_data_node_content(node_info, node_path, tmp_path) == {
+        "data": state_path_content,
+        "parameters": None,
+    }
 
 
 def test__read_data_node_content_path_not_specified(tmp_path):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state.json"
-    data_content = {"a": "b", "c": 3}
-    state_path.write_text(json.dumps(data_content))
-    assert (
-        snapshot._read_data_node_content({}, node_path, tmp_path)
-        == data_content
-    )
+    state_path_content = {"a": "b", "c": 3}
+    state_path.write_text(json.dumps(state_path_content))
+    assert snapshot._read_data_node_content({}, node_path, tmp_path) == {
+        "data": state_path_content,
+        "parameters": None,
+    }
 
 
 def test__read_data_node_content_invalid_path(tmp_path):
@@ -322,11 +342,11 @@ def test__default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
             "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_data_node_content"
         ),
-        return_value={},
+        return_value={"data": {}, "parameters": None},
     )
     assert snapshot._default_snapshot_content_loader(
         node_path, SnapshotLoadType.Data, None
-    ) == {"minified": {}, "metadata": {}, "data": {}}
+    ) == {"minified": {}, "metadata": {}, "data": {}, "parameters": None}
     patched_node_path_id.assert_called_once()
     patched_node_path_name.assert_called_once()
     patched_read_minified.assert_called_once_with(
