@@ -21,6 +21,7 @@ def _setup_local_storage_project(project_path: Path) -> Path:
         date_dir.mkdir()
         for j in range(3):
             node_id = i * 3 + j + 1
+            duration = node_id * 2
             node_time = time(12 + 3 * j, 9 * (j + 1))
             node_time_str = node_time.strftime("%H%M%S")
             node_name = f"name_{node_id}"
@@ -39,10 +40,19 @@ def _setup_local_storage_project(project_path: Path) -> Path:
                 )
             ).replace(tzinfo=timezone(timedelta(seconds=10800)))  # 3 hours
 
+            run_start = (created_at - timedelta(seconds=duration)).isoformat(
+                timespec="seconds"
+            )
+            run_end = created_at.isoformat(timespec="seconds")
+            if node_id == 4:
+                # old snapshot where the run_start and run_end not specified
+                run_start, run_end = None, None
             node_file.write_text(
                 json.dumps(
                     {
                         "created_at": created_at.isoformat(timespec="seconds"),
+                        "run_start": run_start,
+                        "run_end": run_end,
                         "metadata": {
                             "name": node_name,
                             "data_path": str(
@@ -94,6 +104,9 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
     yield [
         {
             "created_at": "2024-04-27T18:27:00+03:00",
+            "run_start": "2024-04-27T18:26:42+03:00",
+            "run_end": "2024-04-27T18:27:00+03:00",
+            "run_duration": 18.0,
             "id": 9,
             "parents": [8],
             "metadata": {
@@ -103,6 +116,9 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
         },
         {
             "created_at": "2024-04-27T15:18:00+03:00",
+            "run_start": "2024-04-27T15:17:44+03:00",
+            "run_end": "2024-04-27T15:18:00+03:00",
+            "run_duration": 16.0,
             "id": 8,
             "parents": [7],
             "metadata": {
@@ -112,6 +128,9 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
         },
         {
             "created_at": "2024-04-27T12:09:00+03:00",
+            "run_start": "2024-04-27T12:08:46+03:00",
+            "run_end": "2024-04-27T12:09:00+03:00",
+            "run_duration": 14.0,
             "id": 7,
             "parents": [6],
             "metadata": {
@@ -121,6 +140,9 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
         },
         {
             "created_at": "2024-04-26T18:27:00+03:00",
+            "run_start": "2024-04-26T18:26:48+03:00",
+            "run_end": "2024-04-26T18:27:00+03:00",
+            "run_duration": 12.0,
             "id": 6,
             "parents": [5],
             "metadata": {
@@ -130,6 +152,9 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
         },
         {
             "created_at": "2024-04-26T15:18:00+03:00",
+            "run_start": "2024-04-26T15:17:50+03:00",
+            "run_end": "2024-04-26T15:18:00+03:00",
+            "run_duration": 10.0,
             "id": 5,
             "parents": [4],
             "metadata": {
@@ -139,6 +164,9 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
         },
         {
             "created_at": "2024-04-26T12:09:00+03:00",
+            "run_duration": None,
+            "run_start": None,
+            "run_end": None,
             "id": 4,
             "parents": [3],
             "metadata": {
@@ -148,6 +176,9 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
         },
         {
             "created_at": "2024-04-25T18:27:00+03:00",
+            "run_start": "2024-04-25T18:26:54+03:00",
+            "run_end": "2024-04-25T18:27:00+03:00",
+            "run_duration": 6.0,
             "id": 3,
             "parents": [2],
             "metadata": {
@@ -157,6 +188,9 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
         },
         {
             "created_at": "2024-04-25T15:18:00+03:00",
+            "run_start": "2024-04-25T15:17:56+03:00",
+            "run_end": "2024-04-25T15:18:00+03:00",
+            "run_duration": 4.0,
             "id": 2,
             "parents": [1],
             "metadata": {
@@ -166,6 +200,9 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
         },
         {
             "created_at": "2024-04-25T12:09:00+03:00",
+            "run_start": "2024-04-25T12:08:58+03:00",
+            "run_end": "2024-04-25T12:09:00+03:00",
+            "run_duration": 2.0,
             "id": 1,
             "parents": [],
             "metadata": {

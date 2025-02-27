@@ -13,7 +13,7 @@ from qualibrate_app.api.exceptions.classes.values import QValueException
 
 
 def test__read_minified_node_content_node_info_filled(mocker, settings):
-    created_at = datetime.now()
+    dt = datetime.now().astimezone()
     patched_get_id_local_path = mocker.patch(
         (
             "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
@@ -23,12 +23,24 @@ def test__read_minified_node_content_node_info_filled(mocker, settings):
     )
     patched_is_file = mocker.patch("pathlib.Path.is_file")
     result = snapshot._read_minified_node_content(
-        {"id": 3, "parents": [1, 2], "created_at": created_at.isoformat()},
+        {
+            "id": 3,
+            "parents": [1, 2],
+            "created_at": dt.isoformat(),
+            "run_start": dt.isoformat(),
+            "run_end": dt.isoformat(),
+        },
         None,
         None,
         settings,
     )
-    assert result == {"id": 3, "parents": [1, 2], "created_at": created_at}
+    assert result == {
+        "id": 3,
+        "parents": [1, 2],
+        "created_at": dt,
+        "run_start": dt,
+        "run_end": dt,
+    }
     patched_is_file.assert_not_called()
     patched_get_id_local_path.assert_has_calls(
         [
@@ -68,6 +80,8 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
         "id": 2,
         "parents": [1],
         "created_at": datetime.fromtimestamp(ts).astimezone(),
+        "run_start": None,
+        "run_end": None,
     }
     patched_is_file.assert_called_once()
     patched_get_id_local_path.assert_called_once_with(
@@ -106,6 +120,8 @@ def test__read_minified_node_content_node_info_empty_no_id_no_file(
         "id": -1,
         "parents": [],
         "created_at": datetime.fromtimestamp(ts).astimezone(),
+        "run_start": None,
+        "run_end": None,
     }
     patched_is_file.assert_called_once()
     patched_get_id_local_path.assert_not_called()
@@ -139,27 +155,28 @@ def test__read_metadata_node_content_node_info_not_filled(mocker, settings):
     }
 
 
-def test__read_data_node_content_valid_path_specified_with_parameters(tmp_path):
+def test__read_data_node_content_valid_path_specified_with_others(tmp_path):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state_.json"
     state_path_content = {"a": "b", "c": 3}
     state_path.write_text(json.dumps(state_path_content))
     parameters_model = {"p1": "v1", "p2": 2}
+    outcomes = {"q1": "successful", "q2": "failed"}
     node_info = {
         "data": {
             "quam": "state_.json",
             "parameters": {"model": parameters_model},
+            "outcomes": outcomes,
         },
     }
     assert snapshot._read_data_node_content(node_info, node_path, tmp_path) == {
         "data": state_path_content,
         "parameters": parameters_model,
+        "outcomes": outcomes,
     }
 
 
-def test__read_data_node_content_valid_path_specified_without_parameters(
-    tmp_path,
-):
+def test__read_data_node_content_valid_path_specified_without_others(tmp_path):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state_.json"
     state_path_content = {"a": "b", "c": 3}
@@ -168,6 +185,7 @@ def test__read_data_node_content_valid_path_specified_without_parameters(
     assert snapshot._read_data_node_content(node_info, node_path, tmp_path) == {
         "data": state_path_content,
         "parameters": None,
+        "outcomes": None,
     }
 
 
@@ -179,6 +197,7 @@ def test__read_data_node_content_path_not_specified(tmp_path):
     assert snapshot._read_data_node_content({}, node_path, tmp_path) == {
         "data": state_path_content,
         "parameters": None,
+        "outcomes": None,
     }
 
 

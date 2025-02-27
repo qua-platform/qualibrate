@@ -107,10 +107,18 @@ def _read_minified_node_content(
             created_at = datetime.fromtimestamp(
                 node_filepath.parent.stat().st_mtime
             ).astimezone()
+    run_start_str = node_info.get("run_start")
+    run_end_str = node_info.get("run_end")
     return {
         "id": node_id,
         "parents": parents,
         "created_at": created_at,
+        "run_start": (
+            datetime.fromisoformat(run_start_str) if run_start_str else None
+        ),
+        "run_end": (
+            datetime.fromisoformat(run_end_str) if run_end_str else None
+        ),
     }
 
 
@@ -169,13 +177,15 @@ def _read_data_node_content(
     quam_file_path = _get_data_node_filepath(
         node_info, node_filepath, snapshot_path
     )
-    parameters = dict(node_info.get("data", {})).get("parameters")
-    if parameters is not None:
-        parameters = parameters["model"]
+    node_data = dict(node_info.get("data", {}))
+    other_data = {
+        "parameters": dict(node_data.get("parameters", {})).get("model"),
+        "outcomes": node_data.get("outcomes"),
+    }
     if quam_file_path is None:
-        return {"data": None, "parameters": parameters}
+        return {"data": None, **other_data}
     with quam_file_path.open("r") as f:
-        return {"data": dict(json.load(f)), "parameters": parameters}
+        return {"data": dict(json.load(f)), **other_data}
 
 
 def _default_snapshot_content_updater(

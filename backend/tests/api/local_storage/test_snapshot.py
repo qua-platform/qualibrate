@@ -14,6 +14,7 @@ def test_snapshot_get_snapshot_default(
                 "info": "snapshot",
             },
             "parameters": None,
+            "outcomes": None,
         }
     )
     assert response.status_code == 200
@@ -23,13 +24,29 @@ def test_snapshot_get_snapshot_default(
 @pytest.mark.parametrize(
     "load_type, to_update",
     (
-        (1, {"metadata": {}, "data": None, "parameters": None}),
-        (2, {"data": None, "parameters": None}),
+        (
+            1,
+            {
+                "metadata": {},
+                "data": None,
+                "parameters": None,
+                "outcomes": None,
+            },
+        ),
+        (
+            2,
+            {
+                "data": None,
+                "parameters": None,
+                "outcomes": None,
+            },
+        ),
         (
             3,
             {
                 "data": {"quam": {"node": 4}, "info": "snapshot"},
                 "parameters": None,
+                "outcomes": None,
             },
         ),
         (
@@ -37,6 +54,7 @@ def test_snapshot_get_snapshot_default(
             {
                 "data": {"quam": {"node": 4}, "info": "snapshot"},
                 "parameters": None,
+                "outcomes": None,
             },
         ),
     ),
