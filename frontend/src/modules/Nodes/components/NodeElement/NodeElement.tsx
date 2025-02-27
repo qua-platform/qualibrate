@@ -126,8 +126,6 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     return result.trim();
   };
 
-  const description = node.description?.trim() || "No description available";
-
   return (
     <div
       className={classNames(styles.rowWrapper, selectedItemName === node.name && styles.nodeSelected)}
@@ -141,9 +139,11 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           <div className={styles.titleOrName} data-testid={`title-or-name-${nodeKey}`}>{insertSpaces(node.title ?? node.name)}</div>
         </div>
         <div className={styles.descriptionWrapper}>
-        <Tooltip title={description} placement="left-start" arrow>
-          <span><InfoIcon /></span>
-        </Tooltip>
+        {node.description?.trim() && (
+            <Tooltip title={node.description?.trim()} placement="left-start" arrow>
+              <span><InfoIcon /></span>
+            </Tooltip>
+          )}
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
           <div>
