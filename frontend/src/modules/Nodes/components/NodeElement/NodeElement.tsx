@@ -10,6 +10,8 @@ import { ErrorResponseWrapper } from "../../../common/Error/ErrorResponseWrapper
 import InputField from "../../../../common/ui-components/common/Input/InputField";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import { NodesApi } from "../../api/NodesAPI";
+import Tooltip from "@mui/material/Tooltip";
+import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
 
 export interface NodeDTO {
   name: string;
@@ -124,6 +126,8 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     return result.trim();
   };
 
+  const description = node.description?.trim() || "No description available";
+
   return (
     <div
       className={classNames(styles.rowWrapper, selectedItemName === node.name && styles.nodeSelected)}
@@ -137,9 +141,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           <div className={styles.titleOrName} data-testid={`title-or-name-${nodeKey}`}>{insertSpaces(node.title ?? node.name)}</div>
         </div>
         <div className={styles.descriptionWrapper}>
-          <div className={styles.description}>
-            <div className={styles.descriptionText}>{node.description}</div>
-          </div>
+        <Tooltip title={description} placement="left-start" arrow>
+          <span><InfoIcon /></span>
+        </Tooltip>
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
           <div>
