@@ -4,7 +4,7 @@ import { classNames } from "../../../../../../utils/classnames";
 
 interface MeasurementElementStatusInfoAndParametersProps {
   title?: string;
-  data: Record<string, string | number | string[]>;
+  data?: Record<string, string | number | string[]>;
   isInfoSection?: boolean;
   filterEmpty?: boolean;
   className: string;
@@ -19,7 +19,9 @@ export const MeasurementElementStatusInfoAndParameters: React.FC<MeasurementElem
   className,
   evenlySpaced = false,
 }) => {
-  const filteredData = filterEmpty ? Object.entries(data).filter(([, value]) => value != null && value !== "") : Object.entries(data);
+  const filteredData = filterEmpty
+    ? Object.entries(data ?? {}).filter(([, value]) => value != null && value !== "")
+    : Object.entries(data ?? {});
 
   if (filteredData.length === 0) return null;
 
@@ -43,8 +45,8 @@ export const MeasurementElementStatusInfoAndParameters: React.FC<MeasurementElem
 };
 
 export const MeasurementElementOutcomes: React.FC<{
-  outcomes: object;
-}> = ({ outcomes }: { outcomes: object }) => {
+  outcomes?: object;
+}> = ({ outcomes }: { outcomes?: object }) => {
   return (
     outcomes &&
     Object.keys(outcomes).length > 0 && (

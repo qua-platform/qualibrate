@@ -1,7 +1,7 @@
 .sectionTitle {
     font-size: 16px;
     margin-bottom: 4px;
-    color: var(--primary-color);
+    color: #A5ACB6;
 }
   
 .infoContent {
@@ -22,7 +22,8 @@
     color: #A5ACB6;
     min-width: 130px;
     &.info {
-        min-width: 100px;
+        white-space: nowrap;
+        min-width: 90px;
     }
 }
   
@@ -37,6 +38,7 @@
     border: 2px solid var(--border-color);
     border-radius: 10px;
     padding: 15px;
+    color: #A5ACB6;
 }
   
 .outcomes h4 {
