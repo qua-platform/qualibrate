@@ -21,6 +21,9 @@
 .label {
     color: #A5ACB6;
     min-width: 130px;
+    &.info {
+        min-width: 100px;
+    }
 }
   
 .value {

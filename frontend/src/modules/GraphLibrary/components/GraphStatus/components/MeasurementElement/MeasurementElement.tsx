@@ -78,6 +78,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
                 "Run duration": `${element.run_duration}s`,
                 "Run start": formatDateTime(element.run_start),
               }}
+              isInfoSection={true}
               className={styles.runInfo}
               evenlySpaced={true}
             />

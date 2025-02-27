@@ -7,6 +7,8 @@
 
 .dataWrapper {
   min-width: 614px;
+  display: flex;
+  flex-direction: column;
 }
 
 .data {
@@ -15,7 +17,7 @@
 }
 
 .explorer {
-  height: calc(100% - 50px);
+  height: calc(100% - 10px);
   width: 100%;
   display: flex;
   box-sizing: border-box;

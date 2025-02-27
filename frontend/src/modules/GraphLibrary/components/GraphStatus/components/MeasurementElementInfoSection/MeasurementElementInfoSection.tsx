@@ -5,6 +5,7 @@ import { classNames } from "../../../../../../utils/classnames";
 interface MeasurementElementStatusInfoAndParametersProps {
   title?: string;
   data: Record<string, string | number | string[]>;
+  isInfoSection?: boolean;
   filterEmpty?: boolean;
   className: string;
   evenlySpaced?: boolean;
@@ -13,6 +14,7 @@ interface MeasurementElementStatusInfoAndParametersProps {
 export const MeasurementElementStatusInfoAndParameters: React.FC<MeasurementElementStatusInfoAndParametersProps> = ({
   title,
   data,
+  isInfoSection = false,
   filterEmpty = false,
   className,
   evenlySpaced = false,
@@ -31,7 +33,7 @@ export const MeasurementElementStatusInfoAndParameters: React.FC<MeasurementElem
       >
         {filteredData.map(([key, value]) => (
           <div className={styles.infoItem} key={key}>
-            <div className={styles.label}>{key}:</div>
+            <div className={classNames(styles.label, isInfoSection && styles.info)}>{key}:</div>
             <div className={styles.value}>{Array.isArray(value) ? value.join(", ") : value?.toString() || "N/A"}</div>
           </div>
         ))}

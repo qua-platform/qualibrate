@@ -10,6 +10,10 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
   isSelected,
   handleOnClick,
 }) => {
+  const formatDateTime = (dateTime: string): string => {
+    const date = new Date(dateTime);
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  };
   return (
     <div className={styles.wrapper}>
       <div className={styles.headerWrapper} onClick={handleOnClick}>
@@ -24,10 +28,11 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
           <div className={additionalStyles.runInfoAndParameters}>
             <MeasurementElementStatusInfoAndParameters
               data={{
-                Status: "aaa",
-                "Run duration": `${"element.run_duration"}s`,
-                "Run start": "formatDateTime(element.run_start)",
+                // Status: "aaa",
+                // "Run duration": `${"element.run_duration"}s`,
+                "Run start": formatDateTime(el.created_at),
               }}
+              isInfoSection={true}
               className={additionalStyles.runInfo}
               evenlySpaced={true}
             />
