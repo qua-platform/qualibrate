@@ -412,7 +412,7 @@ class QualibrationGraph(
             name=self.name,
             description=self.description,
             created_at=created_at,
-            completed_at=datetime.now(),
+            completed_at=datetime.now().astimezone(),
             parameters=self.full_parameters,
             outcomes=self.outcomes,
             initial_targets=self._initial_targets,
@@ -455,7 +455,7 @@ class QualibrationGraph(
         logger.info(
             f"Run graph {self.name} with parameters: {passed_parameters}"
         )
-        created_at = datetime.now()
+        created_at = datetime.now().astimezone()
         run_error: Optional[RunError] = None
         try:
             self._run(**passed_parameters)

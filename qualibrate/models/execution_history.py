@@ -1,8 +1,7 @@
 from collections.abc import Sequence
-from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
 
 from qualibrate.models.node_status import NodeStatus
 from qualibrate.models.outcome import Outcome
@@ -22,8 +21,8 @@ class ExecutionHistoryItem(BaseModel):
     description: Optional[str] = None
     snapshot_idx: Optional[int] = None
     status: NodeStatus
-    run_start: datetime
-    run_end: datetime
+    run_start: AwareDatetime
+    run_end: AwareDatetime
     parameters: NodeParameters
     error: Optional[RunError] = None
     outcomes: dict[TargetType, Outcome] = Field(default_factory=dict)

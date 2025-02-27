@@ -1,9 +1,11 @@
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
 from qualang_tools.results import DataHandler
 
+from qualibrate.models.outcome import Outcome
 from qualibrate.storage.storage_manager import StorageManager
 from qualibrate.utils.logger_m import logger
 
@@ -68,16 +70,31 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
         # Save results
         self.data_handler.name = node.name
+        outcomes = {
+            k: v.value if isinstance(v, Outcome) else v
+            for k, v in node.outcomes.items()
+        }
         self.data_handler.node_data = {
             "quam": "./quam_state.json",
             "parameters": {
                 "model": node.parameters.model_dump(mode="json"),
                 "schema": node.parameters.__class__.model_json_schema(),
             },
+            "outcomes": outcomes,
         }
         node_contents = (
             self.data_handler.generate_node_contents()
         )  # TODO directly access idx
+        node_contents.update(
+            {
+                "run_start": node.run_start.isoformat(timespec="milliseconds"),
+                "run_end": (
+                    datetime.now()
+                    .astimezone()
+                    .isoformat(timespec="milliseconds")
+                ),
+            }
+        )
         self.data_handler.save_data(
             data=node.results,
             name=node.name,

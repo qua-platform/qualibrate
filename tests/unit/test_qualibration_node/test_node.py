@@ -270,7 +270,7 @@ class TestQualibrationNode:
 
         node = QualibrationNode(name="test_node")
         last_executed_node = MagicMock()
-        created_at = datetime.now()
+        created_at = datetime.now().astimezone()
         initial_targets = ["target1", "target2"]
         run_error = None
         parameters = P()

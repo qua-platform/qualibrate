@@ -165,7 +165,7 @@ class BasicOrchestrator(
                 logger.exception("", exc_info=exc)
                 raise exc
             node_to_run_parameters = getattr(nodes_parameters, node_to_run.name)
-            run_start = datetime.now()
+            run_start = datetime.now().astimezone()
             run_error: Optional[RunError] = None
             try:
                 self._active_node = node_to_run
@@ -210,7 +210,7 @@ class BasicOrchestrator(
                         status=new_status,
                         error=run_error,
                         run_start=run_start,
-                        run_end=datetime.now(),
+                        run_end=datetime.now().astimezone(),
                         parameters=executed_node._parameters,
                     )
                 )
