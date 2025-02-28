@@ -8,8 +8,8 @@
 }
 
 .nodesAndRunningJobInfoWrapper {
-  height: calc(100% - 80px);
   display: flex;
+  overflow-y: hidden;
 }
 
 .nodesContainerTop {
