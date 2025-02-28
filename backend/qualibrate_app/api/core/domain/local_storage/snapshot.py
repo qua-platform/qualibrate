@@ -158,7 +158,7 @@ def _get_data_node_filepath(
 
 def _read_data_node_content(
     node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any]:
     """Read quam data based on node info.
 
     Args:
@@ -169,10 +169,13 @@ def _read_data_node_content(
     quam_file_path = _get_data_node_filepath(
         node_info, node_filepath, snapshot_path
     )
+    parameters = dict(node_info.get("data", {})).get("parameters")
+    if parameters is not None:
+        parameters = parameters["model"]
     if quam_file_path is None:
-        return None
+        return {"data": None, "parameters": parameters}
     with quam_file_path.open("r") as f:
-        return dict(json.load(f))
+        return {"data": dict(json.load(f)), "parameters": parameters}
 
 
 def _default_snapshot_content_updater(
@@ -260,8 +263,8 @@ def _default_snapshot_content_loader(
     )
     if load_type < SnapshotLoadType.Data:
         return content
-    content["data"] = _read_data_node_content(
-        node_info, node_filepath, snapshot_path
+    content.update(
+        _read_data_node_content(node_info, node_filepath, snapshot_path)
     )
     return content
 
