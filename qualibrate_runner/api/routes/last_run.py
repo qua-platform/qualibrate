@@ -22,7 +22,7 @@ Returns the currently active element (node or graph).
 If there is no active element, then returns the last executed one.
 Check fields below.
 
-**Note**:`
+**Note**:
 
 Available only in runtime. Reset on server restart.
 """,
