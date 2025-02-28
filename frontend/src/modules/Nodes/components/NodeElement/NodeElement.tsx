@@ -10,6 +10,7 @@ import { ErrorResponseWrapper } from "../../../common/Error/ErrorResponseWrapper
 import InputField from "../../../../common/ui-components/common/Input/InputField";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import { NodesApi } from "../../api/NodesAPI";
+import { RunIcon } from "../../../../ui-lib/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
 
@@ -153,8 +154,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         {isNodeRunning && node.name === selectedItemName && <CircularProgress data-testid={`circular-progress-${nodeKey}`} />}
 
         {!isNodeRunning && node.name === selectedItemName && (
-          <BlueButton className={styles.runButtonWrapper} data-testid="run-button" disabled={node.name !== selectedItemName} onClick={() => handleClick()}>
-            Run
+          <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
+            <RunIcon className={styles.runButtonIcon} />
+            <span className={styles.runButtonText}>Run</span>
           </BlueButton>
         )}
       </div>
