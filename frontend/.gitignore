@@ -9,6 +9,8 @@
 logs
 **/*.backup.*
 **/*.back.*
+test-results/
+tests/**/*.js
 
 dist
 
