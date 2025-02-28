@@ -7,7 +7,7 @@ import AppRoutes from "./routing/AppRoutes";
 import { BrowserRouter } from "react-router-dom";
 import { updateColorTheme } from "./modules/themeModule/themeHelper";
 import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeContext";
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { AuthContextProvider } from "./modules/Login/context/AuthContext";
 
 type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
@@ -29,9 +29,12 @@ const Application: React.FunctionComponent = () => {
   );
 };
 
-render(
-  <React.StrictMode>
-    <Application />
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+const container = document.getElementById("root");
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <React.StrictMode>
+      <Application />
+    </React.StrictMode>
+  );
+}

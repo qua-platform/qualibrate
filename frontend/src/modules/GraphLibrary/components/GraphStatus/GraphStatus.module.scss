@@ -15,19 +15,14 @@
   width: 60%;
 }
 
-.headingWrapper {
-  max-height: 10%;
-}
-
 .graphAndHistoryWrapper {
-  max-height: calc(90% - 20px);
+  height: calc(100% - 55px);
 }
 
 .leftContainer {
   color: rgb(217 213 212);
   min-width: 33%;
-  max-height: calc(100% - 20px);
-  overflow: auto;
+  height: calc(100% - 20px);
 }
 
 .rightContainer {

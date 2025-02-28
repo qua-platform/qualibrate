@@ -140,7 +140,7 @@ test('Workflow1 - Running a Calibration Node', async ({ page }) => {
   await expect(ch1.getByTestId('update-after-icon')).toBeVisible();
   // Update the state value for ch2 to [1,2,4,5]
   await expect(ch2.getByTestId('value-input')).toBeVisible();
-  await expect(ch2.getByTestId('value-container')).toContainText('[1,2,3]');
+  await expect(ch2.getByTestId('value-container')).toContainText('80000000');
   await expect(ch2.getByTestId('value-input')).toHaveValue('[1,2,4]');
   ch2.getByTestId('value-input').click();
   ch2.getByTestId('value-input').fill('[1,2,4,5]');

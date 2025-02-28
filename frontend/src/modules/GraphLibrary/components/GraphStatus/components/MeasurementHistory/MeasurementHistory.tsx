@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
-// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./MeasurementHistory.module.scss";
 import { Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
 import { MeasurementElementList } from "../MeasurementElementList/MeasurementElementList";
-import { Checkbox } from "@mui/material";
 import { useSelectionContext } from "../../../../../common/context/SelectionContext";
 import { useGraphContext } from "../../../../context/GraphContext";
 
@@ -45,20 +43,17 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
       <div className={styles.titleRow}>
         <div className={styles.title}>{title}</div>
         <div className={styles.trackLatestWrapper}>
-          <Checkbox
-            className={styles.trackLatestCheckbox}
-            checked={trackLatest}
-            inputProps={{ "aria-label": "controlled" }}
-            onClick={handleOnClick}
-          />
-          Track latest
+          <span>Track latest</span>
+          <div className={`${styles.toggleSwitch} ${trackLatest ? styles.toggleOn : styles.toggleOff}`} onClick={handleOnClick}>
+            <div className={`${styles.toggleKnob} ${trackLatest ? styles.toggleOn : styles.toggleOff}`}></div>
+          </div>
         </div>
       </div>
       {listOfMeasurements && listOfMeasurements?.length > 0 && (
         <div className={styles.contentContainer}>
-          <div className={styles.lowerContainer}>
-            <MeasurementElementList listOfMeasurements={listOfMeasurements} />
-          </div>
+          {/*<div className={styles.lowerContainer}>*/}
+          <MeasurementElementList listOfMeasurements={listOfMeasurements} />
+          {/*</div>*/}
         </div>
       )}
       {(!listOfMeasurements || listOfMeasurements?.length === 0) && (
