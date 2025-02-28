@@ -46,11 +46,11 @@ export const RunningJob: React.FC = () => {
           </div>
         </div>
         {isNodeRunning && (
-          <div className={styles.stopButtonWrapper}>
-            <div onClick={handleStopClick} data-testid="stop-button">
-              <StopIcon />
+          <div className={styles.stopButtonContainer}>
+              <div className={styles.stopButtonWrapper} onClick={handleStopClick} data-testid="stop-button">
+                <StopIcon />
+              </div>
             </div>
-          </div>
         )}
       </div>
       {runningNodeInfo && <RunningJobInfoSection />}
