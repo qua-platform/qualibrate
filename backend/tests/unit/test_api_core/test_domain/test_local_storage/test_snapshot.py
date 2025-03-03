@@ -170,7 +170,7 @@ def test__read_data_node_content_valid_path_specified_with_others(tmp_path):
         },
     }
     assert snapshot._read_data_node_content(node_info, node_path, tmp_path) == {
-        "data": state_path_content,
+        "quam": state_path_content,
         "parameters": parameters_model,
         "outcomes": outcomes,
     }
@@ -183,7 +183,7 @@ def test__read_data_node_content_valid_path_specified_without_others(tmp_path):
     state_path.write_text(json.dumps(state_path_content))
     node_info = {"data": {"quam": "state_.json"}}
     assert snapshot._read_data_node_content(node_info, node_path, tmp_path) == {
-        "data": state_path_content,
+        "quam": state_path_content,
         "parameters": None,
         "outcomes": None,
     }
@@ -195,7 +195,7 @@ def test__read_data_node_content_path_not_specified(tmp_path):
     state_path_content = {"a": "b", "c": 3}
     state_path.write_text(json.dumps(state_path_content))
     assert snapshot._read_data_node_content({}, node_path, tmp_path) == {
-        "data": state_path_content,
+        "quam": state_path_content,
         "parameters": None,
         "outcomes": None,
     }
@@ -356,16 +356,17 @@ def test__default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
         ),
         return_value={},
     )
+    _read_data_node_content = {"quam": {}, "parameters": None}
     patched_read_data = mocker.patch(
         (
             "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_data_node_content"
         ),
-        return_value={"data": {}, "parameters": None},
+        return_value=_read_data_node_content,
     )
     assert snapshot._default_snapshot_content_loader(
         node_path, SnapshotLoadType.Data, None
-    ) == {"minified": {}, "metadata": {}, "data": {}, "parameters": None}
+    ) == {"minified": {}, "metadata": {}, "data": _read_data_node_content}
     patched_node_path_id.assert_called_once()
     patched_node_path_name.assert_called_once()
     patched_read_minified.assert_called_once_with(
@@ -445,7 +446,7 @@ class TestSnapshotLocalStorage:
 
     @pytest.mark.parametrize("load", (True, False))
     def test_search_not_empty_data(self, mocker, load):
-        data = {"k": "v"}
+        data = {"quam": {"k": "v"}}
         search_path = ["a", 1]
         load_patched = mocker.patch.object(self.snapshot, "load")
         mocker.patch.object(
@@ -466,7 +467,7 @@ class TestSnapshotLocalStorage:
             load_patched.assert_called_once_with(SnapshotLoadType.Data)
         else:
             load_patched.assert_not_called()
-        search_patched.assert_called_once_with(data, search_path)
+        search_patched.assert_called_once_with(data["quam"], search_path)
 
     def test_get_latest_snapshots_one(self, mocker, settings):
         load_patched = mocker.patch.object(self.snapshot, "load")
@@ -560,7 +561,7 @@ class TestSnapshotLocalStorage:
                 ".SnapshotLocalStorage.data"
             ),
             new_callable=PropertyMock,
-            side_effect=[{}, None, None],
+            side_effect=[{"quam": {}}, None, None],
         )
         with pytest.raises(QValueException) as ex:
             self.snapshot.compare_by_id(2)
@@ -579,7 +580,7 @@ class TestSnapshotLocalStorage:
                 ".SnapshotLocalStorage.data"
             ),
             new_callable=PropertyMock,
-            side_effect=[{"a": "b"}, {"c": "d"}],
+            side_effect=[{"quam": {"a": "b"}}, {"quam": {"c": "d"}}],
         )
         make_patch_patched = mocker.patch(
             "jsonpatch.make_patch", return_value=[{"diff": "a"}]

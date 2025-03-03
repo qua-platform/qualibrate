@@ -10,11 +10,13 @@ def test_snapshot_get_snapshot_default(
     snapshot.update(
         {
             "data": {
-                "quam": {"node": snapshot_id},
-                "info": "snapshot",
+                "quam": {
+                    "quam": {"node": snapshot_id},
+                    "info": "snapshot",
+                },
+                "parameters": None,
+                "outcomes": None,
             },
-            "parameters": None,
-            "outcomes": None,
         }
     )
     assert response.status_code == 200
@@ -29,32 +31,32 @@ def test_snapshot_get_snapshot_default(
             {
                 "metadata": {},
                 "data": None,
-                "parameters": None,
-                "outcomes": None,
             },
         ),
         (
             2,
             {
                 "data": None,
-                "parameters": None,
-                "outcomes": None,
             },
         ),
         (
             3,
             {
-                "data": {"quam": {"node": 4}, "info": "snapshot"},
-                "parameters": None,
-                "outcomes": None,
+                "data": {
+                    "quam": {"quam": {"node": 4}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
             },
         ),
         (
             4,
             {
-                "data": {"quam": {"node": 4}, "info": "snapshot"},
-                "parameters": None,
-                "outcomes": None,
+                "data": {
+                    "quam": {"quam": {"node": 4}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
             },
         ),
     ),
