@@ -111,6 +111,7 @@ class QualibrationGraph(
             raise StopInspection(
                 "Graph instantiated in inspection mode", instance=self
             )
+        self.run_start = datetime.now().astimezone()
 
     def _add_nodes_and_connections(self) -> None:
         """
@@ -455,7 +456,7 @@ class QualibrationGraph(
         logger.info(
             f"Run graph {self.name} with parameters: {passed_parameters}"
         )
-        created_at = datetime.now().astimezone()
+        self.run_start = datetime.now().astimezone()
         run_error: Optional[RunError] = None
         try:
             self._run(**passed_parameters)
@@ -467,7 +468,7 @@ class QualibrationGraph(
             )
             raise
         finally:
-            run_summary = self._post_run(created_at, run_error)
+            run_summary = self._post_run(self.run_start, run_error)
         return self, run_summary
 
     def _get_qnode_or_error(self, node_name: str) -> NodeTypeVar:
