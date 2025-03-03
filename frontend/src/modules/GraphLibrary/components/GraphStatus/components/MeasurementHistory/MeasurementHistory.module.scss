@@ -7,10 +7,8 @@
 .titleRow {
   display: flex;
   align-items: center;
-  background-color: #2d3338; 
   padding: 8px 12px; 
   font-size: 16px;
-  border: 1px solid #23272a;
   justify-content: space-between;
 }
 
@@ -75,8 +73,6 @@
 }
 
 .contentContainer {
-  background-color: #232629;
-  border: 1px solid #23272a;
   padding: 10px 12px;
   height: calc(100% - 60px);
 }
