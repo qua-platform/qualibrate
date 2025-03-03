@@ -1,13 +1,7 @@
 from collections.abc import Sequence
-from typing import Optional
+from typing import Annotated, Any, Optional
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
-
-from qualibrate.models.node_status import NodeStatus
-from qualibrate.models.outcome import Outcome
-from qualibrate.models.run_summary.run_error import RunError
-from qualibrate.parameters import NodeParameters
-from qualibrate.utils.type_protocols import TargetType
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 __all__ = ["ExecutionHistory", "ExecutionHistoryItem"]
 
@@ -18,19 +12,19 @@ class ExecutionHistoryItem(BaseModel):
     model_config = ConfigDict()
 
     name: str
-    description: Optional[str] = None
-    snapshot_idx: Optional[int] = None
-    status: NodeStatus
-    run_start: AwareDatetime
-    run_end: AwareDatetime
-    parameters: NodeParameters
-    error: Optional[RunError] = None
-    outcomes: dict[TargetType, Outcome] = Field(default_factory=dict)
-
-    @computed_field
-    def run_duration(self) -> float:
-        """Time in seconds node run"""
-        return round((self.run_end - self.run_start).total_seconds(), 3)
+    id: Optional[int] = None
+    created_at: AwareDatetime  # equal to metadata.run_start
+    metadata: Annotated[dict[str, Any], Field(default_factory=dict)]
+    data: Annotated[dict[str, Any], Field(default_factory=dict)]
+    # TODO: add structure for metadata
+    # description: Optional[str] = None # metadata
+    # status: NodeStatus # metadata
+    # run_start: AwareDatetime # metadata
+    # run_end: AwareDatetime # metadata
+    # TODO: add structure for data
+    # parameters: NodeParameters data
+    # error: Optional[RunError] = None # data
+    # outcomes: dict[TargetType, Outcome] = Field(default_factory=dict)
 
 
 class ExecutionHistory(BaseModel):

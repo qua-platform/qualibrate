@@ -81,21 +81,17 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             },
             "outcomes": outcomes,
         }
-        node_contents = (
-            self.data_handler.generate_node_contents(
-                metadata={
-                    "description": node.description,
-                    "run_start": node.run_start.isoformat(
-                        timespec="milliseconds"
-                    ),
-                    "run_end": (
-                        datetime.now()
-                        .astimezone()
-                        .astimezone()
-                        .isoformat(timespec="milliseconds")
-                    ),
-                }
-            )
+        node_contents = self.data_handler.generate_node_contents(
+            metadata={
+                "description": node.description,
+                "run_start": node.run_start.isoformat(timespec="milliseconds"),
+                "run_end": (
+                    datetime.now()
+                    .astimezone()
+                    .astimezone()
+                    .isoformat(timespec="milliseconds")
+                ),
+            }
         )  # TODO directly access idx
         self.data_handler.save_data(
             data=node.results,

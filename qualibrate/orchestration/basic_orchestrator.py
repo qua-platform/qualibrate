@@ -204,14 +204,19 @@ class BasicOrchestrator(
                 self._execution_history.append(
                     ExecutionHistoryItem(
                         name=executed_node.name,
-                        description=executed_node.description,
-                        snapshot_idx=executed_node.snapshot_idx,
-                        outcomes=executed_node.outcomes,
-                        status=new_status,
-                        error=run_error,
-                        run_start=run_start,
-                        run_end=datetime.now().astimezone(),
-                        parameters=executed_node._parameters,
+                        id=executed_node.snapshot_idx,
+                        created_at=run_start,
+                        metadata=dict(
+                            description=executed_node.description,
+                            status=new_status,
+                            run_start=run_start,
+                            run_end=datetime.now().astimezone(),
+                        ),
+                        data=dict(
+                            parameters=executed_node._parameters,
+                            outcomes=executed_node.outcomes,
+                            error=run_error,
+                        ),
                     )
                 )
             # Suppose that all nodes are successfully finish

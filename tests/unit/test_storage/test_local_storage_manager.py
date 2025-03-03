@@ -22,8 +22,10 @@ class DummyNode:
         machine=None,
         results=None,
         outcomes=None,
+        description=None,
     ):
         self.name = name
+        self.description = description
         self.machine = machine
         self.results = results or {"result": 42}
         self.run_start = datetime.now().astimezone()

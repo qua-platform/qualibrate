@@ -74,11 +74,18 @@ def test_run_sequence_no_error(
     assert execution_history == [
         ExecutionHistoryItem(
             name=item.name,
-            status=NodeStatus.finished,
-            run_start=item.run_start,
-            run_end=item.run_end,
-            parameters=item.parameters,
-            outcomes=outcomes,
+            created_at=item.metadata["run_start"],
+            metadata=dict(
+                status=NodeStatus.finished,
+                run_start=item.metadata["run_start"],
+                run_end=item.metadata["run_end"],
+                description=None,
+            ),
+            data=dict(
+                parameters=item.data["parameters"],
+                outcomes=outcomes,
+                error=None,
+            ),
         )
         for item, outcomes in zip(execution_history, expected_outcomes)
     ]
@@ -105,33 +112,45 @@ def test_run_sequence_with_error(
     execution_history = g._orchestrator._execution_history
     assert execution_history[0] == ExecutionHistoryItem(
         name=execution_history[0].name,
-        status=NodeStatus.finished,
-        parameters=execution_history[0].parameters,
-        run_start=execution_history[0].run_start,
-        run_end=execution_history[0].run_end,
-        outcomes={
-            "q1": Outcome.SUCCESSFUL,
-            "q2": Outcome.SUCCESSFUL,
-            "q3": Outcome.SUCCESSFUL,
-            "q4": Outcome.SUCCESSFUL,
-        },
+        created_at=execution_history[0].metadata["run_start"],
+        metadata=dict(
+            description=None,
+            status=NodeStatus.finished,
+            run_start=execution_history[0].metadata["run_start"],
+            run_end=execution_history[0].metadata["run_end"],
+        ),
+        data=dict(
+            parameters=execution_history[0].data["parameters"],
+            outcomes={
+                "q1": Outcome.SUCCESSFUL,
+                "q2": Outcome.SUCCESSFUL,
+                "q3": Outcome.SUCCESSFUL,
+                "q4": Outcome.SUCCESSFUL,
+            },
+            error=None,
+        ),
     )
     assert execution_history[1] == ExecutionHistoryItem(
         name="forth_node",
-        description="Description.",
-        status=NodeStatus.failed,
-        parameters=execution_history[1].parameters,
-        error=RunError(
-            error_class="ValueError",
-            message="Execution error",
-            traceback=execution_history[1].error.traceback,
+        created_at=execution_history[1].metadata["run_start"],
+        metadata=dict(
+            description="Description.",
+            status=NodeStatus.failed,
+            run_start=execution_history[1].metadata["run_start"],
+            run_end=execution_history[1].metadata["run_end"],
         ),
-        outcomes={
-            "q1": Outcome.SUCCESSFUL,
-            "q2": Outcome.SUCCESSFUL,
-            "q3": Outcome.SUCCESSFUL,
-            "q4": Outcome.SUCCESSFUL,
-        },
-        run_start=execution_history[1].run_start,
-        run_end=execution_history[1].run_end,
+        data=dict(
+            parameters=execution_history[1].data["parameters"],
+            error=RunError(
+                error_class="ValueError",
+                message="Execution error",
+                traceback=execution_history[1].data["error"].traceback,
+            ),
+            outcomes={
+                "q1": Outcome.SUCCESSFUL,
+                "q2": Outcome.SUCCESSFUL,
+                "q3": Outcome.SUCCESSFUL,
+                "q4": Outcome.SUCCESSFUL,
+            },
+        ),
     )
