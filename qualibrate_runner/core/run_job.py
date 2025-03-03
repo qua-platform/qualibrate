@@ -10,12 +10,9 @@ from qualibrate.models.run_summary.node import NodeRunSummary
 from qualibrate.qualibration_library import QualibrationLibrary
 
 from qualibrate_runner.config import State
-from qualibrate_runner.core.models.last_run import (
-    LastRun,
-    RunError,
-    RunnableType,
-    RunStatus,
-)
+from qualibrate_runner.core.models.common import RunError
+from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
+from qualibrate_runner.core.models.last_run import LastRun
 from qualibrate_runner.core.types import QGraphType, QLibraryType, QNodeType
 
 
@@ -41,10 +38,10 @@ def run_node(
     state: State,
 ) -> None:
     state.run_item = node
-    run_status = RunStatus.RUNNING
+    run_status = RunStatusEnum.RUNNING
     state.last_run = LastRun(
         name=node.name,
-        status=RunStatus.RUNNING,
+        status=RunStatusEnum.RUNNING,
         idx=-1,
         passed_parameters=passed_input_parameters,
         started_at=datetime.now().astimezone(),
@@ -55,18 +52,18 @@ def run_node(
     try:
         node, _ = node.run(**passed_input_parameters)
     except Exception as ex:
-        run_status = RunStatus.ERROR
+        run_status = RunStatusEnum.ERROR
         run_error = RunError(
             error_class=ex.__class__.__name__,
             message=str(ex),
             traceback=traceback.format_tb(ex.__traceback__),
         )
-        run_status = RunStatus.ERROR
+        run_status = RunStatusEnum.ERROR
         raise
     else:
         _idx = node.snapshot_idx if hasattr(node, "snapshot_idx") else -1
         idx = _idx if _idx is not None else -1
-        run_status = RunStatus.FINISHED
+        run_status = RunStatusEnum.FINISHED
     finally:
         state.last_run = LastRun(
             name=state.last_run.name,
@@ -88,7 +85,7 @@ def run_workflow(
     passed_input_parameters: Mapping[str, Any],
     state: State,
 ) -> None:
-    run_status = RunStatus.RUNNING
+    run_status = RunStatusEnum.RUNNING
     state.last_run = LastRun(
         name=workflow.name,
         status=run_status,
@@ -111,7 +108,7 @@ def run_workflow(
             **input_parameters.parameters.model_dump(),
         )
     except Exception as ex:
-        run_status = RunStatus.ERROR
+        run_status = RunStatusEnum.ERROR
         run_error = RunError(
             error_class=ex.__class__.__name__,
             message=str(ex),
@@ -121,7 +118,7 @@ def run_workflow(
     else:
         idx = workflow.snapshot_idx if hasattr(workflow, "snapshot_idx") else -1
         idx = idx if idx is not None else -1
-        run_status = RunStatus.FINISHED
+        run_status = RunStatusEnum.FINISHED
     finally:
         state.last_run = LastRun(
             name=state.last_run.name,

@@ -1,53 +1,26 @@
 from collections.abc import Mapping
 from datetime import datetime
-from enum import Enum
 from typing import Annotated, Any, Optional, Union
 
 from pydantic import AwareDatetime, BaseModel, Field, computed_field
 from qualibrate.models.run_summary.graph import GraphRunSummary
 from qualibrate.models.run_summary.node import NodeRunSummary
 
+from qualibrate_runner.core.models.common import RunError, StateUpdate
+from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
 
-class RunStatus(Enum):
-    """Enum representing the status of a run."""
-
-    RUNNING = "running"
-    FINISHED = "finished"
-    ERROR = "error"
-
-
-class RunnableType(Enum):
-    """Enum representing the type of runnable entity."""
-
-    NODE = "node"
-    GRAPH = "graph"
-
-
-class RunError(BaseModel):
-    """Model representing an error encountered during execution."""
-
-    error_class: str = Field(..., description="The class of the error.")
-    message: str = Field(..., description="The error message.")
-    traceback: list[str] = Field(..., description="The traceback of the error.")
-
-
-class StateUpdate(BaseModel):
-    key: str
-    attr: Union[str, int]
-    old: Any
-    new: Any
-    updated: bool = False
+__all__ = ["LastRun"]
 
 
 class LastRun(BaseModel):
     """Model representing the last executed run."""
 
     status: Annotated[
-        RunStatus,
+        RunStatusEnum,
         Field(
             description=(
                 "The status of the run. "
-                f"Possible options: {tuple(v.value for v in RunStatus)}."
+                f"Possible options: {tuple(v.value for v in RunStatusEnum)}."
             ),
         ),
     ]
@@ -90,7 +63,7 @@ class LastRun(BaseModel):
     state_updates: Union[
         Mapping[str, StateUpdate], Mapping[str, Mapping[str, StateUpdate]]
     ] = Field(
-        default_factory=lambda: dict(),
+        default_factory=dict,  # type: ignore[arg-type]
         description="The state updates during the run.",
     )
     error: Annotated[

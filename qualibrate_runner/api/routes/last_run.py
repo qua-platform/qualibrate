@@ -8,7 +8,8 @@ from qualibrate.models.execution_history import ExecutionHistory
 from qualibrate_runner.api.dependencies import get_state
 from qualibrate_runner.api.utils import get_model_docstring
 from qualibrate_runner.config import State
-from qualibrate_runner.core.models.last_run import LastRun, RunStatus
+from qualibrate_runner.core.models.enums import RunStatusEnum
+from qualibrate_runner.core.models.last_run import LastRun
 from qualibrate_runner.core.models.workflow import WorkflowStatus
 from qualibrate_runner.core.types import QGraphType
 
@@ -58,7 +59,7 @@ def get_workflow_status(
         last_run.run_duration if last_run else 0.0  # type: ignore
     )
     return WorkflowStatus(
-        status=last_run.status if last_run else RunStatus.FINISHED,
+        status=last_run.status if last_run else RunStatusEnum.FINISHED,
         active=state.is_running,
         # TODO: remove type ignore
         active_node_name=graph.active_node_name,

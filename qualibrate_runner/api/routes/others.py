@@ -3,17 +3,11 @@ from typing import Annotated, Optional, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from qualibrate_runner.api.dependencies import (
-    get_state,
-)
-from qualibrate_runner.config import (
-    State,
-)
-from qualibrate_runner.core.models.last_run import (
-    LastRun,
-    RunStatus,
-    StateUpdate,
-)
+from qualibrate_runner.api.dependencies import get_state
+from qualibrate_runner.config import State
+from qualibrate_runner.core.models.common import StateUpdate
+from qualibrate_runner.core.models.enums import RunStatusEnum
+from qualibrate_runner.core.models.last_run import LastRun
 
 others_router = APIRouter()
 
@@ -58,7 +52,10 @@ def state_updated(
     state: Annotated[State, Depends(get_state)],
     key: str,
 ) -> Optional[LastRun]:
-    if state.last_run is None or state.last_run.status != RunStatus.FINISHED:
+    if (
+        state.last_run is None
+        or state.last_run.status != RunStatusEnum.FINISHED
+    ):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Node not executed or finished unsuccessful.",
