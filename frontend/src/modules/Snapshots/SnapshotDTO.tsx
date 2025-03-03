@@ -7,8 +7,11 @@ export interface SnapshotDTO {
   result?: object;
   data?: object;
   metadata?: {
+    description?: string | null;
     data_path: string;
     name: string;
+    run_start?: string;
+    run_end?: string;
   };
   parents: [];
   run_start?: string;

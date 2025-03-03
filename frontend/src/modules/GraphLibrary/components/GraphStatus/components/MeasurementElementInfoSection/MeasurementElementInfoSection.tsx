@@ -4,7 +4,7 @@ import { classNames } from "../../../../../../utils/classnames";
 
 interface MeasurementElementStatusInfoAndParametersProps {
   title?: string;
-  data?: Record<string, string | number | string[]>;
+  data?: Record<string, string | number | string[] | object> | object;
   isInfoSection?: boolean;
   filterEmpty?: boolean;
   className: string;

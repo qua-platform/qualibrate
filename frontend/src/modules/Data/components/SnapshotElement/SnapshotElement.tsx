@@ -8,12 +8,14 @@ import {
   MeasurementElementStatusInfoAndParameters,
 } from "../../../GraphLibrary/components/GraphStatus/components/MeasurementElementInfoSection/MeasurementElementInfoSection";
 import { classNames } from "../../../../utils/classnames";
+import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; handleOnClick: () => void }> = ({
   el,
   isSelected,
   handleOnClick,
 }) => {
+  const { jsonData } = useSnapshotsContext();
   const formatDateTime = (dateTimeString: string) => {
     const [date, time] = dateTimeString.split("T");
     const [timeWithoutMilliseconds] = time.split("+");
@@ -35,8 +37,10 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
               data={{
                 ...(el.status !== undefined && { Status: el.status }),
                 ...(el.run_duration !== undefined && { "Run duration": `${el.run_duration}s` }),
-                ...(el.run_start !== undefined && { "Run start": formatDateTime(el.run_start) }),
-                "Run end": formatDateTime(el.created_at),
+                ...((el.metadata?.run_start !== undefined || el.run_start !== undefined) && {
+                  "Run start": formatDateTime(el.metadata?.run_start ?? el.run_start ?? "-"),
+                }),
+                "Run end": formatDateTime(el.metadata?.run_end ?? el.created_at),
               }}
               isInfoSection={true}
               className={classNames(additionalStyles.runInfo, styles.additionalWidth)}
@@ -44,12 +48,12 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
             />
             <MeasurementElementStatusInfoAndParameters
               title="Parameters"
-              data={el.parameters}
+              data={(jsonData as { parameters: object })?.parameters}
               filterEmpty={true}
               className={classNames(additionalStyles.parameters, styles.additionalWidth)}
             />
           </div>
-          <MeasurementElementOutcomes outcomes={el.outcomes} />
+          <MeasurementElementOutcomes outcomes={(jsonData as { outcomes: object })?.outcomes} />
         </div>
       )}
     </div>
