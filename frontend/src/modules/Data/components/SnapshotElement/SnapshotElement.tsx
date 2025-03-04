@@ -32,7 +32,7 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
             <MeasurementElementStatusInfoAndParameters
               data={{
                 ...(el.status && { Status: el.status }),
-                ...(el.metadata?.run_duration !== undefined && { "Run duration": `${el.metadata?.run_duration}s` }),
+                ...(el.metadata?.run_duration && { "Run duration": `${el.metadata?.run_duration}s` }),
                 ...(el.metadata?.run_start && {
                   "Run start": formatDateTime(el.metadata?.run_start),
                 }),
