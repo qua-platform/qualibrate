@@ -26,7 +26,6 @@ Check fields below.
 
 Available only in runtime. Reset on server restart.
 """,
-    response_model=LastRun,
     response_description=f"""
 The last run if available, `None` otherwise.
 

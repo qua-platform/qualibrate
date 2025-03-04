@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, Optional, Union
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import AwareDatetime, BaseModel, Field, computed_field
 from qualibrate.models.run_summary.graph import GraphRunSummary
 from qualibrate.models.run_summary.node import NodeRunSummary
 
@@ -52,10 +52,11 @@ class LastRun(BaseModel):
         ),
     ]
     started_at: Annotated[
-        datetime, Field(..., description="The start time of the run.")
+        AwareDatetime, Field(..., description="The start time of the run.")
     ]
     completed_at: Annotated[
-        Optional[datetime], Field(description="The completion time of the run.")
+        Optional[AwareDatetime],
+        Field(description="The completion time of the run."),
     ] = None
     name: Annotated[str, Field(description="The name of the run.")]
     idx: Annotated[int, Field(..., description="The index of the run.")]
@@ -102,6 +103,6 @@ class LastRun(BaseModel):
         duration = (
             self.completed_at - self.started_at
             if self.completed_at is not None
-            else datetime.now() - self.started_at
+            else datetime.now().astimezone() - self.started_at
         )
         return round(duration.total_seconds(), 3)
