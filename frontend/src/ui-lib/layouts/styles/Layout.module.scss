@@ -73,6 +73,10 @@
   border-bottom: unset;
 }
 
+._tabset_header_sizer {
+  display: none;
+}
+
 .emptyPlaceholder {
   height: 100%;
   display: flex;
