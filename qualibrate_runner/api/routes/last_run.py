@@ -74,7 +74,7 @@ def get_workflow_status(
 def get_execution_history(
     state: Annotated[State, Depends(get_state)],
     reverse: bool = False,
-) -> Optional[Mapping[str, Any]]:
+) -> ExecutionHistory:
     if not isinstance(state.run_item, QualibrationGraph):
         return None
     graph: QGraphType = state.run_item
@@ -84,7 +84,4 @@ def get_execution_history(
     history: ExecutionHistory = orch.get_execution_history()
     if reverse:
         history.items = list(reversed(history.items))
-    return cast(
-        Mapping[str, Any],
-        history.model_dump(mode="json", serialize_as_any=True),
-    )
+    return history
