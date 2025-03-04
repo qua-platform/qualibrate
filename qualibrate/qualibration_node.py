@@ -140,11 +140,11 @@ class QualibrationNode(
         # Initialize the ActionManager to handle run_action logic.
         self._action_manager = ActionManager()
         self.namespace: dict[str, Any] = {}
-
         if self.modes.inspection:
             raise StopInspection(
                 "Node instantiated in inspection mode", instance=self
             )
+        self.run_start = datetime.now().astimezone()
         self.__class__.active_node = self
         last_executed_node_ctx.set(self)
 
@@ -519,7 +519,7 @@ class QualibrationNode(
             name=self.name,
             description=self.description,
             created_at=created_at,
-            completed_at=datetime.now(),
+            completed_at=datetime.now().astimezone(),
             initial_targets=initial_targets,
             parameters=parameters,
             outcomes=self.outcomes,
@@ -576,7 +576,7 @@ class QualibrationNode(
         params_dict.update(passed_parameters)
         parameters = self.parameters.model_validate(params_dict)
         initial_targets = copy(parameters.targets) if parameters.targets else []
-        created_at = datetime.now()
+        self.run_start = datetime.now().astimezone()
         run_error: Optional[RunError] = None
 
         if run_modes_ctx.get() is not None:
@@ -613,7 +613,7 @@ class QualibrationNode(
 
             run_summary = self._post_run(
                 last_executed_node,
-                created_at,
+                self.run_start,
                 initial_targets,
                 parameters,
                 run_error,

@@ -1,8 +1,13 @@
 from collections.abc import Mapping, Sequence
-from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field, computed_field, field_serializer
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    Field,
+    computed_field,
+    field_serializer,
+)
 
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.run_error import RunError
@@ -15,8 +20,8 @@ __all__ = ["BaseRunSummary"]
 class BaseRunSummary(BaseModel):
     name: str
     description: Optional[str] = None
-    created_at: datetime
-    completed_at: datetime
+    created_at: AwareDatetime
+    completed_at: AwareDatetime
     parameters: Optional[RunnableParameters] = None
     outcomes: dict[TargetType, Outcome]
     error: Optional[RunError] = None

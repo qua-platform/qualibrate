@@ -4,7 +4,11 @@ from pathlib import Path
 import pytest
 from pydantic import Field
 
-from qualibrate.models.execution_history import ExecutionHistoryItem
+from qualibrate.models.execution_history import (
+    ExecutionHistoryItem,
+    ItemData,
+    ItemMetadata,
+)
 from qualibrate.models.node_status import NodeStatus
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.run_error import RunError
@@ -73,12 +77,19 @@ def test_run_sequence_no_error(
     ]
     assert execution_history == [
         ExecutionHistoryItem(
-            name=item.name,
-            status=NodeStatus.finished,
-            run_start=item.run_start,
-            run_end=item.run_end,
-            parameters=item.parameters,
-            outcomes=outcomes,
+            created_at=item.metadata.run_start,
+            metadata=ItemMetadata(
+                name=item.metadata.name,
+                status=NodeStatus.finished,
+                run_start=item.metadata.run_start,
+                run_end=item.metadata.run_end,
+                description=None,
+            ),
+            data=ItemData(
+                parameters=item.data.parameters,
+                outcomes=outcomes,
+                error=None,
+            ),
         )
         for item, outcomes in zip(execution_history, expected_outcomes)
     ]
@@ -104,34 +115,46 @@ def test_run_sequence_with_error(
         g._orchestrator.traverse_graph(g, g.full_parameters.parameters.targets)
     execution_history = g._orchestrator._execution_history
     assert execution_history[0] == ExecutionHistoryItem(
-        name=execution_history[0].name,
-        status=NodeStatus.finished,
-        parameters=execution_history[0].parameters,
-        run_start=execution_history[0].run_start,
-        run_end=execution_history[0].run_end,
-        outcomes={
-            "q1": Outcome.SUCCESSFUL,
-            "q2": Outcome.SUCCESSFUL,
-            "q3": Outcome.SUCCESSFUL,
-            "q4": Outcome.SUCCESSFUL,
-        },
+        created_at=execution_history[0].metadata.run_start,
+        metadata=ItemMetadata(
+            name="first_node",
+            description=None,
+            status=NodeStatus.finished,
+            run_start=execution_history[0].metadata.run_start,
+            run_end=execution_history[0].metadata.run_end,
+        ),
+        data=ItemData(
+            parameters=execution_history[0].data.parameters,
+            outcomes={
+                "q1": Outcome.SUCCESSFUL,
+                "q2": Outcome.SUCCESSFUL,
+                "q3": Outcome.SUCCESSFUL,
+                "q4": Outcome.SUCCESSFUL,
+            },
+            error=None,
+        ),
     )
     assert execution_history[1] == ExecutionHistoryItem(
-        name="forth_node",
-        description="Description.",
-        status=NodeStatus.failed,
-        parameters=execution_history[1].parameters,
-        error=RunError(
-            error_class="ValueError",
-            message="Execution error",
-            traceback=execution_history[1].error.traceback,
+        created_at=execution_history[1].metadata.run_start,
+        metadata=ItemMetadata(
+            name="forth_node",
+            description="Description.",
+            status=NodeStatus.failed,
+            run_start=execution_history[1].metadata.run_start,
+            run_end=execution_history[1].metadata.run_end,
         ),
-        outcomes={
-            "q1": Outcome.SUCCESSFUL,
-            "q2": Outcome.SUCCESSFUL,
-            "q3": Outcome.SUCCESSFUL,
-            "q4": Outcome.SUCCESSFUL,
-        },
-        run_start=execution_history[1].run_start,
-        run_end=execution_history[1].run_end,
+        data=ItemData(
+            parameters=execution_history[1].data.parameters,
+            error=RunError(
+                error_class="ValueError",
+                message="Execution error",
+                traceback=execution_history[1].data.error.traceback,
+            ),
+            outcomes={
+                "q1": Outcome.SUCCESSFUL,
+                "q2": Outcome.SUCCESSFUL,
+                "q3": Outcome.SUCCESSFUL,
+                "q4": Outcome.SUCCESSFUL,
+            },
+        ),
     )
