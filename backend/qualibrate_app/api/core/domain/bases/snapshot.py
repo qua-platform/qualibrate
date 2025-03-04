@@ -105,7 +105,8 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         if self._load_type < SnapshotLoadType.Data and not load:
             return None
         self.load(SnapshotLoadType.Data)
-        data = self.data
+        # TODO: update logic; not use quam
+        data = (self.data or {}).get("quam")
         if data is None:
             return None
         return get_subpath_value_on_any_depth(data, target_key)
