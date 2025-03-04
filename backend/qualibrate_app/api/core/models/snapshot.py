@@ -1,6 +1,6 @@
-from typing import Any, Optional
+from typing import Annotated, Any, Optional
 
-from pydantic import Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 from qualibrate_app.api.core.models.base import ModelWithIdCreatedAt
 from qualibrate_app.api.core.types import IdType
@@ -10,10 +10,29 @@ class SimplifiedSnapshot(ModelWithIdCreatedAt):
     parents: list[IdType]
 
 
+class SnapshotMetadata(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    status: Optional[str] = None
+    description: Optional[str] = None
+    run_start: Optional[AwareDatetime] = None
+    run_end: Optional[AwareDatetime] = None
+
+
 class SimplifiedSnapshotWithMetadata(SimplifiedSnapshot):
-    metadata: dict[str, Any]
+    metadata: SnapshotMetadata
+
+
+class SnapshotData(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    quam: Optional[dict[str, Any]] = None
+    parameters: Optional[dict[str, Any]] = None
+    outcomes: Optional[dict[str, Any]] = None
 
 
 class Snapshot(SimplifiedSnapshot):
-    metadata: dict[str, Any] = Field(default_factory=dict)
-    data: Optional[dict[str, Any]] = None
+    metadata: Annotated[
+        SnapshotMetadata, Field(default_factory=SnapshotMetadata)
+    ]
+    data: Optional[SnapshotData] = None

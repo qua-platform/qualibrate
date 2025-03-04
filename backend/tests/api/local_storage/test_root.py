@@ -58,7 +58,12 @@ def test_root_get_snapshot_default(
         (
             1,
             {
-                "metadata": {},
+                "metadata": {
+                    "description": None,
+                    "run_end": None,
+                    "run_start": None,
+                    "status": None,
+                },
                 "data": None,
             },
         ),
@@ -119,7 +124,12 @@ def test_root_get_latest_snapshot_default(
         (
             1,
             {
-                "metadata": {},
+                "metadata": {
+                    "description": None,
+                    "run_end": None,
+                    "run_start": None,
+                    "status": None,
+                },
                 "data": None,
             },
         ),
