@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Any, Optional
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
 
 from qualibrate.models.node_status import NodeStatus
 from qualibrate.models.outcome import Outcome
@@ -25,6 +25,10 @@ class ItemMetadata(BaseModel):
     description: Optional[str] = None
     run_start: AwareDatetime
     run_end: AwareDatetime
+
+    @computed_field
+    def run_duration(self) -> float:
+        return round((self.run_end - self.run_start).total_seconds(), 3)
 
 
 class ItemData(BaseModel):
