@@ -7,7 +7,11 @@ export const MeasurementElementList: React.FC<IMeasurementHistoryListProps> = ({
   return (
     <div className={styles.wrapper}>
       {(listOfMeasurements ?? []).map((el, index) => (
-        <MeasurementElement element={el} key={`${el.snapshot_idx ?? el.name ?? "-"}-${index}`} dataMeasurementId={el.name ?? ""} />
+        <MeasurementElement
+          element={el}
+          key={`${el.id ?? el.metadata?.name ?? "-"}-${index}`}
+          dataMeasurementId={el.metadata?.name ?? ""}
+        />
       ))}
     </div>
   );

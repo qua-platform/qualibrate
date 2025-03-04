@@ -17,7 +17,8 @@ interface MeasurementElementProps {
 // Formats a date-time string into a more readable format.
 export const formatDateTime = (dateTimeString: string) => {
   const [date, time] = dateTimeString.split("T");
-  const [timeWithoutMilliseconds] = time.split(".");
+  const timeWithoutZone = time.split("+")[0].split("Z")[0];
+  const timeWithoutMilliseconds = timeWithoutZone.split(".")[0];
   return `${date} ${timeWithoutMilliseconds}`;
 };
 
@@ -29,16 +30,16 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
 
   // Check if the current measurement is selected in either the list or Cytoscape graph
   const measurementSelected =
-    selectedItemName && (selectedItemName === element.snapshot_idx?.toString() || selectedItemName === element.name);
+    selectedItemName && (selectedItemName === element.id?.toString() || selectedItemName === element.metadata?.name);
   const cytoscapeNodeSelected =
     selectedNodeNameInWorkflow &&
-    (selectedNodeNameInWorkflow === element.snapshot_idx?.toString() || selectedNodeNameInWorkflow === element.name);
+    (selectedNodeNameInWorkflow === element.id?.toString() || selectedNodeNameInWorkflow === element.metadata?.name);
 
   const getDotStyle = () => {
-    if (!element.outcomes || Object.keys(element.outcomes).length === 0) {
+    if (!element.data?.outcomes || Object.keys(element.data?.outcomes).length === 0) {
       return { backgroundColor: "#40a8f5" }; // Default blue color if no outcomes
     }
-    const outcomes = Object.values(element.outcomes);
+    const outcomes = Object.values(element.data?.outcomes);
     const total = outcomes.length;
     const successes = outcomes.filter((status) => status === "successful").length;
     const successPercentage = total !== 0 ? (successes / total) * 100 : 0;
@@ -48,13 +49,13 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
   };
 
   const handleOnClick = () => {
-    if (selectedItemName !== element.name && trackLatest) {
+    if (selectedItemName !== element.metadata?.name && trackLatest) {
       setTrackLatest(false);
     }
-    setSelectedItemName(element.name);
-    setSelectedNodeNameInWorkflow(element.name);
-    if (element.snapshot_idx) {
-      fetchResultsAndDiffData(element.snapshot_idx);
+    setSelectedItemName(element.metadata?.name);
+    setSelectedNodeNameInWorkflow(element.metadata?.name);
+    if (element.id) {
+      fetchResultsAndDiffData(element.id);
     } else {
       setResult({});
       setDiffData({});
@@ -65,18 +66,18 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
       <div className={styles.row} onClick={handleOnClick}>
         <div className={styles.dot} style={getDotStyle()}></div>
         <div className={styles.titleOrName}>
-          #{element.snapshot_idx} {element.name}
+          #{element.id} {element.metadata?.name}
         </div>
-        <div className={styles.description}>{element.description}</div>
+        <div className={styles.description}>{element.metadata?.description}</div>
       </div>
       {(measurementSelected || cytoscapeNodeSelected) && (
         <div className={styles.expandedContent}>
           <div className={styles.runInfoAndParameters}>
             <MeasurementElementStatusInfoAndParameters
               data={{
-                Status: element.status || "Unknown",
-                "Run duration": `${element.run_duration}s`,
-                "Run start": formatDateTime(element.run_start),
+                Status: element.metadata?.status || "Unknown",
+                ...(element.metadata?.run_duration !== undefined && { "Run duration": `${element.metadata?.run_duration}s` }),
+                ...(element.metadata?.run_start !== undefined && { "Run start": formatDateTime(element.metadata?.run_start) }),
               }}
               isInfoSection={true}
               className={styles.runInfo}
@@ -84,12 +85,12 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
             />
             <MeasurementElementStatusInfoAndParameters
               title="Parameters"
-              data={element.parameters || {}}
+              data={element.data?.parameters || {}}
               filterEmpty={true}
               className={styles.parameters}
             />
           </div>
-          <MeasurementElementOutcomes outcomes={element.outcomes} />
+          <MeasurementElementOutcomes outcomes={element.data?.outcomes} />
         </div>
       )}
     </div>

@@ -9,6 +9,7 @@ import {
 } from "../../../GraphLibrary/components/GraphStatus/components/MeasurementElementInfoSection/MeasurementElementInfoSection";
 import { classNames } from "../../../../utils/classnames";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
+import { formatDateTime } from "../../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
 
 export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; handleOnClick: () => void }> = ({
   el,
@@ -16,11 +17,6 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
   handleOnClick,
 }) => {
   const { jsonData } = useSnapshotsContext();
-  const formatDateTime = (dateTimeString: string) => {
-    const [date, time] = dateTimeString.split("T");
-    const [timeWithoutMilliseconds] = time.split("+");
-    return `${date} ${timeWithoutMilliseconds}`;
-  };
   return (
     <div className={styles.wrapper}>
       <div className={styles.headerWrapper} onClick={handleOnClick}>
