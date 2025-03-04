@@ -1,9 +1,39 @@
 from collections.abc import Sequence
-from typing import Annotated, Any, Optional
+from typing import Any, Optional
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
-__all__ = ["ExecutionHistory", "ExecutionHistoryItem"]
+from qualibrate.models.node_status import NodeStatus
+from qualibrate.models.outcome import Outcome
+from qualibrate.models.run_summary.run_error import RunError
+from qualibrate.parameters import NodeParameters
+from qualibrate.utils.type_protocols import TargetType
+
+__all__ = [
+    "ExecutionHistory",
+    "ExecutionHistoryItem",
+    "ItemData",
+    "ItemMetadata",
+]
+
+
+class ItemMetadata(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    name: str
+    status: NodeStatus
+    description: Optional[str] = None
+    run_start: AwareDatetime
+    run_end: AwareDatetime
+
+
+class ItemData(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    quam: Optional[dict[str, Any]] = None
+    parameters: NodeParameters
+    outcomes: dict[TargetType, Outcome] = Field(default_factory=dict)
+    error: Optional[RunError] = None
 
 
 class ExecutionHistoryItem(BaseModel):
@@ -11,11 +41,10 @@ class ExecutionHistoryItem(BaseModel):
 
     model_config = ConfigDict()
 
-    name: str
     id: Optional[int] = None
-    created_at: AwareDatetime  # equal to metadata.run_start
-    metadata: Annotated[dict[str, Any], Field(default_factory=dict)]
-    data: Annotated[dict[str, Any], Field(default_factory=dict)]
+    created_at: AwareDatetime
+    metadata: ItemMetadata
+    data: ItemData
     # TODO: add structure for metadata
     # description: Optional[str] = None # metadata
     # status: NodeStatus # metadata
