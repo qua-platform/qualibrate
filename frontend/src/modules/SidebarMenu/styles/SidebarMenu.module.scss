@@ -8,7 +8,6 @@
 }
 
 .sidebarMenu {
-  position: absolute;
   top: 0;
   left: 0;
   width: variables.$sidebar_collapsed_width;
@@ -29,11 +28,11 @@
 }
 
 .collapsed {
-  width: 80px;
+  width: 70px;
 }
 
 .expanded {
-  width: 220px;
+  width: 200px;
 }
 
 .qualibrateLogo {
