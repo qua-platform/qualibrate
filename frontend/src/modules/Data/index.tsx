@@ -1,6 +1,5 @@
 import React from "react";
 import styles from "../Data/Data.module.scss";
-import cyKeys from "../../utils/cyKeys";
 import useModuleStyle from "../../ui-lib/hooks/useModuleStyle";
 import { classNames } from "../../utils/classnames";
 import { SnapshotsContextProvider, useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
@@ -26,16 +25,17 @@ const Data = () => {
   return (
     <div ref={ref} className={styles.wrapper}>
       <div className={classNames(styles.explorer)}>
-        <div className={classNames(styles.data)}>
-          <div data-cy={cyKeys.data.EXPERIMENT_LIST}></div>
-          <TimelineGraph
-            allSnapshots={allSnapshots}
-            setFlag={setFlag}
-            selectedSnapshotIndex={selectedSnapshotIndex}
-            setSelectedSnapshotIndex={setSelectedSnapshotIndex}
-            setSelectedSnapshotId={setSelectedSnapshotId}
-            fetchOneGitgraphSnapshot={fetchOneGitgraphSnapshot}
-          />
+        <div className={classNames(styles.dataWrapper)}>
+          <div className={classNames(styles.data)}>
+            <TimelineGraph
+              allSnapshots={allSnapshots}
+              setFlag={setFlag}
+              selectedSnapshotIndex={selectedSnapshotIndex}
+              setSelectedSnapshotIndex={setSelectedSnapshotIndex}
+              setSelectedSnapshotId={setSelectedSnapshotId}
+              fetchOneGitgraphSnapshot={fetchOneGitgraphSnapshot}
+            />
+          </div>
           <PaginationWrapper numberOfPages={totalPages} setPageNumber={setPageNumber} />
         </div>
         <div className={styles.viewer}>
