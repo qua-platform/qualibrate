@@ -9,7 +9,7 @@ const TitleBarMenu: React.FunctionComponent = () => {
   // const { values } = useTitleBarContextProvider();
   return (
     <>
-      <div className={styles.wrapper}>
+      <div className={styles.wrapper} data-testid="title-wrapper">
         <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
         {/*{(values.menuCards ?? []).map((card, index) => {*/}
         {/*  return <TitleBarMenuCard key={`${card}_${index}`} card={card} />;*/}
