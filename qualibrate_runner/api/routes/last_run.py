@@ -74,7 +74,7 @@ def get_workflow_status(
 def get_execution_history(
     state: Annotated[State, Depends(get_state)],
     reverse: bool = False,
-) -> ExecutionHistory:
+) -> Optional[ExecutionHistory]:
     if not isinstance(state.run_item, QualibrationGraph):
         return None
     graph: QGraphType = state.run_item
