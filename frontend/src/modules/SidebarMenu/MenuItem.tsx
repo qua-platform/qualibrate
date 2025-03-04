@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Module } from "../../routing/ModulesRegistry";
 import styles from "./styles/MenuItem.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
