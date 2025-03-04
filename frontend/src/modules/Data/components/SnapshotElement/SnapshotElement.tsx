@@ -36,8 +36,8 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
                 ...(el.metadata?.run_start && {
                   "Run start": formatDateTime(el.metadata?.run_start),
                 }),
-                ...(el.metadata?.run_end && {
-                  "Run end": formatDateTime(el.metadata?.run_end),
+                ...((el.metadata?.run_end || el.created_at) && {
+                  "Run end": formatDateTime(el.metadata?.run_end ?? el.created_at),
                 }),
               }}
               isInfoSection={true}
