@@ -1,6 +1,6 @@
 from typing import Annotated, Any, Optional
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
 
 from qualibrate_app.api.core.models.base import ModelWithIdCreatedAt
 from qualibrate_app.api.core.types import IdType
@@ -17,6 +17,12 @@ class SnapshotMetadata(BaseModel):
     description: Optional[str] = None
     run_start: Optional[AwareDatetime] = None
     run_end: Optional[AwareDatetime] = None
+
+    @computed_field
+    def run_duration(self) -> Optional[float]:
+        if self.run_start is None or self.run_end is None:
+            return None
+        return round((self.run_end - self.run_start).total_seconds(), 3)
 
 
 class SimplifiedSnapshotWithMetadata(SimplifiedSnapshot):
