@@ -136,8 +136,6 @@ class NodesParameters(RunnableParameters):
 class GraphParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[Optional[str]] = "qubits"
 
-    qubits: list[TargetType] = Field(default_factory=list)
-
     @classmethod
     def serialize(
         cls, exclude_targets: bool = False, **kwargs: Any
