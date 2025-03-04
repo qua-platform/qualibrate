@@ -33,10 +33,12 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
               data={{
                 ...(el.status && { Status: el.status }),
                 ...(el.metadata?.run_duration !== undefined && { "Run duration": `${el.metadata?.run_duration}s` }),
-                ...((el.metadata?.run_start || el.metadata?.run_start) && {
-                  "Run start": formatDateTime(el.metadata?.run_start ?? el.metadata?.run_start ?? "-"),
+                ...(el.metadata?.run_start && {
+                  "Run start": formatDateTime(el.metadata?.run_start),
                 }),
-                "Run end": formatDateTime(el.metadata?.run_end ?? el.created_at),
+                ...(el.metadata?.run_end && {
+                  "Run end": formatDateTime(el.metadata?.run_end),
+                }),
               }}
               isInfoSection={true}
               className={classNames(additionalStyles.runInfo, styles.additionalWidth)}
