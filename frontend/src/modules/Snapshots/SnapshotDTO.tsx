@@ -10,12 +10,11 @@ export interface SnapshotDTO {
     description?: string | null;
     data_path: string;
     name: string;
-    run_start?: string;
-    run_end?: string;
+    run_start?: string | null;
+    run_end?: string | null;
+    run_duration?: number | null;
   };
   parents: [];
-  run_start?: string;
-  run_duration?: number;
   parameters?: GlobalParameterStructure;
   outcomes?: object;
 }

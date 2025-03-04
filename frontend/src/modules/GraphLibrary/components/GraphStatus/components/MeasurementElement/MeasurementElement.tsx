@@ -76,9 +76,9 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
             <MeasurementElementStatusInfoAndParameters
               data={{
                 Status: element.metadata?.status || "Unknown",
-                ...(element.metadata?.run_start !== undefined && { "Run start": formatDateTime(element.metadata?.run_start) }),
-                ...(element.metadata?.run_end !== undefined && { "Run end": formatDateTime(element.metadata?.run_end) }),
-                ...(element.metadata?.run_duration !== undefined && { "Run duration": `${element.metadata?.run_duration}s` }),
+                ...(element.metadata?.run_start && { "Run start": formatDateTime(element.metadata?.run_start) }),
+                ...(element.metadata?.run_end && { "Run end": formatDateTime(element.metadata?.run_end) }),
+                ...(element.metadata?.run_duration && { "Run duration": `${element.metadata?.run_duration}s` }),
               }}
               isInfoSection={true}
               className={styles.runInfo}
