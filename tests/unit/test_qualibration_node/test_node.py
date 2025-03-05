@@ -318,6 +318,7 @@ class TestQualibrationNode:
         mocker.patch.object(
             node.__class__, "parameters", PropertyMock(return_value=P())
         )
+        mocker.patch("qualibrate.qualibration_node.NodeContext")
 
         # Mock datetime
         mock_datetime = mocker.patch("qualibrate.qualibration_node.datetime")
@@ -371,6 +372,7 @@ class TestQualibrationNode:
         mocker.patch.object(
             node.__class__, "parameters", PropertyMock(return_value=P())
         )
+        mocker.patch("qualibrate.qualibration_node.NodeContext")
 
         # Mock datetime
         mock_datetime = mocker.patch("qualibrate.qualibration_node.datetime")

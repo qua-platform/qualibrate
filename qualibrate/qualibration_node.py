@@ -39,7 +39,7 @@ from qualibrate.q_runnnable import (
     file_is_calibration_instance,
     run_modes_ctx,
 )
-from qualibrate.runnables.fraction_complete import FractionComplete
+from qualibrate.runnables.node_context import FractionComplete, NodeContext
 from qualibrate.runnables.run_action.action import ActionCallableType
 from qualibrate.runnables.run_action.action_manager import (
     ActionDecoratorType,
@@ -81,9 +81,9 @@ MachineType = TypeVar("MachineType")
 
 
 # TODO: use node parameters type instead of Any
-external_parameters_ctx: ContextVar[
-    Optional[tuple[str, Any, FractionComplete]]
-] = ContextVar("external_parameters", default=None)
+external_parameters_ctx: ContextVar[Optional[NodeContext]] = ContextVar(
+    "external_parameters", default=None
+)
 last_executed_node_ctx: ContextVar[Optional["QualibrationNode[Any, Any]"]] = (
     ContextVar("last_executed_node", default=None)
 )
@@ -135,6 +135,7 @@ class QualibrationNode(
             description=description,
             modes=modes,
         )
+        # class is used just for passing reference to the running instance
         self._fraction_complete = FractionComplete()
         self.results: dict[Any, Any] = {}
         self.machine: Optional[MachineType] = None
@@ -154,9 +155,9 @@ class QualibrationNode(
 
         external_parameters = external_parameters_ctx.get()
         if external_parameters is not None:
-            self.name = external_parameters[0]
-            self._parameters = external_parameters[1]
-            self._fraction_complete = external_parameters[2]
+            self.name = external_parameters.name
+            self._parameters = external_parameters.parameters
+            self._fraction_complete = external_parameters.fraction_compete
 
     @classmethod
     def _validate_passed_parameters_options(
@@ -593,7 +594,11 @@ class QualibrationNode(
             RunModes(external=True, interactive=interactive, inspection=False)
         )
         external_parameters_token = external_parameters_ctx.set(
-            (self.name, parameters, self._fraction_complete)
+            NodeContext(
+                name=self.name,
+                parameters=parameters,
+                fraction_compete=self._fraction_complete,
+            )
         )
         try:
             self._parameters = parameters
