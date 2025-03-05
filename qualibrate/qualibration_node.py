@@ -39,6 +39,7 @@ from qualibrate.q_runnnable import (
     file_is_calibration_instance,
     run_modes_ctx,
 )
+from qualibrate.runnables.fraction_complete import FractionComplete
 from qualibrate.runnables.run_action.action import ActionCallableType
 from qualibrate.runnables.run_action.action_manager import (
     ActionDecoratorType,
@@ -78,10 +79,11 @@ NodeRunParametersType = NodeParameters
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
 MachineType = TypeVar("MachineType")
 
+
 # TODO: use node parameters type instead of Any
-external_parameters_ctx: ContextVar[Optional[tuple[str, Any]]] = ContextVar(
-    "external_parameters", default=None
-)
+external_parameters_ctx: ContextVar[
+    Optional[tuple[str, Any, FractionComplete]]
+] = ContextVar("external_parameters", default=None)
 last_executed_node_ctx: ContextVar[Optional["QualibrationNode[Any, Any]"]] = (
     ContextVar("last_executed_node", default=None)
 )
@@ -133,7 +135,7 @@ class QualibrationNode(
             description=description,
             modes=modes,
         )
-
+        self._fraction_complete = FractionComplete()
         self.results: dict[Any, Any] = {}
         self.machine: Optional[MachineType] = None
 
@@ -154,6 +156,7 @@ class QualibrationNode(
         if external_parameters is not None:
             self.name = external_parameters[0]
             self._parameters = external_parameters[1]
+            self._fraction_complete = external_parameters[2]
 
     @classmethod
     def _validate_passed_parameters_options(
@@ -515,6 +518,7 @@ class QualibrationNode(
         self.outcomes = last_executed_node.outcomes = {
             name: Outcome(outcome) for name, outcome in outcomes.items()
         }
+        print(f"Create run summary; {self.fraction_complete = }")
         self.run_summary = NodeRunSummary(
             name=self.name,
             description=self.description,
@@ -566,6 +570,7 @@ class QualibrationNode(
         logger.info(
             f"Run node {self.name} with parameters: {passed_parameters}"
         )
+        self._fraction_complete._fraction = 0
         if self.filepath is None:
             ex = RuntimeError(f"Node {self.name} file path was not provided")
             logger.exception("", exc_info=ex)
@@ -588,7 +593,7 @@ class QualibrationNode(
             RunModes(external=True, interactive=interactive, inspection=False)
         )
         external_parameters_token = external_parameters_ctx.set(
-            (self.name, parameters)
+            (self.name, parameters, self._fraction_complete)
         )
         try:
             self._parameters = parameters
@@ -601,6 +606,8 @@ class QualibrationNode(
             )
             logger.exception("", exc_info=ex)
             raise
+        else:
+            self._fraction_complete._fraction = 1.0
         finally:
             run_modes_ctx.reset(run_modes_token)
             external_parameters_ctx.reset(external_parameters_token)
@@ -851,6 +858,14 @@ class QualibrationNode(
             )
 
         nodes[node.name] = node
+
+    @property
+    def fraction_complete(self) -> float:
+        return self._fraction_complete._fraction
+
+    @fraction_complete.setter
+    def fraction_complete(self, value: float) -> None:
+        self._fraction_complete._fraction = max(min(value, 1.0), 0.0)
 
 
 if __name__ == "__main__":
