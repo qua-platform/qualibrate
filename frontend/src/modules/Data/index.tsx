@@ -1,39 +1,32 @@
 import React from "react";
 import styles from "../Data/Data.module.scss";
-import useModuleStyle from "../../ui-lib/hooks/useModuleStyle";
-import { classNames } from "../../utils/classnames";
 import { SnapshotsContextProvider, useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
 import PaginationWrapper from "../Pagination/PaginationWrapper";
 import { JSONEditor } from "./components/JSONEditor";
-import { TimelineGraph } from "./components/TimelineGraph";
+import { SnapshotsTimeline } from "./components/SnapshotsTimeline/SnapshotsTimeline";
 
 const Data = () => {
-  const [ref] = useModuleStyle<HTMLDivElement>();
   const {
     totalPages,
     setPageNumber,
     allSnapshots,
-    selectedSnapshotIndex,
-    setSelectedSnapshotIndex,
+    selectedSnapshotId,
     setSelectedSnapshotId,
     jsonData,
     diffData,
     result,
-    setFlag,
-    fetchOneGitgraphSnapshot,
+    fetchOneSnapshot,
   } = useSnapshotsContext();
   return (
-    <div ref={ref} className={styles.wrapper}>
-      <div className={classNames(styles.explorer)}>
-        <div className={classNames(styles.dataWrapper)}>
-          <div className={classNames(styles.data)}>
-            <TimelineGraph
+    <div className={styles.wrapper}>
+      <div className={styles.explorer}>
+        <div className={styles.dataWrapper}>
+          <div className={styles.data}>
+            <SnapshotsTimeline
               allSnapshots={allSnapshots}
-              setFlag={setFlag}
-              selectedSnapshotIndex={selectedSnapshotIndex}
-              setSelectedSnapshotIndex={setSelectedSnapshotIndex}
+              selectedSnapshotId={selectedSnapshotId}
               setSelectedSnapshotId={setSelectedSnapshotId}
-              fetchOneGitgraphSnapshot={fetchOneGitgraphSnapshot}
+              fetchOneSnapshot={fetchOneSnapshot}
             />
           </div>
           <PaginationWrapper numberOfPages={totalPages} setPageNumber={setPageNumber} />
@@ -48,7 +41,7 @@ const Data = () => {
           >
             {jsonData && !diffData && <JSONEditor title={"QUAM"} jsonDataProp={jsonData} height={"100%"} />}
             {jsonData && diffData && <JSONEditor title={"QUAM"} jsonDataProp={jsonData} height={"66%"} />}
-            {jsonData && diffData && <JSONEditor title={"QUAM Updates"} jsonDataProp={diffData} height={"33%"} />}
+            {jsonData && diffData && <JSONEditor title={"QUAM Updates"} jsonDataProp={diffData} height={"34%"} />}
           </div>
         </div>
       </div>

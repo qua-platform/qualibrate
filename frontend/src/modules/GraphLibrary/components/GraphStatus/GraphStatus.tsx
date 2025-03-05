@@ -16,7 +16,7 @@ const GraphStatus = () => {
     useGraphStatusContext();
 
   const getMeasurementId = (measurementName: string, measurements: Measurement[]) => {
-    return measurements?.find((measurement) => measurement.name === measurementName)?.snapshot_idx;
+    return measurements?.find((measurement) => measurement.metadata?.name === measurementName)?.id;
   };
 
   const setupAllMeasurements = async () => {

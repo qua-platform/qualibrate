@@ -141,7 +141,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
             valueTypes={[imageDataType]}
             displayDataTypes={false}
             defaultInspectDepth={3}
-            style={{ overflowY: "auto", height: "100%", paddingBottom: "15px" }}
+            style={{ overflowY: "auto", height: "100%" }}
           />
         </div>
         <div style={{ width: "100%", height: "100%", display: activeTab === "live" ? "block" : "none" }}>

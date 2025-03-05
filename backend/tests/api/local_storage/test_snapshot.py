@@ -10,10 +10,13 @@ def test_snapshot_get_snapshot_default(
     snapshot.update(
         {
             "data": {
-                "quam": {"node": snapshot_id},
-                "info": "snapshot",
+                "quam": {
+                    "quam": {"node": snapshot_id},
+                    "info": "snapshot",
+                },
+                "parameters": None,
+                "outcomes": None,
             },
-            "parameters": None,
         }
     )
     assert response.status_code == 200
@@ -23,20 +26,42 @@ def test_snapshot_get_snapshot_default(
 @pytest.mark.parametrize(
     "load_type, to_update",
     (
-        (1, {"metadata": {}, "data": None, "parameters": None}),
-        (2, {"data": None, "parameters": None}),
+        (
+            1,
+            {
+                "metadata": {
+                    "description": None,
+                    "run_end": None,
+                    "run_start": None,
+                    "status": None,
+                },
+                "data": None,
+            },
+        ),
+        (
+            2,
+            {
+                "data": None,
+            },
+        ),
         (
             3,
             {
-                "data": {"quam": {"node": 4}, "info": "snapshot"},
-                "parameters": None,
+                "data": {
+                    "quam": {"quam": {"node": 4}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
             },
         ),
         (
             4,
             {
-                "data": {"quam": {"node": 4}, "info": "snapshot"},
-                "parameters": None,
+                "data": {
+                    "quam": {"quam": {"node": 4}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
             },
         ),
     ),

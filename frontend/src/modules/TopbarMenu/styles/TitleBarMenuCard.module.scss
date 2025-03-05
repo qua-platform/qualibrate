@@ -8,8 +8,8 @@
   margin-top: 12px;
   margin-bottom: 12px;
   border-radius: 6px;
-  border: 1px solid rgba(59, 220, 247, 0.30);
-  background: rgba(44, 203, 229, 0.08);
+  border: 1px solid rgb(59 220 247 / 30%);
+  background: rgb(44 203 229 / 8%);
 }
 
 .rowWrapper {
@@ -36,7 +36,7 @@
 }
 
 .dot {
-  background-color: rgba(44, 203, 229, 1);
+  background-color: rgb(44 203 229 / 100%);
   margin-right: 10px;
   height: 8px;
   width: 8px;
