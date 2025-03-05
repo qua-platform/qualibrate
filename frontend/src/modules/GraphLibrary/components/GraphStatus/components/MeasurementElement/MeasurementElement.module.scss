@@ -1,4 +1,5 @@
 .rowWrapper {
+  background-color: #28292F;
   display: flex;
   flex-direction: column;
   background: var(--bg-color-light);
@@ -15,11 +16,11 @@
 
   &.nodeSelected {
     border-color: var(--primary-color);
-    background: var(--bg-color-selected);
+    background-color: #28292F;
   }
 
   &.expanded {
-    background: var(--bg-color-expanded);
+    background-color: #28292F;
   }
 }
 
