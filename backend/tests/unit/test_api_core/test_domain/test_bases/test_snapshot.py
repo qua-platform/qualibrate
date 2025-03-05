@@ -109,7 +109,7 @@ def test_search_recursive_data_filled(mocker, load, settings):
         s.__class__,
         "data",
         new_callable=PropertyMock,
-        return_value={"a": "b"},
+        return_value={"quam": {"a": "b"}},
     )
     search_pathed = mocker.patch(
         (

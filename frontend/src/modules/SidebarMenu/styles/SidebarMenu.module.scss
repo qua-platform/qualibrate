@@ -8,7 +8,6 @@
 }
 
 .sidebarMenu {
-  position: absolute;
   top: 0;
   left: 0;
   width: variables.$sidebar_collapsed_width;
@@ -21,11 +20,19 @@
   align-items: start;
   justify-content: space-between;
   background: var(--menu-background);
-  transition: width ease-in-out 0.3s;
+  transition: width ease-in-out 0.1s;
 
   &.opened {
     width: variables.$sidebar_full_width;
   }
+}
+
+.collapsed {
+  width: 70px;
+}
+
+.expanded {
+  width: 200px;
 }
 
 .qualibrateLogo {
@@ -48,6 +55,7 @@
   justify-content: space-between;
 }
 
+.menuBottomContent,
 .menuUpperContent {
   display: flex;
   flex-direction: column;
@@ -55,8 +63,7 @@
   @include base.colGap(15px);
 }
 
-.menuBottomContent {
-  display: flex;
-  flex-direction: column;
+.themeToggleContainer {
+  margin-top: auto;
+  margin-bottom: 10px;
 }
-

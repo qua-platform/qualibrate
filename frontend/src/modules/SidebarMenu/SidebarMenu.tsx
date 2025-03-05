@@ -9,13 +9,14 @@ import cyKeys from "../../utils/cyKeys";
 import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/GlobalThemeContext";
 import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 import QUAlibrateLogoSmallIcon from "../../ui-lib/Icons/QualibrateLogoSmall";
+import ExpandSideMenuIcon from "../../ui-lib/Icons/ExpandSideMenuIcon";
+import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
-  const [, setShowPopup] = useState(false);
-  const [minify, setMinify] = React.useState(true);
-  const containerClassName = classNames(styles.sidebarMenu, !minify && styles.opened);
-  const hideSideMenuItems = false;
+  const [minify, setMinify] = useState(true);
+
+  const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
 
   useEffect(() => {
     setMinify(!pinSideMenu);
@@ -23,28 +24,39 @@ const SidebarMenu: React.FunctionComponent = () => {
 
   return (
     <>
-      <div
-        className={styles.container}
-        onMouseEnter={() => (!pinSideMenu ? setMinify(false) : {})}
-        onMouseLeave={() => (!pinSideMenu ? setMinify(true) : {})}
-      >
-        <div className={containerClassName}>
-          <button onClick={() => setShowPopup(true)} className={styles.qualibrateLogo} data-cy={cyKeys.HOME_PAGE}>
-            {minify ? <QUAlibrateLogoSmallIcon /> : <QUAlibrateLogoIcon />}
-          </button>
-          <div className={styles.menuContent}>
-            <div className={styles.menuUpperContent}>
-              {hideSideMenuItems ? [] : menuItems.map((item, index) => <MenuItem {...item} key={index} hideText={minify} data-testid={`menu-item-${index}`}/>)}
-            </div>
+    <div className={containerClassName}>
+      <button className={styles.qualibrateLogo} data-cy={cyKeys.HOME_PAGE}>
+        {minify ? <QUAlibrateLogoSmallIcon /> : <QUAlibrateLogoIcon />}
+      </button>
+
+      <div className={styles.menuContent}>
+        <div className={styles.menuUpperContent}>
+          {menuItems.map((item, index) => (
+            <MenuItem {...item} key={index} hideText={minify} data-testid={`menu-item-${index}`} />
+          ))}
+        </div>
+
+        <div className={styles.menuBottomContent}>
+          {bottomMenuItems.map((item) => (
+            <MenuItem {...item} key={item.keyId} hideText={minify} onClick={() => {}} />
+          ))}
+          {THEME_TOGGLE_VISIBLE && (
             <div className={styles.menuBottomContent}>
-              {bottomMenuItems.map((item) => (
-                <MenuItem {...item} key={item.keyId} hideText={minify} onClick={() => {}} />
-              ))}
-              {THEME_TOGGLE_VISIBLE && <ThemeToggle showText={!minify} />}
+              <ThemeToggle showText={!minify} />
             </div>
-          </div>
+          )}
+          <MenuItem
+            menuItem={{
+              icon: minify ? ExpandSideMenuIcon : CollapseSideMenuIcon,
+              dataCy: "toggle-sidebar",
+            }}
+            keyId="toggle"
+            hideText={minify}
+            onClick={() => setMinify(!minify)}
+          />
         </div>
       </div>
+    </div>
     </>
   );
 };

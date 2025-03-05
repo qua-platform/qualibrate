@@ -21,6 +21,7 @@ def _setup_local_storage_project(project_path: Path) -> Path:
         date_dir.mkdir()
         for j in range(3):
             node_id = i * 3 + j + 1
+            duration = node_id * 2
             node_time = time(12 + 3 * j, 9 * (j + 1))
             node_time_str = node_time.strftime("%H%M%S")
             node_name = f"name_{node_id}"
@@ -39,16 +40,26 @@ def _setup_local_storage_project(project_path: Path) -> Path:
                 )
             ).replace(tzinfo=timezone(timedelta(seconds=10800)))  # 3 hours
 
+            run_start = (created_at - timedelta(seconds=duration)).isoformat(
+                timespec="seconds"
+            )
+            run_end = created_at.isoformat(timespec="seconds")
+            if node_id == 4:
+                # old snapshot where the run_start and run_end not specified
+                run_start, run_end = None, None
+            metadata = {
+                "name": node_name,
+                "data_path": str(Path(node_date_str, node_dir_name)),
+                "run_start": run_start,
+                "run_end": run_end,
+            }
+            if node_id == 3:
+                metadata["description"] = "description_3"
             node_file.write_text(
                 json.dumps(
                     {
                         "created_at": created_at.isoformat(timespec="seconds"),
-                        "metadata": {
-                            "name": node_name,
-                            "data_path": str(
-                                Path(node_date_str, node_dir_name)
-                            ),
-                        },
+                        "metadata": metadata,
                         "data": {"quam": "./state.json"},
                         "parents": [node_id - 1] if node_id > 1 else [],
                         "id": node_id,
@@ -99,6 +110,10 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
             "metadata": {
                 "name": "name_9",
                 "data_path": "2024-04-27/#9_name_9_182700",
+                "run_start": "2024-04-27T18:26:42+03:00",
+                "run_end": "2024-04-27T18:27:00+03:00",
+                "description": None,
+                "status": None,
             },
         },
         {
@@ -108,6 +123,10 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
             "metadata": {
                 "name": "name_8",
                 "data_path": "2024-04-27/#8_name_8_151800",
+                "run_start": "2024-04-27T15:17:44+03:00",
+                "run_end": "2024-04-27T15:18:00+03:00",
+                "description": None,
+                "status": None,
             },
         },
         {
@@ -117,6 +136,10 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
             "metadata": {
                 "name": "name_7",
                 "data_path": "2024-04-27/#7_name_7_120900",
+                "run_start": "2024-04-27T12:08:46+03:00",
+                "run_end": "2024-04-27T12:09:00+03:00",
+                "description": None,
+                "status": None,
             },
         },
         {
@@ -126,6 +149,10 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
             "metadata": {
                 "name": "name_6",
                 "data_path": "2024-04-26/#6_name_6_182700",
+                "run_start": "2024-04-26T18:26:48+03:00",
+                "run_end": "2024-04-26T18:27:00+03:00",
+                "description": None,
+                "status": None,
             },
         },
         {
@@ -135,6 +162,10 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
             "metadata": {
                 "name": "name_5",
                 "data_path": "2024-04-26/#5_name_5_151800",
+                "run_start": "2024-04-26T15:17:50+03:00",
+                "run_end": "2024-04-26T15:18:00+03:00",
+                "description": None,
+                "status": None,
             },
         },
         {
@@ -144,6 +175,10 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
             "metadata": {
                 "name": "name_4",
                 "data_path": "2024-04-26/#4_name_4_120900",
+                "run_start": None,
+                "run_end": None,
+                "description": None,
+                "status": None,
             },
         },
         {
@@ -153,6 +188,10 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
             "metadata": {
                 "name": "name_3",
                 "data_path": "2024-04-25/#3_name_3_182700",
+                "run_start": "2024-04-25T18:26:54+03:00",
+                "run_end": "2024-04-25T18:27:00+03:00",
+                "description": "description_3",
+                "status": None,
             },
         },
         {
@@ -162,6 +201,10 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
             "metadata": {
                 "name": "name_2",
                 "data_path": "2024-04-25/#2_name_2_151800",
+                "run_start": "2024-04-25T15:17:56+03:00",
+                "run_end": "2024-04-25T15:18:00+03:00",
+                "description": None,
+                "status": None,
             },
         },
         {
@@ -171,6 +214,10 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
             "metadata": {
                 "name": "name_1",
                 "data_path": "2024-04-25/#1_name_1_120900",
+                "run_start": "2024-04-25T12:08:58+03:00",
+                "run_end": "2024-04-25T12:09:00+03:00",
+                "description": None,
+                "status": None,
             },
         },
     ]
