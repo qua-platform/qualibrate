@@ -1,4 +1,4 @@
-export const ALL_SNAPSHOTS = ({ branchName = "main", pageNumber = 1, pageLimit = 100, reverseOrder = true, globalReverse = false }) =>
+export const ALL_SNAPSHOTS = ({ branchName = "main", pageNumber = 1, pageLimit = 100, reverseOrder = false, globalReverse = false }) =>
   "api/branch/" +
   branchName +
   "/snapshots_history?page=" +

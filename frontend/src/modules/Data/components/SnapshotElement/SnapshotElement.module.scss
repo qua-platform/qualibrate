@@ -1,0 +1,44 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin: 0.5px 0;
+  padding: 6px;
+}
+
+.headerWrapper {
+  padding-top: 10px;
+  padding-bottom: 7px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.titleWrapper {
+  padding-left: 10px;
+  padding-right: 3px;
+}
+
+.idWrapper {
+  color: #C6CDD6;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  padding-right: 8px;
+}
+
+.nameWrapper {
+  color: #FFF;
+  font-family: Roboto, serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+
+.additionalWidth {
+  min-width: 240px;
+}
+

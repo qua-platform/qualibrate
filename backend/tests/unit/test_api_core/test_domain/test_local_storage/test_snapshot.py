@@ -13,7 +13,7 @@ from qualibrate_app.api.exceptions.classes.values import QValueException
 
 
 def test__read_minified_node_content_node_info_filled(mocker, settings):
-    created_at = datetime.now()
+    dt = datetime.now().astimezone()
     patched_get_id_local_path = mocker.patch(
         (
             "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
@@ -23,12 +23,24 @@ def test__read_minified_node_content_node_info_filled(mocker, settings):
     )
     patched_is_file = mocker.patch("pathlib.Path.is_file")
     result = snapshot._read_minified_node_content(
-        {"id": 3, "parents": [1, 2], "created_at": created_at.isoformat()},
+        {
+            "id": 3,
+            "parents": [1, 2],
+            "created_at": dt.isoformat(),
+            "run_start": dt.isoformat(),
+            "run_end": dt.isoformat(),
+        },
         None,
         None,
         settings,
     )
-    assert result == {"id": 3, "parents": [1, 2], "created_at": created_at}
+    assert result == {
+        "id": 3,
+        "parents": [1, 2],
+        "created_at": dt,
+        "run_start": dt,
+        "run_end": dt,
+    }
     patched_is_file.assert_not_called()
     patched_get_id_local_path.assert_has_calls(
         [
@@ -68,6 +80,8 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
         "id": 2,
         "parents": [1],
         "created_at": datetime.fromtimestamp(ts).astimezone(),
+        "run_start": None,
+        "run_end": None,
     }
     patched_is_file.assert_called_once()
     patched_get_id_local_path.assert_called_once_with(
@@ -106,6 +120,8 @@ def test__read_minified_node_content_node_info_empty_no_id_no_file(
         "id": -1,
         "parents": [],
         "created_at": datetime.fromtimestamp(ts).astimezone(),
+        "run_start": None,
+        "run_end": None,
     }
     patched_is_file.assert_called_once()
     patched_get_id_local_path.assert_not_called()
@@ -139,27 +155,50 @@ def test__read_metadata_node_content_node_info_not_filled(mocker, settings):
     }
 
 
-def test__read_data_node_content_valid_path_specified(tmp_path):
+def test__read_data_node_content_valid_path_specified_with_others(tmp_path):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state_.json"
-    data_content = {"a": "b", "c": 3}
-    state_path.write_text(json.dumps(data_content))
+    state_path_content = {"a": "b", "c": 3}
+    state_path.write_text(json.dumps(state_path_content))
+    parameters_model = {"p1": "v1", "p2": 2}
+    outcomes = {"q1": "successful", "q2": "failed"}
+    node_info = {
+        "data": {
+            "quam": "state_.json",
+            "parameters": {"model": parameters_model},
+            "outcomes": outcomes,
+        },
+    }
+    assert snapshot._read_data_node_content(node_info, node_path, tmp_path) == {
+        "quam": state_path_content,
+        "parameters": parameters_model,
+        "outcomes": outcomes,
+    }
+
+
+def test__read_data_node_content_valid_path_specified_without_others(tmp_path):
+    node_path = tmp_path / "node.json"
+    state_path = tmp_path / "state_.json"
+    state_path_content = {"a": "b", "c": 3}
+    state_path.write_text(json.dumps(state_path_content))
     node_info = {"data": {"quam": "state_.json"}}
-    assert (
-        snapshot._read_data_node_content(node_info, node_path, tmp_path)
-        == data_content
-    )
+    assert snapshot._read_data_node_content(node_info, node_path, tmp_path) == {
+        "quam": state_path_content,
+        "parameters": None,
+        "outcomes": None,
+    }
 
 
 def test__read_data_node_content_path_not_specified(tmp_path):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state.json"
-    data_content = {"a": "b", "c": 3}
-    state_path.write_text(json.dumps(data_content))
-    assert (
-        snapshot._read_data_node_content({}, node_path, tmp_path)
-        == data_content
-    )
+    state_path_content = {"a": "b", "c": 3}
+    state_path.write_text(json.dumps(state_path_content))
+    assert snapshot._read_data_node_content({}, node_path, tmp_path) == {
+        "quam": state_path_content,
+        "parameters": None,
+        "outcomes": None,
+    }
 
 
 def test__read_data_node_content_invalid_path(tmp_path):
@@ -317,16 +356,17 @@ def test__default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
         ),
         return_value={},
     )
+    _read_data_node_content = {"quam": {}, "parameters": None}
     patched_read_data = mocker.patch(
         (
             "qualibrate_app.api.core.domain.local_storage.snapshot."
             "_read_data_node_content"
         ),
-        return_value={},
+        return_value=_read_data_node_content,
     )
     assert snapshot._default_snapshot_content_loader(
         node_path, SnapshotLoadType.Data, None
-    ) == {"minified": {}, "metadata": {}, "data": {}}
+    ) == {"minified": {}, "metadata": {}, "data": _read_data_node_content}
     patched_node_path_id.assert_called_once()
     patched_node_path_name.assert_called_once()
     patched_read_minified.assert_called_once_with(
@@ -406,7 +446,7 @@ class TestSnapshotLocalStorage:
 
     @pytest.mark.parametrize("load", (True, False))
     def test_search_not_empty_data(self, mocker, load):
-        data = {"k": "v"}
+        data = {"quam": {"k": "v"}}
         search_path = ["a", 1]
         load_patched = mocker.patch.object(self.snapshot, "load")
         mocker.patch.object(
@@ -427,7 +467,7 @@ class TestSnapshotLocalStorage:
             load_patched.assert_called_once_with(SnapshotLoadType.Data)
         else:
             load_patched.assert_not_called()
-        search_patched.assert_called_once_with(data, search_path)
+        search_patched.assert_called_once_with(data["quam"], search_path)
 
     def test_get_latest_snapshots_one(self, mocker, settings):
         load_patched = mocker.patch.object(self.snapshot, "load")
@@ -521,7 +561,7 @@ class TestSnapshotLocalStorage:
                 ".SnapshotLocalStorage.data"
             ),
             new_callable=PropertyMock,
-            side_effect=[{}, None, None],
+            side_effect=[{"quam": {}}, None, None],
         )
         with pytest.raises(QValueException) as ex:
             self.snapshot.compare_by_id(2)
@@ -540,7 +580,7 @@ class TestSnapshotLocalStorage:
                 ".SnapshotLocalStorage.data"
             ),
             new_callable=PropertyMock,
-            side_effect=[{"a": "b"}, {"c": "d"}],
+            side_effect=[{"quam": {"a": "b"}}, {"quam": {"c": "d"}}],
         )
         make_patch_patched = mocker.patch(
             "jsonpatch.make_patch", return_value=[{"diff": "a"}]

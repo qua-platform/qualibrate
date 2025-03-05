@@ -15,7 +15,7 @@
 }
 
 .addLeftMargin {
-  margin-left: 133px;
+  margin-left: 3px;
 }
 
 .layout {
@@ -71,6 +71,10 @@
   background: var(--background-color) !important;
   color: var(--sub-text-color);
   border-bottom: unset;
+}
+
+._tabset_header_sizer {
+  display: none;
 }
 
 .emptyPlaceholder {

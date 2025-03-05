@@ -1,0 +1,45 @@
+@use "../../../assets/styles/variables.scss";
+@use "../../../assets/styles/_base.scss";
+
+.wrapper {
+  height: 63px;
+  width: 295px;
+  flex-shrink: 0;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid rgb(59 220 247 / 30%);
+  background: rgb(44 203 229 / 8%);
+}
+
+.rowWrapper {
+  padding-left: 12px;
+  display: flex;
+  height: 50%;
+  flex: 1;
+  align-items: center;
+}
+
+.labelColumnWrapper {
+  width: 130px;
+  display: flex;
+}
+
+.valueColumnWrapper {
+  display: flex;
+  width: calc(100% - 100px);
+}
+
+.dotWrapper {
+  align-self: center;
+  width: 8px;
+}
+
+.dot {
+  background-color: rgb(44 203 229 / 100%);
+  margin-right: 10px;
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
