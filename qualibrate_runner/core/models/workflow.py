@@ -2,7 +2,8 @@ from typing import Annotated, Optional
 
 from pydantic import BaseModel, Field
 
-from qualibrate_runner.core.models.last_run import RunError, RunStatus
+from qualibrate_runner.core.models.common import RunError
+from qualibrate_runner.core.models.enums import RunStatusEnum
 
 
 class WorkflowStatus(BaseModel):
@@ -13,7 +14,7 @@ class WorkflowStatus(BaseModel):
         Field(description="Indicates if the workflow is currently running."),
     ]
     status: Annotated[
-        RunStatus, Field(description="The current status of the workflow.")
+        RunStatusEnum, Field(description="The current status of the workflow.")
     ]
     active_node_name: Annotated[
         Optional[str],

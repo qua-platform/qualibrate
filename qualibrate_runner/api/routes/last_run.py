@@ -8,7 +8,8 @@ from qualibrate.models.execution_history import ExecutionHistory
 from qualibrate_runner.api.dependencies import get_state
 from qualibrate_runner.api.utils import get_model_docstring
 from qualibrate_runner.config import State
-from qualibrate_runner.core.models.last_run import LastRun, RunStatus
+from qualibrate_runner.core.models.enums import RunStatusEnum
+from qualibrate_runner.core.models.last_run import LastRun
 from qualibrate_runner.core.models.workflow import WorkflowStatus
 from qualibrate_runner.core.types import QGraphType
 
@@ -58,7 +59,7 @@ def get_workflow_status(
         last_run.run_duration if last_run else 0.0  # type: ignore
     )
     return WorkflowStatus(
-        status=last_run.status if last_run else RunStatus.FINISHED,
+        status=last_run.status if last_run else RunStatusEnum.FINISHED,
         active=state.is_running,
         # TODO: remove type ignore
         active_node_name=graph.active_node_name,
@@ -73,7 +74,7 @@ def get_workflow_status(
 def get_execution_history(
     state: Annotated[State, Depends(get_state)],
     reverse: bool = False,
-) -> Optional[Mapping[str, Any]]:
+) -> Optional[ExecutionHistory]:
     if not isinstance(state.run_item, QualibrationGraph):
         return None
     graph: QGraphType = state.run_item
@@ -83,7 +84,4 @@ def get_execution_history(
     history: ExecutionHistory = orch.get_execution_history()
     if reverse:
         history.items = list(reversed(history.items))
-    return cast(
-        Mapping[str, Any],
-        history.model_dump(mode="json", serialize_as_any=True),
-    )
+    return history
