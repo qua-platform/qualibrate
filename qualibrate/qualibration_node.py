@@ -39,6 +39,7 @@ from qualibrate.q_runnnable import (
     file_is_calibration_instance,
     run_modes_ctx,
 )
+from qualibrate.runnables.node_context import FractionComplete, NodeContext
 from qualibrate.runnables.run_action.action import ActionCallableType
 from qualibrate.runnables.run_action.action_manager import (
     ActionDecoratorType,
@@ -78,8 +79,9 @@ NodeRunParametersType = NodeParameters
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
 MachineType = TypeVar("MachineType")
 
+
 # TODO: use node parameters type instead of Any
-external_parameters_ctx: ContextVar[Optional[tuple[str, Any]]] = ContextVar(
+external_parameters_ctx: ContextVar[Optional[NodeContext]] = ContextVar(
     "external_parameters", default=None
 )
 last_executed_node_ctx: ContextVar[Optional["QualibrationNode[Any, Any]"]] = (
@@ -133,7 +135,8 @@ class QualibrationNode(
             description=description,
             modes=modes,
         )
-
+        # class is used just for passing reference to the running instance
+        self._fraction_complete = FractionComplete()
         self.results: dict[Any, Any] = {}
         self.machine: Optional[MachineType] = None
 
@@ -152,8 +155,9 @@ class QualibrationNode(
 
         external_parameters = external_parameters_ctx.get()
         if external_parameters is not None:
-            self.name = external_parameters[0]
-            self._parameters = external_parameters[1]
+            self.name = external_parameters.name
+            self._parameters = external_parameters.parameters
+            self._fraction_complete = external_parameters.fraction_compete
 
     @classmethod
     def _validate_passed_parameters_options(
@@ -566,6 +570,7 @@ class QualibrationNode(
         logger.info(
             f"Run node {self.name} with parameters: {passed_parameters}"
         )
+        self._fraction_complete._fraction = 0
         if self.filepath is None:
             ex = RuntimeError(f"Node {self.name} file path was not provided")
             logger.exception("", exc_info=ex)
@@ -588,7 +593,11 @@ class QualibrationNode(
             RunModes(external=True, interactive=interactive, inspection=False)
         )
         external_parameters_token = external_parameters_ctx.set(
-            (self.name, parameters)
+            NodeContext(
+                name=self.name,
+                parameters=parameters,
+                fraction_compete=self._fraction_complete,
+            )
         )
         try:
             self._parameters = parameters
@@ -601,6 +610,8 @@ class QualibrationNode(
             )
             logger.exception("", exc_info=ex)
             raise
+        else:
+            self._fraction_complete._fraction = 1.0
         finally:
             run_modes_ctx.reset(run_modes_token)
             external_parameters_ctx.reset(external_parameters_token)
@@ -851,6 +862,14 @@ class QualibrationNode(
             )
 
         nodes[node.name] = node
+
+    @property
+    def fraction_complete(self) -> float:
+        return self._fraction_complete._fraction
+
+    @fraction_complete.setter
+    def fraction_complete(self, value: float) -> None:
+        self._fraction_complete._fraction = max(min(value, 1.0), 0.0)
 
 
 if __name__ == "__main__":
