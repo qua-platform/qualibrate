@@ -25,7 +25,7 @@ const SidebarMenu: React.FunctionComponent = () => {
 
   const handleHelpClick = () => {
     window.open(
-      "https://quantum-machines.atlassian.net/wiki/spaces/hlsw/pages/2838986848/QUAlibrate+web+app+QAPP"
+      "https://qua-platform.github.io/qualibrate/"
     );
   }; 
 
