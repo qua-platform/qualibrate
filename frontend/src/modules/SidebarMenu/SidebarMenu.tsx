@@ -9,6 +9,7 @@ import cyKeys from "../../utils/cyKeys";
 import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/GlobalThemeContext";
 import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 import QUAlibrateLogoSmallIcon from "../../ui-lib/Icons/QualibrateLogoSmall";
+import { HelpIcon } from "../../ui-lib/Icons/HelpIcon";
 import ExpandSideMenuIcon from "../../ui-lib/Icons/ExpandSideMenuIcon";
 import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
 
@@ -21,6 +22,12 @@ const SidebarMenu: React.FunctionComponent = () => {
   useEffect(() => {
     setMinify(!pinSideMenu);
   }, [pinSideMenu]);
+
+  const handleHelpClick = () => {
+    window.open(
+      "https://qua-platform.github.io/qualibrate/"
+    );
+  }; 
 
   return (
     <>
@@ -40,6 +47,13 @@ const SidebarMenu: React.FunctionComponent = () => {
           {bottomMenuItems.map((item) => (
             <MenuItem {...item} key={item.keyId} hideText={minify} onClick={() => {}} />
           ))}
+          <MenuItem 
+            menuItem={{ title: "Help", icon: HelpIcon, dataCy: "help-btn" }} 
+            keyId="help" 
+            hideText={minify} 
+            onClick={handleHelpClick} 
+            showText={!minify}
+          />
           {THEME_TOGGLE_VISIBLE && (
             <div className={styles.menuBottomContent}>
               <ThemeToggle showText={!minify} />

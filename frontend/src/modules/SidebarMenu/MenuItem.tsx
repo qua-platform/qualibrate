@@ -16,12 +16,14 @@ const MenuItem: React.FunctionComponent<Module & { hideText: boolean; onClick?: 
     return null;
   }
 
-  const { dataCy, sideBarTitle, icon: Icon } = menuItem;
+  const { dataCy, title, sideBarTitle, icon: Icon } = menuItem;
+
+  const displayTitle = sideBarTitle || title; 
 
   return (
     <button onClick={onClick || (() => openTab(keyId))} className={styles.itemWrapper} data-cy={dataCy} data-testid={`menu-item-${keyId}`}>
       {Icon && <Icon color={MENU_TEXT_COLOR} />}
-      {!hideText && <div data-testid={`menu-item-title-${keyId}`}>{sideBarTitle}</div>}
+      {!hideText && displayTitle && ( <div data-testid={`menu-item-title-${keyId}`} className={styles.menuText}> {displayTitle} </div>)}
     </button>
   );
 };
