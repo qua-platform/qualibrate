@@ -38,10 +38,39 @@ def test_branch_get_snapshot_default(
 @pytest.mark.parametrize(
     "load_type, to_update",
     (
-        (1, {"metadata": {}, "data": None}),
+        (
+            1,
+            {
+                "metadata": {
+                    "description": None,
+                    "run_end": None,
+                    "run_start": None,
+                    "status": None,
+                },
+                "data": None,
+            },
+        ),
         (2, {"data": None}),
-        (3, {"data": {"quam": {"node": 3}, "info": "snapshot"}}),
-        (4, {"data": {"quam": {"node": 3}, "info": "snapshot"}}),
+        (
+            3,
+            {
+                "data": {
+                    "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
+            },
+        ),
+        (
+            4,
+            {
+                "data": {
+                    "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
+            },
+        ),
     ),
 )
 def test_branch_get_snapshot_load_type(
@@ -75,10 +104,39 @@ def test_branch_get_latest_snapshot_default(
 @pytest.mark.parametrize(
     "load_type, to_update",
     (
-        (1, {"metadata": {}, "data": None}),
+        (
+            1,
+            {
+                "metadata": {
+                    "description": None,
+                    "run_end": None,
+                    "run_start": None,
+                    "status": None,
+                },
+                "data": None,
+            },
+        ),
         (2, {"data": None}),
-        (3, {"data": {"quam": {"node": 9}, "info": "snapshot"}}),
-        (4, {"data": {"quam": {"node": 9}, "info": "snapshot"}}),
+        (
+            3,
+            {
+                "data": {
+                    "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
+            },
+        ),
+        (
+            4,
+            {
+                "data": {
+                    "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
+            },
+        ),
     ),
 )
 def test_branch_get_latest_snapshot_load_type(

@@ -2,18 +2,26 @@
 @use "../../assets/styles/base";
 
 .wrapper {
+  display: flex;
+  height: 100%;
+}
+
+.dataWrapper {
+  min-width: 350px;
+  width: 30%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
   height: 100%;
 }
 
 .data {
-  min-width: 350px;
-  flex-shrink: 0;
-  width: 350px;
   overflow: scroll;
+  height: 100%;
 }
 
 .explorer {
-  height: calc(100% - 50px);
+  height: 100%;
   width: 100%;
   display: flex;
   box-sizing: border-box;
