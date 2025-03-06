@@ -519,7 +519,6 @@ class QualibrationNode(
         self.outcomes = last_executed_node.outcomes = {
             name: Outcome(outcome) for name, outcome in outcomes.items()
         }
-        print(f"Create run summary; {self.fraction_complete = }")
         self.run_summary = NodeRunSummary(
             name=self.name,
             description=self.description,
