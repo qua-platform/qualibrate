@@ -74,10 +74,16 @@ def get_status(
     node_status: Optional[RunStatusNode] = None
     graph_status: Optional[RunStatusGraph] = None
     if node:
+        status = (
+            state.last_run.status
+            if graph is None
+            else RunStatusEnum.RUNNING
+        )
+
         node_status = RunStatusNode(
             name=node.name,
             id=node.snapshot_idx or state.last_run.idx,
-            status=state.last_run.status,
+            status=status,
             run_start=node.run_start,
             run_end=state.last_run.completed_at,
             percentage_complete=node.fraction_complete * 100,
@@ -95,6 +101,7 @@ def get_status(
             execution_history = orchestrator.get_execution_history().items
             if len(execution_history):
                 node_hist = execution_history[-1]
+                node_hist.metadata.status
                 node_status = RunStatusNode(
                     name=node_hist.metadata.name,
                     id=node_hist.id,
