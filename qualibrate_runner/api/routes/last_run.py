@@ -76,7 +76,7 @@ def get_status(
     if node:
         node_status = RunStatusNode(
             name=node.name,
-            id=node.snapshot_idx,
+            id=node.snapshot_idx or state.last_run.idx,
             status=state.last_run.status,
             run_start=node.run_start,
             run_end=state.last_run.completed_at,
