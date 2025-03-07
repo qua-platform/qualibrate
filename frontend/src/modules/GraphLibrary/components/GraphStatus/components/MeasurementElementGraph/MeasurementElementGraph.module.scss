@@ -40,10 +40,13 @@
 
 .wrapper {
   padding-bottom: 10px;
-  height: 530px;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
 }
 
 .insideWrapper {
+  flex: 1;
   max-height: 100%;
   justify-content: space-between;
   font-style: normal;
@@ -57,7 +60,9 @@
 }
 
 .lowerContainer {
-  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   gap: 10px;
 }
 
@@ -94,7 +99,8 @@
 }
 
 .lowerLowerContainer {
+  flex: 1;
   display: flex;
+  flex-direction: column;
   width: 100%;
-  height: 100%;
 }
