@@ -84,8 +84,8 @@ MachineType = TypeVar("MachineType")
 external_parameters_ctx: ContextVar[Optional[NodeContext]] = ContextVar(
     "external_parameters", default=None
 )
-last_executed_node_ctx: ContextVar[Optional["QualibrationNode[Any, Any]"]] = (
-    ContextVar("last_executed_node", default=None)
+last_executed_node_ctx: ContextVar[Optional["QualibrationNode[Any, Any]"]] = ContextVar(
+    "last_executed_node", default=None
 )
 
 
@@ -111,9 +111,7 @@ class QualibrationNode(
         StopInspection: Raised if the node is instantiated in inspection mode.
     """
 
-    storage_manager: Optional[StorageManager["QualibrationNode[Any, Any]"]] = (
-        None
-    )
+    storage_manager: Optional[StorageManager["QualibrationNode[Any, Any]"]] = None
     active_node: Optional["QualibrationNode[ParametersType, Any]"] = None
 
     def __init__(
@@ -144,9 +142,7 @@ class QualibrationNode(
         self._action_manager = ActionManager()
         self.namespace: dict[str, Any] = {}
         if self.modes.inspection:
-            raise StopInspection(
-                "Node instantiated in inspection mode", instance=self
-            )
+            raise StopInspection("Node instantiated in inspection mode", instance=self)
         self.run_start = datetime.now().astimezone()
         self.__class__.active_node = self
         last_executed_node_ctx.set(self)
@@ -186,9 +182,7 @@ class QualibrationNode(
         Raises:
             ValueError: If parameters class instantiation fails.
         """
-        params_type_error = ValueError(
-            "Node parameters must be of type NodeParameters"
-        )
+        params_type_error = ValueError("Node parameters must be of type NodeParameters")
         if parameters is not None:
             if not isinstance(parameters, NodeParameters):
                 raise params_type_error
@@ -200,8 +194,7 @@ class QualibrationNode(
             return parameters
         if parameters_class is None:
             fields = {
-                name: copy(field)
-                for name, field in NodeParameters.model_fields.items()
+                name: copy(field) for name, field in NodeParameters.model_fields.items()
             }
             # Create subclass of NodeParameters. It's needed because otherwise
             # there will be an issue with type checking of subclasses.
@@ -211,10 +204,7 @@ class QualibrationNode(
                 __doc__=NodeParameters.__doc__,
                 __base__=NodeParameters,
                 __module__=NodeParameters.__module__,
-                **{
-                    name: (info.annotation, info)
-                    for name, info in fields.items()
-                },
+                **{name: (info.annotation, info) for name, info in fields.items()},
             )
             return cast(ParametersType, new_model())
         logger.warning(
@@ -274,15 +264,11 @@ class QualibrationNode(
             f"{name = }, {node_parameters = }"
         )
         if name is not None and not isinstance(name, str):
-            raise ValueError(
-                f"{self.__class__.__name__} should have a string name"
-            )
+            raise ValueError(f"{self.__class__.__name__} should have a string name")
         instance = self.__copy__()
         if name is not None:
             instance.name = name
-        instance._parameters = instance.parameters_class.model_validate(
-            node_parameters
-        )
+        instance._parameters = instance.parameters_class.model_validate(node_parameters)
         # Base class is inherited from user passed model so don't use passed
         # class as base for copied parameters class
         instance.parameters_class = self.build_parameters_class_from_instance(
@@ -431,9 +417,7 @@ class QualibrationNode(
                 self.machine = quam_machine
             if parameters is not None:
                 if build_params_class:
-                    self.parameters_class = cast(
-                        ParametersType, parameters
-                    ).__class__
+                    self.parameters_class = cast(ParametersType, parameters).__class__
                     self._parameters = cast(ParametersType, parameters)
                 else:
                     self._parameters = self.parameters.model_construct(
@@ -567,9 +551,7 @@ class QualibrationNode(
             RuntimeError: Raised if the node filepath is not provided, or
                 execution
         """
-        logger.info(
-            f"Run node {self.name} with parameters: {passed_parameters}"
-        )
+        logger.info(f"Run node {self.name} with parameters: {passed_parameters}")
         self._fraction_complete._fraction = 0
         if self.filepath is None:
             ex = RuntimeError(f"Node {self.name} file path was not provided")
@@ -617,9 +599,7 @@ class QualibrationNode(
             external_parameters_ctx.reset(external_parameters_token)
             last_executed_node = last_executed_node_ctx.get()
             if last_executed_node is None:
-                logger.warning(
-                    f"Last executed node not set after running {self}"
-                )
+                logger.warning(f"Last executed node not set after running {self}")
                 last_executed_node = self
 
             run_summary = self._post_run(
@@ -649,9 +629,7 @@ class QualibrationNode(
         # Appending dir with nodes can cause issues with relative imports
         try:
             matplotlib.use("agg")
-            _module = import_from_path(
-                get_module_name(node_filepath), node_filepath
-            )
+            _module = import_from_path(get_module_name(node_filepath), node_filepath)
         finally:
             matplotlib.use(mpl_backend)
 
@@ -671,10 +649,20 @@ class QualibrationNode(
             True if the node is successfully stopped, False otherwise.
         """
         active_node = self.__class__.active_node
-        logger.debug(f"Stop node {active_node} with id {id(active_node)}")
         if active_node is None:
+            logger.warning("No active node to stop")
             return False
-        logger.info(f"Stop node {active_node.name}")
+        logger.info(f"Trying to stop node {active_node.name}")
+        job = getattr(active_node, "job", None)
+        if hasattr(job, "halt"):
+            job.halt()
+            logger.info(f"Node {active_node.name} stopped")
+            return True
+
+        logger.info(
+            "Could not find QualibrationNode.job, trying to connect to "
+            "qmm to stop latest job"
+        )
         if find_spec("qm") is None:
             return False
         qmm = getattr(active_node.machine, "qmm", None)
@@ -756,13 +744,9 @@ class QualibrationNode(
         }
         try:
             for cls in cls_setattr_funcs:
-                cls.__setattr__ = partialmethod(
-                    record_state_update_getattr, node=self
-                )
+                cls.__setattr__ = partialmethod(record_state_update_getattr, node=self)
             for cls in cls_setitem_funcs:
-                cls.__setitem__ = partialmethod(
-                    record_state_update_getitem, node=self
-                )
+                cls.__setitem__ = partialmethod(record_state_update_getitem, node=self)
             yield
         finally:
             for cls, setattr_func in cls_setattr_funcs.items():
@@ -857,9 +841,7 @@ class QualibrationNode(
             nodes: dictionary to store nodes.
         """
         if node.name in nodes:
-            logger.warning(
-                f'Node "{node.name}" already exists in library, overwriting'
-            )
+            logger.warning(f'Node "{node.name}" already exists in library, overwriting')
 
         nodes[node.name] = node
 
