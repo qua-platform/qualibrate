@@ -75,9 +75,7 @@ def get_status(
     graph_status: Optional[RunStatusGraph] = None
     if node:
         status = (
-            state.last_run.status
-            if graph is None
-            else RunStatusEnum.RUNNING
+            state.last_run.status if graph is None else RunStatusEnum.RUNNING
         )
 
         node_status = RunStatusNode(
@@ -101,7 +99,6 @@ def get_status(
             execution_history = orchestrator.get_execution_history().items
             if len(execution_history):
                 node_hist = execution_history[-1]
-                node_hist.metadata.status
                 node_status = RunStatusNode(
                     name=node_hist.metadata.name,
                     id=node_hist.id,
