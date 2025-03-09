@@ -18,56 +18,48 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
   const { isNodeRunning } = useNodesContext();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);
-  const [activeTab, setActiveTab] = useState<string>("live");
+  const [activeTab, setActiveTab] = useState<string>("final"); // Start with final
 
   useEffect(() => {
     setJsonData(jsonDataProp);
   }, [jsonDataProp]);
 
+  // Listen for postMessage events to switch to live
   useEffect(() => {
-    if (isNodeRunning) {
-      setActiveTab("live");
-    } else {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.action === "switchToLiveTab" && isNodeRunning) {
+        console.log("PostMessage indicates to switch to live tab and node is running.");
+        setActiveTab("live");
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  // Switch back to final when a node finishes running
+  useEffect(() => {
+    if (!isNodeRunning) {
+      console.log("Node is not running. Switching to final tab.");
       setActiveTab("final");
     }
   }, [isNodeRunning]);
 
-  useEffect(() => {}, [isNodeRunning]);
-
   const filterData = (data: object, term: string) => {
     if (!term) return data;
-
     try {
-      // Convert search term to JSONPath query
       const jsonPathQuery = term.replace("#", "$").replace(/\*/g, "*").replace(/\//g, ".");
-
-      // Perform the JSONPath query
       const result = jp.nodes(data, jsonPathQuery);
-
-      // Reconstruct the filtered data structure
-      return result.reduce(
-        (
-          acc: Record<string, unknown>,
-          {
-            path,
-            value,
-          }: {
-            path: jp.PathComponent[];
-            value: unknown;
-          }
-        ) => {
-          let current = acc;
-          for (let i = 1; i < path.length - 1; i++) {
-            const key = path[i] as string;
-            if (!current[key]) current[key] = {};
-            current = current[key] as Record<string, unknown>;
-          }
-          const lastKey = path[path.length - 1] as string;
-          current[lastKey] = value;
-          return acc;
-        },
-        {}
-      );
+      return result.reduce((acc: Record<string, unknown>, { path, value }: { path: jp.PathComponent[]; value: unknown }) => {
+        let current = acc;
+        for (let i = 1; i < path.length - 1; i++) {
+          const key = path[i] as string;
+          if (!current[key]) current[key] = {};
+          current = current[key] as Record<string, unknown>;
+        }
+        const lastKey = path[path.length - 1] as string;
+        current[lastKey] = value;
+        return acc;
+      }, {});
     } catch (error) {
       console.error("Invalid JSONPath query:", error);
       return data;
@@ -101,6 +93,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
       );
     },
   });
+
   const handleOnSelect = async (path: Path) => {
     let searchPath = "#";
     path.forEach((a) => {
@@ -114,6 +107,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
 
   const currentURL = new URL(window.location.href);
   const iframeURL = `${currentURL.origin}/dashboards/data-dashboard`;
+
   return (
     <div
       style={{
