@@ -125,7 +125,7 @@
   padding-top: 6px;
   padding-left: 20px;
   max-height: 200px;
-  overflow-y: auto;
+  overflow-y: scroll;
   padding-right: 10px;
   scrollbar-width: thin;
   scrollbar-color: #A5ACB6 transparent;
@@ -191,7 +191,7 @@
 
 .stateUpdatesTopWrapper {
   max-height: 170px;
-  overflow-y: auto;
+  overflow-y: scroll;
   padding-right: 10px;
   scrollbar-width: thin;
   scrollbar-color: #A5ACB6 transparent;
