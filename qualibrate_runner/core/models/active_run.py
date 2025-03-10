@@ -38,9 +38,9 @@ class RunStatusBase(BaseModel):
 
     def _time_remaining(
         self, percentage_complete: float, run_start: AwareDatetime
-    ) -> float:
+    ) -> Optional[float]:
         if percentage_complete == 0:
-            return -1
+            return None
 
         return round(
             (datetime.now(tz=timezone.utc) - run_start).total_seconds()
