@@ -31,7 +31,9 @@ export type ModuleKey =
   | "getting-started"
   | "admin-settings"
   | "graph-library"
-  | "graph-status";
+  | "graph-status"
+  | "help"
+  | "toggle";
 
 export type Module = {
   keyId: ModuleKey;
@@ -39,6 +41,7 @@ export type Module = {
   Component?: () => React.ReactElement;
   menuItem?: {
     atBottom?: true;
+    sideBarTitle?: string;
     title?: string;
     icon?: React.FunctionComponent<IconProps>;
     customIcon?: React.FunctionComponent<IconProps>;
@@ -54,6 +57,7 @@ export const ModulesRegistry: Array<Module> = [
     path: "projects",
     Component: Project,
     menuItem: {
+      sideBarTitle: "Project",
       title: "Project",
       // icon: ProjectIcon,
       icon: ProjectIcon,
@@ -65,7 +69,8 @@ export const ModulesRegistry: Array<Module> = [
     path: "nodes",
     Component: Nodes,
     menuItem: {
-      title: "Node library",
+      sideBarTitle: "Node library",
+      title: "Run calibration node",
       icon: ExperimentsIcon,
       dataCy: cyKeys.NODES_TAB,
     },
@@ -76,7 +81,8 @@ export const ModulesRegistry: Array<Module> = [
     path: "GRAPH_LIBRARY",
     Component: CalibrationGraph,
     menuItem: {
-      title: "Graph library",
+      sideBarTitle: "Graph library",
+      title: "Run calibration graph",
       icon: CalibrationIcon,
       dataCy: cyKeys.CALIBRATION_TAB,
     },
@@ -86,6 +92,7 @@ export const ModulesRegistry: Array<Module> = [
     path: "graph-status",
     Component: GraphStatus,
     menuItem: {
+      sideBarTitle: "Graph Status",
       title: "Graph Status",
       icon: ExperimentsIcon,
       dataCy: cyKeys.NODES_TAB,
@@ -96,6 +103,7 @@ export const ModulesRegistry: Array<Module> = [
     path: "data",
     Component: Data,
     menuItem: {
+      sideBarTitle: "Data",
       title: "Data",
       icon: DataIcon,
       dataCy: cyKeys.DATA_TAB,
@@ -109,6 +117,10 @@ ModulesRegistry.map((el) => {
 });
 
 export default modulesMap;
+
+// export const getSelectedTabName(key: string) => {
+//   return modulesMap[key] ?? null;
+// };
 
 export const bottomMenuItems = ModulesRegistry.filter((m) => m.menuItem && m.menuItem.atBottom);
 

@@ -47,7 +47,7 @@ def test_root_get_snapshot_default(
         "/api/root/snapshot", params={"id": snapshot_id}
     )
     snapshot = snapshots_history[len(snapshots_history) - snapshot_id]
-    snapshot.update({"data": None, "parameters": None})
+    snapshot.update({"data": None})
     assert response.status_code == 200
     assert response.json() == snapshot
 
@@ -55,20 +55,37 @@ def test_root_get_snapshot_default(
 @pytest.mark.parametrize(
     "load_type, to_update",
     (
-        (1, {"metadata": {}, "data": None, "parameters": None}),
-        (2, {"data": None, "parameters": None}),
+        (
+            1,
+            {
+                "metadata": {
+                    "description": None,
+                    "run_end": None,
+                    "run_start": None,
+                    "status": None,
+                },
+                "data": None,
+            },
+        ),
+        (2, {"data": None}),
         (
             3,
             {
-                "data": {"quam": {"node": 3}, "info": "snapshot"},
-                "parameters": None,
+                "data": {
+                    "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
             },
         ),
         (
             4,
             {
-                "data": {"quam": {"node": 3}, "info": "snapshot"},
-                "parameters": None,
+                "data": {
+                    "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
             },
         ),
     ),
@@ -96,7 +113,7 @@ def test_root_get_latest_snapshot_default(
 ):
     response = client_custom_settings.get("/api/root/snapshot/latest")
     snapshot = snapshots_history[0]
-    snapshot.update({"data": None, "parameters": None})
+    snapshot.update({"data": None})
     assert response.status_code == 200
     assert response.json() == snapshot
 
@@ -104,20 +121,37 @@ def test_root_get_latest_snapshot_default(
 @pytest.mark.parametrize(
     "load_type, to_update",
     (
-        (1, {"metadata": {}, "data": None, "parameters": None}),
-        (2, {"data": None, "parameters": None}),
+        (
+            1,
+            {
+                "metadata": {
+                    "description": None,
+                    "run_end": None,
+                    "run_start": None,
+                    "status": None,
+                },
+                "data": None,
+            },
+        ),
+        (2, {"data": None}),
         (
             3,
             {
-                "data": {"quam": {"node": 9}, "info": "snapshot"},
-                "parameters": None,
+                "data": {
+                    "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
             },
         ),
         (
             4,
             {
-                "data": {"quam": {"node": 9}, "info": "snapshot"},
-                "parameters": None,
+                "data": {
+                    "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                }
             },
         ),
     ),

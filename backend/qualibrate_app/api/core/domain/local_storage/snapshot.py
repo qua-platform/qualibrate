@@ -107,10 +107,18 @@ def _read_minified_node_content(
             created_at = datetime.fromtimestamp(
                 node_filepath.parent.stat().st_mtime
             ).astimezone()
+    run_start_str = node_info.get("run_start")
+    run_end_str = node_info.get("run_end")
     return {
         "id": node_id,
         "parents": parents,
         "created_at": created_at,
+        "run_start": (
+            datetime.fromisoformat(run_start_str) if run_start_str else None
+        ),
+        "run_end": (
+            datetime.fromisoformat(run_end_str) if run_end_str else None
+        ),
     }
 
 
@@ -169,13 +177,15 @@ def _read_data_node_content(
     quam_file_path = _get_data_node_filepath(
         node_info, node_filepath, snapshot_path
     )
-    parameters = dict(node_info.get("data", {})).get("parameters")
-    if parameters is not None:
-        parameters = parameters["model"]
+    node_data = dict(node_info.get("data", {}))
+    other_data = {
+        "parameters": dict(node_data.get("parameters", {})).get("model"),
+        "outcomes": node_data.get("outcomes"),
+    }
     if quam_file_path is None:
-        return {"data": None, "parameters": parameters}
+        return {"quam": None, **other_data}
     with quam_file_path.open("r") as f:
-        return {"data": dict(json.load(f)), "parameters": parameters}
+        return {"quam": dict(json.load(f)), **other_data}
 
 
 def _default_snapshot_content_updater(
@@ -263,8 +273,8 @@ def _default_snapshot_content_loader(
     )
     if load_type < SnapshotLoadType.Data:
         return content
-    content.update(
-        _read_data_node_content(node_info, node_filepath, snapshot_path)
+    content["data"] = _read_data_node_content(
+        node_info, node_filepath, snapshot_path
     )
     return content
 
@@ -379,9 +389,10 @@ class SnapshotLocalStorage(SnapshotBase):
         """
         if load:
             self.load(SnapshotLoadType.Data)
-        if self.data is None:
+        if self.data is None or "quam" not in self.data:
             return None
-        return get_subpath_value(self.data, search_path)
+        # TODO: update logic; not use quam directly
+        return get_subpath_value(self.data["quam"], search_path)
 
     def get_latest_snapshots(
         self, page: int = 1, per_page: int = 50, reverse: bool = False
@@ -436,14 +447,16 @@ class SnapshotLocalStorage(SnapshotBase):
         if self.id == other_snapshot_id:
             raise QValueException("Can't compare snapshots with same id")
         self.load(SnapshotLoadType.Data)
-        this_data = self.data
+        # TODO: update logic; not use quam directly
+        this_data = (self.data or {}).get("quam")
         if this_data is None:
             raise QValueException(f"Can't load data of snapshot {self._id}")
         other_snapshot = SnapshotLocalStorage(
             other_snapshot_id, settings=self._settings
         )
         other_snapshot.load(SnapshotLoadType.Data)
-        other_data = other_snapshot.data
+        # TODO: update logic; not use quam directly
+        other_data = (other_snapshot.data or {}).get("quam")
         if other_data is None:
             raise QValueException(
                 f"Can't load data of snapshot {other_snapshot_id}"
