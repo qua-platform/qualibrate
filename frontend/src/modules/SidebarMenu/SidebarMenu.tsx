@@ -52,7 +52,6 @@ const SidebarMenu: React.FunctionComponent = () => {
             keyId="help" 
             hideText={minify} 
             onClick={handleHelpClick} 
-            showText={!minify}
           />
           {/* TODO: Overhaul lightmode coloring to make it consistant throughout whole of 
                     QUAlibrate before uncommenting lines below */}

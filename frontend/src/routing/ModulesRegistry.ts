@@ -31,7 +31,9 @@ export type ModuleKey =
   | "getting-started"
   | "admin-settings"
   | "graph-library"
-  | "graph-status";
+  | "graph-status"
+  | "help"
+  | "toggle";
 
 export type Module = {
   keyId: ModuleKey;
