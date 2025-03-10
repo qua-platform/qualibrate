@@ -1,3 +1,4 @@
+import sys
 import traceback
 from collections.abc import Generator, Mapping, Sequence
 from contextlib import contextmanager
@@ -15,6 +16,11 @@ from typing import (
     Union,
     cast,
 )
+
+if sys.version_info < (3, 11):
+    from typing_extensions import Self
+else:
+    from typing import Self
 
 import matplotlib
 from matplotlib.backends import (  # type: ignore[attr-defined]
@@ -230,7 +236,7 @@ class QualibrationNode(
                 f"Can't instantiate parameters class of node '{name}'"
             ) from e
 
-    def __copy__(self) -> "QualibrationNode[ParametersType, MachineType]":
+    def __copy__(self) -> Self:
         """
         Creates a shallow copy of the node.
 
@@ -249,9 +255,7 @@ class QualibrationNode(
         instance.filepath = self.filepath
         return instance
 
-    def copy(
-        self, name: Optional[str] = None, **node_parameters: Any
-    ) -> "QualibrationNode[ParametersType, MachineType]":
+    def copy(self, name: Optional[str] = None, **node_parameters: Any) -> Self:
         """
         Creates a modified copy of the node with updated parameters.
 
@@ -392,7 +396,7 @@ class QualibrationNode(
         base_path: Optional[Path] = None,
         custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
         build_params_class: bool = False,
-    ) -> Optional["QualibrationNode[ParametersType, MachineType]"]:
+    ) -> Optional[Self]:
         """
         Loads a node by its identifier, parsing its content and data.
 

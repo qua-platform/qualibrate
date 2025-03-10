@@ -167,8 +167,7 @@ class QualibrationGraph(
         new_nodes = {}
         for name, node in nodes.items():
             if name != node.name:
-                node = cast(NodeTypeVar, node.copy(name))
-                # node = node.copy(name)
+                node = node.copy(name)
                 logger.warning(
                     f"{node} has to be copied due to conflicting name ({name})"
                 )
