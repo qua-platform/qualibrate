@@ -14,16 +14,20 @@ export interface GlobalParameterStructure {
 }
 
 export interface Measurement {
-  description?: string;
-  error: object | null;
-  name?: string;
-  outcomes: object;
-  parameters: GlobalParameterStructure;
-  run_duration: number;
-  run_end: string;
-  run_start: string;
-  snapshot_idx?: number;
-  status: string;
+  id?: number;
+  data?: {
+    outcomes: object;
+    parameters: GlobalParameterStructure;
+    error: object | null;
+  };
+  metadata?: {
+    run_duration?: number;
+    name?: string;
+    description?: string;
+    run_end?: string;
+    run_start?: string;
+    status?: string;
+  };
 }
 
 interface IGraphContext {

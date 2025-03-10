@@ -1,8 +1,9 @@
+@use "../../../../../../assets/styles/_base";
+
 .rowWrapper {
   background-color: #28292F;
   display: flex;
   flex-direction: column;
-  background: var(--bg-color-light);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   margin: 0.5px 0;
@@ -53,8 +54,6 @@
 
 .expandedContent {
   padding: 15px;
-  margin-top: 10px;
-  background: var(--bg-color-expanded);
   border-radius: 8px;
 }
 
@@ -66,12 +65,10 @@
   align-items: stretch;
 }
 
-/* Run Info Section */
 .runInfo {
   flex: 1;
   min-width: 260px;
   max-width: 100%;
-  background: var(--bg-color-light);
   border: 2px solid var(--border-color);
   border-radius: 10px;
   padding: 15px;
@@ -81,12 +78,10 @@
   height: 110px;
 }
 
-/* Parameters Section */
 .parameters {
   flex: 1;
   min-width: 260px;
   max-width: 100%;
-  background: var(--bg-color-light);
   border: 2px solid var(--border-color);
   border-radius: 10px;
   padding: 15px;

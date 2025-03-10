@@ -35,10 +35,12 @@
   flex: 1;
   align-content: center;
   width: 60%;
+  padding-top: 10px;
 }
 
 .leftContainer {
   place-content: center space-between;
+  align-items: center;
   display: flex;
   gap: 10px;
   text-wrap: nowrap;
@@ -63,7 +65,7 @@
   }
 }
 
-.titleWrapper {
+.refreshButtonWrapper {
   align-content: center;
   color: var(--blue-icon-button-text);
 }

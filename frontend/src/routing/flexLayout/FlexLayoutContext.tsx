@@ -14,6 +14,8 @@ interface IFlexLayoutContext {
   activeTab: null | ModuleKey;
   activeTabsetName: string | null;
   activeTabsetId: null | number;
+  topBarAdditionalComponents?: { [id: string]: React.JSX.Element };
+  setTopBarAdditionalComponents: (a: { [id: string]: React.JSX.Element } | undefined) => void;
 }
 
 const FlexLayoutContext = React.createContext<IFlexLayoutContext | null>(null);
@@ -27,6 +29,8 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
   const [model, setModel] = useState(LayoutBuilder.current.model);
   const [activeTab, setActiveTab] = useState<null | ModuleKey>(null);
   const [activeTabsetName, setActiveTabsetName] = useState<string | null>(null);
+  const [topBarAdditionalComponents, setTopBarAdditionalComponents] = useState<{ [id: string]: React.JSX.Element } | undefined>(undefined);
+
   useEffect(() => {
     // openTab("nodes");
     localStorage.setItem("flexModel", JSON.stringify(model.toJson()));
@@ -78,6 +82,8 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
         activeTabsetName,
         flexLayoutListener,
         activeTabsetId,
+        topBarAdditionalComponents,
+        setTopBarAdditionalComponents,
       }}
     >
       {children}
