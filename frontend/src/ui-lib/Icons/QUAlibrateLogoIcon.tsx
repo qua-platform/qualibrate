@@ -5,7 +5,7 @@ interface QUAlibrateLogoIconProps {
   height?: number;
 }
 
-const QUAlibrateLogoIcon: React.FC<QUAlibrateLogoIconProps> = ({ width = 149, height = "auto" }) => {
+const QUAlibrateLogoIcon: React.FC<QUAlibrateLogoIconProps> = ({ width = 149, height = 75 }) => {
   return (
     <svg width={width} height={height} viewBox="0 0 600 304" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_34438_91)">
