@@ -208,7 +208,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         if (!lastRunResponseResult) {
           setRunningNodeInfo({
             ...runningNodeInfo,
-            status: "pending",
+            status: "idle",
             error,
           });
         } else if (lastRunResponseResult && lastRunResponseResult.status === "error") {
