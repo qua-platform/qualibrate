@@ -27,7 +27,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
   // Listen for postMessage events to switch to live
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.action === "switchToLiveTab" && isNodeRunning) {
+      if (event.data && event.data.action === "data-dashboard-update") {
         console.log("PostMessage indicates to switch to live tab and node is running.");
         setActiveTab("live");
       }
