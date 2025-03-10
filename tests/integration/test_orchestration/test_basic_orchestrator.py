@@ -139,7 +139,7 @@ def test_run_sequence_with_error(
         metadata=ItemMetadata(
             name="forth_node",
             description="Description.",
-            status=NodeStatus.failed,
+            status=NodeStatus.error,
             run_start=execution_history[1].metadata.run_start,
             run_end=execution_history[1].metadata.run_end,
         ),
