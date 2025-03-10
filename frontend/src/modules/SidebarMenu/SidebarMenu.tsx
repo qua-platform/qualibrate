@@ -53,8 +53,6 @@ const SidebarMenu: React.FunctionComponent = () => {
             hideText={minify} 
             onClick={handleHelpClick} 
           />
-          {/* TODO: Overhaul lightmode coloring to make it consistant throughout whole of 
-                    QUAlibrate before uncommenting lines below */}
           {/* {THEME_TOGGLE_VISIBLE && (
             <div className={styles.menuBottomContent}>
               <ThemeToggle showText={!minify} />
