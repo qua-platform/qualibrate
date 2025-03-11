@@ -30,7 +30,9 @@ def empty_node_dir(empty_nodes_dump_folder):
 
 
 def test_load_from_id_class_empty(
-    empty_nodes_dump_folder: Path, empty_node_dir: Path
+    empty_nodes_dump_folder: Path,
+    empty_node_dir: Path,
+    qualibrate_config_and_path_mocked,
 ):
     loaded_node = QualibrationNode.load_from_id(
         1, base_path=empty_nodes_dump_folder
@@ -42,7 +44,10 @@ def test_load_from_id_class_empty(
     assert loaded_node.results == {}
 
 
-def test_load_from_id_class_filled(nodes_dumps_dir: Path):
+def test_load_from_id_class_filled(
+    nodes_dumps_dir: Path,
+    qualibrate_config_and_path_mocked,
+):
     loaded_node = QualibrationNode.load_from_id(1, base_path=nodes_dumps_dir)
     assert loaded_node is not None
     assert isinstance(loaded_node.parameters, NodeParameters)
@@ -66,7 +71,10 @@ def test_load_from_id_class_filled(nodes_dumps_dir: Path):
 
 
 @pytest.fixture
-def node_for_dump(mocker):
+def node_for_dump(
+    mocker,
+    qualibrate_config_and_path_mocked,
+):
     mocker.patch("qualibrate.qualibration_node.logger")
 
     class Parameters(NodeParameters):
@@ -115,28 +123,17 @@ def node_for_dump(mocker):
     return node
 
 
-def test_save_and_load(
-    mocker,
-    tmp_path,
-    node_for_dump,
-    qualibrate_config,
-):
+def test_save_and_load(mocker, tmp_path, node_for_dump, qualibrate_config):
     warnings.filterwarnings("error", category=UserWarning)
 
     copied_params = node_for_dump.parameters.model_copy(deep=True)
     copied_results = node_for_dump.results.copy()
     state_path = tmp_path / "state_path"
     state_path.mkdir()
-    mocker.patch("qualibrate.qualibration_node.get_qualibrate_config_path")
-    mocker.patch(
-        "qualibrate.qualibration_node.get_qualibrate_config",
-        return_value=qualibrate_config,
-    )
     mocker.patch(
         "qualibrate.qualibration_node.get_quam_state_path",
         return_value=state_path,
     )
-    assert node_for_dump.storage_manager is None
     node_for_dump.save()
     assert node_for_dump.storage_manager is not None
     assert isinstance(node_for_dump.storage_manager.snapshot_idx, int)

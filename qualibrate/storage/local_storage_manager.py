@@ -42,6 +42,10 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         self.active_machine_path = active_machine_path
         self.snapshot_idx = None
 
+    def _clean_data_handler(self) -> None:
+        self.data_handler.path = None
+        self.data_handler.path_properties = None
+
     def save(self, node: NodeTypeVar) -> None:
         """
         Saves the state of the specified node to local storage.
@@ -69,6 +73,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
         # Save results
         self.data_handler.name = node.name
+        self._clean_data_handler()
         outcomes = {
             k: v.value if isinstance(v, Outcome) else v
             for k, v in node.outcomes.items()
@@ -142,3 +147,11 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
                 path=self.active_machine_path,
                 content_mapping=content_mapping,
             )
+
+    def get_snapshot_idx(self, node: NodeTypeVar, update: bool = False) -> int:
+        if self.snapshot_idx is not None and not update:
+            return self.snapshot_idx
+        self.snapshot_idx = self.data_handler.generate_node_contents()["id"]
+        if self.snapshot_idx is None:
+            raise RuntimeError("Snapshot idx wasn't generated")
+        return self.snapshot_idx

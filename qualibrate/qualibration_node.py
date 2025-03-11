@@ -117,9 +117,6 @@ class QualibrationNode(
         StopInspection: Raised if the node is instantiated in inspection mode.
     """
 
-    storage_manager: Optional[StorageManager["QualibrationNode[Any, Any]"]] = (
-        None
-    )
     active_node: Optional["QualibrationNode[ParametersType, Any]"] = None
 
     def __init__(
@@ -145,6 +142,7 @@ class QualibrationNode(
         self._fraction_complete = FractionComplete()
         self.results: dict[Any, Any] = {}
         self.machine: Optional[MachineType] = None
+        self.storage_manager: Optional[StorageManager[Self]] = None
 
         # Initialize the ActionManager to handle run_action logic.
         self._action_manager = ActionManager()
@@ -154,6 +152,7 @@ class QualibrationNode(
                 "Node instantiated in inspection mode", instance=self
             )
         self.run_start = datetime.now().astimezone()
+        self._get_storage_manager()
         self.__class__.active_node = self
         last_executed_node_ctx.set(self)
 
@@ -361,6 +360,19 @@ class QualibrationNode(
         """
         return self._action_manager.register_action(self, func, skip_if=skip_if)
 
+    def _get_storage_manager(self) -> StorageManager[Self]:
+        if self.storage_manager is not None:
+            return self.storage_manager
+        q_config_path = get_qualibrate_config_path()
+        qs = get_qualibrate_config(q_config_path)
+        state_path = get_quam_state_path(qs)
+        self.storage_manager = LocalStorageManager[Self](
+            root_data_folder=qs.storage.location,
+            active_machine_path=state_path,
+        )
+        self.storage_manager.get_snapshot_idx(self)
+        return self.storage_manager
+
     def save(self) -> None:
         """
         Saves the current state of the node to the storage manager.
@@ -371,24 +383,7 @@ class QualibrationNode(
         Raises:
             ImportError: Raised if required configurations are not accessible.
         """
-        if self.storage_manager is None:
-            msg = (
-                "Node.storage_manager should be defined to save node, "
-                "resorting to default configuration"
-            )
-            logger.warning(msg)
-            q_config_path = get_qualibrate_config_path()
-            qs = get_qualibrate_config(q_config_path)
-            state_path = get_quam_state_path(qs)
-            self.storage_manager = LocalStorageManager[
-                QualibrationNode[ParametersType, MachineType]
-            ](
-                root_data_folder=qs.storage.location,
-                active_machine_path=state_path,
-            )
-        self.storage_manager.save(
-            node=cast("QualibrationNode[NodeParameters, Any]", self)
-        )
+        self._get_storage_manager().save(node=self)
 
     def _load_from_id(
         self,

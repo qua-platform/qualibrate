@@ -34,3 +34,7 @@ class StorageManager(ABC, Generic[NodeTypeVar]):
             node (QualibrationNode): The node whose state is to be saved.
         """
         pass
+
+    @abstractmethod
+    def get_snapshot_idx(self, node: NodeTypeVar, update: bool = False) -> int:
+        pass
