@@ -872,6 +872,21 @@ class QualibrationNode(
 
         nodes[node.name] = node
 
+    def log(
+        self,
+        msg: object,
+        *args: Any,
+        level: Union[LOG_LEVEL_NAMES_TYPE, int] = "info",
+        **kwargs: Any,
+    ) -> None:
+        new_message = f"Node {self.name}: {msg}"
+        if isinstance(level, int):
+            logger.log(level, new_message, *args, **kwargs)
+            return
+        if level not in ALLOWED_LOG_LEVEL_NAMES:
+            raise ValueError("Invalid log level name. Can't write log message.")
+        getattr(logger, level)(new_message, *args, **kwargs)
+
     @property
     def fraction_complete(self) -> float:
         return self._fraction_complete
