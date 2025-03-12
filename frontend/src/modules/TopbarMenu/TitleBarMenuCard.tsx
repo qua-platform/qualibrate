@@ -9,34 +9,24 @@ interface IProps {
 }
 
 const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
-  const { label, value, tooltipIcon, spinnerIcon, spinnerIconText, dot, id, percentage  } = card;
+  const { label, value, tooltipIcon, spinnerIconText, dot, id, percentage } = card;
   const isRunning = spinnerIconText === "Running";
-
+  
   return (
     <div className={styles.wrapper}>
-      <div className={styles.rowWrapper}>
-        <div className={styles.labelColumnWrapper}>{label}:</div>
-        <div className={styles.valueColumnWrapper}>
-          {value}&nbsp;{tooltipIcon}
+      {isRunning && (
+        <div className={styles.spinnerWrapper}>
+          <CircularLoaderPercentage percentage={percentage ?? 0} />
         </div>
-      </div>
-      <div className={styles.rowWrapper}>
-        <div className={styles.labelColumnWrapper}>
-          {isRunning && (
-            <div className={styles.spinnerWrapper}>
-              <CircularLoaderPercentage percentage={percentage ?? 0} />
-          {spinnerIcon}
-          </div>
-          )}
-          {spinnerIconText}            
+      )}
+      <div className={styles.contentWrapper}>
+        <div className={styles.labelRow}>
+          <div className={styles.labelColumn}>{label}:</div>
+          <div className={styles.valueColumn}>{value}&nbsp;{tooltipIcon}</div>
         </div>
-        <div className={styles.valueColumnWrapper}>
-          {dot ? (
-            <div className={styles.dotWrapper}>
-              <div className={styles.dot} />
-            </div>
-          ) : null}
-          &nbsp;{id}
+        <div className={styles.statusRow}>
+          <div className={styles.statusText}>{spinnerIconText}</div>
+          <div className={styles.timeRemaining}>{id}</div>
         </div>
       </div>
     </div>

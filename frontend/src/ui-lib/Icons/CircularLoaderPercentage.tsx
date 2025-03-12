@@ -1,25 +1,61 @@
 import React from "react";
-import { IconProps } from "../../common/interfaces/IconProps";
 
-interface CircularLoaderPercentageProps extends IconProps {
+interface CircularLoaderPercentageProps {
   percentage: number;
+  color?: string;
+  width?: number;
+  height?: number;
 }
 
-const CircularLoader: React.FC<CircularLoaderPercentageProps> = ({ color, width = 50, height = 50, percentage }) => {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} fill="none" viewBox="0 0 27 27">
-      <path stroke={color || "#80E1FF"} strokeLinecap="round" strokeWidth="1.6" d="M3.922 13.306a9.455 9.455 0 109.455-9.454">
-        <animateTransform
-          attributeName="transform"
-          type="rotate"
-          from="0 13.5 13.5"
-          to="360 13.5 13.5"
-          dur="0.8s"
-          repeatCount="indefinite"
-        />
-      </path>
+const CircularLoader: React.FC<CircularLoaderPercentageProps> = ({
+  color = "#80E1FF",
+  width = 50,
+  height = 50,
+  percentage = 0,
+}) => {
+  const radius = 12;
+  const circumference = 2 * Math.PI * radius;
+  const progressOffset = circumference * ((100 - percentage) / 100);
 
-      <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#80E1FF" fontSize="8px" fontWeight="bold">
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 30 30">
+      {/* Background Circle */}
+      <circle
+        cx="15"
+        cy="15"
+        r={radius}
+        stroke="#1E2A38" /* Dark background stroke */
+        strokeWidth="3"
+        fill="none"
+      />
+      
+      {/* Progress Arc */}
+      <circle
+        cx="15"
+        cy="15"
+        r={radius}
+        stroke={color}
+        strokeWidth="3"
+        fill="none"
+        strokeDasharray={circumference}
+        strokeDashoffset={progressOffset} /* Dynamic progress */
+        strokeLinecap="round"
+        transform="rotate(-90 15 15)" /* Rotates start point to top */
+        style={{
+          transition: "stroke-dashoffset 0.5s ease-in-out", // Smooth transition
+        }}
+      />
+
+      {/* Percentage Text */}
+      <text
+        x="50%"
+        y="50%"
+        dominantBaseline="middle"
+        textAnchor="middle"
+        fill={color}
+        fontSize="8px"
+        fontWeight="bold"
+      >
         {percentage}%
       </text>
     </svg>
