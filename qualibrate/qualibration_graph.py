@@ -1,4 +1,5 @@
 import copy
+import logging
 import traceback
 from collections.abc import Mapping, Sequence
 from datetime import datetime
@@ -34,7 +35,6 @@ from qualibrate.q_runnnable import (
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate.utils.exceptions import StopInspection, TargetsFieldNotExist
-from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import TargetType
 
@@ -49,6 +49,8 @@ NodeTypeVar = TypeVar("NodeTypeVar", bound=QualibrationNode[Any, Any])
 GraphCreateParametersType = GraphParameters
 GraphRunParametersType = ExecutionParameters
 QGraphBaseType = QRunnable[GraphCreateParametersType, GraphRunParametersType]
+
+logger = logging.getLogger(__name__)
 
 
 class QualibrationGraph(
@@ -268,7 +270,9 @@ class QualibrationGraph(
                 try:
                     cls.scan_graph_file(file, graphs)
                 except Exception as e:
-                    logger.exception("", exc_info=e)
+                    logger.exception(
+                        f"Failed to scan graph file {file}", exc_info=e
+                    )
                     logger.warning(
                         "An error occurred on scanning graph file "
                         f"{file.name}.\nError message: {e}"

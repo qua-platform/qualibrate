@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Optional, TypeVar
@@ -7,7 +8,6 @@ from qualang_tools.results import DataHandler
 
 from qualibrate.models.outcome import Outcome
 from qualibrate.storage.storage_manager import StorageManager
-from qualibrate.utils.logger_m import logger
 
 if TYPE_CHECKING:
     from typing import Any
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
 
 NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[Any, Any]")
+logger = logging.getLogger(__name__)
 
 
 class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):

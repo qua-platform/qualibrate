@@ -1,3 +1,4 @@
+import logging
 import traceback
 from collections.abc import Sequence
 from datetime import datetime
@@ -19,9 +20,11 @@ from qualibrate.orchestration.qualibration_orchestrator import (
     QualibrationOrchestrator,
 )
 from qualibrate.qualibration_graph import NodeTypeVar
-from qualibrate.utils.logger_m import logger
 
 __all__ = ["BasicOrchestrator"]
+
+
+logger = logging.getLogger(__name__)
 
 
 class BasicOrchestrator(
