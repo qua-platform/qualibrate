@@ -10,20 +10,22 @@ const API_URL = "http://127.0.0.1:8001/execution/last_run/status";
 const TitleBarMenu: React.FunctionComponent = () => {
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
   const [nodeStatus, setNodeStatus] = useState<any>(null);
-  const [firstRunDetected, setFirstRunDetected] = useState(false);
+  const [lastKnownNode, setLastKnownNode] = useState<any>(null);
 
   const fetchNodeStatus = async () => {
     try {
       const response = await fetch(API_URL);
       if (!response.ok) throw new Error(`API request failed: ${response.status}`);
       const data = await response.json();
-      setNodeStatus(data.node);
-      if (data.node && !firstRunDetected) {
-        setFirstRunDetected(true);
+      const newNodeStatus = data.node || null;
+
+      setNodeStatus(newNodeStatus);
+
+      if (newNodeStatus) {
+        setLastKnownNode(newNodeStatus);
       }
     } catch (error) {
       console.error("Error fetching node status:", error);
-      setNodeStatus(null);
     }
   };
 
@@ -34,13 +36,14 @@ const TitleBarMenu: React.FunctionComponent = () => {
   }, []);
 
   const isRunning = nodeStatus?.status === "running";
-  const nodeName = nodeStatus?.name ?? "No Active Node";
-  const progress = nodeStatus?.percentage_complete?.toFixed(0) ?? 0;
-  const id = nodeStatus?.id ?? "No Active Node";
-
-  const timeRemaining = isRunning && nodeStatus?.time_remaining !== null
-    ? `${nodeStatus?.time_remaining?.toFixed(1)}s`
-    : null;
+  const displayedNode = nodeStatus || lastKnownNode;
+  const nodeName = displayedNode?.name ?? "No Active Node";
+  const progress = displayedNode?.percentage_complete?.toFixed(0) ?? 0;
+  const id = displayedNode?.id ?? "No Active Node";
+  const timeRemaining =
+    isRunning && displayedNode?.time_remaining !== null
+      ? `${displayedNode?.time_remaining?.toFixed(1)}s`
+      : "0s";
 
   const formattedValue = id === -1 ? nodeName : `#${id} ${nodeName}`;
 
@@ -49,7 +52,7 @@ const TitleBarMenu: React.FunctionComponent = () => {
     value: formattedValue,
     spinnerIconText: isRunning ? "Running" : "Finished",
     dot: isRunning,
-    id: timeRemaining ? `${timeRemaining} left` : "",
+    id: `${timeRemaining} left`,
     percentage: progress,
   };
 
@@ -58,8 +61,7 @@ const TitleBarMenu: React.FunctionComponent = () => {
       <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
       {topBarAdditionalComponents ? topBarAdditionalComponents[activeTab ?? ""] : undefined}
 
-      {/* Only show the menu card if at least one node has been run */}
-      {firstRunDetected && (
+      {lastKnownNode && (
         <div className={styles.menuCardsWrapper}>
           <TitleBarMenuCard card={menuCard} />
         </div>
