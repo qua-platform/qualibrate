@@ -16,6 +16,8 @@ interface IFlexLayoutContext {
   activeTabsetId: null | number;
   topBarAdditionalComponents?: { [id: string]: React.JSX.Element };
   setTopBarAdditionalComponents: (a: { [id: string]: React.JSX.Element } | undefined) => void;
+  selectedPageName: ModuleKey | null;
+  setSelectedPageName: (a: ModuleKey | null) => void;
 }
 
 const FlexLayoutContext = React.createContext<IFlexLayoutContext | null>(null);
@@ -30,12 +32,22 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
   const [activeTab, setActiveTab] = useState<null | ModuleKey>(null);
   const [activeTabsetName, setActiveTabsetName] = useState<string | null>(null);
   const [topBarAdditionalComponents, setTopBarAdditionalComponents] = useState<{ [id: string]: React.JSX.Element } | undefined>(undefined);
+  const [selectedPageName, setSelectedPageName] = useState<ModuleKey | null>(null);
 
   useEffect(() => {
     // openTab("nodes");
     localStorage.setItem("flexModel", JSON.stringify(model.toJson()));
   }, [model]);
 
+  const handleIframeUrlSetup = (tab: ModuleKey) => {
+    if (tab === "graph-status") {
+      setSelectedPageName("graph-status");
+    } else if (tab === "nodes") {
+      setSelectedPageName("nodes");
+    } else {
+      setSelectedPageName(null);
+    }
+  };
   const checkIsEmpty = useCallback(() => {
     if (LayoutBuilder.current.isEmpty()) {
       // history.push(HOME_URL);
@@ -45,6 +57,7 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
   const openTab = useCallback((tab: ModuleKey) => {
     // navigate(APP_URL);
     // LayoutBuilder.current.removeAllOpenTabs();
+    handleIframeUrlSetup(tab);
     LayoutBuilder.current.openNewTab(tab);
     setModel(LayoutBuilder.current.model);
     setActiveTab(tab);
@@ -84,6 +97,8 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
         activeTabsetId,
         topBarAdditionalComponents,
         setTopBarAdditionalComponents,
+        selectedPageName,
+        setSelectedPageName,
       }}
     >
       {children}

@@ -52,7 +52,7 @@ const GraphStatus = () => {
         </div>
       </div>
       <div className={styles.rightContainer}>
-        <Results jsonObject={result} />
+        <Results jsonObject={result} toggleSwitch={true} pageName={"graph-status"} />
         <Results title={"QuAM"} jsonObject={diffData} />
       </div>
     </div>
