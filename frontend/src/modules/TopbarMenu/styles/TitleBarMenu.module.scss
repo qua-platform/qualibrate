@@ -3,8 +3,8 @@
 
 .wrapper {
   display: flex;
-  flex-direction: row; /* Ensure it aligns horizontally */
-  justify-content: space-between; /* Push content apart */
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
   padding: 10px;
   background-color: var(--background-dark);
@@ -17,7 +17,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-left: auto; /* Pushes the menu card to the right */
+  margin-left: auto;
 }
 
 .statusCard {

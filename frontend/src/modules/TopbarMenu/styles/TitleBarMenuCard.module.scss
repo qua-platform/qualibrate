@@ -47,7 +47,7 @@
 .spinnerWrapper {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Moves to the left */
-  flex-grow: 1; /* Ensures it takes up leftmost space */
-  margin-right: 8px; /* Optional spacing */
+  justify-content: flex-start;
+  flex-grow: 1;
+  margin-right: 8px;
 }
