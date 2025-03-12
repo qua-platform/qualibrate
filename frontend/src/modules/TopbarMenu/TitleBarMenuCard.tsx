@@ -1,14 +1,17 @@
 import React from "react";
 import { MenuCard } from "../../contexts/TitleBarMenuContext";
 import styles from "./styles/TitleBarMenuCard.module.scss";
-import CircularLoader from "../../ui-lib/Icons/CircularLoader";
+// import CircularLoader from "../../ui-lib/Icons/CircularLoader";
+import CircularLoaderPercentage from "../../ui-lib/Icons/CircularLoaderPercentage";
 
 interface IProps {
   card: MenuCard;
 }
 
 const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
-  const { label, value, tooltipIcon, spinnerIcon, spinnerIconText, dot, id } = card;
+  const { label, value, tooltipIcon, spinnerIcon, spinnerIconText, dot, id, percentage  } = card;
+  const isRunning = spinnerIconText === "Running";
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.rowWrapper}>
@@ -19,11 +22,13 @@ const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
       </div>
       <div className={styles.rowWrapper}>
         <div className={styles.labelColumnWrapper}>
-          <div>
-            <CircularLoader />
-          </div>
+          {isRunning && (
+            <div className={styles.spinnerWrapper}>
+              <CircularLoaderPercentage percentage={percentage ?? 0} />
           {spinnerIcon}
-          {spinnerIconText}
+          </div>
+          )}
+          {spinnerIconText}            
         </div>
         <div className={styles.valueColumnWrapper}>
           {dot ? (

@@ -3,16 +3,74 @@
 
 .wrapper {
   display: flex;
-  height: 72px;
+  flex-direction: row; /* Ensure it aligns horizontally */
+  justify-content: space-between; /* Push content apart */
+  align-items: center;
+  padding: 10px;
+  background-color: var(--background-dark);
+  border-radius: 8px;
   width: 100%;
-  align-content: center;
+  
 }
 
 .menuCardsWrapper {
-  width: 100%;
-  align-content: center;
-  padding-right: 20px;
   display: flex;
-  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-left: auto; /* Pushes the menu card to the right */
 }
 
+.statusCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #1e2a3a;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #2e3e50;
+  color: #ffffff;
+  min-width: 220px;
+}
+
+.progress {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #00c8ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #00c8ff;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+}
+
+.nodeName {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.nodeStatus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.runningLabel {
+  background-color: #0077ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.timeRemaining {
+  color: #a0c8ff;
+  text-decoration: underline;
+  cursor: pointer;
+}
