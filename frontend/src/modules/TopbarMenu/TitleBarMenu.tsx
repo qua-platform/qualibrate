@@ -10,6 +10,7 @@ const API_URL = "http://127.0.0.1:8001/execution/last_run/status";
 const TitleBarMenu: React.FunctionComponent = () => {
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
   const [nodeStatus, setNodeStatus] = useState<any>(null);
+  const [firstRunDetected, setFirstRunDetected] = useState(false);
 
   const fetchNodeStatus = async () => {
     try {
@@ -17,6 +18,9 @@ const TitleBarMenu: React.FunctionComponent = () => {
       if (!response.ok) throw new Error(`API request failed: ${response.status}`);
       const data = await response.json();
       setNodeStatus(data.node);
+      if (data.node && !firstRunDetected) {
+        setFirstRunDetected(true);
+      }
     } catch (error) {
       console.error("Error fetching node status:", error);
       setNodeStatus(null);
@@ -25,7 +29,7 @@ const TitleBarMenu: React.FunctionComponent = () => {
 
   useEffect(() => {
     fetchNodeStatus();
-    const interval = setInterval(fetchNodeStatus, 3000);
+    const interval = setInterval(fetchNodeStatus, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -42,10 +46,10 @@ const TitleBarMenu: React.FunctionComponent = () => {
 
   const menuCard = {
     label: "Active Node",
-    value: formattedValue, // Use formatted value
+    value: formattedValue,
     spinnerIconText: isRunning ? "Running" : "Finished",
     dot: isRunning,
-    id: timeRemaining ? `${timeRemaining} left` : "N/A",
+    id: timeRemaining ? `${timeRemaining} left` : "",
     percentage: progress,
   };
 
@@ -53,10 +57,13 @@ const TitleBarMenu: React.FunctionComponent = () => {
     <div className={styles.wrapper} data-testid="title-wrapper">
       <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
       {topBarAdditionalComponents ? topBarAdditionalComponents[activeTab ?? ""] : undefined}
-      
-      <div className={styles.menuCardsWrapper}>
-        <TitleBarMenuCard card={menuCard} />
-      </div>
+
+      {/* Only show the menu card if at least one node has been run */}
+      {firstRunDetected && (
+        <div className={styles.menuCardsWrapper}>
+          <TitleBarMenuCard card={menuCard} />
+        </div>
+      )}
     </div>
   );
 };
