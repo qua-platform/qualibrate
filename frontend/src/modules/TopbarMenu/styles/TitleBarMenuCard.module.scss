@@ -1,25 +1,10 @@
 .wrapper {
   display: flex;
-  align-items: center;
-  padding: 10px 14px;
+  align-items: center; /* Ensures all items are centered vertically */
+  padding: 8px 12px;
   border-radius: 8px;
-  min-width: 240px;
-  max-width: 300px;
-  justify-content: space-between;
-  gap: 10px;
-  background-color: #1e3a8a;
-}
-
-.running {
-  background-color: #1e3a8a;
-}
-
-.finished {
-  background-color: #1f4826;
-}
-
-.error {
-  background-color: #4a1f1f;
+  width: fit-content;
+  min-width: 250px;
 }
 
 .contentWrapper {
@@ -28,37 +13,55 @@
   width: 100%;
 }
 
-.spinnerWrapper {
-  flex-shrink: 0;
-  margin-right: 10px;
+.indicatorWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; /* Adjust this width as necessary */
+  height: 32px;
+  margin-right: 10px; /* Ensures spacing between the icon and text */
 }
 
 .textWrapper {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  justify-content: center;
+  flex-grow: 1;
 }
 
 .rowWrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
 }
 
-.label, .value, .timeRemaining {
+.statusContainer {
+  padding: 4px 8px;
+  border-radius: 6px;
   font-weight: bold;
-  color: white;
 }
 
+/* Colors */
+.running {
+  background-color: #1e2a38;
+}
+.finished {
+  background-color: #204d28;
+}
+.error {
+  background-color: #3a1e1e;
+}
+
+/* Adjust status colors */
 .statusRunning {
   color: #80e1ff;
+  background-color: rgba(128, 225, 255, 0.15);
 }
-
 .statusFinished {
-  color: #4ade80;
+  color: #78e08f;
+  background-color: rgba(120, 224, 143, 0.15);
 }
-
 .statusError {
-  color: #f87171;
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.15);
 }
