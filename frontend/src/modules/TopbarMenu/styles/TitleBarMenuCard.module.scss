@@ -1,47 +1,64 @@
 .wrapper {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: #1e2a38;
+  padding: 10px 14px;
   border-radius: 8px;
-  min-width: 260px;
+  min-width: 240px;
+  max-width: 300px;
+  justify-content: space-between;
+  gap: 10px;
+  background-color: #1e3a8a;
 }
 
-.spinnerWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
+.running {
+  background-color: #1e3a8a;
+}
+
+.finished {
+  background-color: #1f4826;
+}
+
+.error {
+  background-color: #4a1f1f;
 }
 
 .contentWrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.spinnerWrapper {
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.textWrapper {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
-.labelRow, .statusRow {
+.rowWrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
-.labelColumn {
+.label, .value, .timeRemaining {
   font-weight: bold;
   color: white;
 }
 
-.valueColumn {
-  color: #a5acb6;
+.statusRunning {
+  color: #80e1ff;
 }
 
-.statusText {
-  font-weight: bold;
-  color: #3cdef8;
+.statusFinished {
+  color: #4ade80;
 }
 
-.timeRemaining {
-  color: #a5acb6;
+.statusError {
+  color: #f87171;
 }
