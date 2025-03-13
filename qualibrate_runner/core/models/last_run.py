@@ -61,7 +61,7 @@ class LastRun(BaseModel):
     # It doesn't understand default factory as default value so expect
     # argument on init
     state_updates: Mapping[str, StateUpdate] = Field(
-        default_factory=dict,  # type: ignore[arg-type]
+        default_factory=dict,
         description="The state updates during the run.",
     )
     error: Annotated[
