@@ -4,9 +4,10 @@ import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext
 import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import TitleBarMenuCard from "./TitleBarMenuCard";
+import { NodesApi } from "../Nodes/api/NodesAPI";
 
 // Define interface to strongly type the API response
-interface NodeStatus {
+export interface LastRunStatusNodeResponseDTO {
   status: "running" | "finished" | "error";
   name: string;
   id: number;
@@ -14,19 +15,16 @@ interface NodeStatus {
   time_remaining: number | null;
 }
 
-const API_URL = "http://127.0.0.1:8001/execution/last_run/status";
-
 const TitleBarMenu: React.FunctionComponent = () => {
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
-  const [nodeStatus, setNodeStatus] = useState<NodeStatus | null>(null);
-  const [lastKnownNode, setLastKnownNode] = useState<NodeStatus | null>(null);
+  const [nodeStatus, setNodeStatus] = useState<LastRunStatusNodeResponseDTO | null>(null);
+  const [lastKnownNode, setLastKnownNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
 
   const fetchNodeStatus = async () => {
     try {
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error(`API request failed: ${response.status}`);
-      const data = await response.json();
-      const newNodeStatus: NodeStatus | null = data.node || null;
+      const response = await NodesApi.fetchLastRunStatusInfo();
+      if (!response.isOk) throw new Error(`API request failed: ${response.error}`);
+      const newNodeStatus: LastRunStatusNodeResponseDTO | null = response.result?.node || null;
 
       setNodeStatus(newNodeStatus);
 
@@ -54,6 +52,7 @@ const TitleBarMenu: React.FunctionComponent = () => {
   const id = displayedNode?.id ?? -1;
 
   const timeRemaining = isRunning && displayedNode?.time_remaining !== null
+    // TODO: account for minutes and hours (not just seconds)
     ? `${displayedNode?.time_remaining?.toFixed(1)}s left`
     : "";
 

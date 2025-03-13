@@ -21,7 +21,8 @@ const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
   return (
     <div className={`${styles.wrapper} ${wrapperClass}`}>
       <div className={styles.contentWrapper}>
-        {/* Status Indicator */}
+        {/* TODO: extract into reusable component */}
+        {/* Status Indicator */} 
         <div className={styles.indicatorWrapper}>
           {isRunning ? (
             <CircularLoaderPercentage percentage={percentage ?? 0} />
@@ -39,6 +40,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
             <span>{value}</span>
           </div>
           <div className={styles.rowWrapper}>
+            {/* TODO: import and use classnames here */}
             <span className={`${styles.statusContainer} ${statusClass}`}>{spinnerIconText}</span>
             <span>{id}</span>
           </div>
