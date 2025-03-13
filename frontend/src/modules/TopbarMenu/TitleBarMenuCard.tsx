@@ -13,7 +13,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
   const { label, value, spinnerIconText, percentage, id } = card;
   const isRunning = spinnerIconText === "Running";
   const isFinished = spinnerIconText === "Finished";
-  const isError = spinnerIconText === "Error";
+  // const isError = spinnerIconText === "Error";
 
   const wrapperClass = isRunning ? styles.running : isFinished ? styles.finished : styles.error;
   const statusClass = isRunning ? styles.statusRunning : isFinished ? styles.statusFinished : styles.statusError;
@@ -26,21 +26,21 @@ const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
           {isRunning ? (
             <CircularLoaderPercentage percentage={percentage ?? 0} />
           ) : isFinished ? (
-            <CheckmarkIcon className={styles.checkmark} />
+            <CheckmarkIcon />
           ) : (
-            <ErrorIcon className={styles.errorIcon} />
+            <ErrorIcon />
           )}
         </div>
 
         {/* Node Info */}
         <div className={styles.textWrapper}>
           <div className={styles.rowWrapper}>
-            <span className={styles.label}>{label}:</span>
-            <span className={styles.value}>{value}</span>
+            <span>{label}:</span>
+            <span>{value}</span>
           </div>
           <div className={styles.rowWrapper}>
             <span className={`${styles.statusContainer} ${statusClass}`}>{spinnerIconText}</span>
-            <span className={styles.timeRemaining}>{id}</span>
+            <span>{id}</span>
           </div>
         </div>
       </div>

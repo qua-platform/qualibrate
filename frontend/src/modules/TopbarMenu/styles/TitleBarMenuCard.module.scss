@@ -44,9 +44,11 @@
 .running {
   background-color: #1e2a38;
 }
+
 .finished {
   background-color: #204d28;
 }
+
 .error {
   background-color: #3a1e1e;
 }
@@ -55,11 +57,13 @@
   color: #80e1ff;
   background-color: rgba(128, 225, 255, 0.15);
 }
+
 .statusFinished {
   color: #78e08f;
   background-color: rgba(120, 224, 143, 0.15);
 }
+
 .statusError {
   color: #e74c3c;
-  background-color: rgba(231, 76, 60, 0.15);
+  background-color: hsla(6, 78%, 57%, 0.15);
 }
