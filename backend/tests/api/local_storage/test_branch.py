@@ -45,6 +45,7 @@ def test_branch_get_snapshot_default(
                     "description": None,
                     "run_end": None,
                     "run_start": None,
+                    "run_duration": None,
                     "status": None,
                 },
                 "data": None,
@@ -111,6 +112,7 @@ def test_branch_get_latest_snapshot_default(
                     "description": None,
                     "run_end": None,
                     "run_start": None,
+                    "run_duration": None,
                     "status": None,
                 },
                 "data": None,
@@ -347,7 +349,7 @@ def test_branch_snapshots_history_paged(
         "per_page": per_page,
         "total_items": 9,
         "total_pages": total_pages,
-        "items": snapshots_history[expected_range[0] : expected_range[1]],
+        "items": snapshots_history[expected_range[0]: expected_range[1]],
     }
 
 
