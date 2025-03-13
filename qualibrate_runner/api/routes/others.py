@@ -1,11 +1,9 @@
-from collections.abc import Mapping
-from typing import Annotated, Optional, cast
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from qualibrate_runner.api.dependencies import get_state
 from qualibrate_runner.config import State
-from qualibrate_runner.core.models.common import StateUpdate
 from qualibrate_runner.core.models.enums import RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
 
@@ -66,6 +64,5 @@ def state_updated(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Unknown state update key.",
         )
-    state_updates = cast(Mapping[str, StateUpdate], state_updates)
     state_updates[key].updated = True
     return state.last_run
