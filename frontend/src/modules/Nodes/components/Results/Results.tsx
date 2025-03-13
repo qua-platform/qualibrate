@@ -10,7 +10,8 @@ export const Results: React.FC<{
   showSearch?: boolean;
   toggleSwitch?: boolean;
   pageName?: ModuleKey;
-}> = ({ title, jsonObject, showSearch = true, toggleSwitch = false, pageName }) => {
+  style?: React.CSSProperties;
+}> = ({ title, jsonObject, showSearch = true, toggleSwitch = false, pageName, style }) => {
   let jsonData = jsonObject;
   if (!jsonObject) {
     const { results } = useNodesContext();
@@ -18,7 +19,7 @@ export const Results: React.FC<{
   }
 
   return (
-    <div className={styles.wrapper} data-testid="results-wrapper">
+    <div className={styles.wrapper} style={style} data-testid="results-wrapper">
       <JSONEditor
         title={title ?? "Results"}
         jsonDataProp={jsonData ?? {}}

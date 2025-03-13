@@ -28,7 +28,7 @@ const GraphStatus = () => {
 
   const handleOnCytoscapeNodeClick = async (name: string) => {
     const temp = await setupAllMeasurements();
-    const measurements = temp && temp.length > 0 ? temp : (allMeasurements ?? []);
+    const measurements = temp && temp.length > 0 ? temp : allMeasurements ?? [];
     setTrackLatest(false);
     setSelectedItemName(undefined);
     const measurementId = getMeasurementId(name, measurements);
@@ -52,8 +52,8 @@ const GraphStatus = () => {
         </div>
       </div>
       <div className={styles.rightContainer}>
-        <Results jsonObject={result} toggleSwitch={true} pageName={"graph-status"} />
-        <Results title={"QuAM"} jsonObject={diffData} />
+        <Results jsonObject={result} toggleSwitch={true} pageName={"graph-status"} style={{ height: "65%", flex: "0 1 auto" }} />
+        <Results title={"QUAM Updates"} jsonObject={diffData} style={{ height: "35%" }} />
       </div>
     </div>
   );

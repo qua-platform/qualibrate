@@ -165,7 +165,9 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
           />
           <ParameterList showParameters={show} mapOfItems={calibrationGraph.nodes} />
         </div>
-        <div className={styles.graphContainer}>{show && workflowGraphElements && <CytoscapeGraph elements={workflowGraphElements} />}</div>
+        {show && (
+          <div className={styles.graphContainer}>{workflowGraphElements && <CytoscapeGraph elements={workflowGraphElements} />}</div>
+        )}
       </div>
     </div>
   );
