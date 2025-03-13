@@ -349,7 +349,7 @@ def test_branch_snapshots_history_paged(
         "per_page": per_page,
         "total_items": 9,
         "total_pages": total_pages,
-        "items": snapshots_history[expected_range[0]: expected_range[1]],
+        "items": snapshots_history[expected_range[0] : expected_range[1]],
     }
 
 
