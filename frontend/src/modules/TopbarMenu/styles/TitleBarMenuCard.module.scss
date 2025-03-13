@@ -1,6 +1,6 @@
 .wrapper {
   display: flex;
-  align-items: center; /* Ensures all items are centered vertically */
+  align-items: center; 
   padding: 8px 12px;
   border-radius: 8px;
   width: fit-content;
@@ -17,9 +17,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px; /* Adjust this width as necessary */
-  height: 32px;
-  margin-right: 10px; /* Ensures spacing between the icon and text */
+  width: 50;
+  height: 50;
+  margin-right: 10px;
 }
 
 .textWrapper {
@@ -41,7 +41,6 @@
   font-weight: bold;
 }
 
-/* Colors */
 .running {
   background-color: #1e2a38;
 }
@@ -52,7 +51,6 @@
   background-color: #3a1e1e;
 }
 
-/* Adjust status colors */
 .statusRunning {
   color: #80e1ff;
   background-color: rgba(128, 225, 255, 0.15);

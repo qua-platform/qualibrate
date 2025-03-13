@@ -36,23 +36,26 @@ const TitleBarMenu: React.FunctionComponent = () => {
   }, []);
 
   const isRunning = nodeStatus?.status === "running";
+  const isFinished = nodeStatus?.status === "finished";
+  const isError = nodeStatus?.status === "error";
+
   const displayedNode = nodeStatus || lastKnownNode;
   const nodeName = displayedNode?.name ?? "No Active Node";
   const progress = displayedNode?.percentage_complete?.toFixed(0) ?? 0;
   const id = displayedNode?.id ?? "No Active Node";
-  const timeRemaining =
-    isRunning && displayedNode?.time_remaining !== null
-      ? `${displayedNode?.time_remaining?.toFixed(1)}s`
-      : "0s";
+  
+  const timeRemaining = isRunning && displayedNode?.time_remaining !== null
+    ? `${displayedNode?.time_remaining?.toFixed(1)}s left`
+    : "";
 
   const formattedValue = id === -1 ? nodeName : `#${id} ${nodeName}`;
 
   const menuCard = {
     label: "Active Node",
     value: formattedValue,
-    spinnerIconText: isRunning ? "Running" : "Finished",
+    spinnerIconText: isRunning ? "Running" : isFinished ? "Finished" : "Error",
     dot: isRunning,
-    id: `${timeRemaining} left`,
+    id: timeRemaining,
     percentage: progress,
   };
 

@@ -2,7 +2,8 @@ import React from "react";
 import { MenuCard } from "../../contexts/TitleBarMenuContext";
 import styles from "./styles/TitleBarMenuCard.module.scss";
 import CircularLoaderPercentage from "../../ui-lib/Icons/CircularLoaderPercentage";
-import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon"; // Use the existing checkmark icon
+import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
+import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
 
 interface IProps {
   card: MenuCard;
@@ -12,21 +13,23 @@ const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
   const { label, value, spinnerIconText, percentage, id } = card;
   const isRunning = spinnerIconText === "Running";
   const isFinished = spinnerIconText === "Finished";
+  const isError = spinnerIconText === "Error";
 
-  // Apply dynamic styles
   const wrapperClass = isRunning ? styles.running : isFinished ? styles.finished : styles.error;
   const statusClass = isRunning ? styles.statusRunning : isFinished ? styles.statusFinished : styles.statusError;
 
   return (
     <div className={`${styles.wrapper} ${wrapperClass}`}>
       <div className={styles.contentWrapper}>
-        {/* Left Indicator: Progress Circle when Running, Checkmark when Finished */}
+        {/* Status Indicator */}
         <div className={styles.indicatorWrapper}>
           {isRunning ? (
-            <CircularLoaderPercentage percentage={percentage} />
+            <CircularLoaderPercentage percentage={percentage ?? 0} />
           ) : isFinished ? (
             <CheckmarkIcon className={styles.checkmark} />
-          ) : null}
+          ) : (
+            <ErrorIcon className={styles.errorIcon} />
+          )}
         </div>
 
         {/* Node Info */}

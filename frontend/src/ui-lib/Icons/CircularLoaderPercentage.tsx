@@ -19,17 +19,15 @@ const CircularLoaderPercentage: React.FC<CircularLoaderPercentageProps> = ({
 
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 30 30">
-      {/* Background Circle */}
       <circle
         cx="15"
         cy="15"
         r={radius}
-        stroke="#1E2A38" /* Dark background stroke */
+        stroke="#1E2A38"
         strokeWidth="3"
         fill="none"
       />
       
-      {/* Progress Arc */}
       <circle
         cx="15"
         cy="15"
@@ -38,15 +36,14 @@ const CircularLoaderPercentage: React.FC<CircularLoaderPercentageProps> = ({
         strokeWidth="3"
         fill="none"
         strokeDasharray={circumference}
-        strokeDashoffset={progressOffset} /* Dynamic progress */
+        strokeDashoffset={progressOffset}
         strokeLinecap="round"
-        transform="rotate(-90 15 15)" /* Rotates start point to top */
+        transform="rotate(-90 15 15)"
         style={{
-          transition: "stroke-dashoffset 0.5s ease-in-out", // Smooth transition
+          transition: "stroke-dashoffset 0.5s ease-in-out",
         }}
       />
 
-      {/* Percentage Text */}
       <text
         x="50%"
         y="50%"
