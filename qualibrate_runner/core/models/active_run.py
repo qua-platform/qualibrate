@@ -56,7 +56,7 @@ class RunStatusNode(RunStatusBase):
     current_action: Optional[str] = None
 
     @computed_field
-    def time_remaining(self) -> float:
+    def time_remaining(self) -> Optional[float]:
         return self._time_remaining(self.percentage_complete, self.run_start)
 
 
@@ -69,7 +69,7 @@ class RunStatusGraph(RunStatusBase):
         return (self.finished_nodes / self.total_nodes) * 100
 
     @computed_field
-    def time_remaining(self) -> float:
+    def time_remaining(self) -> Optional[float]:
         return self._time_remaining(
             self.percentage_complete,  # type: ignore[arg-type]
             self.run_start,

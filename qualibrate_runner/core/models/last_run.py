@@ -60,10 +60,8 @@ class LastRun(BaseModel):
     # Here is not using Annotated because of mypy issue.
     # It doesn't understand default factory as default value so expect
     # argument on init
-    state_updates: Union[
-        Mapping[str, StateUpdate], Mapping[str, Mapping[str, StateUpdate]]
-    ] = Field(
-        default_factory=dict,  # type: ignore[arg-type]
+    state_updates: Mapping[str, StateUpdate] = Field(
+        default_factory=dict,
         description="The state updates during the run.",
     )
     error: Annotated[

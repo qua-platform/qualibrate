@@ -129,10 +129,5 @@ def run_workflow(
             completed_at=datetime.now().astimezone(),
             runnable_type=state.last_run.runnable_type,
             passed_parameters=passed_input_parameters,
-            state_updates=(
-                workflow.state_updates
-                if hasattr(workflow, "state_updates")
-                else {}
-            ),
             error=run_error,
         )
