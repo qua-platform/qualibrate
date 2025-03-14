@@ -674,9 +674,7 @@ class SnapshotLocalStorage(SnapshotBase):
         )
         if _type is not None:
             return _type
-        return self._extract_state_update_type_from_quam_state(
-            self._saved_data_quam_path(path)
-        )
+        return self._extract_state_update_type_from_quam_state(path)
 
     def extract_state_update_types(
         self,
