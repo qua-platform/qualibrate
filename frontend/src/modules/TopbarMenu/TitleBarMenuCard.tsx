@@ -4,16 +4,26 @@ import styles from "./styles/TitleBarMenuCard.module.scss";
 import CircularLoaderPercentage from "../../ui-lib/Icons/CircularLoaderPercentage";
 import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
 import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
+import { classNames } from "../../utils/classnames";
 
 interface IProps {
   card: MenuCard;
 }
 
+const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => {
+  if (status === "Running") {
+    return <CircularLoaderPercentage percentage={percentage ?? 0} />;
+  } else if (status === "Finished") {
+    return <CheckmarkIcon />;
+  } else {
+    return <ErrorIcon />;
+  }
+};
+
 const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
   const { label, value, spinnerIconText, percentage, id } = card;
   const isRunning = spinnerIconText === "Running";
   const isFinished = spinnerIconText === "Finished";
-  // const isError = spinnerIconText === "Error";
 
   const wrapperClass = isRunning ? styles.running : isFinished ? styles.finished : styles.error;
   const statusClass = isRunning ? styles.statusRunning : isFinished ? styles.statusFinished : styles.statusError;
@@ -21,16 +31,9 @@ const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
   return (
     <div className={`${styles.wrapper} ${wrapperClass}`}>
       <div className={styles.contentWrapper}>
-        {/* TODO: extract into reusable component */}
-        {/* Status Indicator */} 
+        {/* Status Indicator */}
         <div className={styles.indicatorWrapper}>
-          {isRunning ? (
-            <CircularLoaderPercentage percentage={percentage ?? 0} />
-          ) : isFinished ? (
-            <CheckmarkIcon />
-          ) : (
-            <ErrorIcon />
-          )}
+          <StatusIndicator status={spinnerIconText ?? "Unknown"} percentage={percentage ?? 0} />
         </div>
 
         {/* Node Info */}
@@ -40,8 +43,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
             <span>{value}</span>
           </div>
           <div className={styles.rowWrapper}>
-            {/* TODO: import and use classnames here */}
-            <span className={`${styles.statusContainer} ${statusClass}`}>{spinnerIconText}</span>
+            <span className={classNames(styles.statusContainer, statusClass)}>{spinnerIconText}</span>
             <span>{id}</span>
           </div>
         </div>

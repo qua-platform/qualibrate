@@ -51,10 +51,14 @@ const TitleBarMenu: React.FunctionComponent = () => {
   const progress = displayedNode?.percentage_complete?.toFixed(0) ?? "0";
   const id = displayedNode?.id ?? -1;
 
-  const timeRemaining = isRunning && displayedNode?.time_remaining !== null
-    // TODO: account for minutes and hours (not just seconds)
-    ? `${displayedNode?.time_remaining?.toFixed(1)}s left`
-    : "";
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = Math.floor(seconds % 60);
+    return `${h > 0 ? `${h}h ` : ""}${m > 0 ? `${m}m ` : ""}${s}s left`;
+  };
+  
+  const timeRemaining = isRunning && displayedNode && displayedNode.time_remaining !== null
+    ? formatTime(displayedNode.time_remaining)
+    : "";  
 
   const formattedValue = id === -1 ? nodeName : `#${id} ${nodeName}`;
 

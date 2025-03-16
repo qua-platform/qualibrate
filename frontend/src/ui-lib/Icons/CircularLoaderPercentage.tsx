@@ -1,17 +1,17 @@
 import React from "react";
 
 interface CircularLoaderPercentageProps {
-  percentage: number;
+  percentage?: number;
   color?: string;
   width?: number;
   height?: number;
 }
 
 const CircularLoaderPercentage: React.FC<CircularLoaderPercentageProps> = ({
+  percentage = 0,
   color = "#80E1FF",
   width = 50,
   height = 50,
-  percentage = 0,
 }) => {
   const radius = 12;
   const circumference = 2 * Math.PI * radius;
@@ -19,21 +19,22 @@ const CircularLoaderPercentage: React.FC<CircularLoaderPercentageProps> = ({
 
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 30 30">
+      {/* Base Hollow Track */}
       <circle
         cx="15"
         cy="15"
         r={radius}
-        stroke="#1E2A38"
-        strokeWidth="3"
+        stroke="#2E3740"
+        strokeWidth="1"
         fill="none"
       />
-      
+      {/* Progress Loader */}
       <circle
         cx="15"
         cy="15"
         r={radius}
         stroke={color}
-        strokeWidth="3"
+        strokeWidth="2"
         fill="none"
         strokeDasharray={circumference}
         strokeDashoffset={progressOffset}
@@ -43,7 +44,7 @@ const CircularLoaderPercentage: React.FC<CircularLoaderPercentageProps> = ({
           transition: "stroke-dashoffset 0.5s ease-in-out",
         }}
       />
-
+      {/* Percentage Text */}
       <text
         x="50%"
         y="50%"

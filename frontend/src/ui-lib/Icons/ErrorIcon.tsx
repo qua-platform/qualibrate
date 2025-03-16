@@ -2,14 +2,20 @@ import React from "react";
 
 interface ErrorIconProps {
   className?: string;
+  width?: number;
+  height?: number;
 }
 
-const ErrorIcon: React.FC<ErrorIconProps> = ({ className }) => {
+const ErrorIcon: React.FC<ErrorIconProps> = ({
+  className,
+  width = 30,
+  height = 30,
+}) => {
   return (
     <svg
       className={className}
-      width="30" // TODO: change to default parameters in signature and remove from here (only width and hight) check other icons for reference 
-      height="30"
+      width={width}
+      height={height}
       viewBox="0 0 40 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
