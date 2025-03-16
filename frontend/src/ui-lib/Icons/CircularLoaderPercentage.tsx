@@ -9,7 +9,7 @@ interface CircularLoaderPercentageProps {
 
 const CircularLoaderPercentage: React.FC<CircularLoaderPercentageProps> = ({
   percentage = 0,
-  color = "#80E1FF",
+  color = "#3CDEF8",
   width = 50,
   height = 50,
 }) => {

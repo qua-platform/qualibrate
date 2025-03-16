@@ -45,28 +45,35 @@
 }
 
 .running {
-  background-color: #1e2a38;
+  background-color: #152935;
+  color: #ffffff;
+
+  .timeRemainingText {
+    color: #8CA0B3;
+  }
+}
+
+.statusRunning {
+  background-color: #0e3c4a;
+  color: #3CDEF8;
 }
 
 .finished {
-  background-color: #204d28;
+  background-color: #0f2c28;
+  color: #ffffff;
+}
+
+.statusFinished {
+  background-color: #0b3b30;
+  color: #32FFC6;
 }
 
 .error {
   background-color: #3a1e1e;
-}
-
-.statusRunning {
-  color: #80e1ff;
-  background-color: rgb(128 225 255 / 15%);
-}
-
-.statusFinished {
-  color: #78e08f;
-  background-color: rgb(120 224 143 / 15%);
+  color: #ffffff;
 }
 
 .statusError {
-  color: #e74c3c;
-  background-color: hsl(6deg 78% 57% / 15%);
+  background-color: #4d1f1f;
+  color: #FF6173;
 }

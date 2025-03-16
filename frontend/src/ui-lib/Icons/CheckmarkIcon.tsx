@@ -1,9 +1,8 @@
 import React from "react";
 
-const CheckmarkIcon: React.FC<{ width?: number; height?: number; color?: string; className?: string }> = ({
-  width = 30,
-  height = 30,
-  color = "#78e08f",
+const CheckmarkIcon: React.FC<{ width?: number; height?: number; className?: string }> = ({
+  width = 36,
+  height = 36,
   className,
 }) => {
   return (
@@ -15,10 +14,10 @@ const CheckmarkIcon: React.FC<{ width?: number; height?: number; color?: string;
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="16" cy="16" r="12" stroke={color} strokeWidth="2.5" fill="none" />
+      <circle cx="16" cy="16" r="12" stroke="#28A480" strokeWidth="2.5" fill="none" />
       <path
         d="M10 16L14 20L22 12"
-        stroke={color}
+        stroke="#32FFC6"
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"

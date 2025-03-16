@@ -58,7 +58,7 @@ const TitleBarMenu: React.FunctionComponent = () => {
   
   const timeRemaining = isRunning && displayedNode && displayedNode.time_remaining !== null
     ? formatTime(displayedNode.time_remaining)
-    : "";  
+    : "";
 
   const formattedValue = id === -1 ? nodeName : `#${id} ${nodeName}`;
 

@@ -44,7 +44,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ card }) => {
           </div>
           <div className={styles.rowWrapper}>
             <span className={classNames(styles.statusContainer, statusClass)}>{spinnerIconText}</span>
-            <span>{id}</span>
+            <span className={styles.timeRemainingText}>{id}</span>
           </div>
         </div>
       </div>
