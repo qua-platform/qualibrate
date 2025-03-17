@@ -1,7 +1,7 @@
 @use "../../../../../../assets/styles/_base";
 
 .rowWrapper {
-  background-color: #28292F;
+  background-color: var(--job-list-background);
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-color);
@@ -17,7 +17,7 @@
 
   &.nodeSelected {
     border-color: var(--primary-color);
-    background-color: #28292F;
+    background-color: var(--job-list-header);
   }
 
   &.expanded {
@@ -76,6 +76,7 @@
   flex-direction: column;
   justify-content: space-evenly;
   height: 110px;
+  background-color: var(--popup-background);
 }
 
 .parameters {
@@ -88,4 +89,5 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  background-color: var(--popup-background);
 }
