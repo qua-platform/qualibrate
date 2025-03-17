@@ -1,14 +1,15 @@
 import Data from "../modules/Data";
-import { DataIcon } from "../ui-lib/Icons/DataIcon";
+import DataIcon from "../ui-lib/Icons/DataIcon";
 import { IconProps } from "../common/interfaces/IconProps";
 import React from "react";
 import cyKeys from "../utils/cyKeys";
 import Project from "../modules/Project";
-import { ProjectIcon } from "../ui-lib/Icons/ProjectIcon";
+import ProjectIcon from "../ui-lib/Icons/ProjectIcon";
+import NodeLibraryIcon from "../ui-lib/Icons/NodeLibraryIcon";
 import Nodes from "../modules/Nodes";
-import { ExperimentsIcon } from "../ui-lib/Icons/ExperimentsIcon";
 import CalibrationGraph from "../modules/GraphLibrary";
-import { CalibrationIcon } from "../ui-lib/Icons/CalibrationIcon";
+import GraphLibraryIcon from "../ui-lib/Icons/GraphLibraryIcon";
+import GraphStatusIcon from "../ui-lib/Icons/GraphStatusIcon";
 import GraphStatus from "../modules/GraphLibrary/components/GraphStatus/GraphStatus";
 
 const DATA_KEY: ModuleKey = "data";
@@ -69,9 +70,9 @@ export const ModulesRegistry: Array<Module> = [
     path: "nodes",
     Component: Nodes,
     menuItem: {
-      sideBarTitle: "Node library",
+      sideBarTitle: "Node Library",
       title: "Run calibration node",
-      icon: ExperimentsIcon,
+      icon: NodeLibraryIcon,
       dataCy: cyKeys.NODES_TAB,
     },
   },
@@ -81,9 +82,9 @@ export const ModulesRegistry: Array<Module> = [
     path: "GRAPH_LIBRARY",
     Component: CalibrationGraph,
     menuItem: {
-      sideBarTitle: "Graph library",
+      sideBarTitle: "Graph Library",
       title: "Run calibration graph",
-      icon: CalibrationIcon,
+      icon: GraphLibraryIcon,
       dataCy: cyKeys.CALIBRATION_TAB,
     },
   },
@@ -94,7 +95,7 @@ export const ModulesRegistry: Array<Module> = [
     menuItem: {
       sideBarTitle: "Graph Status",
       title: "Graph Status",
-      icon: ExperimentsIcon,
+      icon: GraphStatusIcon,
       dataCy: cyKeys.NODES_TAB,
     },
   },
