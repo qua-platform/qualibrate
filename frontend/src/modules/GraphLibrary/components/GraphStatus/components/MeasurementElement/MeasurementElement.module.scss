@@ -12,16 +12,6 @@
 
   &:hover {
     box-shadow: 0 4px 10px rgb(124 122 122 / 50%);
-    background-color: var(--hover-highlight);
-  }
-
-  &.nodeSelected {
-    border-color: var(--primary-color);
-    background-color: var(--job-list-header);
-  }
-
-  &.expanded {
-    background-color: #28292F;
   }
 }
 
