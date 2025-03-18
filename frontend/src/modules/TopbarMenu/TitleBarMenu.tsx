@@ -6,81 +6,43 @@ import PageName from "../../common/ui-components/common/Page/PageName";
 import TitleBarMenuCard from "./TitleBarMenuCard";
 import { NodesApi } from "../Nodes/api/NodesAPI";
 
-// Define interface to strongly type the API response
-export interface LastRunStatusNodeResponseDTO {
-  status: "running" | "finished" | "error";
-  name: string;
-  id: number;
-  percentage_complete: number;
-  time_remaining: number | null;
-}
-
-const TitleBarMenu: React.FunctionComponent = () => {
+const TitleBarMenu: React.FC = () => {
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
-  const [nodeStatus, setNodeStatus] = useState<LastRunStatusNodeResponseDTO | null>(null);
-  const [lastKnownNode, setLastKnownNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
-
-  const fetchNodeStatus = async () => {
-    try {
-      const response = await NodesApi.fetchLastRunStatusInfo();
-      if (!response.isOk) throw new Error(`API request failed: ${response.error}`);
-      const newNodeStatus: LastRunStatusNodeResponseDTO | null = response.result?.node || null;
-
-      setNodeStatus(newNodeStatus);
-
-      if (newNodeStatus) {
-        setLastKnownNode(newNodeStatus);
-      }
-    } catch (error) {
-      console.error("Error fetching node status:", error);
-    }
-  };
+  const [node, setNode] = useState<any>(null);
 
   useEffect(() => {
-    fetchNodeStatus();
-    const interval = setInterval(fetchNodeStatus, 1000);
+    const fetchStatus = async () => {
+      const res = await NodesApi.fetchLastRunStatusInfo();
+      if (res.isOk && res.result?.node) setNode(res.result.node);
+    };
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 1000); // refresh every second
     return () => clearInterval(interval);
   }, []);
 
-  const isRunning = nodeStatus?.status === "running";
-  const isFinished = nodeStatus?.status === "finished";
-  // const isError = nodeStatus?.status === "error";
+  if (!node) return null;
 
-  const displayedNode = nodeStatus || lastKnownNode;
-  const nodeName = displayedNode?.name ?? "No Active Node";
-  const progress = displayedNode?.percentage_complete?.toFixed(0) ?? "0";
-  const id = displayedNode?.id ?? -1;
-
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = Math.floor(seconds % 60);
-    return `${h > 0 ? `${h}h ` : ""}${m > 0 ? `${m}m ` : ""}${s}s left`;
+  const formatTime = (sec: number) => {
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) % 3600 / 60), s = Math.floor(sec % 60);
+    return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s left`;
   };
-  
-  const timeRemaining = isRunning && displayedNode && displayedNode.time_remaining !== null
-    ? formatTime(displayedNode.time_remaining)
-    : "";
 
-  const formattedValue = id === -1 ? nodeName : `#${id} ${nodeName}`;
-
+  const status = node.status;
   const menuCard = {
     label: "Active Node",
-    value: formattedValue,
-    spinnerIconText: isRunning ? "Running" : isFinished ? "Finished" : "Error",
-    dot: isRunning,
-    id: timeRemaining,
-    percentage: parseFloat(progress),
+    value: node.id === -1 ? node.name : `#${node.id} ${node.name}`,
+    spinnerIconText: status === "running" ? "Running" : status === "finished" ? "Finished" : "Error",
+    percentage: node.percentage_complete || 0,
+    id: status === "running" && node.time_remaining !== null ? formatTime(node.time_remaining) : "",
   };
 
   return (
-    <div className={styles.wrapper} data-testid="title-wrapper">
+    <div className={styles.wrapper}>
       <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
-      {topBarAdditionalComponents ? topBarAdditionalComponents[activeTab ?? ""] : undefined}
-
-      {lastKnownNode && (
-        <div className={styles.menuCardsWrapper}>
-          <TitleBarMenuCard card={menuCard} />
-        </div>
-      )}
+      {topBarAdditionalComponents && topBarAdditionalComponents[activeTab ?? ""]}
+      <div className={styles.menuCardsWrapper}>
+        <TitleBarMenuCard card={menuCard} />
+      </div>
     </div>
   );
 };
