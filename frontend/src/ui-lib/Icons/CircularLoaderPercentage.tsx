@@ -20,14 +20,7 @@ const CircularLoaderPercentage: React.FC<CircularLoaderPercentageProps> = ({
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={width} height={height} viewBox="0 0 30 30">
       {/* Base Hollow Track */}
-      <circle
-        cx="15"
-        cy="15"
-        r={radius}
-        stroke="#2E3740"
-        strokeWidth="1"
-        fill="none"
-      />
+      <circle cx="15" cy="15" r={radius} stroke="#2E3740" strokeWidth="1" fill="none" />
       {/* Progress Loader */}
       <circle
         cx="15"
@@ -45,16 +38,8 @@ const CircularLoaderPercentage: React.FC<CircularLoaderPercentageProps> = ({
         }}
       />
       {/* Percentage Text */}
-      <text
-        x="50%"
-        y="50%"
-        dominantBaseline="middle"
-        textAnchor="middle"
-        fill={color}
-        fontSize="8px"
-        fontWeight="bold"
-      >
-        {percentage}%
+      <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill={color} fontSize="8px" fontWeight="bold">
+        {percentage.toString().length > 3 ? 0 : percentage}%
       </text>
     </svg>
   );
