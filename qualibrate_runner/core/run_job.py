@@ -50,7 +50,7 @@ def run_node(
     idx = -1
     run_error = None
     try:
-        node, _ = node.run(**passed_input_parameters)
+        node.run(**passed_input_parameters)
     except Exception as ex:
         run_status = RunStatusEnum.ERROR
         run_error = RunError(
@@ -94,12 +94,13 @@ def run_workflow(
         runnable_type=RunnableType.GRAPH,
         passed_parameters=passed_input_parameters,
     )
-    state.run_item = workflow
     idx = -1
     run_error = None
     try:
         library = get_active_library_or_error()
-        workflow = library.graphs[workflow.name]
+        workflow = library.graphs[workflow.name]  # copied graph instance
+        print(f"Running workflow: {id(workflow)}")
+        state.run_item = workflow
         input_parameters = workflow.full_parameters_class(
             **passed_input_parameters
         )

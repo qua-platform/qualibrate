@@ -1,8 +1,8 @@
-from collections.abc import Mapping
 from functools import cache
 from typing import Annotated, cast
 
 from fastapi import Depends, HTTPException
+from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate_config.models import CalibrationLibraryConfig
 
 from qualibrate_runner.config import State, get_settings
@@ -32,19 +32,19 @@ def get_library(
 
 def get_nodes(
     library: Annotated[QLibraryType, Depends(get_library)],
-) -> Mapping[str, QNodeType]:
+) -> RunnableCollection[str, QNodeType]:
     return library.get_nodes()
 
 
 def get_graphs(
     library: Annotated[QLibraryType, Depends(get_library)],
-) -> Mapping[str, QGraphType]:
+) -> RunnableCollection[str, QGraphType]:
     return library.get_graphs()
 
 
-def get_node(
+def get_node_copy(
     name: str,
-    nodes: Annotated[Mapping[str, QNodeType], Depends(get_nodes)],
+    nodes: Annotated[RunnableCollection[str, QNodeType], Depends(get_nodes)],
 ) -> QNodeType:
     node = nodes.get(name)
     if node is None:
@@ -52,11 +52,21 @@ def get_node(
     return node
 
 
-def get_graph(
+def get_node_nocopy(
     name: str,
-    graphs: Annotated[Mapping[str, QGraphType], Depends(get_graphs)],
+    nodes: Annotated[RunnableCollection[str, QNodeType], Depends(get_nodes)],
+) -> QNodeType:
+    node = nodes.get_nocopy(name)
+    if node is None:
+        raise HTTPException(status_code=422, detail=f"Unknown node name {name}")
+    return node
+
+
+def get_graph_nocopy(
+    name: str,
+    graphs: Annotated[RunnableCollection[str, QGraphType], Depends(get_graphs)],
 ) -> QGraphType:
-    graph = graphs.get(name)
+    graph = graphs.get_nocopy(name)
     if graph is None:
         raise HTTPException(
             status_code=422, detail=f"Unknown graph name {name}"
