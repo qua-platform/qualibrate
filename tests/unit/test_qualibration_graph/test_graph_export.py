@@ -44,7 +44,7 @@ def test_export(
     g = QualibrationGraph(
         "name",
         graph_params,
-        qualibration_lib.nodes,
+        dict(qualibration_lib.nodes.items_nocopy()),
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
     )
     assert g.nx_graph_export(node_names_only=True) == {
@@ -64,7 +64,7 @@ def test_serialize(
     g = QualibrationGraph(
         "name",
         graph_params,
-        qualibration_lib.nodes,
+        dict(qualibration_lib.nodes.items_nocopy()),
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
         orchestrator=Orchestrator(),
         description="some description",
@@ -174,7 +174,7 @@ def test_cytoscape(
     g = QualibrationGraph(
         "name",
         graph_params,
-        qualibration_lib.nodes,
+        dict(qualibration_lib.nodes.items_nocopy()),
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
         orchestrator=Orchestrator(),
     )

@@ -413,7 +413,10 @@ class TestQualibrationNode:
         )
 
     @pytest.fixture
-    def node_active_node_self(self):
+    def node_active_node_self(self, mocker):
+        mocker.patch(
+            "qualibrate.qualibration_node.QualibrationNode._get_storage_manager"
+        )
         node = QualibrationNode(name="test_node")
         node.__class__.active_node = node
         yield node
