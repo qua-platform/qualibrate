@@ -1,3 +1,4 @@
+import io
 import warnings
 from dataclasses import asdict
 from datetime import datetime
@@ -7,6 +8,7 @@ import numpy as np
 import pytest
 import xarray as xr
 from matplotlib import pyplot as plt
+from PIL import Image, ImageChops
 from quam.components import BasicQuAM, SingleChannel
 
 from qualibrate.parameters import NodeParameters
@@ -71,8 +73,19 @@ def test_load_from_id_class_filled(
 
 
 @pytest.fixture
+def state_path(mocker, tmp_path):
+    state_path = tmp_path / "state_path"
+    state_path.mkdir()
+    mocker.patch(
+        "qualibrate.qualibration_node.get_quam_state_path",
+        return_value=state_path,
+    )
+
+
+@pytest.fixture
 def node_for_dump(
     mocker,
+    state_path,
     qualibrate_config_and_path_mocked,
 ):
     mocker.patch("qualibrate.qualibration_node.logger")
@@ -128,12 +141,6 @@ def test_save_and_load(mocker, tmp_path, node_for_dump, qualibrate_config):
 
     copied_params = node_for_dump.parameters.model_copy(deep=True)
     copied_results = node_for_dump.results.copy()
-    state_path = tmp_path / "state_path"
-    state_path.mkdir()
-    mocker.patch(
-        "qualibrate.qualibration_node.get_quam_state_path",
-        return_value=state_path,
-    )
     node_for_dump.save()
     assert node_for_dump.storage_manager is not None
     assert isinstance(node_for_dump.storage_manager.snapshot_idx, int)
@@ -149,13 +156,25 @@ def test_save_and_load(mocker, tmp_path, node_for_dump, qualibrate_config):
     assert copied_params.model_dump() == restored_node.parameters.model_dump()
     assert isinstance(restored_node.machine, BasicQuAM)
     assert asdict(restored_node.machine) == asdict(node_for_dump.machine)
-    restored_results = node_for_dump.results
+    restored_results = restored_node.results
     assert restored_node.results.keys() == copied_results.keys()
     assert (
         restored_results["frequency_shift"] == copied_results["frequency_shift"]
     )
     assert restored_results["arr"].equals(copied_results["arr"])
-    assert np.array_equal(
-        restored_results["results_fig"].get_size_inches(),
-        copied_results["results_fig"].get_size_inches(),
+    assert (
+        ImageChops.difference(
+            restored_results["results_fig"],
+            _fig_to_pil(copied_results["results_fig"]),
+        ).getbbox()
+        is None
     )
+
+
+def _fig_to_pil(fig: plt.Figure) -> Image:
+    buf = io.BytesIO()  # Create an in-memory bytes buffer
+    fig.savefig(
+        buf, format="png", bbox_inches="tight"
+    )  # Save figure as PNG to buffer
+    buf.seek(0)  # Move cursor to the beginning of buffer
+    return Image.open(buf)  # Open buffer as an image using PIL

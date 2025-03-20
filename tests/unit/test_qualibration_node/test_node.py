@@ -21,18 +21,6 @@ class TestQualibrationNode:
         return mocker.patch("qualibrate.qualibration_node.logger")
 
     @pytest.fixture
-    def mock_last_executed_node_ctx(self, mocker):
-        return mocker.patch(
-            "qualibrate.qualibration_node.last_executed_node_ctx"
-        )
-
-    @pytest.fixture
-    def mock_external_parameters_ctx(self, mocker):
-        return mocker.patch(
-            "qualibrate.qualibration_node.external_parameters_ctx"
-        )
-
-    @pytest.fixture
     def mock_run_modes_ctx(self, mocker):
         return mocker.patch("qualibrate.qualibration_node.run_modes_ctx")
 
@@ -44,8 +32,6 @@ class TestQualibrationNode:
         self,
         mocker,
         mock_logger,
-        mock_last_executed_node_ctx,
-        mock_external_parameters_ctx,
         qualibrate_config_and_path_mocked,
     ):
         # Mock the _validate_passed_parameters_options method
@@ -67,9 +53,6 @@ class TestQualibrationNode:
             return_value=None,
         )
 
-        # Mock external_parameters_ctx.get()
-        mock_external_parameters_ctx.get.return_value = None
-
         # Create an instance
         node = QualibrationNode(name="test_node")
 
@@ -80,13 +63,11 @@ class TestQualibrationNode:
         assert node.results == {}
         assert node.machine is None
         mock_warn_if_external.assert_called_once()
-        mock_last_executed_node_ctx.set.assert_called_with(node)
 
     def test_init_with_inspection_mode(
         self,
         mocker,
         mock_logger,
-        mock_external_parameters_ctx,
         mock_matplotlib,
     ):
         # Mock the _validate_passed_parameters_options method
@@ -103,9 +84,6 @@ class TestQualibrationNode:
             "_warn_if_external_and_interactive_mpl",
             return_value=None,
         )
-
-        # Mock external_parameters_ctx.get()
-        mock_external_parameters_ctx.get.return_value = None
 
         # Create an instance with inspection mode
         modes = RunModes(inspection=True)
@@ -300,10 +278,9 @@ class TestQualibrationNode:
         mocker.patch.object(
             node.__class__, "parameters", PropertyMock(return_value=parameters)
         )
+        node.run_start = created_at
 
         run_summary = node._post_run(
-            last_executed_node,
-            created_at,
             initial_targets,
             parameters,
             run_error,
@@ -326,8 +303,6 @@ class TestQualibrationNode:
         self,
         mocker,
         mock_run_modes_ctx,
-        mock_external_parameters_ctx,
-        mock_last_executed_node_ctx,
         qualibrate_config_and_path_mocked,
     ):
         class P(NodeCreateParametersType):
@@ -340,7 +315,6 @@ class TestQualibrationNode:
         mocker.patch.object(
             node.__class__, "parameters", PropertyMock(return_value=P())
         )
-        mocker.patch("qualibrate.qualibration_node.NodeContext")
 
         # Mock datetime
         mock_datetime = mocker.patch("qualibrate.qualibration_node.datetime")
@@ -354,17 +328,13 @@ class TestQualibrationNode:
             node, "_post_run", return_value="run_summary"
         )
 
-        # Mock get
-        last_executed_node = MagicMock()
-        mock_last_executed_node_ctx.get.return_value = last_executed_node
-
         # Call run
         result_node, run_summary = node.run()
 
         # Assertions
         mock_run_node_file.assert_called_with(node.filepath)
         mock_post_run.assert_called()
-        assert result_node == last_executed_node
+        assert result_node is node
         assert run_summary == "run_summary"
 
     def test_run_no_filepath(
@@ -384,8 +354,6 @@ class TestQualibrationNode:
         mocker,
         mock_logger,
         mock_run_modes_ctx,
-        mock_external_parameters_ctx,
-        mock_last_executed_node_ctx,
         qualibrate_config_and_path_mocked,
     ):
         class P(NodeCreateParametersType):
@@ -398,7 +366,6 @@ class TestQualibrationNode:
         mocker.patch.object(
             node.__class__, "parameters", PropertyMock(return_value=P())
         )
-        mocker.patch("qualibrate.qualibration_node.NodeContext")
 
         # Mock datetime
         mock_datetime = mocker.patch("qualibrate.qualibration_node.datetime")
@@ -420,7 +387,7 @@ class TestQualibrationNode:
 
         # Assertions
         mock_post_run.assert_called()
-        run_error = mock_post_run.call_args[0][4]
+        run_error = mock_post_run.call_args[0][2]
         assert isinstance(run_error, RunError)
         mock_logger.exception.assert_called()
 
@@ -445,12 +412,20 @@ class TestQualibrationNode:
             "_node_test_node", node_filepath
         )
 
+    @pytest.fixture
+    def node_active_node_self(self):
+        node = QualibrationNode(name="test_node")
+        node.__class__.active_node = node
+        yield node
+        node.__class__.active_node = None
+
     def test_stop_no_qm(
         self,
         mocker,
+        node_active_node_self,
         qualibrate_config_and_path_mocked,
     ):
-        node = QualibrationNode(name="test_node")
+        node = node_active_node_self
         node.machine = None
 
         # Mock find_spec to return None
@@ -465,9 +440,10 @@ class TestQualibrationNode:
     def test_stop_with_qm(
         self,
         mocker,
+        node_active_node_self,
         qualibrate_config_and_path_mocked,
     ):
-        node = QualibrationNode(name="test_node")
+        node = node_active_node_self
         node.machine = MagicMock()
         node.machine.connect.return_value = MagicMock(
             list_open_quantum_machines=lambda: [1],

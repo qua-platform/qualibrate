@@ -163,11 +163,11 @@ class BasicOrchestrator(
 
         while not self._is_execution_finished() and not self._is_stopped:
             node_to_run = self.get_next_node()
-            logger.info(f"Graph. Node to run. {node_to_run}")
             if node_to_run is None:
                 exc = RuntimeError("No next node. Execution not finished")
                 logger.exception("", exc_info=exc)
                 raise exc
+            logger.info(f"Graph. Node to run. {node_to_run}")
             node_to_run_parameters = getattr(nodes_parameters, node_to_run.name)
             run_start = datetime.now().astimezone()
             run_error: Optional[RunError] = None

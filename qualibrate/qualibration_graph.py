@@ -1,3 +1,4 @@
+import copy
 import traceback
 from collections.abc import Mapping, Sequence
 from datetime import datetime
@@ -31,6 +32,7 @@ from qualibrate.q_runnnable import (
     run_modes_ctx,
 )
 from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
@@ -113,6 +115,65 @@ class QualibrationGraph(
             )
         self.run_start = datetime.now().astimezone()
 
+    def __copy__(self) -> "QualibrationGraph[NodeTypeVar]":
+        """
+        Creates a shallow copy of the QualibrationGraph.
+
+        This method ensures that the copied graph maintains all essential
+        attributes, including nodes, connectivity, and parameters, while
+        ensuring mutable objects like `_nodes` and `_graph` are copied
+        appropriately.
+
+        Returns:
+            QualibrationGraph: A new QualibrationGraph instance with copied
+                attributes.
+        """
+        # Create a new instance without calling __init__ directly
+        cls = self.__class__
+        new_graph = cls.__new__(cls)
+
+        # Copy primitive attributes and immutable ones
+        new_graph.name = self.name
+        new_graph.parameters_class = self.parameters_class
+        new_graph.description = self.description
+        new_graph.filepath = self.filepath
+        new_graph.modes = self.modes.model_copy()
+        new_graph.full_parameters_class = self.full_parameters_class
+        new_graph.full_parameters = self.full_parameters.model_copy(deep=True)
+        if hasattr(self, "run_start"):
+            new_graph.run_start = self.run_start
+
+        # Copy mutable attributes
+        new_graph._parameters = self.parameters.model_copy()
+        new_graph._nodes = {
+            name: node.copy(name) for name, node in self._nodes.items()
+        }
+        new_graph._connectivity = copy.deepcopy(self._connectivity)
+
+        # Copy graph structure
+        new_graph._graph = nx.DiGraph()
+        new_graph._graph.add_nodes_from(new_graph._nodes.values())
+        for v_name, x_name in self._connectivity:
+            if v_name in new_graph._nodes and x_name in new_graph._nodes:
+                new_graph._graph.add_edge(
+                    new_graph._nodes[v_name], new_graph._nodes[x_name]
+                )
+
+        # Copy orchestrator if it exists
+        new_graph._orchestrator = copy.copy(self._orchestrator)
+
+        # Copy targets
+        new_graph._initial_targets = copy.deepcopy(self._initial_targets)
+
+        # copy runnable items
+        new_graph._state_updates = copy.deepcopy(self._state_updates)
+        new_graph.outcomes = copy.deepcopy(self.outcomes)
+        new_graph.run_summary = (
+            self.run_summary.model_copy(deep=True) if self.run_summary else None
+        )
+
+        return new_graph
+
     def _add_nodes_and_connections(self) -> None:
         """
         Adds nodes and their connections to the internal graph representation.
@@ -176,7 +237,9 @@ class QualibrationGraph(
 
     # TODO: logic commonly same with node so need to move to
     @classmethod
-    def scan_folder_for_instances(cls, path: Path) -> dict[str, QGraphBaseType]:
+    def scan_folder_for_instances(
+        cls, path: Path
+    ) -> RunnableCollection[str, QGraphBaseType]:
         """
         Scans a folder for graph instances and returns them.
 
@@ -212,7 +275,7 @@ class QualibrationGraph(
                     )
         finally:
             run_modes_ctx.reset(run_modes_token)
-        return graphs
+        return RunnableCollection(graphs)
 
     @classmethod
     def scan_graph_file(
@@ -486,7 +549,6 @@ class QualibrationGraph(
         Raises:
             ValueError: If no node with the specified name exists.
         """
-        # node = cast(NodeType, self._nodes.get(node_name))
         node = self._nodes.get(node_name)
         if node is None:
             raise ValueError(f"Unknown node with name {node_name}", node_name)

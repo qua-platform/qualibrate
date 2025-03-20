@@ -15,6 +15,6 @@ def test_run_calibration_node_from_library(
     folder = Path(__file__).parents[1] / "example_calibration_scripts"
     library = QualibrationLibrary(library_folder=folder)
     mocked = mocker.patch("qualibrate.qualibration_node.QualibrationNode.save")
-    node = library.nodes["basic_node"]
+    node = library.nodes.get_nocopy("basic_node")
     library.run_node("basic_node", node.parameters_class())
     mocked.assert_called_once()
