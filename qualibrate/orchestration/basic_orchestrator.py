@@ -179,7 +179,7 @@ class BasicOrchestrator(
                     f"Graph. Start running node {node_to_run} "
                     f"with parameters {node_parameters}"
                 )
-                executed_node, node_result = node_to_run.run(
+                _, node_result = node_to_run.run(
                     interactive=False, **node_parameters
                 )
                 if self._parameters.skip_failed:
@@ -187,7 +187,6 @@ class BasicOrchestrator(
                 logger.debug(f"Node completed. Result: {node_result}")
             except Exception as ex:
                 new_status = NodeStatus.error
-                executed_node = node_to_run
                 nx_graph.nodes[node_to_run]["error"] = str(ex)
                 logger.exception(
                     (
@@ -207,18 +206,18 @@ class BasicOrchestrator(
             finally:
                 self._execution_history.append(
                     ExecutionHistoryItem(
-                        id=executed_node.snapshot_idx,
+                        id=node_to_run.snapshot_idx,
                         created_at=run_start,
                         metadata=ItemMetadata(
-                            name=executed_node.name,
-                            description=executed_node.description,
+                            name=node_to_run.name,
+                            description=node_to_run.description,
                             status=new_status,
                             run_start=run_start,
                             run_end=datetime.now().astimezone(),
                         ),
                         data=ItemData(
-                            parameters=executed_node._parameters,
-                            outcomes=executed_node.outcomes,
+                            parameters=node_to_run.parameters,
+                            outcomes=node_to_run.outcomes,
                             error=run_error,
                         ),
                     )
