@@ -5,6 +5,8 @@ import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
 import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
 import { classNames } from "../../utils/classnames";
 import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
+import Tooltip from "@mui/material/Tooltip";
+import TitleBarTooltipContent from "./TitleBarTooltipContent";
 
 interface IProps {
   node: LastRunStatusNodeResponseDTO;
@@ -33,34 +35,40 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
   const wrapperClass = isRunning ? styles.running : isFinished ? styles.finished : styles.error;
   const statusClass = isRunning ? styles.statusRunning : isFinished ? styles.statusFinished : styles.statusError;
 
-  {
-    console.log(node.time_remaining);
-  }
   return (
-    <div className={classNames(styles.wrapper, wrapperClass)}>
-      <div className={styles.contentWrapper}>
-        <div className={styles.indicatorWrapper}>
-          <StatusIndicator
-            status={node.status?.charAt(0).toUpperCase() + node.status?.slice(1)}
-            percentage={node.percentage_complete ?? 0}
-          />
-        </div>
-
-        <div className={styles.textWrapper}>
-          <div className={styles.rowWrapper}>
-            <div>
-              {"Active Node"}:&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
-            </div>
+      <Tooltip
+        title={<TitleBarTooltipContent node={node} />}
+        arrow
+        placement="bottom"
+        classes={{
+          tooltip: styles.customTooltip,
+        }}
+      >
+      <div className={classNames(styles.wrapper, wrapperClass, styles.pointerCursor)}>
+        <div className={styles.contentWrapper}>
+          <div className={styles.indicatorWrapper}>
+            <StatusIndicator
+              status={node.status?.charAt(0).toUpperCase() + node.status?.slice(1)}
+              percentage={node.percentage_complete ?? 0}
+            />
           </div>
-          <div className={styles.rowWrapper}>
-            <div className={classNames(styles.statusContainer, statusClass)}>
-              {node.status === "running" ? "Running" : node.status === "finished" ? "Finished" : "Error"}
+
+          <div className={styles.textWrapper}>
+            <div className={styles.rowWrapper}>
+              <div>
+                {"Active Node"}:&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
+              </div>
             </div>
-            {isRunning && <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>}
+            <div className={styles.rowWrapper}>
+              <div className={classNames(styles.statusContainer, statusClass)}>
+                {node.status === "running" ? "Running" : node.status === "finished" ? "Finished" : "Error"}
+              </div>
+              {isRunning && <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Tooltip>
   );
 };
 

@@ -76,3 +76,36 @@
   background-color: #4d1f1f;
   color: #FF6173;
 }
+
+.tooltipContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tooltipRow {
+  display: flex;
+}
+
+.tooltipLabel {
+  width: 100px;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.tooltipValue {
+  color: #ffffff;
+}
+
+.pointerCursor {
+  cursor: pointer;
+}
+
+.customTooltip {
+  background-color: #42424C;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  font-size: 0.85rem;
+  line-height: 1.3;
+}

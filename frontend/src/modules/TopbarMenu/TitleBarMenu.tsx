@@ -8,6 +8,8 @@ import { NodesApi } from "../Nodes/api/NodesAPI";
 
 export interface LastRunStatusNodeResponseDTO {
   status: string;
+  run_start: string;
+  run_duration: number;
   name: string;
   id: number;
   percentage_complete: number;
