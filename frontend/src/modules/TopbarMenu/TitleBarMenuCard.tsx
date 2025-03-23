@@ -22,9 +22,9 @@ const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ sta
 
 const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
   const formatTime = (sec: number) => {
-    const h = Math.floor(sec / 3600),
-      m = Math.floor(((sec % 3600) % 3600) / 60),
-      s = Math.floor(sec % 60);
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor(((sec % 3600) % 3600) / 60);
+    const s = Math.floor(sec % 60);
     return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s left`;
   };
   const isRunning = node.status?.toLowerCase() === "running";
@@ -37,7 +37,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
     console.log(node.time_remaining);
   }
   return (
-    <div className={`${styles.wrapper} ${wrapperClass}`}>
+    <div className={classNames(styles.wrapper, wrapperClass)}>
       <div className={styles.contentWrapper}>
         <div className={styles.indicatorWrapper}>
           <StatusIndicator
@@ -56,7 +56,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
             <div className={classNames(styles.statusContainer, statusClass)}>
               {node.status === "running" ? "Running" : node.status === "finished" ? "Finished" : "Error"}
             </div>
-            <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>
+            {isRunning && <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>}
           </div>
         </div>
       </div>
