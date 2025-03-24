@@ -1,0 +1,102 @@
+@use "../../../assets/styles/variables.scss";
+@use "../../../assets/styles/_base.scss";
+
+.workflowCardWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 100%;
+  gap: 12px;
+  background-color: rgba(0, 178, 255, 0.05);
+  position: relative;
+}
+
+.graphDetailsWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-grow: 1;
+}
+
+.indicatorWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+}
+
+.textWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.graphTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.graphStatusRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusText {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.percentageText {
+  font-size: 0.8rem;
+  color: #8CA0B3;
+}
+
+.timeRemaining {
+  font-size: 0.8rem;
+  color: #8CA0B3;
+}
+
+.nodeCount {
+  font-size: 0.8rem;
+  color: #8CA0B3;
+}
+
+.running {
+  background-color: rgba(0, 178, 255, 0.08);
+}
+
+.finished {
+  background-color: rgba(0, 255, 150, 0.07);
+}
+
+.error {
+  background-color: rgba(255, 50, 70, 0.08);
+}
+
+.statusRunning {
+  background-color: rgba(0, 178, 255, 0.2);
+  color: #3CDEF8;
+}
+
+.statusFinished {
+  background-color: rgba(0, 255, 150, 0.2);
+  color: #32FFC6;
+}
+
+.statusError {
+  background-color: rgba(255, 50, 70, 0.2);
+  color: #FF6173;
+}
+
+.workflowCardWrapper > .menuCardInsideWorkflow {
+  margin-left: auto;
+  min-width: 260px;
+}
