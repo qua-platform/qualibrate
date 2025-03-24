@@ -31,7 +31,7 @@ from qualibrate.q_runnnable import (
     run_modes_ctx,
 )
 from qualibrate.qualibration_node import QualibrationNode
-from qualibrate.utils.exceptions import StopInspection
+from qualibrate.utils.exceptions import StopInspection, TargetsFieldNotExist
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import TargetType
@@ -384,7 +384,20 @@ class QualibrationGraph(
         for node_name in nodes_parameters_model.model_fields_set:
             node_parameters_model = getattr(nodes_parameters_model, node_name)
             if node_parameters_model.targets_name is not None:
-                node_parameters_model.targets = targets
+                try:
+                    node_parameters_model.targets = targets
+                except TargetsFieldNotExist as ex:
+                    targets_name = node_parameters_model.targets_name
+                    msg = (
+                        f'Unable to run node "{node_name}" within graph '
+                        f'"{self.name}". The node is unable to locate the '
+                        "targets parameter "
+                        f'"{targets_name}". Please either add '
+                        f"node.parameters.{targets_name}, or alternatively set "
+                        f"a different targets parameter using "
+                        f'node.parameters.targets_name = "targets_name"'
+                    )
+                    raise TargetsFieldNotExist(msg) from ex
         orchestrator.traverse_graph(self, targets)
 
     def _post_run(
