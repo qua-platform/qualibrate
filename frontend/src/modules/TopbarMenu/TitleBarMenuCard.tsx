@@ -7,6 +7,7 @@ import { classNames } from "../../utils/classnames";
 import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarTooltipContent from "./TitleBarTooltipContent";
+import NoNodeRunningIcon from "../../ui-lib/Icons/NoNodeRunningIcon";
 
 interface IProps {
   node: LastRunStatusNodeResponseDTO;
@@ -18,6 +19,7 @@ const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ sta
       {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} />}
       {status === "Finished" && <CheckmarkIcon />}
       {status === "Error" && <ErrorIcon />}
+      {status === "Pending" && <NoNodeRunningIcon />}
     </>
   );
 };
@@ -34,27 +36,29 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
     const status = node.status?.toLowerCase();
     if (status === "running") return styles.running;
     if (status === "finished") return styles.finished;
-    return styles.error;
+    if (status === "error") return styles.error;
+    return styles.pending;
   };
   
   const getStatusClass = () => {
     const status = node.status?.toLowerCase();
     if (status === "running") return styles.statusRunning;
     if (status === "finished") return styles.statusFinished;
-    return styles.statusError;
+    if (status === "error") return styles.statusError;
+    return styles.statusPending;
   };
   
   const getStatusLabel = (): string => {
     const status = node.status?.toLowerCase();
     if (status === "running") return "Running";
     if (status === "finished") return "Finished";
-    return "Error";
+    if (status === "error") return "Error";
+    return "Select and Run Node";
   };  
   
   return (
       <Tooltip
         title={<TitleBarTooltipContent node={node} />}
-        arrow
         placement="bottom"
         componentsProps={{
           tooltip: {
@@ -79,11 +83,15 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
           </div>
 
           <div className={styles.textWrapper}>
-            <div className={styles.rowWrapper}>
+          <div className={styles.rowWrapper}>
+            {node.status?.toLowerCase() === "pending" ? (
+              <div className={styles.noNodeRunningLabel}>No node is running</div>
+            ) : (
               <div>
-                {"Active Node"}:&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
+                Active Node:&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
               </div>
-            </div>
+            )}
+          </div>
             <div className={styles.rowWrapper}>
               <div className={classNames(styles.statusContainer, getStatusClass())}>
                 {getStatusLabel()}

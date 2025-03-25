@@ -77,6 +77,23 @@
   color: #FF6173;
 }
 
+.pending {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ccc;
+}
+
+.statusPending {
+  background-color: transparent;
+  font: 500 0.9rem 'Roboto', sans-serif;
+  color: #3CDEF8;
+}
+
+.noNodeRunningLabel {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #a0a0af;
+}
+
 .tooltipContent {
   display: flex;
   flex-direction: column;
