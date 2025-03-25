@@ -56,10 +56,19 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
         title={<TitleBarTooltipContent node={node} />}
         arrow
         placement="bottom"
-        classes={{
-          tooltip: styles.customTooltip,
+        componentsProps={{
+          tooltip: {
+            sx: {
+              backgroundColor: "#42424C",
+              padding: "12px",
+              borderRadius: "6px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+              fontSize: "0.85rem",
+              lineHeight: "1.3",
+            }
+          }
         }}
-      >
+        >
       <div className={classNames(styles.wrapper, getWrapperClass(), styles.pointerCursor)}>
         <div className={styles.contentWrapper}>
           <div className={styles.indicatorWrapper}>
