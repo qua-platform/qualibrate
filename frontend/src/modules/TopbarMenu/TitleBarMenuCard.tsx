@@ -29,12 +29,28 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
     const s = Math.floor(sec % 60);
     return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s left`;
   };
-  const isRunning = node.status?.toLowerCase() === "running";
-  const isFinished = node.status?.toLowerCase() === "finished";
 
-  const wrapperClass = isRunning ? styles.running : isFinished ? styles.finished : styles.error;
-  const statusClass = isRunning ? styles.statusRunning : isFinished ? styles.statusFinished : styles.statusError;
-
+  const getWrapperClass = () => {
+    const status = node.status?.toLowerCase();
+    if (status === "running") return styles.running;
+    if (status === "finished") return styles.finished;
+    return styles.error;
+  };
+  
+  const getStatusClass = () => {
+    const status = node.status?.toLowerCase();
+    if (status === "running") return styles.statusRunning;
+    if (status === "finished") return styles.statusFinished;
+    return styles.statusError;
+  };
+  
+  const getStatusLabel = (): string => {
+    const status = node.status?.toLowerCase();
+    if (status === "running") return "Running";
+    if (status === "finished") return "Finished";
+    return "Error";
+  };  
+  
   return (
       <Tooltip
         title={<TitleBarTooltipContent node={node} />}
@@ -44,7 +60,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
           tooltip: styles.customTooltip,
         }}
       >
-      <div className={classNames(styles.wrapper, wrapperClass, styles.pointerCursor)}>
+      <div className={classNames(styles.wrapper, getWrapperClass(), styles.pointerCursor)}>
         <div className={styles.contentWrapper}>
           <div className={styles.indicatorWrapper}>
             <StatusIndicator
@@ -60,10 +76,10 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
               </div>
             </div>
             <div className={styles.rowWrapper}>
-              <div className={classNames(styles.statusContainer, statusClass)}>
-                {node.status === "running" ? "Running" : node.status === "finished" ? "Finished" : "Error"}
+              <div className={classNames(styles.statusContainer, getStatusClass())}>
+                {getStatusLabel()}
               </div>
-              {isRunning && <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>}
+              {node.status?.toLowerCase() === "running" && <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>}
             </div>
           </div>
         </div>
