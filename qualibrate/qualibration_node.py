@@ -810,7 +810,7 @@ class QualibrationNode(
                 try:
                     cls.scan_node_file(file, nodes)
                 except Exception as e:
-                    logger.warn(
+                    logger.warning(
                         "An error occurred on scanning node file "
                         f"{file.name}.\nError: {type(e)}: {e}"
                     )
