@@ -6,7 +6,7 @@
   align-items: center; 
   padding: 8px 12px;
   border-radius: 8px;
-  width: 250px;
+  width: auto;
 }
 
 .contentWrapper {
@@ -31,7 +31,14 @@
   flex-grow: 1;
 }
 
-.rowWrapper {
+.topRowWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bottomRowWrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -44,7 +51,7 @@
 }
 
 .running {
-  background-color: #152935;
+  background-color: #3cddf814;
   color: #fff;
 
   .timeRemainingText {
@@ -53,44 +60,43 @@
 }
 
 .statusRunning {
-  background-color: #0e3c4a;
+  background-color: #3cddf81c;
   color: #3CDEF8;
 }
 
 .finished {
-  background-color: #0f2c28;
+  background-color: #14e1a81a;
   color: #fff;
 }
 
 .statusFinished {
-  background-color: #0b3b30;
+  background-color: #32ffc61a;
   color: #32FFC6;
 }
 
 .error {
-  background-color: #3a1e1e;
+  background-color: #ff61731a;
   color: #fff;
 }
 
 .statusError {
-  background-color: #4d1f1f;
+  background-color: #ff617326;
   color: #FF6173;
 }
 
 .pending {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: #ccc;
+  background-color: var(--popup-background);
+  color: #A5ACB6;
 }
 
 .statusPending {
   background-color: transparent;
-  font: 500 0.9rem 'Roboto', sans-serif;
+  font: 14 'Roboto';
   color: #3CDEF8;
 }
 
 .noNodeRunningLabel {
-  font-size: 0.95rem;
-  font-weight: 500;
+  font: 14;
   color: #a0a0af;
 }
 

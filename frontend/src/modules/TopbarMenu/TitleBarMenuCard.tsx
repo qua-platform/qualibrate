@@ -83,16 +83,16 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
           </div>
 
           <div className={styles.textWrapper}>
-          <div className={styles.rowWrapper}>
-            {node.status?.toLowerCase() === "pending" ? (
-              <div className={styles.noNodeRunningLabel}>No node is running</div>
-            ) : (
-              <div>
-                Active Node:&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
-              </div>
-            )}
-          </div>
-            <div className={styles.rowWrapper}>
+            <div className={styles.topRowWrapper}>
+              {node.status?.toLowerCase() === "pending" ? (
+                <div className={styles.noNodeRunningLabel}>No node is running</div>
+              ) : (
+                <div>
+                  Active Node:&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
+                </div>
+              )}
+            </div>
+            <div className={styles.bottomRowWrapper}>
               <div className={classNames(styles.statusContainer, getStatusClass())}>
                 {getStatusLabel()}
               </div>
