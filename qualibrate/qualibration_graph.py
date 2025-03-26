@@ -271,11 +271,8 @@ class QualibrationGraph(
                     cls.scan_graph_file(file, graphs)
                 except Exception as e:
                     logger.exception(
-                        f"Failed to scan graph file {file}", exc_info=e
-                    )
-                    logger.warning(
-                        "An error occurred on scanning graph file "
-                        f"{file.name}.\nError message: {e}"
+                        f"An error occurred on scanning graph file {file.name}",
+                        exc_info=e
                     )
         finally:
             run_modes_ctx.reset(run_modes_token)
