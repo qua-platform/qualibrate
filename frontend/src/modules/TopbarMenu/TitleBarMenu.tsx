@@ -36,17 +36,14 @@ const TitleBarMenu: React.FC = () => {
 
   const fetchStatus = async () => {
     const res = await NodesApi.fetchLastRunStatusInfo();
-    if (res.isOk && res.result?.node && res.result?.graph) {
-      setNode(res.result.node);
-      setGraph(res.result.graph);
-    }
-    else if (res.isOk && res.result?.node) {
-      setNode(res.result.node);
+    if (res.isOk && res.result) {
+      setNode(res.result.node ?? null);
+      setGraph(res.result.graph ?? null);
     }
   };
 
   useEffect(() => {
-    const interval = setInterval(async () => fetchStatus(), 1000);
+    const interval = setInterval(fetchStatus, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -54,15 +51,32 @@ const TitleBarMenu: React.FC = () => {
     <div className={styles.wrapper}>
       <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
       {topBarAdditionalComponents && topBarAdditionalComponents[activeTab ?? ""]}
+
       {graph ? (
         <div className={styles.menuCardsWrapper}>
-          <TitleBarWorkflowCard graph={graph} node={node} /> 
+          <TitleBarWorkflowCard graph={graph} node={node ?? {
+            status: "pending",
+            run_start: "",
+            run_duration: 0,
+            name: "",
+            id: -1,
+            percentage_complete: 0,
+            time_remaining: 0
+          }} />
         </div>
-      ) : node ? (
+      ) : (
         <div className={styles.menuCardsWrapper}>
-          <TitleBarMenuCard node={node} />
+          <TitleBarMenuCard node={node ?? {
+            status: "pending",
+            run_start: "",
+            run_duration: 0,
+            name: "",
+            id: -1,
+            percentage_complete: 0,
+            time_remaining: 0
+          }} />
         </div>
-      ) : null}
+      )}
     </div>
   );
 };

@@ -12,6 +12,7 @@ const formatDate = (isoString: string | null | undefined) => {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
     hour12: false,
   };
   return date.toLocaleString("en-US", options).replace(",", "");
@@ -25,20 +26,20 @@ export const TitleBarTooltipContent: React.FC<TooltipContentProps> = ({ node }) 
   return (
     <div className={styles.tooltipContent}>
       <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>Run start:</span>
-        <span className={styles.tooltipValue}>{formatDate(node.run_start)}</span>
+        <div className={styles.tooltipLabel}>Run start:</div>
+        <div className={styles.tooltipValue}>{formatDate(node.run_start)}</div>
       </div>
       <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>Status:</span>
-        <span className={styles.tooltipValue}>{node.status}</span>
+        <div className={styles.tooltipLabel}>Status:</div>
+        <div className={styles.tooltipValue}>{node.status}</div>
       </div>
       <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>Run duration:</span>
-        <span className={styles.tooltipValue}>{Math.floor(node.run_duration ?? 0)}s</span>
+        <div className={styles.tooltipLabel}>Run duration:</div>
+        <div className={styles.tooltipValue}>{Math.floor(node.run_duration ?? 0)}s</div>
       </div>
       <div className={styles.tooltipRow}>
-        <span className={styles.tooltipLabel}>idx:</span>
-        <span className={styles.tooltipValue}>{node.id}</span>
+        <div className={styles.tooltipLabel}>idx:</div>
+        <div className={styles.tooltipValue}>{node.id}</div>
       </div>
     </div>
   );

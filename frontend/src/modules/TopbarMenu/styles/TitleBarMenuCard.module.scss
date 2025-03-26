@@ -6,7 +6,7 @@
   align-items: center; 
   padding: 8px 12px;
   border-radius: 8px;
-  width: 250px;
+  width: auto;
 }
 
 .contentWrapper {
@@ -31,7 +31,14 @@
   flex-grow: 1;
 }
 
-.rowWrapper {
+.topRowWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bottomRowWrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -44,8 +51,8 @@
 }
 
 .running {
-  background-color: #152935;
-  color: #ffffff;
+  background-color: #3cddf814;
+  color: #fff;
 
   .timeRemainingText {
     color: #8CA0B3;
@@ -53,28 +60,44 @@
 }
 
 .statusRunning {
-  background-color: #0e3c4a;
+  background-color: #3cddf81c;
   color: #3CDEF8;
 }
 
 .finished {
-  background-color: #0f2c28;
-  color: #ffffff;
+  background-color: #14e1a81a;
+  color: #fff;
 }
 
 .statusFinished {
-  background-color: #0b3b30;
+  background-color: #32ffc61a;
   color: #32FFC6;
 }
 
 .error {
-  background-color: #3a1e1e;
-  color: #ffffff;
+  background-color: #ff61731a;
+  color: #fff;
 }
 
 .statusError {
-  background-color: #4d1f1f;
+  background-color: #ff617326;
   color: #FF6173;
+}
+
+.pending {
+  background-color: var(--popup-background);
+  color: #A5ACB6;
+}
+
+.statusPending {
+  background-color: transparent;
+  font-family: Roboto, sans-serif;
+  color: #3CDEF8;
+}
+
+.noNodeRunningLabel {
+  font: 14;
+  color: #a0a0af;
 }
 
 .tooltipContent {
@@ -85,27 +108,25 @@
 
 .tooltipRow {
   display: flex;
+  flex-direction: row;
+  font-size: 0.9rem;
+  color: #fff;
+  line-height: 1.5;
 }
 
 .tooltipLabel {
-  width: 100px;
-  font-weight: 600;
-  color: #e0e0e0;
+  font-weight: 500;
+  color: #a0a0af;
+  min-width: 110px;
+  text-align: left;
 }
 
 .tooltipValue {
-  color: #ffffff;
+  font-weight: 500;
+  color: #fff;
+  text-align: left;
 }
 
 .pointerCursor {
   cursor: pointer;
-}
-
-.customTooltip {
-  background-color: #42424C;
-  padding: 12px;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  font-size: 0.85rem;
-  line-height: 1.3;
 }
