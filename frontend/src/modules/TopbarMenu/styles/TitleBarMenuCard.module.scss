@@ -108,16 +108,23 @@
 
 .tooltipRow {
   display: flex;
+  flex-direction: row;
+  font-size: 0.9rem;
+  color: #ffffff;
+  line-height: 1.5;
 }
 
 .tooltipLabel {
-  width: 100px;
-  font-weight: 600;
-  color: #e0e0e0;
+  font-weight: 500;
+  color: #a0a0af;
+  min-width: 110px;
+  text-align: left;
 }
 
 .tooltipValue {
-  color: #fff;
+  font-weight: 500;
+  color: #ffffff;
+  text-align: left;
 }
 
 .pointerCursor {
