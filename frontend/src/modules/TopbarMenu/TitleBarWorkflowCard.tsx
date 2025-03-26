@@ -109,6 +109,7 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
       <TitleBarMenuCard node={node} />
       
       {/* TODO: make stop button functional - call function that already implements this */}
+      {/* TODO: change time_remaining to show when finished but display as elapsed time instead of the time left format while running */}
       <div className={styles.stopAndTimeWrapper}>
       {graph.status?.toLowerCase() === "running" && (
         <div className={styles.stopAndTimeWrapper}>
