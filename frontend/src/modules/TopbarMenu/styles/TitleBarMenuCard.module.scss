@@ -91,7 +91,7 @@
 
 .statusPending {
   background-color: transparent;
-  font: 14 'Roboto';
+  font-family: Roboto, sans-serif;
   color: #3CDEF8;
 }
 
@@ -110,7 +110,7 @@
   display: flex;
   flex-direction: row;
   font-size: 0.9rem;
-  color: #ffffff;
+  color: #fff;
   line-height: 1.5;
 }
 
@@ -123,7 +123,7 @@
 
 .tooltipValue {
   font-weight: 500;
-  color: #ffffff;
+  color: #fff;
   text-align: left;
 }
 
