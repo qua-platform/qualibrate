@@ -1,22 +1,7 @@
 import React from "react";
-// eslint-disable-next-line css-modules/no-unused-class
-import styles from "./styles/TitleBarMenuCard.module.scss";
+import styles from "./styles/TitleBarTooltipContent.module.scss";
 import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
-
-const formatDate = (isoString: string | null | undefined) => {
-  if (!isoString) return "-";
-  const date = new Date(isoString);
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  };
-  return date.toLocaleString("en-US", options).replace(",", "");
-};
+import {formatDate} from "../Nodes/components/NodeElement/NodeElement";
 
 interface TooltipContentProps {
   node: LastRunStatusNodeResponseDTO;
@@ -27,7 +12,9 @@ export const TitleBarTooltipContent: React.FC<TooltipContentProps> = ({ node }) 
     <div className={styles.tooltipContent}>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Run start:</div>
-        <div className={styles.tooltipValue}>{formatDate(node.run_start)}</div>
+        <div className={styles.tooltipValue}>
+          {node.run_start ? formatDate(new Date(node.run_start)) : "—"}
+        </div>
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Status:</div>

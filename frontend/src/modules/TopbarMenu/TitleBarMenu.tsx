@@ -47,36 +47,28 @@ const TitleBarMenu: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const fallbackNode: LastRunStatusNodeResponseDTO = {
+    status: "pending",
+    run_start: "",
+    run_duration: 0,
+    name: "",
+    id: -1,
+    percentage_complete: 0,
+    time_remaining: 0,
+  };
+
   return (
     <div className={styles.wrapper}>
       <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
       {topBarAdditionalComponents && topBarAdditionalComponents[activeTab ?? ""]}
 
-      {graph ? (
-        <div className={styles.menuCardsWrapper}>
-          <TitleBarWorkflowCard graph={graph} node={node ?? {
-            status: "pending",
-            run_start: "",
-            run_duration: 0,
-            name: "",
-            id: -1,
-            percentage_complete: 0,
-            time_remaining: 0
-          }} />
-        </div>
-      ) : (
-        <div className={styles.menuCardsWrapper}>
-          <TitleBarMenuCard node={node ?? {
-            status: "pending",
-            run_start: "",
-            run_duration: 0,
-            name: "",
-            id: -1,
-            percentage_complete: 0,
-            time_remaining: 0
-          }} />
-        </div>
-      )}
+      <div className={styles.menuCardsWrapper}>
+        {graph ? (
+          <TitleBarWorkflowCard graph={graph} node={node ?? fallbackNode} />
+        ) : (
+          <TitleBarMenuCard node={node ?? fallbackNode} />
+        )}
+      </div>
     </div>
   );
 };
