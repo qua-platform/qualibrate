@@ -33,22 +33,22 @@ const TitleBarMenu: React.FC = () => {
   }, []);
 
   return (
-<div className={styles.wrapper}>
-  <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
-  {topBarAdditionalComponents && topBarAdditionalComponents[activeTab ?? ""]}
+    <div className={styles.wrapper}>
+      <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
+      {topBarAdditionalComponents && topBarAdditionalComponents[activeTab ?? ""]}
 
-  <div className={styles.menuCardsWrapper}>
-    <TitleBarMenuCard node={node ?? {
-      status: "pending",
-      run_start: "",
-      run_duration: 0,
-      name: "",
-      id: -1,
-      percentage_complete: 0,
-      time_remaining: 0
-    }} />
-  </div>
-</div>
+      <div className={styles.menuCardsWrapper}>
+        <TitleBarMenuCard node={node ?? {
+          status: "pending",
+          run_start: "",
+          run_duration: 0,
+          name: "",
+          id: -1,
+          percentage_complete: 0,
+          time_remaining: 0
+        }} />
+      </div>
+    </div>
   );
 };
 
