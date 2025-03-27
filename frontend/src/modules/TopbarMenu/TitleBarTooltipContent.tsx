@@ -1,6 +1,5 @@
 import React from "react";
-// eslint-disable-next-line css-modules/no-unused-class
-import styles from "./styles/TitleBarMenuCard.module.scss";
+import styles from "./styles/TitleBarTooltipContent.module.scss";
 import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
 import {formatDate} from "../Nodes/components/NodeElement/NodeElement";
 
@@ -13,7 +12,9 @@ export const TitleBarTooltipContent: React.FC<TooltipContentProps> = ({ node }) 
     <div className={styles.tooltipContent}>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Run start:</div>
-        <div className={styles.tooltipValue}>{formatDate(new Date(node.run_start))}</div>
+        <div className={styles.tooltipValue}>
+          {node.run_start ? formatDate(new Date(node.run_start)) : "—"}
+        </div>
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Status:</div>

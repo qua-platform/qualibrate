@@ -106,40 +106,13 @@
 
 .nodeRunningLabel {
   font-size: 12px;
-  text-wrap: nowrap;
+  white-space: nowrap;
   font-weight: 500;
 }
 
 .noNodeRunningLabel {
   font-size: 14px;
   color: #a0a0af;
-}
-
-.tooltipContent {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.tooltipRow {
-  display: flex;
-  flex-direction: row;
-  font-size: 0.9rem;
-  color: #fff;
-  line-height: 1.5;
-}
-
-.tooltipLabel {
-  font-weight: 500;
-  color: #a0a0af;
-  min-width: 110px;
-  text-align: left;
-}
-
-.tooltipValue {
-  font-weight: 500;
-  color: #fff;
-  text-align: left;
 }
 
 .pointerCursor {
