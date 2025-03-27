@@ -16,10 +16,10 @@ interface IProps {
 const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => {
   return (
     <>
-      {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} />}
+      {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} width={30} height={30} />}
       {status === "Finished" && <CheckmarkIcon />}
-      {status === "Error" && <ErrorIcon />}
-      {status === "Pending" && <NoNodeRunningIcon />}
+      {status === "Error" && <ErrorIcon width={20} height={20} />}
+      {status === "Pending" && <NoNodeRunningIcon width={26} height={26} />}
     </>
   );
 };
@@ -87,8 +87,8 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
               {node.status?.toLowerCase() === "pending" ? (
                 <div className={styles.noNodeRunningLabel}>No node is running</div>
               ) : (
-                <div>
-                  Active Node:&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
+                <div  className={styles.nodeRunningLabel}>
+                  Active Node:&nbsp;&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
                 </div>
               )}
             </div>
