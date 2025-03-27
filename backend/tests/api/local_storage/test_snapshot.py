@@ -33,6 +33,7 @@ def test_snapshot_get_snapshot_default(
                     "description": None,
                     "run_end": None,
                     "run_start": None,
+                    "run_duration": None,
                     "status": None,
                 },
                 "data": None,

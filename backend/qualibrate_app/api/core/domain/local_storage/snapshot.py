@@ -205,8 +205,9 @@ def _default_snapshot_content_updater(
     )
     if quam_file_path is None:
         return False
+    new_quam = new_snapshot["quam"]
     with quam_file_path.open("w") as f:
-        json.dump(new_snapshot, f, indent=4)
+        json.dump(new_quam, f, indent=4)
     node_info = dict(node_info)
     if "patches" in node_info:
         if not isinstance(node_info["patches"], list):
@@ -223,7 +224,7 @@ def _default_snapshot_content_updater(
         pass
     elif am_path.is_dir():
         logger.info(f"Updating quam state dir {am_path}")
-        contents = deepcopy(dict(new_snapshot))
+        contents = deepcopy(dict(new_quam))
         content_mapping = {"wiring.json": {"wiring", "network"}}
 
         for filename, content_keys in content_mapping.items():
@@ -646,6 +647,12 @@ class SnapshotLocalStorage(SnapshotBase):
             for path in paths
         }
 
+    def _saved_data_quam_path(self, path: str) -> str:
+        parts = path.split("/", maxsplit=1)
+        if len(parts) == 1:
+            return path
+        return "/".join([parts[0], "quam", parts[1]])
+
     def extract_state_update_type(
         self,
         path: str,
@@ -667,7 +674,9 @@ class SnapshotLocalStorage(SnapshotBase):
         )
         if _type is not None:
             return _type
-        return self._extract_state_update_type_from_quam_state(path)
+        return self._extract_state_update_type_from_quam_state(
+            self._saved_data_quam_path(path)
+        )
 
     def extract_state_update_types(
         self,
@@ -690,7 +699,9 @@ class SnapshotLocalStorage(SnapshotBase):
         )
         if types is not None:
             return types
-        return self.extract_state_update_types_from_quam_state(paths)
+        return self.extract_state_update_types_from_quam_state(
+            [self._saved_data_quam_path(path) for path in paths]
+        )
 
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         """
@@ -708,8 +719,10 @@ class SnapshotLocalStorage(SnapshotBase):
         if self.load_type < SnapshotLoadType.Data:
             self.load(SnapshotLoadType.Data)
         data = self.data
-        if data is None:
+        if data is None or not isinstance(data.get("quam"), Mapping):
             return False
+        # override update paths with quam prefix
+        updates = {self._saved_data_quam_path(k): v for k, v in updates.items()}
 
         path_values = {
             path: jsonpointer.resolve_pointer(data, path[1:], None)
