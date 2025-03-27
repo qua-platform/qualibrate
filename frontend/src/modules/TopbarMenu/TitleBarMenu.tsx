@@ -57,6 +57,18 @@ const TitleBarMenu: React.FC = () => {
     time_remaining: 0,
   };
 
+  const fallbackGraph: LastRunStatusGraphResponseDTO = {
+    name: "",
+    status: "pending",
+    run_start: "",
+    run_end: "",
+    total_nodes: 0,
+    finished_nodes: 0,
+    run_duration: 0,
+    percentage_complete: 0,
+    time_remaining: 0,
+  };
+
   return (
     <div className={styles.wrapper}>
       <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
@@ -64,7 +76,7 @@ const TitleBarMenu: React.FC = () => {
 
       <div className={styles.menuCardsWrapper}>
         {graph ? (
-          <TitleBarWorkflowCard graph={graph} node={node ?? fallbackNode} />
+          <TitleBarWorkflowCard graph={graph ?? fallbackGraph} node={node ?? fallbackNode} />
         ) : (
           <TitleBarMenuCard node={node ?? fallbackNode} />
         )}
