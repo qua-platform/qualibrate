@@ -175,7 +175,7 @@ def _update_state_dir(
     """
     Update the QUAM state directory with a new QUAM state.
 
-    The state directory contains multiple json files, each 
+    The state directory contains multiple json files, each
     containing some top-level keys of the QUAM state.
     For example, it can contain one file called "wiring.json"
     which contains the entries "wiring" and "network", and a
