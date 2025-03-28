@@ -13,6 +13,7 @@ export interface LastRunStatusNodeResponseDTO {
   name: string;
   id?: number;
   percentage_complete: number;
+  current_action?: string | null;
   time_remaining: number | null;
 }
 
@@ -38,14 +39,18 @@ const TitleBarMenu: React.FC = () => {
       {topBarAdditionalComponents && topBarAdditionalComponents[activeTab ?? ""]}
 
       <div className={styles.menuCardsWrapper}>
-        <TitleBarMenuCard node={node ?? {
-          status: "pending",
-          run_start: "",
-          run_duration: 0,
-          name: "",
-          percentage_complete: 0,
-          time_remaining: 0
-        }} />
+        <TitleBarMenuCard
+          node={
+            node ?? {
+              status: "pending",
+              run_start: "",
+              run_duration: 0,
+              name: "",
+              percentage_complete: 0,
+              time_remaining: 0,
+            }
+          }
+        />
       </div>
     </div>
   );
