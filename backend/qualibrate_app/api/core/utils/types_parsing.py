@@ -1,13 +1,13 @@
-# COPIED FROM qualibrate-runner/qualibrate_runner/core/types_parsing.py
+# COPIED FROM qualibrate-core/qualibrate/utils/types_parsing.py
 
 import sys
+from collections.abc import Mapping
+from typing import Any, Optional, Union
 
 if sys.version_info >= (3, 10):
     from types import NoneType
 else:
     NoneType = type(None)
-from collections.abc import Mapping
-from typing import Any, Optional, Union
 
 NOT_NONE_BASIC_TYPES = Union[bool, int, float, str]
 BASIC_TYPES = Union[NOT_NONE_BASIC_TYPES, NoneType]
@@ -66,7 +66,12 @@ def parse_float(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
 
 
 def parse_str(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
-    return value
+    if not isinstance(value, str):
+        return str(value)
+    if len(value) < 3 or value[0] != value[-1] or value[0] != '"':
+        return value
+    # remove wrapping quotes passed from FE
+    return value[1:-1]
 
 
 def parse_none(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:

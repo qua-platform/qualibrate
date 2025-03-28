@@ -2,7 +2,6 @@ import contextlib
 import json
 import logging
 from collections.abc import Mapping, MutableMapping, Sequence
-from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import (
@@ -164,6 +163,65 @@ def _get_data_node_filepath(
     return None
 
 
+def _get_data_node_dir(snapshot_path: Path) -> Optional[Path]:
+    quam_state_dir = snapshot_path / "quam_state"
+    return quam_state_dir if quam_state_dir.is_dir() else None
+
+
+def _update_state_dir(
+    state_dir: Path,
+    new_quam: Mapping[str, Any],
+) -> None:
+    """
+    Update the QUAM state directory with a new QUAM state.
+
+    The state directory contains multiple json files, each
+    containing some top-level keys of the QUAM state.
+    For example, it can contain one file called "wiring.json"
+    which contains the entries "wiring" and "network", and a
+    file called "state.json" containing everything else.
+
+    Note that new top-level entries will not be added, raising
+    a warning
+
+    Args:
+        state_dir: QUAM state directory containing JSON files.
+        new_quam: QUAM state that should be saved to the JSON
+            files in the state directory.
+    """
+    copied = dict(new_quam).copy()
+    for state_file in state_dir.glob("*.json"):
+        with state_file.open("r") as f:
+            state_content = json.load(f)
+
+        new_state_content = {}
+        for component in state_content:
+            new_state_content[component] = copied.pop(component)
+
+        with state_file.open("w") as f:
+            json.dump(new_state_content, f, indent=4)
+    if len(copied) > 0:
+        logger.warning(
+            "Not all root items of the new quam state have been saved to the "
+            f"QUAM state directory {state_dir}."
+        )
+
+
+def _update_active_machine_path(
+    settings: QualibrateConfig, new_quam: Mapping[str, Any]
+) -> None:
+    am_path = get_quam_state_path(settings)
+    if not am_path:
+        logger.info("No active machine path to update")
+        return
+    if am_path.is_dir():
+        logger.info(f"Updating quam state dir {am_path}")
+        _update_state_dir(am_path, new_quam)
+        return
+    logger.info(f"Updating quam state file {am_path}")
+    am_path.write_text(json.dumps(new_quam, indent=4))
+
+
 def _read_data_node_content(
     node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
 ) -> dict[str, Any]:
@@ -217,33 +275,10 @@ def _default_snapshot_content_updater(
         node_info["patches"] = patches
     with node_filepath.open("w") as f:
         json.dump(node_info, f, indent=4)
-
-    am_path = get_quam_state_path(settings)
-    if not am_path:
-        logger.info("No active machine path to update")
-        pass
-    elif am_path.is_dir():
-        logger.info(f"Updating quam state dir {am_path}")
-        contents = deepcopy(dict(new_quam))
-        content_mapping = {"wiring.json": {"wiring", "network"}}
-
-        for filename, content_keys in content_mapping.items():
-            wiring_snapshot = {
-                key: contents.pop(key)
-                for key in content_keys
-                if key in contents
-            }
-            logger.info(f"Writing {filename} to {am_path}")
-            (am_path / filename).write_text(
-                json.dumps(wiring_snapshot, indent=4)
-            )
-
-        logger.info(f"Writing state.json to {am_path}")
-        (am_path / "state.json").write_text(json.dumps(contents, indent=4))
-    else:
-        logger.info(f"Updating quam state file {am_path}")
-        am_path.write_text(json.dumps(new_snapshot, indent=4))
-
+    quam_dir = _get_data_node_dir(snapshot_path)
+    if quam_dir is not None:
+        _update_state_dir(quam_dir, new_quam)
+    _update_active_machine_path(settings, new_quam)
     return True
 
 
@@ -590,6 +625,9 @@ class SnapshotLocalStorage(SnapshotBase):
             quam_state_file: Path = self.node_path / "quam_state.json"
         except QFileNotFoundException:
             return None
+        # TODO: fix quam state resolved (should check data property)
+        if not quam_state_file.is_file():
+            quam_state_file = self.node_path / "state.json"
         if not quam_state_file.is_file():
             return None
         try:
@@ -674,9 +712,7 @@ class SnapshotLocalStorage(SnapshotBase):
         )
         if _type is not None:
             return _type
-        return self._extract_state_update_type_from_quam_state(
-            self._saved_data_quam_path(path)
-        )
+        return self._extract_state_update_type_from_quam_state(path)
 
     def extract_state_update_types(
         self,
@@ -697,11 +733,9 @@ class SnapshotLocalStorage(SnapshotBase):
         types = self.extract_state_update_types_from_runner(
             paths, None, **kwargs
         )
-        if types is not None:
+        if len(types):
             return types
-        return self.extract_state_update_types_from_quam_state(
-            [self._saved_data_quam_path(path) for path in paths]
-        )
+        return self.extract_state_update_types_from_quam_state(paths) or {}
 
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         """
