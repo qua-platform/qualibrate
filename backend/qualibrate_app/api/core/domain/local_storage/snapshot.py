@@ -172,7 +172,23 @@ def _update_state_dir(
     state_dir: Path,
     new_quam: Mapping[str, Any],
 ) -> None:
-    """Update state dir. Only replace but not add operations will be applied"""
+    """
+    Update the QUAM state directory with a new QUAM state.
+
+    The state directory contains multiple json files, each 
+    containing some top-level keys of the QUAM state.
+    For example, it can contain one file called "wiring.json"
+    which contains the entries "wiring" and "network", and a
+    file called "state.json" containing everything else.
+
+    Note that new top-level entries will not be added, raising
+    a warning
+
+    Args:
+        state_dir: QUAM state directory containing JSON files.
+        new_quam: QUAM state that should be saved to the JSON
+            files in the state directory.
+    """
     copied = dict(new_quam).copy()
     for state_file in state_dir.glob("*.json"):
         with state_file.open("r") as f:
@@ -186,11 +202,12 @@ def _update_state_dir(
             json.dump(new_state_content, f, indent=4)
     if len(copied) > 0:
         logger.warning(
-            "Not all root items of quam_state.json have been saved to state dir"
+            "Not all root items of the new quam state have been saved to the "
+            f"QUAM state directory {state_dir}."
         )
 
 
-def _update_am_path(
+def _update_active_machine_path(
     settings: QualibrateConfig, new_quam: Mapping[str, Any]
 ) -> None:
     am_path = get_quam_state_path(settings)
@@ -261,7 +278,7 @@ def _default_snapshot_content_updater(
     quam_dir = _get_data_node_dir(snapshot_path)
     if quam_dir is not None:
         _update_state_dir(quam_dir, new_quam)
-    _update_am_path(settings, new_quam)
+    _update_active_machine_path(settings, new_quam)
     return True
 
 
