@@ -32,6 +32,7 @@ class ActionManager:
 
     def __init__(self) -> None:
         self.actions: dict[str, Action] = {}
+        self.current_action: Optional[Action] = None
         stack = inspect.stack()
         frame_for_names = get_frame_for_keeping_names_from_manager(stack)
         self.predefined_names = get_defined_in_frame_names(frame_for_names)
