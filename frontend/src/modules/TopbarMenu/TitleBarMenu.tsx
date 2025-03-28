@@ -11,7 +11,7 @@ export interface LastRunStatusNodeResponseDTO {
   run_start: string;
   run_duration: number;
   name: string;
-  id: number;
+  id?: number;
   percentage_complete: number;
   time_remaining: number | null;
 }
@@ -43,7 +43,6 @@ const TitleBarMenu: React.FC = () => {
           run_start: "",
           run_duration: 0,
           name: "",
-          id: -1,
           percentage_complete: 0,
           time_remaining: 0
         }} />
