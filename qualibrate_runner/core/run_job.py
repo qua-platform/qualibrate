@@ -58,7 +58,6 @@ def run_node(
             message=str(ex),
             traceback=traceback.format_tb(ex.__traceback__),
         )
-        run_status = RunStatusEnum.ERROR
         raise
     else:
         _idx = node.snapshot_idx if hasattr(node, "snapshot_idx") else -1
