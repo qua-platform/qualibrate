@@ -99,7 +99,6 @@ def run_workflow(
     try:
         library = get_active_library_or_error()
         workflow = library.graphs[workflow.name]  # copied graph instance
-        print(f"Running workflow: {id(workflow)}")
         state.run_item = workflow
         input_parameters = workflow.full_parameters_class(
             **passed_input_parameters
