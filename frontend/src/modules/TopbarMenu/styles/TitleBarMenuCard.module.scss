@@ -47,7 +47,6 @@
 .statusContainer {
   font-size: 12px;
   border-radius: 6px;
-  cursor: pointer;
 }
 
 .running {
@@ -66,6 +65,10 @@
   color: #3CDEF8;
   padding: 1px 4px;
   font-weight: 500;
+}
+
+.statusRunningValue {
+  opacity: 0.8;
 }
 
 .finished {

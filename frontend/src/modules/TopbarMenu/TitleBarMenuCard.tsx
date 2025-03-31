@@ -46,30 +46,18 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
     const status = node.status?.toLowerCase();
     if (status === "running") {
       return (
-        <div onClick={() => openTab("nodes")} className={classNames(styles.statusContainer, styles.statusRunning)}>
-          Running{node.current_action ? `: ${node.current_action}` : ""}
+        <div className={classNames(styles.statusContainer, styles.statusRunning)}>
+          Running<span className={styles.statusRunningValue}>{node.current_action ? `: ${node.current_action}` : ""}</span>
         </div>
       );
     }
     if (status === "finished") {
-      return (
-        <div onClick={() => openTab("nodes")} className={classNames(styles.statusContainer, styles.statusFinished)}>
-          Finished
-        </div>
-      );
+      return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>;
     }
     if (status === "error") {
-      return (
-        <div onClick={() => openTab("nodes")} className={classNames(styles.statusContainer, styles.statusError)}>
-          Error
-        </div>
-      );
+      return <div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>;
     }
-    return (
-      <div onClick={() => openTab("nodes")} className={classNames(styles.statusContainer, styles.statusPending)}>
-        Select and Run Node
-      </div>
-    );
+    return <div className={classNames(styles.statusContainer, styles.statusPending)}>Select and Run Node</div>;
   };
 
   return (
@@ -89,7 +77,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
         },
       }}
     >
-      <div className={classNames(styles.wrapper, getWrapperClass(), styles.pointerCursor)}>
+      <div onClick={() => openTab("nodes")} className={classNames(styles.wrapper, getWrapperClass(), styles.pointerCursor)}>
         <div className={styles.contentWrapper}>
           <div className={styles.indicatorWrapper}>
             <StatusIndicator
