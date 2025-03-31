@@ -35,7 +35,7 @@ export const NodesPage = () => {
           <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results showSearch={false} toggleSwitch={true} />
+          <Results showSearch={false} toggleSwitch={true} pageName={"nodes"} />
         </div>
       </div>
     </div>
