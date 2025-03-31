@@ -8,6 +8,8 @@ import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
 // import { classNames } from "../../utils/classnames";
 import StopButtonIcon from "../../ui-lib/Icons/StopButtonIcon";
 import NoNodeRunningIcon from "../../ui-lib/Icons/NoNodeRunningIcon"; // change to figma icon (recently made this exact icon for side bar menu icon update)
+import Tooltip from "@mui/material/Tooltip";
+import TitleBarWorkflowTooltipContent from "./TitleBarWorkflowTooltipContent";
 
 const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => {
   return (
@@ -19,7 +21,6 @@ const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ sta
     </>
   );
 };
-
 
 interface LastRunStatusGraphResponseDTO {
   name: string;
@@ -54,7 +55,7 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
     if (status === "error") return styles.error;
     return styles.pending;
   };
-  
+
   const getStatusClass = (): string => {
     const status = graph.status?.toLowerCase();
     if (status === "running") return styles.statusRunning;
@@ -62,72 +63,93 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
     if (status === "error") return styles.statusError;
     return styles.statusPending;
   };
-  
 
   return (
-  <div className={`${styles.workflowCardWrapper} ${getWrapperClass()}`}>
-  {graph.status?.toLowerCase() === "pending" ? (
-    <>
-      <div className={styles.indicatorWrapper}>
-        <NoNodeRunningIcon />
-      </div>
-      <div className={styles.graphDetailsWrapper}>
-        <div className={styles.textWrapper}>
-          <div className={styles.graphTitle}>No graph is running</div>
-          <div className={styles.graphStatusRow}>
-            <div className={styles.statusPending}>Select and Run Calibration Graph</div>
+    <div className={`${styles.workflowCardWrapper} ${getWrapperClass()}`}>
+      {graph.status?.toLowerCase() === "pending" ? (
+        <>
+          <div className={styles.indicatorWrapper}>
+            <NoNodeRunningIcon />
           </div>
-        </div>
-      </div>
-    </>
-  ) : (
-    <>
-      {/* TODO: Add tooltiphover */}
-      {/* TODO: make hight and width bigger for icons of workflow card */}
-      <div className={styles.indicatorWrapper}>
-        <StatusIndicator
-          status={graph.status?.charAt(0).toUpperCase() + graph.status?.slice(1)}
-          percentage={graph.percentage_complete ?? 0}
-        />
-      </div>
-      <div className={styles.graphDetailsWrapper}>
-        <div className={styles.textWrapper}>
-          <div className={styles.graphTitle}>
-            Active Graph: {graph.name || "No graph is running"}
-          </div>
-          <div className={styles.graphStatusRow}>
-          <div className={`${styles.statusText} ${getStatusClass()}`}>
-            {graph.status}
-          </div>
-            <div className={styles.nodeCount}>
-              {graph.finished_nodes}/{graph.total_nodes} nodes finished
+          <div className={styles.graphDetailsWrapper}>
+            <div className={styles.textWrapper}>
+              <div className={styles.graphTitle}>No graph is running</div>
+              <div className={styles.graphStatusRow}>
+                <div className={styles.statusPending}>Select and Run Calibration Graph</div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      ) : (
+        <Tooltip
+          title={<TitleBarWorkflowTooltipContent graph={graph} />}
+          placement="bottom-start"
+          componentsProps={{
+            tooltip: {
+              sx: {
+                backgroundColor: "#42424C",
+                padding: "12px",
+                borderRadius: "6px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                fontSize: "0.85rem",
+                lineHeight: "1.3",
+              }
+            }
+          }}
+        >
+          <div className={styles.workflowCardContent}>
+            {/* TODO: Fix tooltiphover */}
+            {/* TODO: make hight and width bigger for icons of workflow card */}
+            <div className={styles.indicatorWrapper}>
+              <StatusIndicator
+                status={graph.status?.charAt(0).toUpperCase() + graph.status?.slice(1)}
+                percentage={graph.percentage_complete ?? 0}
+              />
+            </div>
+            <div className={styles.graphDetailsWrapper}>
+              <div className={styles.textWrapper}>
+                <div className={styles.graphTitle}>
+                  Active Graph: {graph.name || "No graph is running"}
+                </div>
+                <div className={styles.graphStatusRow}>
+                  <div className={`${styles.statusText} ${getStatusClass()}`}>
+                    {graph.status}
+                  </div>
+                  <div className={styles.nodeCount}>
+                    {graph.finished_nodes}/{graph.total_nodes} nodes finished
+                  </div>
+                </div>
+              </div>
+            </div>
 
-      <TitleBarMenuCard node={node} />
-      
-      {/* TODO: make stop button functional - call function that already implements this */}
-      {/* TODO: change time_remaining to show when finished but display as elapsed time instead of the time left format while running */}
-      <div className={styles.stopAndTimeWrapper}>
-      {graph.status?.toLowerCase() === "running" && (
-        <div className={styles.stopAndTimeWrapper}>
-          <div className={styles.stopButton}>
-            <StopButtonIcon />
+            {/* 
+              TODO: 
+              System feedback: Flash finished TitleBarMenuCard for a split second before loading the next card. 
+              This is to give the user a visual cue that the node queued has finished running. 
+              If you run a graph you'll notice it immediatly starts running the next node without 
+              any visual feedback that the node has finished running. 
+            */}
+            <TitleBarMenuCard node={node} />
+
+            {/* TODO: make stop button functional - call function that already implements this */}
+            {/* TODO: change time_remaining to show when finished but display as elapsed time instead of the time left format while running */}
+            {graph.status?.toLowerCase() === "running" && (
+              <div className={styles.stopAndTimeWrapper}>
+                <div className={styles.stopButton}>
+                  <StopButtonIcon />
+                </div>
+                {graph.time_remaining !== null && (
+                  <div className={styles.timeRemaining}>
+                    {formatTime(graph.time_remaining)}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          {graph.time_remaining !== null && (
-            <div className={styles.timeRemaining}>
-              {formatTime(graph.time_remaining)}
-            </div>
-          )}
-        </div>
+        </Tooltip>
       )}
-      </div>
-    </>
-  )}
-  </div>
-  );    
+    </div>
+  );
 };
 
 export default TitleBarWorkflowCard;

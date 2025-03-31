@@ -63,7 +63,7 @@ const TitleBarMenu: React.FC = () => {
     run_start: "",
     run_end: "",
     total_nodes: 0,
-    finished_nodes: 0,
+    finished_nodes: 1,
     run_duration: 0,
     percentage_complete: 0,
     time_remaining: 0,
