@@ -70,8 +70,6 @@ from qualibrate.utils.node.record_state_update import (
     record_state_update_getitem,
 )
 from qualibrate.utils.read_files import get_module_name, import_from_path
-
-# from qualibrate.utils.action_manager import ActionManager
 from qualibrate.utils.type_protocols import TargetType
 
 __all__ = [
@@ -511,6 +509,7 @@ class QualibrationNode(
             A summary object containing execution details.
         """
         outcomes = self.outcomes
+        self._action_manager.current_action = None
         if self.parameters is not None and (targets := self.parameters.targets):
             lost_targets_outcomes = set(targets) - set(outcomes.keys())
             outcomes.update(
@@ -874,6 +873,11 @@ class QualibrationNode(
     @fraction_complete.setter
     def fraction_complete(self, value: float) -> None:
         self._fraction_complete = max(min(value, 1.0), 0.0)
+
+    @property
+    def current_action_name(self) -> Optional[str]:
+        action = self._action_manager.current_action
+        return action.name if action else None
 
 
 if __name__ == "__main__":
