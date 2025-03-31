@@ -47,15 +47,15 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
     if (status === "running") {
       return (
         <div className={classNames(styles.statusContainer, styles.statusRunning)}>
-          Running{node.current_action ? <span className={styles.currentAction}>: {node.current_action}</span> : ""}
+          Running{node.current_action ? `: ${node.current_action}` : ""}
         </div>
       );
     }
-            if (status === "finished") {
-      return (<div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>);
+    if (status === "finished") {
+      return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>;
     }
     if (status === "error") {
-      return (<div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>);
+      return <div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>;
     }
     return (
       <div onClick={() => openTab("nodes")} className={classNames(styles.statusContainer, styles.statusPending)}>
