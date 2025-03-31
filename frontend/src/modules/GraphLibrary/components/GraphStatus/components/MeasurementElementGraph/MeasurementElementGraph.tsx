@@ -19,7 +19,7 @@ interface IProps {
 
 export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements, onCytoscapeNodeClick }) => {
   const { lastRunInfo } = useGraphContext();
-  
+
   const [tuneUpName, setTuneUpName] = useState<string | undefined>(lastRunInfo?.workflowName);
 
   useEffect(() => {
@@ -52,12 +52,12 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
   return (
     <div className={styles.wrapper}>
       <div className={styles.calibrationTitle}>
-      <span
-        className={classNames(
-          styles.dot,
-          isRunning ? styles.blinkingYellow : lastRunInfo?.active === false ? styles.solidGreen : styles.defaultBlue
-        )}
-      />
+        <span
+          className={classNames(
+            styles.dot,
+            isRunning ? styles.blinkingYellow : lastRunInfo?.active === false ? styles.solidGreen : styles.defaultBlue
+          )}
+        />
         <span className={styles.label}>Active Calibration Graph:</span>
         <span className={styles.tuneUpName}>{tuneUpName || "Unknown Tune-up"}</span>
       </div>
@@ -67,9 +67,9 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
           <div className={styles.lowerUpperContainer}>
             <div className={styles.lowerUpperLeftContainer}>
               <div>Status: {statusMessage}</div>
+              <div>Run duration: {runDurationMessage ?? <CircularProgress size="2rem" />}</div>
               <div>Graph progress: {graphProgressMessage ?? <CircularProgress size="2rem" />}</div>
               {lastRunInfo?.error && <ErrorStatusWrapper error={lastRunInfo?.error} />}
-              <div>Run duration: {runDurationMessage ?? <CircularProgress size="2rem" />}</div>
             </div>
             <div className={styles.lowerUpperRightContainer}>
               {lastRunInfo?.active && <BlueButton onClick={handleStopClick}>Stop</BlueButton>}

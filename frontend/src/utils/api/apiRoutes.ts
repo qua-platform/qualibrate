@@ -28,4 +28,5 @@ export const SUBMIT_NODE_RUN = () => "execution/submit/node";
 export const SUBMIT_WORKFLOW_RUN = () => "execution/submit/workflow";
 export const GET_EXECUTION_HISTORY = () => "execution/last_run/workflow/execution_history?reverse=true";
 export const GET_LAST_RUN = () => "execution/last_run/";
+export const GET_LAST_RUN_STATUS = () => "execution/last_run/status";
 export const GET_LAST_RUN_WORKFLOW_STATUS = () => "execution/last_run/workflow/status";

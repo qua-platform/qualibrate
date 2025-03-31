@@ -615,17 +615,17 @@ class TestSnapshotLocalStorage:
 
         def _check_new_values(_snapshot_path, new_snapshot, patches, _settings):
             assert patches == [
-                {"op": "replace", "path": "/a", "value": "x", "old": "b"},
-                {"op": "replace", "path": "/d/g", "value": 4, "old": 1},
+                {"op": "replace", "path": "/quam/a", "value": "x", "old": "b"},
+                {"op": "replace", "path": "/quam/d/g", "value": 4, "old": 1},
             ]
-            assert new_snapshot == updated
+            assert new_snapshot["quam"] == updated
             return True
 
         mocker.patch.object(
             self.snapshot.__class__,
             "data",
             new_callable=PropertyMock,
-            return_value=original,
+            return_value={"quam": original},
         )
         mocker.patch.object(
             self.snapshot.__class__,

@@ -14,6 +14,8 @@ export interface MenuCard {
   spinnerIconText?: string;
   dot?: boolean;
   id?: string;
+  percentage?: number;
+  timeRemaining?: string;
 }
 
 interface TitleBarContextState {

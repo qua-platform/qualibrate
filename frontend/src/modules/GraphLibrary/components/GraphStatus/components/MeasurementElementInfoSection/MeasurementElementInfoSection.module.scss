@@ -21,6 +21,7 @@
 .label {
     color: #A5ACB6;
     min-width: 130px;
+
     &.info {
         white-space: nowrap;
         min-width: 90px;
@@ -38,7 +39,7 @@
     border: 2px solid var(--border-color);
     border-radius: 10px;
     padding: 15px;
-    color: #A5ACB6;
+    background-color: var(--popup-background);
 }
   
 .outcomes h4 {

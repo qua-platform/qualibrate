@@ -3,16 +3,22 @@
 
 .wrapper {
   display: flex;
-  height: 72px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: var(--background-dark);
+  border-radius: 8px;
   width: 100%;
-  align-content: center;
 }
 
 .menuCardsWrapper {
-  width: 100%;
-  align-content: center;
-  padding-right: 20px;
   display: flex;
-  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-left: auto;
+  justify-content: flex-end;
+  padding-right: 25px;
+  margin-right: 25px;
 }
 
