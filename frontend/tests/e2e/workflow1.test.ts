@@ -48,7 +48,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }) => {
   const samplingPointsField = testCalNode.getByTestId("input-field-sampling_points");
   const noiseFactorField = testCalNode.getByTestId("input-field-noise_factor");
   await expect(resonatorField).toHaveValue("q1.resonator");
-  await expect(samplingPointsField).toHaveValue("100");
+  await expect(samplingPointsField).toHaveValue("1000");
   await expect(noiseFactorField).toHaveValue("0.1");
   // Their feilds are modifiable,
   await resonatorField.click();
