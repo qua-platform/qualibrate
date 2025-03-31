@@ -19,6 +19,7 @@ def params_with_req() -> type[NodeParameters]:
 @pytest.fixture
 def node_with_req_param(
     params_with_req: type[NodeParameters],
+    qualibrate_config_and_path_mocked,
 ) -> QualibrationNode:
     yield QualibrationNode(
         "node_name", params_with_req(req_str_param="a"), "node description"

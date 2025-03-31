@@ -163,11 +163,11 @@ class BasicOrchestrator(
 
         while not self._is_execution_finished() and not self._is_stopped:
             node_to_run = self.get_next_node()
-            logger.info(f"Graph. Node to run. {node_to_run}")
             if node_to_run is None:
                 exc = RuntimeError("No next node. Execution not finished")
                 logger.exception("", exc_info=exc)
                 raise exc
+            logger.info(f"Graph. Node to run. {node_to_run}")
             node_to_run_parameters = getattr(nodes_parameters, node_to_run.name)
             run_start = datetime.now().astimezone()
             run_error: Optional[RunError] = None
@@ -179,7 +179,7 @@ class BasicOrchestrator(
                     f"Graph. Start running node {node_to_run} "
                     f"with parameters {node_parameters}"
                 )
-                executed_node, node_result = node_to_run.run(
+                node_result = node_to_run.run(
                     interactive=False, **node_parameters
                 )
                 if self._parameters.skip_failed:
@@ -187,7 +187,6 @@ class BasicOrchestrator(
                 logger.debug(f"Node completed. Result: {node_result}")
             except Exception as ex:
                 new_status = NodeStatus.error
-                executed_node = node_to_run
                 nx_graph.nodes[node_to_run]["error"] = str(ex)
                 logger.exception(
                     (
@@ -207,18 +206,18 @@ class BasicOrchestrator(
             finally:
                 self._execution_history.append(
                     ExecutionHistoryItem(
-                        id=executed_node.snapshot_idx,
+                        id=node_to_run.snapshot_idx,
                         created_at=run_start,
                         metadata=ItemMetadata(
-                            name=executed_node.name,
-                            description=executed_node.description,
+                            name=node_to_run.name,
+                            description=node_to_run.description,
                             status=new_status,
                             run_start=run_start,
                             run_end=datetime.now().astimezone(),
                         ),
                         data=ItemData(
-                            parameters=executed_node._parameters,
-                            outcomes=executed_node.outcomes,
+                            parameters=node_to_run.parameters,
+                            outcomes=node_to_run.outcomes,
                             error=run_error,
                         ),
                     )

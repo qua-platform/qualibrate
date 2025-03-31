@@ -44,7 +44,16 @@ def qualibrate_config_from_path(qualibrate_config_path, qualibrate_config):
 
 
 @pytest.fixture
-def node():
+def qualibrate_config_and_path_mocked(mocker, qualibrate_config_from_path):
+    mocker.patch("qualibrate.qualibration_node.get_qualibrate_config_path")
+    mocker.patch(
+        "qualibrate.qualibration_node.get_qualibrate_config",
+        return_value=qualibrate_config_from_path,
+    )
+
+
+@pytest.fixture
+def node(qualibrate_config_and_path_mocked):
     class Parameters(NodeParameters):
         qubits: list[str] = Field(default_factory=list)
 

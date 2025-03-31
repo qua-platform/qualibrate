@@ -231,11 +231,10 @@ class TestQualibrationGraph:
             graph, "_post_run", return_value="run_summary"
         )
 
-        result_graph, run_summary = graph.run(nodes={"node1": {}})
+        run_summary = graph.run(nodes={"node1": {}})
 
         mock_orchestrator_traverse.assert_called_once()
         mock_post_run.assert_called_once()
-        assert result_graph == graph
         assert run_summary == "run_summary"
 
     def test_run_error(self, mocker, pre_setup_graph_init):

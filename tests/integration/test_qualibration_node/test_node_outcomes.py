@@ -8,7 +8,7 @@ from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.exceptions import StopInspection
 
 
-def test_node_outcomes():
+def test_node_outcomes(qualibrate_config_and_path_mocked):
     try:
         QualibrationNode.modes.inspection = True
         with pytest.raises(StopInspection):
@@ -26,8 +26,8 @@ def test_node_outcomes():
             nodes,
         )
         node = nodes["node_part_outcome"]
-        node, _summary = node.run()
-        assert node.outcomes == {
+        summary = node.run()
+        assert summary.outcomes == {
             "q0": Outcome.SUCCESSFUL,
             "q1": Outcome.FAILED,
             "q2": Outcome.SUCCESSFUL,
