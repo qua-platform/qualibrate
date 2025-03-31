@@ -77,12 +77,12 @@ def get_status(
         status = (
             state.last_run.status if graph is None else RunStatusEnum.RUNNING
         )
-
         node_status = RunStatusNode(
             name=node.name,
             id=node.snapshot_idx or state.last_run.idx,
             status=status,
             run_start=node.run_start,
+            current_action=node.current_action_name,
             run_end=state.last_run.completed_at,
             percentage_complete=node.fraction_complete * 100,
         )
