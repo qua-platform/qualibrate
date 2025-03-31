@@ -55,7 +55,7 @@ export const RunningJob: React.FC = () => {
       </div>
       {runningNodeInfo && <RunningJobInfoSection />}
       <div className={styles.parameterStatesWrapper}>
-        <div className={styles.parameterColumnWrapper}>{runningNodeInfo && <RunningJobParameters />}</div>
+        <div className={styles.parameterColumnWrapper}>{<RunningJobParameters />}</div>
         <div className={styles.statesColumnWrapper} data-testid="states-column-wrapper">
           <StateUpdates
             runningNodeInfo={runningNodeInfo}

@@ -5,6 +5,8 @@ import InputField from "../../../common/ui-components/common/Input/InputField";
 import ToggleSwitch from "../../../common/ui-components/common/ToggleSwitch/ToggleSwitch";
 import { useNodesContext } from "../../Nodes/context/NodesContext";
 import Iframe from "../../../common/ui-components/common/Iframe/Iframe";
+import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
+import { ModuleKey } from "../../../routing/ModulesRegistry";
 
 interface IJSONEditorProps {
   title: string;
@@ -12,13 +14,15 @@ interface IJSONEditorProps {
   height: string;
   showSearch?: boolean;
   toggleSwitch?: boolean;
+  pageName?: ModuleKey;
 }
 
-export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, toggleSwitch = false }: IJSONEditorProps) => {
+export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, toggleSwitch = false, pageName }: IJSONEditorProps) => {
   const { isNodeRunning } = useNodesContext();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);
   const [activeTab, setActiveTab] = useState<string>("final"); // Start with final
+  const { selectedPageName } = useFlexLayoutContext();
 
   useEffect(() => {
     setJsonData(jsonDataProp);
@@ -27,7 +31,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
   // Listen for postMessage events to switch to live
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.action === "switchToLiveTab" && isNodeRunning) {
+      if (event.data && event.data.action === "data-dashboard-update") {
         console.log("PostMessage indicates to switch to live tab and node is running.");
         setActiveTab("live");
       }
@@ -126,7 +130,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
         <InputField value={searchTerm} title={"Search"} onChange={(_e, event) => handleSearch(event.target.value, event)}></InputField>
       )}
       <>
-        <div style={{ width: "100%", height: "100%", display: activeTab === "final" ? "block" : "none" }}>
+        <div style={{ width: "100%", height: "100%", display: activeTab === "final" ? "block" : "none", overflowY: "auto" }}>
           <JsonViewer
             rootName={false}
             onSelect={(path) => handleOnSelect(path)}
@@ -138,9 +142,11 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
             style={{ overflowY: "auto", height: "100%" }}
           />
         </div>
-        <div style={{ width: "100%", height: "100%", display: activeTab === "live" ? "block" : "none" }}>
-          <Iframe targetUrl={iframeURL} />
-        </div>
+        {toggleSwitch && (
+          <div style={{ width: "100%", height: "100%", display: activeTab === "live" ? "block" : "none" }}>
+            {selectedPageName === pageName && <Iframe targetUrl={iframeURL} />}
+          </div>
+        )}
       </>
     </div>
   );

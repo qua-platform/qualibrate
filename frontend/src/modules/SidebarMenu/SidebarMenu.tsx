@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { bottomMenuItems, menuItems } from "../../routing/ModulesRegistry";
 import MenuItem from "./MenuItem";
-import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
-import ThemeToggle from "../themeModule/ThemeToggle";
+// import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
+// import ThemeToggle from "../themeModule/ThemeToggle";
 import { classNames } from "../../utils/classnames";
 import styles from "./styles/SidebarMenu.module.scss";
 import cyKeys from "../../utils/cyKeys";
@@ -52,13 +52,12 @@ const SidebarMenu: React.FunctionComponent = () => {
             keyId="help" 
             hideText={minify} 
             onClick={handleHelpClick} 
-            showText={!minify}
           />
-          {THEME_TOGGLE_VISIBLE && (
+          {/* {THEME_TOGGLE_VISIBLE && (
             <div className={styles.menuBottomContent}>
               <ThemeToggle showText={!minify} />
             </div>
-          )}
+          )} */}
           <MenuItem
             menuItem={{
               icon: minify ? ExpandSideMenuIcon : CollapseSideMenuIcon,
