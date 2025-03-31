@@ -44,17 +44,18 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
 
   const getStatusLabelElement = (): React.ReactNode => {
     const status = node.status?.toLowerCase();
-    const status1 = "node.status?.toLowerCase()";
     if (status === "running") {
       return (
-        <div className={classNames(styles.statusContainer, styles.statusRunning)}>Running{status1 ? `: ${node.current_action}` : ""}</div>
+        <div className={classNames(styles.statusContainer, styles.statusRunning)}>
+          Running{node.current_action ? <span className={styles.currentAction}>: {node.current_action}</span> : ""}
+        </div>
       );
     }
-    if (status === "finished") {
-      return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>;
+            if (status === "finished") {
+      return (<div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>);
     }
     if (status === "error") {
-      return <div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>;
+      return (<div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>);
     }
     return (
       <div onClick={() => openTab("nodes")} className={classNames(styles.statusContainer, styles.statusPending)}>

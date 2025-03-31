@@ -67,6 +67,13 @@
   font-weight: 500;
 }
 
+.currentAction {
+  color: var(--Blue-text, #3CDEF8);
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
 .finished {
   background-color: #14e1a81a;
   color: #fff;
@@ -107,6 +114,9 @@
   font-size: 12px;
   white-space: nowrap;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px; 
 }
 
 .noNodeRunningLabel {
