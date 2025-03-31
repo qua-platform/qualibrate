@@ -1,7 +1,8 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import { ALL_NODES, GET_LAST_RUN, IS_NODE_RUNNING, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
+import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, IS_NODE_RUNNING, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
+import { LastRunStatusNodeResponseDTO } from "../../../modules/TopbarMenu/TitleBarMenu";
 
 export class NodesApi extends Api {
   constructor() {
@@ -34,6 +35,12 @@ export class NodesApi extends Api {
 
   static fetchLastRunInfo(): Promise<Res<unknown>> {
     return this._fetch(this.api(GET_LAST_RUN()), API_METHODS.GET, {
+      headers: BASIC_HEADERS,
+    });
+  }
+
+  static fetchLastRunStatusInfo(): Promise<Res<{ node: LastRunStatusNodeResponseDTO }>> {
+    return this._fetch(this.api(GET_LAST_RUN_STATUS()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }
