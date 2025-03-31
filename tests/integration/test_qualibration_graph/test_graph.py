@@ -16,7 +16,15 @@ from qualibrate.qualibration_library import QualibrationLibrary
 
 
 @pytest.fixture
-def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
+def qualibration_lib(
+    mocker,
+    qualibrate_config_from_path,
+) -> Generator[QualibrationLibrary, None, None]:
+    mocker.patch("qualibrate.qualibration_node.get_qualibrate_config_path")
+    mocker.patch(
+        "qualibrate.qualibration_node.get_qualibrate_config",
+        return_value=qualibrate_config_from_path,
+    )
     cal_path = Path(__file__).parent / "calibrations"
     tmp = QualibrationLibrary(cal_path)
     yield tmp

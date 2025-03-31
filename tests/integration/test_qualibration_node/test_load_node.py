@@ -1,3 +1,4 @@
+import io
 import warnings
 from dataclasses import asdict
 from datetime import datetime
@@ -7,6 +8,7 @@ import numpy as np
 import pytest
 import xarray as xr
 from matplotlib import pyplot as plt
+from PIL import Image, ImageChops
 from quam.components import BasicQuAM, SingleChannel
 
 from qualibrate.parameters import NodeParameters
@@ -30,7 +32,9 @@ def empty_node_dir(empty_nodes_dump_folder):
 
 
 def test_load_from_id_class_empty(
-    empty_nodes_dump_folder: Path, empty_node_dir: Path
+    empty_nodes_dump_folder: Path,
+    empty_node_dir: Path,
+    qualibrate_config_and_path_mocked,
 ):
     loaded_node = QualibrationNode.load_from_id(
         1, base_path=empty_nodes_dump_folder
@@ -42,7 +46,10 @@ def test_load_from_id_class_empty(
     assert loaded_node.results == {}
 
 
-def test_load_from_id_class_filled(nodes_dumps_dir: Path):
+def test_load_from_id_class_filled(
+    nodes_dumps_dir: Path,
+    qualibrate_config_and_path_mocked,
+):
     loaded_node = QualibrationNode.load_from_id(1, base_path=nodes_dumps_dir)
     assert loaded_node is not None
     assert isinstance(loaded_node.parameters, NodeParameters)
@@ -66,7 +73,21 @@ def test_load_from_id_class_filled(nodes_dumps_dir: Path):
 
 
 @pytest.fixture
-def node_for_dump(mocker):
+def state_path(mocker, tmp_path):
+    state_path = tmp_path / "state_path"
+    state_path.mkdir()
+    mocker.patch(
+        "qualibrate.qualibration_node.get_quam_state_path",
+        return_value=state_path,
+    )
+
+
+@pytest.fixture
+def node_for_dump(
+    mocker,
+    state_path,
+    qualibrate_config_and_path_mocked,
+):
     mocker.patch("qualibrate.qualibration_node.logger")
 
     class Parameters(NodeParameters):
@@ -115,28 +136,11 @@ def node_for_dump(mocker):
     return node
 
 
-def test_save_and_load(
-    mocker,
-    tmp_path,
-    node_for_dump,
-    qualibrate_config,
-):
+def test_save_and_load(mocker, tmp_path, node_for_dump, qualibrate_config):
     warnings.filterwarnings("error", category=UserWarning)
 
     copied_params = node_for_dump.parameters.model_copy(deep=True)
     copied_results = node_for_dump.results.copy()
-    state_path = tmp_path / "state_path"
-    state_path.mkdir()
-    mocker.patch("qualibrate.qualibration_node.get_qualibrate_config_path")
-    mocker.patch(
-        "qualibrate.qualibration_node.get_qualibrate_config",
-        return_value=qualibrate_config,
-    )
-    mocker.patch(
-        "qualibrate.qualibration_node.get_quam_state_path",
-        return_value=state_path,
-    )
-    assert node_for_dump.storage_manager is None
     node_for_dump.save()
     assert node_for_dump.storage_manager is not None
     assert isinstance(node_for_dump.storage_manager.snapshot_idx, int)
@@ -152,13 +156,25 @@ def test_save_and_load(
     assert copied_params.model_dump() == restored_node.parameters.model_dump()
     assert isinstance(restored_node.machine, BasicQuAM)
     assert asdict(restored_node.machine) == asdict(node_for_dump.machine)
-    restored_results = node_for_dump.results
+    restored_results = restored_node.results
     assert restored_node.results.keys() == copied_results.keys()
     assert (
         restored_results["frequency_shift"] == copied_results["frequency_shift"]
     )
     assert restored_results["arr"].equals(copied_results["arr"])
-    assert np.array_equal(
-        restored_results["results_fig"].get_size_inches(),
-        copied_results["results_fig"].get_size_inches(),
+    assert (
+        ImageChops.difference(
+            restored_results["results_fig"],
+            _fig_to_pil(copied_results["results_fig"]),
+        ).getbbox()
+        is None
     )
+
+
+def _fig_to_pil(fig: plt.Figure) -> Image:
+    buf = io.BytesIO()  # Create an in-memory bytes buffer
+    fig.savefig(
+        buf, format="png", bbox_inches="tight"
+    )  # Save figure as PNG to buffer
+    buf.seek(0)  # Move cursor to the beginning of buffer
+    return Image.open(buf)  # Open buffer as an image using PIL

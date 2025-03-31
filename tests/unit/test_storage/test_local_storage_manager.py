@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, call
 
 import pytest
 from pydantic import BaseModel
+from qualang_tools.results import DataHandler
 
 from qualibrate.models.outcome import Outcome
 from qualibrate.storage.local_storage_manager import LocalStorageManager
@@ -41,7 +42,8 @@ def data_handler_path(tmp_path):
 @pytest.fixture
 def mock_data_handler(mocker, data_handler_path):
     data_handler = mocker.patch(
-        "qualibrate.storage.local_storage_manager.DataHandler"
+        "qualibrate.storage.local_storage_manager.DataHandler",
+        spec=DataHandler,
     )
     data_handler.return_value.path = data_handler_path
     yield data_handler
@@ -55,9 +57,11 @@ def mock_generate(mock_data_handler):
 
 
 @pytest.fixture
-def local_manager_root():
+def local_manager_root(mocker):
     root_folder = Path("/tmp/test_folder")
-    yield LocalStorageManager(root_folder)
+    manager = LocalStorageManager(root_folder)
+    mocker.patch.object(manager, "_clean_data_handler")
+    yield manager
 
 
 def test_initialization():
@@ -94,7 +98,9 @@ def test_save_node_without_machine(
     assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
 
 
-def test_save_node_with_dict_machine(mocker, mock_generate, local_manager_root):
+def test_save_node_with_dict_machine(
+    mocker, mock_generate, mock_data_handler, local_manager_root
+):
     dummy_machine = {"key": "value"}
     node = DummyNode(machine=dummy_machine)
     spy_write = mocker.patch("pathlib.Path.write_text")
@@ -181,10 +187,11 @@ def test_machine_content_mapping_logic(
     assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
 
 
-def test_save_active_machine_path(mock_generate):
+def test_save_active_machine_path(mocker, mock_generate, mock_data_handler):
     root_folder = Path("/tmp/test_folder")
     active_path = Path("/tmp/active_machine")
     manager = LocalStorageManager(root_folder, active_path)
+    mocker.patch.object(manager, "_clean_data_handler")
 
     machine = MagicMock()
     node = DummyNode(machine=machine)

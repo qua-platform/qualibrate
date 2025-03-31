@@ -21,7 +21,9 @@ from qualibrate.qualibration_library import QualibrationLibrary
 
 
 @pytest.fixture
-def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
+def qualibration_lib(
+    qualibrate_config_and_path_mocked,
+) -> Generator[QualibrationLibrary, None, None]:
     cal_path = Path(__file__).parent / "calibrations"
     yield QualibrationLibrary(cal_path)
 
@@ -77,6 +79,7 @@ def test_run_sequence_no_error(
     ]
     assert execution_history == [
         ExecutionHistoryItem(
+            id=item.id,
             created_at=item.metadata.run_start,
             metadata=ItemMetadata(
                 name=item.metadata.name,
@@ -115,6 +118,7 @@ def test_run_sequence_with_error(
         g._orchestrator.traverse_graph(g, g.full_parameters.parameters.targets)
     execution_history = g._orchestrator._execution_history
     assert execution_history[0] == ExecutionHistoryItem(
+        id=execution_history[0].id,
         created_at=execution_history[0].metadata.run_start,
         metadata=ItemMetadata(
             name="first_node",
@@ -135,6 +139,7 @@ def test_run_sequence_with_error(
         ),
     )
     assert execution_history[1] == ExecutionHistoryItem(
+        id=execution_history[1].id,
         created_at=execution_history[1].metadata.run_start,
         metadata=ItemMetadata(
             name="forth_node",

@@ -1,4 +1,5 @@
 import inspect
+import weakref
 from collections.abc import Mapping
 from typing import (
     TYPE_CHECKING,
@@ -35,7 +36,11 @@ class Action:
         manager: "ActionManager",
     ) -> None:
         self.func = func
-        self.manager = manager
+        self.manager = weakref.proxy(manager)
+
+    @property
+    def name(self) -> str:
+        return self.func.__name__
 
     def _run_and_update_namespace(
         self,
@@ -57,6 +62,7 @@ class Action:
         """
         Executes the stored function with the given node.
         """
+        self.manager.current_action = self
         result = self._run_and_update_namespace(node, *args, **kwargs)
         if not is_interactive() or not isinstance(result, Mapping):
             return result

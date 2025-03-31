@@ -15,6 +15,7 @@ from qualibrate.parameters import (
 )
 from qualibrate.qualibration_graph import NodeTypeVar, QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate.utils.logger_m import logger
 
 __all__ = ["QualibrationLibrary"]
@@ -46,8 +47,10 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
     def __init__(
         self, library_folder: Optional[Path] = None, set_active: bool = True
     ):
-        self.nodes: dict[str, NodeTypeVar] = {}
-        self.graphs: dict[str, QualibrationGraph[NodeTypeVar]] = {}
+        self.nodes: RunnableCollection[str, NodeTypeVar] = RunnableCollection()
+        self.graphs: RunnableCollection[str, QualibrationGraph[NodeTypeVar]] = (
+            RunnableCollection()
+        )
         self._library_folder = library_folder
 
         if set_active:
@@ -70,11 +73,11 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
             logger.warning("Can't rescan library without specified folder.")
             return
         self.nodes = cast(
-            dict[str, NodeTypeVar],
+            RunnableCollection[str, NodeTypeVar],
             QualibrationNode.scan_folder_for_instances(self._library_folder),
         )
         self.graphs = cast(
-            dict[str, QualibrationGraph[NodeTypeVar]],
+            RunnableCollection[str, QualibrationGraph[NodeTypeVar]],
             QualibrationGraph.scan_folder_for_instances(self._library_folder),
         )
 
@@ -147,11 +150,13 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
                 if self._library_folder is not None
                 else None
             ),
-            "nodes": [node.serialize() for node in self.nodes.values()],
-            "graphs": [graph.serialize() for graph in self.graphs.values()],
+            "nodes": [node.serialize() for node in self.nodes.values_nocopy()],
+            "graphs": [
+                graph.serialize() for graph in self.graphs.values_nocopy()
+            ],
         }
 
-    def get_nodes(self) -> Mapping[str, NodeTypeVar]:
+    def get_nodes(self) -> RunnableCollection[str, NodeTypeVar]:
         """
         Returns all nodes available in the library.
 
@@ -160,7 +165,9 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
         """
         return self.nodes
 
-    def get_graphs(self) -> Mapping[str, QualibrationGraph[NodeTypeVar]]:
+    def get_graphs(
+        self,
+    ) -> RunnableCollection[str, QualibrationGraph[NodeTypeVar]]:
         """
         Returns all graphs available in the library.
 
@@ -190,7 +197,8 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
                 library.
         """
         node = self.nodes[node_name]
-        return cast(NodeRunSummary, node.run(**input_parameters.model_dump()))
+        run_summary = node.run(**input_parameters.model_dump())
+        return cast(NodeRunSummary, run_summary)
 
     def run_graph(
         self, graph_name: str, input_parameters: ExecutionParameters
@@ -213,10 +221,8 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
                 library.
         """
         graph = self.graphs[graph_name]
-        return cast(
-            GraphRunSummary,
-            graph.run(
-                nodes=input_parameters.nodes.model_dump(),
-                **input_parameters.parameters.model_dump(),
-            ),
+        run_summary = graph.run(
+            nodes=input_parameters.nodes.model_dump(),
+            **input_parameters.parameters.model_dump(),
         )
+        return cast(GraphRunSummary, run_summary)
