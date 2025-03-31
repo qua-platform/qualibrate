@@ -26,8 +26,8 @@ def test_node_outcomes(qualibrate_config_and_path_mocked):
             nodes,
         )
         node = nodes["node_part_outcome"]
-        node, _summary = node.run()
-        assert node.outcomes == {
+        summary = node.run()
+        assert summary.outcomes == {
             "q0": Outcome.SUCCESSFUL,
             "q1": Outcome.FAILED,
             "q2": Outcome.SUCCESSFUL,

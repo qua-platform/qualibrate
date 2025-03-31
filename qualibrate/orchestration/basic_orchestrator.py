@@ -179,7 +179,7 @@ class BasicOrchestrator(
                     f"Graph. Start running node {node_to_run} "
                     f"with parameters {node_parameters}"
                 )
-                _, node_result = node_to_run.run(
+                node_result = node_to_run.run(
                     interactive=False, **node_parameters
                 )
                 if self._parameters.skip_failed:

@@ -545,7 +545,7 @@ class QualibrationNode(
 
     def run(
         self, interactive: bool = True, **passed_parameters: Any
-    ) -> tuple[Self, BaseRunSummary]:
+    ) -> BaseRunSummary:
         """
         Runs the node with given parameters, potentially interactively.
 
@@ -608,7 +608,7 @@ class QualibrationNode(
                 message=str(ex),
                 traceback=traceback.format_tb(ex.__traceback__),
             )
-            logger.exception("", exc_info=ex)
+            logger.exception(f"Failed to run node {self.name}", exc_info=ex)
             raise
         else:
             self._fraction_complete = 1.0
@@ -622,7 +622,7 @@ class QualibrationNode(
                 run_error,
             )
 
-        return self, run_summary
+        return run_summary
 
     def run_node_file(self, node_filepath: Path) -> None:
         """

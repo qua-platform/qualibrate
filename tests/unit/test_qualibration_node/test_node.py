@@ -329,12 +329,11 @@ class TestQualibrationNode:
         )
 
         # Call run
-        result_node, run_summary = node.run()
+        run_summary = node.run()
 
         # Assertions
         mock_run_node_file.assert_called_with(node.filepath)
         mock_post_run.assert_called()
-        assert result_node is node
         assert run_summary == "run_summary"
 
     def test_run_no_filepath(

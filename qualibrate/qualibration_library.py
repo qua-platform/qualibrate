@@ -197,7 +197,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
                 library.
         """
         node = self.nodes[node_name]
-        _, run_summary = node.run(**input_parameters.model_dump())
+        run_summary = node.run(**input_parameters.model_dump())
         return cast(NodeRunSummary, run_summary)
 
     def run_graph(
@@ -221,7 +221,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
                 library.
         """
         graph = self.graphs[graph_name]
-        _, run_summary = graph.run(
+        run_summary = graph.run(
             nodes=input_parameters.nodes.model_dump(),
             **input_parameters.parameters.model_dump(),
         )

@@ -199,12 +199,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         pass
 
     @abstractmethod
-    def run(
-        self, **passed_parameters: Any
-    ) -> tuple[
-        "QRunnable[CreateParametersType, RunParametersType]",
-        BaseRunSummary,
-    ]:
+    def run(self, **passed_parameters: Any) -> BaseRunSummary:
         """
         Runs the runnable with the provided parameters.
 

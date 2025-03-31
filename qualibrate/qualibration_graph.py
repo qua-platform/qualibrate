@@ -508,9 +508,7 @@ class QualibrationGraph(
         logger.debug(f"Graph run summary {self.run_summary}")
         return self.run_summary
 
-    def run(
-        self, **passed_parameters: Any
-    ) -> tuple["QualibrationGraph[NodeTypeVar]", BaseRunSummary]:
+    def run(self, **passed_parameters: Any) -> BaseRunSummary:
         """
         Runs the graph using the given parameters.
 
@@ -544,7 +542,7 @@ class QualibrationGraph(
             raise
         finally:
             run_summary = self._post_run(self.run_start, run_error)
-        return self, run_summary
+        return run_summary
 
     def _get_qnode_or_error(self, node_name: str) -> NodeTypeVar:
         """
