@@ -2,44 +2,125 @@
 @use "../../../assets/styles/_base.scss";
 
 .wrapper {
-  height: 63px;
-  width: 295px;
-  flex-shrink: 0;
-  margin-top: 12px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  border: 1px solid rgb(59 220 247 / 30%);
-  background: rgb(44 203 229 / 8%);
+  display: flex;
+  align-items: center; 
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 250px;
 }
 
-.rowWrapper {
-  padding-left: 12px;
+.contentWrapper {
   display: flex;
-  height: 50%;
-  flex: 1;
+  align-items: center;
+  width: 100%;
+}
+
+.indicatorWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.textWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.topRowWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.bottomRowWrapper {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
-.labelColumnWrapper {
-  width: 130px;
-  display: flex;
+.statusContainer {
+  font-size: 12px;
+  border-radius: 6px;
 }
 
-.valueColumnWrapper {
-  display: flex;
-  width: calc(100% - 100px);
+.running {
+  background-color: #3cddf814;
+  color: #fff;
+
+  .timeRemainingText {
+    color: #8CA0B3;
+    font-size: 11px;
+    padding-right: 21px;
+  }
 }
 
-.dotWrapper {
-  align-self: center;
-  width: 8px;
+.statusRunning {
+  background-color: #3cddf81c;
+  color: #3CDEF8;
+  padding: 1px 4px;
+  font-weight: 500;
 }
 
-.dot {
-  background-color: rgb(44 203 229 / 100%);
-  margin-right: 10px;
-  height: 8px;
-  width: 8px;
-  border-radius: 50%;
-  display: inline-block;
+.statusRunningValue {
+  opacity: 0.8;
+}
+
+.finished {
+  background-color: #14e1a81a;
+  color: #fff;
+}
+
+.statusFinished {
+  background-color: #32ffc61a;
+  color: #32FFC6;
+  padding: 1px 4px;
+  font-weight: 500;
+}
+
+.error {
+  background-color: #ff61731a;
+  color: #fff;
+}
+
+.statusError {
+  background-color: #ff617326;
+  color: #FF6173;
+  padding: 1px 4px;
+  font-weight: 500;
+}
+
+.pending {
+  background-color: var(--popup-background);
+  color: #A5ACB6;
+}
+
+.statusPending {
+  background-color: transparent;
+  font-family: Roboto, sans-serif;
+  color: #3CDEF8;
+  font-weight: 500;
+}
+
+.nodeRunningLabel {
+  font-size: 12px;
+  white-space: nowrap;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px; 
+}
+
+.noNodeRunningLabel {
+  font-size: 14px;
+  color: #a0a0af;
+}
+
+.pointerCursor {
+  cursor: pointer;
 }
