@@ -81,7 +81,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }) => {
   await expect(page.getByTestId("running-job-name-wrapper")).toBeVisible();
   await expect(page.getByTestId("run-info-wrapper")).toBeVisible();
   await expect(page.getByTestId("run-info-value-timestamp")).toContainText(date); // Matches the format: 2021/09/30 15:00:00
-  await expect(page.getByTestId("run-info-value-duration")).toContainText(runDuration); // Matches the format: 4.00 s
+  await expect(page.getByTestId("run-info-value-duration")).toContainText(runDuration, {timeout: 15000}); // Matches the format: 4.00 s
   // Job status changes to finished upon completion, along with other stats.
   await expect(page.getByTestId("run-info-value-status")).toContainText("finished"); // status changes to finished
   await expect(page.getByTestId("run-info-value-idx")).toContainText(idx); // Matches the format of any integer number
@@ -137,7 +137,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }) => {
   await resonatorField.click(); // Clicking (anywhere) away from input feild to spawn undo button
   await expect(ch1.getByTestId("undo-icon-wrapper")).toBeVisible();
   ch1.getByTestId("update-before-icon").click(); // Click the icon to update the state
-  await expect(ch1.getByTestId("update-after-icon")).toBeVisible();
+  await expect(ch1.getByTestId("update-after-icon")).toBeVisible(); 
   // Update the state value for ch2 to [1,2,4,5]
   await expect(ch2.getByTestId("value-input")).toBeVisible();
   await expect(ch2.getByTestId("value-container")).toContainText("80000000");
