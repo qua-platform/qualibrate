@@ -543,7 +543,11 @@ class QualibrationNode(
         return self.run_summary
 
     def run(
-        self, interactive: bool = True, **passed_parameters: Any
+        self,
+        interactive: bool = True,
+        *,
+        skip_actions: Union[bool, Sequence[str]] = False,
+        **passed_parameters: Any,
     ) -> BaseRunSummary:
         """
         Runs the node with given parameters, potentially interactively.
@@ -555,6 +559,8 @@ class QualibrationNode(
 
         Args:
             interactive: Whether the node should be run interactively.
+            skip_actions: An optional sequence of actions to skip when running.
+                Also, possible to pass `True` to skip all actions.
             **passed_parameters: Additional parameters to pass when
                 running the node.
 
@@ -599,6 +605,7 @@ class QualibrationNode(
             self._parameters = parameters
             self.modes = new_run_modes
             self.__class__.active_node = self
+            self._action_manager.skip_actions = skip_actions
 
             self.run_node_file(self.filepath)
         except Exception as ex:
@@ -612,6 +619,7 @@ class QualibrationNode(
         else:
             self._fraction_complete = 1.0
         finally:
+            self._action_manager.skip_actions = False
             run_modes_ctx.reset(run_modes_token)
             self.modes = modes
             self.__class__.active_node = None
