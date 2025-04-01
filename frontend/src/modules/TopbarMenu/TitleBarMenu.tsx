@@ -24,8 +24,9 @@ export interface LastRunStatusNodeResponseDTO {
   run_start: string;
   run_duration: number;
   name: string;
-  id: number;
+  id?: number;
   percentage_complete: number;
+  current_action?: string | null;
   time_remaining: number | null;
 }
 

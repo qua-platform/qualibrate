@@ -8,6 +8,7 @@ import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarTooltipContent from "./TitleBarTooltipContent";
 import NoNodeRunningIcon from "../../ui-lib/Icons/NoNodeRunningIcon";
+import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 
 interface IProps {
   node: LastRunStatusNodeResponseDTO;
@@ -25,6 +26,7 @@ const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ sta
 };
 
 const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
+  const { openTab } = useFlexLayoutContext();
   const formatTime = (sec: number) => {
     const h = Math.floor(sec / 3600);
     const m = Math.floor(((sec % 3600) % 3600) / 60);
@@ -39,41 +41,43 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
     if (status === "error") return styles.error;
     return styles.pending;
   };
-  
-  const getStatusClass = () => {
+
+  const getStatusLabelElement = (): React.ReactNode => {
     const status = node.status?.toLowerCase();
-    if (status === "running") return styles.statusRunning;
-    if (status === "finished") return styles.statusFinished;
-    if (status === "error") return styles.statusError;
-    return styles.statusPending;
+    if (status === "running") {
+      return (
+        <div className={classNames(styles.statusContainer, styles.statusRunning)}>
+          Running<span className={styles.statusRunningValue}>{node.current_action ? `: ${node.current_action}` : ""}</span>
+        </div>
+      );
+    }
+    if (status === "finished") {
+      return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>;
+    }
+    if (status === "error") {
+      return <div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>;
+    }
+    return <div className={classNames(styles.statusContainer, styles.statusPending)}>Select and Run Node</div>;
   };
-  
-  const getStatusLabel = (): string => {
-    const status = node.status?.toLowerCase();
-    if (status === "running") return "Running";
-    if (status === "finished") return "Finished";
-    if (status === "error") return "Error";
-    return "Select and Run Node";
-  };  
-  
+
   return (
-      <Tooltip
-        title={<TitleBarTooltipContent node={node} />}
-        placement="bottom"
-        componentsProps={{
-          tooltip: {
-            sx: {
-              backgroundColor: "#42424C",
-              padding: "12px",
-              borderRadius: "6px",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-              fontSize: "0.85rem",
-              lineHeight: "1.3",
-            }
-          }
-        }}
-        >
-      <div className={classNames(styles.wrapper, getWrapperClass(), styles.pointerCursor)}>
+    <Tooltip
+      title={<TitleBarTooltipContent node={node} />}
+      placement="bottom"
+      componentsProps={{
+        tooltip: {
+          sx: {
+            backgroundColor: "#42424C",
+            padding: "12px",
+            borderRadius: "6px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+            fontSize: "0.85rem",
+            lineHeight: "1.3",
+          },
+        },
+      }}
+    >
+      <div onClick={() => openTab("nodes")} className={classNames(styles.wrapper, getWrapperClass(), styles.pointerCursor)}>
         <div className={styles.contentWrapper}>
           <div className={styles.indicatorWrapper}>
             <StatusIndicator
@@ -87,16 +91,16 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
               {node.status?.toLowerCase() === "pending" ? (
                 <div className={styles.noNodeRunningLabel}>No node is running</div>
               ) : (
-                <div  className={styles.nodeRunningLabel}>
+                <div className={styles.nodeRunningLabel}>
                   Active Node:&nbsp;&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
                 </div>
               )}
             </div>
             <div className={styles.bottomRowWrapper}>
-              <div className={classNames(styles.statusContainer, getStatusClass())}>
-                {getStatusLabel()}
-              </div>
-              {node.status?.toLowerCase() === "running" && <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>}
+              {getStatusLabelElement()}
+              {node.status?.toLowerCase() === "running" && (
+                <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>
+              )}
             </div>
           </div>
         </div>

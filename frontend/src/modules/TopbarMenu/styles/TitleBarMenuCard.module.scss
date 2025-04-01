@@ -6,8 +6,7 @@
   align-items: center; 
   padding: 8px 12px;
   border-radius: 8px;
-  min-width: 250px;
-  width: fit-content;
+  width: 250px;
 }
 
 .contentWrapper {
@@ -68,6 +67,10 @@
   font-weight: 500;
 }
 
+.statusRunningValue {
+  opacity: 0.8;
+}
+
 .finished {
   background-color: #14e1a81a;
   color: #fff;
@@ -108,6 +111,9 @@
   font-size: 12px;
   white-space: nowrap;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px; 
 }
 
 .noNodeRunningLabel {
