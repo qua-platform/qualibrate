@@ -14,6 +14,8 @@ import TitleBarWorkflowTooltipContent from "./TitleBarWorkflowTooltipContent";
 const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => {
   return (
     <>
+      {/* TODO: make hight and width bigger for StatusIndicator icons of workflow card as specified in figma */}
+      {/* overload hight and width default parameters here to specified dementions  */}
       {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} />}
       {status === "Finished" && <CheckmarkIcon />}
       {status === "Error" && <ErrorIcon />}
@@ -98,8 +100,13 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
           }}
         >
           <div className={styles.workflowCardContent}>
-            {/* TODO: Fix tooltiphover */}
-            {/* TODO: make hight and width bigger for icons of workflow card */}
+            {/* 
+              TODO: Fix tooltiphover 
+              - only show when hovering over left hand side of graph card 
+              - disallow showing both tooltips simultaneously for workflow card and node card 
+                - it'sbad UX practice to show two tooltips at once 
+              - fix cursor type to pointer when hovering over the graph card 
+            */}
             <div className={styles.indicatorWrapper}>
               <StatusIndicator
                 status={graph.status?.charAt(0).toUpperCase() + graph.status?.slice(1)}
@@ -128,6 +135,9 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
               This is to give the user a visual cue that the node queued has finished running. 
               If you run a graph you'll notice it immediatly starts running the next node without 
               any visual feedback that the node has finished running. 
+
+              This may just be a problem that solves itself though depending on how the calibration script 
+              pauses durring execution to simulate loading.. 
             */}
             <TitleBarMenuCard node={node} />
 
