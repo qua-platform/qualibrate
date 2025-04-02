@@ -32,7 +32,10 @@ __all__ = [
 
 
 class RunnableParameters(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(
+        extra="forbid",
+        use_attribute_docstrings=True,
+    )
 
     @classmethod
     def serialize(cls, **kwargs: Any) -> Mapping[str, Any]:
