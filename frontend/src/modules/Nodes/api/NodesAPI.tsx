@@ -1,6 +1,6 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, IS_NODE_RUNNING, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
+import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, IS_NODE_RUNNING, SUBMIT_NODE_RUN, STOP_RUNNING } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { LastRunStatusNodeResponseDTO } from "../../../modules/TopbarMenu/TitleBarMenu";
 import { LastRunStatusGraphResponseDTO } from "../../TopbarMenu/TitleBarWorkflowCard";
@@ -48,6 +48,12 @@ export class NodesApi extends Api {
 
   static checkIsNodeRunning(): Promise<Res<boolean>> {
     return this._fetch(this.api(IS_NODE_RUNNING()), API_METHODS.GET, {
+      headers: BASIC_HEADERS,
+    });
+  }
+
+  static stopRunningWorkflow(): Promise<Res<void>> {
+    return this._fetch(this.api(STOP_RUNNING()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
     });
   }

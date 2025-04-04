@@ -7,9 +7,21 @@ import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
 import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
 // import { classNames } from "../../utils/classnames";
 import StopButtonIcon from "../../ui-lib/Icons/StopButtonIcon";
-import NoNodeRunningIcon from "../../ui-lib/Icons/NoNodeRunningIcon"; // change to figma icon (recently made this exact icon for side bar menu icon update)
+import { NodesApi } from "../Nodes/api/NodesAPI";
+import NoGraphRunningIcon from "../../ui-lib/Icons/NoGraphRunningIcon";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarWorkflowTooltipContent from "./TitleBarWorkflowTooltipContent";
+
+const handleStopClick = async () => {
+  try {
+    const res = await NodesApi.stopRunningWorkflow();
+    if (!res.isOk) {
+      console.error("Failed to stop workflow:", res.error);
+    }
+  } catch (err) {
+    console.error("Error stopping workflow:", err);
+  }
+};
 
 const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => {
   return (
@@ -19,7 +31,7 @@ const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ sta
       {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} />}
       {status === "Finished" && <CheckmarkIcon />}
       {status === "Error" && <ErrorIcon />}
-      {status === "Pending" && <NoNodeRunningIcon />}
+      {status === "Pending" && <NoGraphRunningIcon />}
     </>
   );
 };
@@ -71,7 +83,7 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
       {graph.status?.toLowerCase() === "pending" ? (
         <>
           <div className={styles.indicatorWrapper}>
-            <NoNodeRunningIcon />
+            <NoGraphRunningIcon />
           </div>
           <div className={styles.graphDetailsWrapper}>
             <div className={styles.textWrapper}>
@@ -145,14 +157,22 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
             {/* TODO: change time_remaining to show when finished but display as elapsed time instead of the time left format while running */}
             {graph.status?.toLowerCase() === "running" && (
               <div className={styles.stopAndTimeWrapper}>
-                <div className={styles.stopButton}>
-                  <StopButtonIcon />
+                <div className={styles.stopButton} onClick={handleStopClick}>
+                  <StopButtonIcon height={24} />
                 </div>
                 {graph.time_remaining !== null && (
                   <div className={styles.timeRemaining}>
                     {formatTime(graph.time_remaining)}
                   </div>
                 )}
+              </div>
+            )}
+            {graph.status?.toLowerCase() !== "running" && graph.run_duration > 0 && (
+              <div className={styles.stopAndTimeWrapper}>
+                <div className={styles.timeRemaining}>
+                  <div>Elapsed time:</div>
+                  <div>{formatTime(graph.run_duration)}</div>
+                </div>
               </div>
             )}
           </div>
