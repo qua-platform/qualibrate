@@ -878,7 +878,8 @@ class QualibrationNode(
         level: Union[LOG_LEVEL_NAMES_TYPE, int] = "info",
         **kwargs: Any,
     ) -> None:
-        new_message = f"Node {self.name}: {msg}"
+        name = self.name if len(self.name) <= 20 else f"{self.name[:17]}..."
+        new_message = f"Node {name}: {msg}"
         if isinstance(level, int):
             logger.log(level, new_message, *args, **kwargs)
             return
