@@ -1,5 +1,4 @@
 import copy
-import logging
 import sys
 import traceback
 from collections.abc import Generator, Mapping, Sequence
@@ -58,6 +57,7 @@ from qualibrate.utils.exceptions import StopInspection
 from qualibrate.utils.logger_m import (
     ALLOWED_LOG_LEVEL_NAMES,
     LOG_LEVEL_NAMES_TYPE,
+    logger,
 )
 from qualibrate.utils.node.comined_method import InstanceOrClassMethod
 from qualibrate.utils.node.content import (
@@ -88,8 +88,6 @@ NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
 MachineType = TypeVar("MachineType")
-
-logger = logging.getLogger(__name__)
 
 
 class QualibrationNode(
