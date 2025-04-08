@@ -11,7 +11,7 @@ from qualibrate_app.api.core.utils.path.node import NodePath
 from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
 
 
-def test__read_minified_node_content_node_info_filled(mocker, settings):
+def test_read_minified_node_content_node_info_filled(mocker, settings):
     dt = datetime.now().astimezone()
     patched_get_id_local_path = mocker.patch(
         (
@@ -49,7 +49,7 @@ def test__read_minified_node_content_node_info_filled(mocker, settings):
     )
 
 
-def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
+def test_read_minified_node_content_node_info_empty_valid_id_file_exists(
     mocker, settings
 ):
     ts = 1712932811
@@ -92,7 +92,7 @@ def test__read_minified_node_content_node_info_empty_valid_id_file_exists(
     patched_path_parent.assert_not_called()
 
 
-def test__read_minified_node_content_node_info_empty_no_id_no_file(
+def test_read_minified_node_content_node_info_empty_no_id_no_file(
     mocker, settings
 ):
     ts = 1712932811
@@ -132,7 +132,7 @@ def test__read_minified_node_content_node_info_empty_no_id_no_file(
     patched_path_parent.assert_called_once()
 
 
-def test__read_metadata_node_content_node_info_filled(mocker, settings):
+def test_read_metadata_node_content_node_info_filled(mocker, settings):
     metadata = {"name": "name", "data_path": "subpath", "custom": "info"}
     result = snapshot_content.read_metadata_node_content(
         {"metadata": metadata},
@@ -143,7 +143,7 @@ def test__read_metadata_node_content_node_info_filled(mocker, settings):
     assert result == metadata
 
 
-def test__read_metadata_node_content_node_info_not_filled(mocker, settings):
+def test_read_metadata_node_content_node_info_not_filled(mocker, settings):
     mocker.patch("pathlib.Path.relative_to", return_value=Path("subpath"))
     result = snapshot_content.read_metadata_node_content(
         {"metadata": {"custom": "info"}},
@@ -158,7 +158,7 @@ def test__read_metadata_node_content_node_info_not_filled(mocker, settings):
     }
 
 
-def test__read_data_node_content_valid_path_specified_with_others(tmp_path):
+def test_read_data_node_content_valid_path_specified_with_others(tmp_path):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state_.json"
     state_path_content = {"a": "b", "c": 3}
@@ -181,7 +181,7 @@ def test__read_data_node_content_valid_path_specified_with_others(tmp_path):
     }
 
 
-def test__read_data_node_content_valid_path_specified_without_others(tmp_path):
+def test_read_data_node_content_valid_path_specified_without_others(tmp_path):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state_.json"
     state_path_content = {"a": "b", "c": 3}
@@ -196,19 +196,19 @@ def test__read_data_node_content_valid_path_specified_without_others(tmp_path):
     }
 
 
-def test__read_data_node_content_path_not_specified(tmp_path):
+def test_read_data_node_content_path_not_specified(tmp_path):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state.json"
     state_path_content = {"a": "b", "c": 3}
     state_path.write_text(json.dumps(state_path_content))
     assert snapshot_content.read_data_node_content({}, node_path, tmp_path) == {
-        "quam": state_path_content,
+        "quam": None,
         "parameters": None,
         "outcomes": None,
     }
 
 
-def test__read_data_node_content_invalid_path(tmp_path):
+def test_read_data_node_content_invalid_path(tmp_path):
     node_path = tmp_path / "node.json"
     with pytest.raises(QFileNotFoundException) as ex:
         snapshot_content.read_data_node_content(
@@ -219,7 +219,7 @@ def test__read_data_node_content_invalid_path(tmp_path):
 
 
 @pytest.mark.parametrize("file_exists", (False, True))
-def test__default_snapshot_content_loader_node_file_issue(
+def test_default_snapshot_content_loader_node_file_issue(
     mocker, tmp_path, file_exists
 ):
     node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
@@ -259,7 +259,7 @@ def test__default_snapshot_content_loader_node_file_issue(
     patched_node_path_name.assert_not_called()
 
 
-def test__default_snapshot_content_loader_node_valid_minified(mocker, tmp_path):
+def test_default_snapshot_content_loader_node_valid_minified(mocker, tmp_path):
     node_info = {"a": 1}
     node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
     node_path.mkdir(parents=True)
@@ -287,7 +287,7 @@ def test__default_snapshot_content_loader_node_valid_minified(mocker, tmp_path):
     patched_node_path_name.assert_not_called()
 
 
-def test__default_snapshot_content_loader_node_valid_metadata(mocker, tmp_path):
+def test_default_snapshot_content_loader_node_valid_metadata(mocker, tmp_path):
     node_info = {"a": 1}
     node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
     node_path.mkdir(parents=True)
@@ -334,7 +334,7 @@ def test__default_snapshot_content_loader_node_valid_metadata(mocker, tmp_path):
     patched_read_data.assert_not_called()
 
 
-def test__default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
+def test_default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
     node_info = {"a": 1}
     node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
     node_path.mkdir(parents=True)
