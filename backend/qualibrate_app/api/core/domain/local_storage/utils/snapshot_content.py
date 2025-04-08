@@ -155,6 +155,11 @@ def get_data_node_dir(
     return quam_state_dir if quam_state_dir.is_dir() else None
 
 
+def update_state_file(state_file: Path, new_quam: Mapping[str, Any]) -> None:
+    with state_file.open("w") as f:
+        json.dump(new_quam, f, indent=4)
+
+
 def update_state_dir(
     state_dir: Path,
     new_quam: Mapping[str, Any],
@@ -178,15 +183,13 @@ def update_state_dir(
     """
     copied = dict(new_quam).copy()
     for state_file in state_dir.glob("*.json"):
-        with state_file.open("r") as f:
-            state_content = json.load(f)
+        state_content = read_quam_content(state_file)
 
         new_state_content = {}
         for component in state_content:
             new_state_content[component] = copied.pop(component)
 
-        with state_file.open("w") as f:
-            json.dump(new_state_content, f, indent=4)
+        update_state_file(state_file, new_state_content)
     if len(copied) > 0:
         logger.warning(
             "Not all root items of the new quam state have been saved to the "
@@ -209,7 +212,7 @@ def update_active_machine_path(
     am_path.write_text(json.dumps(new_quam, indent=4))
 
 
-def read_quam_content(quam_path: Path) -> Optional[dict[str, Any]]:
+def read_quam_content(quam_path: Path) -> dict[str, Any]:
     if quam_path.is_file():
         with quam_path.open() as f:
             return dict(json.load(f))
@@ -223,9 +226,7 @@ def read_quam_content(quam_path: Path) -> Optional[dict[str, Any]]:
                 f"Failed to json decode quam file: {file.name}", exc_info=e
             )
         except ValueError as e:
-            logger.warning(
-                f"Invalid quam file: {file.name}", exc_info=e
-            )
+            logger.warning(f"Invalid quam file: {file.name}", exc_info=e)
     return quam
 
 
@@ -267,17 +268,22 @@ def default_snapshot_content_updater(
         return False
     new_quam = new_snapshot["quam"]
     if quam_path.is_file():
-        with quam_path.open("w") as f:
-            json.dump(new_quam, f, indent=4)
+        update_state_file(quam_path, new_quam)
+        optional_quam_dir = quam_path.parent / "quam_state"
+        if optional_quam_dir.is_dir():
+            update_state_dir(optional_quam_dir, new_quam)
     else:
         update_state_dir(quam_path, new_quam)
+        optional_quam_file = quam_path.parent / "quam_state.json"
+        if optional_quam_file.is_file():
+            update_state_file(optional_quam_file, new_quam)
+    node_info = dict(node_info)
     if "patches" in node_info:
         if not isinstance(node_info["patches"], list):
             raise QValueException("Patches is not sequence")
         node_info["patches"].extend(patches)
     else:
         node_info["patches"] = patches
-    node_info = dict(node_info)
     with node_filepath.open("w") as f:
         json.dump(node_info, f, indent=4)
     update_active_machine_path(settings, new_quam)
