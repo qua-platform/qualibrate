@@ -24,12 +24,12 @@ class NumpyArrayLoader(BaseLoader):
             Path, Union[np.ndarray[Any, np.dtype[Any]], NpzFile]
         ] = {}
 
-    def load(self, file_path: Path, **kwargs: Any) -> Any:
+    def load(self, path: Path, **kwargs: Any) -> Any:
         """
         Loads a NumPy array file and resolves subreferences if applicable.
 
         Args:
-            file_path: The path to the NumPy file.
+            path: The path to the NumPy file.
             **kwargs: Additional arguments, including "subref" for subreference
                 keys.
 
@@ -40,18 +40,18 @@ class NumpyArrayLoader(BaseLoader):
             ValueError: If the file is not an `NpzFile` but a subreference is
                 requested.
         """
-        if file_path in self.filepath_to_array:
-            file_content = self.filepath_to_array[file_path]
+        if path in self.filepath_to_array:
+            file_content = self.filepath_to_array[path]
         else:
-            self.__class__.validate_file_exists(file_path)
-            file_content = np.load(file_path)
-            self.filepath_to_array[file_path] = file_content
+            self.__class__.validate_file_exists(path)
+            file_content = np.load(path)
+            self.filepath_to_array[path] = file_content
         subref = kwargs.get("subref")
         if subref is None:
             return file_content
         if not isinstance(file_content, NpzFile):
             raise ValueError(
-                f"Loaded file {file_path} is not representation of "
+                f"Loaded file {path} is not representation of "
                 f"multiple NumPy arrays"
             )
         return file_content.get(subref)

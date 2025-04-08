@@ -10,7 +10,7 @@ from qualibrate.utils.node.loaders.base_loader import BaseLoader
 class DummyLoader(BaseLoader):
     file_extensions = (".txt", ".csv")
 
-    def load(self, file_path: Path, **kwargs: Any) -> Any:
+    def load(self, path: Path, **kwargs: Any) -> Any:
         raise NotImplementedError
 
 
