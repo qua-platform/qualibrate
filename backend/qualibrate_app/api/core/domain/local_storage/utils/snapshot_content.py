@@ -22,12 +22,13 @@ from qualibrate_app.api.core.types import (
     DocumentType,
 )
 from qualibrate_app.api.core.utils.path.node import NodePath
-from qualibrate_app.api.exceptions.classes.storage import (
-    QFileNotFoundException,
-)
+from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate_app.api.exceptions.classes.values import QValueException
 from qualibrate_app.config.resolvers import get_quam_state_path
 from qualibrate_app.config.vars import METADATA_OUT_PATH
+
+logger = logging.getLogger(__name__)
+
 
 __all__ = [
     "SnapshotContentLoaderType",
@@ -35,8 +36,6 @@ __all__ = [
     "default_snapshot_content_loader",
     "default_snapshot_content_updater",
 ]
-
-logger = logging.getLogger(__name__)
 
 SnapshotContentLoaderType = Callable[
     [NodePath, SnapshotLoadType, QualibrateConfig], DocumentType
@@ -136,21 +135,23 @@ def get_node_filepath(snapshot_path: NodePath) -> Path:
     return snapshot_path / "node.json"
 
 
-def get_data_node_filepath(
+def get_data_node_path(
     node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
 ) -> Optional[Path]:
     node_data = dict(node_info.get("data", {}))
-    quam_relative_path = node_data.get("quam", "state.json")
-    quam_file_path = node_filepath.parent.joinpath(quam_relative_path).resolve()
-    if not quam_file_path.is_relative_to(snapshot_path):
+    quam_relative_path = node_data.get("quam")
+    if quam_relative_path is None:
+        return None
+    quam_abs_path = node_filepath.parent.joinpath(quam_relative_path).resolve()
+    if not quam_abs_path.is_relative_to(snapshot_path):
         raise QFileNotFoundException("Unknown quam data path")
-    if quam_file_path.is_file():
-        return quam_file_path
-    return None
+    return quam_abs_path
 
 
-def get_data_node_dir(snapshot_path: Path) -> Optional[Path]:
-    quam_state_dir = snapshot_path / "quam_state"
+def get_data_node_dir(
+    snapshot_path: Path, quam_dir_name: str = "quam_state"
+) -> Optional[Path]:
+    quam_state_dir = snapshot_path / quam_dir_name
     return quam_state_dir if quam_state_dir.is_dir() else None
 
 
@@ -208,6 +209,26 @@ def update_active_machine_path(
     am_path.write_text(json.dumps(new_quam, indent=4))
 
 
+def read_quam_content(quam_path: Path) -> Optional[dict[str, Any]]:
+    if quam_path.is_file():
+        with quam_path.open() as f:
+            return dict(json.load(f))
+    quam = {}
+    for file in quam_path.glob("*.json"):
+        try:
+            with file.open() as f:
+                quam.update(json.load(f))
+        except json.JSONDecodeError as e:
+            logger.exception(
+                f"Failed to json decode quam file: {file.name}", exc_info=e
+            )
+        except ValueError as e:
+            logger.warning(
+                f"Invalid quam file: {file.name}", exc_info=e
+            )
+    return quam
+
+
 def read_data_node_content(
     node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
 ) -> dict[str, Any]:
@@ -218,18 +239,15 @@ def read_data_node_content(
         node_filepath: path to file that contains node info
         snapshot_path: Node root
     """
-    quam_file_path = get_data_node_filepath(
-        node_info, node_filepath, snapshot_path
-    )
+    quam_path = get_data_node_path(node_info, node_filepath, snapshot_path)
     node_data = dict(node_info.get("data", {}))
     other_data = {
         "parameters": dict(node_data.get("parameters", {})).get("model"),
         "outcomes": node_data.get("outcomes"),
     }
-    if quam_file_path is None:
+    if quam_path is None:
         return {"quam": None, **other_data}
-    with quam_file_path.open("r") as f:
-        return {"quam": dict(json.load(f)), **other_data}
+    return {"quam": read_quam_content(quam_path), **other_data}
 
 
 def default_snapshot_content_updater(
@@ -244,26 +262,24 @@ def default_snapshot_content_updater(
     node_info = default_snapshot_content_loader(
         snapshot_path, SnapshotLoadType.Empty, settings, raw=True
     )
-    quam_file_path = get_data_node_filepath(
-        node_info, node_filepath, snapshot_path
-    )
-    if quam_file_path is None:
+    quam_path = get_data_node_path(node_info, node_filepath, snapshot_path)
+    if quam_path is None:
         return False
     new_quam = new_snapshot["quam"]
-    with quam_file_path.open("w") as f:
-        json.dump(new_quam, f, indent=4)
-    node_info = dict(node_info)
+    if quam_path.is_file():
+        with quam_path.open("w") as f:
+            json.dump(new_quam, f, indent=4)
+    else:
+        update_state_dir(quam_path, new_quam)
     if "patches" in node_info:
         if not isinstance(node_info["patches"], list):
             raise QValueException("Patches is not sequence")
         node_info["patches"].extend(patches)
     else:
         node_info["patches"] = patches
+    node_info = dict(node_info)
     with node_filepath.open("w") as f:
         json.dump(node_info, f, indent=4)
-    quam_dir = get_data_node_dir(snapshot_path)
-    if quam_dir is not None:
-        update_state_dir(quam_dir, new_quam)
     update_active_machine_path(settings, new_quam)
     return True
 
