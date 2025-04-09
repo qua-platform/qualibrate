@@ -9,6 +9,7 @@ import { useGlobalThemeContext } from "../../modules/themeModule/GlobalThemeCont
 import TitleBarMenu from "../../modules/TopbarMenu/TitleBarMenu";
 import { TitleBarContextProvider } from "../../contexts/TitleBarMenuContext";
 import { RightSidePanel } from "../../modules/LeftSidebar/RightSidePanel";
+import { LogsContextProvider } from "../../modules/LeftSidebar/Logs/context/LogsContext";
 
 const EmptyPlaceholder = (
   <div className={styles.emptyPlaceholder}>
@@ -34,7 +35,9 @@ const MainLayout = ({ className, children }: Props) => {
                 <TitleBarMenu />
                 <div className={styles.pageWrapper}>
                   <div className={styles.pageWrapper1}>{children ?? EmptyPlaceholder}</div>
-                  <RightSidePanel />
+                  <LogsContextProvider>
+                    <RightSidePanel />
+                  </LogsContextProvider>
                 </div>
               </div>
             </div>

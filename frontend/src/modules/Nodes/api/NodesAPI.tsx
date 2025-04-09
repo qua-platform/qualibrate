@@ -1,8 +1,9 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, IS_NODE_RUNNING, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
+import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, GET_LOGS, IS_NODE_RUNNING, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
-import { LastRunStatusNodeResponseDTO } from "../../../modules/TopbarMenu/TitleBarMenu";
+import { LastRunStatusNodeResponseDTO } from "../../TopbarMenu/TitleBarMenu";
+import { LogsViewerResponseDTO } from "../../LeftSidebar/RightSidePanel";
 
 export class NodesApi extends Api {
   constructor() {
@@ -47,6 +48,16 @@ export class NodesApi extends Api {
 
   static checkIsNodeRunning(): Promise<Res<boolean>> {
     return this._fetch(this.api(IS_NODE_RUNNING()), API_METHODS.GET, {
+      headers: BASIC_HEADERS,
+    });
+  }
+
+  static getLogs(
+    after: string | null = null,
+    before: string | null = null,
+    num_entries: string = "100"
+  ): Promise<Res<LogsViewerResponseDTO[]>> {
+    return this._fetch(this.api(GET_LOGS({ after, before, num_entries })), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }
