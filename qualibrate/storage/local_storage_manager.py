@@ -32,8 +32,6 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             current active machine state.
     """
 
-    machine_content_mapping = {"wiring.json": {"wiring", "network"}}
-
     def __init__(
         self, root_data_folder: Path, active_machine_path: Optional[Path] = None
     ):
@@ -84,22 +82,27 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             logger.info(f"Saving machine to active path {self.active_machine_path}")
             node.machine.save(path=self.active_machine_path)
 
-        # Save machine to data handler
-        if self.active_machine_path is None:
+        # Determine relative machine path w.r.t the data folder
+        if node.machine is None:
+            relative_machine_path = None
+        elif self.active_machine_path is None:
             relative_machine_path = "./quam_state.json"
         elif self.active_machine_path.suffix == ".json":
             relative_machine_path = "./quam_state.json"
         else:
             relative_machine_path = "./quam_state"
 
+        # Save node contents
         self.data_handler.node_data = {
-            "quam": relative_machine_path,
             "parameters": {
                 "model": node.parameters.model_dump(mode="json"),
                 "schema": node.parameters.__class__.model_json_schema(),
             },
             "outcomes": outcomes,
         }
+        if relative_machine_path is not None:
+            self.data_handler.node_data["quam"] = relative_machine_path
+
         node_contents = self.data_handler.generate_node_contents(
             metadata={
                 "description": node.description,
@@ -120,7 +123,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         self.snapshot_idx = node_contents["id"]
 
         if node.machine is None:
-            logger.info("Node has no QuAM, skipping machine.save")
+            logger.info("Node has no QuAM, skipping machine.save()")
             return
 
         if self.data_handler.path is None or isinstance(self.data_handler.path, int):

@@ -127,7 +127,6 @@ def test_save_node_with_machine_object_no_act_m_path(
             call(path=data_handler_path / "quam_state.json"),
             call(
                 path=(data_handler_path / "quam_state"),
-                content_mapping=LocalStorageManager.machine_content_mapping,
             ),
         ]
     )
@@ -171,9 +170,7 @@ def test_save_node_outcomes(
 def test_machine_content_mapping_logic(
     data_handler_path, mock_generate, local_manager_root
 ):
-    local_manager_root.machine_content_mapping = {
-        "wiring.json": {"missing_attr"}
-    }
+    local_manager_root.machine_content_mapping = {"wiring.json": {"missing_attr"}}
 
     machine = MagicMock()
     machine.save = MagicMock()
@@ -200,6 +197,5 @@ def test_save_active_machine_path(mocker, mock_generate, mock_data_handler):
 
     machine.save.assert_called_with(
         path=active_path,
-        content_mapping=LocalStorageManager.machine_content_mapping,
     )
     assert manager.snapshot_idx == mock_generate.return_value["id"]
