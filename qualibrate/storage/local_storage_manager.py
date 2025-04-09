@@ -78,8 +78,22 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             k: v.value if isinstance(v, Outcome) else v
             for k, v in node.outcomes.items()
         }
+
+        # Save machine to active path
+        if self.active_machine_path is not None:
+            logger.info(f"Saving machine to active path {self.active_machine_path}")
+            node.machine.save(path=self.active_machine_path)
+
+        # Save machine to data handler
+        if self.active_machine_path is None:
+            relative_machine_path = "./quam_state.json"
+        elif self.active_machine_path.suffix == ".json":
+            relative_machine_path = "./quam_state.json"
+        else:
+            relative_machine_path = "./quam_state"
+
         self.data_handler.node_data = {
-            "quam": "./quam_state.json",
+            "quam": relative_machine_path,
             "parameters": {
                 "model": node.parameters.model_dump(mode="json"),
                 "schema": node.parameters.__class__.model_json_schema(),
@@ -109,44 +123,15 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             logger.info("Node has no QuAM, skipping machine.save")
             return
 
-        assert isinstance(self.data_handler.path, Path)  # TODO Remove assertion
-
-        if self.machine_content_mapping is None:
-            content_mapping = None
-        elif all(
-            hasattr(node.machine, elem)
-            for elem_group in self.machine_content_mapping.values()
-            for elem in elem_group
-        ):
-            content_mapping = self.machine_content_mapping
-        else:
-            content_mapping = None
-
-        # Save QuAM to the data folder
-        if isinstance(node.machine, dict):
-            quam_path = self.data_handler.path / "quam_state2.json"
-            quam_path.write_text(
-                json.dumps(node.machine, indent=4, sort_keys=True)
+        if self.data_handler.path is None or isinstance(self.data_handler.path, int):
+            logger.warning(
+                "Could not determine the data saving path, skipping machine.save"
             )
-        else:
-            # Save as single file
-            node.machine.save(path=self.data_handler.path / "quam_state.json")
-            # Save as folder with wiring and network separated
-            if content_mapping is not None:
-                node.machine.save(
-                    path=self.data_handler.path / "quam_state",
-                    content_mapping=content_mapping,
-                )
+            return
 
-        # Optionally also save QuAM to the active path
-        if self.active_machine_path is not None:
-            logger.info(
-                f"Saving machine to active path {self.active_machine_path}"
-            )
-            node.machine.save(
-                path=self.active_machine_path,
-                content_mapping=content_mapping,
-            )
+        machine_data_path = Path(self.data_handler.path) / relative_machine_path
+        logger.info(f"Saving machine to data folder {machine_data_path}")
+        node.machine.save(machine_data_path)
 
     def get_snapshot_idx(self, node: NodeTypeVar, update: bool = False) -> int:
         if self.snapshot_idx is not None and not update:
