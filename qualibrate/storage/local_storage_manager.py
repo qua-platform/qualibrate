@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Optional, TypeVar
@@ -77,11 +76,6 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             for k, v in node.outcomes.items()
         }
 
-        # Save machine to active path
-        if self.active_machine_path is not None:
-            logger.info(f"Saving machine to active path {self.active_machine_path}")
-            node.machine.save(path=self.active_machine_path)
-
         # Determine relative machine path w.r.t the data folder
         if node.machine is None:
             relative_machine_path = None
@@ -122,19 +116,94 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         )
         self.snapshot_idx = node_contents["id"]
 
+        self._save_machine(node, relative_machine_path=relative_machine_path)
+
+    def _save_machine(
+        self,
+        node: NodeTypeVar,
+        relative_machine_path: Optional[str] = "./quam_state.json",
+    ) -> None:
         if node.machine is None:
             logger.info("Node has no QuAM, skipping machine.save()")
             return
 
-        if self.data_handler.path is None or isinstance(self.data_handler.path, int):
+        try:
+            from packaging.version import Version
+            import quam
+
+            quam_version = getattr(quam, "__version__", "0.3.10")
+
+            if Version(quam_version) < Version("0.4.0"):
+                logger.warning(
+                    "QUAM version is less than 0.4.0, using old save method. "
+                    "It is recommended to upgrade QUAM to improve its saving."
+                )
+                self._save_old_quam(node)
+                return
+        except ImportError:
+            pass
+
+        # Save machine to active path
+        if self.active_machine_path is not None:
+            logger.info(
+                f"Saving machine to active path {self.active_machine_path}"
+            )
+            node.machine.save(self.active_machine_path)
+
+        if (
+            self.data_handler.path is None
+            or isinstance(self.data_handler.path, int)
+            or relative_machine_path is None
+        ):
             logger.warning(
                 "Could not determine the data saving path, skipping machine.save"
             )
             return
 
+        # Save machine to data folder
         machine_data_path = Path(self.data_handler.path) / relative_machine_path
         logger.info(f"Saving machine to data folder {machine_data_path}")
         node.machine.save(machine_data_path)
+
+    def _save_old_quam(self, node: NodeTypeVar) -> None:
+
+        if self.data_handler.path is None or isinstance(
+            self.data_handler.path, int
+        ):
+            logger.warning(
+                "Could not determine the data saving path, skipping machine.save"
+            )
+            return
+
+        # Define which parts of machine to save to a separate file
+        content_mapping = {"wiring.json": {"wiring", "network"}}
+        # Ignore content_mapping if not all required attributes are present
+        if not all(
+            hasattr(node.machine, elem)
+            for elem_group in content_mapping.values()
+            for elem in elem_group
+        ):
+            content_mapping = None
+
+        # Save as single file in data folder
+        node.machine.save(Path(self.data_handler.path) / "quam_state.json")
+
+        # Save as folder with wiring and network separated in data folder
+        if content_mapping is not None:
+            node.machine.save(
+                path=Path(self.data_handler.path) / "quam_state",
+                content_mapping=content_mapping,
+            )
+
+        # Optionally also save QuAM to the active path
+        if self.active_machine_path is not None:
+            logger.info(
+                f"Saving machine to active path {self.active_machine_path}"
+            )
+            node.machine.save(
+                path=self.active_machine_path,
+                content_mapping=content_mapping,
+            )
 
     def get_snapshot_idx(self, node: NodeTypeVar, update: bool = False) -> int:
         if self.snapshot_idx is not None and not update:
