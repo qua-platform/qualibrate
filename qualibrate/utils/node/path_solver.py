@@ -47,7 +47,7 @@ def get_data_filepath(node_path: Path) -> Path:
     return node_path / "data.json"
 
 
-def get_node_quam_filepath(
+def get_node_quam_path(
     node_data: Mapping[str, Any], node_dir: Path
 ) -> Optional[Path]:
     """
@@ -61,9 +61,11 @@ def get_node_quam_filepath(
         The resolved file path to the QUAM state file if it exists and is a
         file, or None if the file is not found.
     """
-    quam_relative_path = node_data.get("quam", "./state.json")
+    quam_relative_path = node_data.get("quam")
+    if quam_relative_path is None:
+        return None
     try:
-        quam_file_path = resolve_and_check_relative(
+        quam_abs_path = resolve_and_check_relative(
             node_dir, Path(quam_relative_path)
         )
     except FileNotFoundError as ex:
@@ -75,9 +77,7 @@ def get_node_quam_filepath(
             exc_info=ex,
         )
         return None
-    if quam_file_path.is_file():
-        return quam_file_path
-    return None
+    return quam_abs_path
 
 
 def resolve_and_check_relative(base_path: Path, subpath: PathLike[str]) -> Path:
