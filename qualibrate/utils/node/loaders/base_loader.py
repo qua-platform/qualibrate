@@ -34,12 +34,12 @@ class BaseLoader(ABC):
             )
 
     @abstractmethod
-    def load(self, file_path: Path, **kwargs: Any) -> Any:
+    def load(self, path: Path, **kwargs: Any) -> Any:
         """
         Abstract method to load a file.
 
         Args:
-            file_path: The path to the file to load.
+            path: The path to the file to load.
             **kwargs: Additional arguments for file loading.
 
         Returns:

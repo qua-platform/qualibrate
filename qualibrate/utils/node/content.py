@@ -24,7 +24,7 @@ from qualibrate.utils.node.path_solver import (
     get_data_filepath,
     get_node_dir_path,
     get_node_filepath,
-    get_node_quam_filepath,
+    get_node_quam_path,
     resolve_and_check_relative,
 )
 
@@ -214,9 +214,9 @@ def parse_node_content(
     """
     quam_machine = None
     if "data" in node_content:
-        quam_filepath = get_node_quam_filepath(node_content["data"], node_dir)
-        if quam_filepath is not None:
-            quam_machine = QuamLoader().load(quam_filepath)
+        quam_path = get_node_quam_path(node_content["data"], node_dir)
+        if quam_path is not None:
+            quam_machine = QuamLoader().load(quam_path)
     parameters_data = node_content.get("data", {}).get("parameters")
     if parameters_data is None:
         return quam_machine, None
