@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Generic, Optional, TypeVar
+from packaging.version import Version
 
 from qualang_tools.results import DataHandler
 
@@ -128,7 +129,6 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             return
 
         try:
-            from packaging.version import Version
             import quam
 
             quam_version = getattr(quam, "__version__", "0.3.10")
