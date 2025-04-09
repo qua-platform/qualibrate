@@ -60,18 +60,9 @@ class DataFileStorage(IDump):
     def list_typed_elements(self, pattern: str) -> list[str]:
         return list(path.name for path in self._path.glob(pattern))
 
-    def _parse_data(self) -> None:
-        data_file = self._path / self.__class__.data_file_name
-        if not data_file.is_file():
-            return None
-        with data_file.open("r") as file:
-            try:
-                content = json.load(file)
-            except json.JSONDecodeError as ex:
-                raise QValueException("Unexpected data format.") from ex
-        if not isinstance(content, Mapping):
-            raise QValueException("Unexpected data format.")
-        content = dict(content)
+    def _recursively_parse_data(
+        self, content: dict[str, Any]
+    ) -> dict[str, Any]:
         for key, value in content.items():
             if isinstance(value, str) and Path(value).suffix == ".png":
                 img_path = (self._path / value).resolve()
@@ -88,7 +79,22 @@ class DataFileStorage(IDump):
                         f"{b64encode(img_data).decode('utf-8')}"
                     )
                 }
-        self._data = content
+            if isinstance(value, dict):
+                content[key] = self._recursively_parse_data(value)
+        return content
+
+    def _parse_data(self) -> None:
+        data_file = self._path / self.__class__.data_file_name
+        if not data_file.is_file():
+            return None
+        with data_file.open("r") as file:
+            try:
+                content = json.load(file)
+            except json.JSONDecodeError as ex:
+                raise QValueException("Unexpected data format.") from ex
+        if not isinstance(content, Mapping):
+            raise QValueException("Unexpected data format.")
+        self._data = self._recursively_parse_data(dict(content))
         self._load_type = StorageLoadType.Full
 
     def dump(self) -> StorageModel:
