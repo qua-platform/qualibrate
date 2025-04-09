@@ -3,7 +3,7 @@ import { Res } from "../../../common/interfaces/Api";
 import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, GET_LOGS, IS_NODE_RUNNING, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { LastRunStatusNodeResponseDTO } from "../../TopbarMenu/TitleBarMenu";
-import { LogsViewerResponseDTO } from "../../LeftSidebar/RightSidePanel";
+import { LogsViewerResponseDTO } from "../../LeftSidebar/Logs/context/LogsContext";
 
 export class NodesApi extends Api {
   constructor() {
@@ -55,7 +55,7 @@ export class NodesApi extends Api {
   static getLogs(
     after: string | null = null,
     before: string | null = null,
-    num_entries: string = "100"
+    num_entries: string = "300"
   ): Promise<Res<LogsViewerResponseDTO[]>> {
     return this._fetch(this.api(GET_LOGS({ after, before, num_entries })), API_METHODS.GET, {
       headers: BASIC_HEADERS,
