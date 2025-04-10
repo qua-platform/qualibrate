@@ -23,9 +23,11 @@ machine = node.machine
 # node.mode.interactive = True
 
 
-machine = BasicQuAM(
+machine = BasicQuam(
     channels={
-        "ch1": SingleChannel(opx_output=("con1", 1), intermediate_frequency=100e6)
+        "ch1": SingleChannel(
+            opx_output=("con1", 1), intermediate_frequency=100e6
+        )
     }
 )
 

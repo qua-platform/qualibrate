@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, call
@@ -83,7 +82,6 @@ def test_save_node_without_machine(
 
     mock_logger.assert_any_call("Saving node test_node to local storage")
     assert mock_data_handler.return_value.node_data == {
-        "quam": "./quam_state.json",
         "parameters": {
             "model": node.parameters.model_dump(mode="json"),
             "schema": node.parameters.__class__.model_json_schema(),
@@ -98,21 +96,6 @@ def test_save_node_without_machine(
     assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
 
 
-def test_save_node_with_dict_machine(
-    mocker, mock_generate, mock_data_handler, local_manager_root
-):
-    dummy_machine = {"key": "value"}
-    node = DummyNode(machine=dummy_machine)
-    spy_write = mocker.patch("pathlib.Path.write_text")
-
-    local_manager_root.save(node)
-
-    spy_write.assert_called_once_with(
-        json.dumps(dummy_machine, indent=4, sort_keys=True)
-    )
-    assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
-
-
 def test_save_node_with_machine_object_no_act_m_path(
     data_handler_path, mock_data_handler, mock_generate, local_manager_root
 ):
@@ -122,15 +105,7 @@ def test_save_node_with_machine_object_no_act_m_path(
     local_manager_root.save(node)
 
     assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
-    machine.save.assert_has_calls(
-        [
-            call(path=data_handler_path / "quam_state.json"),
-            call(
-                path=(data_handler_path / "quam_state"),
-                content_mapping=LocalStorageManager.machine_content_mapping,
-            ),
-        ]
-    )
+    machine.save.assert_called_once()
 
 
 @pytest.mark.parametrize(
@@ -151,7 +126,6 @@ def test_save_node_outcomes(
     mock_logger.assert_any_call("Saving node test_node to local storage")
     assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
     assert mock_data_handler.return_value.node_data == {
-        "quam": "./quam_state.json",
         "parameters": {
             "model": node.parameters.model_dump(mode="json"),
             "schema": node.parameters.__class__.model_json_schema(),
@@ -168,25 +142,6 @@ def test_save_node_outcomes(
     )
 
 
-def test_machine_content_mapping_logic(
-    data_handler_path, mock_generate, local_manager_root
-):
-    local_manager_root.machine_content_mapping = {
-        "wiring.json": {"missing_attr"}
-    }
-
-    machine = MagicMock()
-    machine.save = MagicMock()
-    del machine.missing_attr  # delete attr
-
-    node = DummyNode(machine=machine)
-
-    local_manager_root.save(node)
-
-    machine.save.assert_called_with(path=data_handler_path / "quam_state.json")
-    assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
-
-
 def test_save_active_machine_path(mocker, mock_generate, mock_data_handler):
     root_folder = Path("/tmp/test_folder")
     active_path = Path("/tmp/active_machine")
@@ -198,8 +153,11 @@ def test_save_active_machine_path(mocker, mock_generate, mock_data_handler):
 
     manager.save(node)
 
-    machine.save.assert_called_with(
-        path=active_path,
-        content_mapping=LocalStorageManager.machine_content_mapping,
+    assert manager.data_handler.path is not None
+    machine.save.assert_has_calls(
+        [
+            call(active_path),
+            call(Path(manager.data_handler.path) / "quam_state"),
+        ]
     )
     assert manager.snapshot_idx == mock_generate.return_value["id"]
