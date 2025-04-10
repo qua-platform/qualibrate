@@ -117,17 +117,19 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         )
         self.snapshot_idx = node_contents["id"]
 
-        self._save_machine(node, relative_machine_path=relative_machine_path)
+        if node.machine is None:
+            logger.info("Node has no QuAM, skipping node.machine.save()")
+            return
+
+        self._save_machine(
+            node.machine, relative_data_path=relative_machine_path
+        )
 
     def _save_machine(
         self,
-        node: NodeTypeVar,
-        relative_machine_path: Optional[str] = "./quam_state.json",
+        machine,
+        relative_data_path: Optional[str] = "./quam_state.json",
     ) -> None:
-        if node.machine is None:
-            logger.info("Node has no QuAM, skipping machine.save()")
-            return
-
         try:
             import quam
 
@@ -138,7 +140,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
                     "QUAM version is less than 0.4.0, using old save method. "
                     "It is recommended to upgrade QUAM to improve its saving."
                 )
-                self._save_old_quam(node)
+                self._save_old_quam(machine)
                 return
         except ImportError:
             pass
@@ -148,12 +150,12 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             logger.info(
                 f"Saving machine to active path {self.active_machine_path}"
             )
-            node.machine.save(self.active_machine_path)
+            machine.save(self.active_machine_path)
 
         if (
             self.data_handler.path is None
             or isinstance(self.data_handler.path, int)
-            or relative_machine_path is None
+            or relative_data_path is None
         ):
             logger.warning(
                 "Could not determine the data saving path, skipping machine.save"
@@ -161,11 +163,11 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             return
 
         # Save machine to data folder
-        machine_data_path = Path(self.data_handler.path) / relative_machine_path
+        machine_data_path = Path(self.data_handler.path) / relative_data_path
         logger.info(f"Saving machine to data folder {machine_data_path}")
-        node.machine.save(machine_data_path)
+        machine.save(machine_data_path)
 
-    def _save_old_quam(self, node: NodeTypeVar) -> None:
+    def _save_old_quam(self, machine) -> None:
 
         if self.data_handler.path is None or isinstance(
             self.data_handler.path, int
@@ -179,18 +181,18 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         content_mapping = {"wiring.json": {"wiring", "network"}}
         # Ignore content_mapping if not all required attributes are present
         if not all(
-            hasattr(node.machine, elem)
+            hasattr(machine, elem)
             for elem_group in content_mapping.values()
             for elem in elem_group
         ):
             content_mapping = None
 
         # Save as single file in data folder
-        node.machine.save(Path(self.data_handler.path) / "quam_state.json")
+        machine.save(Path(self.data_handler.path) / "quam_state.json")
 
         # Save as folder with wiring and network separated in data folder
         if content_mapping is not None:
-            node.machine.save(
+            machine.save(
                 path=Path(self.data_handler.path) / "quam_state",
                 content_mapping=content_mapping,
             )
@@ -200,7 +202,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             logger.info(
                 f"Saving machine to active path {self.active_machine_path}"
             )
-            node.machine.save(
+            machine.save(
                 path=self.active_machine_path,
                 content_mapping=content_mapping,
             )
