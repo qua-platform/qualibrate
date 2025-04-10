@@ -170,7 +170,9 @@ def test_save_node_outcomes(
 def test_machine_content_mapping_logic(
     data_handler_path, mock_generate, local_manager_root
 ):
-    local_manager_root.machine_content_mapping = {"wiring.json": {"missing_attr"}}
+    local_manager_root.machine_content_mapping = {
+        "wiring.json": {"missing_attr"}
+    }
 
     machine = MagicMock()
     machine.save = MagicMock()

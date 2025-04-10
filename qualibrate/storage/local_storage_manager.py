@@ -7,7 +7,6 @@ from typing import (
     TypeVar,
     Protocol,
     Any,
-    Dict,
 )
 from packaging.version import Version
 
@@ -33,7 +32,7 @@ class _MachineProtocol(Protocol):
         """
         ...
 
-    def generate_config(self, **kwargs: Any) -> Dict[str, Any]:
+    def generate_config(self, **kwargs: Any) -> dict[str, Any]:
         """
         Generates the configuration dictionary for the machine.
         """
@@ -106,9 +105,10 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         # Determine relative machine path w.r.t the data folder
         if node.machine is None:
             relative_machine_path = None
-        elif self.active_machine_path is None:
-            relative_machine_path = "./quam_state.json"
-        elif self.active_machine_path.suffix == ".json":
+        elif (
+            self.active_machine_path is None
+            or self.active_machine_path.suffix == ".json"
+        ):
             relative_machine_path = "./quam_state.json"
         else:
             relative_machine_path = "./quam_state"
