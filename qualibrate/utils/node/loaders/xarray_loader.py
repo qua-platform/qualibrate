@@ -15,12 +15,12 @@ class XarrayLoader(BaseLoader):
 
     file_extensions: tuple[str, ...] = (".h5",)
 
-    def load(self, file_path: Path, **kwargs: Any) -> Any:
+    def load(self, path: Path, **kwargs: Any) -> Any:
         """
         Loads a xarray dataset from a file.
 
         Args:
-            file_path: The path to the xarray file.
+            path: The path to the xarray file.
             **kwargs: Additional arguments for file loading.
 
         Returns:
@@ -31,5 +31,5 @@ class XarrayLoader(BaseLoader):
             return None
         from xarray import open_dataset
 
-        self.__class__.validate_file_exists(file_path)
-        return open_dataset(file_path)
+        self.__class__.validate_file_exists(path)
+        return open_dataset(path)

@@ -74,8 +74,6 @@ from qualibrate.utils.node.record_state_update import (
     record_state_update_getitem,
 )
 from qualibrate.utils.read_files import get_module_name, import_from_path
-
-# from qualibrate.utils.action_manager import ActionManager
 from qualibrate.utils.type_protocols import TargetType
 
 __all__ = [
@@ -515,6 +513,7 @@ class QualibrationNode(
             A summary object containing execution details.
         """
         outcomes = self.outcomes
+        self._action_manager.current_action = None
         if self.parameters is not None and (targets := self.parameters.targets):
             lost_targets_outcomes = set(targets) - set(outcomes.keys())
             outcomes.update(
@@ -548,7 +547,11 @@ class QualibrationNode(
         return self.run_summary
 
     def run(
-        self, interactive: bool = True, **passed_parameters: Any
+        self,
+        interactive: bool = True,
+        *,
+        skip_actions: Union[bool, Sequence[str]] = False,
+        **passed_parameters: Any,
     ) -> BaseRunSummary:
         """
         Runs the node with given parameters, potentially interactively.
@@ -560,6 +563,8 @@ class QualibrationNode(
 
         Args:
             interactive: Whether the node should be run interactively.
+            skip_actions: An optional sequence of actions to skip when running.
+                Also, possible to pass `True` to skip all actions.
             **passed_parameters: Additional parameters to pass when
                 running the node.
 
@@ -604,6 +609,7 @@ class QualibrationNode(
             self._parameters = parameters
             self.modes = new_run_modes
             self.__class__.active_node = self
+            self._action_manager.skip_actions = skip_actions
 
             self.run_node_file(self.filepath)
         except Exception as ex:
@@ -617,6 +623,7 @@ class QualibrationNode(
         else:
             self._fraction_complete = 1.0
         finally:
+            self._action_manager.skip_actions = False
             run_modes_ctx.reset(run_modes_token)
             self.modes = modes
             self.__class__.active_node = None
@@ -894,6 +901,11 @@ class QualibrationNode(
     @fraction_complete.setter
     def fraction_complete(self, value: float) -> None:
         self._fraction_complete = max(min(value, 1.0), 0.0)
+
+    @property
+    def current_action_name(self) -> Optional[str]:
+        action = self._action_manager.current_action
+        return action.name if action else None
 
 
 if __name__ == "__main__":

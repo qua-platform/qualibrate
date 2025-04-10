@@ -16,17 +16,17 @@ class JSONLoader(BaseLoader):
 
     file_extensions = (".json",)
 
-    def load(self, file_path: Path, **kwargs: Any) -> Any:
+    def load(self, path: Path, **kwargs: Any) -> Any:
         """
         Loads a JSON file.
 
         Args:
-            file_path: The path to the JSON file.
+            path: The path to the JSON file.
             **kwargs: Additional arguments for file loading.
 
         Returns:
             The parsed JSON content.
         """
-        self.__class__.validate_file_exists(file_path)
-        with open(file_path) as f:
+        self.__class__.validate_file_exists(path)
+        with open(path) as f:
             return json.load(f)

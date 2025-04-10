@@ -1,7 +1,14 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Any, Optional
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    computed_field,
+    field_serializer,
+)
 
 from qualibrate.models.node_status import NodeStatus
 from qualibrate.models.outcome import Outcome
@@ -39,6 +46,12 @@ class ItemData(BaseModel):
     outcomes: dict[TargetType, Outcome] = Field(default_factory=dict)
     error: Optional[RunError] = None
 
+    @field_serializer("parameters")
+    def serialize_parameters(
+        self, parameters: NodeParameters
+    ) -> Mapping[str, Any]:
+        return parameters.model_dump(serialize_as_any=True)
+
 
 class ExecutionHistoryItem(BaseModel):
     """Represents an item of graph execution history."""
@@ -49,15 +62,6 @@ class ExecutionHistoryItem(BaseModel):
     created_at: AwareDatetime
     metadata: ItemMetadata
     data: ItemData
-    # TODO: add structure for metadata
-    # description: Optional[str] = None # metadata
-    # status: NodeStatus # metadata
-    # run_start: AwareDatetime # metadata
-    # run_end: AwareDatetime # metadata
-    # TODO: add structure for data
-    # parameters: NodeParameters data
-    # error: Optional[RunError] = None # data
-    # outcomes: dict[TargetType, Outcome] = Field(default_factory=dict)
 
 
 class ExecutionHistory(BaseModel):

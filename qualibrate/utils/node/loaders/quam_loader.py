@@ -13,26 +13,39 @@ except ModuleNotFoundError:
 class QuamLoader(JSONLoader):
     """Loader for QUAM files, extending JSONLoader."""
 
-    def load(self, file_path: Path, **kwargs: Any) -> Any:
+    def load(self, path: Path, **kwargs: Any) -> Any:
         """
         Loads a QUAM file and attempts to parse it using `QuamRoot`.
 
         Args:
-            file_path: The path to the QUAM file.
+            path: The path to the QUAM file.
             **kwargs: Additional arguments for file loading.
 
         Returns:
             The parsed QUAM object, or the raw JSON content if parsing fails.
         """
-        json_data = super().load(file_path, **kwargs)
-        if QuamRoot is None:
-            return json_data
         try:
-            return QuamRoot.load(json_data)
+            return QuamRoot.load(path)
         except Exception as ex:
             logger.exception(
                 "QuamRoot wasn't successfully loaded from reference "
-                f"{file_path}. Returning raw json",
+                f"{path}. Returning raw json",
                 exc_info=ex,
             )
-            return json_data
+            if path.is_file():
+                if self.__class__.is_loader_support_extension(path.suffix):
+                    return super().load(path)
+                logger.error(
+                    f"Can't load file from reference {path}. "
+                    "Unsupported type."
+                )
+                return {}
+            quam = {}
+            for file in path.glob("*.json"):
+                try:
+                    quam.update(super().load(file))
+                except ValueError as e:
+                    logger.warning(
+                        f"Can't parse quam file: {file.name}", exc_info=e
+                    )
+            return quam
