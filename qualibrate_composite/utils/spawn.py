@@ -13,6 +13,8 @@ from qualibrate_composite.utils.logging_filter import EndpointFilter
 EXECUTION_STATUS_ENDPOINT = "/execution/is_running"
 WORKFLOW_STATUS_ENDPOINT = "/execution/last_run/workflow/status"
 WORKFLOW_HISTORY_ENDPOINT = "/execution/last_run/workflow/execution_history"
+EXECUTION_LAST_RUN_STATUS_ENDPOINT = "/execution/last_run/status"
+SNAPSHOTS_HISTORY_ENDPOINT = "/api/branch/main/snapshots_history"
 
 
 def spawn_qualibrate_runner(app: FastAPI) -> None:
@@ -29,6 +31,8 @@ def spawn_qualibrate_runner(app: FastAPI) -> None:
                 EXECUTION_STATUS_ENDPOINT,
                 WORKFLOW_STATUS_ENDPOINT,
                 WORKFLOW_HISTORY_ENDPOINT,
+                EXECUTION_LAST_RUN_STATUS_ENDPOINT,
+                SNAPSHOTS_HISTORY_ENDPOINT,
             )
         )
     )
