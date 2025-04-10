@@ -2,14 +2,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
     Generic,
     Optional,
-    TypeVar,
     Protocol,
-    Any,
+    TypeVar,
 )
-from packaging.version import Version
 
+from packaging.version import Version
 from qualang_tools.results import DataHandler
 
 from qualibrate.models.outcome import Outcome
