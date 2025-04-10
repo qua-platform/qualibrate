@@ -219,11 +219,10 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine.save(Path(self.data_handler.path) / "quam_state.json")
 
         # Save as folder with wiring and network separated in data folder
-        if content_mapping is not None:
-            machine.save(
-                path=Path(self.data_handler.path) / "quam_state",
-                content_mapping=content_mapping,
-            )
+        machine.save(
+            path=Path(self.data_handler.path) / "quam_state",
+            content_mapping=content_mapping,
+        )
 
         # Optionally also save QuAM to the active path
         if self.active_machine_path is not None:

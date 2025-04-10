@@ -9,7 +9,7 @@ import pytest
 import xarray as xr
 from matplotlib import pyplot as plt
 from PIL import Image, ImageChops
-from quam.components import BasicQuAM, SingleChannel
+from quam.components import BasicQuam, SingleChannel
 
 from qualibrate.parameters import NodeParameters
 from qualibrate.qualibration_node import QualibrationNode
@@ -68,7 +68,7 @@ def test_load_from_id_class_filled(
         "channels": {
             "ch1": {"opx_output": ["con1", 1], "__class__": "CustomChannel"}
         },
-        "__class__": "quam.components.basic_quam.BasicQuAM",
+        "__class__": "quam.components.basic_quam.BasicQuam",
     }
 
 
@@ -104,7 +104,7 @@ def node_for_dump(
         parameters=Parameters(resonator="q1.resonator"),
     )
 
-    node.machine = BasicQuAM(
+    node.machine = BasicQuam(
         channels={
             "ch1": SingleChannel(
                 opx_output=("con1", 1), intermediate_frequency=100e6
@@ -154,7 +154,7 @@ def test_save_and_load(mocker, tmp_path, node_for_dump, qualibrate_config):
         )
 
     assert copied_params.model_dump() == restored_node.parameters.model_dump()
-    assert isinstance(restored_node.machine, BasicQuAM)
+    assert isinstance(restored_node.machine, BasicQuam)
     assert asdict(restored_node.machine) == asdict(node_for_dump.machine)
     restored_results = restored_node.results
     assert restored_node.results.keys() == copied_results.keys()

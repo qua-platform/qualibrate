@@ -36,8 +36,7 @@ class QuamLoader(JSONLoader):
                 if self.__class__.is_loader_support_extension(path.suffix):
                     return super().load(path)
                 logger.error(
-                    f"Can't load file from reference {path}. "
-                    "Unsupported type."
+                    f"Can't load file from reference {path}. Unsupported type."
                 )
                 return {}
             quam = {}
