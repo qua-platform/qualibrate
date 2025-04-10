@@ -154,9 +154,11 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             return
 
         # Define which parts of machine to save to a separate file
-        content_mapping: Optional[Dict[str, Sequence[str]]] = {"wiring.json": ["wiring", "network"]}
+        proposed_content_mapping = {"wiring.json": ["wiring", "network"]}
         # Ignore content_mapping if not all required attributes are present
-        if not all(hasattr(machine, elem) for elem_group in content_mapping.values() for elem in elem_group):
+        if all(hasattr(machine, elem) for elem_group in proposed_content_mapping.values() for elem in elem_group):
+            content_mapping = proposed_content_mapping
+        else:
             content_mapping = None
 
         # Save as single file in data folder
