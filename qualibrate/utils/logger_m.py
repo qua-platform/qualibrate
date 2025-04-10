@@ -1,9 +1,10 @@
 import logging
+import sys
 from collections.abc import Mapping
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from types import TracebackType
-from typing import Optional, Union
+from typing import Literal, Optional, Union, get_args
 
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
@@ -16,8 +17,21 @@ _SysExcInfoType = Union[
 ]
 _ExcInfoType = Optional[Union[bool, _SysExcInfoType, BaseException]]
 _ArgsType = Union[tuple[object, ...], Mapping[str, object]]
+LOG_LEVEL_NAMES_TYPE = Literal[
+    "debug", "info", "warning", "error", "exception", "critical", "fatal"
+]
+ALLOWED_LOG_LEVEL_NAMES: tuple[LOG_LEVEL_NAMES_TYPE, ...] = get_args(
+    LOG_LEVEL_NAMES_TYPE
+)
 
-__all__ = ["logger"]
+
+__all__ = [
+    "logger",
+    "_SysExcInfoType",
+    "_ExcInfoType",
+    "LOG_LEVEL_NAMES_TYPE",
+    "ALLOWED_LOG_LEVEL_NAMES",
+]
 
 LOG_FORMAT = (
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s "
@@ -55,8 +69,33 @@ class ConsoleFormatter(QualibrateFormatter):
         return log_fmtr.format(record)
 
 
+class UserLogFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.module == "qualibration_node" and record.funcName == "log"
+
+
+class NonUserLogFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.module != "qualibration_node" or record.funcName != "log"
+
+
 class LazyInitLogger(logging.Logger):
-    _initialized = False
+    def __init__(self, name: str, level: Union[int, str] = 0) -> None:
+        super().__init__(name, level or logging.DEBUG)
+
+        console_stderr = logging.StreamHandler(sys.stderr)
+        console_stderr.addFilter(NonUserLogFilter())
+        console_stderr.setLevel(logging.INFO)
+        console_stderr.setFormatter(ConsoleFormatter())
+
+        console_stdout = logging.StreamHandler(sys.stdout)
+        console_stdout.addFilter(UserLogFilter())
+        console_stdout.setLevel(logging.INFO)
+        console_stdout.setFormatter(ConsoleFormatter())
+        self.addHandler(console_stderr)
+        self.addHandler(console_stdout)
+
+        self._initialized = False
 
     def _log(
         self,
@@ -84,7 +123,6 @@ class LazyInitLogger(logging.Logger):
         return log_file_path
 
     def _initialize(self) -> None:
-        self.setLevel(logging.DEBUG)
         file_handler = RotatingFileHandler(
             self.get_log_filepath(),
             maxBytes=1024 * 1024 * 10,  # 10 Mb
@@ -94,11 +132,20 @@ class LazyInitLogger(logging.Logger):
         file_handler.setFormatter(QualibrateFormatter())
         self.addHandler(file_handler)
 
-        console = logging.StreamHandler()
-        console.setLevel(logging.INFO)
-        console.setFormatter(ConsoleFormatter())
-        self.addHandler(console)
+        qm_logger = logging.getLogger("qm")
+        # qm_logger.setLevel(logging.NOTSET)  # Set log level for dependency
+        qm_logger.addHandler(file_handler)
+        qm_logger.propagate = False
+
         self._initialized = True
 
 
-logger = LazyInitLogger("qualibrate-core")
+_manager = logging.Logger.manager
+_default_logger_class = _manager.loggerClass
+# Temporary replace default logger class with our lazy init
+_manager.setLoggerClass(LazyInitLogger)
+logger = logging.getLogger("qualibrate")
+if _default_logger_class is not None:
+    _manager.setLoggerClass(_default_logger_class)
+else:
+    _manager.loggerClass = None
