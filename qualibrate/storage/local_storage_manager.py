@@ -194,7 +194,6 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine.save(machine_data_path)
 
     def _save_old_quam(self, machine: _MachineProtocol) -> None:
-
         if self.data_handler.path is None or isinstance(
             self.data_handler.path, int
         ):
