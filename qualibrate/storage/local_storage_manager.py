@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Generic, Optional, TypeVar
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar, Dict, Sequence
 from packaging.version import Version
 
 from qualang_tools.results import DataHandler
@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
 
 NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[Any, Any]")
+MachineType = TypeVar("MachineType")
 
 
 class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
@@ -127,7 +128,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
     def _save_machine(
         self,
-        machine,
+        machine: MachineType,
         relative_data_path: Optional[str] = "./quam_state.json",
     ) -> None:
         try:
@@ -167,7 +168,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         logger.info(f"Saving machine to data folder {machine_data_path}")
         machine.save(machine_data_path)
 
-    def _save_old_quam(self, machine) -> None:
+    def _save_old_quam(self, machine: MachineType) -> None:
 
         if self.data_handler.path is None or isinstance(
             self.data_handler.path, int
@@ -178,7 +179,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             return
 
         # Define which parts of machine to save to a separate file
-        content_mapping = {"wiring.json": {"wiring", "network"}}
+        content_mapping: Optional[Dict[str, Sequence[str]]] = {"wiring.json": ["wiring", "network"]}
         # Ignore content_mapping if not all required attributes are present
         if not all(
             hasattr(machine, elem)
