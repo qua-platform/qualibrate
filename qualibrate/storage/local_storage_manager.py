@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
 
 NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[Any, Any]")
-MachineType = TypeVar("MachineType")
 
 
 class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
@@ -33,9 +32,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             current active machine state.
     """
 
-    def __init__(
-        self, root_data_folder: Path, active_machine_path: Optional[Path] = None
-    ):
+    def __init__(self, root_data_folder: Path, active_machine_path: Optional[Path] = None):
         self.root_data_folder = root_data_folder
         self.data_handler = DataHandler(root_data_folder=root_data_folder)
         self.active_machine_path = active_machine_path
@@ -73,10 +70,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         # Save results
         self.data_handler.name = node.name
         self._clean_data_handler()
-        outcomes = {
-            k: v.value if isinstance(v, Outcome) else v
-            for k, v in node.outcomes.items()
-        }
+        outcomes = {k: v.value if isinstance(v, Outcome) else v for k, v in node.outcomes.items()}
 
         # Determine relative machine path w.r.t the data folder
         if node.machine is None:
@@ -103,12 +97,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             metadata={
                 "description": node.description,
                 "run_start": node.run_start.isoformat(timespec="milliseconds"),
-                "run_end": (
-                    datetime.now()
-                    .astimezone()
-                    .astimezone()
-                    .isoformat(timespec="milliseconds")
-                ),
+                "run_end": (datetime.now().astimezone().astimezone().isoformat(timespec="milliseconds")),
             }
         )  # TODO directly access idx
         self.data_handler.save_data(
@@ -122,13 +111,11 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             logger.info("Node has no QuAM, skipping node.machine.save()")
             return
 
-        self._save_machine(
-            node.machine, relative_data_path=relative_machine_path
-        )
+        self._save_machine(node.machine, relative_data_path=relative_machine_path)
 
     def _save_machine(
         self,
-        machine: MachineType,
+        machine: object,
         relative_data_path: Optional[str] = "./quam_state.json",
     ) -> None:
         try:
@@ -148,19 +135,11 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
         # Save machine to active path
         if self.active_machine_path is not None:
-            logger.info(
-                f"Saving machine to active path {self.active_machine_path}"
-            )
+            logger.info(f"Saving machine to active path {self.active_machine_path}")
             machine.save(self.active_machine_path)
 
-        if (
-            self.data_handler.path is None
-            or isinstance(self.data_handler.path, int)
-            or relative_data_path is None
-        ):
-            logger.warning(
-                "Could not determine the data saving path, skipping machine.save"
-            )
+        if self.data_handler.path is None or isinstance(self.data_handler.path, int) or relative_data_path is None:
+            logger.warning("Could not determine the data saving path, skipping machine.save")
             return
 
         # Save machine to data folder
@@ -168,24 +147,16 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         logger.info(f"Saving machine to data folder {machine_data_path}")
         machine.save(machine_data_path)
 
-    def _save_old_quam(self, machine: MachineType) -> None:
+    def _save_old_quam(self, machine: object) -> None:
 
-        if self.data_handler.path is None or isinstance(
-            self.data_handler.path, int
-        ):
-            logger.warning(
-                "Could not determine the data saving path, skipping machine.save"
-            )
+        if self.data_handler.path is None or isinstance(self.data_handler.path, int):
+            logger.warning("Could not determine the data saving path, skipping machine.save")
             return
 
         # Define which parts of machine to save to a separate file
         content_mapping: Optional[Dict[str, Sequence[str]]] = {"wiring.json": ["wiring", "network"]}
         # Ignore content_mapping if not all required attributes are present
-        if not all(
-            hasattr(machine, elem)
-            for elem_group in content_mapping.values()
-            for elem in elem_group
-        ):
+        if not all(hasattr(machine, elem) for elem_group in content_mapping.values() for elem in elem_group):
             content_mapping = None
 
         # Save as single file in data folder
@@ -200,9 +171,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
         # Optionally also save QuAM to the active path
         if self.active_machine_path is not None:
-            logger.info(
-                f"Saving machine to active path {self.active_machine_path}"
-            )
+            logger.info(f"Saving machine to active path {self.active_machine_path}")
             machine.save(
                 path=self.active_machine_path,
                 content_mapping=content_mapping,
