@@ -2000,38 +2000,11 @@ simulation = ["certifi"]
 
 [[package]]
 name = "qualang-tools"
-version = "0.18.2"
-description = "The qualang_tools package includes various tools related to QUA programs in Python"
-optional = false
-python-versions = "<3.13,>=3.8"
-groups = ["main"]
-markers = "python_version >= \"3.12\""
-files = [
-    {file = "qualang_tools-0.18.2-py3-none-any.whl", hash = "sha256:699df0088592ade55c62314213584034591832cde3a85b9ca1bef3e2ee4491a7"},
-    {file = "qualang_tools-0.18.2.tar.gz", hash = "sha256:5b8690483fc5f1451ba122e8fd7cb9b6c0b48a786f55ab28f050d1f7d43c09eb"},
-]
-
-[package.dependencies]
-grpclib = "0.4.5"
-matplotlib = ">=3.4.2,<4.0.0"
-numpy = {version = ">=1.26.0,<2", markers = "python_version >= \"3.12\""}
-qm-qua = {version = ">=1.1.7", markers = "python_version >= \"3.8\" and python_version < \"3.13\""}
-scikit-learn = ">=1.0.2,<2.0.0"
-scipy = {version = ">=1.11.0", markers = "python_version >= \"3.12\""}
-
-[package.extras]
-configbuilder = ["dash (>=2.0.0,<3.0.0)", "dash-bootstrap-components (>=1.6.0,<2.0.0)", "dash-core-components (>=2.0.0,<3.0.0)", "dash-cytoscape (>=0.3.0,<0.4.0)", "dash-dangerously-set-inner-html (>=0.0.2,<0.0.3)", "dash-html-components (>=2.0.0,<3.0.0)", "dash-table (>=5.0.0,<6.0.0)", "docutils (>=0.14.0,<=0.21)", "pandas (>=1.2.4)", "waitress (>=2.0.0,<3.0.0)"]
-datahandler = ["xarray (>=2023.0.0,<2024.0.0)"]
-interplot = ["dill (>=0.3.4,<0.4.0)", "ipython (>=8.10.0,<9.0.0)", "pypiwin32 (>=223,<224)"]
-
-[[package]]
-name = "qualang-tools"
 version = "0.19.3"
 description = "The qualang_tools package includes various tools related to QUA programs in Python"
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
-markers = "python_version < \"3.12\""
 files = [
     {file = "qualang_tools-0.19.3-py3-none-any.whl", hash = "sha256:23d472111d609457565e44119bfee23e3cea3a1b8c6915a99139e92dfaf0d077"},
     {file = "qualang_tools-0.19.3.tar.gz", hash = "sha256:8ce19e55fa8877a74c8cbfed539bc30e0ac84b4c5f40c6dc4643fa8acdb37419"},
@@ -2053,14 +2026,14 @@ two-qubit-rb = ["cirq (==1.2.0)", "tqdm (>=4.67.1,<5.0.0)", "xarray (>=2023.0.0,
 
 [[package]]
 name = "qualibrate-config"
-version = "0.1.3"
+version = "0.1.4"
 description = "Configuration for Qualibrate"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_config-0.1.3-py3-none-any.whl", hash = "sha256:f4cdd2843c88c4e005ab963a5fd728587d0cc9d695c9b48b22a4b68b84f073cc"},
-    {file = "qualibrate_config-0.1.3.tar.gz", hash = "sha256:78a65093a36f1b11519e449f74acf7fd4733a3495db29bb9fc95916725b883c5"},
+    {file = "qualibrate_config-0.1.4-py3-none-any.whl", hash = "sha256:4db3cbab92cd5abc59623b3dfa88c7e4361b3142a9dd37b23abe2642e679e782"},
+    {file = "qualibrate_config-0.1.4.tar.gz", hash = "sha256:c8b00f9249f7aab9ecb6d5115fc43e3c3b2f56b77ae48e843a9212cb106be978"},
 ]
 
 [package.dependencies]
@@ -2073,14 +2046,14 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.3.0"
+version = "0.3.1"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_core-0.3.0-py3-none-any.whl", hash = "sha256:7b3e9fcb1f9d44098af7049ddd013e9456208f4dc7b2f477c581ab55516515bc"},
-    {file = "qualibrate_core-0.3.0.tar.gz", hash = "sha256:73d7460d70264b668614183f700f5adb1cd7dc47046dc1d31babb496dc6289e7"},
+    {file = "qualibrate_core-0.3.1-py3-none-any.whl", hash = "sha256:6b2c19096b2e4ccda78110f865066fefec3f7827e3db2030d33227df6afed40f"},
+    {file = "qualibrate_core-0.3.1.tar.gz", hash = "sha256:a5bbd7c6b8a5441f5668e666b39e48757f00fa1b64bb2c0c8561dcd7db29b6ef"},
 ]
 
 [package.dependencies]
@@ -2088,9 +2061,9 @@ datamodel-code-generator = ">=0.26.3,<0.27.0"
 jsonpointer = ">=3.0.0,<4.0.0"
 matplotlib = ">=3.9.4,<4.0.0"
 networkx = ">=3.2.0,<3.3.0"
-pydantic = ">=2.10.4,<3.0.0"
+pydantic = ">=2.9.2,<3.0.0"
 qualang-tools = {version = ">=0.18.2", markers = "python_version >= \"3.9\" and python_version < \"3.13\""}
-qualibrate-config = ">=0.1.2,<0.2.0"
+qualibrate-config = ">=0.1.4,<0.2.0"
 types-networkx = ">=3.2.1.20240918,<3.3.0.0"
 
 [[package]]
@@ -2459,4 +2432,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.13"
-content-hash = "121d8b8fce9c3ffd3e8bb016f0417ff665c0c59c981d78f30533b15b20b44f67"
+content-hash = "b1fd077170beb054a66f371459a905d8c8da125d48f41fe3f4dd427f98110899"
