@@ -2212,21 +2212,21 @@ two-qubit-rb = ["cirq (==1.2.0)", "tqdm (>=4.67.1,<5.0.0)", "xarray (>=2023.0.0,
 
 [[package]]
 name = "qualibrate-app"
-version = "0.3.1"
+version = "0.3.4"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_app-0.3.1-py3-none-any.whl", hash = "sha256:605da2e0ed2f9540765969496781d7804e8ab8ea31e5b7d541cd945e8c84c968"},
-    {file = "qualibrate_app-0.3.1.tar.gz", hash = "sha256:2b731b439d76314c9021c610bbb532aa70323768511402ae2be261f56aba3cff"},
+    {file = "qualibrate_app-0.3.4-py3-none-any.whl", hash = "sha256:c45218928c132e26c602706053c909519ff26bfa648d31762160dfa7041176cc"},
+    {file = "qualibrate_app-0.3.4.tar.gz", hash = "sha256:b4446bded38ac04274dda9820c3bb11e7d26d83f8a70fb758b094f5b1b896187"},
 ]
 
 [package.dependencies]
 click = ">=8.1.7,<9.0.0"
 fastapi = ">=0.115.2,<0.116.0"
 jsonpatch = ">=1.33,<2.0"
-qualibrate-config = ">=0.1.3,<0.2.0"
+qualibrate-config = ">=0.1.4,<0.2.0"
 requests = ">=2.31.0,<3.0.0"
 tomli = {version = ">=2.0.1,<3.0.0", markers = "python_version < \"3.11\""}
 tomli-w = ">=1.0.0,<2.0.0"
@@ -2234,14 +2234,14 @@ uvicorn = ">=0.34.0,<0.35.0"
 
 [[package]]
 name = "qualibrate-config"
-version = "0.1.3"
+version = "0.1.4"
 description = "Configuration for Qualibrate"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_config-0.1.3-py3-none-any.whl", hash = "sha256:f4cdd2843c88c4e005ab963a5fd728587d0cc9d695c9b48b22a4b68b84f073cc"},
-    {file = "qualibrate_config-0.1.3.tar.gz", hash = "sha256:78a65093a36f1b11519e449f74acf7fd4733a3495db29bb9fc95916725b883c5"},
+    {file = "qualibrate_config-0.1.4-py3-none-any.whl", hash = "sha256:4db3cbab92cd5abc59623b3dfa88c7e4361b3142a9dd37b23abe2642e679e782"},
+    {file = "qualibrate_config-0.1.4.tar.gz", hash = "sha256:c8b00f9249f7aab9ecb6d5115fc43e3c3b2f56b77ae48e843a9212cb106be978"},
 ]
 
 [package.dependencies]
@@ -2254,14 +2254,14 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.3.0"
+version = "0.3.1"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_core-0.3.0-py3-none-any.whl", hash = "sha256:7b3e9fcb1f9d44098af7049ddd013e9456208f4dc7b2f477c581ab55516515bc"},
-    {file = "qualibrate_core-0.3.0.tar.gz", hash = "sha256:73d7460d70264b668614183f700f5adb1cd7dc47046dc1d31babb496dc6289e7"},
+    {file = "qualibrate_core-0.3.1-py3-none-any.whl", hash = "sha256:6b2c19096b2e4ccda78110f865066fefec3f7827e3db2030d33227df6afed40f"},
+    {file = "qualibrate_core-0.3.1.tar.gz", hash = "sha256:a5bbd7c6b8a5441f5668e666b39e48757f00fa1b64bb2c0c8561dcd7db29b6ef"},
 ]
 
 [package.dependencies]
@@ -2269,21 +2269,21 @@ datamodel-code-generator = ">=0.26.3,<0.27.0"
 jsonpointer = ">=3.0.0,<4.0.0"
 matplotlib = ">=3.9.4,<4.0.0"
 networkx = ">=3.2.0,<3.3.0"
-pydantic = ">=2.10.4,<3.0.0"
+pydantic = ">=2.9.2,<3.0.0"
 qualang-tools = {version = ">=0.18.2", markers = "python_version >= \"3.9\" and python_version < \"3.13\""}
-qualibrate-config = ">=0.1.2,<0.2.0"
+qualibrate-config = ">=0.1.4,<0.2.0"
 types-networkx = ">=3.2.1.20240918,<3.3.0.0"
 
 [[package]]
 name = "qualibrate-runner"
-version = "0.3.0"
+version = "0.3.2"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_runner-0.3.0-py3-none-any.whl", hash = "sha256:fc558d52d0cb7dbbb565e313b400c04a0aae287b9028c496b6859d28efa93155"},
-    {file = "qualibrate_runner-0.3.0.tar.gz", hash = "sha256:bfc0692673ac68a3a2b30ad12079b408f463c4fd07a81cf447642ab3ef52773f"},
+    {file = "qualibrate_runner-0.3.2-py3-none-any.whl", hash = "sha256:3d982910c58830fcd07dd1f684a87ed7f078e7c09d245a36736289dcdfd3b8d7"},
+    {file = "qualibrate_runner-0.3.2.tar.gz", hash = "sha256:58080bd405ed0ee5ff388d610fcef6abbddb1103475a325208b046baf8a8875a"},
 ]
 
 [package.dependencies]
@@ -2291,8 +2291,8 @@ click = ">=8.1.7,<9.0.0"
 fastapi = ">=0.115.2,<0.116.0"
 jsonpatch = ">=1.33,<2.0"
 pydantic-settings = ">=2.2.1,<3.0.0"
-qualibrate-config = ">=0.1.3,<0.2.0"
-qualibrate-core = ">=0.3.0,<0.4.0"
+qualibrate-config = ">=0.1.4,<0.2.0"
+qualibrate-core = ">=0.3.1,<0.4.0"
 tomli = {version = ">=2.0.1,<3.0.0", markers = "python_version < \"3.11\""}
 tomli-w = ">=1.0.0,<2.0.0"
 uvicorn = ">=0.34.0,<0.35.0"
@@ -2685,4 +2685,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.13"
-content-hash = "44f9f1aeb4fa7c15e08b036ed46c40eb38d29d0c9bc09a63350f6bc066dc8663"
+content-hash = "6189f95214eda5613453524c332d33fcce26b728cf09651031885adbfe8bbd48"
