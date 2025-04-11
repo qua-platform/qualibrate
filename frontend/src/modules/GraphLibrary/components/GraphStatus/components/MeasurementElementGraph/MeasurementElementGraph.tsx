@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./MeasurementElementGraph.module.scss";
 import CytoscapeGraph from "../../../CytoscapeGraph/CytoscapeGraph";
 import cytoscape from "cytoscape";
-import { useGraphContext } from "../../../../context/GraphContext";
+import { LastRunInfo } from "../../../../context/GraphContext";
 import { CircularProgress } from "@mui/material";
 import { SnapshotsApi } from "../../../../../Snapshots/api/SnapshotsApi";
 import BlueButton from "../../../../../../ui-lib/components/Button/BlueButton";
-import { ErrorStatusWrapper } from "../../../../../common/Error/ErrorStatusWrapper";
 import { classNames } from "../../../../../../utils/classnames";
 
 interface IProps {
@@ -15,11 +14,10 @@ interface IProps {
   active?: boolean;
   nodesCompleted?: number;
   runDuration?: number;
+  lastRunInfo?: LastRunInfo;
 }
 
-export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements, onCytoscapeNodeClick }) => {
-  const { lastRunInfo } = useGraphContext();
-
+export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements, onCytoscapeNodeClick, lastRunInfo }) => {
   const [tuneUpName, setTuneUpName] = useState<string | undefined>(lastRunInfo?.workflowName);
 
   useEffect(() => {

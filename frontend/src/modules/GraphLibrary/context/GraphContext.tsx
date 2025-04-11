@@ -12,9 +12,10 @@ interface GraphProviderProps {
   children: React.JSX.Element;
 }
 
-interface LastRunInfo {
+export interface LastRunInfo {
   workflowName?: string;
   active?: boolean;
+  activeNodeName?: string;
   nodesCompleted?: number;
   nodesTotal?: number;
   runDuration?: number;
@@ -171,6 +172,7 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
       setLastRunInfo({
         ...lastRunInfo,
         active: response.result?.active,
+        activeNodeName: response.result?.active_node_name,
         nodesCompleted: response.result?.nodes_completed,
         nodesTotal: response.result?.nodes_total,
         runDuration: response.result?.run_duration,

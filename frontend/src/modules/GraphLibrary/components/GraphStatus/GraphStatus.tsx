@@ -9,8 +9,8 @@ import { SelectionContextProvider, useSelectionContext } from "../../../common/c
 import { GraphContextProvider, useGraphContext } from "../../context/GraphContext";
 
 const GraphStatus = () => {
-  const { setSelectedItemName } = useSelectionContext();
-  const { workflowGraphElements } = useGraphContext();
+  const { selectedItemName, setSelectedItemName } = useSelectionContext();
+  const { workflowGraphElements, lastRunInfo } = useGraphContext();
   const { setTrackLatest } = useGraphStatusContext();
   const { allMeasurements, result, diffData, fetchResultsAndDiffData, setResult, setDiffData, fetchAllMeasurements } =
     useGraphStatusContext();
@@ -28,7 +28,7 @@ const GraphStatus = () => {
 
   const handleOnCytoscapeNodeClick = async (name: string) => {
     const temp = await setupAllMeasurements();
-    const measurements = temp && temp.length > 0 ? temp : allMeasurements ?? [];
+    const measurements = temp && temp.length > 0 ? temp : (allMeasurements ?? []);
     setTrackLatest(false);
     setSelectedItemName(undefined);
     const measurementId = getMeasurementId(name, measurements);
@@ -46,13 +46,23 @@ const GraphStatus = () => {
       <div className={styles.leftContainer}>
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
-            <MeasurementElementGraph workflowGraphElements={workflowGraphElements} onCytoscapeNodeClick={handleOnCytoscapeNodeClick} />
+            <MeasurementElementGraph
+              workflowGraphElements={workflowGraphElements}
+              onCytoscapeNodeClick={handleOnCytoscapeNodeClick}
+              lastRunInfo={lastRunInfo}
+            />
           )}
           <MeasurementHistory listOfMeasurements={allMeasurements} />
         </div>
       </div>
       <div className={styles.rightContainer}>
-        <Results jsonObject={result} toggleSwitch={true} pageName={"graph-status"} style={{ height: "65%", flex: "0 1 auto" }} />
+        <Results
+          jsonObject={result}
+          toggleSwitch={true}
+          pageName={"graph-status"}
+          style={{ height: "65%", flex: "0 1 auto" }}
+          errorObject={selectedItemName === lastRunInfo?.activeNodeName ? lastRunInfo?.error : undefined}
+        />
         <Results title={"QUAM Updates"} jsonObject={diffData} style={{ height: "35%" }} />
       </div>
     </div>

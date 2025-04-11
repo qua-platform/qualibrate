@@ -10,7 +10,7 @@ import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 
 export const NodesPage = () => {
-  const { allNodes, fetchAllNodes } = useNodesContext();
+  const { allNodes, runningNodeInfo, fetchAllNodes } = useNodesContext();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
   const NodeTopBarRefreshButton = () => {
     return (
@@ -35,7 +35,7 @@ export const NodesPage = () => {
           <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results showSearch={false} toggleSwitch={true} pageName={"nodes"} />
+          <Results showSearch={false} toggleSwitch={true} pageName={"nodes"} errorObject={runningNodeInfo?.error} />
         </div>
       </div>
     </div>
