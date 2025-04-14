@@ -19,8 +19,8 @@ export const SettingsPageIcon: React.FunctionComponent<IconProps> = ({ width = 2
         d="M20.0008 8.99862V1.5C20.0008 1.22386 19.777 1 19.5008 1H2.50391C2.22776 1 2.00391 1.22386 2.00391 1.5V20.4966C2.00391 20.7727 2.22776 20.9966 2.50391 20.9966H9.0027"
         stroke={color}
       />
-      <path d="M5.40234 10.4482L10.0031 10.4482" stroke={color} stroke-width="1.2" />
-      <path d="M5.40234 5.44922L16.6004 5.44922" stroke="#C6CDD6" stroke-width="1.2" />
+      <path d="M5.40234 10.4482L10.0031 10.4482" stroke={color} strokeWidth="1.2" />
+      <path d="M5.40234 5.44922L16.6004 5.44922" stroke="#C6CDD6" strokeWidth="1.2" />
     </g>
   </svg>
 );
