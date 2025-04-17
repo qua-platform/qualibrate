@@ -2,10 +2,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
-    Any,
     Generic,
     Optional,
-    Protocol,
     TypeVar,
 )
 
@@ -15,28 +13,12 @@ from qualang_tools.results import DataHandler
 from qualibrate.models.outcome import Outcome
 from qualibrate.storage.storage_manager import StorageManager
 from qualibrate.utils.logger_m import logger
+from qualibrate.utils.type_protocols import MachineProtocol
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from qualibrate.qualibration_node import QualibrationNode
-
-
-# Define the protocol here
-class _MachineProtocol(Protocol):
-    """
-    Protocol defining the interface for a machine object.
-    """
-
-    def save(self, path: Optional[Path] = None, **kwargs: Any) -> None:
-        """
-        Saves the machine state to the specified path.
-        """
-        ...
-
-    def generate_config(self, **kwargs: Any) -> dict[str, Any]:
-        """
-        Generates the configuration dictionary for the machine.
-        """
-        ...
 
 
 NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[Any, Any]")
@@ -153,7 +135,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
     def _save_machine(
         self,
-        machine: _MachineProtocol,
+        machine: MachineProtocol,
         relative_data_path: Optional[str] = "./quam_state.json",
     ) -> None:
         try:
@@ -193,7 +175,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         logger.info(f"Saving machine to data folder {machine_data_path}")
         machine.save(machine_data_path)
 
-    def _save_old_quam(self, machine: _MachineProtocol) -> None:
+    def _save_old_quam(self, machine: MachineProtocol) -> None:
         if self.data_handler.path is None or isinstance(
             self.data_handler.path, int
         ):
