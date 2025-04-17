@@ -200,6 +200,8 @@ def parse_list(
         return parse_typed_list(value, item_type)
     if isinstance(value, str):
         stripped = value.strip()
+        if len(stripped) == 0:
+            return []
         if stripped.startswith("[") and stripped.endswith("]"):
             stripped = stripped[1:-1]
         splitted = list(map(str.strip, stripped.split(",")))
