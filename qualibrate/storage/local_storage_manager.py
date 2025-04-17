@@ -1,3 +1,4 @@
+import importlib
 from datetime import datetime
 from pathlib import Path
 from typing import (
@@ -138,9 +139,8 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine: MachineProtocol,
         relative_data_path: Optional[str] = "./quam_state.json",
     ) -> None:
-        try:
-            import quam
-
+        quam = importlib.import_module("quam")
+        if quam is not None:
             quam_version = getattr(quam, "__version__", "0.3.10")
 
             if Version(quam_version) < Version("0.4.0"):
@@ -150,8 +150,6 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
                 )
                 self._save_old_quam(machine)
                 return
-        except ImportError:
-            pass
 
         # Save machine to active path
         if self.active_machine_path is not None:
