@@ -11,6 +11,7 @@ import { NodesApi } from "../Nodes/api/NodesAPI";
 import NoGraphRunningIcon from "../../ui-lib/Icons/NoGraphRunningIcon";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarWorkflowTooltipContent from "./TitleBarWorkflowTooltipContent";
+import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 
 const handleStopClick = async () => {
   try {
@@ -54,6 +55,8 @@ interface Props {
 }
 
 const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
+  const { openTab } = useFlexLayoutContext();
+  
   const formatTime = (sec: number | null) => {
     if (sec === null) return "";
     const h = Math.floor(sec / 3600);
@@ -77,55 +80,68 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
     if (status === "error") return styles.statusError;
     return styles.statusPending;
   };
-
+  // TODO: refactor tooltiphover into just a single use for both cases like the node status card 
+  // TODO: add stop button when only calibration node is running and not when the graph (refer to that figma design pattern for reference)
+  // TODO: cap off graph name length with elipses 
   return (
     <div className={`${styles.workflowCardWrapper} ${getWrapperClass()}`}>
       {graph.status?.toLowerCase() === "pending" ? (
-        <>
-          <div className={styles.indicatorWrapper}>
-            <NoGraphRunningIcon />
-          </div>
-          <div className={styles.graphDetailsWrapper}>
-            <div className={styles.textWrapper}>
-              <div className={styles.graphTitle}>No graph is running</div>
-              <div className={styles.graphStatusRow}>
-                <div className={styles.statusPending}>Select and Run Calibration Graph</div>
+        <div className={styles.defaultWorkflowCardContent}>
+          <Tooltip
+            title={<TitleBarWorkflowTooltipContent graph={graph} />}
+            placement="bottom-start"
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  backgroundColor: "#42424C",
+                  padding: "12px",
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                  fontSize: "0.85rem",
+                  lineHeight: "1.3",
+                }
+              }
+            }}
+          >
+            <div onClick={() => openTab("graph-library")} className={styles.hoverRegion}>
+              <div className={styles.indicatorWrapper}>
+                <NoGraphRunningIcon />
+              </div>
+              <div className={styles.textWrapper}>
+                <div className={styles.graphTitle}>No graph is running</div>
+                <div className={styles.graphStatusRow}>
+                  <div className={styles.statusPending}>Select and Run Calibration Graph</div>
+                </div>
               </div>
             </div>
-          </div>
-        </>
+          </Tooltip>
+          <TitleBarMenuCard node={node} />
+        </div>
       ) : (
-        <Tooltip
-          title={<TitleBarWorkflowTooltipContent graph={graph} />}
-          placement="bottom-start"
-          componentsProps={{
-            tooltip: {
-              sx: {
-                backgroundColor: "#42424C",
-                padding: "12px",
-                borderRadius: "6px",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-                fontSize: "0.85rem",
-                lineHeight: "1.3",
+        <div className={styles.workflowCardContent}>
+          <Tooltip
+            title={<TitleBarWorkflowTooltipContent graph={graph} />}
+            placement="bottom-start"
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  backgroundColor: "#42424C",
+                  padding: "12px",
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                  fontSize: "0.85rem",
+                  lineHeight: "1.3",
+                }
               }
-            }
-          }}
-        >
-          <div className={styles.workflowCardContent}>
-            {/* 
-              TODO: Fix tooltiphover 
-              - only show when hovering over left hand side of graph card 
-              - disallow showing both tooltips simultaneously for workflow card and node card 
-                - it'sbad UX practice to show two tooltips at once 
-              - fix cursor type to pointer when hovering over the graph card 
-            */}
-            <div className={styles.indicatorWrapper}>
-              <StatusIndicator
-                status={graph.status?.charAt(0).toUpperCase() + graph.status?.slice(1)}
-                percentage={graph.percentage_complete ?? 0}
-              />
-            </div>
-            <div className={styles.graphDetailsWrapper}>
+            }}
+          >
+            <div onClick={() => openTab("graph-status")} className={styles.hoverRegion}>
+              <div className={styles.indicatorWrapper}>
+                <StatusIndicator
+                  status={graph.status?.charAt(0).toUpperCase() + graph.status?.slice(1)}
+                  percentage={graph.percentage_complete ?? 0}
+                />
+              </div>
               <div className={styles.textWrapper}>
                 <div className={styles.graphTitle}>
                   Active Graph: {graph.name || "No graph is running"}
@@ -140,43 +156,42 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
                 </div>
               </div>
             </div>
-
-            {/* 
-              TODO: 
-              System feedback: Flash finished TitleBarMenuCard for a split second before loading the next card. 
-              This is to give the user a visual cue that the node queued has finished running. 
-              If you run a graph you'll notice it immediatly starts running the next node without 
-              any visual feedback that the node has finished running. 
-
-              This may just be a problem that solves itself though depending on how the calibration script 
-              pauses durring execution to simulate loading.. 
-            */}
-            <TitleBarMenuCard node={node} />
-
-            {/* TODO: make stop button functional - call function that already implements this */}
-            {/* TODO: change time_remaining to show when finished but display as elapsed time instead of the time left format while running */}
-            {graph.status?.toLowerCase() === "running" && (
-              <div className={styles.stopAndTimeWrapper}>
-                <div className={styles.stopButton} onClick={handleStopClick}>
-                  <StopButtonIcon height={24} />
-                </div>
-                {graph.time_remaining !== null && (
-                  <div className={styles.timeRemaining}>
-                    {formatTime(graph.time_remaining)}
-                  </div>
-                )}
+          </Tooltip>
+  
+          {/* 
+            TODO: 
+            System feedback: Flash finished TitleBarMenuCard for a split second before loading the next card. 
+            This is to give the user a visual cue that the node queued has finished running. 
+            If you run a graph you'll notice it immediatly starts running the next node without 
+            any visual feedback that the node has finished running. 
+  
+            This may just be a problem that solves itself though depending on how the calibration script 
+            pauses durring execution to simulate loading.. 
+          */}
+          <TitleBarMenuCard node={node} />
+  
+          {/* TODO: make stop button functional - call function that already implements this */}
+          {graph.status?.toLowerCase() === "running" && (
+            <div className={styles.stopAndTimeWrapper}>
+              <div className={styles.stopButton} onClick={handleStopClick}>
+                <StopButtonIcon height={24} />
               </div>
-            )}
-            {graph.status?.toLowerCase() !== "running" && graph.run_duration > 0 && (
-              <div className={styles.stopAndTimeWrapper}>
+              {graph.time_remaining !== null && (
                 <div className={styles.timeRemaining}>
-                  <div>Elapsed time:</div>
-                  <div>{formatTime(graph.run_duration)}</div>
+                  {formatTime(graph.time_remaining)}
                 </div>
+              )}
+            </div>
+          )}
+          {graph.status?.toLowerCase() !== "running" && graph.run_duration > 0 && (
+            <div className={styles.stopAndTimeWrapper}>
+              <div className={styles.timeRemaining}>
+                <div>Elapsed time:</div>
+                <div>{formatTime(graph.run_duration)}</div>
               </div>
-            )}
-          </div>
-        </Tooltip>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

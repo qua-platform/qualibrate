@@ -3,7 +3,6 @@ import styles from "./styles/TitleBarMenu.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
-import TitleBarMenuCard from "./TitleBarMenuCard";
 import { NodesApi } from "../Nodes/api/NodesAPI";
 import TitleBarWorkflowCard from "./TitleBarWorkflowCard";
 
@@ -62,8 +61,8 @@ const TitleBarMenu: React.FC = () => {
     status: "pending",
     run_start: "",
     run_end: "",
-    total_nodes: 0,
-    finished_nodes: 1,
+    total_nodes: 1,
+    finished_nodes: 0,
     run_duration: 0,
     percentage_complete: 0,
     time_remaining: 0,
@@ -77,9 +76,9 @@ const TitleBarMenu: React.FC = () => {
       <div className={styles.menuCardsWrapper}>
         {/* refer to large coment below regarding this logic */}
         {graph ? (
-          <TitleBarWorkflowCard graph={graph ?? fallbackGraph} node={node ?? fallbackNode} />
+          <TitleBarWorkflowCard graph={ graph } node={node ?? fallbackNode} />
         ) : (
-          <TitleBarMenuCard node={node ?? fallbackNode} />
+          <TitleBarWorkflowCard graph={ fallbackGraph } node={node ?? fallbackNode} />
         )}
       </div>
     </div>

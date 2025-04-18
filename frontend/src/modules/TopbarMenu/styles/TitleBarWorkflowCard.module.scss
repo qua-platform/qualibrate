@@ -14,6 +14,13 @@
   font-weight: 500;
 }
 
+.defaultWorkflowCardContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 18px;
+}
+
 .running {
   background-color: rgb(14 60 74 / 10%);
   border: 1px solid rgb(60 222 248 / 20%);
@@ -34,7 +41,7 @@
 
 .pending {
   background-color: transparent;
-  border: 1px solid #3cdef8;
+  border: 1px solid #42424C;
 }
 
 .graphDetailsWrapper {
@@ -57,6 +64,18 @@
   flex-direction: column;
   justify-content: center;
   gap: 4px;
+}
+
+.hoverRegion {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
 }
 
 .graphTitle {

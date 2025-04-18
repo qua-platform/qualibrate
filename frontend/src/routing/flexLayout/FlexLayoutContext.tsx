@@ -44,6 +44,8 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
       setSelectedPageName("graph-status");
     } else if (tab === "nodes") {
       setSelectedPageName("nodes");
+    } else if (tab === "graph-library") {
+      setSelectedPageName("graph-library");
     } else {
       setSelectedPageName(null);
     }
