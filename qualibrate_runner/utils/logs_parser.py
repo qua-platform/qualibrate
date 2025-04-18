@@ -26,7 +26,9 @@ def parse_log_line(
             logging.exception(f"Can't parse line {line}", exc_info=ex)
             return {}
         if "asctime" in data:
-            data["asctime"] = datetime.fromisoformat(data["asctime"])
+            data["asctime"] = datetime.strptime(
+                data["asctime"], default_asctime_log_format
+            )
         return data
     # old default-string-format
     parts = line.split(" - ", maxsplit=3)
