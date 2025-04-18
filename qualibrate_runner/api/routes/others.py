@@ -4,8 +4,8 @@ from itertools import islice
 from pathlib import Path
 from typing import Annotated, Any, Optional
 
-from qualibrate_config.models import QualibrateConfig
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from qualibrate_config.models import QualibrateConfig
 
 from qualibrate_runner.api.dependencies import get_state
 from qualibrate_runner.config import State
@@ -45,17 +45,18 @@ def get_output_logs(
         return []
     out_logs: list[dict[str, Any]] = []
     q_log_files = filter(Path.is_file, log_folder.iterdir())
-    filter_log_date_after = partial(filter_log_date, after=after, before=before)
-    for log_file in sorted(q_log_files, reverse=True):
+    filter_log_date_range = partial(filter_log_date, after=after, before=before)
+    for log_file in sorted(q_log_files):
         with open(log_file) as f:
-            lines_date_filtered = filter(
-                filter_log_date_after, parse_log_line_with_previous(f)
+            filtered = list(
+                filter(filter_log_date_range, parse_log_line_with_previous(f))
             )
+            lines_date_filtered = reversed(filtered)
             file_logs = islice(lines_date_filtered, num_entries - len(out_logs))
             out_logs.extend(file_logs)
             if len(out_logs) == num_entries:
-                return out_logs
-    return out_logs
+                return list(reversed(out_logs))
+    return list(reversed(out_logs))
 
 
 @others_router.post(
