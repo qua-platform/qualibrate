@@ -41,7 +41,7 @@ class QualibrateFormatter(logging.Formatter):
     formatter = logging.Formatter(LOG_FORMAT)
 
     def __init__(
-        self, *args: Any, default_msec_format: str = "%s.%03d", **kwargs: Any
+        self, *args: Any, default_msec_format: str = "%s,%03d", **kwargs: Any
     ) -> None:
         super().__init__(*args, **kwargs)
         self.formatter.default_msec_format = default_msec_format
