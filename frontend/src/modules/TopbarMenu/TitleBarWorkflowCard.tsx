@@ -82,7 +82,15 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
   };
   // TODO: refactor tooltiphover into just a single use for both cases like the node status card 
   // TODO: add stop button when only calibration node is running and not when the graph (refer to that figma design pattern for reference)
-  // TODO: cap off graph name length with elipses 
+  // TODO: cap off graph name length with elipses in the edge case where the the name is too long            
+  // TODO: create functional working calibration node example that takes advantage of loading bar + Running: [whatever] feature
+  // TODO: create functional working calibration graph example that takes advantage of graph loading bar and node loading bars with Running: [whatever] feature
+  // TODO: signal error in graph status when not all nodes finish in calibration test
+  // TODO: if graph is running, clicking node card takes you to graph-status page, else it takes you to node library 
+  // TODO: combine getWrapperClass and getStatusClass as was done similarly in getStatusLabelElement found in TitleBarMenuCard.tsx 
+  // TODO: rename TitleBarMenuCard.tsx and TitleBarTooltipContent.tsx to TitleBarNodeCard.tsx and TitleBarNodeTooltipContent.tsx respectively 
+  // TODO: Do a final matching between all stylings of css and elements to figma and try to match everything as close as possible in coloring and spacing 
+
   return (
     <div className={`${styles.workflowCardWrapper} ${getWrapperClass()}`}>
       {graph.status?.toLowerCase() === "pending" ? (
