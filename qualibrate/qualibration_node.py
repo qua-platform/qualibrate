@@ -1,4 +1,5 @@
 import copy
+import inspect
 import sys
 import traceback
 from collections.abc import Generator, Mapping, Sequence
@@ -121,7 +122,7 @@ class QualibrationNode(
 
     def __init__(
         self,
-        name: str,
+        name: Optional[str] = None,
         parameters: Optional[ParametersType] = None,
         description: Optional[str] = None,
         *,
@@ -130,6 +131,7 @@ class QualibrationNode(
     ):
         if self.__class__.active_node is not None:
             return
+        name = name or self.__class__._get_name_from_stack_frame()
         logger.info(f"Creating node {name}")
         parameters = self.__class__._validate_passed_parameters_options(
             name, parameters, parameters_class
@@ -154,6 +156,14 @@ class QualibrationNode(
                 "Node instantiated in inspection mode", instance=self
             )
         self._post_init()
+
+    @staticmethod
+    def _get_name_from_stack_frame() -> str:
+        stack = inspect.stack()
+        if not len(stack) or len(stack) < 3:
+            raise ValueError("Can't resolve node name from node filename")
+        frame = stack[2]
+        return Path(frame.filename).stem
 
     def _post_init(self) -> None:
         self.run_start = datetime.now().astimezone()
