@@ -5,7 +5,6 @@ from collections.abc import Generator, Mapping, Sequence
 from contextlib import contextmanager
 from datetime import datetime
 from functools import partialmethod
-from importlib.util import find_spec
 from pathlib import Path
 from typing import (
     Any,
@@ -662,9 +661,8 @@ class QualibrationNode(
         """
         Halts the execution of the node if currently running.
 
-        The method attempts to connect to the node's machine and stops
-        the running job. If the necessary environment or conditions are
-        not present, it will return False.
+        The method attempts to get the qm job from namespace and halt
+        got job. Also ship all subsequent run actions.
 
         Args:
             **kwargs: Additional keyword arguments that might be used for
@@ -674,42 +672,14 @@ class QualibrationNode(
             True if the node is successfully stopped, False otherwise.
         """
         active_node = self.__class__.active_node
-        # TODO: verify
-        assert active_node is self
         if active_node is None:
             logger.warning("No active node to stop")
             return False
         logger.info(f"Trying to stop node {active_node.name}")
-        job = getattr(active_node, "qm_job", None)
-        if job is not None and hasattr(job, "halt"):
+        job = self.namespace.get("job")
+        if job is not None and callable(getattr(job, "halt", None)):
             job.halt()
-            logger.info(f"Node {active_node.name} stopped")
-            return True
-
-        logger.info(
-            "Could not find QualibrationNode.qm_job, trying to connect to "
-            "qmm to stop latest job"
-        )
-        if find_spec("qm") is None:
-            return False
-        qmm = getattr(active_node.machine, "qmm", None)
-        if not qmm:
-            if active_node.machine is None or not hasattr(
-                active_node.machine, "connect"
-            ):
-                return False
-            qmm = active_node.machine.connect()
-        if hasattr(qmm, "list_open_qms"):
-            ids = qmm.list_open_qms()
-        elif hasattr(qmm, "list_open_quantum_machines"):
-            ids = qmm.list_open_quantum_machines()
-        else:
-            return False
-        qm = qmm.get_qm(ids[0])
-        job = qm.get_running_job()
-        if job is None:
-            return False
-        job.halt()
+        active_node._action_manager.skip_actions = True
         return True
 
     @contextmanager
