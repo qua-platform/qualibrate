@@ -80,16 +80,18 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
     if (status === "error") return styles.statusError;
     return styles.statusPending;
   };
+  // TODO: rerun linter and remove unused classes 
+  // TODO: figure out why left and right sides have gaps when not in default graph      
   // TODO: refactor tooltiphover into just a single use for both cases like the node status card 
-  // TODO: add stop button when only calibration node is running and not when the graph (refer to that figma design pattern for reference)
   // TODO: cap off graph name length with elipses in the edge case where the the name is too long            
-  // TODO: create functional working calibration node example that takes advantage of loading bar + Running: [whatever] feature
-  // TODO: create functional working calibration graph example that takes advantage of graph loading bar and node loading bars with Running: [whatever] feature
   // TODO: signal error in graph status when not all nodes finish in calibration test
   // TODO: if graph is running, clicking node card takes you to graph-status page, else it takes you to node library 
   // TODO: combine getWrapperClass and getStatusClass as was done similarly in getStatusLabelElement found in TitleBarMenuCard.tsx 
   // TODO: rename TitleBarMenuCard.tsx and TitleBarTooltipContent.tsx to TitleBarNodeCard.tsx and TitleBarNodeTooltipContent.tsx respectively 
   // TODO: Do a final matching between all stylings of css and elements to figma and try to match everything as close as possible in coloring and spacing 
+  // TODO: delete all the unnessary comments and code and overall shorten the PR 
+  // TODO: add slight shade effect when hovering over node card as well 
+  // TODO: change tooltipValue in graph tooltiphover content file to have minutes and hours as well as seconds 
 
   return (
     <div className={`${styles.workflowCardWrapper} ${getWrapperClass()}`}>
@@ -97,7 +99,7 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
         <div className={styles.defaultWorkflowCardContent}>
           <Tooltip
             title={<TitleBarWorkflowTooltipContent graph={graph} />}
-            placement="bottom-start"
+            placement="bottom"
             componentsProps={{
               tooltip: {
                 sx: {
@@ -116,7 +118,7 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
                 <NoGraphRunningIcon />
               </div>
               <div className={styles.textWrapper}>
-                <div className={styles.graphTitle}>No graph is running</div>
+                <div className={styles.graphTitleDefault}>No graph is running</div>
                 <div className={styles.graphStatusRow}>
                   <div className={styles.statusPending}>Select and Run Calibration Graph</div>
                 </div>
@@ -124,12 +126,17 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
             </div>
           </Tooltip>
           <TitleBarMenuCard node={node} />
+          {node.status?.toLowerCase() === "running" && (
+            <div className={styles.stopButton} onClick={handleStopClick}>
+              <StopButtonIcon height={24} />
+            </div>
+          )}
         </div>
       ) : (
         <div className={styles.workflowCardContent}>
           <Tooltip
             title={<TitleBarWorkflowTooltipContent graph={graph} />}
-            placement="bottom-start"
+            placement="bottom"
             componentsProps={{
               tooltip: {
                 sx: {
@@ -165,19 +172,7 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
               </div>
             </div>
           </Tooltip>
-  
-          {/* 
-            TODO: 
-            System feedback: Flash finished TitleBarMenuCard for a split second before loading the next card. 
-            This is to give the user a visual cue that the node queued has finished running. 
-            If you run a graph you'll notice it immediatly starts running the next node without 
-            any visual feedback that the node has finished running. 
-  
-            This may just be a problem that solves itself though depending on how the calibration script 
-            pauses durring execution to simulate loading.. 
-          */}
           <TitleBarMenuCard node={node} />
-  
           {/* TODO: make stop button functional - call function that already implements this */}
           {graph.status?.toLowerCase() === "running" && (
             <div className={styles.stopAndTimeWrapper}>
