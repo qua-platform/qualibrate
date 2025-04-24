@@ -3,11 +3,19 @@ import styles from "./styles/TitleBarTooltipContent.module.scss";
 import { LastRunStatusGraphResponseDTO } from "./TitleBarMenu";
 import { formatDate } from "../Nodes/components/NodeElement/NodeElement";
 
-interface WorkflowTooltipContentProps {
+interface GraphTooltipContentProps {
   graph: LastRunStatusGraphResponseDTO;
 }
 
-const TitleBarWorkflowTooltipContent: React.FC<WorkflowTooltipContentProps> = ({ graph }) => {
+const formatTime = (sec: number | null) => {
+  if (sec === null) return "";
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor(((sec % 3600) % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s left`;
+};
+
+const TitleBarGraphTooltipContent: React.FC<GraphTooltipContentProps> = ({ graph }) => {
   return (
     <div className={styles.tooltipContent}>
       <div className={styles.tooltipRow}>
@@ -22,7 +30,7 @@ const TitleBarWorkflowTooltipContent: React.FC<WorkflowTooltipContentProps> = ({
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Run duration:</div>
-        <div className={styles.tooltipValue}>{Math.floor(graph.run_duration ?? 0)}s</div>
+        <div className={styles.tooltipValue}>{formatTime(graph.run_duration ?? 0)}</div>
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Graph progress:</div>
@@ -34,4 +42,4 @@ const TitleBarWorkflowTooltipContent: React.FC<WorkflowTooltipContentProps> = ({
   );
 };
 
-export default TitleBarWorkflowTooltipContent;
+export default TitleBarGraphTooltipContent;

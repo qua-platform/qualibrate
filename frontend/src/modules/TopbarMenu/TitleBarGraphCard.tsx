@@ -1,6 +1,6 @@
 import React from "react";
-import styles from "./styles/TitleBarWorkflowCard.module.scss";
-import TitleBarMenuCard from "./TitleBarMenuCard";
+import styles from "./styles/TitleBarGraphCard.module.scss";
+import TitleBarMenuCard from "./TitleBarNodeCard";
 import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
 import CircularLoaderPercentage from "../../ui-lib/Icons/CircularLoaderPercentage";
 import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
@@ -10,24 +10,24 @@ import StopButtonIcon from "../../ui-lib/Icons/StopButtonIcon";
 import { NodesApi } from "../Nodes/api/NodesAPI";
 import NoGraphRunningIcon from "../../ui-lib/Icons/NoGraphRunningIcon";
 import Tooltip from "@mui/material/Tooltip";
-import TitleBarWorkflowTooltipContent from "./TitleBarWorkflowTooltipContent";
+import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 
 const handleStopClick = async () => {
   try {
-    const res = await NodesApi.stopRunningWorkflow();
+    const res = await NodesApi.stopRunningGraph();
     if (!res.isOk) {
-      console.error("Failed to stop workflow:", res.error);
+      console.error("Failed to stop graph:", res.error);
     }
   } catch (err) {
-    console.error("Error stopping workflow:", err);
+    console.error("Error stopping graph:", err);
   }
 };
 
 const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => {
   return (
     <>
-      {/* TODO: make hight and width bigger for StatusIndicator icons of workflow card as specified in figma */}
+      {/* TODO: make hight and width bigger for StatusIndicator icons of graph card as specified in figma */}
       {/* overload hight and width default parameters here to specified dementions  */}
       {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} />}
       {status === "Finished" && <CheckmarkIcon />}
@@ -54,7 +54,7 @@ interface Props {
   node: LastRunStatusNodeResponseDTO;
 }
 
-const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
+const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
   const { openTab } = useFlexLayoutContext();
   
   const formatTime = (sec: number | null) => {
@@ -94,11 +94,11 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
   // TODO: change tooltipValue in graph tooltiphover content file to have minutes and hours as well as seconds 
 
   return (
-    <div className={`${styles.workflowCardWrapper} ${getWrapperClass()}`}>
+    <div className={`${styles.graphCardWrapper} ${getWrapperClass()}`}>
       {graph.status?.toLowerCase() === "pending" ? (
-        <div className={styles.defaultWorkflowCardContent}>
+        <div className={styles.defaultGraphCardContent}>
           <Tooltip
-            title={<TitleBarWorkflowTooltipContent graph={graph} />}
+            title={<TitleBarGraphTooltipContent graph={graph} />}
             placement="bottom"
             componentsProps={{
               tooltip: {
@@ -133,9 +133,9 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
           )}
         </div>
       ) : (
-        <div className={styles.workflowCardContent}>
+        <div className={styles.graphCardContent}>
           <Tooltip
-            title={<TitleBarWorkflowTooltipContent graph={graph} />}
+            title={<TitleBarGraphTooltipContent graph={graph} />}
             placement="bottom"
             componentsProps={{
               tooltip: {
@@ -200,4 +200,4 @@ const TitleBarWorkflowCard: React.FC<Props> = ({ graph, node }) => {
   );
 };
 
-export default TitleBarWorkflowCard;
+export default TitleBarGraphCard;

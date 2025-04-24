@@ -1,12 +1,12 @@
 import React from "react";
-import styles from "./styles/TitleBarMenuCard.module.scss";
+import styles from "./styles/TitleBarNodeCard.module.scss";
 import CircularLoaderPercentage from "../../ui-lib/Icons/CircularLoaderPercentage";
 import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
 import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
 import { classNames } from "../../utils/classnames";
 import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
 import Tooltip from "@mui/material/Tooltip";
-import TitleBarTooltipContent from "./TitleBarTooltipContent";
+import TitleBarTooltipContent from "./TitleBarNodeTooltipContent";
 import NoNodeRunningIcon from "../../ui-lib/Icons/NoNodeRunningIcon";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 

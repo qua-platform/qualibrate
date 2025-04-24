@@ -4,7 +4,7 @@ import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext
 import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import { NodesApi } from "../Nodes/api/NodesAPI";
-import TitleBarWorkflowCard from "./TitleBarWorkflowCard";
+import TitleBarGraphCard from "./TitleBarGraphCard";
 
 export interface LastRunStatusGraphResponseDTO {
   name: string;
@@ -76,9 +76,9 @@ const TitleBarMenu: React.FC = () => {
       <div className={styles.menuCardsWrapper}>
         {/* refer to large coment below regarding this logic */}
         {graph ? (
-          <TitleBarWorkflowCard graph={ graph } node={node ?? fallbackNode} />
+          <TitleBarGraphCard graph={ graph } node={node ?? fallbackNode} />
         ) : (
-          <TitleBarWorkflowCard graph={ fallbackGraph } node={node ?? fallbackNode} />
+          <TitleBarGraphCard graph={ fallbackGraph } node={node ?? fallbackNode} />
         )}
       </div>
     </div>
@@ -92,14 +92,14 @@ export default TitleBarMenu;
   Clarifying TitleBar Display Logic
  
   Objective:
-    Define when to display the workflow (graph) card and when to display the node status card in the TitleBarMenu.
+    Define when to display the Graph card and when to display the node status card in the TitleBarMenu.
  
   Display Rules:
     - If a node is running:
         → Display only the node card.
  
     - If a graph is running:
-        → Display the workflow (graph) card, which includes the embedded node card.
+        → Display the Graph card, which includes the embedded node card.
  
   Card States:
     Each card can exist in one of the following visual states:

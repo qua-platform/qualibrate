@@ -1,7 +1,7 @@
 @use "../../../assets/styles/variables.scss";
 @use "../../../assets/styles/_base.scss";
 
-.workflowCardWrapper {
+.graphCardWrapper {
   display: flex;
   align-items: center;
   padding: 8px;
@@ -14,7 +14,7 @@
   font-weight: 500;
 }
 
-.defaultWorkflowCardContent {
+.defaultGraphCardContent {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -82,7 +82,7 @@
 .graphTitle {
   font-weight: 600;
   font-size: 14px;
-}
+}   
 
 .graphStatusRow {
   display: flex;
@@ -131,7 +131,7 @@
   color: #8CA0B3;
 }
 
-.workflowCardContent {
+.graphCardContent {
   display: flex;
   align-items: center;
   padding: 8px 12px;
