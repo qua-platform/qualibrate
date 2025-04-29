@@ -4,6 +4,9 @@ import { SnapshotResult, SnapshotsApi } from "../api/SnapshotsApi";
 import { Res } from "../../../common/interfaces/Api";
 
 interface ISnapshotsContext {
+  // trackLatestSidePanel: boolean;
+  trackLatestSidePanel: boolean;
+  setTrackLatestSidePanel: Dispatch<SetStateAction<boolean>>;
   totalPages: number;
   pageNumber: number;
   setPageNumber: (pageNumber: number) => void;
@@ -19,7 +22,7 @@ interface ISnapshotsContext {
   clickedForSnapshotSelection: boolean;
   setClickedForSnapshotSelection: Dispatch<SetStateAction<boolean>>;
 
-  fetchOneSnapshot: (id: number, id2?: number, updateResult?: boolean) => void;
+  fetchOneSnapshot: (id: number, id2?: number, updateResult?: boolean, fetchUpdate?: boolean) => void;
 
   jsonData: object | undefined;
   setJsonData: Dispatch<SetStateAction<object | undefined>>;
@@ -32,6 +35,8 @@ interface ISnapshotsContext {
 }
 
 export const SnapshotsContext = React.createContext<ISnapshotsContext>({
+  trackLatestSidePanel: true,
+  setTrackLatestSidePanel: () => {},
   totalPages: 0,
   pageNumber: 0,
   setPageNumber: () => {},
@@ -62,6 +67,7 @@ export const SnapshotsContext = React.createContext<ISnapshotsContext>({
 export const useSnapshotsContext = (): ISnapshotsContext => useContext<ISnapshotsContext>(SnapshotsContext);
 
 export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): React.ReactElement {
+  const [trackLatestSidePanel, setTrackLatestSidePanel] = useState(true);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [allSnapshots, setAllSnapshots] = useState<SnapshotDTO[]>([]);
@@ -152,7 +158,8 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
   }, [reset, pageNumber]);
   // -----------------------------------------------------------
 
-  const fetchOneSnapshot = (snapshotId: number, snapshotId2?: number, updateResult = true) => {
+  const fetchOneSnapshot = (snapshotId: number, snapshotId2?: number, updateResult = true, fetchUpdate = false) => {
+    console.log("fetchOneSnapshot", snapshotId, snapshotId2, updateResult);
     // const fetchOneSnapshot = (snapshots: SnapshotDTO[], index: number) => {
     // const id1 = snapshots[index].id.toString();
     // const index2 = index - 1 >= 0 ? index - 1 : 0;
@@ -182,7 +189,7 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
           console.log(e);
         });
     }
-    if (id1 !== id2 && !updateResult) {
+    if (id1 !== id2 && fetchUpdate) {
       SnapshotsApi.fetchSnapshotUpdate(id2, id1)
         .then((promise: Res<object>) => {
           if (promise.result) {
@@ -216,6 +223,8 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
   return (
     <SnapshotsContext.Provider
       value={{
+        trackLatestSidePanel,
+        setTrackLatestSidePanel,
         totalPages,
         pageNumber,
         setPageNumber,

@@ -8,6 +8,7 @@ import {
   MeasurementElementOutcomes,
   MeasurementElementStatusInfoAndParameters,
 } from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
+import { useSnapshotsContext } from "../../../../../Snapshots/context/SnapshotsContext";
 
 interface MeasurementElementProps {
   element: Measurement;
@@ -25,7 +26,8 @@ export const formatDateTime = (dateTimeString: string) => {
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, dataMeasurementId }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
-  const { fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
+  // const { fetchResultsAndDiffData } = useGraphStatusContext();
+  const { fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
   const { trackLatest, setTrackLatest } = useGraphStatusContext();
 
   // Check if the current measurement is selected in either the list or Cytoscape graph
@@ -55,7 +57,9 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     setSelectedItemName(element.metadata?.name);
     setSelectedNodeNameInWorkflow(element.metadata?.name);
     if (element.id) {
-      fetchResultsAndDiffData(element.id);
+      setSelectedSnapshotId(element.id);
+      setClickedForSnapshotSelection(true);
+      fetchOneSnapshot(element.id);
     } else {
       setResult({});
       setDiffData({});
