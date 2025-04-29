@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { NodesApi } from "../../../Nodes/api/NodesAPI";
+import { NodesApi } from "../../Nodes/api/NodesAPI";
 
 export interface LogsViewerResponseDTO {
   asctime: string;
@@ -8,21 +8,21 @@ export interface LogsViewerResponseDTO {
   message: string;
 }
 
-interface ILogsContext {
+interface IRightSidePanelContext {
   logs: LogsViewerResponseDTO[];
 }
 
-const LogsContext = React.createContext<ILogsContext>({
+const RightSidePanelContext = React.createContext<IRightSidePanelContext>({
   logs: [],
 });
 
-export const useLogsContext = (): ILogsContext => useContext<ILogsContext>(LogsContext);
+export const useRightSidePanelContext = (): IRightSidePanelContext => useContext<IRightSidePanelContext>(RightSidePanelContext);
 
 interface LogsContextProviderProps {
   children: React.JSX.Element;
 }
 
-export function LogsContextProvider(props: LogsContextProviderProps): React.ReactElement {
+export function RightSidePanelContextProvider(props: LogsContextProviderProps): React.ReactElement {
   const [logs, setLogs] = useState<LogsViewerResponseDTO[]>([]);
 
   const checkNewLogs = async () => {
@@ -32,7 +32,6 @@ export function LogsContextProvider(props: LogsContextProviderProps): React.Reac
 
     if (response.isOk && response.result) {
       const newLogs = response.result;
-      console.log(newLogs[0]);
       if (newLogs.length === maxNumberOfLogs) {
         setLogs(newLogs);
       } else if (newLogs.length > 0) {
@@ -48,12 +47,12 @@ export function LogsContextProvider(props: LogsContextProviderProps): React.Reac
   }, [logs]);
 
   return (
-    <LogsContext.Provider
+    <RightSidePanelContext.Provider
       value={{
         logs,
       }}
     >
       {props.children}
-    </LogsContext.Provider>
+    </RightSidePanelContext.Provider>
   );
 }

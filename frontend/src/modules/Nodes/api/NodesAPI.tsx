@@ -3,7 +3,7 @@ import { Res } from "../../../common/interfaces/Api";
 import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, GET_LOGS, IS_NODE_RUNNING, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { LastRunStatusNodeResponseDTO } from "../../TopbarMenu/TitleBarMenu";
-import { LogsViewerResponseDTO } from "../../LeftSidebar/Logs/context/LogsContext";
+import { LogsViewerResponseDTO } from "../../RightSidebar/context/RightSidePanelContext";
 
 export class NodesApi extends Api {
   constructor() {

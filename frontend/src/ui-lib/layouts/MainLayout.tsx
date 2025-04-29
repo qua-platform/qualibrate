@@ -8,8 +8,8 @@ import QUAlibrateLogoIcon from "../Icons/QUAlibrateLogoIcon";
 import { useGlobalThemeContext } from "../../modules/themeModule/GlobalThemeContext";
 import TitleBarMenu from "../../modules/TopbarMenu/TitleBarMenu";
 import { TitleBarContextProvider } from "../../contexts/TitleBarMenuContext";
-import { RightSidePanel } from "../../modules/LeftSidebar/RightSidePanel";
-import { LogsContextProvider } from "../../modules/LeftSidebar/Logs/context/LogsContext";
+import { RightSidePanelContextProvider } from "../../modules/RightSidebar/context/RightSidePanelContext";
+import { RightSidePanel } from "../../modules/RightSidebar/RightSidePanel";
 
 const EmptyPlaceholder = (
   <div className={styles.emptyPlaceholder}>
@@ -35,9 +35,9 @@ const MainLayout = ({ className, children }: Props) => {
                 <TitleBarMenu />
                 <div className={styles.pageWrapper}>
                   <div className={styles.pageWrapper1}>{children ?? EmptyPlaceholder}</div>
-                  <LogsContextProvider>
+                  <RightSidePanelContextProvider>
                     <RightSidePanel />
-                  </LogsContextProvider>
+                  </RightSidePanelContextProvider>
                 </div>
               </div>
             </div>
