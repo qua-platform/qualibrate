@@ -35,7 +35,7 @@ export const QuamPanel = () => {
       setFirstIdSelectionMode("selection");
       setTrackLatestSidePanel(false);
       if (trackPreviousSnapshot) {
-        fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false);
+        fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false, true);
       } else {
         fetchOneSnapshot(Number(selectedSnapshotId), Number(secondId), false);
       }
@@ -87,7 +87,7 @@ export const QuamPanel = () => {
       if (trackPreviousSnapshot) {
         fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false);
       } else {
-        fetchOneSnapshot(Number(selectedSnapshotId), Number(secondId), false);
+        fetchOneSnapshot(Number(selectedSnapshotId), Number(secondId), false, true);
       }
     }
     setTrackLatestSidePanel(!trackLatestSidePanel);
@@ -95,12 +95,12 @@ export const QuamPanel = () => {
   const onToggleTrackPrevious = () => {
     if (!trackPreviousSnapshot) {
       if (trackLatestSidePanel) {
-        fetchOneSnapshot(Number(latestSnapshotId), Number(latestSnapshotId) - 1, false);
+        fetchOneSnapshot(Number(latestSnapshotId), Number(latestSnapshotId) - 1, false, true);
       } else {
-        fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false);
+        fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false, true);
       }
     } else {
-      fetchOneSnapshot(Number(firstId), Number(secondId), false);
+      fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
     }
     setTrackPreviousSnapshot(!trackPreviousSnapshot);
   };
@@ -130,89 +130,3 @@ export const QuamPanel = () => {
     </>
   );
 };
-
-// import React, { useState } from "react";
-// // eslint-disable-next-line css-modules/no-unused-class
-// import styles from "./styles/QuamPanel.module.scss";
-// import InputField from "../../../common/ui-components/common/Input/InputField";
-// import { JSONEditor } from "../../Data/components/JSONEditor";
-// import { useSnapshotsContext } from "../../Snapshots/context/SnapshotsContext";
-//
-// export const QuamPanel = () => {
-//   const [trackLatest, setTrackLatest] = useState<boolean>(true);
-//   const [previousSnapshot, setPreviousSnapshot] = useState<boolean>(true);
-//   const [firstId, setFirstId] = useState<string | undefined>(undefined);
-//   const [secondId, setSecondId] = useState<string | undefined>(undefined);
-//
-//   const { jsonData, diffData } = useSnapshotsContext();
-//   return (
-//     <>
-//       <div className={styles.panelHeader}>
-//         <span>QUAM</span>
-//         <div className={styles.panelHeaderContent}>
-//           <div className={styles.trackLatestWrapper}>
-//             <span>Track latest</span>
-//             <div
-//               className={`${styles.toggleSwitch} ${trackLatest ? styles.toggleOn : styles.toggleOff}`}
-//               onClick={() => setTrackLatest(!trackLatest)}
-//             >
-//               <div className={`${styles.toggleKnob} ${trackLatest ? styles.toggleOn : styles.toggleOff}`}></div>
-//             </div>
-//           </div>
-//         </div>
-//         <div className={styles.idWrapper}>
-//           <div>ID:</div>
-//           <div>
-//             <InputField
-//               placeholder={""}
-//               onChange={(_value) => setFirstId(_value)}
-//               onKeyDown={(e) => {
-//                 if (e.key === "Enter") {
-//                   //api call
-//                 }
-//               }}
-//             />
-//           </div>
-//         </div>
-//       </div>
-//       <div className={styles.panelContent}>{jsonData && diffData && <JSONEditor title={""} jsonDataProp={jsonData} height={"100%"} />}</div>
-//       <div className={styles.panelHeader1}>
-//         <div>
-//           <span>QUAM Updates</span>
-//         </div>
-//         <div className={styles.panelHeaderContent}>
-//           <div className={styles.idWrapper}>
-//             <div>Compare with:</div>
-//             <div className={styles.trackLatestWrapper}>
-//               <span>Prev</span>
-//               <div
-//                 className={`${styles.toggleSwitch} ${previousSnapshot ? styles.toggleOn : styles.toggleOff}`}
-//                 onClick={() => setPreviousSnapshot(!previousSnapshot)}
-//               >
-//                 <div className={`${styles.toggleKnob} ${previousSnapshot ? styles.toggleOn : styles.toggleOff}`}></div>
-//               </div>
-//             </div>
-//             <div className={styles.idWrapper}>
-//               <div>ID:</div>
-//               <div>
-//                 <InputField
-//                   placeholder={""}
-//                   onChange={(_value) => setSecondId(_value)}
-//                   onKeyDown={(e) => {
-//                     if (e.key === "Enter") {
-//                       //api call
-//                     }
-//                   }}
-//                 />
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//       <div className={styles.panelContent}>
-//         {jsonData && diffData && <JSONEditor title={""} jsonDataProp={jsonData} height={"100%"} />}
-//         {/*{jsonData && diffData && <JSONEditor title={"QUAM Updates"} jsonDataProp={diffData} height={"34%"} />}*/}
-//       </div>
-//     </>
-//   );
-// };

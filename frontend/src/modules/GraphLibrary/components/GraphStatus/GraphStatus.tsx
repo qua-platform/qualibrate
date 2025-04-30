@@ -37,7 +37,7 @@ const GraphStatus = () => {
       setSelectedItemName(name);
       setSelectedSnapshotId(measurementId);
       setClickedForSnapshotSelection(true);
-      fetchOneSnapshot(measurementId, measurementId - 1, true);
+      fetchOneSnapshot(measurementId, measurementId - 1, true, true);
     } else {
       setResult({});
       setDiffData({});
