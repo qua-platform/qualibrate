@@ -7,12 +7,14 @@ import { PanelUpdates } from "./components/PanelUpdates/PanelUpdates";
 
 export const QuamPanel = () => {
   // const [trackLatestSidePanel, setTrackLatestSidePanel] = useState(true);
-  const [trackPreviousSnapshot, setTrackPreviousSnapshot] = useState(true);
+  // const [trackPreviousSnapshot, setTrackPreviousSnapshot] = useState(true);
   const [firstIdSelectionMode, setFirstIdSelectionMode] = useState("latest");
 
   const {
     trackLatestSidePanel,
     setTrackLatestSidePanel,
+    trackPreviousSnapshot,
+    setTrackPreviousSnapshot,
     jsonDataSidePanel,
     diffData,
     fetchOneSnapshot,
@@ -20,15 +22,12 @@ export const QuamPanel = () => {
     selectedSnapshotId,
     clickedForSnapshotSelection,
     setClickedForSnapshotSelection,
+    firstId,
+    setFirstId,
+    secondId,
+    setSecondId,
   } = useSnapshotsContext();
   // const { selectedPageName } = useFlexLayoutContext();
-  const [firstId, setFirstId] = useState<string>("0");
-  const [secondId, setSecondId] = useState<string>("0");
-
-  useEffect(() => {
-    setFirstId(latestSnapshotId?.toString() ?? "0");
-    setSecondId(latestSnapshotId && latestSnapshotId >= 1 ? (latestSnapshotId - 1).toString() : "0");
-  }, []);
 
   useEffect(() => {
     if (clickedForSnapshotSelection) {
@@ -37,7 +36,7 @@ export const QuamPanel = () => {
       if (trackPreviousSnapshot) {
         fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false, true);
       } else {
-        fetchOneSnapshot(Number(selectedSnapshotId), Number(secondId), false);
+        fetchOneSnapshot(Number(selectedSnapshotId), Number(secondId), false, true);
       }
       setClickedForSnapshotSelection(false);
     }
@@ -55,8 +54,12 @@ export const QuamPanel = () => {
       setFirstId(latestSnapshotId?.toString() ?? "0");
     } else if (firstIdSelectionMode === "selection") {
       setFirstId(selectedSnapshotId?.toString() ?? "0");
+      if (latestSnapshotId && selectedSnapshotId && latestSnapshotId === selectedSnapshotId) {
+        setTrackLatestSidePanel(true);
+      } else {
+        setTrackLatestSidePanel(false);
+      }
       // setFirstIdSelectionMode("selection");
-      setTrackLatestSidePanel(false);
     } else if (firstIdSelectionMode === "input") {
       setTrackLatestSidePanel(false);
       setClickedForSnapshotSelection(false);
@@ -70,7 +73,7 @@ export const QuamPanel = () => {
     } else {
       setSecondId(value);
     }
-    fetchOneSnapshot(Number(firstId), Number(secondId), false);
+    fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
   };
 
   const onFocus = () => {
@@ -81,11 +84,11 @@ export const QuamPanel = () => {
     if (!trackLatestSidePanel) {
       setFirstIdSelectionMode("latest");
       setClickedForSnapshotSelection(false);
-      fetchOneSnapshot(Number(latestSnapshotId), Number(latestSnapshotId) - 1, false);
+      fetchOneSnapshot(Number(latestSnapshotId), Number(latestSnapshotId) - 1, false, true);
     } else {
       setFirstIdSelectionMode("selection");
       if (trackPreviousSnapshot) {
-        fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false);
+        fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false, true);
       } else {
         fetchOneSnapshot(Number(selectedSnapshotId), Number(secondId), false, true);
       }
@@ -126,7 +129,7 @@ export const QuamPanel = () => {
         idValue={secondId}
         onConfirm={onConfirm}
       />
-      <div className={styles.panelContent}>{diffData && <JSONEditor title="" jsonDataProp={diffData} height="87%" />}</div>
+      <div className={styles.panelContent}>{diffData && <JSONEditor title="" jsonDataProp={diffData} height="94%" />}</div>
     </>
   );
 };

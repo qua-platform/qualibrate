@@ -7,6 +7,8 @@ interface ISnapshotsContext {
   // trackLatestSidePanel: boolean;
   trackLatestSidePanel: boolean;
   setTrackLatestSidePanel: Dispatch<SetStateAction<boolean>>;
+  trackPreviousSnapshot: boolean;
+  setTrackPreviousSnapshot: Dispatch<SetStateAction<boolean>>;
   totalPages: number;
   pageNumber: number;
   setPageNumber: (pageNumber: number) => void;
@@ -32,11 +34,17 @@ interface ISnapshotsContext {
   setDiffData: Dispatch<SetStateAction<object | undefined>>;
   result: object | undefined;
   setResult: Dispatch<SetStateAction<object | undefined>>;
+  firstId: string;
+  setFirstId: (id: string) => void;
+  secondId: string;
+  setSecondId: (id: string) => void;
 }
 
 export const SnapshotsContext = React.createContext<ISnapshotsContext>({
   trackLatestSidePanel: true,
   setTrackLatestSidePanel: () => {},
+  trackPreviousSnapshot: true,
+  setTrackPreviousSnapshot: () => {},
   totalPages: 0,
   pageNumber: 0,
   setPageNumber: () => {},
@@ -62,12 +70,17 @@ export const SnapshotsContext = React.createContext<ISnapshotsContext>({
   setDiffData: () => {},
   result: {},
   setResult: () => {},
+  firstId: "0",
+  setFirstId: () => {},
+  secondId: "0",
+  setSecondId: () => {},
 });
 
 export const useSnapshotsContext = (): ISnapshotsContext => useContext<ISnapshotsContext>(SnapshotsContext);
 
 export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): React.ReactElement {
   const [trackLatestSidePanel, setTrackLatestSidePanel] = useState(true);
+  const [trackPreviousSnapshot, setTrackPreviousSnapshot] = useState(true);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [allSnapshots, setAllSnapshots] = useState<SnapshotDTO[]>([]);
@@ -83,6 +96,9 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
   const [diffData, setDiffData] = useState<object | undefined>(undefined);
   const [result, setResult] = useState<object | undefined>(undefined);
 
+  const [firstId, setFirstId] = useState<string>("0");
+  const [secondId, setSecondId] = useState<string>("0");
+
   // -----------------------------------------------------------
   // FIRST FETCH ALL SNAPSHOTS ON THE BEGINNING
   const fetchGitgraphSnapshots = (firstTime: boolean, page: number) => {
@@ -96,13 +112,20 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
         if (promise?.result?.items) {
           lastElId = promise?.result.items.length > 0 ? promise?.result.items[0].id : 0;
           setLatestSnapshotId(lastElId);
+          if (trackLatestSidePanel) {
+            if (trackPreviousSnapshot) {
+              fetchOneSnapshot(lastElId, lastElId - 1, false, true);
+            } else {
+              fetchOneSnapshot(lastElId, Number(secondId), false, true);
+            }
+          }
         }
         if (firstTime) {
           if (promise?.result?.items) {
             // const lastElId = promise?.result.items.length > 0 ? promise?.result.items[0].id : 0;
             setSelectedSnapshotId(lastElId);
             // const lastIndex = promise?.result.items.length - 1;
-            fetchOneSnapshot(lastElId);
+            fetchOneSnapshot(lastElId, lastElId - 1, false, true);
           }
         } else {
           if (selectedSnapshotId) {
@@ -159,7 +182,7 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
   // -----------------------------------------------------------
 
   const fetchOneSnapshot = (snapshotId: number, snapshotId2?: number, updateResult = true, fetchUpdate = false) => {
-    console.log("fetchOneSnapshot", snapshotId, snapshotId2, updateResult);
+    // console.log("fetchOneSnapshot", snapshotId, snapshotId2, updateResult);
     // const fetchOneSnapshot = (snapshots: SnapshotDTO[], index: number) => {
     // const id1 = snapshots[index].id.toString();
     // const index2 = index - 1 >= 0 ? index - 1 : 0;
@@ -225,6 +248,8 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
       value={{
         trackLatestSidePanel,
         setTrackLatestSidePanel,
+        trackPreviousSnapshot,
+        setTrackPreviousSnapshot,
         totalPages,
         pageNumber,
         setPageNumber,
@@ -249,6 +274,10 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
         result,
         setResult,
         fetchOneSnapshot,
+        firstId,
+        setFirstId,
+        secondId,
+        setSecondId,
       }}
     >
       {props.children}
