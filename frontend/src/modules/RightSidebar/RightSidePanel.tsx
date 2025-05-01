@@ -30,7 +30,7 @@ export const RightSidePanel = () => {
       </div>
       <>
         {isLogsOpen && (
-          <div className={styles.sliderPanelWrapper}>
+          <div className={styles.sliderPanelWrapperLogger}>
             <LogsPanel />
           </div>
         )}
