@@ -421,47 +421,33 @@ class TestQualibrationNode:
         yield node
         node.__class__.active_node = None
 
-    def test_stop_no_qm(
-        self,
-        mocker,
-        node_active_node_self,
-        qualibrate_config_and_path_mocked,
-    ):
+    def test_stop_no_job(self, node_active_node_self):
         node = node_active_node_self
-        node.machine = None
+        assert node.stop() is True
+        assert node._action_manager.skip_actions is True
 
-        # Mock find_spec to return None
-        mocker.patch(
-            "qualibrate.qualibration_node.find_spec", return_value=None
-        )
-
-        result = node.stop()
-
-        assert result is False
-
-    def test_stop_with_qm(
-        self,
-        mocker,
-        node_active_node_self,
-        qualibrate_config_and_path_mocked,
-    ):
+    def test_stop_job_no_halt(self, node_active_node_self):
         node = node_active_node_self
-        node.machine = MagicMock()
-        node.machine.connect.return_value = MagicMock(
-            list_open_quantum_machines=lambda: [1],
-            get_qm=lambda x: MagicMock(
-                get_running_job=lambda: MagicMock(halt=lambda: None)
-            ),
-        )
+        node.namespace["job"] = object()
+        assert node.stop() is True
+        assert node._action_manager.skip_actions is True
 
-        # Mock find_spec to return something
-        mocker.patch(
-            "qualibrate.qualibration_node.find_spec", return_value=MagicMock()
-        )
+    def test_stop_job_halt_not_callable(self, node_active_node_self):
+        class Job:
+            halt = False
 
-        result = node.stop()
+        node = node_active_node_self
+        node.namespace["job"] = Job()
+        assert node.stop() is True
+        assert node._action_manager.skip_actions is True
 
-        assert result is True
+    def test_stop_success(self, node_active_node_self):
+        node = node_active_node_self
+        job = MagicMock()
+        node.namespace["job"] = job
+        assert node.stop() is True
+        assert node._action_manager.skip_actions is True
+        job.halt.assert_called_once()
 
     def test_record_state_updates(self, node, machine):
         channel = machine.channels["ch1"]
