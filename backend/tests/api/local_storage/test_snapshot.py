@@ -229,8 +229,8 @@ def test_snapshot_update_entries(
     quam_state_path.mkdir()
     mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage"
-            ".snapshot.get_quam_state_path"
+            "qualibrate_app.api.core.domain.local_storage.utils"
+            ".snapshot_content.get_quam_state_path"
         ),
         return_value=quam_state_path,
     )
