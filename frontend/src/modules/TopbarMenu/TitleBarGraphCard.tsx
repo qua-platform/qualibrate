@@ -5,7 +5,6 @@ import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
 import CircularLoaderPercentage from "../../ui-lib/Icons/CircularLoaderPercentage";
 import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
 import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
-// import { classNames } from "../../utils/classnames";
 import StopButtonIcon from "../../ui-lib/Icons/StopButtonIcon";
 import { NodesApi } from "../Nodes/api/NodesAPI";
 import NoGraphRunningIcon from "../../ui-lib/Icons/NoGraphRunningIcon";
