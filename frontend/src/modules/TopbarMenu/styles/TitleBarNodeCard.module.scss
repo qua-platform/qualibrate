@@ -15,6 +15,17 @@
   width: 100%;
 }
 
+.hoverRegion {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+}
+
 .indicatorWrapper {
   display: flex;
   align-items: center;

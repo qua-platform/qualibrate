@@ -68,14 +68,14 @@ const TitleBarMenu: React.FC = () => {
     time_remaining: 0,
   };
 
+  const graphToUse = graph ?? fallbackGraph;
+
   return (
     <div className={styles.wrapper}>
       <PageName>{modulesMap[activeTab ?? ""]?.menuItem?.title ?? ""}</PageName>
       {topBarAdditionalComponents && topBarAdditionalComponents[activeTab ?? ""]}
-
       <div className={styles.menuCardsWrapper}>
-        {graph && (<TitleBarGraphCard graph={graph} node={node ?? fallbackNode} />)}
-        {!graph && (<TitleBarGraphCard graph={fallbackGraph} node={node ?? fallbackNode} />)}
+        <TitleBarGraphCard graph={graphToUse} node={node ?? fallbackNode} />
       </div>
     </div>
   );

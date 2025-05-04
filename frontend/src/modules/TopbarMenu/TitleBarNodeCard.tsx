@@ -29,7 +29,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
   const { openTab } = useFlexLayoutContext();
   const formatTime = (sec: number) => {
     const h = Math.floor(sec / 3600);
-    const m = Math.floor(((sec % 3600) % 3600) / 60);
+    const m = Math.floor((sec % 3600) / 60);
     const s = Math.floor(sec % 60);
     return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s left`;
   };
@@ -77,8 +77,8 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
         },
       }}
     >
-      <div onClick={() => openTab("nodes")} className={classNames(styles.wrapper, getWrapperClass(), styles.pointerCursor)}>
-        <div className={styles.contentWrapper}>
+      <div onClick={() => openTab("nodes")} className={styles.hoverRegion}>
+        <div className={classNames(styles.wrapper, getWrapperClass())}>
           <div className={styles.indicatorWrapper}>
             <StatusIndicator
               status={node.status?.charAt(0).toUpperCase() + node.status?.slice(1)}

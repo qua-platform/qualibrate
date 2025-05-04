@@ -10,7 +10,7 @@ interface GraphTooltipContentProps {
 const formatTime = (sec: number | null) => {
   if (sec === null) return "";
   const h = Math.floor(sec / 3600);
-  const m = Math.floor(((sec % 3600) % 3600) / 60);
+  const m = Math.floor((sec % 3600) / 60);
   const s = Math.floor(sec % 60);
   return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s`;
 };
@@ -26,7 +26,7 @@ const TitleBarGraphTooltipContent: React.FC<GraphTooltipContentProps> = ({ graph
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Status:</div>
-        <div className={styles.tooltipValue}>{graph.status}</div>
+        <div className={styles.tooltipValue}>{graph.status.charAt(0).toUpperCase() + graph.status.slice(1)}</div>
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Run duration:</div>
