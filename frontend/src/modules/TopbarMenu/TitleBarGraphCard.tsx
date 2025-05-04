@@ -166,13 +166,12 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
             </div>
           </Tooltip>
           <TitleBarMenuCard node={node} />
-          {/* TODO: make stop button functional - call function that already implements this */}
           {graph.status?.toLowerCase() === "running" && (
             <div className={styles.stopAndTimeWrapper}>
               <div className={styles.stopButton} onClick={handleStopClick}>
                 <StopButtonIcon height={24} />
               </div>
-              {graph.time_remaining !== null && (
+              {graph.time_remaining && (
                 <div className={styles.timeRemaining}>
                   {formatTime(graph.time_remaining)} left
                 </div>

@@ -74,11 +74,8 @@ const TitleBarMenu: React.FC = () => {
       {topBarAdditionalComponents && topBarAdditionalComponents[activeTab ?? ""]}
 
       <div className={styles.menuCardsWrapper}>
-        {graph ? (
-          <TitleBarGraphCard graph={ graph } node={node ?? fallbackNode} />
-        ) : (
-          <TitleBarGraphCard graph={ fallbackGraph } node={node ?? fallbackNode} />
-        )}
+        {graph && (<TitleBarGraphCard graph={graph} node={node ?? fallbackNode} />)}
+        {!graph && (<TitleBarGraphCard graph={fallbackGraph} node={node ?? fallbackNode} />)}
       </div>
     </div>
   );
