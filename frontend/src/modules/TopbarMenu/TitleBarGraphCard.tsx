@@ -27,7 +27,7 @@ const handleStopClick = async () => {
 const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => {
   return (
     <>
-      {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} height={48} width={48} />}
+      {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} height={54} width={54} />}
       {status === "Finished" && <CheckmarkIcon height={48} width={48} />}
       {status === "Error" && <ErrorIcon height={48} width={48} />}
     </>
@@ -79,7 +79,6 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
   };
 
   // TODO: refactor tooltiphover into just a single use for both cases like the node status card 
-  // TODO: cap off graph name length with elipses in the edge case where the the name is too long            
   // TODO: signal error in graph status when not all nodes finish in calibration test
   // TODO: if graph is running, clicking node card takes you to graph-status page, else it takes you to node library 
   // TODO: combine getWrapperClass and getStatusClass as was done similarly in getStatusLabelElement found in TitleBarMenuCard.tsx 

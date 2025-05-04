@@ -12,7 +12,7 @@ const formatTime = (sec: number | null) => {
   const h = Math.floor(sec / 3600);
   const m = Math.floor(((sec % 3600) % 3600) / 60);
   const s = Math.floor(sec % 60);
-  return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s left`;
+  return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s`;
 };
 
 const TitleBarGraphTooltipContent: React.FC<GraphTooltipContentProps> = ({ graph }) => {
