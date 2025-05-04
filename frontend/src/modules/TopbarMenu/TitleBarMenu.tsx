@@ -74,7 +74,6 @@ const TitleBarMenu: React.FC = () => {
       {topBarAdditionalComponents && topBarAdditionalComponents[activeTab ?? ""]}
 
       <div className={styles.menuCardsWrapper}>
-        {/* refer to large coment below regarding this logic */}
         {graph ? (
           <TitleBarGraphCard graph={ graph } node={node ?? fallbackNode} />
         ) : (
@@ -86,42 +85,3 @@ const TitleBarMenu: React.FC = () => {
 };
 
 export default TitleBarMenu;
-
-
-{/** 
-  Clarifying TitleBar Display Logic
- 
-  Objective:
-    Define when to display the Graph card and when to display the node status card in the TitleBarMenu.
- 
-  Display Rules:
-    - If a node is running:
-        → Display only the node card.
- 
-    - If a graph is running:
-        → Display the Graph card, which includes the embedded node card.
- 
-  Card States:
-    Each card can exist in one of the following visual states:
-      1. pending   – default/idle state
-      2. running
-      3. finished
-      4. error
-      5. (future idea) interrupted – triggered when the stop button is pressed
- 
-  Observations and Considerations:
-    1. Initial state (server startup):
-         - Before any node or graph is active, the TitleBarMenu shows both cards in the default (pending) state.
- 
-    2. Node and graph cards run together:
-         - A graph is considered running when each of the nodes in the graph is running.
-         - But if only a calibration node is running, then the node card only gets displayed 
- 
-    3. Completion sync:
-         - A graph is considered finished only after all of the nodes to run are finished 
-         - And not during a partial run exectuion of the graph 
- 
-    4. Graph error logic:
-         - A graph is in error not only if the current node fails,
-           but also if total_nodes < finished_nodes have finished and finished_nodes > 0 (indicating a partial failure to run all nodes in the graph) 
- */}

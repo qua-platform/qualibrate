@@ -27,12 +27,9 @@ const handleStopClick = async () => {
 const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => {
   return (
     <>
-      {/* TODO: make hight and width bigger for StatusIndicator icons of graph card as specified in figma */}
-      {/* overload hight and width default parameters here to specified dementions  */}
-      {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} />}
-      {status === "Finished" && <CheckmarkIcon />}
-      {status === "Error" && <ErrorIcon />}
-      {status === "Pending" && <NoGraphRunningIcon />}
+      {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} height={48} width={48} />}
+      {status === "Finished" && <CheckmarkIcon height={48} width={48} />}
+      {status === "Error" && <ErrorIcon height={48} width={48} />}
     </>
   );
 };
@@ -62,7 +59,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
     const h = Math.floor(sec / 3600);
     const m = Math.floor(((sec % 3600) % 3600) / 60);
     const s = Math.floor(sec % 60);
-    return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s left`;
+    return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s`;
   };
 
   const getWrapperClass = (): string => {
@@ -80,18 +77,15 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
     if (status === "error") return styles.statusError;
     return styles.statusPending;
   };
-  // TODO: rerun linter and remove unused classes 
-  // TODO: figure out why left and right sides have gaps when not in default graph      
+
   // TODO: refactor tooltiphover into just a single use for both cases like the node status card 
   // TODO: cap off graph name length with elipses in the edge case where the the name is too long            
   // TODO: signal error in graph status when not all nodes finish in calibration test
   // TODO: if graph is running, clicking node card takes you to graph-status page, else it takes you to node library 
   // TODO: combine getWrapperClass and getStatusClass as was done similarly in getStatusLabelElement found in TitleBarMenuCard.tsx 
-  // TODO: rename TitleBarMenuCard.tsx and TitleBarTooltipContent.tsx to TitleBarNodeCard.tsx and TitleBarNodeTooltipContent.tsx respectively 
   // TODO: Do a final matching between all stylings of css and elements to figma and try to match everything as close as possible in coloring and spacing 
   // TODO: delete all the unnessary comments and code and overall shorten the PR 
   // TODO: add slight shade effect when hovering over node card as well 
-  // TODO: change tooltipValue in graph tooltiphover content file to have minutes and hours as well as seconds 
 
   return (
     <div className={`${styles.graphCardWrapper} ${getWrapperClass()}`}>
@@ -115,7 +109,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
           >
             <div onClick={() => openTab("graph-library")} className={styles.hoverRegion}>
               <div className={styles.indicatorWrapper}>
-                <NoGraphRunningIcon />
+                <NoGraphRunningIcon height={32} width={32} />
               </div>
               <div className={styles.textWrapper}>
                 <div className={styles.graphTitleDefault}>No graph is running</div>
@@ -181,7 +175,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
               </div>
               {graph.time_remaining !== null && (
                 <div className={styles.timeRemaining}>
-                  {formatTime(graph.time_remaining)}
+                  {formatTime(graph.time_remaining)} left
                 </div>
               )}
             </div>
@@ -190,7 +184,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
             <div className={styles.stopAndTimeWrapper}>
               <div className={styles.timeRemaining}>
                 <div>Elapsed time:</div>
-                <div>{formatTime(graph.run_duration)}</div>
+                <div className={styles.timeElapsedText}>{formatTime(graph.run_duration)}</div>
               </div>
             </div>
           )}
