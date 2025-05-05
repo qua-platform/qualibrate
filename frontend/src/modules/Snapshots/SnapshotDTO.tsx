@@ -5,7 +5,7 @@ export interface SnapshotDTO {
   status?: string;
   id: number;
   result?: object;
-  data?: object;
+  data?: { [key: string]: object };
   metadata?: {
     description?: string | null;
     data_path: string;

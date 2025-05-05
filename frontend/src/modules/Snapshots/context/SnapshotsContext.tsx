@@ -194,7 +194,7 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
         if (updateResult) {
           setJsonData(promise?.result?.data);
         }
-        setJsonDataSidePanel(promise?.result?.data);
+        setJsonDataSidePanel(promise?.result?.data?.quam ?? {});
       })
       .catch((e) => {
         console.log(e);
