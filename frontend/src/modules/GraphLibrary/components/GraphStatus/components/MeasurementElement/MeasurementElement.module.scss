@@ -37,6 +37,14 @@
   cursor: pointer;
 }
 
+.descriptionWrapper {
+  padding-left: 10px;
+  padding-right: 10px;
+  align-content: center;
+  text-align: right;
+  margin-top: 5px;
+}
+
 .descriptionTooltip {
   overflow: scroll;
   max-height: 500px;
