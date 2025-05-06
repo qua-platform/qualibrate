@@ -1,7 +1,4 @@
 from datetime import datetime
-from functools import partial
-from itertools import islice
-from pathlib import Path
 from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -13,8 +10,8 @@ from qualibrate_runner.config.resolvers import get_settings
 from qualibrate_runner.core.models.enums import RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
 from qualibrate_runner.utils.logs_parser import (
-    filter_log_date,
-    parse_log_line_with_previous,
+    get_logs_from_qualibrate_files,
+    get_logs_from_qualibrate_in_memory_storage,
 )
 
 others_router = APIRouter()
@@ -33,6 +30,7 @@ def get_output_logs(
     after: Optional[datetime] = None,
     before: Optional[datetime] = None,
     num_entries: int = 100,
+    parse_files: bool = False,
     *,
     config: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> list[dict[str, Any]]:
@@ -40,23 +38,17 @@ def get_output_logs(
     Return core logs within specified time range but
     with amount not greater than `num_entries`
     """
-    log_folder = config.log_folder
-    if log_folder is None:
-        return []
-    out_logs: list[dict[str, Any]] = []
-    q_log_files = filter(Path.is_file, log_folder.iterdir())
-    filter_log_date_range = partial(filter_log_date, after=after, before=before)
-    for log_file in sorted(q_log_files):
-        with open(log_file) as f:
-            filtered = list(
-                filter(filter_log_date_range, parse_log_line_with_previous(f))
-            )
-            lines_date_filtered = reversed(filtered)
-            file_logs = islice(lines_date_filtered, num_entries - len(out_logs))
-            out_logs.extend(file_logs)
-            if len(out_logs) == num_entries:
-                return list(reversed(out_logs))
-    return list(reversed(out_logs))
+    logs_getter = (
+        get_logs_from_qualibrate_files
+        if parse_files
+        else get_logs_from_qualibrate_in_memory_storage
+    )
+    return logs_getter(
+        after=after,
+        before=before,
+        num_entries=num_entries,
+        config=config,
+    )
 
 
 @others_router.post(
