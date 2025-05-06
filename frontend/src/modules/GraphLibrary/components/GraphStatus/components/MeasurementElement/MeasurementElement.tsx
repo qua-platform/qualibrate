@@ -8,6 +8,7 @@ import {
   MeasurementElementOutcomes,
   MeasurementElementStatusInfoAndParameters,
 } from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
+import { Tooltip } from "@mui/material";
 
 interface MeasurementElementProps {
   element: Measurement;
@@ -65,10 +66,13 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     <div data-measurement-id={dataMeasurementId} className={classNames(styles.rowWrapper)}>
       <div className={styles.row} onClick={handleOnClick}>
         <div className={styles.dot} style={getDotStyle()}></div>
-        <div className={styles.titleOrName}>
-          #{element.id} {element.metadata?.name}
-        </div>
-        <div className={styles.description}>{element.metadata?.description}</div>
+
+        <Tooltip title={<div className={styles.descriptionTooltip}>{element.metadata?.description ?? ""}</div>} placement="bottom-start">
+          <div className={styles.titleOrName}>
+            #{element.id} {element.metadata?.name}
+          </div>
+        </Tooltip>
+        {/*<div className={styles.description}>{element.metadata?.description}</div>*/}
       </div>
       {(measurementSelected || cytoscapeNodeSelected) && (
         <div className={styles.expandedContent}>
