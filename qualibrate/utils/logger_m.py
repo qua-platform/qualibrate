@@ -11,6 +11,16 @@ from qualibrate_config.resolvers import (
     get_qualibrate_config_path,
 )
 
+from qualibrate.utils.logger_utils.filters import (
+    NonUserLogFilter,
+    UserLogFilter,
+)
+from qualibrate.utils.logger_utils.fotmatters import (
+    ConsoleFormatter,
+    QualibrateJsonFormatter,
+)
+from qualibrate.utils.logger_utils.handlers import InMemoryLogHandler
+
 _SysExcInfoType = Union[
     tuple[type[BaseException], BaseException, Optional[TracebackType]],
     tuple[None, None, None],
@@ -24,7 +34,6 @@ ALLOWED_LOG_LEVEL_NAMES: tuple[LOG_LEVEL_NAMES_TYPE, ...] = get_args(
     LOG_LEVEL_NAMES_TYPE
 )
 
-
 __all__ = [
     "logger",
     "_SysExcInfoType",
@@ -33,55 +42,12 @@ __all__ = [
     "ALLOWED_LOG_LEVEL_NAMES",
 ]
 
-LOG_FORMAT = (
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s "
-    "(%(filename)s:%(lineno)d)"
-)
-
-
-class QualibrateFormatter(logging.Formatter):
-    formatter = logging.Formatter(LOG_FORMAT)
-
-    def format(self, record: logging.LogRecord) -> str:
-        return self.formatter.format(record)
-
-
-class ConsoleFormatter(QualibrateFormatter):
-    grey = "\x1b[38;20m"
-    yellow = "\x1b[33;20m"
-    red = "\x1b[31;20m"
-    bold_red = "\x1b[31;1m"
-    reset = "\x1b[0m"
-
-    FORMATS = {
-        logging.DEBUG: grey + LOG_FORMAT + reset,
-        logging.INFO: grey + LOG_FORMAT + reset,
-        logging.WARNING: yellow + LOG_FORMAT + reset,
-        logging.ERROR: red + LOG_FORMAT + reset,
-        logging.CRITICAL: bold_red + LOG_FORMAT + reset,
-    }
-    FORMATTERS = {
-        level: logging.Formatter(format) for level, format in FORMATS.items()
-    }
-
-    def format(self, record: logging.LogRecord) -> str:
-        log_fmtr = self.FORMATTERS.get(record.levelno, self.formatter)
-        return log_fmtr.format(record)
-
-
-class UserLogFilter(logging.Filter):
-    def filter(self, record: logging.LogRecord) -> bool:
-        return record.module == "qualibration_node" and record.funcName == "log"
-
-
-class NonUserLogFilter(logging.Filter):
-    def filter(self, record: logging.LogRecord) -> bool:
-        return record.module != "qualibration_node" or record.funcName != "log"
-
 
 class LazyInitLogger(logging.Logger):
     def __init__(self, name: str, level: Union[int, str] = 0) -> None:
         super().__init__(name, level or logging.DEBUG)
+        self.in_memory_handler = InMemoryLogHandler()
+        self.in_memory_handler.setFormatter(QualibrateJsonFormatter())
 
         console_stderr = logging.StreamHandler(sys.stderr)
         console_stderr.addFilter(NonUserLogFilter())
@@ -94,6 +60,7 @@ class LazyInitLogger(logging.Logger):
         console_stdout.setFormatter(ConsoleFormatter())
         self.addHandler(console_stderr)
         self.addHandler(console_stdout)
+        self.addHandler(self.in_memory_handler)
 
         self._initialized = False
 
@@ -129,7 +96,7 @@ class LazyInitLogger(logging.Logger):
             backupCount=3,
         )
         file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(QualibrateFormatter())
+        file_handler.setFormatter(QualibrateJsonFormatter())
         self.addHandler(file_handler)
 
         qm_logger = logging.getLogger("qm")
