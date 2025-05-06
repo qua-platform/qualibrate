@@ -1,11 +1,18 @@
-from typing import Annotated, Optional
+from datetime import datetime
+from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from qualibrate_config.models import QualibrateConfig
 
 from qualibrate_runner.api.dependencies import get_state
 from qualibrate_runner.config import State
+from qualibrate_runner.config.resolvers import get_settings
 from qualibrate_runner.core.models.enums import RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
+from qualibrate_runner.utils.logs_parser import (
+    get_logs_from_qualibrate_files,
+    get_logs_from_qualibrate_in_memory_storage,
+)
 
 others_router = APIRouter()
 
@@ -16,6 +23,32 @@ def check_running(
 ) -> bool:
     """Whether is there any running (active) item (node or graph)"""
     return state.is_running
+
+
+@others_router.get("/output_logs")
+def get_output_logs(
+    after: Optional[datetime] = None,
+    before: Optional[datetime] = None,
+    num_entries: int = 100,
+    parse_files: bool = False,
+    *,
+    config: Annotated[QualibrateConfig, Depends(get_settings)],
+) -> list[dict[str, Any]]:
+    """
+    Return core logs within specified time range but
+    with amount not greater than `num_entries`
+    """
+    logs_getter = (
+        get_logs_from_qualibrate_files
+        if parse_files
+        else get_logs_from_qualibrate_in_memory_storage
+    )
+    return logs_getter(
+        after=after,
+        before=before,
+        num_entries=num_entries,
+        config=config,
+    )
 
 
 @others_router.post(
