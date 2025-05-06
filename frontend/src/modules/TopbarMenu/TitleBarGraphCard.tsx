@@ -25,7 +25,7 @@ const handleStopClick = async () => {
 
 const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => (
   <>
-    {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} height={54} width={54} />}
+    {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} height={48} width={48} />}
     {status === "Finished" && <CheckmarkIcon height={48} width={48} />}
     {status === "Error" && <ErrorIcon height={48} width={48} />}
     {status === "Pending" && <NoGraphRunningIcon height={32} width={32} />}
@@ -76,10 +76,8 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
     return styles.statusPending;
   };
 
-  // TODO: signal error in graph status when not all nodes finish in calibration test
   // TODO: combine getWrapperClass and getStatusClass as was done similarly in getStatusLabelElement found in TitleBarMenuCard.tsx 
-  // TODO: Do a final matching between all stylings of css and elements to figma and try to match everything as close as possible in coloring and spacing 
-  // TODO: delete all the unnessary comments and code and overall shorten the PR 
+  // TODO: go through and inspect all css in graph card css file and delete all css attributes that dont visibly effect styling  
   
   const isPending = graph.status?.toLowerCase() === "pending";
 
@@ -122,7 +120,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
               ) : (
                 <>
                   <div className={styles.graphTitle}>
-                    Active Graph: {graph.name || "No graph is running"}
+                    Graph: {graph.name || "No graph is running"}
                   </div>
                   <div className={styles.graphStatusRow}>
                     <div className={`${styles.statusText} ${getStatusClass()}`}>
@@ -144,7 +142,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
         {(!isPending && graph.status?.toLowerCase() === "running") && (
           <div className={styles.stopAndTimeWrapper}>
             <div className={styles.stopButton} onClick={handleStopClick}>
-              <StopButtonIcon height={24} />
+              <StopButtonIcon />
             </div>
             {graph.time_remaining && (
               <div className={styles.timeRemaining}>
@@ -165,8 +163,8 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
 
         {/* Stop button when in pending node (Stops for case when only running a node) */}
         {isPending && node.status?.toLowerCase() === "running" && (
-          <div className={styles.stopButton} onClick={handleStopClick}>
-            <StopButtonIcon height={24} />
+          <div className={styles.nodeStopButton} onClick={handleStopClick}>
+            <StopButtonIcon />
           </div>
         )}
       </div>
