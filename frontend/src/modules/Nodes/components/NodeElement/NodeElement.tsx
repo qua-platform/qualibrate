@@ -25,6 +25,7 @@ export interface NodeDTO {
 export interface NodeMap {
   [key: string]: NodeDTO;
 }
+
 export const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -95,8 +96,6 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     );
   };
 
-
-
   const handleClick = async () => {
     setUpdateAllButtonPressed(false);
     setIsNodeRunning(true);
@@ -138,12 +137,16 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     >
       <div className={styles.row}>
         <div className={styles.titleOrNameWrapper}>
-          <div className={styles.titleOrName} data-testid={`title-or-name-${nodeKey}`}>{insertSpaces(node.title ?? node.name)}</div>
+          <div className={styles.titleOrName} data-testid={`title-or-name-${nodeKey}`}>
+            {insertSpaces(node.title ?? node.name)}
+          </div>
         </div>
         <div className={styles.descriptionWrapper}>
-        {node.description?.trim() && (
-            <Tooltip title={node.description?.trim()} placement="left-start" arrow>
-              <span><InfoIcon /></span>
+          {node.description && (
+            <Tooltip title={<div className={styles.descriptionTooltip}>{node.description} </div>} placement="left-start" arrow>
+              <span>
+                <InfoIcon />
+              </span>
             </Tooltip>
           )}
         </div>
