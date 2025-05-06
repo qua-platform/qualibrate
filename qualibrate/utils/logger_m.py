@@ -19,6 +19,7 @@ from qualibrate.utils.logger_utils.fotmatters import (
     ConsoleFormatter,
     QualibrateJsonFormatter,
 )
+from qualibrate.utils.logger_utils.handlers import InMemoryLogHandler
 
 _SysExcInfoType = Union[
     tuple[type[BaseException], BaseException, Optional[TracebackType]],
@@ -45,6 +46,8 @@ __all__ = [
 class LazyInitLogger(logging.Logger):
     def __init__(self, name: str, level: Union[int, str] = 0) -> None:
         super().__init__(name, level or logging.DEBUG)
+        self.in_memory_handler = InMemoryLogHandler()
+        self.in_memory_handler.setFormatter(QualibrateJsonFormatter())
 
         console_stderr = logging.StreamHandler(sys.stderr)
         console_stderr.addFilter(NonUserLogFilter())
@@ -57,6 +60,7 @@ class LazyInitLogger(logging.Logger):
         console_stdout.setFormatter(ConsoleFormatter())
         self.addHandler(console_stderr)
         self.addHandler(console_stdout)
+        self.addHandler(self.in_memory_handler)
 
         self._initialized = False
 
