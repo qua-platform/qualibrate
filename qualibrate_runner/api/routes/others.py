@@ -31,6 +31,7 @@ def get_output_logs(
     before: Optional[datetime] = None,
     num_entries: int = 100,
     parse_files: bool = False,
+    reverse: bool = False,
     *,
     config: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> list[dict[str, Any]]:
@@ -43,12 +44,15 @@ def get_output_logs(
         if parse_files
         else get_logs_from_qualibrate_in_memory_storage
     )
-    return logs_getter(
+    logs = logs_getter(
         after=after,
         before=before,
         num_entries=num_entries,
         config=config,
     )
+    if reverse:
+        return list(reversed(logs))
+    return logs
 
 
 @others_router.post(
@@ -83,10 +87,7 @@ def state_updated(
     state: Annotated[State, Depends(get_state)],
     key: str,
 ) -> Optional[LastRun]:
-    if (
-        state.last_run is None
-        or state.last_run.status != RunStatusEnum.FINISHED
-    ):
+    if state.last_run is None or state.last_run.status != RunStatusEnum.FINISHED:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Node not executed or finished unsuccessful.",
