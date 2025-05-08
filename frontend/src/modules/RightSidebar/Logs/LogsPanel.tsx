@@ -14,7 +14,7 @@ export const LogsPanel = () => {
         {logs.map((log, index) => {
           return (
             <div key={`${log.name}_${index}`}>
-              <div className={styles.logsTimestamp}>{`${formatDateTime(log.asctime)} >`}</div>
+              <div className={styles.logsTimestamp}>{`${formatDateTime(log.asctime)} - ${log.name} - ${log.levelname}`}</div>
               <div className={styles.logsMessage}>{` ${log.message}`}</div>
             </div>
           );
