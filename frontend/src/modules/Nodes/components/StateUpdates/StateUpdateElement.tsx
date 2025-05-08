@@ -25,7 +25,7 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
   const [customValue, setCustomValue] = useState<string | number>(JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? ""));
   const previousValue = JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? "");
-  const { firstId, secondId, fetchOneSnapshot, trackLatestSidePanel, latestSnapshotId } = useSnapshotsContext();
+  const { secondId, fetchOneSnapshot, trackLatestSidePanel, latestSnapshotId } = useSnapshotsContext();
 
   const ValueComponent = ({
     stateUpdateValue,

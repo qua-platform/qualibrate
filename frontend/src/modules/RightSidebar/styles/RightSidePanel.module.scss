@@ -13,7 +13,6 @@
   height: 100%;
   flex-direction: column;
   cursor: pointer;
-
   justify-content: center;
   align-items: center;
 
@@ -47,7 +46,7 @@
   z-index: 1000;
   transition: transform 0.3s ease;
   overflow-y: auto;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.4);
+  box-shadow: -2px 0 10px rgb(0 0 0 / 40%);
   display: flex;
   flex-direction: column;
 }
@@ -62,7 +61,7 @@
   color: white;
   z-index: 1000;
   transition: transform 0.3s ease;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.4);
+  box-shadow: -2px 0 10px rgb(0 0 0 / 40%);
   display: flex;
   flex-direction: column;
 }
