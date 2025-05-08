@@ -77,6 +77,14 @@
   max-width: 100%;
 }
 
+.descriptionTooltip {
+  overflow: scroll;
+  max-height: 500px;
+  white-space: pre-line;
+  //background-color: #42424C;
+  border-radius: 6px;
+}
+
 .descriptionWrapper {
   padding-left: 10px;
   align-content: center;
