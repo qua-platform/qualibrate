@@ -55,9 +55,10 @@ export class NodesApi extends Api {
   static getLogs(
     after: string | null = null,
     before: string | null = null,
-    num_entries: string = "300"
+    num_entries: string = "300",
+    reverse: boolean = true
   ): Promise<Res<LogsViewerResponseDTO[]>> {
-    return this._fetch(this.api(GET_LOGS({ after, before, num_entries })), API_METHODS.GET, {
+    return this._fetch(this.api(GET_LOGS({ after, before, num_entries, reverse })), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }
