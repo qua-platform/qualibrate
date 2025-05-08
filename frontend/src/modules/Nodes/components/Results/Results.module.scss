@@ -9,3 +9,57 @@
   flex: 1;
   overflow-y: auto;
 }
+
+.errorWrapper {
+  height: 100%;
+  border: 2px solid rgba(255, 97, 115, 0.5);
+  background-color: var(--popup-background);
+  padding-bottom: 15px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.errorHeader {
+  padding-top: 30px;
+  padding-left: 30px;
+  display: flex;
+  flex-direction: row;
+}
+
+.errorIcon {
+  display: flex;
+  align-items: center;
+}
+
+.errorHeaderTitle {
+  padding-left: 9px;
+  color: #FF6173;
+  font-family: Roboto, serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.errorContent {
+  padding-left: 30px;
+}
+
+.errorLabel {
+  padding-top: 25px;
+  padding-bottom: 8px;
+  color: #A5ACB6;
+  font-family: Roboto, serif;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.errorText {
+  color: #FFF;
+  font-family: Roboto, serif;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 150%;
+}
