@@ -9,6 +9,8 @@ import {
   MeasurementElementStatusInfoAndParameters,
 } from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
 import { useSnapshotsContext } from "../../../../../Snapshots/context/SnapshotsContext";
+import { Tooltip } from "@mui/material";
+import { InfoIcon } from "../../../../../../ui-lib/Icons/InfoIcon";
 
 interface MeasurementElementProps {
   element: Measurement;
@@ -72,7 +74,19 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
         <div className={styles.titleOrName}>
           #{element.id} {element.metadata?.name}
         </div>
-        <div className={styles.description}>{element.metadata?.description}</div>
+        <div className={styles.descriptionWrapper}>
+          {element.metadata?.description && (
+            <Tooltip
+              title={<div className={styles.descriptionTooltip}>{element.metadata?.description ?? ""}</div>}
+              placement="left-start"
+              arrow
+            >
+              <span>
+                <InfoIcon />
+              </span>
+            </Tooltip>
+          )}
+        </div>
       </div>
       {(measurementSelected || cytoscapeNodeSelected) && (
         <div className={styles.expandedContent}>

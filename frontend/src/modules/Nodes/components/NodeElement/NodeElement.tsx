@@ -26,7 +26,6 @@ export interface NodeDTO {
 export interface NodeMap {
   [key: string]: NodeDTO;
 }
-
 export const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -147,8 +146,8 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           </div>
         </div>
         <div className={styles.descriptionWrapper}>
-          {node.description?.trim() && (
-            <Tooltip title={node.description?.trim()} placement="left-start" arrow>
+          {node.description && (
+            <Tooltip title={<div className={styles.descriptionTooltip}>{node.description} </div>} placement="left-start" arrow>
               <span>
                 <InfoIcon />
               </span>
