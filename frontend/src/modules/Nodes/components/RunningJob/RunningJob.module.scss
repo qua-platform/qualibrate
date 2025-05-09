@@ -50,8 +50,30 @@
   cursor: pointer;
 }
 
+//TODO: fix css  
 .stopButton {
-  background-color: #e02525;
+  background: none;
+  border: 2px solid #ff6173;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgba(255, 97, 115, 0.1);
+  }
+
+  &:focus {
+    outline: none;
+    background-color: rgba(255, 97, 115, 0.1);
+  }
+
+  &:active {
+    background-color: rgba(255, 97, 115, 0.2);
+  }
 }
 
 .parameterStatesWrapper {
@@ -391,3 +413,69 @@ input:focus {
     height: 20px !important;
   }
 }
+
+.jobInfoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leftStatus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nodeText {
+  color: gray;
+  font-weight: 400;
+  font-size: 20px;
+}
+
+.nodeName {
+  color: white;
+  font-weight: 400 bold;
+  margin-left: 4px;
+}
+
+.rightStatus {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.percentage {
+  font-size: 24px;
+  font-weight: 500;
+  color: #a5acb6;
+}
+
+
+
+.loadingBarWrapper {
+  width: 100%;
+}
+
+.greenDot {
+  width: 12px;
+  height: 12px;
+  background-color: #42ac4b;
+  border-radius: 50%;
+}
+
+
+.finishedText {
+  color: #32FFC6;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+  opacity: 0.6;
+}
+
