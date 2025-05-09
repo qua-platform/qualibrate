@@ -28,7 +28,7 @@ export function RightSidePanelContextProvider(props: LogsContextProviderProps): 
   const checkNewLogs = async () => {
     const maxNumberOfLogs: number = 300;
     const after = logs.length > 0 ? logs[logs.length - 1]?.asctime : null;
-    const response = await NodesApi.getLogs(after, null, "300");
+    const response = await NodesApi.getLogs(after, null, maxNumberOfLogs.toString());
 
     if (response.isOk && response.result) {
       const newLogs = response.result;
