@@ -6,6 +6,7 @@ export interface LogsViewerResponseDTO {
   name: string;
   levelname: string;
   message: string;
+  exc_info?: string;
 }
 
 interface IRightSidePanelContext {

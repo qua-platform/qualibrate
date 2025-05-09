@@ -25,6 +25,14 @@ export const LogsPanel = () => {
                     </span>
                   );
                 })}
+                {log.exc_info?.split("\\n").map((item, idx) => {
+                  return (
+                    <span key={idx}>
+                      {item}
+                      <br />
+                    </span>
+                  );
+                })}
               </div>
             </div>
           );
