@@ -15,31 +15,27 @@ const LoadingBar: React.FC<LoadingBarProps> = ({
 }) => {
   const normalized = Math.max(0, Math.min(percentage, 100));
 
+  const borderRadius = `${height ? height / 2 : 2}px`;
+
   return (
-    <div style={{ width: "100%" }}>
-      <svg viewBox="0 0 100 4" preserveAspectRatio="none" width="100%" height={height}>
-        <rect
-          x="0"
-          y="0"
-          width="100"
-          height="4"
-          rx={height / 2}
-          ry={height / 2}
-          fill={trackColor}
-        />
-        <rect
-          x="0"
-          y="0"
-          width={normalized}
-          height="4"
-          rx={height / 2}
-          ry={height / 2}
-          fill={progressColor}
-          style={{
-            transition: "width 0.4s ease-in-out",
-          }}
-        />
-      </svg>
+    <div
+      style={{
+        width: "100%",
+        height: `${height}px`,
+        backgroundColor: trackColor,
+        borderRadius,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          width: `${normalized}%`,
+          height: "100%",
+          backgroundColor: progressColor,
+          borderRadius,
+          transition: "width 0.4s ease-in-out",
+        }}
+      />
     </div>
   );
 };

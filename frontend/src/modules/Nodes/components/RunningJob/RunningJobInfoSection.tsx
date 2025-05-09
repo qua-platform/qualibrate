@@ -5,6 +5,7 @@ import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgr
 import LoadingBar from "../../../../ui-lib/Icons/LoadingBar";
 import { StopIcon } from "../../../../ui-lib/Icons/StopIcon";
 import CheckmarkIcon from "../../../../ui-lib/Icons/CheckmarkIcon";
+import ErrorIcon from "../../../../ui-lib/Icons/ErrorIcon";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { NodesApi } from "../../../Nodes/api/NodesAPI";
 import { useNodesContext } from "../../context/NodesContext";
@@ -41,6 +42,23 @@ export const RunningJobInfoSection: React.FC = () => {
 
   const isRunning = status === "running";
   const isFinished = status === "finished";
+  const isError = status === "error";
+  
+  let dotElement = null;
+  if (isRunning) {
+    dotElement = <CircularLoaderProgress percentage={percentage} />;
+  } else if (isFinished) {
+    dotElement = <div className={styles.greenDot}></div>;
+  } else if (isError) {
+    dotElement = <div className={styles.redDot}></div>;
+  }
+  
+  let barColor = "#3CDEF8"; // blue default
+  if (isFinished) {
+    barColor = "#00D59A"; // green
+  } else if (isError) {
+    barColor = "#FF6173"; // red
+  }
 
   if (status === "pending") return null;
 
@@ -49,7 +67,7 @@ export const RunningJobInfoSection: React.FC = () => {
       <div className={styles.topRow}>
         <div className={styles.leftStatus}>
           {isRunning && <CircularLoaderProgress percentage={percentage} />}
-          {isFinished && <div className={styles.greenDot}></div>}
+          {!isRunning && dotElement}
           <div className={styles.nodeText}>
             Node: <span className={styles.nodeName}>{nodeName}</span>
           </div>
@@ -68,13 +86,19 @@ export const RunningJobInfoSection: React.FC = () => {
               <div className={styles.finishedText}>Finished</div>
               <CheckmarkIcon />
             </>
+          )}          
+          {isError && (
+            <>
+              <div className={styles.errorText}>Error</div>
+              <ErrorIcon />
+            </>
           )}
         </div>
       </div>
       <div className={styles.loadingBarWrapper}>
         <LoadingBar
           percentage={percentage}
-          progressColor={isFinished ? "#42AC4B" : "#3CDEF8"}
+          progressColor={barColor}
         />
       </div>
     </div>

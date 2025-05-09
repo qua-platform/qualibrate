@@ -30,11 +30,18 @@
   color: white;
 }
 
-.dot {
-  margin-right: 10px;
-  height: 12px;
+.greenDot {
   width: 12px;
-  background-color: limegreen;
+  height: 12px;
+  background-color: #00D59A;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.redDot {
+  width: 12px;
+  height: 12px;
+  background-color: #FF6173;
   border-radius: 50%;
   display: inline-block;
 }
@@ -456,19 +463,9 @@ input:focus {
   color: #a5acb6;
 }
 
-
-
 .loadingBarWrapper {
   width: 100%;
 }
-
-.greenDot {
-  width: 12px;
-  height: 12px;
-  background-color: #42ac4b;
-  border-radius: 50%;
-}
-
 
 .finishedText {
   color: #32FFC6;
@@ -479,3 +476,12 @@ input:focus {
   opacity: 0.6;
 }
 
+.errorText {
+  color: #FF6173;
+  font-family: Roboto;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  opacity: 0.6;
+}
