@@ -76,11 +76,11 @@
 
 .graphTitleDefault {
   color: #a0a0af;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .graphTitle {
-  font-size: 14px;
+  font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -131,7 +131,11 @@
 
 .nodeCount {
   font-size: 0.8rem;
-  color: #8CA0B3;
+  font-size: 12px;
+  font-weight: 400;
+  color: #A5ACB6;
+  font-family: Roboto;
+  opacity: 0.8;
 }
 
 .graphCardContent {

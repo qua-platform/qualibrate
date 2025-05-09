@@ -61,25 +61,20 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
   };
 
   const getWrapperClass = () => {
-    const status = graph.status?.toLowerCase();
-    if (status === "running") return styles.running;
-    if (status === "finished") return styles.finished;
-    if (status === "error") return styles.error;
+    if (graph.status === "running") return styles.running;
+    if (graph.status === "finished") return styles.finished;
+    if (graph.status === "error") return styles.error;
     return styles.pending;
   };
 
   const getStatusClass = () => {
-    const status = graph.status?.toLowerCase();
-    if (status === "running") return styles.statusRunning;
-    if (status === "finished") return styles.statusFinished;
-    if (status === "error") return styles.statusError;
+    if (graph.status === "running") return styles.statusRunning;
+    if (graph.status === "finished") return styles.statusFinished;
+    if (graph.status === "error") return styles.statusError;
     return styles.statusPending;
   };
 
-  // TODO: combine getWrapperClass and getStatusClass as was done similarly in getStatusLabelElement found in TitleBarMenuCard.tsx 
-  // TODO: go through and inspect all css in graph card css file and delete all css attributes that dont visibly effect styling  
-  
-  const isPending = graph.status?.toLowerCase() === "pending";
+  const isPending = graph.status === "pending";
 
   const handleClick = () => openTab(isPending ? "graph-library" : "graph-status");
 
@@ -126,9 +121,11 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
                     <div className={`${styles.statusText} ${getStatusClass()}`}>
                       {graph.status}
                     </div>
-                    <div className={styles.nodeCount}>
-                      {graph.finished_nodes}/{graph.total_nodes} nodes finished
-                    </div>
+                    {graph.status !== "finished" && (                    
+                      <div className={styles.nodeCount}>
+                        {graph.finished_nodes}/{graph.total_nodes} nodes finished
+                      </div>
+                    )}
                   </div>
                 </>
               )}
@@ -139,7 +136,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
         <TitleBarMenuCard node={node} />
 
         {/* Graph Stop button and timer */}
-        {(!isPending && graph.status?.toLowerCase() === "running") && (
+        {(!isPending && graph.status === "running") && (
           <div className={styles.stopAndTimeWrapper}>
             <div className={styles.stopButton} onClick={handleStopClick}>
               <StopButtonIcon />
@@ -152,7 +149,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
           </div>
         )}
 
-        {(!isPending && graph.status?.toLowerCase() !== "running" && graph.run_duration > 0) && (
+        {(!isPending && graph.status !== "running" && graph.run_duration > 0) && (
           <div className={styles.stopAndTimeWrapper}>
             <div className={styles.timeRemaining}>
               <div>Elapsed time:</div>
@@ -162,7 +159,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
         )}
 
         {/* Stop button when in pending node (Stops for case when only running a node) */}
-        {isPending && node.status?.toLowerCase() === "running" && (
+        {isPending && node.status === "running" && (
           <div className={styles.nodeStopButton} onClick={handleStopClick}>
             <StopButtonIcon />
           </div>
