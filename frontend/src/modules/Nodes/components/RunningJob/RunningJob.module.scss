@@ -57,10 +57,9 @@
   cursor: pointer;
 }
 
-//TODO: fix css  
 .stopButton {
   background: none;
-  border: 2px solid #ff6173;
+  border: none;
   border-radius: 50%;
   padding: 6px;
   cursor: pointer;
@@ -70,16 +69,16 @@
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: rgba(255, 97, 115, 0.1);
+    background-color: rgb(255 97 115 / 10%);
   }
 
   &:focus {
     outline: none;
-    background-color: rgba(255, 97, 115, 0.1);
+    background-color: rgb(255 97 115 / 10%);
   }
 
   &:active {
-    background-color: rgba(255, 97, 115, 0.2);
+    background-color: rgb(255 97 115 / 20%);
   }
 }
 
@@ -221,7 +220,6 @@
 }
 
 .stateUpdatesTopWrapper {
-  max-height: 170px;
   overflow-y: scroll;
   padding-right: 10px;
   scrollbar-width: thin;
@@ -441,12 +439,14 @@ input:focus {
 
 .nodeText {
   color: gray;
+  font-family: Roboto, sans-serif;
   font-weight: 400;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .nodeName {
   color: white;
+  font-family: Roboto, sans-serif;
   font-weight: 400 bold;
   margin-left: 4px;
 }
@@ -458,9 +458,14 @@ input:focus {
 }
 
 .percentage {
-  font-size: 24px;
-  font-weight: 500;
   color: #a5acb6;
+  font-family: Roboto, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: normal;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .loadingBarWrapper {
@@ -474,14 +479,20 @@ input:focus {
   font-weight: 400;
   line-height: normal;
   opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .errorText {
   color: #FF6173;
-  font-family: Roboto;
+  font-family: Roboto, sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
   opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }

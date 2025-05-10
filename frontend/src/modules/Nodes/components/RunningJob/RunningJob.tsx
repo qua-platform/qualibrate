@@ -20,7 +20,7 @@ export const RunningJob: React.FC = () => {
   useEffect(() => {
     const checkHasRun = async () => {
       const res = await NodesApi.fetchLastRunStatusInfo();
-      if (res.isOk && res.result?.node?.status?.toLowerCase() !== "pending") {
+      if (res.isOk && res.result?.node?.status !== "pending") {
         setHasRun(true);
       }
     };

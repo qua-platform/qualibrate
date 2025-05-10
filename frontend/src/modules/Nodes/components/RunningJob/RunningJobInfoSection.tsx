@@ -45,22 +45,16 @@ export const RunningJobInfoSection: React.FC = () => {
   const isError = status === "error";
   
   let dotElement = null;
+  let barColor = "#3CDEF8";
   if (isRunning) {
     dotElement = <CircularLoaderProgress percentage={percentage} />;
   } else if (isFinished) {
     dotElement = <div className={styles.greenDot}></div>;
+    barColor = "#00D59A";
   } else if (isError) {
     dotElement = <div className={styles.redDot}></div>;
+    barColor = "#FF6173";
   }
-  
-  let barColor = "#3CDEF8"; // blue default
-  if (isFinished) {
-    barColor = "#00D59A"; // green
-  } else if (isError) {
-    barColor = "#FF6173"; // red
-  }
-
-  if (status === "pending") return null;
 
   return (
     <div className={styles.jobInfoContainer}>
@@ -76,22 +70,14 @@ export const RunningJobInfoSection: React.FC = () => {
           {isRunning && (
             <>
               <div className={styles.percentage}>{percentage}%</div>
-              <div className={styles.stopButton} onClick={handleStopClick}>
-                <StopIcon />
-              </div>
+              <div className={styles.stopButton} onClick={handleStopClick}> <StopIcon /> </div>
             </>
           )}
           {isFinished && (
-            <>
-              <div className={styles.finishedText}>Finished</div>
-              <CheckmarkIcon />
-            </>
+              <div className={styles.finishedText}>Finished <CheckmarkIcon height={38} width={38} /> </div>
           )}          
           {isError && (
-            <>
-              <div className={styles.errorText}>Error</div>
-              <ErrorIcon />
-            </>
+            <div className={styles.errorText}>Error<ErrorIcon height={32} width={32} /> </div>
           )}
         </div>
       </div>
