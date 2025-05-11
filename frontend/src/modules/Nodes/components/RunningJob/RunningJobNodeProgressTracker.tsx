@@ -7,10 +7,10 @@ import { StopIcon } from "../../../../ui-lib/Icons/StopIcon";
 import CheckmarkIcon from "../../../../ui-lib/Icons/CheckmarkIcon";
 import ErrorIcon from "../../../../ui-lib/Icons/ErrorIcon";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
-import { NodesApi } from "../../../Nodes/api/NodesAPI";
+import { NodesApi } from "../../api/NodesAPI";
 import { useNodesContext } from "../../context/NodesContext";
 
-export const RunningJobInfoSection: React.FC = () => {
+export const RunningJobNodeProgressTracker: React.FC = () => {
   const [percentage, setPercentage] = useState(0);
   const [status, setStatus] = useState("");
   const [nodeName, setNodeName] = useState("");
@@ -32,12 +32,14 @@ export const RunningJobInfoSection: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleStopClick = () => {
-    SnapshotsApi.stopNodeRunning().then((res) => {
-      if (res.isOk) {
-        setIsNodeRunning(!res.result);
+  const handleStopClick = async () => {
+    const res = await SnapshotsApi.stopNodeRunning();
+    if (res.isOk) {
+      const checkRes = await NodesApi.checkIsNodeRunning();
+      if (checkRes.isOk) {
+        setIsNodeRunning(checkRes.result === true);
       }
-    });
+    }
   };
 
   const isRunning = status === "running";
