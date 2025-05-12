@@ -17,6 +17,23 @@ from qualibrate_app.config.vars import (
     CONFIG_PATH_ENV_NAME,
 )
 
+__all__ = [
+    "get_default_static_files_path",
+    "get_config_path",
+    "get_settings",
+    "get_quam_state_path",
+]
+
+
+def get_default_static_files_path() -> Optional[Path]:
+    import sys
+
+    module_file = sys.modules["qualibrate_app"].__file__
+    if module_file is None:
+        return None
+    module_path = Path(module_file)
+    return module_path.parents[1] / "qualibrate_static"
+
 
 @lru_cache
 def get_config_path() -> Path:

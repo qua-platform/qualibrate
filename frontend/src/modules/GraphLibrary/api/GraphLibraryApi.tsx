@@ -51,6 +51,7 @@ export class GraphLibraryApi extends Api {
   static fetchLastWorkflowStatus(): Promise<
     Res<{
       active: boolean;
+      active_node_name: string;
       nodes_completed: number;
       nodes_total: number;
       run_duration: number;

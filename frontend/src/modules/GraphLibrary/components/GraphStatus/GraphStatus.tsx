@@ -10,8 +10,8 @@ import { GraphContextProvider, useGraphContext } from "../../context/GraphContex
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 const GraphStatus = () => {
-  const { setSelectedItemName } = useSelectionContext();
-  const { workflowGraphElements } = useGraphContext();
+  const { selectedItemName, setSelectedItemName } = useSelectionContext();
+  const { workflowGraphElements, lastRunInfo } = useGraphContext();
   const { setTrackLatest } = useGraphStatusContext();
   const { allMeasurements, fetchAllMeasurements } = useGraphStatusContext();
   const { result, fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
@@ -49,7 +49,11 @@ const GraphStatus = () => {
       <div className={styles.leftContainer}>
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
-            <MeasurementElementGraph workflowGraphElements={workflowGraphElements} onCytoscapeNodeClick={handleOnCytoscapeNodeClick} />
+            <MeasurementElementGraph
+              workflowGraphElements={workflowGraphElements}
+              onCytoscapeNodeClick={handleOnCytoscapeNodeClick}
+              lastRunInfo={lastRunInfo}
+            />
           )}
           <MeasurementHistory />
         </div>

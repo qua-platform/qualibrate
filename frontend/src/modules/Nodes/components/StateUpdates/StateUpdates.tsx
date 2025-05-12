@@ -5,7 +5,7 @@ import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import styles from "../RunningJob/RunningJob.module.scss";
 import { StateUpdateElement, StateUpdateProps } from "./StateUpdateElement";
 import { Button } from "@mui/material";
-import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
+// import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 export const StateUpdates: React.FC<{
@@ -73,7 +73,7 @@ export const StateUpdates: React.FC<{
             } as StateUpdateProps)
           )}
 
-          {runningNodeInfo?.error && <ErrorStatusWrapper error={runningNodeInfo?.error} />}
+          {/*{runningNodeInfo?.error && <ErrorStatusWrapper error={runningNodeInfo?.error} />}*/}
         </div>
       )}
     </>
