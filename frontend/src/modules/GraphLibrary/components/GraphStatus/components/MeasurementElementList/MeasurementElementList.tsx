@@ -1,12 +1,16 @@
 import React from "react";
-import { IMeasurementHistoryListProps } from "../MeasurementHistory/MeasurementHistory";
 import styles from "./MeasurementElementList.module.scss";
 import { MeasurementElement } from "../MeasurementElement/MeasurementElement";
+import { Measurement } from "../../context/GraphStatusContext";
 
-export const MeasurementElementList: React.FC<IMeasurementHistoryListProps> = ({ listOfMeasurements }) => {
+interface IMeasurementElementListProps {
+  listOfMeasurements: Measurement[];
+}
+
+export const MeasurementElementList: React.FC<IMeasurementElementListProps> = ({ listOfMeasurements }) => {
   return (
     <div className={styles.wrapper}>
-      {(listOfMeasurements ?? []).map((el, index) => (
+      {listOfMeasurements.map((el, index) => (
         <MeasurementElement
           element={el}
           key={`${el.id ?? el.metadata?.name ?? "-"}-${index}`}

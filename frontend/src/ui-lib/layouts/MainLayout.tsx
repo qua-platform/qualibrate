@@ -8,6 +8,8 @@ import QUAlibrateLogoIcon from "../Icons/QUAlibrateLogoIcon";
 import { useGlobalThemeContext } from "../../modules/themeModule/GlobalThemeContext";
 import TitleBarMenu from "../../modules/TopbarMenu/TitleBarMenu";
 import { TitleBarContextProvider } from "../../contexts/TitleBarMenuContext";
+import { RightSidePanelContextProvider } from "../../modules/RightSidebar/context/RightSidePanelContext";
+import { RightSidePanel } from "../../modules/RightSidebar/RightSidePanel";
 
 const EmptyPlaceholder = (
   <div className={styles.emptyPlaceholder}>
@@ -26,10 +28,21 @@ const MainLayout = ({ className, children }: Props) => {
     <div className={styles.wrapper}>
       <SidebarMenu />
       <div className={classNames(styles.content, pinSideMenu && styles.addLeftMargin, className)}>
-        <TitleBarContextProvider>
-          <TitleBarMenu />
-          {children ?? EmptyPlaceholder}
-        </TitleBarContextProvider>
+        <div className={styles.mainPageWrapper}>
+          <TitleBarContextProvider>
+            <div className={styles.pageWrapper}>
+              <div className={styles.pageWrapper1}>
+                <TitleBarMenu />
+                <div className={styles.pageWrapper}>
+                  <div className={styles.pageWrapper1}>{children ?? EmptyPlaceholder}</div>
+                  <RightSidePanelContextProvider>
+                    <RightSidePanel />
+                  </RightSidePanelContextProvider>
+                </div>
+              </div>
+            </div>
+          </TitleBarContextProvider>
+        </div>
       </div>
       <ToastComponent />
     </div>

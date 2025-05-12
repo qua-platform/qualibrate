@@ -1,0 +1,67 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 40px;
+  z-index: 9999;
+}
+
+.tabContainer {
+  border: 1px solid #42424C;
+  box-sizing: border-box;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+
+  span {
+    writing-mode: vertical-lr;
+    color: #2CCBE5;
+    font-family: Roboto, serif;
+    font-size: 16px;
+    font-weight: 500;
+  }
+}
+
+.tabContainerSelected {
+  border: 1px solid #42424C;
+  background: #28292F;
+}
+
+.tabContainer:hover {
+  border: 1px solid var(--border, #42424C);
+  background: #323339;
+}
+
+.sliderPanelWrapperLogger {
+  right: 40px;
+  position: fixed;
+  height: 95vh;
+  padding-bottom: 5px;
+  width: 500px;
+  background-color: #323339;
+  color: white;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  box-shadow: -2px 0 10px rgb(0 0 0 / 40%);
+  display: flex;
+  flex-direction: column;
+}
+
+.sliderPanelWrapper {
+  right: 40px;
+  position: fixed;
+  height: 95vh;
+  padding-bottom: 5px;
+  width: 500px;
+  background-color: #323339;
+  color: white;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+  box-shadow: -2px 0 10px rgb(0 0 0 / 40%);
+  display: flex;
+  flex-direction: column;
+}
