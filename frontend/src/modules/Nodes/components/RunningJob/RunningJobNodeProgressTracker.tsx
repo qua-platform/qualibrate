@@ -72,15 +72,11 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
           {isRunning && (
             <>
               <div className={styles.percentage}>{percentage}%</div>
-              <div className={styles.stopButton} onClick={handleStopClick}> <StopIcon /> </div>
+              <button className={styles.stopButton} onClick={handleStopClick}> <StopIcon /> </button>
             </>
           )}
-          {isFinished && (
-              <div className={styles.finishedText}>Finished <CheckmarkIcon height={38} width={38} /> </div>
-          )}          
-          {isError && (
-            <div className={styles.errorText}>Error<ErrorIcon height={32} width={32} /> </div>
-          )}
+          {isFinished && (<div className={styles.finishedText}>Finished <CheckmarkIcon height={38} width={38} /> </div>)}          
+          {isError && (<div className={styles.errorText}>Error<ErrorIcon height={32} width={32} /> </div>)}
         </div>
       </div>
       <div className={styles.loadingBarWrapper}>
