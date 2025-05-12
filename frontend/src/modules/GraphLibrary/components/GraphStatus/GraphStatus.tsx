@@ -59,7 +59,13 @@ const GraphStatus = () => {
         </div>
       </div>
       <div className={styles.rightContainer}>
-        <Results jsonObject={result} toggleSwitch={true} pageName={"graph-status"} style={{ height: "100%", flex: "0 1 auto" }} />
+        <Results
+          jsonObject={result}
+          toggleSwitch={true}
+          pageName={"graph-status"}
+          style={{ height: "100%", flex: "0 1 auto" }}
+          errorObject={selectedItemName === lastRunInfo?.activeNodeName ? lastRunInfo?.error : undefined}
+        />
         {/*<Results title={"QUAM Updates"} jsonObject={diffData} style={{ height: "35%" }} />*/}
       </div>
     </div>
