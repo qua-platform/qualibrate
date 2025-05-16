@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-core"
-version = "0.3.1"
+version = "0.3.2"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 readme = "README.md"
@@ -16,7 +16,7 @@ types-networkx = "~3.2.1.20240918"
 datamodel-code-generator = "^0.26.3"
 matplotlib = "^3.9.4"
 python-json-logger = "^3.2.1"
-qualibrate-config = "^0.1.4"
+qualibrate-config = "^0.1.5"
 
 
 [tool.poetry.group.test.dependencies]
