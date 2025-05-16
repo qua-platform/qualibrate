@@ -1877,6 +1877,24 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "python-json-logger"
+version = "3.3.0"
+description = "JSON Log Formatter for the Python Logging Package"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "python_json_logger-3.3.0-py3-none-any.whl", hash = "sha256:dd980fae8cffb24c13caf6e158d3d61c0d6d22342f932cb6e9deedab3d35eec7"},
+    {file = "python_json_logger-3.3.0.tar.gz", hash = "sha256:12b7e74b17775e7d565129296105bbe3910842d9d0eb083fc83a6a617aa8df84"},
+]
+
+[package.dependencies]
+typing_extensions = {version = "*", markers = "python_version < \"3.10\""}
+
+[package.extras]
+dev = ["backports.zoneinfo", "black", "build", "freezegun", "mdx_truly_sane_lists", "mike", "mkdocs", "mkdocs-awesome-pages-plugin", "mkdocs-gen-files", "mkdocs-literate-nav", "mkdocs-material (>=8.5)", "mkdocstrings[python]", "msgspec", "mypy", "orjson", "pylint", "pytest", "tzdata", "validate-pyproject[all]"]
+
+[[package]]
 name = "pyyaml"
 version = "6.0.2"
 description = "YAML parser and emitter for Python"
@@ -2026,14 +2044,14 @@ two-qubit-rb = ["cirq (==1.2.0)", "tqdm (>=4.67.1,<5.0.0)", "xarray (>=2023.0.0,
 
 [[package]]
 name = "qualibrate-config"
-version = "0.1.4"
+version = "0.1.5"
 description = "Configuration for Qualibrate"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_config-0.1.4-py3-none-any.whl", hash = "sha256:4db3cbab92cd5abc59623b3dfa88c7e4361b3142a9dd37b23abe2642e679e782"},
-    {file = "qualibrate_config-0.1.4.tar.gz", hash = "sha256:c8b00f9249f7aab9ecb6d5115fc43e3c3b2f56b77ae48e843a9212cb106be978"},
+    {file = "qualibrate_config-0.1.5-py3-none-any.whl", hash = "sha256:b63eefdf05bb4b1810a24dec4bf3fb4456cf19bb9dcfdcb7e3c3ac16f6893ad0"},
+    {file = "qualibrate_config-0.1.5.tar.gz", hash = "sha256:17625093bbef601ea4aff19f69a7e6cd995f89d443ce93830e50231846a1954a"},
 ]
 
 [package.dependencies]
@@ -2046,14 +2064,14 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.3.1"
+version = "0.3.2"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_core-0.3.1-py3-none-any.whl", hash = "sha256:6b2c19096b2e4ccda78110f865066fefec3f7827e3db2030d33227df6afed40f"},
-    {file = "qualibrate_core-0.3.1.tar.gz", hash = "sha256:a5bbd7c6b8a5441f5668e666b39e48757f00fa1b64bb2c0c8561dcd7db29b6ef"},
+    {file = "qualibrate_core-0.3.2-py3-none-any.whl", hash = "sha256:084584d535cd0f505460ea8a2d57564e170c13538e9db6b6a0a6e5afa9876e56"},
+    {file = "qualibrate_core-0.3.2.tar.gz", hash = "sha256:c11530f895fe7f67483e1f443688f2a3f4dccf656915cfbe216fedd3556cf359"},
 ]
 
 [package.dependencies]
@@ -2062,8 +2080,9 @@ jsonpointer = ">=3.0.0,<4.0.0"
 matplotlib = ">=3.9.4,<4.0.0"
 networkx = ">=3.2.0,<3.3.0"
 pydantic = ">=2.9.2,<3.0.0"
+python-json-logger = ">=3.2.1,<4.0.0"
 qualang-tools = {version = ">=0.18.2", markers = "python_version >= \"3.9\" and python_version < \"3.13\""}
-qualibrate-config = ">=0.1.4,<0.2.0"
+qualibrate-config = ">=0.1.5,<0.2.0"
 types-networkx = ">=3.2.1.20240918,<3.3.0.0"
 
 [[package]]
@@ -2432,4 +2451,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.13"
-content-hash = "b1fd077170beb054a66f371459a905d8c8da125d48f41fe3f4dd427f98110899"
+content-hash = "0381c7435689ac047da567c896516d4524efabf9578a280520981a79fe582fec"
