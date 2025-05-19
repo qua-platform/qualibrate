@@ -50,7 +50,7 @@ def run_node(
     idx = -1
     run_error = None
     try:
-        node.run(**passed_input_parameters)
+        node.run(interactive=True, **passed_input_parameters)
     except Exception as ex:
         run_status = RunStatusEnum.ERROR
         run_error = RunError(
