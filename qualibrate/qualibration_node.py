@@ -558,7 +558,7 @@ class QualibrationNode(
 
     def run(
         self,
-        interactive: bool = True,
+        interactive: bool = False,
         *,
         skip_actions: Union[bool, Sequence[str]] = False,
         **passed_parameters: Any,
