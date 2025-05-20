@@ -1,23 +1,25 @@
 from collections import UserDict, UserList
-from typing import TYPE_CHECKING, Any, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Optional, TypeVar, Union
+
+import jsonpatch
+import jsonpointer
+from quam.utils import string_reference
 
 from qualibrate.parameters import NodeParameters
-from qualibrate.utils.type_protocols import (
-    GetRefGetItemProtocol,
-    GetRefProtocol,
-)
+from qualibrate.utils.logger_m import logger
+from qualibrate.utils.type_protocols import MachineProtocol
 
 if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
 
-
 __all__ = [
-    "record_state_update_getattr",
-    "record_state_update_getitem",
+    "record_state_update",
+    "update_machine_attribute",
+    "update_node_machine",
 ]
 
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
-MachineType = TypeVar("MachineType")
+MachineType = TypeVar("MachineType", bound=MachineProtocol)
 
 
 def _record_state_update(
@@ -57,11 +59,12 @@ def _record_state_update(
     }
 
 
-def record_state_update_getattr(
-    quam_obj: GetRefProtocol,
+def record_state_update(
+    node: "QualibrationNode[ParametersType, MachineType]",
+    reference: str,
     attr: str,
+    old: Any,
     val: Any = None,
-    node: Optional["QualibrationNode[ParametersType, MachineType]"] = None,
 ) -> None:
     """
     Records item state updates in a Quam collection object.
@@ -69,35 +72,73 @@ def record_state_update_getattr(
     For details see `_record_state_update`.
 
     Args:
-        quam_obj: The Quam object whose attribute is updated.
+        node: The node where the state update will be recorded. Defaults to
+            None.
         attr: The name of the attribute being updated.
-        val: The new value of the attribute. Defaults to None.
-        node: The node where the state update will be recorded. Defaults to
-            None.
+        old: The old value of the attribute or item.
+        val: The new value of the attribute or item. Defaults to None.
     """
-    _record_state_update(
-        node, quam_obj.get_reference(attr), attr, getattr(quam_obj, attr), val
+    _record_state_update(node, reference, attr, old, val)
+
+
+def update_machine_attribute(
+    machine: MachineType,
+    quam_path: str,
+    old_value: Any,
+) -> Union[str, int]:
+    ref_path, str_key = string_reference.split_reference(quam_path)
+    try:
+        key = int(str_key)
+    except ValueError:
+        key = str_key
+    referenced_value = string_reference.get_referenced_value(
+        machine, ref_path, root=machine.get_root()
     )
+    if isinstance(referenced_value, (list, UserList)) and isinstance(key, int):
+        referenced_value[key] = old_value
+        return key
+    if isinstance(referenced_value, (dict, UserDict)):
+        if str_key in referenced_value:
+            referenced_value[str_key] = old_value
+            return str(str_key)
+        if key in referenced_value:
+            referenced_value[key] = old_value
+            return key
+    setattr(referenced_value, str_key, old_value)
+    return key
 
 
-def record_state_update_getitem(
-    quam_obj: GetRefGetItemProtocol,
-    attr: str,
-    val: Any = None,
-    node: Optional["QualibrationNode[ParametersType, MachineType]"] = None,
+def update_node_machine(
+    node: "QualibrationNode[ParametersType, MachineType]",
+    original_dict: dict[str, Any],
+    updated_dict: dict[str, Any],
 ) -> None:
-    """
-    Records item state updates in a Quam collection object.
-
-    For details see `_record_state_update`.
-
-    Args:
-        quam_obj: The Quam object whose item is being updated.
-        attr: The key/index of the item being updated.
-        val: The new value of the item. Defaults to None.
-        node: The node where the state update will be recorded. Defaults to
-            None.
-    """
-    _record_state_update(
-        node, quam_obj.get_reference(attr), attr, quam_obj[attr], val
+    if node.machine is None:
+        return
+    patches: jsonpatch.JsonPatch = jsonpatch.make_patch(
+        original_dict, updated_dict
     )
+    for patch in patches.patch:
+        if patch["op"] != "replace":
+            continue
+        path_ptr = jsonpointer.JsonPointer(patch["path"])
+        try:
+            old_value = jsonpointer.resolve_pointer(
+                original_dict, path_ptr.path
+            )
+        except jsonpointer.JsonPointerException as ex:
+            logger.exception(ex)
+            continue
+        if string_reference.is_reference(
+            old_value
+        ) or string_reference.is_reference(patch["value"]):
+            continue
+        quam_path = f"#{path_ptr.path}"
+        attr = update_machine_attribute(node.machine, quam_path, old_value)
+        record_state_update(
+            node=node,
+            reference=quam_path,
+            attr=str(attr),
+            old=old_value,
+            val=patch["value"],
+        )

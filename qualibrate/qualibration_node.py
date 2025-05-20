@@ -5,7 +5,6 @@ import traceback
 from collections.abc import Generator, Mapping, Sequence
 from contextlib import contextmanager
 from datetime import datetime
-from functools import partialmethod
 from pathlib import Path
 from typing import (
     Any,
@@ -15,8 +14,6 @@ from typing import (
     Union,
     cast,
 )
-
-from qualibrate.runnables.runnable_collection import RunnableCollection
 
 if sys.version_info < (3, 11):
     from typing_extensions import Self
@@ -51,6 +48,7 @@ from qualibrate.runnables.run_action.action_manager import (
     ActionDecoratorType,
     ActionManager,
 )
+from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
@@ -69,12 +67,9 @@ from qualibrate.utils.node.loaders.base_loader import BaseLoader
 from qualibrate.utils.node.path_solver import (
     get_node_dir_path,
 )
-from qualibrate.utils.node.record_state_update import (
-    record_state_update_getattr,
-    record_state_update_getitem,
-)
+from qualibrate.utils.node.record_state_update import update_node_machine
 from qualibrate.utils.read_files import get_module_name, import_from_path
-from qualibrate.utils.type_protocols import TargetType
+from qualibrate.utils.type_protocols import MachineProtocol, TargetType
 
 __all__ = [
     "QualibrationNode",
@@ -85,7 +80,7 @@ __all__ = [
 NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
-MachineType = TypeVar("MachineType")
+MachineType = TypeVar("MachineType", bound=MachineProtocol)
 
 
 class QualibrationNode(
@@ -713,58 +708,20 @@ class QualibrationNode(
             None: Allows wrapped operations to execute while recording state
                 updates.
         """
-        if not self.modes.interactive and interactive_only:
+        machine = self.machine
+        if (
+            (not self.modes.interactive and interactive_only)
+            or machine is None
+            or not hasattr(machine, "to_dict")
+        ):
             yield
             return
 
         logger.debug(f"Init recording state updates for node {self.name}")
-        # Override QuamComponent.__setattr__()
-        try:
-            from quam.core import (
-                QuamBase,
-                QuamComponent,
-                QuamDict,
-                QuamList,
-                QuamRoot,
-            )
-        except ImportError as ex:
-            print(ex)
-            yield
-            return
-
-        quam_classes_mapping = (
-            QuamBase,
-            QuamComponent,
-            QuamRoot,
-            QuamDict,
-        )
-        quam_classes_sequences = (QuamList, QuamDict)
-
-        cls_setattr_funcs = {
-            cls: cls.__dict__["__setattr__"]
-            for cls in quam_classes_mapping
-            if "__setattr__" in cls.__dict__
-        }
-        cls_setitem_funcs = {
-            cls: cls.__dict__["__setitem__"]
-            for cls in quam_classes_sequences
-            if "__setitem__" in cls.__dict__
-        }
-        try:
-            for cls in cls_setattr_funcs:
-                cls.__setattr__ = partialmethod(
-                    record_state_update_getattr, node=self
-                )
-            for cls in cls_setitem_funcs:
-                cls.__setitem__ = partialmethod(
-                    record_state_update_getitem, node=self
-                )
-            yield
-        finally:
-            for cls, setattr_func in cls_setattr_funcs.items():
-                cls.__setattr__ = setattr_func
-            for cls, setitem_func in cls_setitem_funcs.items():
-                cls.__setitem__ = setitem_func
+        original_dict = machine.to_dict()
+        yield
+        updated_dict = machine.to_dict()
+        update_node_machine(self, original_dict, updated_dict)
 
     @classmethod
     def scan_folder_for_instances(

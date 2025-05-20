@@ -451,6 +451,7 @@ class TestQualibrationNode:
 
     def test_record_state_updates(self, node, machine):
         channel = machine.channels["ch1"]
+        node.machine = machine
         assert channel.intermediate_frequency == 100e6
 
         with node.record_state_updates(interactive_only=False):
