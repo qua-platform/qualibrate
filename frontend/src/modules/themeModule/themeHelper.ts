@@ -4,8 +4,8 @@ import diffColors from "./diffColors";
 export const DARK = "dark";
 export const LIGHT = "light";
 
-import "prismjs/themes/prism.css";
-import "prism-color-variables/variables.css";
+// import "prismjs/themes/prism.css";
+// import "prism-color-variables/variables.css";
 export type Theme = "dark" | "light";
 
 export function updateColorTheme(): void {
