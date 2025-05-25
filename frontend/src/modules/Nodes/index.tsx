@@ -43,9 +43,7 @@ export const NodesPage = () => {
 };
 
 export default () => (
-  <NodesContextProvider>
     <SelectionContextProvider>
       <NodesPage />
     </SelectionContextProvider>
-  </NodesContextProvider>
 );

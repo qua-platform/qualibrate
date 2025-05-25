@@ -19,7 +19,6 @@ export interface LastRunStatusNodeResponseDTO {
 
 const TitleBarMenu: React.FC = () => {
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
-  // TODO: not working yet in progress still 
   const { lastRunStatusNode } = useNodesContext();
 
   return (

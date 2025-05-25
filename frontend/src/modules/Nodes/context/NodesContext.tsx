@@ -88,7 +88,7 @@ const NodesContext = React.createContext<INodesContext>({
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
 
 interface NodesContextProviderProps {
-  children: React.JSX.Element;
+  children?: React.ReactNode;
 }
 
 export interface StatusResponseType {
