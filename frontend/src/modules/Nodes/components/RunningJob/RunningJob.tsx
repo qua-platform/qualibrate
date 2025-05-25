@@ -13,24 +13,12 @@ export const RunningJob: React.FC = () => {
     setRunningNodeInfo,
     updateAllButtonPressed,
     setUpdateAllButtonPressed,
+    lastRunStatusNode,
   } = useNodesContext();
-
-  const [hasRun, setHasRun] = useState(false);
-
-  useEffect(() => {
-    const checkHasRun = async () => {
-      const res = await NodesApi.fetchLastRunStatusInfo();
-      if (res.isOk && res.result?.node?.status !== "pending") {
-        setHasRun(true);
-      }
-    };
-
-    checkHasRun();
-  }, []);
 
   return (
     <div className={styles.wrapper} data-testid="running-job-wrapper">
-      {hasRun && <RunningJobNodeProgressTracker />}
+      {lastRunStatusNode?.status !== "pending" && <RunningJobNodeProgressTracker />}
       <div className={styles.parameterStatesWrapper}>
         <div className={styles.parameterColumnWrapper}>
           <RunningJobParameters />

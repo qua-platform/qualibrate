@@ -5,6 +5,7 @@ import { NodesApi } from "../api/NodesAPI";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 import { formatDateTime } from "../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
+import { LastRunStatusNodeResponseDTO } from "../../TopbarMenu/TitleBarMenu";
 
 export interface StateUpdateObject {
   key?: string | number;
@@ -58,6 +59,8 @@ interface INodesContext {
   setIsAllStatusesUpdated: (value: boolean) => void;
   updateAllButtonPressed: boolean;
   setUpdateAllButtonPressed: (a: boolean) => void;
+  lastRunStatusNode: LastRunStatusNodeResponseDTO | null;
+  setLastRunStatusNode: (node: LastRunStatusNodeResponseDTO | null) => void;
 }
 
 const NodesContext = React.createContext<INodesContext>({
@@ -78,6 +81,8 @@ const NodesContext = React.createContext<INodesContext>({
   setIsAllStatusesUpdated: noop,
   updateAllButtonPressed: false,
   setUpdateAllButtonPressed: noop,
+  lastRunStatusNode: null,
+  setLastRunStatusNode: () => {},
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
@@ -116,6 +121,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const [submitNodeResponseError, setSubmitNodeResponseError] = useState<ResponseStatusError | undefined>(undefined);
   const [isAllStatusesUpdated, setIsAllStatusesUpdated] = useState<boolean>(false);
   const [updateAllButtonPressed, setUpdateAllButtonPressed] = useState<boolean>(false);
+  const [lastRunStatusNode, setLastRunStatusNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
 
   const fetchAllNodes = async () => {
     const response = await NodesApi.fetchAllNodes();
@@ -266,8 +272,22 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
       setIsNodeRunning(response.result as boolean);
     }
   };
+
+  const fetchStatus = async () => {
+    const res = await NodesApi.fetchLastRunStatusInfo();
+    if (res.isOk && res.result?.node) {
+      console.log("checksetLastRunStatusNode", res.result);
+      setLastRunStatusNode(res.result.node);
+    }
+  };
+
   useEffect(() => {
-    const checkInterval = setInterval(async () => checkIfNodeIsStillRunning(), 500);
+    const checkInterval = setInterval(() => {
+      (async () => {
+        await checkIfNodeIsStillRunning();
+        await fetchStatus();
+      })();
+    }, 500);
     return () => clearInterval(checkInterval);
   }, []);
 
@@ -291,6 +311,8 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         setIsAllStatusesUpdated,
         updateAllButtonPressed,
         setUpdateAllButtonPressed,
+        lastRunStatusNode,
+        setLastRunStatusNode,
       }}
     >
       {props.children}

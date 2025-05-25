@@ -11,26 +11,7 @@ import { NodesApi } from "../../api/NodesAPI";
 import { useNodesContext } from "../../context/NodesContext";
 
 export const RunningJobNodeProgressTracker: React.FC = () => {
-  const [percentage, setPercentage] = useState(0);
-  const [status, setStatus] = useState("");
-  const [nodeName, setNodeName] = useState("");
-  const { setIsNodeRunning } = useNodesContext();
-
-  useEffect(() => {
-    const fetchNodeInfo = async () => {
-      const res = await NodesApi.fetchLastRunStatusInfo();
-      if (res.isOk && res.result?.node) {
-        const node = res.result.node;
-        setPercentage(Math.round(node.percentage_complete ?? 0));
-        setStatus(node.status?.toLowerCase() ?? "");
-        setNodeName(node.name ?? "");
-      }
-    };
-
-    fetchNodeInfo();
-    const interval = setInterval(fetchNodeInfo, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const { setIsNodeRunning, lastRunStatusNode } = useNodesContext();
 
   const handleStopClick = async () => {
     const res = await SnapshotsApi.stopNodeRunning();
@@ -42,14 +23,14 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
     }
   };
 
-  const isRunning = status === "running";
-  const isFinished = status === "finished";
-  const isError = status === "error";
+  const isRunning = lastRunStatusNode?.status === "running";
+  const isFinished = lastRunStatusNode?.status === "finished";
+  const isError = lastRunStatusNode?.status === "error";
   
   let dotElement = null;
   let barColor = "#3CDEF8";
   if (isRunning) {
-    dotElement = <CircularLoaderProgress percentage={percentage} />;
+    dotElement = <CircularLoaderProgress percentage={(Math.round(lastRunStatusNode?.percentage_complete ?? 0))} />;
   } else if (isFinished) {
     dotElement = <div className={styles.greenDot}></div>;
     barColor = "#00D59A";
@@ -62,16 +43,16 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
     <div className={styles.jobInfoContainer}>
       <div className={styles.topRow}>
         <div className={styles.leftStatus}>
-          {isRunning && <CircularLoaderProgress percentage={percentage} />}
+          {isRunning && <CircularLoaderProgress percentage={(Math.round(lastRunStatusNode?.percentage_complete ?? 0))} />}
           {!isRunning && dotElement}
           <div className={styles.nodeText}>
-            Node: <span className={styles.nodeName}>{nodeName}</span>
+            Node: <span className={styles.nodeName}>{lastRunStatusNode?.name}</span>
           </div>
         </div>
         <div className={styles.rightStatus}>
           {isRunning && (
             <>
-              <div className={styles.percentage}>{percentage}%</div>
+              <div className={styles.percentage}>{(Math.round(lastRunStatusNode?.percentage_complete ?? 0))}%</div>
               <button className={styles.stopButton} onClick={handleStopClick}> <StopIcon /> </button>
             </>
           )}
@@ -81,7 +62,7 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
       </div>
       <div className={styles.loadingBarWrapper}>
         <LoadingBar
-          percentage={percentage}
+          percentage={(Math.round(lastRunStatusNode?.percentage_complete ?? 0))}
           progressColor={barColor}
         />
       </div>

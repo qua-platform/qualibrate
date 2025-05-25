@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styles from "./styles/TitleBarMenu.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import TitleBarMenuCard from "./TitleBarMenuCard";
-import { NodesApi } from "../Nodes/api/NodesAPI";
+import { useNodesContext } from "../Nodes/context/NodesContext";
 
 export interface LastRunStatusNodeResponseDTO {
   status: string;
@@ -19,19 +19,8 @@ export interface LastRunStatusNodeResponseDTO {
 
 const TitleBarMenu: React.FC = () => {
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
-  const [node, setNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
-
-  const fetchStatus = async () => {
-    const res = await NodesApi.fetchLastRunStatusInfo();
-    if (res.isOk && res.result?.node) {
-      setNode(res.result.node);
-    }
-  };
-
-  useEffect(() => {
-    const interval = setInterval(async () => fetchStatus(), 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // TODO: not working yet in progress still 
+  const { lastRunStatusNode } = useNodesContext();
 
   return (
     <div className={styles.wrapper}>
@@ -41,7 +30,7 @@ const TitleBarMenu: React.FC = () => {
       <div className={styles.menuCardsWrapper}>
         <TitleBarMenuCard
           node={
-            node ?? {
+            lastRunStatusNode ?? {
               status: "pending",
               run_start: "",
               run_duration: 0,
