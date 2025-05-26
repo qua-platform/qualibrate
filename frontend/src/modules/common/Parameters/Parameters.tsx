@@ -5,6 +5,8 @@ import { NodeDTO } from "../../Nodes/components/NodeElement/NodeElement";
 import { ArrowIcon } from "../../../ui-lib/Icons/ArrowIcon";
 import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
 import { useGraphContext } from "../../GraphLibrary/context/GraphContext";
+import Tooltip from "@mui/material/Tooltip";
+import { InfoIcon } from "../../../ui-lib/Icons/InfoIcon";
 
 interface IProps {
   parametersExpanded?: boolean;
@@ -34,7 +36,7 @@ export const Parameters: React.FC<IProps> = ({
   getInputElement,
 }) => {
   const { selectedNodeNameInWorkflow } = useGraphContext();
-  const [expanded, setExpanded] = React.useState<boolean>(selectedNodeNameInWorkflow === title ?? parametersExpanded);
+  const [expanded, setExpanded] = React.useState<boolean>(selectedNodeNameInWorkflow === title || parametersExpanded);
 
   useEffect(() => {
     if (selectedNodeNameInWorkflow === title) {
@@ -65,7 +67,22 @@ export const Parameters: React.FC<IProps> = ({
             return (
               <div key={key} className={styles.parameterValues} data-testid={`parameter-values-${key}`}>
                 <div className={styles.parameterLabel}>{parameter.title}:</div>
-                <div className={styles.parameterValue} data-testid="parameter-value">{getInputElement(key, parameter, currentItem)}</div>
+                <div className={styles.parameterValue} data-testid="parameter-value">
+                  {getInputElement(key, parameter, currentItem)}
+                </div>
+                <div className={styles.descriptionWrapper}>
+                  {currentItem?.description && (
+                    <Tooltip
+                      title={<div className={styles.descriptionTooltip}>{currentItem?.description} </div>}
+                      placement="left-start"
+                      arrow
+                    >
+                      <span>
+                        <InfoIcon />
+                      </span>
+                    </Tooltip>
+                  )}
+                </div>
               </div>
             );
           }
