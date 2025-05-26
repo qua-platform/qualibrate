@@ -36,6 +36,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }) => {
   // 3. Select a Calibration Node
   // Click the test_cal node.
   await page.getByTestId("node-element-test_cal").click();
+  await page.waitForTimeout(1000);
   // Check that the test_cal node is runnable by containing a green dot.
   await expect(page.getByTestId("dot-wrapper-test_cal")).toBeVisible();
   // Check that the 3 different labels exist
