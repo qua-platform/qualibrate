@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
 import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgress";
@@ -9,6 +9,7 @@ import ErrorIcon from "../../../../ui-lib/Icons/ErrorIcon";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { NodesApi } from "../../api/NodesAPI";
 import { useNodesContext } from "../../context/NodesContext";
+import { classNames } from "../../../../utils/classnames";
 
 export const RunningJobNodeProgressTracker: React.FC = () => {
   const { setIsNodeRunning, lastRunStatusNode } = useNodesContext();
@@ -23,47 +24,51 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
     }
   };
 
-  const isRunning = lastRunStatusNode?.status === "running";
-  const isFinished = lastRunStatusNode?.status === "finished";
-  const isError = lastRunStatusNode?.status === "error";
-  
-  let dotElement = null;
-  let barColor = "#3CDEF8";
-  if (isRunning) {
-    dotElement = <CircularLoaderProgress percentage={(Math.round(lastRunStatusNode?.percentage_complete ?? 0))} />;
-  } else if (isFinished) {
-    dotElement = <div className={styles.greenDot}></div>;
-    barColor = "#00D59A";
-  } else if (isError) {
-    dotElement = <div className={styles.redDot}></div>;
-    barColor = "#FF6173";
-  }
+  const statusClassMap: Record<string, string> = {
+    finished: styles.greenDot,
+    error:    styles.redDot,
+    pending:  styles.greyDot,
+  };
+
+  const barColorMap: Record<string, string> = {
+    running:  "#3CDEF8",
+    finished: "#00D59A",
+    error:    "#FF6173",
+    pending:  "#3CDEF8",
+  };
+
+  const dotElement = lastRunStatusNode?.status === "running"
+    ? <CircularLoaderProgress percentage={Math.round(lastRunStatusNode?.percentage_complete ?? 0)} />
+    : <div className={classNames(styles.statusDot, statusClassMap[lastRunStatusNode?.status ?? "pending"])} />;
 
   return (
     <div className={styles.jobInfoContainer}>
       <div className={styles.topRow}>
         <div className={styles.leftStatus}>
-          {isRunning && <CircularLoaderProgress percentage={(Math.round(lastRunStatusNode?.percentage_complete ?? 0))} />}
-          {!isRunning && dotElement}
+          {dotElement}
           <div className={styles.nodeText}>
             Node: <span className={styles.nodeName}>{lastRunStatusNode?.name}</span>
           </div>
         </div>
         <div className={styles.rightStatus}>
-          {isRunning && (
+          {lastRunStatusNode?.status === "running" && (
             <>
-              <div className={styles.percentage}>{(Math.round(lastRunStatusNode?.percentage_complete ?? 0))}%</div>
-              <button className={styles.stopButton} onClick={handleStopClick}> <StopIcon /> </button>
+              <div className={styles.percentage}>{Math.round(lastRunStatusNode?.percentage_complete ?? 0)}%</div>
+              <button className={styles.stopButton} onClick={handleStopClick} title="Stop Node"> <StopIcon /> </button>
             </>
           )}
-          {isFinished && (<div className={styles.finishedText}>Finished <CheckmarkIcon height={38} width={38} /> </div>)}          
-          {isError && (<div className={styles.errorText}>Error<ErrorIcon height={32} width={32} /> </div>)}
+          {lastRunStatusNode?.status === "finished" && (
+            <div className={styles.finishedText}>Finished <CheckmarkIcon height={38} width={38} /> </div>
+          )}
+          {lastRunStatusNode?.status === "error" && (
+            <div className={styles.errorText}>Error <ErrorIcon height={32} width={32} /> </div>
+          )}
         </div>
       </div>
       <div className={styles.loadingBarWrapper}>
         <LoadingBar
-          percentage={(Math.round(lastRunStatusNode?.percentage_complete ?? 0))}
-          progressColor={barColor}
+          percentage={Math.round(lastRunStatusNode?.percentage_complete ?? 0)} 
+          progressColor={barColorMap[lastRunStatusNode?.status ?? "pending"]} 
         />
       </div>
     </div>

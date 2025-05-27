@@ -46,6 +46,14 @@
   display: inline-block;
 }
 
+.greyDot {
+  width: 12px;
+  height: 12px;
+  background-color: #A5ACB6;
+  border-radius: 50%;
+  display: inline-block;
+}
+
 .stopButtonContainer {
   display: flex;
   flex: 1;
@@ -474,10 +482,6 @@ input:focus {
 
 .finishedText {
   color: #32FFC6;
-  font-family: Roboto, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: normal;
   opacity: 0.6;
   display: flex;
   align-items: center;
@@ -486,11 +490,6 @@ input:focus {
 
 .errorText {
   color: #FF6173;
-  font-family: Roboto, sans-serif;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
   opacity: 0.6;
   display: flex;
   align-items: center;
