@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { NodesContextProvider, useNodesContext } from "./context/NodesContext";
+import { useEffect } from "react";
+import { useNodesContext } from "./context/NodesContext";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../Nodes/NodesPage.module.scss";
 import { NodeElementList } from "./components/NodeElement/NodeElementList";

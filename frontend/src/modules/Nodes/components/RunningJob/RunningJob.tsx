@@ -1,11 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
 import { useNodesContext } from "../../context/NodesContext";
 import { StateUpdates } from "../StateUpdates/StateUpdates";
 import { RunningJobNodeProgressTracker } from "./RunningJobNodeProgressTracker";
 import { RunningJobParameters } from "./RunningJobParameters";
-import { NodesApi } from "../../api/NodesAPI";
 
 export const RunningJob: React.FC = () => {
   const {

@@ -39,7 +39,7 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
 
   const dotElement = lastRunStatusNode?.status === "running"
     ? <CircularLoaderProgress percentage={Math.round(lastRunStatusNode?.percentage_complete ?? 0)} />
-    : <div className={classNames(styles.statusDot, statusClassMap[lastRunStatusNode?.status ?? "pending"])} />;
+    : <div className={classNames(statusClassMap[lastRunStatusNode?.status ?? "pending"])} />;
 
   return (
     <div className={styles.jobInfoContainer}>
