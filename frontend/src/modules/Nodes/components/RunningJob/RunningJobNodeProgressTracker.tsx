@@ -2,7 +2,7 @@ import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
 import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgress";
-import LoadingBar from "../../../../ui-lib/Icons/LoadingBar";
+import LoadingBar from "../../../../ui-lib/components/Bar/LoadingBar";
 import { StopIcon } from "../../../../ui-lib/Icons/StopIcon";
 import CheckmarkIcon from "../../../../ui-lib/Icons/CheckmarkIcon";
 import ErrorIcon from "../../../../ui-lib/Icons/ErrorIcon";
@@ -61,7 +61,7 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
             <div className={styles.finishedText}>Finished <CheckmarkIcon height={38} width={38} /> </div>
           )}
           {lastRunStatusNode?.status === "error" && (
-            <div className={styles.errorText}>Error <ErrorIcon height={32} width={32} /> </div>
+            <div className={styles.errorText}>Error <ErrorIcon height={30} width={30} /> </div>
           )}
         </div>
       </div>
