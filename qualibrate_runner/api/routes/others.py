@@ -17,7 +17,7 @@ from qualibrate_runner.utils.logs_parser import (
 others_router = APIRouter()
 
 
-@others_router.get("/is_running")
+@others_router.get("/is_running", deprecated=True)
 def check_running(
     state: Annotated[State, Depends(get_state)],
 ) -> bool:

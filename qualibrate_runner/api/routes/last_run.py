@@ -36,6 +36,7 @@ The last run if available, `None` otherwise.
 
 {get_model_docstring(LastRun)}
 """,
+    deprecated=True,
 )
 def get_last_run(
     state: Annotated[State, Depends(get_state)],
@@ -66,6 +67,7 @@ Workflow status if active/last run item is workflow, `None` otherwise.
 
 {get_model_docstring(WorkflowStatus)}
 """,
+    deprecated=True,
 )
 def get_workflow_status(
     state: Annotated[State, Depends(get_state)],
