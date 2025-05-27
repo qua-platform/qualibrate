@@ -11,7 +11,10 @@ from qualibrate_runner.core.models.active_run import RunStatus
 from qualibrate_runner.core.models.enums import RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
 from qualibrate_runner.core.models.workflow import WorkflowStatus
-from qualibrate_runner.core.statuses import get_run_status
+from qualibrate_runner.core.statuses import (
+    get_graph_execution_history,
+    get_run_status,
+)
 from qualibrate_runner.core.types import QGraphType
 
 last_run_router = APIRouter(prefix="/last_run")
@@ -90,13 +93,4 @@ def get_execution_history(
     state: Annotated[State, Depends(get_state)],
     reverse: bool = False,
 ) -> Optional[ExecutionHistory]:
-    if not isinstance(state.run_item, QualibrationGraph):
-        return None
-    graph: QGraphType = state.run_item
-    orch = graph._orchestrator
-    if orch is None:
-        raise RuntimeError("No graph orchestrator")
-    history: ExecutionHistory = orch.get_execution_history()
-    if reverse:
-        history.items = list(reversed(history.items))
-    return history
+    return get_graph_execution_history(state, reverse)

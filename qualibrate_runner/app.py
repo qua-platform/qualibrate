@@ -2,10 +2,12 @@ import uvicorn
 from fastapi import FastAPI
 
 from qualibrate_runner.api.routes import base_router
+from qualibrate_runner.api.sockets import base_ws_router
 from qualibrate_runner.core.app.lifespan import app_lifespan
 
 app = FastAPI(lifespan=app_lifespan)
 app.include_router(base_router)
+app.include_router(base_ws_router)
 
 
 def main(port: int, reload: bool) -> None:
