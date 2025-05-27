@@ -1,6 +1,7 @@
 from typing import Optional
 
 from qualibrate import QualibrationGraph, QualibrationNode
+from qualibrate.models.execution_history import ExecutionHistory
 
 from qualibrate_runner.config import State
 from qualibrate_runner.core.models.active_run import (
@@ -10,9 +11,15 @@ from qualibrate_runner.core.models.active_run import (
 )
 from qualibrate_runner.core.models.enums import RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
+from qualibrate_runner.core.models.run_results import RunResults
 from qualibrate_runner.core.types import QGraphType, QNodeType
 
-__all__ = ["get_run_status"]
+__all__ = [
+    "get_graph_and_node_run_status",
+    "get_graph_execution_history",
+    "get_node_run_status",
+    "get_run_status",
+]
 
 
 def get_node_status_enum(
@@ -34,12 +41,19 @@ def get_node_run_status(
 ) -> RunStatusNode:
     return RunStatusNode(
         name=node.name,
+        description=node.description,
+        parameters=node.parameters.model_dump(mode="json"),
         id=node.snapshot_idx or last_run.idx,
         status=get_node_status_enum(last_run, node, graph),
         run_start=node.run_start,
         current_action=node.current_action_name,
         run_end=last_run.completed_at,
         percentage_complete=node.fraction_complete * 100,
+        run_results=(
+            RunResults.model_validate(node.run_summary.model_dump())
+            if node.run_summary
+            else None
+        ),
     )
 
 
@@ -48,11 +62,18 @@ def get_graph_and_node_run_status(
 ) -> tuple[RunStatusGraph, Optional[RunStatusNode]]:
     graph_status = RunStatusGraph(
         name=graph.name,
+        description=graph.description,
+        parameters=graph.full_parameters.model_dump(mode="json"),
+        status=last_run.status,
         run_start=graph.run_start,
         run_end=last_run.completed_at,
-        status=last_run.status,
         finished_nodes=graph.completed_count(),
         total_nodes=len(graph._nodes),
+        run_results=(
+            RunResults.model_validate(graph.run_summary.model_dump())
+            if graph.run_summary
+            else None
+        ),
     )
     orchestrator = graph._orchestrator
     execution_history = (
@@ -63,6 +84,8 @@ def get_graph_and_node_run_status(
     node_hist = execution_history[-1]
     node_status = RunStatusNode(
         name=node_hist.metadata.name,
+        description=node_hist.metadata.description,
+        parameters=node_hist.data.parameters.model_dump(mode="json"),
         id=node_hist.id,
         status=RunStatusEnum.FINISHED,
         run_start=node_hist.metadata.run_start,
@@ -99,4 +122,24 @@ def get_run_status(state: State) -> RunStatus:
             last_run, graph, node
         )
         node_status = node_status or node_graph_status
-    return RunStatus(node=node_status, graph=graph_status)
+    return RunStatus(
+        is_running=state.is_running,
+        runnable_type=last_run.runnable_type,
+        node=node_status,
+        graph=graph_status,
+    )
+
+
+def get_graph_execution_history(
+    state: State, reverse: bool = False
+) -> Optional[ExecutionHistory]:
+    if not isinstance(state.run_item, QualibrationGraph):
+        return None
+    graph: QGraphType = state.run_item
+    orch = graph._orchestrator
+    if orch is None:
+        raise RuntimeError("No graph orchestrator")
+    history: ExecutionHistory = orch.get_execution_history()
+    if reverse:
+        history.items = list(reversed(history.items))
+    return history
