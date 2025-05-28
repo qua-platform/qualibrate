@@ -47,6 +47,8 @@ class RunStatusBase(BaseModel):
     def _time_remaining(
         self, percentage_complete: float, run_start: AwareDatetime
     ) -> Optional[float]:
+        if self.status in (RunStatusEnum.PENDING, RunStatusEnum.ERROR):
+            return None
         if percentage_complete == 0:
             return None
 
