@@ -82,7 +82,7 @@ const NodesContext = React.createContext<INodesContext>({
   updateAllButtonPressed: false,
   setUpdateAllButtonPressed: noop,
   lastRunStatusNode: null,
-  setLastRunStatusNode: () => {},
+  setLastRunStatusNode: noop,
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
@@ -248,8 +248,6 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
 
         console.log("last run status was error");
       }
-    } else {
-      console.log("lastRunResponse was ", lastRunResponse);
     }
   };
 
@@ -276,7 +274,6 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const fetchStatus = async () => {
     const res = await NodesApi.fetchLastRunStatusInfo();
     if (res.isOk && res.result?.node) {
-      console.log("checksetLastRunStatusNode", res.result);
       setLastRunStatusNode(res.result.node);
     }
   };

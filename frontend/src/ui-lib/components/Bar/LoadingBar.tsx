@@ -1,4 +1,5 @@
 import React from "react";
+import styles from "./LoadingBar.module.scss";
 
 interface LoadingBarProps {
   percentage: number;
@@ -14,29 +15,36 @@ const LoadingBar: React.FC<LoadingBarProps> = ({
   height = 4,
 }) => {
   const normalized = Math.max(0, Math.min(percentage, 100));
-
-  const borderRadius = `${height ? height / 2 : 2}px`;
+  const viewBoxWidth = 1000;
+  const progressWidth = (normalized / 100) * viewBoxWidth;
+  const rx = height / 2;
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: `${height}px`,
-        backgroundColor: trackColor,
-        borderRadius,
-        overflow: "hidden",
-      }}
+    <svg
+      width="100%"
+      height={height}
+      viewBox={`0 0 ${viewBoxWidth} ${height}`}
+      preserveAspectRatio="none"
     >
-      <div
-        style={{
-          width: `${normalized}%`,
-          height: "100%",
-          backgroundColor: progressColor,
-          borderRadius,
-          transition: "width 0.4s ease-in-out",
-        }}
+      <rect
+        x={0}
+        y={0}
+        width={viewBoxWidth}
+        height={height}
+        rx={rx}
+        fill={trackColor}
       />
-    </div>
+
+      <rect
+        className={styles.progress}
+        x={0}
+        y={0}
+        width={progressWidth}
+        height={height}
+        rx={rx}
+        fill={progressColor}
+      />
+    </svg>
   );
 };
 
