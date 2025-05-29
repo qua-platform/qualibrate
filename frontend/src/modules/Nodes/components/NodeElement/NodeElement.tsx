@@ -13,6 +13,20 @@ import { NodesApi } from "../../api/NodesAPI";
 import { RunIcon } from "../../../../ui-lib/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
+import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgress";
+
+
+const StatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ status = "pending", percentage }) => {
+  return (
+    <>
+      {status === "running" && <CircularLoaderProgress percentage={percentage} />}
+      {status === "finished" && <div className={styles.greenDot} />}
+      {status === "error" && <div className={styles.redDot} />}
+      {status === "pending" && <div className={styles.greyDot} />}
+      {status === "pendingRun" && <div className={styles.blueDot} />}
+    </>
+  );
+};
 
 export interface NodeDTO {
   name: string;
@@ -50,6 +64,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setAllNodes,
     setIsAllStatusesUpdated,
     setUpdateAllButtonPressed,
+    lastRunStatusNode,
   } = useNodesContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
@@ -119,17 +134,24 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     }
   };
 
-  const insertSpaces = (str: string, interval = 40) => {
-    let result = "";
-    for (let i = 0; i < str.length; i += interval) {
-      result += str.slice(i, i + interval) + " ";
-    }
-    return result.trim();
-  };
+  const insertSpaces = (str: string, interval = 40) =>
+    str.replace(new RegExp(`(.{${interval}})`, "g"), "$1 ").trim();
+
+  const isSelected = selectedItemName === node.name;
+  const isLastRun = lastRunStatusNode?.name === node.name;
+  const nodeStatus = isLastRun ? lastRunStatusNode?.status : "pending";
 
   return (
     <div
-      className={classNames(styles.rowWrapper, selectedItemName === node.name && styles.nodeSelected)}
+    className={classNames(
+      styles.rowWrapper,
+      lastRunStatusNode?.name === node.name && nodeStatus === "finished" && styles.nodeSelectedFinished,
+      lastRunStatusNode?.name === node.name && nodeStatus === "running" && styles.nodeSelectedRunning,
+      lastRunStatusNode?.name === node.name && nodeStatus === "error" && styles.nodeSelectedError,
+      lastRunStatusNode?.name === node.name && nodeStatus === "running" && styles.rowWrapperRunning,
+      lastRunStatusNode?.name === node.name && nodeStatus === "finished" && styles.rowWrapperFinished,
+      lastRunStatusNode?.name === node.name && nodeStatus === "error" && styles.rowWrapperError
+    )}    
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {
         setSelectedItemName(node.name);
@@ -151,12 +173,17 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           )}
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
-          <div>
-            <div className={classNames(styles.dot, selectedItemName === node.name && styles.dotSelected)} />
-          </div>
+          <StatusVisuals
+            status={
+              lastRunStatusNode?.name === node.name
+                ? lastRunStatusNode.status
+                : isSelected
+                ? "pendingRun"
+                : "pending"
+            }
+            percentage={Math.round(lastRunStatusNode?.percentage_complete ?? 0)}
+          />
         </div>
-        {isNodeRunning && node.name === selectedItemName && <CircularProgress data-testid={`circular-progress-${nodeKey}`} />}
-
         {!isNodeRunning && node.name === selectedItemName && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
             <RunIcon className={styles.runButtonIcon} />
@@ -172,7 +199,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           parametersExpanded={true}
           showTitle={true}
           key={node.name}
-          show={selectedItemName === node.name}
+          show={isSelected}
           currentItem={node}
           getInputElement={getInputElement}
           data-testid={`parameters-${nodeKey}`}
