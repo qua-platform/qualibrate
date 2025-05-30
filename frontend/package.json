@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "browserslist": "> 1%, last 2 versions, not dead",
-  "homepage": "/",
+  "homepage": ".",
   "scripts": {
     "build": "webpack",
     "start": "webpack serve --open",
