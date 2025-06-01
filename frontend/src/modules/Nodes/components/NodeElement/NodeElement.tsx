@@ -1,7 +1,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import { Checkbox, CircularProgress } from "@mui/material";
+import { Checkbox } from "@mui/material";
 import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
 import { classNames } from "../../../../utils/classnames";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
@@ -23,7 +23,6 @@ const StatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ stat
       {status === "finished" && <div className={styles.greenDot} />}
       {status === "error" && <div className={styles.redDot} />}
       {status === "pending" && <div className={styles.greyDot} />}
-      {status === "pendingRun" && <div className={styles.blueDot} />}
     </>
   );
 };
@@ -146,11 +145,10 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     className={classNames(
       styles.rowWrapper,
       lastRunStatusNode?.name === node.name && nodeStatus === "finished" && styles.nodeSelectedFinished,
-      lastRunStatusNode?.name === node.name && nodeStatus === "running" && styles.nodeSelectedRunning,
       lastRunStatusNode?.name === node.name && nodeStatus === "error" && styles.nodeSelectedError,
+      lastRunStatusNode?.name === node.name && nodeStatus === "running" && styles.nodeSelectedRunning,
       lastRunStatusNode?.name === node.name && nodeStatus === "running" && styles.rowWrapperRunning,
-      lastRunStatusNode?.name === node.name && nodeStatus === "finished" && styles.rowWrapperFinished,
-      lastRunStatusNode?.name === node.name && nodeStatus === "error" && styles.rowWrapperError
+      isSelected && nodeStatus === "pending" && styles.nodeSelectedPending
     )}    
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {
@@ -173,16 +171,12 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           )}
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
+        {(lastRunStatusNode?.name === node.name || (!isSelected && lastRunStatusNode?.status !== "pending")) && (
           <StatusVisuals
-            status={
-              lastRunStatusNode?.name === node.name
-                ? lastRunStatusNode.status
-                : isSelected
-                ? "pendingRun"
-                : "pending"
-            }
+            status={lastRunStatusNode?.name === node.name ? lastRunStatusNode.status : "pending"}
             percentage={Math.round(lastRunStatusNode?.percentage_complete ?? 0)}
           />
+        )}
         </div>
         {!isNodeRunning && node.name === selectedItemName && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>

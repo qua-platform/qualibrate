@@ -14,18 +14,20 @@
 }
 
 .nodeSelectedFinished {
-  border: 1px solid rgba(0, 213, 154, 0.2);
-  border-left: 3px solid #00D59A;
+  border-left: solid #00D59A;
 }
 
 .nodeSelectedRunning {
-  border: 1px solid rgba(60, 222, 248, 0.2);
-  border-left: 3px solid #3CDEF8;
+  border: solid rgb(60 222 248 / 10%);
+  border-left: solid #3CDEF8;
 }
 
 .nodeSelectedError {
-  border: 1px solid rgba(255, 97, 115, 0.2);
-  border-left: 3px solid #FF6173;
+  border-left: solid #FF6173;
+}
+
+.nodeSelectedPending {
+  border-left: solid #fff;
 }
 
 .row {
@@ -36,80 +38,31 @@
 }
 
 .rowWrapperRunning {
-  background-color: rgba(60, 222, 248, 0.08);
-}
-
-.rowWrapperFinished {
-  background-color: rgba(0, 213, 154, 0.08);
-}
-
-.rowWrapperError {
-  background-color: rgba(255, 97, 115, 0.08);
+  background-color: rgb(60 222 248 / 8%);
+  background: linear-gradient(0deg, rgba(44, 203, 229, 0.06) 0%, rgba(44, 203, 229, 0.06) 100%), #323339;
 }
 
 .dot {
   min-height: 7px;
   min-width: 7px;
-  background-color: rgb(165 172 182 / 20%);
   border-radius: 50%;
   display: inline-block;
   margin-top: 11px;
 }
 
 .greenDot {
-  min-height: 7px;
-  min-width: 7px;
+  @extend .dot;
   background-color: #00D59A;
-  border-radius: 50%;
-  display: inline-block;
-  margin-top: 11px;
 }
 
 .redDot {
-  min-height: 7px;
-  min-width: 7px;
+  @extend .dot;
   background-color: #FF6173;
-  border-radius: 50%;
-  display: inline-block;
-  margin-top: 11px;
 }
 
 .greyDot {
-  min-height: 7px;
-  min-width: 7px;
+  @extend .dot;
   background-color: #A5ACB6;
-  border-radius: 50%;
-  display: inline-block;
-  margin-top: 11px;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.blueDot {
-  min-height: 7px;
-  min-width: 7px;
-  background-color: #3CDEF8;
-  border-radius: 50%;
-  display: inline-block;
-  margin-top: 11px;
-  animation: pulse 1.9s ease-in-out infinite;
-}
-
-.dotSelected {
-  background-color: #00D59A;
 }
 
 .runButton {
