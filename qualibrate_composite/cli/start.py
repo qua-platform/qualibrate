@@ -1,10 +1,12 @@
 import os
 from pathlib import Path
+from typing import Optional
 
 import click
 from qualibrate_config.vars import DEFAULT_CONFIG_FILENAME, QUALIBRATE_PATH
 
 from qualibrate_composite.config import CONFIG_PATH_ENV_NAME
+from qualibrate_composite.config.vars import CORS_ORIGINS_ENV_NAME
 
 try:
     from qualibrate_app.config import (
@@ -50,11 +52,23 @@ except ImportError:
     show_default=True,
     help="Application will be started on the given host",
 )  # env QUALIBRATE_START_HOST
+@click.option(
+    "--cors-origin",
+    type=str,
+    multiple=True,
+    help="CORS origin to use. Can be passed multiple times.",
+)
 def start_command(
-    config_path: Path, port: int, host: str, reload: bool
+    config_path: Path,
+    port: int,
+    host: str,
+    reload: bool,
+    cors_origin: list[str],
 ) -> None:
     config_path_str = str(config_path)
     os.environ[CONFIG_PATH_ENV_NAME] = config_path_str
+    if len(cors_origin) != 0:
+        os.environ[CORS_ORIGINS_ENV_NAME] = ",".join(cors_origin)
     if QAPP_CONFIG_PATH_ENV_NAME is not None:
         os.environ[QAPP_CONFIG_PATH_ENV_NAME] = str(config_path)
     if RUNNER_CONFIG_PATH_ENV_NAME is not None:

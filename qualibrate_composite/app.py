@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from qualibrate_composite.api.routes import base_router
 from qualibrate_composite.config import get_config_path, get_settings
+from qualibrate_composite.config.resolvers import get_cors_origin
 from qualibrate_composite.utils.spawn import (
     spawn_qua_dashboards,
     spawn_qualibrate_app,
@@ -18,17 +19,11 @@ except ImportError:
 
 app = FastAPI(title="Qualibrate")
 _settings = get_settings(get_config_path())
-
-origins = [
-    "http://localhost:8002",
-    "http://localhost:8001",
-    "http://127.0.0.1:8002",
-    "http://127.0.0.1:8001",
-]
+cors_origins = get_cors_origin()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
