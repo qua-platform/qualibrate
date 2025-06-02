@@ -38,8 +38,7 @@
 }
 
 .rowWrapperRunning {
-  background-color: rgb(60 222 248 / 8%);
-  background: linear-gradient(0deg, rgba(44, 203, 229, 0.06) 0%, rgba(44, 203, 229, 0.06) 100%), #323339;
+  background: linear-gradient(0deg, rgb(44 203 229 / 6%) 0%, rgb(44 203 229 / 6%) 100%), #323339;
 }
 
 .dot {
@@ -52,16 +51,19 @@
 
 .greenDot {
   @extend .dot;
+
   background-color: #00D59A;
 }
 
 .redDot {
   @extend .dot;
+
   background-color: #FF6173;
 }
 
 .greyDot {
   @extend .dot;
+
   background-color: #A5ACB6;
 }
 

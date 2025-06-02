@@ -20,9 +20,9 @@ const StatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ stat
   return (
     <>
       {status === "running" && <CircularLoaderProgress percentage={percentage} />}
-      {status === "finished" && <div className={styles.greenDot} />}
-      {status === "error" && <div className={styles.redDot} />}
-      {status === "pending" && <div className={styles.greyDot} />}
+      {status === "finished" && <div className={`${styles.dot} ${styles.greenDot}`} />}
+      {status === "error" && <div className={`${styles.dot} ${styles.redDot}`} />}
+      {status === "pending" && <div className={`${styles.dot} ${styles.greyDot}`} />}
     </>
   );
 };
