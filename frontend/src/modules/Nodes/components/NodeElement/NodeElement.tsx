@@ -17,14 +17,15 @@ import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgr
 
 
 const StatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ status = "pending", percentage }) => {
-  return (
-    <>
-      {status === "running" && <CircularLoaderProgress percentage={percentage} />}
-      {status === "finished" && <div className={`${styles.dot} ${styles.greenDot}`} />}
-      {status === "error" && <div className={`${styles.dot} ${styles.redDot}`} />}
-      {status === "pending" && <div className={`${styles.dot} ${styles.greyDot}`} />}
-    </>
-  );
+  if (status === "running") {
+    return <CircularLoaderProgress percentage={percentage} />;
+  } else if (status === "finished") {
+    return <div className={`${styles.dot} ${styles.greenDot}`} />;
+  } else if (status === "error") {
+    return <div className={`${styles.dot} ${styles.redDot}`} />;
+  } else {
+    return <div className={`${styles.dot} ${styles.greyDot}`} />;
+  }
 };
 
 export interface NodeDTO {
@@ -142,14 +143,19 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
 
   return (
     <div
-    className={classNames(
-      styles.rowWrapper,
-      lastRunStatusNode?.name === node.name && nodeStatus === "finished" && styles.nodeSelectedFinished,
-      lastRunStatusNode?.name === node.name && nodeStatus === "error" && styles.nodeSelectedError,
-      lastRunStatusNode?.name === node.name && nodeStatus === "running" && styles.nodeSelectedRunning,
-      lastRunStatusNode?.name === node.name && nodeStatus === "running" && styles.rowWrapperRunning,
-      isSelected && nodeStatus === "pending" && styles.nodeSelectedPending
-    )}    
+      className={(() => {
+        if (lastRunStatusNode?.name === node.name && nodeStatus === "finished") {
+          return `${styles.rowWrapper} ${styles.nodeSelectedFinished}`;
+        } else if (lastRunStatusNode?.name === node.name && nodeStatus === "error") {
+          return `${styles.rowWrapper} ${styles.nodeSelectedError}`;
+        } else if (lastRunStatusNode?.name === node.name && nodeStatus === "running") {
+          return `${styles.rowWrapper} ${styles.nodeSelectedRunning} ${styles.rowWrapperRunning}`;
+        } else if (isSelected && nodeStatus === "pending") {
+          return `${styles.rowWrapper} ${styles.nodeSelectedPending}`;
+        } else {
+          return styles.rowWrapper;
+        }
+      })()}
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {
         setSelectedItemName(node.name);
