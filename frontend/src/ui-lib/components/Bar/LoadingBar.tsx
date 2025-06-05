@@ -11,7 +11,7 @@ interface LoadingBarProps {
 const LoadingBar: React.FC<LoadingBarProps> = ({
   percentage,
   trackColor = "#4E5058",
-  progressColor = "#3CDEF8",
+  progressColor,
   height = 4,
 }) => {
   const normalized = Math.max(0, Math.min(percentage, 100));
@@ -42,7 +42,7 @@ const LoadingBar: React.FC<LoadingBarProps> = ({
         width={progressWidth}
         height={height}
         rx={rx}
-        fill={progressColor}
+        fill={progressColor || "var(--progress-color)"}
       />
     </svg>
   );

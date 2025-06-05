@@ -10,31 +10,33 @@ import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { useNodesContext } from "../../context/NodesContext";
 
 const StatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ status = "pending", percentage }) => {
-  return (
-    <>
-      {status === "running" && <CircularLoaderProgress percentage={percentage} />}
-      {status === "finished" && <div className={styles.greenDot} />}
-      {status === "error" && <div className={styles.redDot} />}
-      {status === "pending" && <div className={styles.greyDot} />}
-    </>
-  );
+  if (status === "running") {
+    return <CircularLoaderProgress percentage={percentage} />;
+  } else if (status === "finished") {
+    return <div className={styles.greenDot} />;
+  } else if (status === "error") {
+    return <div className={styles.redDot} />;
+  } else {
+    return <div className={styles.greyDot} />;
+  }
 };
 
-const StatusLabel: React.FC<{ status?: string; percentage?: number; onStop?: () => void; }> = ({ status, percentage = 0, onStop }) => {
-  return (
-    <>
-      {status === "finished" && (<div className={styles.finishedText}>Finished <CheckmarkIcon height={38} width={38} /> </div>)}
-      {status === "error" && (<div className={styles.errorText}>Error <ErrorIcon height={30} width={30} /> </div>)}
-      {status === "running" && (
-        <>
-          <div className={styles.percentage}>{Math.round(percentage)}%</div>
-          <button className={styles.stopButton} onClick={onStop} title="Stop Node"> <StopIcon /> </button>
-        </>
-      )}
-    </>
-  );
+const StatusLabel: React.FC<{ status?: string; percentage?: number; onStop?: () => void }> = ({ status, percentage = 0, onStop }) => {
+  if (status === "finished") {
+    return (<div className={styles.finishedText}>Finished <CheckmarkIcon height={38} width={38} /> </div>);
+  } else if (status === "error") {
+    return (<div className={styles.errorText}>Error <ErrorIcon height={30} width={30} /> </div>);
+  } else if (status === "running") {
+    return (
+      <>
+        <div className={styles.percentage}>{Math.round(percentage)}%</div>
+        <button className={styles.stopButton} onClick={onStop} title="Stop Node"> <StopIcon /> </button>
+      </>
+    );
+  } else {
+    return null;
+  }
 };
-
 
 export const RunningJobNodeProgressTracker: React.FC = () => {
   const { setIsNodeRunning, lastRunStatusNode } = useNodesContext();
@@ -42,13 +44,6 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
   const handleStopClick = async () => {
     const res = await SnapshotsApi.stopNodeRunning();
     if (res.isOk) setIsNodeRunning(false);
-  };
-
-  const barColorMap: Record<string, string> = {
-    running:  "#3CDEF8",
-    finished: "#00D59A",
-    error:    "#FF6173",
-    pending:  "#3CDEF8",
   };
 
   return (
@@ -64,8 +59,8 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
           <StatusLabel status={lastRunStatusNode?.status} percentage={lastRunStatusNode?.percentage_complete} onStop={handleStopClick} />
         </div>
       </div>
-      <div className={styles.loadingBarWrapper}>
-        <LoadingBar percentage={Math.round(lastRunStatusNode?.percentage_complete ?? 0)} progressColor={barColorMap[lastRunStatusNode?.status ?? "pending"]} />
+      <div className={`${styles.loadingBarWrapper} ${styles[`bar_${lastRunStatusNode?.status}`]}`}>
+        <LoadingBar percentage={Math.round(lastRunStatusNode?.percentage_complete ?? 0)} />
       </div>
     </div>
   );
