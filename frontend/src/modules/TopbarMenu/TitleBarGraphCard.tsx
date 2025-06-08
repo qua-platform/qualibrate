@@ -11,6 +11,7 @@ import NoGraphRunningIcon from "../../ui-lib/Icons/NoGraphRunningIcon";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
+// import { SnapshotsApi } from "../Snapshots/api/SnapshotsApi";
 
 const handleStopClick = async () => {
   try {
@@ -21,6 +22,7 @@ const handleStopClick = async () => {
   } catch (err) {
     console.error("Error stopping graph:", err);
   }
+  // SnapshotsApi.stopNodeRunning();
 };
 
 const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => (
