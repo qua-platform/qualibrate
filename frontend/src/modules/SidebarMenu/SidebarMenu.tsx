@@ -16,6 +16,7 @@ import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const [minify, setMinify] = useState(true);
+  const [activeKey, setActiveKey] = useState<string | null>(null);
 
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
 
@@ -39,19 +40,20 @@ const SidebarMenu: React.FunctionComponent = () => {
       <div className={styles.menuContent}>
         <div className={styles.menuUpperContent}>
           {menuItems.map((item, index) => (
-            <MenuItem {...item} key={index} hideText={minify} data-testid={`menu-item-${index}`} />
+            <MenuItem {...item} key={item.keyId ?? index} hideText={minify} onClick={() => { setActiveKey(item.keyId ?? `${index}`); }} isActive={activeKey === (item.keyId ?? `${index}`)} data-testid={`menu-item-${index}`} />
           ))}
         </div>
 
         <div className={styles.menuBottomContent}>
           {bottomMenuItems.map((item) => (
-            <MenuItem {...item} key={item.keyId} hideText={minify} onClick={() => {}} />
+            <MenuItem {...item} key={item.keyId} hideText={minify} onClick={() => setActiveKey(item.keyId)} isActive={activeKey === item.keyId} />
           ))}
           <MenuItem 
             menuItem={{ title: "Help", icon: HelpIcon, dataCy: "help-btn" }} 
             keyId="help" 
             hideText={minify} 
-            onClick={handleHelpClick} 
+            onClick={handleHelpClick}
+            isActive={false}
           />
           {/* {THEME_TOGGLE_VISIBLE && (
             <div className={styles.menuBottomContent}>
@@ -66,6 +68,7 @@ const SidebarMenu: React.FunctionComponent = () => {
             keyId="toggle"
             hideText={minify}
             onClick={() => setMinify(!minify)}
+            isActive={false}
           />
         </div>
       </div>

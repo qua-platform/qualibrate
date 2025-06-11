@@ -1,29 +1,34 @@
 import React from "react";
-
 import { Module } from "../../routing/ModulesRegistry";
 import styles from "./styles/MenuItem.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import { MENU_TEXT_COLOR } from "../../utils/colors";
+import { classNames } from "../../utils/classnames";
 
-const MenuItem: React.FunctionComponent<Module & { hideText: boolean; onClick?: () => void }> = ({
+const MenuItem: React.FC<Module & { hideText: boolean; onClick?: () => void; isActive?: boolean }> = ({
   menuItem,
   keyId,
   hideText,
   onClick,
+  isActive = false,
 }) => {
   const { openTab } = useFlexLayoutContext();
-  if (!menuItem) {
-    return null;
-  }
+  if (!menuItem) return null;
 
   const { dataCy, title, sideBarTitle, icon: Icon } = menuItem;
+  const displayTitle = sideBarTitle || title;
 
-  const displayTitle = sideBarTitle || title; 
+  const isRealModule = keyId !== "help" && keyId !== "toggle";
+
+  const handleClick = () => {
+    if (isRealModule) openTab(keyId);
+    onClick?.();
+  };
 
   return (
-    <button onClick={onClick || (() => openTab(keyId))} className={styles.itemWrapper} data-cy={dataCy} data-testid={`menu-item-${keyId}`}>
+    <button onClick={handleClick} className={classNames(styles.itemWrapper, isActive && styles.active)} data-cy={dataCy} data-testid={`menu-item-${keyId}`}>
       {Icon && <Icon color={MENU_TEXT_COLOR} />}
-      {!hideText && displayTitle && ( <div data-testid={`menu-item-title-${keyId}`} className={styles.menuText}> {displayTitle} </div>)}
+      {!hideText && displayTitle && ( <div data-testid={`menu-item-title-${keyId}`} className={styles.menuText}> {displayTitle} </div> )}
     </button>
   );
 };
