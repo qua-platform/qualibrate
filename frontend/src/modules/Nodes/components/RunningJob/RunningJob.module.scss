@@ -66,8 +66,6 @@
 }
 
 .stopButton {
-  background: none;
-  border: none;
   border-radius: 50%;
   padding: 1px;
   cursor: pointer;
@@ -446,7 +444,6 @@ input:focus {
 }
 
 .nodeText {
-  color: gray;
   font-family: Roboto, sans-serif;
   font-weight: 400;
   font-size: 22px;
@@ -455,7 +452,6 @@ input:focus {
 .nodeName {
   color: white;
   font-family: Roboto, sans-serif;
-  font-weight: 400 bold;
   margin-left: 4px;
 }
 
@@ -466,11 +462,7 @@ input:focus {
 }
 
 .percentage {
-  color: #a5acb6;
-  font-family: Roboto, sans-serif;
   font-size: 22px;
-  font-weight: 400;
-  line-height: normal;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -494,4 +486,20 @@ input:focus {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.bar_running {
+  --progress-color: #3CDEF8;
+}
+
+.bar_pending {
+  --progress-color: #3CDEF8;
+}
+
+.bar_finished {
+  --progress-color: #00D59A;
+}
+
+.bar_error {
+  --progress-color: #FF6173;
 }
