@@ -3,7 +3,6 @@ import React from "react";
 import styles from "./NodeElement.module.scss";
 import { Checkbox } from "@mui/material";
 import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
-import { classNames } from "../../../../utils/classnames";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
 import { ErrorResponseWrapper } from "../../../common/Error/ErrorResponseWrapper";
@@ -13,20 +12,7 @@ import { NodesApi } from "../../api/NodesAPI";
 import { RunIcon } from "../../../../ui-lib/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
-import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgress";
-
-
-const StatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ status = "pending", percentage }) => {
-  if (status === "running") {
-    return <CircularLoaderProgress percentage={percentage} />;
-  } else if (status === "finished") {
-    return <div className={`${styles.dot} ${styles.greenDot}`} />;
-  } else if (status === "error") {
-    return <div className={`${styles.dot} ${styles.redDot}`} />;
-  } else {
-    return <div className={`${styles.dot} ${styles.greyDot}`} />;
-  }
-};
+import { StatusVisuals, getNodeRowClass } from "./Helpers";
 
 export interface NodeDTO {
   name: string;
@@ -137,25 +123,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
   const insertSpaces = (str: string, interval = 40) =>
     str.replace(new RegExp(`(.{${interval}})`, "g"), "$1 ").trim();
 
-  const isSelected = selectedItemName === node.name;
-  const isLastRun = lastRunStatusNode?.name === node.name;
-  const nodeStatus = isLastRun ? lastRunStatusNode?.status : "pending";
-
   return (
     <div
-      className={(() => {
-        if (lastRunStatusNode?.name === node.name && nodeStatus === "finished") {
-          return `${styles.rowWrapper} ${styles.nodeSelectedFinished}`;
-        } else if (lastRunStatusNode?.name === node.name && nodeStatus === "error") {
-          return `${styles.rowWrapper} ${styles.nodeSelectedError}`;
-        } else if (lastRunStatusNode?.name === node.name && nodeStatus === "running") {
-          return `${styles.rowWrapper} ${styles.nodeSelectedRunning} ${styles.rowWrapperRunning}`;
-        } else if (isSelected && nodeStatus === "pending") {
-          return `${styles.rowWrapper} ${styles.nodeSelectedPending}`;
-        } else {
-          return styles.rowWrapper;
-        }
-      })()}
+      className={getNodeRowClass({ nodeName: node.name, selectedItemName: selectedItemName ?? "", lastRunStatusNode })}
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {
         setSelectedItemName(node.name);
@@ -177,7 +147,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           )}
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
-        {(lastRunStatusNode?.name === node.name || (!isSelected && lastRunStatusNode?.status !== "pending")) && (
+        {(lastRunStatusNode?.name === node.name || (selectedItemName !== node.name && lastRunStatusNode?.status !== "pending")) && (
           <StatusVisuals
             status={lastRunStatusNode?.name === node.name ? lastRunStatusNode.status : "pending"}
             percentage={Math.round(lastRunStatusNode?.percentage_complete ?? 0)}
@@ -199,7 +169,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           parametersExpanded={true}
           showTitle={true}
           key={node.name}
-          show={isSelected}
+          show={selectedItemName === node.name}
           currentItem={node}
           getInputElement={getInputElement}
           data-testid={`parameters-${nodeKey}`}
