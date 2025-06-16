@@ -1,46 +1,20 @@
 import React from "react";
+/* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarNodeCard.module.scss";
-import CircularLoaderPercentage from "../../ui-lib/Icons/CircularLoaderPercentage";
-import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
-import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
-import { classNames } from "../../utils/classnames";
-import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
+import { classNames } from "../../../utils/classnames";
+import { LastRunStatusNodeResponseDTO } from "../constants";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarTooltipContent from "./TitleBarNodeTooltipContent";
-import NoNodeRunningIcon from "../../ui-lib/Icons/NoNodeRunningIcon";
-import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
+import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
+import { StatusIndicator } from "../StatusIndicator";
+import { formatTime, getWrapperClass } from "../helpers";
 
 interface IProps {
   node: LastRunStatusNodeResponseDTO;
 }
 
-const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => {
-  return (
-    <>
-      {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} width={30} height={30} />}
-      {status === "Finished" && <CheckmarkIcon />}
-      {status === "Error" && <ErrorIcon width={20} height={20} />}
-      {status === "Pending" && <NoNodeRunningIcon width={26} height={26} />}
-    </>
-  );
-};
-
-const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
+const TitleBarNodeCard: React.FC<IProps> = ({ node }) => {
   const { openTab } = useFlexLayoutContext();
-  const formatTime = (sec: number) => {
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    const s = Math.floor(sec % 60);
-    return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s left`;
-  };
-
-  const getWrapperClass = () => {
-    const status = node.status?.toLowerCase();
-    if (status === "running") return styles.running;
-    if (status === "finished") return styles.finished;
-    if (status === "error") return styles.error;
-    return styles.pending;
-  };
 
   const getStatusLabelElement = (): React.ReactNode => {
     const status = node.status?.toLowerCase();
@@ -78,12 +52,19 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
       }}
     >
       <div onClick={() => openTab("nodes")} className={styles.hoverRegion}>
-        <div className={classNames(styles.wrapper, getWrapperClass())}>
+        <div className={classNames(styles.wrapper, getWrapperClass(node.status, styles))}>
           <div className={styles.indicatorWrapper}>
-            <StatusIndicator
-              status={node.status?.charAt(0).toUpperCase() + node.status?.slice(1)}
-              percentage={node.percentage_complete ?? 0}
-            />
+            {StatusIndicator(
+              node.status?.charAt(0).toUpperCase() + node.status?.slice(1), 
+              node.percentage_complete ?? 0, 
+              {
+                Running: { width: 30, height: 30 },
+                Finished: { width: 38, height: 38 },
+                Error: { width: 20, height: 20 },
+                Pending: { width: 26, height: 26 }
+              }, 
+              true
+            )}
           </div>
 
           <div className={styles.textWrapper}>
@@ -99,7 +80,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
             <div className={styles.bottomRowWrapper}>
               {getStatusLabelElement()}
               {node.status?.toLowerCase() === "running" && (
-                <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>
+                <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}&nbsp;left</div>
               )}
             </div>
           </div>
@@ -109,4 +90,4 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
   );
 };
 
-export default TitleBarMenuCard;
+export default TitleBarNodeCard;

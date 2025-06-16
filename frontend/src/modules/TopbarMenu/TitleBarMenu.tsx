@@ -4,35 +4,19 @@ import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext
 import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import { NodesApi } from "../Nodes/api/NodesAPI";
-import TitleBarGraphCard from "./TitleBarGraphCard";
-
-export interface LastRunStatusGraphResponseDTO {
-  name: string;
-  status: string;
-  run_start: string;
-  run_end: string;
-  total_nodes: number;
-  finished_nodes: number;
-  run_duration: number;
-  percentage_complete: number;
-  time_remaining: number | null;
-}
-
-export interface LastRunStatusNodeResponseDTO {
-  status: string;
-  run_start: string;
-  run_duration: number;
-  name: string;
-  id?: number;
-  percentage_complete: number;
-  current_action?: string | null;
-  time_remaining: number | null;
-}
+import TitleBarGraphCard from "./TitleBarGraphCard/TitleBarGraphCard";
+import { 
+  LastRunStatusNodeResponseDTO, 
+  LastRunStatusGraphResponseDTO, 
+  fallbackNode,
+  fallbackGraph,
+} from "./constants";
 
 const TitleBarMenu: React.FC = () => {
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
   const [node, setNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
   const [graph, setGraph] = useState<LastRunStatusGraphResponseDTO | null>(null);
+  const graphToUse = graph ?? fallbackGraph;
 
   const fetchStatus = async () => {
     const res = await NodesApi.fetchLastRunStatusInfo();
@@ -46,29 +30,6 @@ const TitleBarMenu: React.FC = () => {
     const interval = setInterval(fetchStatus, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  const fallbackNode: LastRunStatusNodeResponseDTO = {
-    status: "pending",
-    run_start: "",
-    run_duration: 0,
-    name: "",
-    percentage_complete: 0,
-    time_remaining: 0,
-  };
-
-  const fallbackGraph: LastRunStatusGraphResponseDTO = {
-    name: "",
-    status: "pending",
-    run_start: "",
-    run_end: "",
-    total_nodes: 1,
-    finished_nodes: 0,
-    run_duration: 0,
-    percentage_complete: 0,
-    time_remaining: 0,
-  };
-
-  const graphToUse = graph ?? fallbackGraph;
 
   return (
     <div className={styles.wrapper}>

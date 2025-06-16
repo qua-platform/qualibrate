@@ -1,7 +1,7 @@
 import React from "react";
-import styles from "./styles/TitleBarTooltipContent.module.scss";
-import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
-import { formatDate } from "../Nodes/components/NodeElement/NodeElement";
+import styles from "../styles/TitleBarTooltipContent.module.scss";
+import { LastRunStatusNodeResponseDTO } from "../constants";
+import { formatDate, capitalize } from "../helpers";
 
 interface TooltipContentProps {
   node: LastRunStatusNodeResponseDTO;
@@ -20,11 +20,11 @@ export const TitleBarTooltipContent: React.FC<TooltipContentProps> = ({ node }) 
     <div className={styles.tooltipContent}>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Run start:</div>
-        <div className={styles.tooltipValue}>{node.run_start ? formatDate(new Date(node.run_start)) : "—"}</div>
+        <div className={styles.tooltipValue}>{formatDate(node.run_start)}</div>
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Status:</div>
-        <div className={styles.tooltipValue}>{node.status.charAt(0).toUpperCase() + node.status.slice(1)}</div>
+        <div className={styles.tooltipValue}>{capitalize(node.status)}</div>
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Run duration:</div>

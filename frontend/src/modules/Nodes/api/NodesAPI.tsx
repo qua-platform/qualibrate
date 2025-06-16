@@ -3,7 +3,7 @@ import { Res } from "../../../common/interfaces/Api";
 import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, IS_NODE_RUNNING, SUBMIT_NODE_RUN, STOP_RUNNING } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { LastRunStatusNodeResponseDTO } from "../../../modules/TopbarMenu/TitleBarMenu";
-import { LastRunStatusGraphResponseDTO } from "../../TopbarMenu/TitleBarGraphCard";
+import { LastRunStatusGraphResponseDTO } from "../../TopbarMenu/TitleBarGraphCard/TitleBarGraphCard";
 
 export class NodesApi extends Api {
   constructor() {

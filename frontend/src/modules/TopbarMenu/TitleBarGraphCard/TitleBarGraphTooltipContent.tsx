@@ -1,7 +1,7 @@
 import React from "react";
-import styles from "./styles/TitleBarTooltipContent.module.scss";
-import { LastRunStatusGraphResponseDTO } from "./TitleBarMenu";
-import { formatDate } from "../Nodes/components/NodeElement/NodeElement";
+import styles from "../styles/TitleBarTooltipContent.module.scss";
+import { LastRunStatusGraphResponseDTO } from "../constants";
+import { formatDate, capitalize } from "../helpers";
 
 interface GraphTooltipContentProps {
   graph: LastRunStatusGraphResponseDTO;
@@ -21,12 +21,12 @@ const TitleBarGraphTooltipContent: React.FC<GraphTooltipContentProps> = ({ graph
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Run start:</div>
         <div className={styles.tooltipValue}>
-          {graph.run_start ? formatDate(new Date(graph.run_start)) : "—"}
+          {formatDate(graph.run_start)}
         </div>
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Status:</div>
-        <div className={styles.tooltipValue}>{graph.status.charAt(0).toUpperCase() + graph.status.slice(1)}</div>
+        <div className={styles.tooltipValue}>{capitalize(graph.status)}</div>
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Run duration:</div>

@@ -1,87 +1,27 @@
 import React from "react";
-import styles from "./styles/TitleBarGraphCard.module.scss";
-import TitleBarMenuCard from "./TitleBarNodeCard";
-import { LastRunStatusNodeResponseDTO } from "./TitleBarMenu";
-import CircularLoaderPercentage from "../../ui-lib/Icons/CircularLoaderPercentage";
-import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
-import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
-import StopButtonIcon from "../../ui-lib/Icons/StopButtonIcon";
-import { NodesApi } from "../Nodes/api/NodesAPI";
-import NoGraphRunningIcon from "../../ui-lib/Icons/NoGraphRunningIcon";
+/* eslint-disable css-modules/no-unused-class */
+import  styles from "./styles/TitleBarGraphCard.module.scss";
+import TitleBarNodeCard from "../TitleBarNodeCard/TitleBarNodeCard";
+import StopButtonIcon from "../../../ui-lib/Icons/StopButtonIcon";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
-import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
-// import { SnapshotsApi } from "../Snapshots/api/SnapshotsApi";
+import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
+import { getWrapperClass, getStatusClass, formatTime, handleStopClick } from "../helpers";
+import { LastRunStatusNodeResponseDTO, LastRunStatusGraphResponseDTO } from "../constants";
+import { StatusIndicator } from "../StatusIndicator";
 
-const handleStopClick = async () => {
-  try {
-    const res = await NodesApi.stopRunningGraph();
-    if (!res.isOk) {
-      console.error("Failed to stop graph:", res.error);
-    }
-  } catch (err) {
-    console.error("Error stopping graph:", err);
-  }
-  // SnapshotsApi.stopNodeRunning();
-};
-
-const StatusIndicator: React.FC<{ status: string; percentage: number }> = ({ status, percentage }) => (
-  <>
-    {status === "Running" && <CircularLoaderPercentage percentage={percentage ?? 0} height={48} width={48} />}
-    {status === "Finished" && <CheckmarkIcon height={48} width={48} />}
-    {status === "Error" && <ErrorIcon height={48} width={48} />}
-    {status === "Pending" && <NoGraphRunningIcon height={32} width={32} />}
-  </>
-);
-
-interface LastRunStatusGraphResponseDTO {
-  name: string;
-  status: string;
-  run_start: string;
-  run_end: string;
-  total_nodes: number;
-  finished_nodes: number;
-  run_duration: number;
-  percentage_complete: number;
-  time_remaining: number | null;
-}
-
-interface Props {
+interface GraphCardProps {
   graph: LastRunStatusGraphResponseDTO;
   node: LastRunStatusNodeResponseDTO;
 }
 
-const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
+const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
   const { openTab } = useFlexLayoutContext();
-
-  const formatTime = (sec: number | null) => {
-    if (sec === null) return "";
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    const s = Math.floor(sec % 60);
-    return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s`;
-  };
-
-  const getWrapperClass = () => {
-    if (graph.status === "running") return styles.running;
-    if (graph.status === "finished") return styles.finished;
-    if (graph.status === "error") return styles.error;
-    return styles.pending;
-  };
-
-  const getStatusClass = () => {
-    if (graph.status === "running") return styles.statusRunning;
-    if (graph.status === "finished") return styles.statusFinished;
-    if (graph.status === "error") return styles.statusError;
-    return styles.statusPending;
-  };
-
   const isPending = graph.status === "pending";
-
   const handleClick = () => openTab(isPending ? "graph-library" : "graph-status");
 
   return (
-    <div className={`${styles.graphCardWrapper} ${getWrapperClass()}`}>
+    <div className={`${styles.graphCardWrapper} ${getWrapperClass(graph.status, styles)}`}>
       <div className={isPending ? styles.defaultGraphCardContent : styles.graphCardContent}>
         <Tooltip
           title={<TitleBarGraphTooltipContent graph={graph} />}
@@ -101,10 +41,17 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
         >
           <div onClick={handleClick} className={styles.hoverRegion}>
             <div className={styles.indicatorWrapper}>
-              <StatusIndicator
-                status={graph.status?.charAt(0).toUpperCase() + graph.status?.slice(1)}
-                percentage={graph.percentage_complete ?? 0}
-              />
+              {StatusIndicator(
+                graph.status?.charAt(0).toUpperCase() + graph.status?.slice(1), 
+                graph.percentage_complete ?? 0, 
+                {
+                  Running: { width: 48, height: 48 },
+                  Finished: { width: 48, height: 48 },
+                  Error: { width: 48, height: 48 },
+                  Pending: { width: 32, height: 32 }
+                }, 
+                false
+              )}
             </div>
             <div className={styles.textWrapper}>
               {isPending ? (
@@ -120,7 +67,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
                     Graph: {graph.name || "No graph is running"}
                   </div>
                   <div className={styles.graphStatusRow}>
-                    <div className={`${styles.statusText} ${getStatusClass()}`}>
+                    <div className={`${styles.statusText} ${getStatusClass(graph.status, styles)}`}>
                       {graph.status}
                     </div>
                     {graph.status !== "finished" && (                    
@@ -135,7 +82,7 @@ const TitleBarGraphCard: React.FC<Props> = ({ graph, node }) => {
           </div>
         </Tooltip>
 
-        <TitleBarMenuCard node={node} />
+        <TitleBarNodeCard node={node} />
 
         {/* Graph Stop button and timer */}
         {(!isPending && graph.status === "running") && (
