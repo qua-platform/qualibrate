@@ -51,7 +51,7 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
               className={classNames(additionalStyles.parameters, styles.additionalWidth)}
             />
           </div>
-          <div className={additionalStyles.outcomesWrapper}>
+          <div className={styles.outcomesWrapper}>
             <MeasurementElementOutcomes outcomes={(jsonData as { outcomes: object })?.outcomes} />
           </div>
         </div>
