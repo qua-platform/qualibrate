@@ -270,6 +270,10 @@ button {
   --action-button-hover-border: #2f7988;
   --color-splitter: #212125;
   --color-splitter-hover: #2b444d;
+  --status-color-running: #3CDEF8;
+  --status-color-finished: #00D59A;
+  --status-color-error: #FF6173;
+  --status-color-pending: #A5ACB6;
 }
 
 ::-webkit-scrollbar {

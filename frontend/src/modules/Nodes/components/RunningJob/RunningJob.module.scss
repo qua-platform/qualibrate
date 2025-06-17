@@ -33,7 +33,7 @@
 .greenDot {
   width: 12px;
   height: 12px;
-  background-color: #00D59A;
+  background-color: var(--status-color-finished);
   border-radius: 50%;
   display: inline-block;
 }
@@ -41,7 +41,7 @@
 .redDot {
   width: 12px;
   height: 12px;
-  background-color: #FF6173;
+  background-color: var(--status-color-error);
   border-radius: 50%;
   display: inline-block;
 }
@@ -49,7 +49,7 @@
 .greyDot {
   width: 12px;
   height: 12px;
-  background-color: #A5ACB6;
+  background-color: var(--status-color-pending);
   border-radius: 50%;
   display: inline-block;
 }
@@ -481,7 +481,7 @@ input:focus {
 }
 
 .errorText {
-  color: #FF6173;
+  color: var(--status-color-error);
   opacity: 0.6;
   display: flex;
   align-items: center;
@@ -489,17 +489,17 @@ input:focus {
 }
 
 .bar_running {
-  --progress-color: #3CDEF8;
+  --progress-color: var(--status-color-running);
 }
 
 .bar_pending {
-  --progress-color: #3CDEF8;
+  --progress-color: var(--status-color-pending);
 }
 
 .bar_finished {
-  --progress-color: #00D59A;
+  --progress-color: var(--status-color-finished);
 }
 
 .bar_error {
-  --progress-color: #FF6173;
+  --progress-color: var(--status-color-error);
 }
