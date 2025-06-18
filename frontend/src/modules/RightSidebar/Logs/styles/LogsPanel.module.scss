@@ -1,0 +1,33 @@
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  padding-left: 20px;
+  font-size: 20px;
+  font-weight: 400;
+  color: #A5ACB6;
+}
+
+.panelHeaderSpan {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.panelContent {
+  color: #FFF;
+  padding-left: 20px;
+  padding-top: 5px;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.logsTimestamp {
+  font-weight: bolder;
+  padding-top: 5px;
+}
+
+.logsMessage {
+  margin-left: 10px;
+  word-break: break-word;
+}
