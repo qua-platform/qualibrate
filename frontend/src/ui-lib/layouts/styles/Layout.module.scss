@@ -2,10 +2,36 @@
 
 .wrapper {
   display: flex;
-  height: 100vh;
+  //height: 100vh;
   background-color: var(--background-color);
   color: var(--font);
-  overflow: hidden;
+  //overflow: hidden;
+}
+
+.pageWrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.pageWrapper1 {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainPageWrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainPageWrapperWithSidePanelBar {
+  display: flex;
+  width: 100%;
 }
 
 .content {
@@ -21,6 +47,7 @@
 .layout {
   flex: 1;
   position: relative;
+  height: 100%;
 
   --color-text: black;
   --color-background: var(--selected-tab);

@@ -30,3 +30,23 @@ export const GET_EXECUTION_HISTORY = () => "execution/last_run/workflow/executio
 export const GET_LAST_RUN = () => "execution/last_run/";
 export const GET_LAST_RUN_STATUS = () => "execution/last_run/status";
 export const GET_LAST_RUN_WORKFLOW_STATUS = () => "execution/last_run/workflow/status";
+export const GET_LOGS = ({
+  after,
+  before,
+  num_entries,
+  reverse,
+}: {
+  after: string | null;
+  before: string | null;
+  num_entries: string;
+  reverse: boolean;
+}) => {
+  const query = new URLSearchParams({
+    ...(after && { after }),
+    ...(before && { before }),
+    num_entries: num_entries,
+    reverse: reverse ? "true" : "false",
+  });
+
+  return `execution/output_logs?${query.toString()}`;
+};

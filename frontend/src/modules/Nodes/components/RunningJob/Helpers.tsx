@@ -1,4 +1,3 @@
-// Helper.tsx
 import React from "react";
 import styles from "./RunningJob.module.scss";
 import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgress";
