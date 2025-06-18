@@ -37,9 +37,20 @@
   cursor: pointer;
 }
 
-.description {
-  color: var(--text-muted);
-  font-size: 12px;
+.descriptionWrapper {
+  padding-left: 10px;
+  padding-right: 10px;
+  align-content: center;
+  text-align: right;
+  margin-top: 5px;
+}
+
+.descriptionTooltip {
+  overflow: scroll;
+  max-height: 500px;
+  white-space: pre-line;
+  //background-color: #42424C;
+  border-radius: 6px;
 }
 
 .expandedContent {

@@ -1834,14 +1834,14 @@ interplot = ["dill (>=0.3.4,<0.4.0)", "ipython (>=7.31.1,<8.0.0)", "pypiwin32 (>
 
 [[package]]
 name = "qualibrate-config"
-version = "0.1.4"
+version = "0.1.5"
 description = "Configuration for Qualibrate"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_config-0.1.4-py3-none-any.whl", hash = "sha256:4db3cbab92cd5abc59623b3dfa88c7e4361b3142a9dd37b23abe2642e679e782"},
-    {file = "qualibrate_config-0.1.4.tar.gz", hash = "sha256:c8b00f9249f7aab9ecb6d5115fc43e3c3b2f56b77ae48e843a9212cb106be978"},
+    {file = "qualibrate_config-0.1.5-py3-none-any.whl", hash = "sha256:b63eefdf05bb4b1810a24dec4bf3fb4456cf19bb9dcfdcb7e3c3ac16f6893ad0"},
+    {file = "qualibrate_config-0.1.5.tar.gz", hash = "sha256:17625093bbef601ea4aff19f69a7e6cd995f89d443ce93830e50231846a1954a"},
 ]
 
 [package.dependencies]
@@ -2274,4 +2274,4 @@ json-timeline-db = []
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "e1ae0f3b0ee4d7c3027aaddc6e52d532ce0e00ae7db64a1262d8e3758311104d"
+content-hash = "f9e05f193117c963814bbd7f5e61d753548deff914eae543c3c162ddb571ea76"
