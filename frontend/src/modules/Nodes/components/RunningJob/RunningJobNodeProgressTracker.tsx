@@ -4,7 +4,7 @@ import styles from "./RunningJob.module.scss";
 import LoadingBar from "../../../../ui-lib/components/Bar/LoadingBar";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { useNodesContext } from "../../context/NodesContext";
-import { StatusVisuals, StatusLabel } from "./Helpers";
+import { StatusVisuals, StatusLabel } from "./RunningJobStatusUI";
 
 export const RunningJobNodeProgressTracker: React.FC = () => {
   const { setIsNodeRunning, lastRunStatusNode } = useNodesContext();
