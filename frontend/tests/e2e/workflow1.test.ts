@@ -105,12 +105,15 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
   await expect(page.getByTestId("parameter-title")).toContainText("Parameters");
   await expect(page.getByTestId("parameters-list")).toBeVisible();
   await expect(page.getByTestId("parameter-item-resonator")).toBeVisible();
+  await resonatorField.fill("q2.resonator");
   await expect(resonatorField).toHaveValue("q2.resonator");
   await expect(page.getByTestId("parameter-value-resonator")).toContainText("q2.resonator");
   await expect(page.getByTestId("parameter-item-sampling_points")).toBeVisible();
+  await samplingPointsField.fill("1000");
   await expect(samplingPointsField).toHaveValue("1000");
   await expect(page.getByTestId("parameter-value-sampling_points")).toContainText("1000");
   await expect(page.getByTestId("parameter-item-noise_factor")).toBeVisible();
+  await noiseFactorField.fill("0.2");
   await expect(noiseFactorField).toHaveValue("0.2");
   await expect(page.getByTestId("parameter-value-noise_factor")).toContainText("0.2");
 
