@@ -1,19 +1,11 @@
 import React from "react";
 import styles from "../styles/TitleBarTooltipContent.module.scss";
 import { LastRunStatusNodeResponseDTO } from "../constants";
-import { formatDate, capitalize } from "../helpers";
+import { formatDate, formatTime, capitalize } from "../helpers";
 
 interface TooltipContentProps {
   node: LastRunStatusNodeResponseDTO;
 }
-
-const formatTime = (sec: number | null) => {
-  if (sec === null) return "";
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = Math.floor(sec % 60);
-  return `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s}s`;
-};
 
 export const TitleBarTooltipContent: React.FC<TooltipContentProps> = ({ node }) => {
   return (

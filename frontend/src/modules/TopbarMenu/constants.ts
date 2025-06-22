@@ -55,22 +55,11 @@ export const NODE_STATUS = {
   PENDING: "pending",
 };
 
-// export const GRAPH_TABS = {
-//   LIBRARY: "graph-library",
-//   STATUS: "graph-status",
-// };
-
-// TODO: Define correct colors for graph status and node status (something like this):
-// export const GRAPH_STATUS_COLORS = {
-//   [GRAPH_STATUS.RUNNING]: "#4CAF50", // Green
-//   [GRAPH_STATUS.FINISHED]: "#2196F3", // Blue
-//   [GRAPH_STATUS.ERROR]: "#F44336", // Red
-//   [GRAPH_STATUS.PENDING]: "#9E9E9E", // Grey
-// };
-
-// export const NODE_STATUS_COLORS = {
-//   [NODE_STATUS.RUNNING]: "#4CAF50", // Green
-//   [NODE_STATUS.FINISHED]: "#2196F3", // Blue
-//   [NODE_STATUS.ERROR]: "#F44336", // Red
-//   [NODE_STATUS.PENDING]: "#9E9E9E", // Grey
-// };
+export const DEFAULT_TOOLTIP_SX = {
+  backgroundColor: "#42424C",
+  padding: "12px",
+  borderRadius: "6px",
+  boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+  fontSize: "0.85rem",
+  lineHeight: "1.3",
+};

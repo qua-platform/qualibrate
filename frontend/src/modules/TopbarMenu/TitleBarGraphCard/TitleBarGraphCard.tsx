@@ -7,8 +7,9 @@ import Tooltip from "@mui/material/Tooltip";
 import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
 import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
 import { getWrapperClass, getStatusClass, formatTime, handleStopClick } from "../helpers";
-import { LastRunStatusNodeResponseDTO, LastRunStatusGraphResponseDTO } from "../constants";
-import { StatusIndicator } from "../StatusIndicator";
+import { LastRunStatusNodeResponseDTO, LastRunStatusGraphResponseDTO, DEFAULT_TOOLTIP_SX } from "../constants";
+import { StatusIndicator } from "../StatusUI";
+import { capitalize } from "../helpers";
 
 interface GraphCardProps {
   graph: LastRunStatusGraphResponseDTO;
@@ -21,28 +22,13 @@ const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
   const handleClick = () => openTab(isPending ? "graph-library" : "graph-status");
 
   return (
-    <div className={`${styles.graphCardWrapper} ${getWrapperClass(graph.status, styles)}`}>
-      <div className={isPending ? styles.defaultGraphCardContent : styles.graphCardContent}>
-        <Tooltip
-          title={<TitleBarGraphTooltipContent graph={graph} />}
-          placement="bottom"
-          componentsProps={{
-            tooltip: {
-              sx: {
-                backgroundColor: "#42424C",
-                padding: "12px",
-                borderRadius: "6px",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-                fontSize: "0.85rem",
-                lineHeight: "1.3",
-              }
-            }
-          }}
-        >
+  <div className={`${styles.graphCardWrapper} ${getWrapperClass(graph.status, styles)}`}>
+    <div className={isPending ? styles.defaultGraphCardContent : styles.graphCardContent}>
+      <Tooltip title={<TitleBarGraphTooltipContent graph={graph} />} placement="bottom" componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}>
           <div onClick={handleClick} className={styles.hoverRegion}>
             <div className={styles.indicatorWrapper}>
               {StatusIndicator(
-                graph.status?.charAt(0).toUpperCase() + graph.status?.slice(1), 
+                capitalize(graph.status),
                 graph.percentage_complete ?? 0, 
                 {
                   Running: { width: 48, height: 48 },

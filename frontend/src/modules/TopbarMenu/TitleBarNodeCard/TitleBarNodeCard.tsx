@@ -2,12 +2,12 @@ import React from "react";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarNodeCard.module.scss";
 import { classNames } from "../../../utils/classnames";
-import { LastRunStatusNodeResponseDTO } from "../constants";
+import { LastRunStatusNodeResponseDTO, DEFAULT_TOOLTIP_SX } from "../constants";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarTooltipContent from "./TitleBarNodeTooltipContent";
 import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
-import { StatusIndicator } from "../StatusIndicator";
-import { formatTime, getWrapperClass } from "../helpers";
+import { StatusIndicator, getStatusLabelElement } from "../StatusUI";
+import { formatTime, getWrapperClass, capitalize } from "../helpers";
 
 interface IProps {
   node: LastRunStatusNodeResponseDTO;
@@ -16,46 +16,13 @@ interface IProps {
 const TitleBarNodeCard: React.FC<IProps> = ({ node }) => {
   const { openTab } = useFlexLayoutContext();
 
-  const getStatusLabelElement = (): React.ReactNode => {
-    const status = node.status?.toLowerCase();
-    if (status === "running") {
-      return (
-        <div className={classNames(styles.statusContainer, styles.statusRunning)}>
-          Running<span className={styles.statusRunningValue}>{node.current_action ? `: ${node.current_action}` : ""}</span>
-        </div>
-      );
-    }
-    if (status === "finished") {
-      return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>;
-    }
-    if (status === "error") {
-      return <div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>;
-    }
-    return <div className={classNames(styles.statusContainer, styles.statusPending)}>Select and Run Node</div>;
-  };
-
   return (
-    <Tooltip
-      title={<TitleBarTooltipContent node={node} />}
-      placement="bottom"
-      componentsProps={{
-        tooltip: {
-          sx: {
-            backgroundColor: "#42424C",
-            padding: "12px",
-            borderRadius: "6px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-            fontSize: "0.85rem",
-            lineHeight: "1.3",
-          },
-        },
-      }}
-    >
+    <Tooltip title={<TitleBarTooltipContent node={node} />} placement="bottom" componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}>
       <div onClick={() => openTab("nodes")} className={styles.hoverRegion}>
         <div className={classNames(styles.wrapper, getWrapperClass(node.status, styles))}>
           <div className={styles.indicatorWrapper}>
             {StatusIndicator(
-              node.status?.charAt(0).toUpperCase() + node.status?.slice(1), 
+              capitalize(node.status),
               node.percentage_complete ?? 0, 
               {
                 Running: { width: 30, height: 30 },
@@ -66,7 +33,6 @@ const TitleBarNodeCard: React.FC<IProps> = ({ node }) => {
               true
             )}
           </div>
-
           <div className={styles.textWrapper}>
             <div className={styles.topRowWrapper}>
               {node.status?.toLowerCase() === "pending" ? (
@@ -78,7 +44,7 @@ const TitleBarNodeCard: React.FC<IProps> = ({ node }) => {
               )}
             </div>
             <div className={styles.bottomRowWrapper}>
-              {getStatusLabelElement()}
+              {getStatusLabelElement(node.status ?? undefined, node.current_action ?? undefined)}
               {node.status?.toLowerCase() === "running" && (
                 <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}&nbsp;left</div>
               )}

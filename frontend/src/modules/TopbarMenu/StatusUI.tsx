@@ -4,7 +4,8 @@ import CheckmarkIcon from "../../ui-lib/Icons/CheckmarkIcon";
 import ErrorIcon from "../../ui-lib/Icons/ErrorIcon";
 import NoGraphRunningIcon from "../../ui-lib/Icons/NoGraphRunningIcon";
 import NoNodeRunningIcon from "../../ui-lib/Icons/NoNodeRunningIcon";
-
+import { classNames } from "../../utils/classnames";
+import styles from "./TitleBarNodeCard/styles/TitleBarNodeCard.module.scss";
 
 type SizeMap = {
   Running?: { width: number; height: number };
@@ -41,4 +42,24 @@ export const StatusIndicator = (
   }
 
   return null;
+};
+
+
+export const getStatusLabelElement = (status: string | undefined, currentAction?: string): React.ReactNode => {
+  const normalizedStatus = status?.toLowerCase();
+  if (normalizedStatus === "running") {
+    return (
+      <div className={classNames(styles.statusContainer, styles.statusRunning)}>
+        Running
+        <span className={styles.statusRunningValue}>{currentAction ? `: ${currentAction}` : ""}</span>
+      </div>
+    );
+  }
+  if (normalizedStatus === "finished") {
+    return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>;
+  }
+  if (normalizedStatus === "error") {
+    return <div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>;
+  }
+  return <div className={classNames(styles.statusContainer, styles.statusPending)}>Select and Run Node</div>;
 };
