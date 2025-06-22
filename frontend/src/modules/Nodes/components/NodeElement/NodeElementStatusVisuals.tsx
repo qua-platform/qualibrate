@@ -4,7 +4,7 @@ import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgr
 
 export const StatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ status = "pending", percentage }) => {
   if (status === "running") {
-    return <CircularLoaderProgress percentage={percentage} />;
+    return <CircularLoaderProgress percentage={percentage ?? 0} />;
   } else if (status === "finished") {
     return <div className={`${styles.dot} ${styles.greenDot}`} />;
   } else if (status === "error") {
@@ -32,7 +32,7 @@ export const getNodeRowClass = ({
   } else if (isLastRun && nodeStatus === "error") {
     return `${styles.rowWrapper} ${styles.nodeSelectedError}`;
   } else if (isLastRun && nodeStatus === "running") {
-    return `${styles.rowWrapper} ${styles.nodeSelectedRunning} ${styles.rowWrapperRunning}`;
+    return `${styles.rowWrapper} ${styles.nodeSelectedRunning} ${styles.highlightRunningRow}`;
   } else if (isSelected && nodeStatus === "pending") {
     return `${styles.rowWrapper} ${styles.nodeSelectedPending}`;
   } else {
