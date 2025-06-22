@@ -31,7 +31,12 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
   const [model, setModel] = useState(LayoutBuilder.current.model);
   const [activeTab, setActiveTab] = useState<null | ModuleKey>(null);
   const [activeTabsetName, setActiveTabsetName] = useState<string | null>(null);
-  const [topBarAdditionalComponents, setTopBarAdditionalComponents] = useState<{ [id: string]: React.JSX.Element } | undefined>(undefined);
+  const [topBarAdditionalComponents, setTopBarAdditionalComponents] = useState<
+    | {
+        [id: string]: React.JSX.Element;
+      }
+    | undefined
+  >(undefined);
   const [selectedPageName, setSelectedPageName] = useState<ModuleKey | null>(null);
 
   useEffect(() => {
@@ -46,6 +51,8 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
       setSelectedPageName("nodes");
     } else if (tab === "graph-library") {
       setSelectedPageName("graph-library");
+    } else if (tab === "data") {
+      setSelectedPageName("data");
     } else {
       setSelectedPageName(null);
     }

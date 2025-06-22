@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-app"
-version = "0.3.4"
+version = "0.3.5"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate-app"
@@ -18,7 +18,7 @@ tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 requests = "^2.31.0"
 jsonpatch = "^1.33"
-qualibrate-config = "^0.1.4"
+qualibrate-config = "^0.1.5"
 # TODO: replace after publishing timeline-db
 # json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
 

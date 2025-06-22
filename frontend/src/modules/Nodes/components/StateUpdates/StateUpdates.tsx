@@ -5,7 +5,8 @@ import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import styles from "../RunningJob/RunningJob.module.scss";
 import { StateUpdateElement, StateUpdateProps } from "./StateUpdateElement";
 import { Button } from "@mui/material";
-import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
+// import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
+import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 export const StateUpdates: React.FC<{
   runningNodeInfo: RunningNodeInfo | undefined;
@@ -13,6 +14,7 @@ export const StateUpdates: React.FC<{
   updateAllButtonPressed: boolean;
   setUpdateAllButtonPressed: (a: boolean) => void;
 }> = (props) => {
+  const { trackLatestSidePanel, fetchOneSnapshot, latestSnapshotId, secondId } = useSnapshotsContext();
   const { runningNodeInfo, setRunningNodeInfo, updateAllButtonPressed, setUpdateAllButtonPressed } = props;
 
   const handleClick = async (stateUpdates: StateUpdate) => {
@@ -27,6 +29,9 @@ export const StateUpdates: React.FC<{
     const result = await SnapshotsApi.updateStates(runningNodeInfo?.idx ?? "", litOfUpdates);
     if (result.isOk) {
       setUpdateAllButtonPressed(result.result!);
+      if (result.result && trackLatestSidePanel) {
+        fetchOneSnapshot(Number(latestSnapshotId), Number(secondId), false, true);
+      }
     }
   };
 
@@ -68,7 +73,7 @@ export const StateUpdates: React.FC<{
             } as StateUpdateProps)
           )}
 
-          {runningNodeInfo?.error && <ErrorStatusWrapper error={runningNodeInfo?.error} />}
+          {/*{runningNodeInfo?.error && <ErrorStatusWrapper error={runningNodeInfo?.error} />}*/}
         </div>
       )}
     </>

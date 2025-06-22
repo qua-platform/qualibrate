@@ -1,21 +1,14 @@
-import { SnapshotDTO } from "../../../Snapshots/SnapshotDTO";
 import React from "react";
 import { SnapshotElement } from "../SnapshotElement/SnapshotElement";
 import styles from "./SnapshotsTimeline.module.scss";
+import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
-export const SnapshotsTimeline = ({
-  allSnapshots,
-  selectedSnapshotId,
-  setSelectedSnapshotId,
-  fetchOneSnapshot,
-}: {
-  allSnapshots: SnapshotDTO[];
-  selectedSnapshotId: number | undefined;
-  setSelectedSnapshotId: (a: number | undefined) => void;
-  fetchOneSnapshot: (selectedIndex: number) => void;
-}) => {
+export const SnapshotsTimeline = () => {
+  const { allSnapshots, selectedSnapshotId, setSelectedSnapshotId, setClickedForSnapshotSelection, fetchOneSnapshot } =
+    useSnapshotsContext();
   const handleOnClick = (id: number) => {
     setSelectedSnapshotId(id);
+    setClickedForSnapshotSelection(true);
     fetchOneSnapshot(id);
   };
   return (

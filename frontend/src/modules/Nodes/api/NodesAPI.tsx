@@ -1,9 +1,10 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, IS_NODE_RUNNING, SUBMIT_NODE_RUN, STOP_RUNNING } from "../../../utils/api/apiRoutes";
+import { ALL_NODES, GET_LAST_RUN, GET_LAST_RUN_STATUS, IS_NODE_RUNNING, SUBMIT_NODE_RUN, STOP_RUNNING, GET_LOGS, } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
-import { LastRunStatusNodeResponseDTO } from "../../../modules/TopbarMenu/TitleBarMenu";
-import { LastRunStatusGraphResponseDTO } from "../../TopbarMenu/TitleBarGraphCard/TitleBarGraphCard";
+import { LastRunStatusNodeResponseDTO } from "../../TopbarMenu/constants";
+import { LastRunStatusGraphResponseDTO } from "../../TopbarMenu/constants";
+import { LogsViewerResponseDTO } from "../../RightSidebar/context/RightSidePanelContext";
 
 export class NodesApi extends Api {
   constructor() {
@@ -54,6 +55,17 @@ export class NodesApi extends Api {
 
   static stopRunningGraph(): Promise<Res<void>> {
     return this._fetch(this.api(STOP_RUNNING()), API_METHODS.POST, {
+      headers: BASIC_HEADERS,
+    });
+  }
+
+  static getLogs(
+    after: string | null = null,
+    before: string | null = null,
+    num_entries: string = "300",
+    reverse: boolean = true
+  ): Promise<Res<LogsViewerResponseDTO[]>> {
+    return this._fetch(this.api(GET_LOGS({ after, before, num_entries, reverse })), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }

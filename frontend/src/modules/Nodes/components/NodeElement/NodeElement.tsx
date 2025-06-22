@@ -13,6 +13,7 @@ import { NodesApi } from "../../api/NodesAPI";
 import { RunIcon } from "../../../../ui-lib/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
+import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 export interface NodeDTO {
   name: string;
@@ -38,6 +39,7 @@ export const formatDate = (date: Date) => {
 
 export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
+  const { firstId, secondId, fetchOneSnapshot, trackLatestSidePanel } = useSnapshotsContext();
   const {
     isNodeRunning,
     setRunningNodeInfo,
@@ -95,8 +97,6 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     );
   };
 
-
-
   const handleClick = async () => {
     setUpdateAllButtonPressed(false);
     setIsNodeRunning(true);
@@ -118,6 +118,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         status: "error",
       });
     }
+    if (trackLatestSidePanel) {
+      fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
+    }
   };
 
   const insertSpaces = (str: string, interval = 40) => {
@@ -138,12 +141,16 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     >
       <div className={styles.row}>
         <div className={styles.titleOrNameWrapper}>
-          <div className={styles.titleOrName} data-testid={`title-or-name-${nodeKey}`}>{insertSpaces(node.title ?? node.name)}</div>
+          <div className={styles.titleOrName} data-testid={`title-or-name-${nodeKey}`}>
+            {insertSpaces(node.title ?? node.name)}
+          </div>
         </div>
         <div className={styles.descriptionWrapper}>
-        {node.description?.trim() && (
-            <Tooltip title={node.description?.trim()} placement="left-start" arrow>
-              <span><InfoIcon /></span>
+          {node.description && (
+            <Tooltip title={<div className={styles.descriptionTooltip}>{node.description} </div>} placement="left-start" arrow>
+              <span>
+                <InfoIcon />
+              </span>
             </Tooltip>
           )}
         </div>

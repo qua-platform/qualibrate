@@ -8,6 +8,9 @@ import {
   MeasurementElementOutcomes,
   MeasurementElementStatusInfoAndParameters,
 } from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
+import { useSnapshotsContext } from "../../../../../Snapshots/context/SnapshotsContext";
+import { Tooltip } from "@mui/material";
+import { InfoIcon } from "../../../../../../ui-lib/Icons/InfoIcon";
 
 interface MeasurementElementProps {
   element: Measurement;
@@ -25,7 +28,8 @@ export const formatDateTime = (dateTimeString: string) => {
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, dataMeasurementId }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
-  const { fetchResultsAndDiffData, setResult, setDiffData } = useGraphStatusContext();
+  // const { fetchResultsAndDiffData } = useGraphStatusContext();
+  const { fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
   const { trackLatest, setTrackLatest } = useGraphStatusContext();
 
   // Check if the current measurement is selected in either the list or Cytoscape graph
@@ -55,7 +59,9 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     setSelectedItemName(element.metadata?.name);
     setSelectedNodeNameInWorkflow(element.metadata?.name);
     if (element.id) {
-      fetchResultsAndDiffData(element.id);
+      setSelectedSnapshotId(element.id);
+      setClickedForSnapshotSelection(true);
+      fetchOneSnapshot(element.id);
     } else {
       setResult({});
       setDiffData({});
@@ -68,7 +74,19 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
         <div className={styles.titleOrName}>
           #{element.id} {element.metadata?.name}
         </div>
-        <div className={styles.description}>{element.metadata?.description}</div>
+        <div className={styles.descriptionWrapper}>
+          {element.metadata?.description && (
+            <Tooltip
+              title={<div className={styles.descriptionTooltip}>{element.metadata?.description ?? ""}</div>}
+              placement="left-start"
+              arrow
+            >
+              <span>
+                <InfoIcon />
+              </span>
+            </Tooltip>
+          )}
+        </div>
       </div>
       {(measurementSelected || cytoscapeNodeSelected) && (
         <div className={styles.expandedContent}>
