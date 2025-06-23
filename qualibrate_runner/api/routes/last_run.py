@@ -74,8 +74,19 @@ def get_status(
     node_status: Optional[RunStatusNode] = None
     graph_status: Optional[RunStatusGraph] = None
     if node:
+        # TODO: use func for resolve node status
         status = (
-            state.last_run.status if graph is None else RunStatusEnum.RUNNING
+            state.last_run.status
+            if graph is None
+            else (
+                RunStatusEnum.RUNNING
+                if node.run_summary is None
+                else (
+                    RunStatusEnum.FINISHED
+                    if node.run_summary.error is None
+                    else RunStatusEnum.ERROR
+                )
+            )
         )
         node_status = RunStatusNode(
             name=node.name,
