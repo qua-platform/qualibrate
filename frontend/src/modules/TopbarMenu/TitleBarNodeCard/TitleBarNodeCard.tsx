@@ -2,12 +2,12 @@ import React from "react";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarNodeCard.module.scss";
 import { classNames } from "../../../utils/classnames";
-import { LastRunStatusNodeResponseDTO, DEFAULT_TOOLTIP_SX } from "../constants";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarTooltipContent from "./TitleBarNodeTooltipContent";
 import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
 import { StatusIndicator, getStatusLabelElement } from "../StatusUI";
 import { formatTime, getWrapperClass, capitalize } from "../helpers";
+import { LastRunStatusNodeResponseDTO, DEFAULT_TOOLTIP_SX } from "../constants";
 
 interface IProps {
   node: LastRunStatusNodeResponseDTO;

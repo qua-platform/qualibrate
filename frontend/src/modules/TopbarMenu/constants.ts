@@ -42,19 +42,6 @@ export const fallbackGraph: LastRunStatusGraphResponseDTO = {
     time_remaining: 0,
 };
 
-export const GRAPH_STATUS = {
-  RUNNING: "running",
-  FINISHED: "finished",
-  ERROR: "error",
-  PENDING: "pending",
-};
-export const NODE_STATUS = {
-  RUNNING: "running",
-  FINISHED: "finished",
-  ERROR: "error",
-  PENDING: "pending",
-};
-
 export const DEFAULT_TOOLTIP_SX = {
   backgroundColor: "#42424C",
   padding: "12px",

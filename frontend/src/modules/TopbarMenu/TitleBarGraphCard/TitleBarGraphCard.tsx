@@ -6,10 +6,9 @@ import StopButtonIcon from "../../../ui-lib/Icons/StopButtonIcon";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
 import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
-import { getWrapperClass, getStatusClass, formatTime, handleStopClick } from "../helpers";
+import { getWrapperClass, getStatusClass, formatTime, handleStopClick, capitalize } from "../helpers";
 import { LastRunStatusNodeResponseDTO, LastRunStatusGraphResponseDTO, DEFAULT_TOOLTIP_SX } from "../constants";
 import { StatusIndicator } from "../StatusUI";
-import { capitalize } from "../helpers";
 
 interface GraphCardProps {
   graph: LastRunStatusGraphResponseDTO;
@@ -18,12 +17,11 @@ interface GraphCardProps {
 
 const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
   const { openTab } = useFlexLayoutContext();
-  const isPending = graph.status === "pending";
-  const handleClick = () => openTab(isPending ? "graph-library" : "graph-status");
+  const handleClick = () => openTab(graph.status === "pending" ? "graph-library" : "graph-status");
 
   return (
   <div className={`${styles.graphCardWrapper} ${getWrapperClass(graph.status, styles)}`}>
-    <div className={isPending ? styles.defaultGraphCardContent : styles.graphCardContent}>
+    <div className={graph.status === "pending" ? styles.defaultGraphCardContent : styles.graphCardContent}>
       <Tooltip title={<TitleBarGraphTooltipContent graph={graph} />} placement="bottom" componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}>
           <div onClick={handleClick} className={styles.hoverRegion}>
             <div className={styles.indicatorWrapper}>
@@ -40,7 +38,7 @@ const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
               )}
             </div>
             <div className={styles.textWrapper}>
-              {isPending ? (
+              {graph.status === "pending" ? (
                 <>
                   <div className={styles.graphTitleDefault}>No graph is running</div>
                   <div className={styles.graphStatusRow}>
@@ -71,7 +69,7 @@ const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
         <TitleBarNodeCard node={node} />
 
         {/* Graph Stop button and timer */}
-        {(!isPending && graph.status === "running") && (
+        {(!(graph.status === "pending") && graph.status === "running") && (
           <div className={styles.stopAndTimeWrapper}>
             <div className={styles.stopButton} onClick={handleStopClick}>
               <StopButtonIcon />
@@ -84,7 +82,7 @@ const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
           </div>
         )}
 
-        {(!isPending && graph.status !== "running" && graph.run_duration > 0) && (
+        {(!(graph.status === "pending") && graph.status !== "running" && graph.run_duration > 0) && (
           <div className={styles.stopAndTimeWrapper}>
             <div className={styles.timeRemaining}>
               <div>Elapsed time:</div>
@@ -94,7 +92,7 @@ const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
         )}
 
         {/* Stop button when in pending node (Stops for case when only running a node) */}
-        {isPending && node.status === "running" && (
+        {graph.status === "pending" && node.status === "running" && (
           <div className={styles.nodeStopButton} onClick={handleStopClick}>
             <StopButtonIcon />
           </div>
