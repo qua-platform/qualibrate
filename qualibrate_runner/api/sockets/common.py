@@ -3,7 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
-from qualibrate_runner.core.app.ws_manager import SocketConnectionManager
+from qualibrate_runner.core.app.ws_manager import (
+    SocketConnectionManagerList,
+    SocketConnectionManagerMapping,
+)
 from qualibrate_runner.core.app.ws_managers import (
     get_execution_history_socket_manager,
     get_run_status_socket_manager,
@@ -17,7 +20,7 @@ async def run_status_subscribe(
     websocket: WebSocket,
     *,
     manager: Annotated[
-        SocketConnectionManager, Depends(get_run_status_socket_manager)
+        SocketConnectionManagerList, Depends(get_run_status_socket_manager)
     ],
 ) -> None:
     await manager.connect(websocket)
@@ -32,14 +35,15 @@ async def run_status_subscribe(
 async def workflow_execution_history_subscribe(
     websocket: WebSocket,
     *,
+    reverse: bool = True,
     manager: Annotated[
-        SocketConnectionManager,
+        SocketConnectionManagerMapping[bool],
         Depends(get_execution_history_socket_manager),
     ],
 ) -> None:
-    await manager.connect(websocket)
+    await manager.connect(reverse, websocket)
     try:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        manager.disconnect(reverse, websocket)
