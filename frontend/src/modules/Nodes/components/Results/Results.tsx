@@ -16,11 +16,11 @@ export const ResultsError: React.FC<{ style?: React.CSSProperties; errorObject: 
         <div className={styles.errorHeaderTitle}>Error</div>
       </div>
       <div className={styles.errorContent}>
-        <div className={styles.errorNameWrapper}>
+        <div>
           <div className={styles.errorLabel}>Error occurred:</div>
           <div className={styles.errorText}>{errorObject.message}</div>
         </div>
-        <div className={styles.errorTracebackWrapper}>
+        <div>
           <div className={styles.errorLabel}>Error traceback:</div>
           <div className={styles.errorText}>
             {(errorObject.traceback ?? []).map((row, index) => (

@@ -110,7 +110,7 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
         let lastElId = 0;
 
         if (promise?.result?.items) {
-          lastElId = promise?.result.items.length > 0 ? promise?.result.items[0].id : 0;
+          lastElId = promise?.result.items.length > 0 ? promise?.result.items[0]?.id : 0;
           setLatestSnapshotId(lastElId);
           if (trackLatestSidePanel) {
             if (trackPreviousSnapshot) {
@@ -150,8 +150,8 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
     SnapshotsApi.fetchAllSnapshots(page).then((promise: Res<SnapshotResult>) => {
       setTotalPages(promise.result?.total_pages as number);
       setPageNumber(promise.result?.page as number);
-      const newMaxId = promise.result?.items[0].id;
-      const odlMaxId = allSnapshots[0].id;
+      const newMaxId = promise.result?.items[0]?.id;
+      const odlMaxId = allSnapshots[0]?.id;
       console.log(`Max snapshot ID - previous=${odlMaxId}, latest=${newMaxId}`);
       if (newMaxId !== odlMaxId! && allSnapshots.length !== 0) {
         setReset(true);
