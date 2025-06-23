@@ -98,7 +98,7 @@ const TitleBarMenuCard: React.FC<IProps> = ({ node }) => {
             </div>
             <div className={styles.bottomRowWrapper}>
               {getStatusLabelElement()}
-              {node.status?.toLowerCase() === "running" && (
+              {node.status?.toLowerCase() === "running" && node.percentage_complete > 0 && (
                 <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}</div>
               )}
             </div>
