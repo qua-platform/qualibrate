@@ -11,13 +11,13 @@ try:
         CONFIG_PATH_ENV_NAME as QAPP_CONFIG_PATH_ENV_NAME,
     )
 except ImportError:
-    QAPP_CONFIG_PATH_ENV_NAME = None
+    QAPP_CONFIG_PATH_ENV_NAME = None  # type: ignore[assignment]
 try:
     from qualibrate_runner.config import (
         CONFIG_PATH_ENV_NAME as RUNNER_CONFIG_PATH_ENV_NAME,
     )
 except ImportError:
-    RUNNER_CONFIG_PATH_ENV_NAME = None
+    RUNNER_CONFIG_PATH_ENV_NAME = None  # type: ignore[assignment]
 
 
 @click.command(name="start")
