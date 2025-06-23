@@ -5,6 +5,7 @@ import click
 from qualibrate_config.vars import DEFAULT_CONFIG_FILENAME, QUALIBRATE_PATH
 
 from qualibrate_composite.config import CONFIG_PATH_ENV_NAME
+from qualibrate_composite.config.vars import DEBUG_MODE_ENV_NAME
 
 try:
     from qualibrate_app.config import (
@@ -50,8 +51,15 @@ except ImportError:
     show_default=True,
     help="Application will be started on the given host",
 )  # env QUALIBRATE_START_HOST
+@click.option(
+    "--debug",
+    is_flag=True,
+    default=False,
+    hidden=True,
+    help="App will be started in debug mode (some checks will be skipped)",
+)
 def start_command(
-    config_path: Path, port: int, host: str, reload: bool
+    config_path: Path, port: int, host: str, reload: bool, debug: bool
 ) -> None:
     config_path_str = str(config_path)
     os.environ[CONFIG_PATH_ENV_NAME] = config_path_str
@@ -59,6 +67,8 @@ def start_command(
         os.environ[QAPP_CONFIG_PATH_ENV_NAME] = str(config_path)
     if RUNNER_CONFIG_PATH_ENV_NAME is not None:
         os.environ[RUNNER_CONFIG_PATH_ENV_NAME] = str(config_path)
+    if debug:
+        os.environ[DEBUG_MODE_ENV_NAME] = "true"
 
     from qualibrate_composite.app import main as app_main
 
