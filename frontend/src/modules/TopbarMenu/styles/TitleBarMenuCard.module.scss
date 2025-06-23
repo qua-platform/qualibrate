@@ -6,7 +6,7 @@
   align-items: center; 
   padding: 8px 12px;
   border-radius: 8px;
-  width: 250px;
+  width: 313px;
 }
 
 .contentWrapper {
@@ -65,6 +65,12 @@
   color: #3CDEF8;
   padding: 1px 4px;
   font-weight: 500;
+  font-size: 14px;
+  max-width: 222px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .statusRunningValue {
@@ -108,12 +114,12 @@
 }
 
 .nodeRunningLabel {
-  font-size: 12px;
+  font-size: 14px;
   white-space: nowrap;
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 220px; 
+  max-width: 285px; 
 }
 
 .noNodeRunningLabel {
