@@ -89,7 +89,8 @@ def validate_runner_version_for_app() -> None:
     raise RuntimeError(
         f"Invalid qualibrate-runner version. Expected: '=={dep_version}'. "
         f"Allowed: '>={dep_version}, <{max_version}'. "
-        f"Installed: {existing_version}."
+        f"Installed: {existing_version}. Please run "
+        "'pip install --upgrade qualibrate' to ensure version compatibility."
     )
 
 
