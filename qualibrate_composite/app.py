@@ -1,13 +1,20 @@
+import os
+
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from qualibrate_composite.api.routes import base_router
-from qualibrate_composite.config import get_config_path, get_settings
+from qualibrate_composite.config import (
+    DEBUG_MODE_ENV_NAME,
+    get_config_path,
+    get_settings,
+)
 from qualibrate_composite.utils.spawn import (
     spawn_qua_dashboards,
     spawn_qualibrate_app,
     spawn_qualibrate_runner,
+    validate_runner_version_for_app,
 )
 
 try:
@@ -46,6 +53,9 @@ if hasattr(composite, "qua_dashboards") and composite.qua_dashboards.spawn:
     spawn_qua_dashboards(app)
 if composite.app.spawn:
     spawn_qualibrate_app(app)
+debug_mode = os.environ.get(DEBUG_MODE_ENV_NAME, "").lower() == "true"
+if not debug_mode and composite.runner.spawn and composite.app.spawn:
+    validate_runner_version_for_app()
 
 
 def main(port: int, host: str, reload: bool) -> None:
