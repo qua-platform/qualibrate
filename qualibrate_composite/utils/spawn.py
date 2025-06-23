@@ -1,7 +1,10 @@
 import logging
+from collections.abc import AsyncIterator
+from contextlib import AsyncExitStack, asynccontextmanager
 from importlib.util import find_spec
 
 from fastapi import FastAPI
+from fastapi.routing import Mount
 
 from qualibrate_composite.api.auth_middleware import (
     QualibrateAppAuthMiddleware,
@@ -80,3 +83,13 @@ def spawn_qua_dashboards(app: FastAPI) -> None:
         WSGIMiddleware(qua_dashboard_app.server),  # type: ignore[arg-type]
         name="qua_dashboards",
     )
+
+
+@asynccontextmanager
+async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    async with AsyncExitStack() as stack:
+        for subapp in filter(lambda x: isinstance(x, Mount), app.routes):
+            await stack.enter_async_context(
+                subapp.app.router.lifespan_context(app)  # type: ignore[attr-defined]
+            )
+        yield
