@@ -13,6 +13,7 @@ import { NodesApi } from "../../api/NodesAPI";
 import { RunIcon } from "../../../../ui-lib/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
+import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 export interface NodeDTO {
   name: string;
@@ -25,7 +26,6 @@ export interface NodeDTO {
 export interface NodeMap {
   [key: string]: NodeDTO;
 }
-
 export const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -39,6 +39,7 @@ export const formatDate = (date: Date) => {
 
 export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
+  const { firstId, secondId, fetchOneSnapshot, trackLatestSidePanel } = useSnapshotsContext();
   const {
     isNodeRunning,
     setRunningNodeInfo,
@@ -116,6 +117,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         timestampOfRun: formatDate(new Date()),
         status: "error",
       });
+    }
+    if (trackLatestSidePanel) {
+      fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
     }
   };
 

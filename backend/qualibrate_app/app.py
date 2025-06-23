@@ -7,7 +7,11 @@ from qualibrate_app.api.__main__ import api_router
 from qualibrate_app.api.exceptions.middleware import (
     QualibrateCatchExcMiddleware,
 )
-from qualibrate_app.config.resolvers import get_config_path, get_settings
+from qualibrate_app.config.resolvers import (
+    get_config_path,
+    get_default_static_files_path,
+    get_settings,
+)
 
 try:
     from json_timeline_database.app import app as json_timeline_db_app
@@ -40,12 +44,23 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api")
 
-if _settings.app is None or not _settings.app.static_site_files.is_dir():
-    raise RuntimeError("No static files found in config.toml")
+static_files_path = (
+    _settings.app.static_site_files
+    if (
+        _settings is not None
+        and _settings.app is not None
+        and _settings.app.static_site_files is not None
+    )
+    else get_default_static_files_path()
+)
+if static_files_path is None or not static_files_path.is_dir():
+    raise RuntimeError(
+        "No static files found in config.toml or default location"
+    )
 # Directory should exist
 app.mount(
     "/",
-    StaticFiles(directory=_settings.app.static_site_files, html=True),
+    StaticFiles(directory=static_files_path, html=True),
     name="static",
 )
 

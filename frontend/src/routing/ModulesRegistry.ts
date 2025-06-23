@@ -1,4 +1,3 @@
-import Data from "../modules/Data";
 import DataIcon from "../ui-lib/Icons/DataIcon";
 import { IconProps } from "../common/interfaces/IconProps";
 import React from "react";
@@ -11,6 +10,7 @@ import CalibrationGraph from "../modules/GraphLibrary";
 import GraphLibraryIcon from "../ui-lib/Icons/GraphLibraryIcon";
 import GraphStatusIcon from "../ui-lib/Icons/GraphStatusIcon";
 import GraphStatus from "../modules/GraphLibrary/components/GraphStatus/GraphStatus";
+import { Data } from "../modules/Data";
 
 const DATA_KEY: ModuleKey = "data";
 const NODES_KEY: ModuleKey = "nodes";

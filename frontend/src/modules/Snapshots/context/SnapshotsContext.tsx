@@ -1,9 +1,14 @@
-import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
+import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
 import { SnapshotDTO } from "../SnapshotDTO";
 import { SnapshotResult, SnapshotsApi } from "../api/SnapshotsApi";
 import { Res } from "../../../common/interfaces/Api";
 
 interface ISnapshotsContext {
+  // trackLatestSidePanel: boolean;
+  trackLatestSidePanel: boolean;
+  setTrackLatestSidePanel: Dispatch<SetStateAction<boolean>>;
+  trackPreviousSnapshot: boolean;
+  setTrackPreviousSnapshot: Dispatch<SetStateAction<boolean>>;
   totalPages: number;
   pageNumber: number;
   setPageNumber: (pageNumber: number) => void;
@@ -13,17 +18,33 @@ interface ISnapshotsContext {
   selectedSnapshotId: number | undefined;
   setSelectedSnapshotId: Dispatch<SetStateAction<number | undefined>>;
 
-  fetchOneSnapshot: (id: number) => void;
+  latestSnapshotId: number | undefined;
+  setLatestSnapshotId: Dispatch<SetStateAction<number | undefined>>;
+
+  clickedForSnapshotSelection: boolean;
+  setClickedForSnapshotSelection: Dispatch<SetStateAction<boolean>>;
+
+  fetchOneSnapshot: (id: number, id2?: number, updateResult?: boolean, fetchUpdate?: boolean) => void;
 
   jsonData: object | undefined;
   setJsonData: Dispatch<SetStateAction<object | undefined>>;
+  jsonDataSidePanel: object | undefined;
+  setJsonDataSidePanel: Dispatch<SetStateAction<object | undefined>>;
   diffData: object | undefined;
   setDiffData: Dispatch<SetStateAction<object | undefined>>;
   result: object | undefined;
   setResult: Dispatch<SetStateAction<object | undefined>>;
+  firstId: string;
+  setFirstId: (id: string) => void;
+  secondId: string;
+  setSecondId: (id: string) => void;
 }
 
 export const SnapshotsContext = React.createContext<ISnapshotsContext>({
+  trackLatestSidePanel: true,
+  setTrackLatestSidePanel: () => {},
+  trackPreviousSnapshot: true,
+  setTrackPreviousSnapshot: () => {},
   totalPages: 0,
   pageNumber: 0,
   setPageNumber: () => {},
@@ -33,34 +54,50 @@ export const SnapshotsContext = React.createContext<ISnapshotsContext>({
   selectedSnapshotId: undefined,
   setSelectedSnapshotId: () => {},
 
+  latestSnapshotId: undefined,
+  setLatestSnapshotId: () => {},
+
+  clickedForSnapshotSelection: false,
+  setClickedForSnapshotSelection: () => {},
+
   fetchOneSnapshot: () => {},
 
   jsonData: {},
   setJsonData: () => {},
+  jsonDataSidePanel: {},
+  setJsonDataSidePanel: () => {},
   diffData: {},
   setDiffData: () => {},
   result: {},
   setResult: () => {},
+  firstId: "0",
+  setFirstId: () => {},
+  secondId: "0",
+  setSecondId: () => {},
 });
 
 export const useSnapshotsContext = (): ISnapshotsContext => useContext<ISnapshotsContext>(SnapshotsContext);
 
-interface SnapshotsContextProviderProps {
-  children: React.JSX.Element;
-}
-
-export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): React.ReactElement {
+export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): React.ReactElement {
+  const [trackLatestSidePanel, setTrackLatestSidePanel] = useState(true);
+  const [trackPreviousSnapshot, setTrackPreviousSnapshot] = useState(true);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [allSnapshots, setAllSnapshots] = useState<SnapshotDTO[]>([]);
 
   const [selectedSnapshotId, setSelectedSnapshotId] = useState<number | undefined>(undefined);
+  const [clickedForSnapshotSelection, setClickedForSnapshotSelection] = useState<boolean>(false);
+  const [latestSnapshotId, setLatestSnapshotId] = useState<number | undefined>(undefined);
 
   const [reset, setReset] = useState<boolean>(false);
 
+  const [jsonDataSidePanel, setJsonDataSidePanel] = useState<object | undefined>(undefined);
   const [jsonData, setJsonData] = useState<object | undefined>(undefined);
   const [diffData, setDiffData] = useState<object | undefined>(undefined);
   const [result, setResult] = useState<object | undefined>(undefined);
+
+  const [firstId, setFirstId] = useState<string>("0");
+  const [secondId, setSecondId] = useState<string>("0");
 
   // -----------------------------------------------------------
   // FIRST FETCH ALL SNAPSHOTS ON THE BEGINNING
@@ -70,13 +107,25 @@ export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): 
         setTotalPages(promise.result?.total_pages ?? 1);
         setPageNumber(promise.result?.page ?? 1);
         setAllSnapshots(promise?.result?.items ?? []);
+        let lastElId = 0;
 
+        if (promise?.result?.items) {
+          lastElId = promise?.result.items.length > 0 ? promise?.result.items[0].id : 0;
+          setLatestSnapshotId(lastElId);
+          if (trackLatestSidePanel) {
+            if (trackPreviousSnapshot) {
+              fetchOneSnapshot(lastElId, lastElId - 1, false, true);
+            } else {
+              fetchOneSnapshot(lastElId, Number(secondId), false, true);
+            }
+          }
+        }
         if (firstTime) {
           if (promise?.result?.items) {
-            const lastElId = promise?.result.items.length > 0 ? promise?.result.items[0].id : 0;
+            // const lastElId = promise?.result.items.length > 0 ? promise?.result.items[0].id : 0;
             setSelectedSnapshotId(lastElId);
             // const lastIndex = promise?.result.items.length - 1;
-            fetchOneSnapshot(lastElId);
+            fetchOneSnapshot(lastElId, lastElId - 1, false, true);
           }
         } else {
           if (selectedSnapshotId) {
@@ -132,32 +181,38 @@ export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): 
   }, [reset, pageNumber]);
   // -----------------------------------------------------------
 
-  const fetchOneSnapshot = (snapshotId: number) => {
+  const fetchOneSnapshot = (snapshotId: number, snapshotId2?: number, updateResult = true, fetchUpdate = false) => {
+    // console.log("fetchOneSnapshot", snapshotId, snapshotId2, updateResult);
     // const fetchOneSnapshot = (snapshots: SnapshotDTO[], index: number) => {
     // const id1 = snapshots[index].id.toString();
     // const index2 = index - 1 >= 0 ? index - 1 : 0;
     // const index2 = selectedSnapshotId ? (selectedSnapshotId - 1 >= 0 ? selectedSnapshotId - 1 : 0) : 0;
     const id1 = (snapshotId ?? 0).toString();
-    const id2 = snapshotId - 1 >= 0 ? (snapshotId - 1).toString() : "0";
+    const id2 = snapshotId2 ? snapshotId2.toString() : snapshotId - 1 >= 0 ? (snapshotId - 1).toString() : "0";
     SnapshotsApi.fetchSnapshot(id1)
       .then((promise: Res<SnapshotDTO>) => {
-        setJsonData(promise?.result?.data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-    SnapshotsApi.fetchSnapshotResult(id1)
-      .then((promise: Res<object>) => {
-        if (promise.result) {
-          setResult(promise?.result);
-        } else {
-          setResult(undefined);
+        if (updateResult) {
+          setJsonData(promise?.result?.data);
         }
+        setJsonDataSidePanel(promise?.result?.data?.quam ?? {});
       })
       .catch((e) => {
         console.log(e);
       });
-    if (id1 !== id2) {
+    if (updateResult) {
+      SnapshotsApi.fetchSnapshotResult(id1)
+        .then((promise: Res<object>) => {
+          if (promise.result) {
+            setResult(promise?.result);
+          } else {
+            setResult(undefined);
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    }
+    if (id1 !== id2 && fetchUpdate) {
       SnapshotsApi.fetchSnapshotUpdate(id2, id1)
         .then((promise: Res<object>) => {
           if (promise.result) {
@@ -191,6 +246,10 @@ export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): 
   return (
     <SnapshotsContext.Provider
       value={{
+        trackLatestSidePanel,
+        setTrackLatestSidePanel,
+        trackPreviousSnapshot,
+        setTrackPreviousSnapshot,
         totalPages,
         pageNumber,
         setPageNumber,
@@ -200,13 +259,25 @@ export function SnapshotsContextProvider(props: SnapshotsContextProviderProps): 
         selectedSnapshotId,
         setSelectedSnapshotId,
 
+        latestSnapshotId,
+        setLatestSnapshotId,
+
+        clickedForSnapshotSelection,
+        setClickedForSnapshotSelection,
+
         jsonData,
         setJsonData,
+        jsonDataSidePanel,
+        setJsonDataSidePanel,
         diffData,
         setDiffData,
         result,
         setResult,
         fetchOneSnapshot,
+        firstId,
+        setFirstId,
+        secondId,
+        setSecondId,
       }}
     >
       {props.children}
