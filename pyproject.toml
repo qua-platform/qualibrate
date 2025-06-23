@@ -19,7 +19,7 @@ tomli-w = "^1.0.0"
 qualibrate-core = "0.3.2"
 qualibrate-runner = "0.3.3"
 qualibrate-app = "0.3.5"
-qualibrate-config = "^0.1.6"
+qualibrate-config = "0.1.6"
 a2wsgi = "^1.10.8"
 
 [tool.poetry.group.dev.dependencies]
