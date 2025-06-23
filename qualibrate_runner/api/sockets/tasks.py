@@ -34,7 +34,7 @@ async def execution_history() -> None:
     manager = get_execution_history_socket_manager()
     if not manager.any_subscriber:
         return
-    history = get_graph_execution_history(get_state())
+    history = get_graph_execution_history(get_state(), reverse=True)
     if history is None:
         return
     await manager.broadcast(history.model_dump(mode="json"))
