@@ -11,7 +11,7 @@ from qualibrate_app.api.core.domain.bases.branch import (
 from qualibrate_app.api.core.domain.bases.node import NodeBase, NodeLoadType
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
-    SnapshotLoadType,
+    SnapshotLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.local_storage.node import NodeLocalStorage
 from qualibrate_app.api.core.domain.local_storage.snapshot import (
@@ -90,7 +90,7 @@ class BranchLocalStorage(BranchBase):
             SnapshotLocalStorage(id, settings=self._settings) for id in ids
         ]
         for snapshot in snapshots:
-            snapshot.load(SnapshotLoadType.Metadata)
+            snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         total = find_latest_node_id(storage_location)
         return total, snapshots
 

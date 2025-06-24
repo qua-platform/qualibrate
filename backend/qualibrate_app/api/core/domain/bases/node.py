@@ -10,7 +10,7 @@ from qualibrate_app.api.core.domain.bases.base_with_settings import (
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
-    SnapshotLoadType,
+    SnapshotLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.bases.storage import DataFileStorage
 from qualibrate_app.api.core.models.node import Node as NodeModel
@@ -54,7 +54,7 @@ class NodeBase(DomainWithConfigBase, IDump, ABC):
     def load(self, load_type: NodeLoadType) -> None:
         if self._load_type == NodeLoadType.Full:
             return
-        self._snapshot.load(SnapshotLoadType.Metadata)
+        self._snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         if load_type < NodeLoadType.Full:
             return
         self._fill_storage()

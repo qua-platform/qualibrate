@@ -2,6 +2,11 @@ from datetime import datetime
 
 import pytest
 
+import tests.api.local_storage._utils as _utils_test
+from qualibrate_app.api.routes.utils.snapshot_load_type import (
+    SnapshotLoadTypeStr,
+)
+
 
 @pytest.mark.parametrize("load_type", (0, 1))
 def test_branch_get(
@@ -30,7 +35,91 @@ def test_branch_get_snapshot_default(
         "/api/branch/main/snapshot", params={"snapshot_id": snapshot_id}
     )
     snapshot = snapshots_history[len(snapshots_history) - snapshot_id]
-    snapshot.update({"data": None})
+    snapshot = _utils_test.update_snapshot_minified_response(snapshot)
+    assert response.status_code == 200
+    assert response.json() == snapshot
+
+
+@pytest.mark.parametrize(
+    "load_type_flag, to_update",
+    (
+        (
+            SnapshotLoadTypeStr.Minified,
+            {
+                "metadata": _utils_test.EMPTY_METADATA,
+                "data": None,
+            },
+        ),
+        (SnapshotLoadTypeStr.Metadata, {"data": None}),
+        (
+            SnapshotLoadTypeStr.DataWithoutRefs,
+            {
+                "metadata": _utils_test.EMPTY_METADATA,
+                "data": {
+                    "quam": None,
+                    "parameters": None,
+                    "outcomes": None,
+                    "results": None,
+                },
+            },
+        ),
+        (
+            SnapshotLoadTypeStr.DataWithMachine,
+            {
+                "metadata": _utils_test.EMPTY_METADATA,
+                "data": {
+                    "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                    "results": None,
+                },
+            },
+        ),
+        (
+            SnapshotLoadTypeStr.DataWithResults,
+            {
+                "metadata": _utils_test.EMPTY_METADATA,
+                "data": {
+                    "quam": None,
+                    "parameters": None,
+                    "outcomes": None,
+                    "results": {
+                        "info": "out data",
+                        "result": "node_3",
+                    },
+                },
+            },
+        ),
+        (
+            SnapshotLoadTypeStr.Full,
+            {
+                "data": {
+                    "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                    "results": {
+                        "info": "out data",
+                        "result": "node_3",
+                    },
+                }
+            },
+        ),
+    ),
+)
+def test_branch_get_snapshot_load_type_flag(
+    client_custom_settings,
+    default_local_storage_project,
+    snapshots_history,
+    load_type_flag,
+    to_update,
+):
+    snapshot_id = 3
+    response = client_custom_settings.get(
+        "/api/branch/main/snapshot",
+        params={"snapshot_id": 3, "load_type_flag": load_type_flag.value},
+    )
+    snapshot = snapshots_history[len(snapshots_history) - snapshot_id]
+    snapshot.update(to_update)
     assert response.status_code == 200
     assert response.json() == snapshot
 
@@ -41,13 +130,7 @@ def test_branch_get_snapshot_default(
         (
             1,
             {
-                "metadata": {
-                    "description": None,
-                    "run_end": None,
-                    "run_start": None,
-                    "run_duration": None,
-                    "status": None,
-                },
+                "metadata": _utils_test.EMPTY_METADATA,
                 "data": None,
             },
         ),
@@ -59,6 +142,10 @@ def test_branch_get_snapshot_default(
                     "quam": {"quam": {"node": 3}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
+                    "results": {
+                        "info": "out data",
+                        "result": "node_3",
+                    },
                 }
             },
         ),
@@ -69,6 +156,10 @@ def test_branch_get_snapshot_default(
                     "quam": {"quam": {"node": 3}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
+                    "results": {
+                        "info": "out data",
+                        "result": "node_3",
+                    },
                 }
             },
         ),
@@ -97,6 +188,7 @@ def test_branch_get_latest_snapshot_default(
 ):
     response = client_custom_settings.get("/api/branch/main/snapshot/latest")
     snapshot = snapshots_history[0]
+    snapshot = _utils_test.update_snapshot_minified_response(snapshot)
     snapshot.update({"data": None})
     assert response.status_code == 200
     assert response.json() == snapshot
@@ -108,13 +200,7 @@ def test_branch_get_latest_snapshot_default(
         (
             1,
             {
-                "metadata": {
-                    "description": None,
-                    "run_end": None,
-                    "run_start": None,
-                    "run_duration": None,
-                    "status": None,
-                },
+                "metadata": _utils_test.EMPTY_METADATA,
                 "data": None,
             },
         ),
@@ -126,7 +212,11 @@ def test_branch_get_latest_snapshot_default(
                     "quam": {"quam": {"node": 9}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
-                }
+                    "results": {
+                        "info": "out data",
+                        "result": "node_9",
+                    },
+                },
             },
         ),
         (
@@ -136,6 +226,10 @@ def test_branch_get_latest_snapshot_default(
                     "quam": {"quam": {"node": 9}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
+                    "results": {
+                        "info": "out data",
+                        "result": "node_9",
+                    },
                 }
             },
         ),
@@ -150,6 +244,89 @@ def test_branch_get_latest_snapshot_load_type(
 ):
     response = client_custom_settings.get(
         "/api/branch/main/snapshot/latest", params={"load_type": load_type}
+    )
+    snapshot = snapshots_history[0]
+    snapshot.update(to_update)
+    assert response.status_code == 200
+    assert response.json() == snapshot
+
+
+@pytest.mark.parametrize(
+    "load_type_flag, to_update",
+    (
+        (
+            SnapshotLoadTypeStr.Minified,
+            {
+                "metadata": _utils_test.EMPTY_METADATA,
+                "data": None,
+            },
+        ),
+        (SnapshotLoadTypeStr.Metadata, {"data": None}),
+        (
+            SnapshotLoadTypeStr.DataWithoutRefs,
+            {
+                "metadata": _utils_test.EMPTY_METADATA,
+                "data": {
+                    "quam": None,
+                    "parameters": None,
+                    "outcomes": None,
+                    "results": None,
+                },
+            },
+        ),
+        (
+            SnapshotLoadTypeStr.DataWithMachine,
+            {
+                "metadata": _utils_test.EMPTY_METADATA,
+                "data": {
+                    "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                    "results": None,
+                },
+            },
+        ),
+        (
+            SnapshotLoadTypeStr.DataWithResults,
+            {
+                "metadata": _utils_test.EMPTY_METADATA,
+                "data": {
+                    "quam": None,
+                    "parameters": None,
+                    "outcomes": None,
+                    "results": {
+                        "info": "out data",
+                        "result": "node_9",
+                    },
+                },
+            },
+        ),
+        (
+            SnapshotLoadTypeStr.Full,
+            {
+                "data": {
+                    "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "parameters": None,
+                    "outcomes": None,
+                    "results": {
+                        "info": "out data",
+                        "result": "node_9",
+                    },
+                }
+            },
+        ),
+    ),
+)
+def test_branch_get_latest_snapshot_load_type_flag(
+    client_custom_settings,
+    default_local_storage_project,
+    snapshots_history,
+    load_type_flag,
+    to_update,
+):
+    response = client_custom_settings.get(
+        "/api/branch/main/snapshot/latest",
+        params={"load_type_flag": load_type_flag.value},
     )
     snapshot = snapshots_history[0]
     snapshot.update(to_update)

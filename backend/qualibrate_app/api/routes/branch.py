@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
@@ -8,7 +8,11 @@ from qualibrate_app.api.core.domain.bases.branch import (
     BranchLoadType,
 )
 from qualibrate_app.api.core.domain.bases.node import NodeLoadType
-from qualibrate_app.api.core.domain.bases.snapshot import SnapshotLoadType
+from qualibrate_app.api.core.domain.bases.snapshot import (
+    LoadTypeToLoadTypeFlag,
+    SnapshotLoadType,
+    SnapshotLoadTypeFlag,
+)
 from qualibrate_app.api.core.domain.local_storage.branch import (
     BranchLocalStorage,
 )
@@ -21,6 +25,9 @@ from qualibrate_app.api.core.models.snapshot import (
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import IdType
+from qualibrate_app.api.routes.utils.snapshot_load_type import (
+    parse_load_type_flag,
+)
 from qualibrate_app.config import get_settings
 
 branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
@@ -51,22 +58,36 @@ def get(
 def get_snapshot(
     *,
     snapshot_id: IdType,
-    load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
+    load_type: Annotated[
+        Optional[SnapshotLoadType], Query(deprecated=True)
+    ] = None,
+    load_type_flag: Annotated[
+        SnapshotLoadTypeFlag, Depends(parse_load_type_flag)
+    ],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> SnapshotModel:
     snapshot = branch.get_snapshot(snapshot_id)
-    snapshot.load(load_type)
+    if load_type is not None:
+        load_type_flag = LoadTypeToLoadTypeFlag[load_type]
+    snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 
 
 @branch_router.get("/snapshot/latest")
 def get_latest_snapshot(
     *,
-    load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
+    load_type: Annotated[
+        Optional[SnapshotLoadType], Query(deprecated=True)
+    ] = None,
+    load_type_flag: Annotated[
+        SnapshotLoadTypeFlag, Depends(parse_load_type_flag)
+    ],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> SnapshotModel:
     snapshot = branch.get_snapshot()
-    snapshot.load(load_type)
+    if load_type is not None:
+        load_type_flag = LoadTypeToLoadTypeFlag[load_type]
+    snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 
 

@@ -1,6 +1,5 @@
 import json
 from datetime import datetime
-from pathlib import Path
 from unittest.mock import PropertyMock, call
 
 import pytest
@@ -21,6 +20,9 @@ def test_read_minified_node_content_node_info_filled(mocker, settings):
         side_effect=[1, 2],
     )
     patched_is_file = mocker.patch("pathlib.Path.is_file")
+    snapshot_path = NodePath(
+        settings.storage.location.joinpath("2024-04-12", "#2_node_174011")
+    )
     result = snapshot_content.read_minified_node_content(
         {
             "id": 3,
@@ -29,8 +31,8 @@ def test_read_minified_node_content_node_info_filled(mocker, settings):
             "run_start": dt.isoformat(),
             "run_end": dt.isoformat(),
         },
-        None,
-        None,
+        snapshot_path / "node.json",
+        snapshot_path,
         settings,
     )
     assert result == {
@@ -57,8 +59,11 @@ def test_read_minified_node_content_node_info_empty_valid_id_file_exists(
     class FileStat:
         st_mtime = ts
 
-    settings.storage.location.mkdir()
-    node_file = settings.storage.location / "node_file.json"
+    snapshot_path = NodePath(
+        settings.storage.location.joinpath("2024-04-12", "#2_node_174011")
+    )
+    snapshot_path.mkdir(exist_ok=True, parents=True)
+    node_file = snapshot_path / "node_file.json"
     node_file.touch()
     patched_get_id_local_path = mocker.patch(
         (
@@ -75,7 +80,7 @@ def test_read_minified_node_content_node_info_empty_valid_id_file_exists(
     )
     patched_is_file = mocker.patch("pathlib.Path.is_file", return_value=True)
     result = snapshot_content.read_minified_node_content(
-        {}, 2, node_file, settings
+        {}, node_file, snapshot_path, settings
     )
     assert result == {
         "id": 2,
@@ -100,9 +105,11 @@ def test_read_minified_node_content_node_info_empty_no_id_no_file(
     class FileStat:
         st_mtime = ts
 
-    node_dir = settings.storage.location / "node_dir"
-    node_dir.mkdir(parents=True)
-    node_file = node_dir / "node_file.json"
+    snapshot_path = NodePath(
+        settings.storage.location.joinpath("2024-04-12", "node_dir")
+    )
+    snapshot_path.mkdir(exist_ok=True, parents=True)
+    node_file = snapshot_path / "node_file.json"
     patched_get_id_local_path = mocker.patch(
         (
             "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
@@ -114,10 +121,12 @@ def test_read_minified_node_content_node_info_empty_no_id_no_file(
     )
     patched_is_file = mocker.patch("pathlib.Path.is_file", return_value=False)
     patched_path_parent = mocker.patch(
-        "pathlib.Path.parent", new_callable=PropertyMock, return_value=node_dir
+        "pathlib.Path.parent",
+        new_callable=PropertyMock,
+        return_value=snapshot_path,
     )
     result = snapshot_content.read_minified_node_content(
-        {}, None, node_file, settings
+        {}, node_file, snapshot_path, settings
     )
     assert result == {
         "id": -1,
@@ -134,31 +143,43 @@ def test_read_minified_node_content_node_info_empty_no_id_no_file(
 
 def test_read_metadata_node_content_node_info_filled(mocker, settings):
     metadata = {"name": "name", "data_path": "subpath", "custom": "info"}
+    snapshot_path = NodePath(
+        settings.storage.location.joinpath("2024-04-12", "#2_node_174011")
+    )
     result = snapshot_content.read_metadata_node_content(
         {"metadata": metadata},
-        None,
-        settings.storage.location,
+        snapshot_path / "node.json",
+        snapshot_path,
         settings,
     )
     assert result == metadata
 
 
 def test_read_metadata_node_content_node_info_not_filled(mocker, settings):
-    mocker.patch("pathlib.Path.relative_to", return_value=Path("subpath"))
+    mocker.patch(
+        "qualibrate_app.api.core.utils.path.node.NodePath.name",
+        new_callable=PropertyMock,
+        return_value="node_name",
+    )
+    snapshot_path = NodePath(
+        settings.storage.location.joinpath("subpath", "node_name")
+    )
     result = snapshot_content.read_metadata_node_content(
         {"metadata": {"custom": "info"}},
-        "node_name",
-        settings.storage.location / "subpath",
+        snapshot_path / "file.json",
+        snapshot_path,
         settings,
     )
     assert result == {
         "name": "node_name",
-        "data_path": "subpath",
+        "data_path": "subpath/node_name",
         "custom": "info",
     }
 
 
-def test_read_data_node_content_valid_path_specified_with_others(tmp_path):
+def test_read_data_node_content_valid_path_specified_with_others(
+    tmp_path, settings
+):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state_.json"
     state_path_content = {"a": "b", "c": 3}
@@ -173,7 +194,7 @@ def test_read_data_node_content_valid_path_specified_with_others(tmp_path):
         },
     }
     assert snapshot_content.read_data_node_content(
-        node_info, node_path, tmp_path
+        node_info, node_path, tmp_path, settings
     ) == {
         "quam": state_path_content,
         "parameters": parameters_model,
@@ -181,14 +202,16 @@ def test_read_data_node_content_valid_path_specified_with_others(tmp_path):
     }
 
 
-def test_read_data_node_content_valid_path_specified_without_others(tmp_path):
+def test_read_data_node_content_valid_path_specified_without_others(
+    tmp_path, settings
+):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state_.json"
     state_path_content = {"a": "b", "c": 3}
     state_path.write_text(json.dumps(state_path_content))
     node_info = {"data": {"quam": "state_.json"}}
     assert snapshot_content.read_data_node_content(
-        node_info, node_path, tmp_path
+        node_info, node_path, tmp_path, settings
     ) == {
         "quam": state_path_content,
         "parameters": None,
@@ -196,23 +219,28 @@ def test_read_data_node_content_valid_path_specified_without_others(tmp_path):
     }
 
 
-def test_read_data_node_content_path_not_specified(tmp_path):
+def test_read_data_node_content_path_not_specified(tmp_path, settings):
     node_path = tmp_path / "node.json"
     state_path = tmp_path / "state.json"
     state_path_content = {"a": "b", "c": 3}
     state_path.write_text(json.dumps(state_path_content))
-    assert snapshot_content.read_data_node_content({}, node_path, tmp_path) == {
+    assert snapshot_content.read_data_node_content(
+        {}, node_path, tmp_path, settings
+    ) == {
         "quam": None,
         "parameters": None,
         "outcomes": None,
     }
 
 
-def test_read_data_node_content_invalid_path(tmp_path):
+def test_read_data_node_content_invalid_path(tmp_path, settings):
     node_path = tmp_path / "node.json"
     with pytest.raises(QFileNotFoundException) as ex:
         snapshot_content.read_data_node_content(
-            {"data": {"quam": "../../state.json"}}, node_path, tmp_path
+            {"data": {"quam": "../../state.json"}},
+            node_path,
+            tmp_path,
+            settings,
         )
     assert ex.type == QFileNotFoundException
     assert ex.value.args == ("Unknown quam data path",)
@@ -224,9 +252,6 @@ def test_default_snapshot_content_loader_node_file_issue(
 ):
     node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
     node_path.mkdir(parents=True)
-    patched_node_path_id = mocker.patch.object(
-        node_path.__class__, "id", new_callable=PropertyMock, return_value=1
-    )
     patched_node_path_name = mocker.patch.object(
         node_path.__class__,
         "node_name",
@@ -252,9 +277,8 @@ def test_default_snapshot_content_loader_node_file_issue(
     assert snapshot_content.default_snapshot_content_loader(
         node_path, SnapshotLoadType.Minified, None
     ) == {"minified": {}}
-    patched_node_path_id.assert_called_once()
     patched_read_minified.assert_called_once_with(
-        {}, 1, node_path / "node.json", None
+        {}, node_path / "node.json", node_path, None
     )
     patched_node_path_name.assert_not_called()
 
@@ -265,12 +289,6 @@ def test_default_snapshot_content_loader_node_valid_minified(mocker, tmp_path):
     node_path.mkdir(parents=True)
     node_file = node_path / "node.json"
     node_file.write_text(json.dumps(node_info))
-    patched_node_path_id = mocker.patch.object(
-        node_path.__class__, "id", new_callable=PropertyMock, return_value=1
-    )
-    patched_node_path_name = mocker.patch.object(
-        node_path.__class__, "node_name"
-    )
     patched_read_minified = mocker.patch(
         (
             "qualibrate_app.api.core.domain.local_storage.utils."
@@ -278,28 +296,26 @@ def test_default_snapshot_content_loader_node_valid_minified(mocker, tmp_path):
         ),
         return_value={"minified": {}},
     )
+    patched_read_metadata = mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.read_metadata_node_content"
+        ),
+    )
     assert snapshot_content.default_snapshot_content_loader(
         node_path, SnapshotLoadType.Minified, None
     ) == {"minified": {}}
 
-    patched_read_minified.assert_called_once_with(node_info, 1, node_file, None)
-    patched_node_path_id.assert_called_once()
-    patched_node_path_name.assert_not_called()
+    patched_read_minified.assert_called_once_with(
+        node_info, node_file, node_path, None
+    )
+    patched_read_metadata.assert_not_called()
 
 
 def test_default_snapshot_content_loader_node_valid_metadata(mocker, tmp_path):
     node_info = {"a": 1}
     node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
     node_path.mkdir(parents=True)
-    patched_node_path_id = mocker.patch.object(
-        node_path.__class__, "id", new_callable=PropertyMock, return_value=1
-    )
-    patched_node_path_name = mocker.patch.object(
-        node_path.__class__,
-        "node_name",
-        new_callable=PropertyMock,
-        return_value="name",
-    )
     node_file = node_path / "node.json"
     node_file.write_text(json.dumps(node_info))
     patched_read_minified = mocker.patch(
@@ -325,11 +341,11 @@ def test_default_snapshot_content_loader_node_valid_metadata(mocker, tmp_path):
     assert snapshot_content.default_snapshot_content_loader(
         node_path, SnapshotLoadType.Metadata, None
     ) == {"minified": {}, "metadata": {}}
-    patched_read_minified.assert_called_once_with(node_info, 1, node_file, None)
-    patched_node_path_id.assert_called_once()
-    patched_node_path_name.assert_called_once()
+    patched_read_minified.assert_called_once_with(
+        node_info, node_file, node_path, None
+    )
     patched_read_metadata.assert_called_once_with(
-        node_info, "name", node_path, None
+        node_info, node_file, node_path, None
     )
     patched_read_data.assert_not_called()
 
@@ -338,15 +354,6 @@ def test_default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
     node_info = {"a": 1}
     node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
     node_path.mkdir(parents=True)
-    patched_node_path_id = mocker.patch.object(
-        node_path.__class__, "id", new_callable=PropertyMock, return_value=1
-    )
-    patched_node_path_name = mocker.patch.object(
-        node_path.__class__,
-        "node_name",
-        new_callable=PropertyMock,
-        return_value="name",
-    )
     node_filepath = node_path / "node.json"
     node_filepath.write_text(json.dumps(node_info))
     patched_read_minified = mocker.patch(
@@ -374,14 +381,12 @@ def test_default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
     assert snapshot_content.default_snapshot_content_loader(
         node_path, SnapshotLoadType.Data, None
     ) == {"minified": {}, "metadata": {}, "data": _read_data_node_content}
-    patched_node_path_id.assert_called_once()
-    patched_node_path_name.assert_called_once()
     patched_read_minified.assert_called_once_with(
-        node_info, 1, node_filepath, None
+        node_info, node_filepath, node_path, None
     )
     patched_read_metadata.assert_called_once_with(
-        node_info, "name", node_path, None
+        node_info, node_filepath, node_path, None
     )
     patched_read_data.assert_called_once_with(
-        node_info, node_filepath, node_path
+        node_info, node_filepath, node_path, None
     )
