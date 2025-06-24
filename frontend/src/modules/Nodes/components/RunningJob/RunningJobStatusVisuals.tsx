@@ -1,4 +1,5 @@
 import React from "react";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
 import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgress";
 

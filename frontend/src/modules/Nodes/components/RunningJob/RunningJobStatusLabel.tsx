@@ -1,4 +1,5 @@
 import React from "react";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
 import CheckmarkIcon from "../../../../ui-lib/Icons/CheckmarkIcon";
 import ErrorIcon from "../../../../ui-lib/Icons/ErrorIcon";
