@@ -16,7 +16,9 @@ from qualibrate_app.config import (
     get_settings,
 )
 
-data_file_router = APIRouter(prefix="/data_file/{node_id}", tags=["data file"])
+data_file_router = APIRouter(
+    prefix="/data_file/{node_id}", tags=["data file"], deprecated=True
+)
 
 
 def _get_storage_instance(

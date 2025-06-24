@@ -55,7 +55,7 @@ def get_branch(
     return branch.dump()
 
 
-@root_router.get("/node")
+@root_router.get("/node", deprecated=True)
 def get_node_by_id(
     *,
     id: IdType,
@@ -67,7 +67,7 @@ def get_node_by_id(
     return node.dump()
 
 
-@root_router.get("/node/latest")
+@root_router.get("/node/latest", deprecated=True)
 def get_latest_node(
     *,
     load_type: NodeLoadType = NodeLoadType.Full,
@@ -139,7 +139,7 @@ def get_snapshots_history(
     )
 
 
-@root_router.get("/nodes_history")
+@root_router.get("/nodes_history", deprecated=True)
 def get_nodes_history(
     *,
     page: int = Query(1, gt=0),

@@ -91,7 +91,7 @@ def get_latest_snapshot(
     return snapshot.dump()
 
 
-@branch_router.get("/node")
+@branch_router.get("/node", deprecated=True)
 def get_node(
     *,
     node_id: int,
@@ -103,7 +103,7 @@ def get_node(
     return node.dump()
 
 
-@branch_router.get("/node/latest")
+@branch_router.get("/node/latest", deprecated=True)
 def get_latest_node(
     *,
     load_type: NodeLoadType = NodeLoadType.Full,
@@ -141,7 +141,7 @@ def get_snapshots_history(
     )
 
 
-@branch_router.get("/nodes_history")
+@branch_router.get("/nodes_history", deprecated=True)
 def get_nodes_history(
     *,
     page: int = Query(1, gt=0),
