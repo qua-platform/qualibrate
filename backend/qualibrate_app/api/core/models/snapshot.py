@@ -35,6 +35,7 @@ class SnapshotData(BaseModel):
 
     quam: Optional[dict[str, Any]] = None
     parameters: Optional[dict[str, Any]] = None
+    results: Optional[dict[str, Any]] = None
     outcomes: Optional[dict[str, Any]] = None
 
 
