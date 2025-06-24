@@ -4,7 +4,7 @@ import { FlexLayoutContextProvider } from "./routing/flexLayout/FlexLayoutContex
 import "./assets/styles/index.scss";
 import "./assets/styles/_base.scss";
 import AppRoutes from "./routing/AppRoutes";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, HashRouter } from "react-router-dom";
 import { updateColorTheme } from "./modules/themeModule/themeHelper";
 import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeContext";
 import { createRoot } from "react-dom/client";
@@ -13,11 +13,13 @@ import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsC
 
 type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
 
+const RouterProvider = process.env.USE_HASH_ROUTER === "true" ? HashRouter : BrowserRouter;
+
 const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
   AuthContextProvider,
   FlexLayoutContextProvider,
-  BrowserRouter,
+  RouterProvider,
   SnapshotsContextProvider,
 ];
 
