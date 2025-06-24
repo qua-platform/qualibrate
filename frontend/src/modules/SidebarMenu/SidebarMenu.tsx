@@ -39,8 +39,8 @@ const SidebarMenu: React.FunctionComponent = () => {
 
       <div className={styles.menuContent}>
         <div className={styles.menuUpperContent}>
-          {menuItems.map((item, index) => (
-            <MenuItem {...item} key={item.keyId ?? index} hideText={minify} onClick={() => { setActiveKey(item.keyId ?? `${index}`); }} isActive={activeKey === (item.keyId ?? `${index}`)} data-testid={`menu-item-${index}`} />
+          {menuItems.map((item) => (
+            <MenuItem {...item} key={item.keyId} hideText={minify} onClick={() => setActiveKey(item.keyId)} isActive={activeKey === item.keyId} data-testid={`menu-item-${item.keyId}`} />
           ))}
         </div>
 
