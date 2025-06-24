@@ -21,43 +21,43 @@ class SnapshotBaseCustom(SnapshotBase):
 
     @property
     def created_at(self) -> Optional[datetime]:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @property
     def parents(self) -> Optional[list[IdType]]:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def search(
         self, search_path: Sequence[Union[str, int]], load: bool = False
     ) -> Optional[DocumentSequenceType]:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def get_latest_snapshots(
         self, page: int = 1, per_page: int = 50, reverse: bool = False
     ) -> Sequence[SnapshotBase]:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def compare_by_id(
         self, other_snapshot_int: int
     ) -> Mapping[str, Mapping[str, Any]]:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def extract_state_update_type(
         self,
         path: str,
         **kwargs: Mapping[str, Any],
     ) -> Optional[Mapping[str, Any]]:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def extract_state_update_types(
         self,
         paths: Sequence[str],
         **kwargs: Mapping[str, Any],
     ) -> Mapping[str, Optional[Mapping[str, Any]]]:
-        raise NotImplementedError
+        raise NotImplementedError()
 
 
 def test__items_keys():
