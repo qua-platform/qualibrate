@@ -42,14 +42,6 @@ from qualibrate_app.config import (
 snapshot_router = APIRouter(prefix="/snapshot/{id}", tags=["snapshot"])
 
 
-def is_float(string: str) -> bool:
-    try:
-        float(string)
-        return True
-    except ValueError:
-        return False
-
-
 def _get_snapshot_instance(
     id: Annotated[IdType, Path()],
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
