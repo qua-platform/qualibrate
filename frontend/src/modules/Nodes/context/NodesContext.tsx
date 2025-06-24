@@ -279,12 +279,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   };
 
   useEffect(() => {
-    const checkInterval = setInterval(() => {
-      (async () => {
-        await checkIfNodeIsStillRunning();
-        await fetchStatus();
-      })();
-    }, 500);
+    const checkInterval = setInterval(() => { (async () => { await checkIfNodeIsStillRunning(); await fetchStatus(); })(); }, 500);
     return () => clearInterval(checkInterval);
   }, []);
 

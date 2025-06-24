@@ -4,28 +4,28 @@ on:
   workflow_call:
     inputs:
       qualibrate-ref:
-        description: 'Name of branch for qualibrate repo'
-        default: 'main'
+        description: "Name of branch for qualibrate repo"
+        default: "main"
         required: false
         type: string
       qualibrate-app-ref:
-        description: 'Name of branch for qualibrate-app repo'
-        default: 'main'
+        description: "Name of branch for qualibrate-app repo"
+        default: "main"
         required: false
         type: string
       qualibrate-runner-ref:
-        description: 'Name of branch for qualibrate-runner repo'
-        default: 'main'
+        description: "Name of branch for qualibrate-runner repo"
+        default: "main"
         required: false
         type: string
       qualibrate-core-ref:
-        description: 'Name of branch for qualibrate-core repo'
-        default: 'main'
+        description: "Name of branch for qualibrate-core repo"
+        default: "main"
         required: false
         type: string
       qualibrate-config-ref:
-        description: 'Name of branch for qualibrate-config repo'
-        default: 'main'
+        description: "Name of branch for qualibrate-config repo"
+        default: "main"
         required: false
         type: string
 jobs:
@@ -78,8 +78,8 @@ jobs:
       - name: Checkout Calibration Scripts
         uses: actions/checkout@v4
         with:
-          repository: 'qua-platform/qualibrate-examples'
-          path: 'qualibrate-examples'
+          repository: "qua-platform/qualibrate-examples"
+          path: "qualibrate-examples"
           token: ${{ secrets.QUALIBRATE_EXAMPLES_TOKEN }}
 
       # Step 3: Set up Node.js
@@ -129,8 +129,7 @@ jobs:
       # Step 10: Install qualibrate packages with deps
       - name: Install qualibrate packages with deps
         if: ${{ !steps.backend-cache-id.outputs.cache-hit }}
-        run:
-          pip install
+        run: pip install
           ./qualibrate-composite
           ./qualibrate-app/backend
           ./qualibrate-runner
@@ -140,12 +139,11 @@ jobs:
       # Step 10: Install qualibrate packages without deps
       - name: Install qualibrate packages without deps
         if: ${{ steps.backend-cache-id.outputs.cache-hit }}
-        run:
-          pip install --force-reinstall --no-deps
-          ./qualibrate-composite 
-          ./qualibrate-app/backend 
-          ./qualibrate-runner 
-          ./qualibrate-core 
+        run: pip install --force-reinstall --no-deps
+          ./qualibrate-composite
+          ./qualibrate-app/backend
+          ./qualibrate-runner
+          ./qualibrate-core
           ./qualibrate-config
 
       # Step 11: Install Playwright test dependencies
@@ -189,3 +187,11 @@ jobs:
       - name: Run Playwright Tests
         working-directory: ./qualibrate-app/frontend/tests/e2e
         run: npx playwright test
+
+      # Step 17: Upload Playwright Report
+      - name: Upload Playwright Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: ./qualibrate-app/frontend/tests/playwright-report
