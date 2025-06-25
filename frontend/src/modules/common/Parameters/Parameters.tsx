@@ -21,6 +21,7 @@ export interface SingleParameter {
   default?: string | boolean | number;
   title: string;
   type: string;
+  description?: string;
 }
 
 export interface InputParameter {
@@ -71,9 +72,9 @@ export const Parameters: React.FC<IProps> = ({
                   {getInputElement(key, parameter, currentItem)}
                 </div>
                 <div className={styles.descriptionWrapper}>
-                  {currentItem?.description && (
+                  {parameter.description && (
                     <Tooltip
-                      title={<div className={styles.descriptionTooltip}>{currentItem?.description} </div>}
+                      title={<div className={styles.descriptionTooltip}>{parameter.description} </div>}
                       placement="left-start"
                       arrow
                     >
