@@ -13,7 +13,7 @@ import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsC
 
 type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
 
-const RouterProvider = process.env.USE_BROWSER_ROUTER === "true" ? BrowserRouter : HashRouter;
+const RouterProvider = process.env.USE_HASH_ROUTER === "true" ? HashRouter : BrowserRouter;
 
 const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
