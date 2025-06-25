@@ -67,7 +67,7 @@ def test__items_keys():
 def test_init_no_content(settings):
     s = SnapshotBaseCustom(1, settings=settings)
     assert s._id == 1
-    assert s._load_type_flag == SnapshotLoadType.Minified
+    assert s._load_type_flag == SnapshotLoadType.Empty
     assert s.content == {}
 
 

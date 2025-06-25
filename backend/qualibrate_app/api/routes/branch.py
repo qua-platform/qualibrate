@@ -9,9 +9,9 @@ from qualibrate_app.api.core.domain.bases.branch import (
 )
 from qualibrate_app.api.core.domain.bases.node import NodeLoadType
 from qualibrate_app.api.core.domain.bases.snapshot import (
-    LoadTypeToLoadTypeFlag,
     SnapshotLoadType,
     SnapshotLoadTypeFlag,
+    SnapshotLoadTypeToLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.local_storage.branch import (
     BranchLocalStorage,
@@ -68,7 +68,7 @@ def get_snapshot(
 ) -> SnapshotModel:
     snapshot = branch.get_snapshot(snapshot_id)
     if load_type is not None:
-        load_type_flag = LoadTypeToLoadTypeFlag[load_type]
+        load_type_flag = SnapshotLoadTypeToLoadTypeFlag[load_type]
     snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 
@@ -86,7 +86,7 @@ def get_latest_snapshot(
 ) -> SnapshotModel:
     snapshot = branch.get_snapshot()
     if load_type is not None:
-        load_type_flag = LoadTypeToLoadTypeFlag[load_type]
+        load_type_flag = SnapshotLoadTypeToLoadTypeFlag[load_type]
     snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 

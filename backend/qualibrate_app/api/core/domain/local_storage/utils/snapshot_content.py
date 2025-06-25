@@ -18,7 +18,7 @@ from qualibrate_app.api.core.domain.bases.snapshot import (
 )
 from qualibrate_app.api.core.domain.bases.storage import (
     DataFileStorage,
-    StorageLoadType,
+    StorageLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.local_storage._id_to_local_path import (
     IdToLocalPath,
@@ -405,7 +405,19 @@ def load_snapshot_data_results_from_node_content(
     snapshot_info: dict[str, Any],
 ) -> None:
     storage = DataFileStorage(snapshot_path, settings)
-    storage.load(StorageLoadType.Full)
+    storage.load_from_flag(StorageLoadTypeFlag.DataFileWithoutRefs)
+    snapshot_info["data"]["results"] = storage.data
+
+
+def load_snapshot_data_results_with_imgs_from_node_content(
+    node_info: Mapping[str, Any],
+    node_filepath: Path,
+    snapshot_path: NodePath,
+    settings: QualibrateConfig,
+    snapshot_info: dict[str, Any],
+) -> None:
+    storage = DataFileStorage(snapshot_path, settings)
+    storage.load_from_flag(StorageLoadTypeFlag.DataFileWithImgs)
     snapshot_info["data"]["results"] = storage.data
 
 
@@ -424,6 +436,9 @@ LOADERS: dict[SnapshotLoadTypeFlag, LOAD_SNAPSHOT_FLAG_FUNC_TYPE] = {
     ),
     SnapshotLoadTypeFlag.DataWithResults: (
         load_snapshot_data_results_from_node_content
+    ),
+    SnapshotLoadTypeFlag.DataWithResultsWithImgs: (
+        load_snapshot_data_results_with_imgs_from_node_content
     ),
 }
 
@@ -445,7 +460,7 @@ def default_snapshot_content_loader_from_flag(
         return cast(DocumentType, node_info)
     for lt in SnapshotLoadTypeFlag:
         if (
-            (lt & load_type) == lt
+            load_type.is_set(lt)
             and lt <= load_type
             and (loader := LOADERS.get(lt))
         ):

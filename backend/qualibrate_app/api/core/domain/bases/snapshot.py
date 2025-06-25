@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from enum import IntEnum, IntFlag
+from enum import IntEnum
 from typing import Any, ClassVar, Optional, Union
 
 from qualibrate_config.models import QualibrateConfig
@@ -10,6 +10,7 @@ from qualibrate_app.api.core.domain.bases.base_with_settings import (
     DomainWithConfigBase,
 )
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
+from qualibrate_app.api.core.domain.bases.load_type_flag import LoadTypeFlag
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import (
     DocumentSequenceType,
@@ -24,7 +25,7 @@ __all__ = [
     "SnapshotBase",
     "SnapshotLoadType",
     "SnapshotLoadTypeFlag",
-    "LoadTypeToLoadTypeFlag",
+    "SnapshotLoadTypeToLoadTypeFlag",
 ]
 
 
@@ -36,15 +37,18 @@ class SnapshotLoadType(IntEnum):
     Full = 4
 
 
-class SnapshotLoadTypeFlag(IntFlag):
-    Empty = 2**0
-    Minified = Empty | 2**1
-    Metadata = Minified | 2**2
-    DataWithoutRefs = Minified | 2**3
-    DataWithMachine = DataWithoutRefs | 2**4
-    DataWithResults = DataWithoutRefs | 2**5
+class SnapshotLoadTypeFlag(LoadTypeFlag):
+    Empty = 0
+    Minified = Empty | 2**0
+    Metadata = Minified | 2**1
+    DataWithoutRefs = Minified | 2**2
+    DataWithMachine = DataWithoutRefs | 2**3
+    DataWithResults = DataWithoutRefs | 2**4
+    DataWithResultsWithImgs = DataWithResults | 2**5
+
     Full = (
         2**9
+        | Empty
         | Minified
         | Metadata
         | DataWithoutRefs
@@ -53,17 +57,17 @@ class SnapshotLoadTypeFlag(IntFlag):
     )
 
     def is_set(self, field: "SnapshotLoadTypeFlag") -> bool:
-        return (self & field) == field
+        return self._is_set(field)
 
 
-LoadTypeToLoadTypeFlag = {
+SnapshotLoadTypeToLoadTypeFlag = {
     SnapshotLoadType.Empty: SnapshotLoadTypeFlag.Empty,
     SnapshotLoadType.Minified: SnapshotLoadTypeFlag.Minified,
     SnapshotLoadType.Metadata: SnapshotLoadTypeFlag.Metadata,
     SnapshotLoadType.Data: (
         SnapshotLoadTypeFlag.Metadata
         | SnapshotLoadTypeFlag.DataWithMachine
-        | SnapshotLoadTypeFlag.DataWithResults
+        | SnapshotLoadTypeFlag.DataWithResultsWithImgs
     ),
     SnapshotLoadType.Full: SnapshotLoadTypeFlag.Full,
 }

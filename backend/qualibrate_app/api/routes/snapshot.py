@@ -8,10 +8,10 @@ from fastapi import APIRouter, Body, Cookie, Depends, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
-    LoadTypeToLoadTypeFlag,
     SnapshotBase,
     SnapshotLoadType,
     SnapshotLoadTypeFlag,
+    SnapshotLoadTypeToLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
@@ -65,7 +65,7 @@ def get(
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
 ) -> SnapshotModel:
     if load_type is not None:
-        load_type_flag = LoadTypeToLoadTypeFlag[load_type]
+        load_type_flag = SnapshotLoadTypeToLoadTypeFlag[load_type]
     snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 

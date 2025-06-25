@@ -25,6 +25,7 @@ class SnapshotLoadTypeStr(StrEnum):
     DataWithoutRefs = "DataWithoutRefs"
     DataWithMachine = "DataWithMachine"
     DataWithResults = "DataWithResults"
+    DataWithResultsWithImgs = "DataWithResultsWithImgs"
     Full = "Full"
 
 
