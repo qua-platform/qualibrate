@@ -75,14 +75,12 @@ const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
               <StopButtonIcon />
             </div>
             {graph.time_remaining && (
-              <div className={styles.timeRemaining}>
-                {formatTime(graph.time_remaining)} left
-              </div>
+              <div className={styles.timeRemaining}> {formatTime(graph.time_remaining)} left </div>
             )}
           </div>
         )}
 
-        {(!(graph.status === "pending") && graph.status !== "running" && graph.run_duration > 0) && (
+        {(graph.status !== "pending" && graph.status !== "running" && graph.run_duration > 0) && (
           <div className={styles.stopAndTimeWrapper}>
             <div className={styles.timeRemaining}>
               <div>Elapsed time:</div>
