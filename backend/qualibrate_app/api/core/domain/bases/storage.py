@@ -93,7 +93,7 @@ def _storage_loader_from_flag(
             raise QValueException("Unexpected data format.") from ex
     if load_type == StorageLoadTypeFlag.DataFileWithoutRefs:
         return content
-    for lt in StorageLoadTypeFlag:
+    for lt in StorageLoadTypeFlag.__members__.values():
         if (
             load_type.is_set(lt)
             and lt <= load_type

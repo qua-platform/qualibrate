@@ -458,7 +458,9 @@ def default_snapshot_content_loader_from_flag(
     node_info = _node_info_from_node_filename(node_filepath)
     if raw:
         return cast(DocumentType, node_info)
-    for lt in SnapshotLoadTypeFlag:
+    # TODO: Issue: Iterate over flag use only Minified value if qualibrate-app
+    #  is part of qualibrate
+    for lt in SnapshotLoadTypeFlag.__members__.values():
         if (
             load_type.is_set(lt)
             and lt <= load_type
