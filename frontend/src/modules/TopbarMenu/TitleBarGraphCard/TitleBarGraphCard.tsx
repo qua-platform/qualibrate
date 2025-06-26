@@ -8,7 +8,7 @@ import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
 import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
 import { getWrapperClass, getStatusClass, formatTime, handleStopClick, capitalize } from "../helpers";
 import { LastRunStatusNodeResponseDTO, LastRunStatusGraphResponseDTO, DEFAULT_TOOLTIP_SX } from "../constants";
-import { StatusIndicator } from "../StatusUI";
+import { StatusIndicator } from "../TitleBarNodeCard/TitleBarStatusIndicator";
 
 interface GraphCardProps {
   graph: LastRunStatusGraphResponseDTO;

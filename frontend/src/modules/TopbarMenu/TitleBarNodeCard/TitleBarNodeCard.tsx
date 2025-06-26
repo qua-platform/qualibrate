@@ -5,7 +5,8 @@ import { classNames } from "../../../utils/classnames";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarTooltipContent from "./TitleBarNodeTooltipContent";
 import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
-import { StatusIndicator, getStatusLabelElement } from "../StatusUI";
+import { StatusIndicator } from "./TitleBarStatusIndicator";
+import { getStatusLabelElement } from "./TitleBarGetStatusLabelElement";
 import { formatTime, getWrapperClass, capitalize } from "../helpers";
 import { LastRunStatusNodeResponseDTO, DEFAULT_TOOLTIP_SX } from "../constants";
 
