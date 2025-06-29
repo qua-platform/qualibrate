@@ -22,24 +22,24 @@ export interface LastRunStatusNodeResponseDTO {
 }
 
 export const fallbackNode: LastRunStatusNodeResponseDTO = {
-    status: "pending",
-    run_start: "",
-    run_duration: 0,
-    name: "",
-    percentage_complete: 0,
-    time_remaining: 0,
+  status: "pending",
+  run_start: "",
+  run_duration: 0,
+  name: "",
+  percentage_complete: 0,
+  time_remaining: 0,
 };
 
 export const fallbackGraph: LastRunStatusGraphResponseDTO = {
-    name: "",
-    status: "pending",
-    run_start: "",
-    run_end: "",
-    total_nodes: 1,
-    finished_nodes: 0,
-    run_duration: 0,
-    percentage_complete: 0,
-    time_remaining: 0,
+  name: "",
+  status: "pending",
+  run_start: "",
+  run_end: "",
+  total_nodes: 1,
+  finished_nodes: 0,
+  run_duration: 0,
+  percentage_complete: 0,
+  time_remaining: 0,
 };
 
 export const DEFAULT_TOOLTIP_SX = {
@@ -47,6 +47,4 @@ export const DEFAULT_TOOLTIP_SX = {
   padding: "12px",
   borderRadius: "6px",
   boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-  fontSize: "0.85rem",
-  lineHeight: "1.3",
 };

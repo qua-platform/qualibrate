@@ -19,6 +19,12 @@ const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
   const { openTab } = useFlexLayoutContext();
   const handleClick = () => openTab(graph.status === "pending" ? "graph-library" : "graph-status");
 
+const renderElapsedTime = (time: number) => (
+  <div className={styles.stopAndTimeWrapper}>
+    <div className={styles.timeRemaining}> <div>Elapsed time:</div> <div className={styles.timeElapsedText}>{formatTime(time)}</div> </div>
+  </div>
+);
+
   return (
   <div className={`${styles.graphCardWrapper} ${getWrapperClass(graph.status, styles)}`}>
     <div className={graph.status === "pending" ? styles.defaultGraphCardContent : styles.graphCardContent}>
@@ -65,36 +71,15 @@ const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
             </div>
           </div>
         </Tooltip>
-
         <TitleBarNodeCard node={node} />
-
-        {/* Graph Stop button and timer */}
-        {(!(graph.status === "pending") && graph.status === "running") && (
-          <div className={styles.stopAndTimeWrapper}>
-            <div className={styles.stopButton} onClick={handleStopClick}>
-              <StopButtonIcon />
-            </div>
-            {graph.time_remaining && (
-              <div className={styles.timeRemaining}> {formatTime(graph.time_remaining)} left </div>
-            )}
+        {graph.status === "running" && (
+          <div className={styles.stopAndTimeWrapper}> <div className={styles.stopButton} onClick={handleStopClick}> <StopButtonIcon /> </div>
+            {graph.time_remaining && (<div className={styles.timeRemaining}>{formatTime(graph.time_remaining)} left</div>)}
           </div>
         )}
-
-        {(graph.status !== "pending" && graph.status !== "running" && graph.run_duration > 0) && (
-          <div className={styles.stopAndTimeWrapper}>
-            <div className={styles.timeRemaining}>
-              <div>Elapsed time:</div>
-              <div className={styles.timeElapsedText}>{formatTime(graph.run_duration)}</div>
-            </div>
-          </div>
-        )}
-
-        {/* Stop button when in pending node (Stops for case when only running a node) */}
-        {graph.status === "pending" && node.status === "running" && (
-          <div className={styles.nodeStopButton} onClick={handleStopClick}>
-            <StopButtonIcon />
-          </div>
-        )}
+        {["finished", "error"].includes(graph.status) && graph.run_duration > 0 && renderElapsedTime(graph.run_duration)}
+        {graph.status === "pending" && node.status === "running" && (<div className={styles.nodeStopButton} onClick={handleStopClick}> <StopButtonIcon /> </div>)}
+        {graph.status === "pending" && ["finished", "error"].includes(node.status) && node.run_duration > 0 && renderElapsedTime(node.run_duration)}
       </div>
     </div>
   );

@@ -5,12 +5,7 @@ import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import { NodesApi } from "../Nodes/api/NodesAPI";
 import TitleBarGraphCard from "./TitleBarGraphCard/TitleBarGraphCard";
-import { 
-  LastRunStatusNodeResponseDTO, 
-  LastRunStatusGraphResponseDTO, 
-  fallbackNode,
-  fallbackGraph,
-} from "./constants";
+import { LastRunStatusNodeResponseDTO, LastRunStatusGraphResponseDTO, fallbackNode, fallbackGraph } from "./constants";
 
 const TitleBarMenu: React.FC = () => {
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
