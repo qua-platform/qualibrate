@@ -9,9 +9,7 @@ from qualibrate_app.api.core.domain.bases.branch import (
 )
 from qualibrate_app.api.core.domain.bases.node import NodeLoadType
 from qualibrate_app.api.core.domain.bases.snapshot import (
-    SnapshotLoadType,
     SnapshotLoadTypeFlag,
-    SnapshotLoadTypeToLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.local_storage.branch import (
     BranchLocalStorage,
@@ -25,8 +23,8 @@ from qualibrate_app.api.core.models.snapshot import (
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import IdType
-from qualibrate_app.api.routes.utils.snapshot_load_type import (
-    parse_load_type_flag,
+from qualibrate_app.api.routes.utils.dependencies import (
+    get_snapshot_load_type_flag,
 )
 from qualibrate_app.config import get_settings
 
@@ -58,17 +56,12 @@ def get(
 def get_snapshot(
     *,
     snapshot_id: IdType,
-    load_type: Annotated[
-        Optional[SnapshotLoadType], Query(deprecated=True)
-    ] = None,
     load_type_flag: Annotated[
-        SnapshotLoadTypeFlag, Depends(parse_load_type_flag)
+        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
     ],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> SnapshotModel:
     snapshot = branch.get_snapshot(snapshot_id)
-    if load_type is not None:
-        load_type_flag = SnapshotLoadTypeToLoadTypeFlag[load_type]
     snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 
@@ -76,17 +69,12 @@ def get_snapshot(
 @branch_router.get("/snapshot/latest")
 def get_latest_snapshot(
     *,
-    load_type: Annotated[
-        Optional[SnapshotLoadType], Query(deprecated=True)
-    ] = None,
     load_type_flag: Annotated[
-        SnapshotLoadTypeFlag, Depends(parse_load_type_flag)
+        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
     ],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> SnapshotModel:
     snapshot = branch.get_snapshot()
-    if load_type is not None:
-        load_type_flag = SnapshotLoadTypeToLoadTypeFlag[load_type]
     snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 
