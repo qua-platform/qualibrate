@@ -22,7 +22,7 @@ export const getNodeRowClass = ({
     return `${styles.rowWrapper} ${styles.nodeSelectedRunning} ${styles.highlightRunningRow}`;
   } else if (isSelected && nodeStatus === "pending") {
     return `${styles.rowWrapper} ${styles.nodeSelectedPending}`;
-  } else {
-    return styles.rowWrapper;
   }
+
+  return styles.rowWrapper;
 };

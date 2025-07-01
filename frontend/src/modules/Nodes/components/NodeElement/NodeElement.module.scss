@@ -14,20 +14,20 @@
 }
 
 .nodeSelectedFinished {
-  border-left: solid var(--status-color-finished);
+  border-left: 2px solid var(--status-color-finished);
 }
 
 .nodeSelectedRunning {
-  border: solid rgb(60 222 248 / 10%);
-  border-left: solid var(--status-color-running);
+  border: 2px solid rgb(60 222 248 / 10%);
+  border-left: 2px solid var(--status-color-running);
 }
 
 .nodeSelectedError {
-  border-left: solid var(--status-color-error);
+  border-left: 2px solid var(--status-color-error);
 }
 
 .nodeSelectedPending {
-  border-left: solid #fff;
+  border-left: 2px solid #fff;
 }
 
 .row {
