@@ -38,6 +38,10 @@ class SnapshotData(BaseModel):
     results: Optional[dict[str, Any]] = None
     outcomes: Optional[dict[str, Any]] = None
 
+    @computed_field
+    def machine(self) -> Optional[dict[str, Any]]:
+        return self.quam
+
 
 class Snapshot(SimplifiedSnapshot):
     metadata: Annotated[

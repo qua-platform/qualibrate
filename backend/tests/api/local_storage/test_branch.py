@@ -57,6 +57,7 @@ def test_branch_get_snapshot_default(
                 "metadata": _utils_test.EMPTY_METADATA,
                 "data": {
                     "quam": None,
+                    "machine": None,
                     "parameters": None,
                     "outcomes": None,
                     "results": None,
@@ -69,6 +70,7 @@ def test_branch_get_snapshot_default(
                 "metadata": _utils_test.EMPTY_METADATA,
                 "data": {
                     "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 3}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": None,
@@ -81,6 +83,7 @@ def test_branch_get_snapshot_default(
                 "metadata": _utils_test.EMPTY_METADATA,
                 "data": {
                     "quam": None,
+                    "machine": None,
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -95,6 +98,7 @@ def test_branch_get_snapshot_default(
             {
                 "data": {
                     "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 3}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -140,6 +144,7 @@ def test_branch_get_snapshot_load_type_flag(
             {
                 "data": {
                     "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 3}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -154,6 +159,7 @@ def test_branch_get_snapshot_load_type_flag(
             {
                 "data": {
                     "quam": {"quam": {"node": 3}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 3}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -210,6 +216,7 @@ def test_branch_get_latest_snapshot_default(
             {
                 "data": {
                     "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 9}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -224,6 +231,7 @@ def test_branch_get_latest_snapshot_default(
             {
                 "data": {
                     "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 9}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -268,6 +276,7 @@ def test_branch_get_latest_snapshot_load_type(
                 "metadata": _utils_test.EMPTY_METADATA,
                 "data": {
                     "quam": None,
+                    "machine": None,
                     "parameters": None,
                     "outcomes": None,
                     "results": None,
@@ -280,6 +289,7 @@ def test_branch_get_latest_snapshot_load_type(
                 "metadata": _utils_test.EMPTY_METADATA,
                 "data": {
                     "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 9}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": None,
@@ -292,6 +302,7 @@ def test_branch_get_latest_snapshot_load_type(
                 "metadata": _utils_test.EMPTY_METADATA,
                 "data": {
                     "quam": None,
+                    "machine": None,
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -306,6 +317,7 @@ def test_branch_get_latest_snapshot_load_type(
             {
                 "data": {
                     "quam": {"quam": {"node": 9}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 9}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": {

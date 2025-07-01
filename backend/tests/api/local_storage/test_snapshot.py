@@ -41,6 +41,7 @@ def test_snapshot_get_snapshot_default(
             {
                 "data": {
                     "quam": {"quam": {"node": 4}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 4}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -55,6 +56,7 @@ def test_snapshot_get_snapshot_default(
             {
                 "data": {
                     "quam": {"quam": {"node": 4}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 4}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -101,6 +103,7 @@ def test_snapshot_get_snapshot_load_type(
                 "metadata": _utils_test.EMPTY_METADATA,
                 "data": {
                     "quam": None,
+                    "machine": None,
                     "parameters": None,
                     "outcomes": None,
                     "results": None,
@@ -113,6 +116,7 @@ def test_snapshot_get_snapshot_load_type(
                 "metadata": _utils_test.EMPTY_METADATA,
                 "data": {
                     "quam": {"quam": {"node": 4}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 4}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": None,
@@ -125,6 +129,7 @@ def test_snapshot_get_snapshot_load_type(
                 "metadata": _utils_test.EMPTY_METADATA,
                 "data": {
                     "quam": None,
+                    "machine": None,
                     "parameters": None,
                     "outcomes": None,
                     "results": {
@@ -139,6 +144,7 @@ def test_snapshot_get_snapshot_load_type(
             {
                 "data": {
                     "quam": {"quam": {"node": 4}, "info": "snapshot"},
+                    "machine": {"quam": {"node": 4}, "info": "snapshot"},
                     "parameters": None,
                     "outcomes": None,
                     "results": {
