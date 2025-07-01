@@ -22,8 +22,15 @@ from qualibrate_app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
-from qualibrate_app.api.core.types import IdType
+from qualibrate_app.api.core.types import (
+    IdType,
+    PageFilter,
+    SearchFilter,
+    SearchWithIdFilter,
+)
 from qualibrate_app.api.routes.utils.dependencies import (
+    get_page_filter,
+    get_search_filter,
     get_snapshot_load_type_flag,
 )
 from qualibrate_app.config import get_settings
@@ -79,6 +86,22 @@ def get_latest_snapshot(
     return snapshot.dump()
 
 
+@branch_router.get("/snapshot/filter")
+def get_snapshot_filtered(
+    *,
+    search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
+    branch: Annotated[BranchBase, Depends(_get_branch_instance)],
+) -> Optional[SnapshotModel]:
+    _, snapshots = branch.get_latest_snapshots(
+        pages_filter=PageFilter(per_page=1, page=1),
+        search_filter=SearchWithIdFilter(**search_filters.model_dump()),
+        descending=True,
+    )
+    if len(snapshots) == 0:
+        return None
+    return snapshots[0].dump()
+
+
 @branch_router.get("/node", deprecated=True)
 def get_node(
     *,
@@ -105,25 +128,60 @@ def get_latest_node(
 @branch_router.get("/snapshots_history")
 def get_snapshots_history(
     *,
-    page: int = Query(1, gt=0),
-    per_page: int = Query(50, gt=0),
-    reverse: bool = False,
-    global_reverse: bool = False,
+    page_filter: Annotated[PageFilter, Depends(get_page_filter)],
+    descending: bool = True,
+    reverse: Annotated[
+        bool,
+        Query(
+            deprecated=True,
+            description="This field is ignored. Use `descending` instead.",
+        ),
+    ] = False,
+    global_reverse: Annotated[
+        bool,
+        Query(
+            deprecated=True,
+            description="This field is ignored. Use `descending` instead.",
+        ),
+    ] = False,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
     total, snapshots = branch.get_latest_snapshots(
-        page, per_page, global_reverse
+        pages_filter=page_filter,
+        descending=descending,
     )
     snapshots_dumped = [
         SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
         for snapshot in snapshots
     ]
-    if reverse:
-        # TODO: make more correct relationship update
-        snapshots_dumped = list(reversed(snapshots_dumped))
     return PagedCollection[SimplifiedSnapshotWithMetadata](
-        page=page,
-        per_page=per_page,
+        page=page_filter.page,
+        per_page=page_filter.per_page,
+        total_items=total,
+        items=snapshots_dumped,
+    )
+
+
+@branch_router.get("/snapshots/filter")
+def get_snapshots_filtered(
+    *,
+    page_filter: Annotated[PageFilter, Depends(get_page_filter)],
+    descending: bool = True,
+    search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
+    branch: Annotated[BranchBase, Depends(_get_branch_instance)],
+) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
+    total, snapshots = branch.get_latest_snapshots(
+        pages_filter=page_filter,
+        search_filter=SearchWithIdFilter(**search_filters.model_dump()),
+        descending=descending,
+    )
+    snapshots_dumped = [
+        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
+        for snapshot in snapshots
+    ]
+    return PagedCollection[SimplifiedSnapshotWithMetadata](
+        page=page_filter.page,
+        per_page=page_filter.per_page,
         total_items=total,
         items=snapshots_dumped,
     )
@@ -132,20 +190,32 @@ def get_snapshots_history(
 @branch_router.get("/nodes_history", deprecated=True)
 def get_nodes_history(
     *,
-    page: int = Query(1, gt=0),
-    per_page: int = Query(50, gt=0),
-    reverse: bool = False,
-    global_reverse: bool = False,
+    page_filter: Annotated[PageFilter, Depends(get_page_filter)],
+    descending: bool = True,
+    reverse: Annotated[
+        bool,
+        Query(
+            deprecated=True,
+            description="This field is ignored. Use `descending` instead.",
+        ),
+    ] = False,
+    global_reverse: Annotated[
+        bool,
+        Query(
+            deprecated=True,
+            description="This field is ignored. Use `descending` instead.",
+        ),
+    ] = False,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> PagedCollection[NodeModel]:
-    total, nodes = branch.get_latest_nodes(page, per_page, global_reverse)
+    total, nodes = branch.get_latest_nodes(
+        pages_filter=page_filter,
+        descending=descending,
+    )
     nodes_dumped = [node.dump() for node in nodes]
-    if reverse:
-        # TODO: make more correct relationship update
-        nodes_dumped = list(reversed(nodes_dumped))
     return PagedCollection[NodeModel](
-        page=page,
-        per_page=per_page,
+        page=page_filter.page,
+        per_page=page_filter.per_page,
         total_items=total,
         items=nodes_dumped,
     )

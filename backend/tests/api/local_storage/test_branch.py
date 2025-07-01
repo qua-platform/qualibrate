@@ -439,11 +439,11 @@ def test_branch_snapshots_history_default(
     }
 
 
-def test_branch_snapshots_history_reverse(
+def test_branch_snapshots_history_ascending(
     client_custom_settings, snapshots_history
 ):
     response = client_custom_settings.get(
-        "/api/branch/main/snapshots_history", params={"reverse": True}
+        "/api/branch/main/snapshots_history", params={"descending": False}
     )
     assert response.status_code == 200
     assert response.json() == {
@@ -455,12 +455,12 @@ def test_branch_snapshots_history_reverse(
     }
 
 
-def test_branch_snapshots_history_reverse_paged(
+def test_branch_snapshots_history_ascending_paged(
     client_custom_settings, snapshots_history
 ):
     response = client_custom_settings.get(
         "/api/branch/main/snapshots_history",
-        params={"reverse": True, "page": 2, "per_page": 2},
+        params={"descending": False, "page": 2, "per_page": 2},
     )
     assert response.status_code == 200
     assert response.json() == {
@@ -468,42 +468,7 @@ def test_branch_snapshots_history_reverse_paged(
         "per_page": 2,
         "total_items": 9,
         "total_pages": 5,
-        "items": snapshots_history[3:1:-1],
-    }
-
-
-@pytest.mark.skip("Global reverse not implemented yet for local storage")
-def test_branch_snapshots_history_global_reverse(
-    client_custom_settings, snapshots_history
-):
-    response = client_custom_settings.get(
-        "/api/branch/main/snapshots_history", params={"global_reverse": True}
-    )
-    assert response.status_code == 200
-    assert response.json() == {
-        "page": 1,
-        "per_page": 50,
-        "total_items": 9,
-        "total_pages": 1,
-        "items": snapshots_history[::-1],
-    }
-
-
-@pytest.mark.skip("Global reverse not implemented yet for local storage")
-def test_branch_snapshots_history_global_reverse_paged(
-    client_custom_settings, snapshots_history
-):
-    response = client_custom_settings.get(
-        "/api/branch/main/snapshots_history",
-        params={"global_reverse": True, "page": 2, "per_page": 2},
-    )
-    assert response.status_code == 200
-    assert response.json() == {
-        "page": 2,
-        "per_page": 2,
-        "total_items": 9,
-        "total_pages": 5,
-        "items": snapshots_history[7:5:-1],
+        "items": snapshots_history[6:4:-1],
     }
 
 
@@ -559,11 +524,11 @@ def test_branch_nodes_history_default_args(
     }
 
 
-def test_branch_nodes_history_reverse(
+def test_branch_nodes_history_ascending(
     client_custom_settings, snapshots_history, dfss_history
 ):
     response = client_custom_settings.get(
-        "/api/branch/main/nodes_history", params={"reverse": True}
+        "/api/branch/main/nodes_history", params={"descending": False}
     )
     assert response.status_code == 200
     assert response.json() == {
@@ -580,12 +545,12 @@ def test_branch_nodes_history_reverse(
     }
 
 
-def test_branch_nodes_history_reverse_paged(
+def test_branch_nodes_history_ascending_paged(
     client_custom_settings, snapshots_history, dfss_history
 ):
     response = client_custom_settings.get(
         "/api/branch/main/nodes_history",
-        params={"reverse": True, "page": 2, "per_page": 2},
+        params={"descending": False, "page": 2, "per_page": 2},
     )
     assert response.status_code == 200
     assert response.json() == {
@@ -596,52 +561,7 @@ def test_branch_nodes_history_reverse_paged(
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for snapshot, dfs in zip(
-                snapshots_history[3:1:-1], dfss_history[3:1:-1]
-            )
-        ],
-    }
-
-
-@pytest.mark.skip("Global reverse not implemented yet for local storage")
-def test_branch_nodes_history_global_reverse(
-    client_custom_settings, snapshots_history, dfss_history
-):
-    response = client_custom_settings.get(
-        "/api/branch/main/nodes_history", params={"global_reverse": True}
-    )
-    assert response.status_code == 200
-    assert response.json() == {
-        "page": 1,
-        "per_page": 50,
-        "total_items": 9,
-        "total_pages": 1,
-        "items": [
-            {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-            for snapshot, dfs in zip(
-                snapshots_history[::-1], dfss_history[::-1]
-            )
-        ],
-    }
-
-
-@pytest.mark.skip("Global reverse not implemented yet for local storage")
-def test_branch_nodes_history_global_reverse_paged(
-    client_custom_settings, snapshots_history, dfss_history
-):
-    response = client_custom_settings.get(
-        "/api/branch/main/nodes_history",
-        params={"global_reverse": True, "page": 2, "per_page": 2},
-    )
-    assert response.status_code == 200
-    assert response.json() == {
-        "page": 2,
-        "per_page": 2,
-        "total_items": 9,
-        "total_pages": 5,
-        "items": [
-            {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-            for snapshot, dfs in zip(
-                snapshots_history[7:5:-1], dfss_history[7:5:-1]
+                snapshots_history[6:4:-1], dfss_history[6:4:-1]
             )
         ],
     }

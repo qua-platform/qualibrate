@@ -16,6 +16,7 @@ from qualibrate_app.api.core.types import (
     DocumentSequenceType,
     DocumentType,
     IdType,
+    PageFilter,
 )
 from qualibrate_app.api.core.utils.find_utils import (
     get_subpath_value_on_any_depth,
@@ -169,7 +170,7 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
 
     @abstractmethod
     def get_latest_snapshots(
-        self, page: int = 1, per_page: int = 50, reverse: bool = False
+        self, pages_filter: PageFilter, descending: bool = False
     ) -> tuple[int, Sequence["SnapshotBase"]]:
         pass
 

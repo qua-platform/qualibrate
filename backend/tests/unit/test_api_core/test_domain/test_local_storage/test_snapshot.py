@@ -5,6 +5,10 @@ import pytest
 
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotLoadTypeFlag
 from qualibrate_app.api.core.domain.local_storage import snapshot
+from qualibrate_app.api.core.types import (
+    PageFilter,
+    SearchWithIdFilter,
+)
 from qualibrate_app.api.exceptions.classes.values import QValueException
 
 
@@ -18,7 +22,7 @@ class TestSnapshotLocalStorage:
         self.snapshot.content = {"a": "b"}
         mocker.patch(
             "qualibrate_app.api.core.domain.local_storage.snapshot"
-            ".IdToLocalPath.get_or_raise"
+            ".IdToLocalPath.get_path_or_raise"
         )
         snapshot_loader_patched = mocker.patch.object(
             self.snapshot, "_snapshot_loader", return_value={"a": "b"}
@@ -31,7 +35,7 @@ class TestSnapshotLocalStorage:
         self.snapshot._load_type_flag = SnapshotLoadTypeFlag.Minified
         get_or_raise_patched = mocker.patch(
             "qualibrate_app.api.core.domain.local_storage.snapshot"
-            ".IdToLocalPath.get_or_raise"
+            ".IdToLocalPath.get_path_or_raise"
         )
         self.snapshot.load_from_flag(SnapshotLoadTypeFlag.Minified)
         get_or_raise_patched.assert_not_called()
@@ -103,18 +107,22 @@ class TestSnapshotLocalStorage:
 
     def test_get_latest_snapshots_one(self, mocker, settings):
         load_patched = mocker.patch.object(self.snapshot, "load_from_flag")
-        find_latest_patched = mocker.patch(
-            "qualibrate_app.api.core.domain.local_storage.snapshot"
-            ".find_latest_node_id",
-            return_value=3,
-        )
-        find_n_latest_patched = mocker.patch(
+        patched_id2lp = mocker.patch(
             "qualibrate_app.api.core.domain.local_storage.snapshot."
-            "find_n_latest_nodes_ids"
+            "IdToLocalPath",
         )
-        assert self.snapshot.get_latest_snapshots(1, 1) == (3, [self.snapshot])
+        id2plp_len = (
+            patched_id2lp.return_value.get_project_manager.return_value.__len__
+        )
+        id2plp_len.return_value = 3
+        find_n_latest_patched = mocker.patch.object(
+            self.snapshot, "_get_latest_snapshots_ids", return_value=[]
+        )
+        assert self.snapshot.get_latest_snapshots(
+            pages_filter=PageFilter(page=1, per_page=1), descending=True
+        ) == (3, [self.snapshot])
         load_patched.assert_called_once_with(SnapshotLoadTypeFlag.Metadata)
-        find_latest_patched.assert_called_once_with(settings.storage.location)
+        id2plp_len.assert_called_once_with()
         find_n_latest_patched.assert_not_called()
 
     def test_get_latest_snapshots_more(self, mocker, settings):
@@ -122,32 +130,37 @@ class TestSnapshotLocalStorage:
             "qualibrate_app.api.core.domain.local_storage.snapshot"
             ".SnapshotLocalStorage.load_from_flag"
         )
-        find_latest_patched = mocker.patch(
-            "qualibrate_app.api.core.domain.local_storage.snapshot"
-            ".find_latest_node_id",
-            return_value=3,
+        patched_id2lp = mocker.patch(
+            "qualibrate_app.api.core.domain.local_storage.snapshot."
+            "IdToLocalPath",
         )
-        find_n_latest_patched = mocker.patch(
-            (
-                "qualibrate_app.api.core.domain.local_storage.snapshot"
-                ".find_n_latest_nodes_ids"
-            ),
-            return_value=[2],
+        id2plp_len = (
+            patched_id2lp.return_value.get_project_manager.return_value.__len__
         )
-        total, snapshots_hist = self.snapshot.get_latest_snapshots(1, 2)
+        id2plp_len.return_value = 3
+        find_n_latest_patched = mocker.patch.object(
+            self.snapshot, "_get_latest_snapshots_ids", return_value=[2]
+        )
+        total, snapshots_hist = self.snapshot.get_latest_snapshots(
+            pages_filter=PageFilter(page=1, per_page=2), descending=True
+        )
 
         assert total == 3
         assert len(snapshots_hist) == 2
         assert snapshots_hist[0] == self.snapshot
         assert [snapshot.id for snapshot in snapshots_hist] == [3, 2]
         load_patched.assert_has_calls([call(SnapshotLoadTypeFlag.Metadata)] * 2)
-        find_latest_patched.assert_called_once_with(settings.storage.location)
+        id2plp_len.assert_called_once()
         find_n_latest_patched.assert_called_once_with(
             settings.storage.location,
-            1,
-            2,
-            settings.project,
-            max_node_id=2,
+            pages_filter=PageFilter(
+                page=1,
+                per_page=2,
+            ),
+            search_filter=SearchWithIdFilter(
+                max_node_id=2,
+            ),
+            descending=True,
         )
 
     def test_compare_by_id_same_snapshot(self, mocker):

@@ -14,6 +14,7 @@ from qualibrate_app.api.core.types import (
     DocumentSequenceType,
     DocumentType,
     IdType,
+    PageFilter,
 )
 from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 from qualibrate_app.api.core.utils.request_utils import request_with_db
@@ -101,12 +102,16 @@ class SnapshotTimelineDb(SnapshotBase):
         return get_subpath_value(data, search_path)
 
     def get_latest_snapshots(
-        self, page: int = 1, per_page: int = 50, reverse: bool = False
+        self, pages_filter: PageFilter, descending: bool = False
     ) -> tuple[int, Sequence[SnapshotBase]]:
         timeline_db_config = self.timeline_db_config
         result = request_with_db(
             f"snapshot/{self.id}/history",
-            params={"page": page, "per_page": per_page, "reverse": reverse},
+            params={
+                "page": pages_filter.page,
+                "per_page": pages_filter.per_page,
+                "reverse": descending,
+            },
             db_name=self._settings.project,
             host=timeline_db_config.address_with_root,
             timeout=timeline_db_config.timeout,
