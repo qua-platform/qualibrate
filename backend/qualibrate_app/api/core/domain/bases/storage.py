@@ -104,7 +104,7 @@ def _storage_loader_from_flag(
 
 
 class DataFileStorage(IDump):
-    data_file_name = "data.json"
+    possible_filenames = ["data.json", "results.json"]
 
     def __init__(self, path: Path, settings: QualibrateConfig):
         if not path.is_dir():
@@ -127,10 +127,19 @@ class DataFileStorage(IDump):
     def load_type_flag(self) -> StorageLoadTypeFlag:
         return self._load_type_flag
 
+    def _get_filename(self) -> Optional[Path]:
+        for filename in self.__class__.possible_filenames:
+            filepath = self._path / filename
+            if filepath.is_file():
+                return filepath
+        return None
+
     def load_from_flag(self, load_type_flag: StorageLoadTypeFlag) -> None:
         if self.load_type_flag.is_set(load_type_flag):
             return
-        data_file = self._path / self.__class__.data_file_name
+        data_file = self._get_filename()
+        if data_file is None:
+            return
         self._data = _storage_loader_from_flag(
             self._path, data_file, load_type_flag, self._data
         )

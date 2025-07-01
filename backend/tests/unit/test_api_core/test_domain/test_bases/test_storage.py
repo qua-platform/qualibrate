@@ -14,8 +14,8 @@ from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
 from qualibrate_app.api.exceptions.classes.values import QValueException
 
 
-def test_data_file_name():
-    assert DataFileStorage.data_file_name == "data.json"
+def test_possible_data_file_names():
+    assert DataFileStorage.possible_filenames == ["data.json", "results.json"]
 
 
 def test_storage_creation_path_not_exists(mocker, settings):
@@ -78,6 +78,21 @@ class TestDataFileStorage:
         assert self.dfs.load_from_flag(load_type) is None
         patched_parse_data.assert_not_called()
 
+    def test_load_file_not_exists(self, mocker):
+        mocker.patch.object(
+            self.dfs.__class__,
+            "load_type_flag",
+            new_callable=PropertyMock,
+            return_value=StorageLoadTypeFlag.Empty,
+        )
+        mocker.patch.object(self.dfs, "_get_filename", return_value=None)
+        patched_parse_data = mocker.patch(
+            "qualibrate_app.api.core.domain.bases."
+            "storage._storage_loader_from_flag"
+        )
+        assert self.dfs.load_from_flag(StorageLoadTypeFlag.Full) is None
+        patched_parse_data.assert_not_called()
+
     def test_load_call_parse(self, mocker):
         mocker.patch.object(
             self.dfs.__class__,
@@ -85,12 +100,15 @@ class TestDataFileStorage:
             new_callable=PropertyMock,
             return_value=StorageLoadTypeFlag.Empty,
         )
+        mocker.patch.object(self.dfs, "_get_filename", return_value="data.json")
         patched_parse_data = mocker.patch(
             "qualibrate_app.api.core.domain.bases."
             "storage._storage_loader_from_flag"
         )
         assert self.dfs.load_from_flag(StorageLoadTypeFlag.Full) is None
-        patched_parse_data.assert_called_once()
+        patched_parse_data.assert_called_once_with(
+            self.dfs._path, "data.json", StorageLoadTypeFlag.Full, None
+        )
 
     def test_exists(self, mocker):
         patched_exists = mocker.patch("pathlib.Path.exists")
@@ -135,7 +153,7 @@ class TestDataFileStorage:
         patched_open.assert_not_called()
 
     def test__storage_loader_from_flag_empty_file(self):
-        data_file = self.node_abs_path / self.dfs.__class__.data_file_name
+        data_file = self.node_abs_path / "data.json"
         data_file.touch()
         with pytest.raises(QValueException) as ex:
             _storage_loader_from_flag(
@@ -145,7 +163,7 @@ class TestDataFileStorage:
         assert ex.value.args == ("Unexpected data format.",)
 
     def test__storage_loader_from_flag_invalid_content(self):
-        data_file = self.node_abs_path / self.dfs.__class__.data_file_name
+        data_file = self.node_abs_path / "data.json"
         data_file.write_text("[]")
         with pytest.raises(QValueException) as ex:
             _storage_loader_from_flag(
@@ -155,7 +173,7 @@ class TestDataFileStorage:
         assert ex.value.args == ("Unexpected data format.",)
 
     def test__storage_loader_from_flag_no_references(self, mocker):
-        data_file = self.node_abs_path / self.dfs.__class__.data_file_name
+        data_file = self.node_abs_path / "data.json"
         patched_resolve = mocker.patch("pathlib.Path.resolve")
         patched_suffix = mocker.patch(
             "pathlib.Path.suffix",
@@ -175,7 +193,7 @@ class TestDataFileStorage:
     def test__storage_loader_from_flag_reference_file_not_subpath_of_node(
         self, mocker
     ):
-        data_file = self.node_abs_path / self.dfs.__class__.data_file_name
+        data_file = self.node_abs_path / "data.json"
         patched_is_relative = mocker.patch(
             "pathlib.Path.is_relative_to", return_value=False
         )
@@ -189,7 +207,7 @@ class TestDataFileStorage:
         patched_read_bytes.assert_not_called()
 
     def test__storage_loader_from_flag_reference_file_not_exists(self, mocker):
-        data_file = self.node_abs_path / self.dfs.__class__.data_file_name
+        data_file = self.node_abs_path / "data.json"
         patched_is_relative = mocker.patch(
             "pathlib.Path.is_relative_to", return_value=True
         )
@@ -204,7 +222,7 @@ class TestDataFileStorage:
         patched_read_bytes.assert_not_called()
 
     def test__storage_loader_from_flag_reference_ignore(self, mocker):
-        data_file = self.node_abs_path / self.dfs.__class__.data_file_name
+        data_file = self.node_abs_path / "data.json"
         patched_load_data_png_images = mocker.patch(
             "qualibrate_app.api.core.domain.bases.storage.load_data_png_images_parse"
         )
@@ -224,7 +242,7 @@ class TestDataFileStorage:
     def test__storage_loader_from_flag_reference_read_valid(
         self, mocker, load_type_flag
     ):
-        data_file = self.node_abs_path / self.dfs.__class__.data_file_name
+        data_file = self.node_abs_path / "data.json"
         patched_is_relative = mocker.patch(
             "pathlib.Path.is_relative_to", return_value=True
         )
