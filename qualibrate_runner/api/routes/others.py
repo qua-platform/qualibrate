@@ -93,7 +93,10 @@ def state_updated(
     state: Annotated[State, Depends(get_state)],
     key: str,
 ) -> Optional[LastRun]:
-    if state.last_run is None or state.last_run.status != RunStatusEnum.FINISHED:
+    if (
+        state.last_run is None
+        or state.last_run.status != RunStatusEnum.FINISHED
+    ):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Node not executed or finished unsuccessful.",
