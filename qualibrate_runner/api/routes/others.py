@@ -9,12 +9,18 @@ from qualibrate_runner.config import State
 from qualibrate_runner.config.resolvers import get_settings
 from qualibrate_runner.core.models.enums import RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
+from qualibrate_runner.core.models.runner_meta import RunnerMeta
 from qualibrate_runner.utils.logs_parser import (
     get_logs_from_qualibrate_files,
     get_logs_from_qualibrate_in_memory_storage,
 )
 
 others_router = APIRouter()
+
+
+@others_router.get("/meta")
+def get_meta() -> RunnerMeta:
+    return RunnerMeta()
 
 
 @others_router.get("/is_running", deprecated=True)
@@ -87,10 +93,7 @@ def state_updated(
     state: Annotated[State, Depends(get_state)],
     key: str,
 ) -> Optional[LastRun]:
-    if (
-        state.last_run is None
-        or state.last_run.status != RunStatusEnum.FINISHED
-    ):
+    if state.last_run is None or state.last_run.status != RunStatusEnum.FINISHED:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Node not executed or finished unsuccessful.",
