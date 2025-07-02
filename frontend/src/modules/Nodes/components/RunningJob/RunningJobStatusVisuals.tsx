@@ -10,7 +10,7 @@ export const StatusVisuals: React.FC<{ status?: string; percentage: number }> = 
     return <div className={styles.greenDot} />;
   } else if (status === "error") {
     return <div className={styles.redDot} />;
-  } else {
-    return <div className={styles.greyDot} />;
   }
+  
+  return <div className={styles.greyDot} />;
 };

@@ -12,7 +12,9 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
 
   const handleStopClick = async () => {
     const res = await SnapshotsApi.stopNodeRunning();
-    if (res.isOk) setIsNodeRunning(false);
+    if (res.isOk && res.result) {
+      setIsNodeRunning(false);
+    }
   };
 
   return (

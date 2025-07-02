@@ -17,7 +17,7 @@ export const StatusLabel: React.FC<{ status?: string; percentage?: number; onSto
         <button className={styles.stopButton} onClick={onStop} title="Stop Node"> <StopIcon /> </button>
       </>
     );
-  } else {
-    return null;
   }
+  
+  return null;
 };
