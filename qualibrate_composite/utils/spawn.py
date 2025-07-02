@@ -88,8 +88,11 @@ def spawn_qua_dashboards(app: FastAPI) -> None:
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
     async with AsyncExitStack() as stack:
-        for subapp in filter(lambda x: isinstance(x, Mount), app.routes):
+        for route in filter(
+            lambda r: isinstance(r, Mount) and isinstance(r.app, FastAPI),
+            app.routes,
+        ):
             await stack.enter_async_context(
-                subapp.app.router.lifespan_context(app)  # type: ignore[attr-defined]
+                route.app.router.lifespan_context(app)  # type: ignore[attr-defined]
             )
         yield
