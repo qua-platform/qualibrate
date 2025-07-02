@@ -16,6 +16,7 @@ tomli-w = "^1.0.0"
 jsonpatch = "^1.33"
 qualibrate-core = "^0.3.2"
 qualibrate-config = "^0.1.5"
+websockets = "^15.0.1"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.10.0"

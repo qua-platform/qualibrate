@@ -23,7 +23,7 @@ def get_meta() -> RunnerMeta:
     return RunnerMeta()
 
 
-@others_router.get("/is_running")
+@others_router.get("/is_running", deprecated=True)
 def check_running(
     state: Annotated[State, Depends(get_state)],
 ) -> bool:

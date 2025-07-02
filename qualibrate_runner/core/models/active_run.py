@@ -1,15 +1,19 @@
+from collections.abc import Mapping
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Optional
+from typing import Annotated, Any, Optional
 
 from pydantic import AwareDatetime, BaseModel, Field, computed_field
 
-from qualibrate_runner.core.models.enums import RunStatusEnum
+from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
+from qualibrate_runner.core.models.run_results import RunResults
 
 __all__ = ["RunStatus", "RunStatusNode", "RunStatusGraph"]
 
 
 class RunStatusBase(BaseModel):
     name: str
+    description: Optional[str] = None
+    parameters: Mapping[str, Any] = Field(default_factory=dict)
     status: Annotated[
         RunStatusEnum,
         Field(
@@ -26,6 +30,10 @@ class RunStatusBase(BaseModel):
         Optional[AwareDatetime],
         Field(description="The completion time of the run."),
     ] = None
+    run_results: Annotated[
+        Optional[RunResults],
+        Field(description="The results of the run."),
+    ] = None
 
     @computed_field(description="Duration of the run in seconds.")
     def run_duration(self) -> float:
@@ -39,6 +47,8 @@ class RunStatusBase(BaseModel):
     def _time_remaining(
         self, percentage_complete: float, run_start: AwareDatetime
     ) -> Optional[float]:
+        if self.status in (RunStatusEnum.PENDING, RunStatusEnum.ERROR):
+            return None
         if percentage_complete == 0:
             return None
 
@@ -77,6 +87,8 @@ class RunStatusGraph(RunStatusBase):
 
 
 class RunStatus(BaseModel):
+    is_running: bool = False
+    runnable_type: Optional[RunnableType] = None
     node: Optional[RunStatusNode] = None
     graph: Optional[RunStatusGraph] = None
 
