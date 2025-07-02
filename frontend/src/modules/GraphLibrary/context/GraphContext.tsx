@@ -7,6 +7,7 @@ import { InputParameter } from "../../common/Parameters/Parameters";
 import { NodesApi } from "../../Nodes/api/NodesAPI";
 import { StatusResponseType } from "../../Nodes/context/NodesContext";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
+import { useWebSocketData } from "../../../contexts/WebSocketContext";
 
 interface GraphProviderProps {
   children: React.JSX.Element;
@@ -71,6 +72,8 @@ const GraphContext = React.createContext<IGraphContext>({
 export const useGraphContext = () => useContext<IGraphContext>(GraphContext);
 
 export const GraphContextProvider = (props: GraphProviderProps): React.ReactElement => {
+  const { runStatus } = useWebSocketData();
+
   const [allGraphs, setAllGraphs] = useState<GraphMap | undefined>(undefined);
   const [selectedWorkflow, setSelectedWorkflow] = useState<GraphWorkflow | undefined>(undefined);
   const [selectedWorkflowName, setSelectedWorkflowName] = useState<string | undefined>(undefined);
@@ -166,22 +169,22 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
     }
   };
 
-  const fetchLastRunWorkflowStatus = async () => {
-    const response = await GraphLibraryApi.fetchLastWorkflowStatus();
-    if (response.isOk) {
-      setLastRunInfo({
-        ...lastRunInfo,
-        active: response.result?.active,
-        activeNodeName: response.result?.active_node_name,
-        nodesCompleted: response.result?.nodes_completed,
-        nodesTotal: response.result?.nodes_total,
-        runDuration: response.result?.run_duration,
-        error: response.result?.error,
-      });
-    } else if (response.error) {
-      console.log(response.error);
-    }
-  };
+  // const fetchLastRunWorkflowStatus = async () => {
+  //   const response = await GraphLibraryApi.fetchLastWorkflowStatus();
+  //   if (response.isOk) {
+  //     setLastRunInfo({
+  //       ...lastRunInfo,
+  //       active: response.result?.active,
+  //       activeNodeName: response.result?.active_node_name,
+  //       nodesCompleted: response.result?.nodes_completed,
+  //       nodesTotal: response.result?.nodes_total,
+  //       runDuration: response.result?.run_duration,
+  //       error: response.result?.error,
+  //     });
+  //   } else if (response.error) {
+  //     console.log(response.error);
+  //   }
+  // };
 
   useEffect(() => {
     fetchAllCalibrationGraphs();
@@ -201,10 +204,25 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
     }
   }, [selectedWorkflowName]);
 
+  // useEffect(() => {
+  //   const checkInterval = setInterval(async () => fetchLastRunWorkflowStatus(), 1500);
+  //   return () => clearInterval(checkInterval);
+  // }, []);
+
   useEffect(() => {
-    const checkInterval = setInterval(async () => fetchLastRunWorkflowStatus(), 1500);
-    return () => clearInterval(checkInterval);
-  }, []);
+    if (runStatus && runStatus.graph && runStatus.node) {
+      setLastRunInfo({
+        ...lastRunInfo,
+        active: runStatus.is_running,
+        workflowName: runStatus.graph.name,
+        activeNodeName: runStatus.node.name ?? "",
+        nodesCompleted: runStatus.graph.finished_nodes,
+        nodesTotal: runStatus.graph.total_nodes,
+        runDuration: runStatus.graph.run_duration,
+        error: runStatus.graph.error,
+      });
+    }
+  }, [runStatus]);
 
   return (
     <GraphContext.Provider

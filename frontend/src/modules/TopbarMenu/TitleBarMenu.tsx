@@ -4,7 +4,7 @@ import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext
 import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import TitleBarMenuCard from "./TitleBarMenuCard";
-import { NodesApi } from "../Nodes/api/NodesAPI";
+import { useWebSocketData } from "../../contexts/WebSocketContext";
 
 export interface LastRunStatusNodeResponseDTO {
   status: string;
@@ -18,20 +18,27 @@ export interface LastRunStatusNodeResponseDTO {
 }
 
 const TitleBarMenu: React.FC = () => {
+  const { runStatus } = useWebSocketData();
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
   const [node, setNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
 
-  const fetchStatus = async () => {
-    const res = await NodesApi.fetchLastRunStatusInfo();
-    if (res.isOk && res.result?.node) {
-      setNode(res.result.node);
-    }
-  };
+  // const fetchStatus = async () => {
+  //   const res = await NodesApi.fetchLastRunStatusInfo();
+  //   if (res.isOk && res.result?.node) {
+  //     setNode(res.result.node);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const interval = setInterval(async () => fetchStatus(), 1000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   useEffect(() => {
-    const interval = setInterval(async () => fetchStatus(), 1000);
-    return () => clearInterval(interval);
-  }, []);
+    if (runStatus && runStatus.node) {
+      setNode(runStatus.node);
+    }
+  }, [runStatus]);
 
   return (
     <div className={styles.wrapper}>
