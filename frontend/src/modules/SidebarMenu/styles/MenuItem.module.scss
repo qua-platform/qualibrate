@@ -17,11 +17,11 @@
   transition: background-color 0.2s;
 
   &.active {
-    background-color: var(--menuItem-active);
+    background-color: var(--menuitem-active);
   }
 
   &:hover {
-    background-color: var(--menuItem-hover);
+    background-color: var(--menuitem-hover);
   }
 
   svg {
