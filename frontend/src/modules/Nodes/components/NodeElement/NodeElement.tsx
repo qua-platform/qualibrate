@@ -13,7 +13,7 @@ import { RunIcon } from "../../../../ui-lib/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
 import { StatusVisuals } from "./NodeElementStatusVisuals";
-import { getNodeRowClass } from "./Helpers";
+import { getNodeRowClass } from "./helpers";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 export interface NodeDTO {
