@@ -30,9 +30,9 @@ from qualibrate_app.api.core.domain.local_storage.utils.local_path_id import (
 from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
     find_nodes_ids_by_filter,
 )
+from qualibrate_app.api.core.models.snapshot import MachineSearchResults
 from qualibrate_app.api.core.schemas.state_updates import StateUpdates
 from qualibrate_app.api.core.types import (
-    DocumentSequenceType,
     DocumentType,
     IdType,
     PageFilter,
@@ -155,7 +155,7 @@ class SnapshotLocalStorage(SnapshotBase):
 
     def search(
         self, search_path: Sequence[Union[str, int]], load: bool = False
-    ) -> Optional[DocumentSequenceType]:
+    ) -> Optional[Sequence[MachineSearchResults]]:
         """
         Searches for a value in the snapshot data at a specified path.
 

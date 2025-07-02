@@ -10,8 +10,8 @@ from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadTypeFlag,
 )
+from qualibrate_app.api.core.models.snapshot import MachineSearchResults
 from qualibrate_app.api.core.types import (
-    DocumentSequenceType,
     DocumentType,
     IdType,
     PageFilter,
@@ -86,7 +86,7 @@ class SnapshotTimelineDb(SnapshotBase):
         self,
         search_path: Sequence[Union[str, int]],
         load: bool = False,
-    ) -> Optional[DocumentSequenceType]:
+    ) -> Optional[Sequence[MachineSearchResults]]:
         """Make search in current instance of Snapshot."""
         if (
             not self._load_type_flag.is_set(

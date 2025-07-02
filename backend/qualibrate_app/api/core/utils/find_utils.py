@@ -2,23 +2,23 @@ from collections.abc import Mapping, Sequence
 from itertools import chain
 from typing import Any, Callable, Optional, Union, cast
 
-from qualibrate_app.api.core.types import DocumentSequenceType
+from qualibrate_app.api.core.models.snapshot import MachineSearchResults
 
 
 def _get_subpath_value_wildcard(
     obj: Union[Mapping[str, Any], Sequence[Any]],
     target_path: Sequence[Union[str, int]],
     current_path: list[Union[str, int]],
-) -> DocumentSequenceType:
+) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
         if isinstance(obj, Sequence):
             return [
-                {"key": current_path + [i], "value": val}
+                MachineSearchResults(key=current_path + [i], value=val)
                 for i, val in enumerate(obj)
             ]
         elif isinstance(obj, Mapping):
             return [
-                {"key": current_path + [key], "value": val}
+                MachineSearchResults(key=current_path + [key], value=val)
                 for key, val in obj.items()
             ]
         else:
@@ -53,9 +53,9 @@ def get_subpath_value_mapping(
     target_path: Sequence[Union[str, int]],
     current_path: list[Union[str, int]],
     key: str,
-) -> DocumentSequenceType:
+) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
-        return [{"key": current_path + [key], "value": obj[key]}]
+        return [MachineSearchResults(key=current_path + [key], value=obj[key])]
     else:
         return get_subpath_value(
             obj[key], target_path[1:], current_path + [key]
@@ -67,9 +67,9 @@ def get_subpath_value_sequence(
     target_path: Sequence[Union[str, int]],
     current_path: list[Union[str, int]],
     key: int,
-) -> DocumentSequenceType:
+) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
-        return [{"key": current_path + [key], "value": obj[key]}]
+        return [MachineSearchResults(key=current_path + [key], value=obj[key])]
     else:
         return get_subpath_value(
             obj[key], target_path[1:], current_path + [key]
@@ -80,7 +80,7 @@ def get_subpath_value(
     obj: Union[Mapping[str, Any], Sequence[Any]],
     target_path: Sequence[Union[str, int]],
     current_path: Optional[list[Union[str, int]]] = None,
-) -> DocumentSequenceType:
+) -> Sequence[MachineSearchResults]:
     if current_path is None:
         current_path = []
     if len(target_path) == 0:
@@ -104,8 +104,8 @@ def get_subpath_value_on_any_depth(
     obj: Union[Mapping[str, Any], Sequence[Any]],
     key: str,
     current_path: Optional[list[Union[str, int]]] = None,
-    paths: Optional[list[dict[str, Any]]] = None,
-) -> list[dict[str, Any]]:
+    paths: Optional[list[MachineSearchResults]] = None,
+) -> list[MachineSearchResults]:
     if current_path is None:
         current_path = []
     if paths is None:
@@ -113,7 +113,9 @@ def get_subpath_value_on_any_depth(
     if isinstance(obj, Mapping):
         for k, v in obj.items():
             if k == key:
-                paths.append({"path": current_path + [k], "value": v})
+                paths.append(
+                    MachineSearchResults(key=current_path + [k], value=v)
+                )
             else:
                 get_subpath_value_on_any_depth(
                     v, key, current_path + [k], paths

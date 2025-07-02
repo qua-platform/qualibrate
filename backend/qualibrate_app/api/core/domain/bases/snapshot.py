@@ -11,9 +11,9 @@ from qualibrate_app.api.core.domain.bases.base_with_settings import (
 )
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.domain.bases.load_type_flag import LoadTypeFlag
+from qualibrate_app.api.core.models.snapshot import MachineSearchResults
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import (
-    DocumentSequenceType,
     DocumentType,
     IdType,
     PageFilter,
@@ -148,12 +148,12 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         self,
         search_path: Sequence[Union[str, int]],
         load: bool = False,
-    ) -> Optional[DocumentSequenceType]:
+    ) -> Optional[Sequence[MachineSearchResults]]:
         pass
 
     def search_recursive(
         self, target_key: str, load: bool = False
-    ) -> Optional[DocumentSequenceType]:
+    ) -> Optional[Sequence[MachineSearchResults]]:
         if (
             not self._load_type_flag.is_set(
                 SnapshotLoadTypeFlag.DataWithMachine

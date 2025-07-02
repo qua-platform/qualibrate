@@ -1,5 +1,6 @@
 import pytest
 
+from qualibrate_app.api.core.models.snapshot import MachineSearchResults
 from qualibrate_app.api.core.utils import find_utils
 from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 
@@ -10,22 +11,22 @@ from qualibrate_app.api.core.utils.find_utils import get_subpath_value
         (
             {"a": 1, "b": 2},
             [
-                {"key": ["x", "y", "a"], "value": 1},
-                {"key": ["x", "y", "b"], "value": 2},
+                MachineSearchResults(key=["x", "y", "a"], value=1),
+                MachineSearchResults(key=["x", "y", "b"], value=2),
             ],
         ),
         (
             [1, 2],
             [
-                {"key": ["x", "y", 0], "value": 1},
-                {"key": ["x", "y", 1], "value": 2},
+                MachineSearchResults(key=["x", "y", 0], value=1),
+                MachineSearchResults(key=["x", "y", 1], value=2),
             ],
         ),
         (
             "st",
             [
-                {"key": ["x", "y", 0], "value": "s"},
-                {"key": ["x", "y", 1], "value": "t"},
+                MachineSearchResults(key=["x", "y", 0], value="s"),
+                MachineSearchResults(key=["x", "y", 1], value="t"),
             ],
         ),
         (1, []),
@@ -145,7 +146,9 @@ def test_get_subpath_value_final_target_key(mocker, obj, key):
         "qualibrate_app.api.core.utils.find_utils._check_key_valid",
         return_value=True,
     )
-    assert get_subpath_value(obj, [key], None) == [{"key": [key], "value": 1}]
+    assert get_subpath_value(obj, [key], None) == [
+        MachineSearchResults(key=[key], value=1)
+    ]
     mocked_wildcard.assert_not_called()
     mocked_check.assert_called_once_with(obj, key)
 

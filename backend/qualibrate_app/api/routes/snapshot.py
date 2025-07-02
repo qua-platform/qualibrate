@@ -1,5 +1,5 @@
 import contextlib
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Annotated, Any, Optional, Union, cast
 from urllib.parse import urljoin
 
@@ -20,6 +20,7 @@ from qualibrate_app.api.core.domain.timeline_db.snapshot import (
 )
 from qualibrate_app.api.core.models.paged import PagedCollection
 from qualibrate_app.api.core.models.snapshot import (
+    MachineSearchResults,
     SimplifiedSnapshotWithMetadata,
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
@@ -27,7 +28,6 @@ from qualibrate_app.api.core.schemas.state_updates import (
     StateUpdateRequestItems,
 )
 from qualibrate_app.api.core.types import (
-    DocumentSequenceType,
     IdType,
     PageFilter,
 )
@@ -214,7 +214,7 @@ def update_entries(
 def search(
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
     data_path: Annotated[list[Union[str, int]], Depends(get_search_path)],
-) -> Optional[DocumentSequenceType]:
+) -> Optional[Sequence[MachineSearchResults]]:
     return snapshot.search(data_path, load=True)
 
 
@@ -222,5 +222,5 @@ def search(
 def search_recursive(
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
     target_key: str,
-) -> Optional[DocumentSequenceType]:
+) -> Optional[Sequence[MachineSearchResults]]:
     return snapshot.search_recursive(target_key, load=True)

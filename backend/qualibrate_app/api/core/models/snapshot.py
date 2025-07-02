@@ -1,4 +1,5 @@
-from typing import Annotated, Any, Optional
+from collections.abc import Sequence
+from typing import Annotated, Any, Optional, Union
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
 
@@ -48,3 +49,8 @@ class Snapshot(SimplifiedSnapshot):
         SnapshotMetadata, Field(default_factory=SnapshotMetadata)
     ]
     data: Optional[SnapshotData] = None
+
+
+class MachineSearchResults(BaseModel):
+    key: Sequence[Union[str, int]]
+    value: Any

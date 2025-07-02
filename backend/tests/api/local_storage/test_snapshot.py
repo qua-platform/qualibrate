@@ -244,10 +244,10 @@ def test_snapshots_search_data_wildcard(
 @pytest.mark.parametrize(
     "s_id, target_key, result",
     (
-        (3, "quam", [{"path": ["quam"], "value": {"node": 3}}]),
-        (3, "node", [{"path": ["quam", "node"], "value": 3}]),
-        (6, "quam", [{"path": ["quam"], "value": {"node": 6}}]),
-        (6, "node", [{"path": ["quam", "node"], "value": 6}]),
+        (3, "quam", [{"key": ["quam"], "value": {"node": 3}}]),
+        (3, "node", [{"key": ["quam", "node"], "value": 3}]),
+        (6, "quam", [{"key": ["quam"], "value": {"node": 6}}]),
+        (6, "node", [{"key": ["quam", "node"], "value": 6}]),
     ),
 )
 def test_snapshots_search_recursive_data(
