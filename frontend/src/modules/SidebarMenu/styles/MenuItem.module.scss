@@ -17,11 +17,11 @@
   transition: background-color 0.2s;
 
   &.active {
-    background-color: rgba(44, 203, 229, 0.08);
+    background-color: var(--menuItem-active);
   }
 
   &:hover {
-    background-color: rgba(44, 203, 229, 0.12);
+    background-color: var(--menuItem-hover);
   }
 
   svg {

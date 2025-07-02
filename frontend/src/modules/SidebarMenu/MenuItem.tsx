@@ -17,11 +17,9 @@ const MenuItem: React.FC<Module & { hideText: boolean; onClick?: () => void; isA
 
   const { dataCy, title, sideBarTitle, icon: Icon } = menuItem;
   const displayTitle = sideBarTitle || title;
-  const NON_MODULE_KEYS = new Set(["help", "toggle"]);
-  const isRealModule = !NON_MODULE_KEYS.has(keyId);
 
   const handleClick = () => {
-    if (isRealModule) openTab(keyId);
+    if (menuItem.isSelectable !== false) openTab(keyId);
     onClick?.();
   };
 

@@ -48,6 +48,7 @@ export type Module = {
     customIcon?: React.FunctionComponent<IconProps>;
     path?: string;
     dataCy?: string;
+    isSelectable?: boolean;
   };
   // onClick?: () => void;
 };
@@ -63,6 +64,7 @@ export const ModulesRegistry: Array<Module> = [
       // icon: ProjectIcon,
       icon: ProjectIcon,
       dataCy: cyKeys.PROJECT_TAB,
+      isSelectable: true,
     },
   },
   {
@@ -74,6 +76,7 @@ export const ModulesRegistry: Array<Module> = [
       title: "Run calibration node",
       icon: NodeLibraryIcon,
       dataCy: cyKeys.NODES_TAB,
+      isSelectable: true,
     },
   },
 
@@ -86,6 +89,7 @@ export const ModulesRegistry: Array<Module> = [
       title: "Run calibration graph",
       icon: GraphLibraryIcon,
       dataCy: cyKeys.CALIBRATION_TAB,
+      isSelectable: true,
     },
   },
   {
@@ -97,6 +101,7 @@ export const ModulesRegistry: Array<Module> = [
       title: "Graph Status",
       icon: GraphStatusIcon,
       dataCy: cyKeys.NODES_TAB,
+      isSelectable: true,
     },
   },
   {
@@ -108,6 +113,7 @@ export const ModulesRegistry: Array<Module> = [
       title: "Data",
       icon: DataIcon,
       dataCy: cyKeys.DATA_TAB,
+      isSelectable: true,
     },
   },
 ];
