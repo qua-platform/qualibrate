@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
