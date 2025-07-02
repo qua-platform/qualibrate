@@ -4,7 +4,7 @@ import { FlexLayoutContextProvider } from "./routing/flexLayout/FlexLayoutContex
 import "./assets/styles/index.scss";
 import "./assets/styles/_base.scss";
 import AppRoutes from "./routing/AppRoutes";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 import { updateColorTheme } from "./modules/themeModule/themeHelper";
 import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeContext";
 import { createRoot } from "react-dom/client";
@@ -13,13 +13,8 @@ import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsC
 
 type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
 
-const contextProviders: ProviderComponent[] = [
-  ApiContextProvider,
-  AuthContextProvider,
-  FlexLayoutContextProvider,
-  BrowserRouter,
-  SnapshotsContextProvider,
-];
+const contextProviders: ProviderComponent[] = [ApiContextProvider, AuthContextProvider, FlexLayoutContextProvider, HashRouter,
+    SnapshotsContextProvider,];
 
 const Application: React.FunctionComponent = () => {
   useEffect(updateColorTheme, []);
