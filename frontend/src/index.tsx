@@ -20,7 +20,6 @@ const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
   AuthContextProvider,
   FlexLayoutContextProvider,
-  BrowserRouter,
   WebSocketProvider,
   RouterProvider,
   SnapshotsContextProvider,
