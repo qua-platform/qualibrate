@@ -1,8 +1,22 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Generator, Iterator, Mapping, Sequence
 from itertools import chain
-from typing import Any, Callable, Optional, Union, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Optional,
+    TypeVar,
+    Union,
+    cast,
+)
 
-from qualibrate_app.api.core.models.snapshot import MachineSearchResults
+from qualibrate_app.api.core.models.snapshot import (
+    MachineSearchResults,
+    SnapshotSearchResult,
+)
+
+if TYPE_CHECKING:
+    from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
 
 
 def _get_subpath_value_wildcard(
@@ -124,3 +138,71 @@ def get_subpath_value_on_any_depth(
         for i, item in enumerate(obj):
             get_subpath_value_on_any_depth(item, key, current_path + [i], paths)
     return paths
+
+
+SnapshotType = TypeVar("SnapshotType", bound="SnapshotBase")
+
+
+def _get_search_result(
+    snapshot: SnapshotType, data_path: Sequence[Union[str, int]]
+) -> Optional[MachineSearchResults]:
+    search_results = snapshot.search(data_path, load=True)
+    return (
+        search_results[0]
+        if search_results and len(search_results) > 0
+        else None
+    )
+
+
+def _get_snapshot_search_result(
+    snapshot: SnapshotType,
+    result: Optional[MachineSearchResults],
+) -> SnapshotSearchResult:
+    result_dict = {} if result is None else result.model_dump()
+    snapshot_dump = snapshot.dump()
+    return SnapshotSearchResult(snapshot=snapshot_dump, **result_dict)
+
+
+def search_snapshots_data_with_filter_ascending(
+    snapshots: Iterator[SnapshotType],
+    data_path: Sequence[Union[str, int]],
+    filter_no_change: bool,
+) -> Generator[SnapshotSearchResult, None, None]:
+    previous_search_result: Optional[MachineSearchResults] = None
+    for snapshot in snapshots:
+        search_result = _get_search_result(snapshot, data_path)
+        if filter_no_change:
+            if previous_search_result != search_result:
+                previous_search_result = search_result
+                yield _get_snapshot_search_result(
+                    snapshot, previous_search_result
+                )
+        else:
+            yield _get_snapshot_search_result(snapshot, search_result)
+
+    return None
+
+
+def search_snapshots_data_with_filter_descending(
+    snapshots: Iterator[SnapshotType],
+    data_path: Sequence[Union[str, int]],
+    filter_no_change: bool,
+) -> Generator[SnapshotSearchResult, None, None]:
+    snapshot = next(snapshots, None)
+    if snapshot is None:
+        return
+    search_result = _get_search_result(snapshot, data_path)
+    if not filter_no_change:
+        yield _get_snapshot_search_result(snapshot, search_result)
+        for snapshot in snapshots:
+            search_result = _get_search_result(snapshot, data_path)
+            yield _get_snapshot_search_result(snapshot, search_result)
+        return
+    previous: tuple[SnapshotType, Any] = snapshot, search_result
+    for snapshot in snapshots:
+        search_result = _get_search_result(snapshot, data_path)
+        if previous[1] != search_result:
+            yield _get_snapshot_search_result(*previous)
+        previous = snapshot, search_result
+    yield _get_snapshot_search_result(*previous)
+    return None

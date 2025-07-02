@@ -1,6 +1,16 @@
+from datetime import datetime, timezone
+from types import GeneratorType
+
 import pytest
 
-from qualibrate_app.api.core.models.snapshot import MachineSearchResults
+from qualibrate_app.api.core.domain.local_storage.snapshot import (
+    SnapshotLocalStorage,
+)
+from qualibrate_app.api.core.models.snapshot import (
+    MachineSearchResults,
+    SimplifiedSnapshot,
+    SnapshotSearchResult,
+)
 from qualibrate_app.api.core.utils import find_utils
 from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 
@@ -170,3 +180,191 @@ def test_get_subpath_value_list_target_key(mocker, obj, key):
     mocked_wildcard.assert_not_called()
     mocked_check.assert_called_once_with(obj, key)
     mocked_recursive.assert_called_once_with({"k": 1}, ["k"], [key])
+
+
+@pytest.mark.parametrize("search_result", [None, []])
+def test__get_search_result_no_res(mocker, search_result):
+    from qualibrate_app.api.core.domain.local_storage.snapshot import (
+        SnapshotLocalStorage,
+    )
+
+    snapshot = mocker.MagicMock(spec=SnapshotLocalStorage)
+    snapshot.search.return_value = search_result
+    assert find_utils._get_search_result(snapshot, "path") is None
+
+
+@pytest.mark.parametrize("search_result", [["a"], ["a", "b"]])
+def test__get_search_result_valid(mocker, search_result):
+    from qualibrate_app.api.core.domain.local_storage.snapshot import (
+        SnapshotLocalStorage,
+    )
+
+    snapshot = mocker.MagicMock(spec=SnapshotLocalStorage)
+    snapshot.search.return_value = search_result
+    assert find_utils._get_search_result(snapshot, "path") == "a"
+    snapshot.search.assert_called_once_with("path", load=True)
+
+
+@pytest.mark.parametrize(
+    "machine_res, expected_key, expected_value",
+    [
+        (
+            None,
+            None,
+            None,
+        ),
+        (
+            MachineSearchResults(key=["k"], value="v"),
+            ["k"],
+            "v",
+        ),
+    ],
+)
+def test__get_snapshot_search_result(
+    mocker, machine_res, expected_key, expected_value
+):
+    snapshot = mocker.MagicMock(spec=SnapshotLocalStorage)
+    snapshot_dump = SimplifiedSnapshot(
+        id=3,
+        created_at=datetime(2025, 7, 4, 0, tzinfo=timezone.utc),
+        parents=[2],
+    )
+    snapshot.dump.return_value = snapshot_dump
+    assert find_utils._get_snapshot_search_result(
+        snapshot, machine_res
+    ) == SnapshotSearchResult(
+        key=expected_key,
+        value=expected_value,
+        snapshot=snapshot_dump,
+    )
+    snapshot.dump.assert_called_once_with()
+
+
+def test_search_snapshots_data_with_filter_ascending_empty_iter(mocker):
+    patched_get_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+    )
+    assert (
+        list(
+            find_utils.search_snapshots_data_with_filter_ascending(
+                iter([]), "path", False
+            )
+        )
+        == []
+    )
+    patched_get_res.assert_not_called()
+
+
+def test_search_snapshots_data_with_filter_ascending_filter_no_change(mocker):
+    search_res = ["a", "a", "b", "b", "b", "c"]
+    snapshots = [f"s{i}" for i in range(len(search_res))]
+    patched_get_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        side_effect=search_res,
+    )
+    patched_get_s_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_snapshot_search_result",
+        side_effect=lambda *args: args,
+    )
+    res_gen = find_utils.search_snapshots_data_with_filter_ascending(
+        iter(snapshots), "path", True
+    )
+    assert isinstance(res_gen, GeneratorType)
+    res_list = list(res_gen)
+    patched_get_res.assert_has_calls(
+        [mocker.call(s, "path") for s in snapshots]
+    )
+    expected_res = [("s0", "a"), ("s2", "b"), ("s5", "c")]
+    patched_get_s_res.assert_has_calls([mocker.call(*a) for a in expected_res])
+    assert res_list == expected_res
+
+
+def test_search_snapshots_data_with_filter_ascending_no_filter_no_change(
+    mocker,
+):
+    search_res = ["a", "a", "b", "b", "b", "c"]
+    snapshots = [f"s{i}" for i in range(len(search_res))]
+    patched_get_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        side_effect=search_res,
+    )
+    patched_get_s_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_snapshot_search_result",
+        side_effect=lambda *args: args,
+    )
+    res_gen = find_utils.search_snapshots_data_with_filter_ascending(
+        iter(snapshots), "path", False
+    )
+    assert isinstance(res_gen, GeneratorType)
+    res_list = list(res_gen)
+    patched_get_res.assert_has_calls(
+        [mocker.call(s, "path") for s in snapshots]
+    )
+    expected_res = list(zip(snapshots, search_res))
+    patched_get_s_res.assert_has_calls([mocker.call(*a) for a in expected_res])
+    assert res_list == expected_res
+
+
+def test_search_snapshots_data_with_filter_descending_empty_iter(mocker):
+    patched_get_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+    )
+    assert (
+        list(
+            find_utils.search_snapshots_data_with_filter_descending(
+                iter([]), "path", False
+            )
+        )
+        == []
+    )
+    patched_get_res.assert_not_called()
+
+
+def test_search_snapshots_data_with_filter_descending_filter_no_change(mocker):
+    search_res = ["a", "a", "b", "b", "b", "c"]
+    snapshots = [f"s{i}" for i in range(len(search_res))]
+    patched_get_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        side_effect=search_res,
+    )
+    patched_get_s_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_snapshot_search_result",
+        side_effect=lambda *args: args,
+    )
+    res_gen = find_utils.search_snapshots_data_with_filter_descending(
+        iter(snapshots), "path", True
+    )
+    assert isinstance(res_gen, GeneratorType)
+    res_list = list(res_gen)
+    patched_get_res.assert_has_calls(
+        [mocker.call(s, "path") for s in snapshots]
+    )
+    expected_res = [("s1", "a"), ("s4", "b"), ("s5", "c")]
+    patched_get_s_res.assert_has_calls([mocker.call(*a) for a in expected_res])
+    assert res_list == expected_res
+
+
+def test_search_snapshots_data_with_filter_descending_no_filter_no_change(
+    mocker,
+):
+    search_res = ["a", "a", "b", "b", "b", "c"]
+    snapshots = [f"s{i}" for i in range(len(search_res))]
+    patched_get_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        side_effect=search_res,
+    )
+    patched_get_s_res = mocker.patch(
+        "qualibrate_app.api.core.utils.find_utils._get_snapshot_search_result",
+        side_effect=lambda *args: args,
+    )
+    res_gen = find_utils.search_snapshots_data_with_filter_descending(
+        iter(snapshots), "path", False
+    )
+    assert isinstance(res_gen, GeneratorType)
+    res_list = list(res_gen)
+    patched_get_res.assert_has_calls(
+        [mocker.call(s, "path") for s in snapshots]
+    )
+    expected_res = list(zip(snapshots, search_res))
+    patched_get_s_res.assert_has_calls([mocker.call(*a) for a in expected_res])
+    assert res_list == expected_res

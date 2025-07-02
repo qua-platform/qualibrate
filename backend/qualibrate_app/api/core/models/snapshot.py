@@ -52,5 +52,10 @@ class Snapshot(SimplifiedSnapshot):
 
 
 class MachineSearchResults(BaseModel):
-    key: Sequence[Union[str, int]]
+    key: Optional[Sequence[Union[str, int]]] = None
     value: Any
+
+
+class SnapshotSearchResult(MachineSearchResults):
+    snapshot: SimplifiedSnapshot
+    value: Any = None
