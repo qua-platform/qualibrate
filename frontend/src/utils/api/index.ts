@@ -22,7 +22,7 @@ export type ErrorObject = {
 
 export default class Api {
   static get address(): string {
-    return "";
+    return process.env.API_URL ?? "/";
   }
 
   static api(path: string): string {
