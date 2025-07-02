@@ -14,7 +14,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const inProject = path.resolve.bind(path, __dirname);
 const inProjectSrc = (file) => inProject("src", file);
 
-const public_path = process.env.PUBLIC_PATH || "/";
+const public_path = process.env.PUBLIC_PATH || ".";
 
 const config = {
     mode: "development",
