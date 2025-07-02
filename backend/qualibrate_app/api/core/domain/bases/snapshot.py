@@ -202,3 +202,9 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
     @abstractmethod
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         pass
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}"
+            f"(id={self.id!r}, load_type={self.load_type_flag!r})"
+        )

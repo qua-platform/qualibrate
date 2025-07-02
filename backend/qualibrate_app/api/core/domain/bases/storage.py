@@ -156,3 +156,9 @@ class DataFileStorage(IDump):
 
     def dump(self) -> StorageModel:
         return StorageModel(path=self.path, data=self.data)
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}"
+            f"(path={self.path!r}, load_type={self.load_type_flag!r})"
+        )
