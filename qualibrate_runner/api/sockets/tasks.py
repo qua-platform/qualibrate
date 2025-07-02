@@ -38,5 +38,6 @@ async def execution_history() -> None:
     if history is None:
         return
     await manager.broadcast(False, history.model_dump(mode="json"))
-    history.items = list(reversed(history.items))
-    await manager.broadcast(True, history.model_dump(mode="json"))
+    reversed_items = list(reversed(history.items))
+    history_reversed = history.copy(update={"items": reversed_items})
+    await manager.broadcast(True, history_reversed.model_dump(mode="json"))
