@@ -435,6 +435,7 @@ def test_branch_snapshots_history_default(
         "per_page": 50,
         "total_items": 9,
         "total_pages": 1,
+        "has_next_page": False,
         "items": snapshots_history,
     }
 
@@ -451,6 +452,7 @@ def test_branch_snapshots_history_ascending(
         "per_page": 50,
         "total_items": 9,
         "total_pages": 1,
+        "has_next_page": False,
         "items": snapshots_history[::-1],
     }
 
@@ -468,20 +470,21 @@ def test_branch_snapshots_history_ascending_paged(
         "per_page": 2,
         "total_items": 9,
         "total_pages": 5,
+        "has_next_page": True,
         "items": snapshots_history[6:4:-1],
     }
 
 
 @pytest.mark.parametrize(
-    "page, per_page, total_pages, expected_range",
+    "page, per_page, total_pages, has_next_page, expected_range",
     (
-        (1, 3, 3, (0, 3)),
-        (2, 3, 3, (3, 6)),
-        (3, 3, 3, (6, 9)),
-        (4, 3, 3, (0, 0)),
-        (1, 2, 5, (0, 2)),
-        (5, 2, 5, (8, 9)),
-        (1, 9, 1, (0, 9)),
+        (1, 3, 3, True, (0, 3)),
+        (2, 3, 3, True, (3, 6)),
+        (3, 3, 3, False, (6, 9)),
+        (4, 3, 3, False, (0, 0)),
+        (1, 2, 5, True, (0, 2)),
+        (5, 2, 5, False, (8, 9)),
+        (1, 9, 1, False, (0, 9)),
     ),
 )
 def test_branch_snapshots_history_paged(
@@ -489,6 +492,7 @@ def test_branch_snapshots_history_paged(
     page,
     per_page,
     total_pages,
+    has_next_page,
     expected_range,
     snapshots_history,
 ):
@@ -503,6 +507,7 @@ def test_branch_snapshots_history_paged(
         "per_page": per_page,
         "total_items": 9,
         "total_pages": total_pages,
+        "has_next_page": has_next_page,
         "items": snapshots_history[expected_range[0] : expected_range[1]],
     }
 
@@ -517,6 +522,7 @@ def test_branch_nodes_history_default_args(
         "per_page": 50,
         "total_items": 9,
         "total_pages": 1,
+        "has_next_page": False,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for snapshot, dfs in zip(snapshots_history, dfss_history)
@@ -536,6 +542,7 @@ def test_branch_nodes_history_ascending(
         "per_page": 50,
         "total_items": 9,
         "total_pages": 1,
+        "has_next_page": False,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for snapshot, dfs in zip(
@@ -558,6 +565,7 @@ def test_branch_nodes_history_ascending_paged(
         "per_page": 2,
         "total_items": 9,
         "total_pages": 5,
+        "has_next_page": True,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for snapshot, dfs in zip(
@@ -568,15 +576,15 @@ def test_branch_nodes_history_ascending_paged(
 
 
 @pytest.mark.parametrize(
-    "page, per_page, total_pages, expected_range",
+    "page, per_page, total_pages, has_next_page, expected_range",
     (
-        (1, 3, 3, (0, 3)),
-        (2, 3, 3, (3, 6)),
-        (3, 3, 3, (6, 9)),
-        (4, 3, 3, (0, 0)),
-        (1, 2, 5, (0, 2)),
-        (5, 2, 5, (8, 9)),
-        (1, 9, 1, (0, 9)),
+        (1, 3, 3, True, (0, 3)),
+        (2, 3, 3, True, (3, 6)),
+        (3, 3, 3, False, (6, 9)),
+        (4, 3, 3, False, (0, 0)),
+        (1, 2, 5, True, (0, 2)),
+        (5, 2, 5, False, (8, 9)),
+        (1, 9, 1, False, (0, 9)),
     ),
 )
 def test_branch_nodes_history_paged(
@@ -586,6 +594,7 @@ def test_branch_nodes_history_paged(
     page,
     per_page,
     total_pages,
+    has_next_page,
     expected_range,
 ):
     response = client_custom_settings.get(
@@ -601,6 +610,7 @@ def test_branch_nodes_history_paged(
         "per_page": per_page,
         "total_items": 9,
         "total_pages": total_pages,
+        "has_next_page": has_next_page,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for _, (snapshot, dfs) in filter(

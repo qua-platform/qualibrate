@@ -187,6 +187,7 @@ def test_snapshot_history_default(
         "per_page": 50,
         "total_items": 9,
         "total_pages": 1,
+        "has_next_page": False,
         "items": snapshots_history[len(snapshots_history) - snapshot_id :],
     }
 
