@@ -3,7 +3,7 @@ import React from "react";
 import styles from "./RunningJob.module.scss";
 import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgress";
 
-export const StatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ status = "pending", percentage }) => {
+export const RunningJobStatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ status = "pending", percentage }) => {
   if (status === "running") {
     return <CircularLoaderProgress percentage={percentage} />;
   } else if (status === "finished") {
