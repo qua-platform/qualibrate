@@ -16,7 +16,7 @@
   color: var(--menu-text-color);
   transition: background-color 0.2s;
 
-  &.active {
+  &.selected {
     background-color: var(--menuitem-active);
   }
 
