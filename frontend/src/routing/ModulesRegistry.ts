@@ -130,7 +130,7 @@ export const ModulesRegistry: Array<Module> = [
     path: "toggle",
     Component: Data,
     menuItem: {
-      dataCy: cyKeys.TOGLE_SIDEBAR,
+      dataCy: cyKeys.TOGGLE_SIDEBAR,
       atBottom: true,
     },
   },

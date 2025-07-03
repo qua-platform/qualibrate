@@ -21,7 +21,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
   const { isNodeRunning } = useNodesContext();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);
-  const [activeTab, setActiveTab] = useState<string>("final"); // Start with final
+  const [activeTab, setActiveTab] = useState<string>("final");
   const { selectedPageName } = useFlexLayoutContext();
 
   useEffect(() => {
@@ -53,17 +53,29 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
     try {
       const jsonPathQuery = term.replace("#", "$").replace(/\*/g, "*").replace(/\//g, ".");
       const result = jp.nodes(data, jsonPathQuery);
-      return result.reduce((acc: Record<string, unknown>, { path, value }: { path: jp.PathComponent[]; value: unknown }) => {
-        let current = acc;
-        for (let i = 1; i < path.length - 1; i++) {
-          const key = path[i] as string;
-          if (!current[key]) current[key] = {};
-          current = current[key] as Record<string, unknown>;
-        }
-        const lastKey = path[path.length - 1] as string;
-        current[lastKey] = value;
-        return acc;
-      }, {});
+      return result.reduce(
+        (
+          acc: Record<string, unknown>,
+          {
+            path,
+            value,
+          }: {
+            path: jp.PathComponent[];
+            value: unknown;
+          }
+        ) => {
+          let current = acc;
+          for (let i = 1; i < path.length - 1; i++) {
+            const key = path[i] as string;
+            if (!current[key]) current[key] = {};
+            current = current[key] as Record<string, unknown>;
+          }
+          const lastKey = path[path.length - 1] as string;
+          current[lastKey] = value;
+          return acc;
+        },
+        {}
+      );
     } catch (error) {
       console.error("Invalid JSONPath query:", error);
       return data;
@@ -130,7 +142,14 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
         <InputField value={searchTerm} title={"Search"} onChange={(_e, event) => handleSearch(event.target.value, event)}></InputField>
       )}
       <>
-        <div style={{ width: "100%", height: "100%", display: activeTab === "final" ? "block" : "none", overflowY: "auto" }}>
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: activeTab === "final" ? "block" : "none",
+            overflowY: "auto",
+          }}
+        >
           <JsonViewer
             rootName={false}
             onSelect={(path) => handleOnSelect(path)}

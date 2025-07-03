@@ -1,5 +1,5 @@
-@use "../../../assets/styles/variables.scss";
-@use "../../../assets/styles/_base.scss";
+@use "../../../../assets/styles/variables.scss";
+@use "../../../../assets/styles/_base.scss";
 
 .wrapper {
   display: flex;
@@ -9,10 +9,16 @@
   width: 313px;
 }
 
-.contentWrapper {
+.hoverRegion {
   display: flex;
   align-items: center;
-  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: rgb(255 255 255 / 4%);
+  }
 }
 
 .indicatorWrapper {
@@ -21,7 +27,7 @@
   justify-content: center;
   width: 30px;
   height: 30px;
-  margin-right: 10px;
+  margin-right: 16px;   
 }
 
 .textWrapper {
@@ -45,7 +51,6 @@
 }
 
 .statusContainer {
-  font-size: 12px;
   border-radius: 6px;
 }
 
@@ -125,8 +130,4 @@
 .noNodeRunningLabel {
   font-size: 14px;
   color: #a0a0af;
-}
-
-.pointerCursor {
-  cursor: pointer;
 }
