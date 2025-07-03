@@ -1,13 +1,13 @@
 .tooltipContent {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .tooltipRow {
   display: flex;
   flex-direction: row;
-  font-size: 0.9rem;
+  font-size: 14px;
   color: #fff;
   line-height: 1.5;
 }
@@ -16,11 +16,9 @@
   font-weight: 500;
   color: #a0a0af;
   min-width: 110px;
-  text-align: left;
 }
 
 .tooltipValue {
   font-weight: 500;
   color: #fff;
-  text-align: left;
 }

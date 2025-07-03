@@ -1,23 +1,14 @@
 import React from "react";
 
-interface StopButtonIconProps {
+interface Props {
   className?: string;
   width?: number;
   height?: number;
 }
 
-const StopButtonIcon: React.FC<StopButtonIconProps> = ({
-  className,
-  height = 24,
-}) => {
+const StopButtonIcon: React.FC<Props> = ({ className, height = 24 }) => {
   return (
-    <svg
-      className={className}
-      height={height}
-      viewBox="0 0 42 18"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg className={className} height={height} viewBox="0 0 42 18" fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* Outer rounded border */}
       <rect
         x="0.5"
@@ -29,20 +20,10 @@ const StopButtonIcon: React.FC<StopButtonIconProps> = ({
         strokeOpacity="0.4"
         strokeWidth="1" ///* <--- thinner stroke */
         fill="none"
-        margin-left="5"
-        margin-right="5"
-        margin-top="1"
       />
 
       {/* Inner stop square */}
-      <rect
-        x="6"
-        y="6"
-        width="6"
-        height="6"
-        rx="0.5"
-        fill="#FF5586"
-      />
+      <rect x="6" y="6" width="6" height="6" rx="0.5" fill="#FF5586" />
 
       {/* STOP text */}
       <text

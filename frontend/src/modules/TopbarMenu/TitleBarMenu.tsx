@@ -3,9 +3,8 @@ import styles from "./styles/TitleBarMenu.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
-// import { NodesApi } from "../Nodes/api/NodesAPI";
 import TitleBarGraphCard from "./TitleBarGraphCard/TitleBarGraphCard";
-import { LastRunStatusNodeResponseDTO, LastRunStatusGraphResponseDTO, fallbackNode, fallbackGraph } from "./constants";
+import { fallbackGraph, fallbackNode, LastRunStatusGraphResponseDTO, LastRunStatusNodeResponseDTO } from "./constants";
 import { useWebSocketData } from "../../contexts/WebSocketContext";
 
 const TitleBarMenu: React.FC = () => {
@@ -14,18 +13,6 @@ const TitleBarMenu: React.FC = () => {
   const [node, setNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
   const [graph] = useState<LastRunStatusGraphResponseDTO | null>(null);
   const graphToUse = graph ?? fallbackGraph;
-
-  // const fetchStatus = async () => {
-  //   const res = await NodesApi.fetchLastRunStatusInfo();
-  //   if (res.isOk && res.result?.node) {
-  //     setNode(res.result.node);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const interval = setInterval(async () => fetchStatus(), 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
 
   useEffect(() => {
     if (runStatus && runStatus.node) {

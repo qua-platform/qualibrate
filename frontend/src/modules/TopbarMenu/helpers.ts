@@ -1,5 +1,3 @@
-import { SnapshotsApi } from "../Snapshots/api/SnapshotsApi";
-
 export const formatTime = (sec: number | null): string => {
   if (sec === null) return "";
   const h = Math.floor(sec / 3600);
@@ -13,12 +11,16 @@ export const formatDate = (date?: string | Date | null): string => {
 
   const d = typeof date === "string" ? new Date(date) : date;
 
-  return d.toLocaleDateString("en-GB") + " " + d.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
+  return (
+    d.toLocaleDateString("en-GB") +
+    " " +
+    d.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    })
+  );
 };
 
 export const capitalize = (text: string): string => {
@@ -38,8 +40,3 @@ export const getStatusClass = (status: string, styles: { [key: string]: string }
   if (status === "error") return styles.statusError;
   return styles.statusPending;
 };
-
-export const handleStopClick = async () => {
-  SnapshotsApi.stopNodeRunning();
-};
-

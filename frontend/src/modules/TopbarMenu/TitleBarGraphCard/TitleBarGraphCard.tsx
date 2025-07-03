@@ -1,14 +1,15 @@
 import React from "react";
 /* eslint-disable css-modules/no-unused-class */
-import  styles from "./styles/TitleBarGraphCard.module.scss";
+import styles from "./styles/TitleBarGraphCard.module.scss";
 import TitleBarNodeCard from "../TitleBarNodeCard/TitleBarNodeCard";
 import StopButtonIcon from "../../../ui-lib/Icons/StopButtonIcon";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
 import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
-import { getWrapperClass, getStatusClass, formatTime, handleStopClick, capitalize } from "../helpers";
-import { LastRunStatusNodeResponseDTO, LastRunStatusGraphResponseDTO, DEFAULT_TOOLTIP_SX } from "../constants";
+import { capitalize, formatTime, getStatusClass, getWrapperClass } from "../helpers";
+import { DEFAULT_TOOLTIP_SX, LastRunStatusGraphResponseDTO, LastRunStatusNodeResponseDTO } from "../constants";
 import { StatusIndicator } from "../TitleBarNodeCard/TitleBarStatusIndicator";
+import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 
 interface GraphCardProps {
   graph: LastRunStatusGraphResponseDTO;
@@ -19,27 +20,38 @@ const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
   const { openTab } = useFlexLayoutContext();
   const handleClick = () => openTab(graph.status === "pending" ? "graph-library" : "graph-status");
 
-const renderElapsedTime = (time: number) => (
-  <div className={styles.stopAndTimeWrapper}>
-    <div className={styles.timeRemaining}> <div>Elapsed time:</div> <div className={styles.timeElapsedText}>{formatTime(time)}</div> </div>
-  </div>
-);
+  const renderElapsedTime = (time: number) => (
+    <div className={styles.stopAndTimeWrapper}>
+      <div className={styles.timeRemaining}>
+        <div>Elapsed time:</div>
+        <div className={styles.timeElapsedText}>{formatTime(time)}</div>
+      </div>
+    </div>
+  );
+
+  const handleStopClick = async () => {
+    SnapshotsApi.stopNodeRunning();
+  };
 
   return (
-  <div className={`${styles.graphCardWrapper} ${getWrapperClass(graph.status, styles)}`}>
-    <div className={graph.status === "pending" ? styles.defaultGraphCardContent : styles.graphCardContent}>
-      <Tooltip title={<TitleBarGraphTooltipContent graph={graph} />} placement="bottom" componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}>
+    <div className={`${styles.graphCardWrapper} ${getWrapperClass(graph.status, styles)}`}>
+      <div className={graph.status === "pending" ? styles.defaultGraphCardContent : styles.graphCardContent}>
+        <Tooltip
+          title={<TitleBarGraphTooltipContent graph={graph} />}
+          placement="bottom"
+          componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}
+        >
           <div onClick={handleClick} className={styles.hoverRegion}>
             <div className={styles.indicatorWrapper}>
               {StatusIndicator(
                 capitalize(graph.status),
-                graph.percentage_complete ?? 0, 
+                graph.percentage_complete ?? 0,
                 {
                   Running: { width: 48, height: 48 },
                   Finished: { width: 48, height: 48 },
                   Error: { width: 48, height: 48 },
-                  Pending: { width: 32, height: 32 }
-                }, 
+                  Pending: { width: 32, height: 32 },
+                },
                 false
               )}
             </div>
@@ -53,14 +65,10 @@ const renderElapsedTime = (time: number) => (
                 </>
               ) : (
                 <>
-                  <div className={styles.graphTitle}>
-                    Graph: {graph.name || "No graph is running"}
-                  </div>
+                  <div className={styles.graphTitle}>Graph: {graph.name || "No graph is running"}</div>
                   <div className={styles.graphStatusRow}>
-                    <div className={`${styles.statusText} ${getStatusClass(graph.status, styles)}`}>
-                      {graph.status}
-                    </div>
-                    {graph.status !== "finished" && (                    
+                    <div className={`${styles.statusText} ${getStatusClass(graph.status, styles)}`}>{graph.status}</div>
+                    {graph.status !== "finished" && (
                       <div className={styles.nodeCount}>
                         {graph.finished_nodes}/{graph.total_nodes} nodes finished
                       </div>
@@ -73,13 +81,23 @@ const renderElapsedTime = (time: number) => (
         </Tooltip>
         <TitleBarNodeCard node={node} />
         {graph.status === "running" && (
-          <div className={styles.stopAndTimeWrapper}> <div className={styles.stopButton} onClick={handleStopClick}> <StopButtonIcon /> </div>
-            {graph.time_remaining && (<div className={styles.timeRemaining}>{formatTime(graph.time_remaining)} left</div>)}
+          <div className={styles.stopAndTimeWrapper}>
+            <div className={styles.stopButton} onClick={handleStopClick}>
+              <StopButtonIcon />
+            </div>
+            {graph.time_remaining && <div className={styles.timeRemaining}>{formatTime(graph.time_remaining)} left</div>}
           </div>
         )}
         {["finished", "error"].includes(graph.status) && graph.run_duration > 0 && renderElapsedTime(graph.run_duration)}
-        {graph.status === "pending" && node.status === "running" && (<div className={styles.nodeStopButton} onClick={handleStopClick}> <StopButtonIcon /> </div>)}
-        {graph.status === "pending" && ["finished", "error"].includes(node.status) && node.run_duration > 0 && renderElapsedTime(node.run_duration)}
+        {graph.status === "pending" && node.status === "running" && (
+          <div className={styles.nodeStopButton} onClick={handleStopClick}>
+            <StopButtonIcon />
+          </div>
+        )}
+        {graph.status === "pending" &&
+          ["finished", "error"].includes(node.status) &&
+          node.run_duration > 0 &&
+          renderElapsedTime(node.run_duration)}
       </div>
     </div>
   );
