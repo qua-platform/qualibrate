@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarGraphCard.module.scss";
 import TitleBarNodeCard from "../TitleBarNodeCard/TitleBarNodeCard";
@@ -7,16 +7,25 @@ import Tooltip from "@mui/material/Tooltip";
 import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
 import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
 import { capitalize, formatTime, getStatusClass, getWrapperClass } from "../helpers";
-import { DEFAULT_TOOLTIP_SX, LastRunStatusGraphResponseDTO, LastRunStatusNodeResponseDTO } from "../constants";
+import { DEFAULT_TOOLTIP_SX, fallbackGraph, fallbackNode, LastRunStatusNodeResponseDTO } from "../constants";
 import { StatusIndicator } from "../TitleBarNodeCard/TitleBarStatusIndicator";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
+import { GraphItem, useWebSocketData } from "../../../contexts/WebSocketContext";
 
-interface GraphCardProps {
-  graph: LastRunStatusGraphResponseDTO;
-  node: LastRunStatusNodeResponseDTO;
-}
+const TitleBarGraphCard: React.FC = () => {
+  const { runStatus } = useWebSocketData();
+  const [node, setNode] = useState<LastRunStatusNodeResponseDTO>(fallbackNode);
+  const [graph, setGraph] = useState<GraphItem>(fallbackGraph);
 
-const TitleBarGraphCard: React.FC<GraphCardProps> = ({ graph, node }) => {
+  useEffect(() => {
+    if (runStatus && runStatus.node) {
+      setNode(runStatus.node);
+    }
+    if (runStatus && runStatus.graph) {
+      setGraph(runStatus.graph);
+    }
+  }, [runStatus]);
+
   const { openTab } = useFlexLayoutContext();
   const handleClick = () => openTab(graph.status === "pending" ? "graph-library" : "graph-status");
 

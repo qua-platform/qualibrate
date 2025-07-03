@@ -1,10 +1,10 @@
 import React from "react";
 import styles from "../styles/TitleBarTooltipContent.module.scss";
-import { LastRunStatusGraphResponseDTO } from "../constants";
-import { formatDate, formatTime, capitalize } from "../helpers";
+import { capitalize, formatDate, formatTime } from "../helpers";
+import { GraphItem } from "../../../contexts/WebSocketContext";
 
 interface GraphTooltipContentProps {
-  graph: LastRunStatusGraphResponseDTO;
+  graph: GraphItem;
 }
 
 const TitleBarGraphTooltipContent: React.FC<GraphTooltipContentProps> = ({ graph }) => {
@@ -12,9 +12,7 @@ const TitleBarGraphTooltipContent: React.FC<GraphTooltipContentProps> = ({ graph
     <div className={styles.tooltipContent}>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Run start:</div>
-        <div className={styles.tooltipValue}>
-          {formatDate(graph.run_start)}
-        </div>
+        <div className={styles.tooltipValue}>{formatDate(graph.run_start)}</div>
       </div>
       <div className={styles.tooltipRow}>
         <div className={styles.tooltipLabel}>Status:</div>

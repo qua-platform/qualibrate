@@ -1,3 +1,5 @@
+import { GraphItem } from "../../contexts/WebSocketContext";
+
 export interface LastRunStatusGraphResponseDTO {
   name: string;
   status: string;
@@ -30,18 +32,18 @@ export const fallbackNode: LastRunStatusNodeResponseDTO = {
   time_remaining: 0,
 };
 
-export const fallbackGraph: LastRunStatusGraphResponseDTO = {
+export const fallbackGraph: GraphItem = {
   name: "",
-  status: "pending",
-  run_start: "",
-  run_end: "",
-  total_nodes: 1,
+  description: "",
   finished_nodes: 0,
+  total_nodes: 1,
+  status: "pending",
+  run_start: 0,
+  run_end: 0,
   run_duration: 0,
   percentage_complete: 0,
   time_remaining: 0,
 };
-
 export const DEFAULT_TOOLTIP_SX = {
   backgroundColor: "#42424C",
   padding: "12px",
