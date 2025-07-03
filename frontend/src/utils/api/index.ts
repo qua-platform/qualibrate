@@ -22,6 +22,9 @@ export type ErrorObject = {
 
 export default class Api {
   static get address(): string {
+    if (process.env.USE_RELATIVE_PATHS === "true") {
+      return "";
+    }
     return process.env.API_URL ?? "/";
   }
 

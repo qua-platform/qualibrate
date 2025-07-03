@@ -5,6 +5,8 @@ const cyKeys = {
   DASHBOARD_TAB: "dashboard-tab",
   PROJECT_TAB: "project-tab",
   DATA_TAB: "data-tab",
+  HELP_TAB: "help-tab",
+  TOGGLE_SIDEBAR: "toggle-sidebar",
   CALIBRATION_TAB: "calibration-tab",
   NODES_TAB: "nodes-tab",
   NOTEBOOK_TAB: "notebook-tab",
