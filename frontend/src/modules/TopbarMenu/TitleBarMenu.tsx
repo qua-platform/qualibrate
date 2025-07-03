@@ -12,7 +12,7 @@ const TitleBarMenu: React.FC = () => {
   const { runStatus } = useWebSocketData();
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
   const [node, setNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
-  const [graph, setGraph] = useState<LastRunStatusGraphResponseDTO | null>(null);
+  const [graph] = useState<LastRunStatusGraphResponseDTO | null>(null);
   const graphToUse = graph ?? fallbackGraph;
 
   // const fetchStatus = async () => {
