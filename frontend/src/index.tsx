@@ -14,7 +14,7 @@ import { WebSocketProvider } from "./contexts/WebSocketContext";
 
 type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
 
-const RouterProvider = process.env.USE_HASH_ROUTER === "true" ? HashRouter : BrowserRouter;
+const RouterProvider = process.env.USE_RELATIVE_PATHS === "true" ? HashRouter : BrowserRouter;
 
 const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
