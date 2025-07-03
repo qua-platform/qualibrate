@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Any, Union
+from typing import Annotated, Any, Optional, Union
 
 from fastapi import APIRouter, Depends, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
@@ -17,15 +17,20 @@ from qualibrate_app.api.core.models.node import Node as NodeModel
 from qualibrate_app.api.core.models.paged import PagedCollection
 from qualibrate_app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
+    SnapshotSearchResult,
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import (
     IdType,
     PageFilter,
+    SearchFilter,
+    SearchWithIdFilter,
 )
 from qualibrate_app.api.dependencies.search import get_search_path
 from qualibrate_app.api.routes.utils.dependencies import (
     get_page_filter,
+    get_search_filter,
+    get_search_with_id_filter,
     get_snapshot_load_type_flag,
 )
 from qualibrate_app.config import (
@@ -107,6 +112,22 @@ def get_latest_snapshot(
     return snapshot.dump()
 
 
+@root_router.get("/snapshot/filter")
+def get_snapshot_filtered(
+    *,
+    search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
+    root: Annotated[RootBase, Depends(_get_root_instance)],
+) -> Optional[SnapshotModel]:
+    _, snapshots = root.get_latest_snapshots(
+        pages_filter=PageFilter(per_page=1, page=1),
+        search_filter=SearchWithIdFilter(**search_filters.model_dump()),
+        descending=True,
+    )
+    if len(snapshots) == 0:
+        return None
+    return snapshots[0].dump()
+
+
 @root_router.get("/snapshots_history")
 def get_snapshots_history(
     *,
@@ -130,6 +151,31 @@ def get_snapshots_history(
 ) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
     total, snapshots = root.get_latest_snapshots(
         pages_filter=page_filter,
+        descending=descending,
+    )
+    snapshots_dumped = [
+        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
+        for snapshot in snapshots
+    ]
+    return PagedCollection[SimplifiedSnapshotWithMetadata](
+        page=page_filter.page,
+        per_page=page_filter.per_page,
+        total_items=total,
+        items=snapshots_dumped,
+    )
+
+
+@root_router.get("/snapshots/filter")
+def get_snapshots_filtered(
+    *,
+    page_filter: Annotated[PageFilter, Depends(get_page_filter)],
+    descending: bool = True,
+    search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
+    root: Annotated[RootBase, Depends(_get_root_instance)],
+) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
+    total, snapshots = root.get_latest_snapshots(
+        pages_filter=page_filter,
+        search_filter=SearchWithIdFilter(**search_filters.model_dump()),
         descending=descending,
     )
     snapshots_dumped = [
@@ -177,10 +223,47 @@ def get_nodes_history(
     )
 
 
-@root_router.get("/search")
+@root_router.get("/search", deprecated=True)
 def search_snapshot(
     id: IdType,
     data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> Any:
-    return root.search_snapshot(id, data_path)
+    return root.search_snapshot(SearchWithIdFilter(id=id), data_path)
+
+
+@root_router.get("/snapshot/search")
+def search_snapshot_data(
+    search_filters: Annotated[
+        SearchWithIdFilter, Depends(get_search_with_id_filter)
+    ],
+    data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
+    root: Annotated[RootBase, Depends(_get_root_instance)],
+) -> Any:
+    return root.search_snapshot(search_filters, data_path)
+
+
+@root_router.get("/snapshots/search")
+def search_snapshots_data(
+    *,
+    data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
+    filter_no_change: bool = True,
+    page_filter: Annotated[PageFilter, Depends(get_page_filter)],
+    descending: bool = True,
+    search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
+    root: Annotated[RootBase, Depends(_get_root_instance)],
+) -> PagedCollection[SnapshotSearchResult]:
+    total, seq = root.search_snapshots_data(
+        data_path=data_path,
+        filter_no_change=filter_no_change,
+        pages_filter=page_filter,
+        search_filter=SearchWithIdFilter(**search_filters.model_dump()),
+        descending=descending,
+    )
+
+    return PagedCollection[SnapshotSearchResult](
+        page=page_filter.page,
+        per_page=page_filter.per_page,
+        total_items=total,
+        items=list(seq),
+    )

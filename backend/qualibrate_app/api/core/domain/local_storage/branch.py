@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -25,12 +25,14 @@ from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
     find_nodes_ids_by_filter,
 )
 from qualibrate_app.api.core.models.branch import Branch as BranchModel
+from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
 from qualibrate_app.api.core.types import (
     DocumentType,
     IdType,
     PageFilter,
     SearchWithIdFilter,
 )
+from qualibrate_app.api.core.utils import find_utils
 from qualibrate_app.api.core.utils.slice import get_page_slice
 from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
 
@@ -129,7 +131,6 @@ class BranchLocalStorage(BranchBase):
         search_filter: Optional[SearchWithIdFilter] = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
-        # TODO: use reverse
         storage_location = self._settings.storage.location
         ids_paged = self._get_latest_snapshots_ids(
             storage_location,
@@ -157,11 +158,35 @@ class BranchLocalStorage(BranchBase):
             snapshot_id=-1,
         )
 
-    # def search_snapshots_data(
-    #     self,
-    #     data_path: Sequence[Union[str, int]],
-    #     filter_no_change: bool,
-    #     pages_filter: PageFilter,
-    #     search_filter: Optional[SearchFilter] = None,
-    # ) -> Mapping[IdType, Any]:
-    #     pass
+    def search_snapshots_data(
+        self,
+        *,
+        pages_filter: PageFilter,
+        search_filter: Optional[SearchWithIdFilter] = None,
+        data_path: Sequence[Union[str, int]],
+        filter_no_change: bool = True,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotSearchResult]]:
+        storage_location = self._settings.storage.location
+        ids = find_nodes_ids_by_filter(
+            storage_location,
+            search_filter=search_filter,
+            project_name=self._settings.project,
+            descending=descending,
+        )
+        snapshots = (
+            SnapshotLocalStorage(id, settings=self._settings) for id in ids
+        )
+        if descending:
+            snapshots_with_data = (
+                find_utils.search_snapshots_data_with_filter_descending(
+                    snapshots, data_path, filter_no_change
+                )
+            )
+        else:
+            snapshots_with_data = (
+                find_utils.search_snapshots_data_with_filter_ascending(
+                    snapshots, data_path, filter_no_change
+                )
+            )
+        return 0, get_page_slice(snapshots_with_data, pages_filter)

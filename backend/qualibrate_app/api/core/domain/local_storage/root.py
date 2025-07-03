@@ -15,6 +15,7 @@ from qualibrate_app.api.core.domain.local_storage.snapshot import (
 from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
     find_nodes_ids_by_filter,
 )
+from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
 from qualibrate_app.api.core.types import (
     IdType,
     PageFilter,
@@ -81,23 +82,32 @@ class RootLocalStorage(RootBase):
         )
 
     def search_snapshot(
-        self, snapshot_id: IdType, data_path: Sequence[Union[str, int]]
+        self,
+        search_filter: SearchWithIdFilter,
+        data_path: Sequence[Union[str, int]],
     ) -> Any:
-        return self.get_snapshot(snapshot_id).search(data_path, load=True)
+        return self.search_snapshots_data(
+            search_filter=search_filter,
+            pages_filter=PageFilter(page=1, per_page=1),
+            data_path=data_path,
+            descending=True,
+        )
 
-    # def search_snapshots_data(
-    #     self,
-    #     *,
-    #     pages_filter: PageFilter,
-    #     search_filter: Optional[SearchFilter] = None,
-    #     data_path: Sequence[Union[str, int]],
-    #     filter_no_change: bool,
-    # ) -> Mapping[IdType, Any]:
-    #     _, snapshots = BranchLocalStorage(
-    #         "main", settings=self._settings
-    #     ).get_latest_snapshots(
-    #         pages_filter=pages_filter, search_filter=search_filter
-    #     )
-    #     return search_snapshots_data_with_filter(
-    #         snapshots, data_path, filter_no_change
-    #     )
+    def search_snapshots_data(
+        self,
+        *,
+        pages_filter: PageFilter,
+        search_filter: Optional[SearchWithIdFilter] = None,
+        data_path: Sequence[Union[str, int]],
+        filter_no_change: bool = True,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotSearchResult]]:
+        return BranchLocalStorage(
+            "main", settings=self._settings
+        ).search_snapshots_data(
+            search_filter=search_filter,
+            pages_filter=pages_filter,
+            data_path=data_path,
+            descending=descending,
+            filter_no_change=filter_no_change,
+        )

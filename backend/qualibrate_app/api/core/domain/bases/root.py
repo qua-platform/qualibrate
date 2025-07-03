@@ -10,6 +10,7 @@ from qualibrate_app.api.core.domain.bases.base_with_settings import (
 from qualibrate_app.api.core.domain.bases.branch import BranchBase
 from qualibrate_app.api.core.domain.bases.node import NodeBase
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
+from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
 from qualibrate_app.api.core.types import (
     IdType,
     PageFilter,
@@ -56,18 +57,19 @@ class RootBase(DomainWithConfigBase, ABC):
     @abstractmethod
     def search_snapshot(
         self,
-        snapshot_id: IdType,
+        search_filter: SearchWithIdFilter,
         data_path: Sequence[Union[str, int]],
     ) -> Any:
         pass
 
-    # @abstractmethod
-    # def search_snapshots_data(
-    #     self,
-    #     *,
-    #     pages_filter: PageFilter,
-    #     search_filter: Optional[SearchFilter] = None,
-    #     data_path: Sequence[Union[str, int]],
-    #     filter_no_change: bool,
-    # ) -> Mapping[IdType, Any]:
-    #     pass
+    @abstractmethod
+    def search_snapshots_data(
+        self,
+        *,
+        pages_filter: PageFilter,
+        search_filter: Optional[SearchWithIdFilter] = None,
+        data_path: Sequence[Union[str, int]],
+        filter_no_change: bool = True,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotSearchResult]]:
+        pass

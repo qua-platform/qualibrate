@@ -1,4 +1,5 @@
-from typing import Annotated
+from collections.abc import Sequence
+from typing import Annotated, Optional, Union
 
 from fastapi import APIRouter, Depends, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
@@ -20,6 +21,7 @@ from qualibrate_app.api.core.models.node import Node as NodeModel
 from qualibrate_app.api.core.models.paged import PagedCollection
 from qualibrate_app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
+    SnapshotSearchResult,
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import (
@@ -28,6 +30,7 @@ from qualibrate_app.api.core.types import (
     SearchFilter,
     SearchWithIdFilter,
 )
+from qualibrate_app.api.dependencies.search import get_search_path
 from qualibrate_app.api.routes.utils.dependencies import (
     get_page_filter,
     get_search_filter,
@@ -218,4 +221,30 @@ def get_nodes_history(
         per_page=page_filter.per_page,
         total_items=total,
         items=nodes_dumped,
+    )
+
+
+@branch_router.get("/snapshots/search")
+def search_snapshots_data(
+    *,
+    data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
+    filter_no_change: bool = True,
+    page_filter: Annotated[PageFilter, Depends(get_page_filter)],
+    descending: bool = True,
+    search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
+    branch: Annotated[BranchBase, Depends(_get_branch_instance)],
+) -> PagedCollection[SnapshotSearchResult]:
+    total, seq = branch.search_snapshots_data(
+        data_path=data_path,
+        filter_no_change=filter_no_change,
+        pages_filter=page_filter,
+        search_filter=SearchWithIdFilter(**search_filters.model_dump()),
+        descending=descending,
+    )
+
+    return PagedCollection[SnapshotSearchResult](
+        page=page_filter.page,
+        per_page=page_filter.per_page,
+        total_items=total,
+        items=list(seq),
     )

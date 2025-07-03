@@ -7,6 +7,7 @@ from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
 from qualibrate_app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
+from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
 from qualibrate_app.api.core.types import (
     DocumentSequenceType,
     DocumentType,
@@ -115,12 +116,16 @@ class RootTimelineDb(RootBase):
         ]
 
     def search_snapshot(
-        self, snapshot_id: IdType, data_path: Sequence[Union[str, int]]
+        self,
+        search_filter: SearchWithIdFilter,
+        data_path: Sequence[Union[str, int]],
     ) -> Any:
+        if search_filter.id is None:
+            return None
         data_path_joined = ".".join(map(str, data_path))
         timeline_db_config = self.timeline_db_config
         result = request_with_db(
-            f"snapshot/{snapshot_id}/search/data/values",
+            f"snapshot/{search_filter.id}/search/data/values",
             params={"data_path": data_path_joined},
             db_name=self._settings.project,
             host=timeline_db_config.address_with_root,
@@ -130,13 +135,13 @@ class RootTimelineDb(RootBase):
             raise QJsonDbException("Branch history wasn't retrieved.")
         return result.json()
 
-    # def search_snapshots_data(
-    #     self,
-    #     *,
-    #     pages_filter: PageFilter,
-    #     search_filter: Optional[SearchFilter] = None,
-    #     data_path: Sequence[Union[str, int]],
-    #     filter_no_change: bool,
-    # ) -> Mapping[IdType, Any]:
-    #     # not implemented yet
-    #     return {}
+    def search_snapshots_data(
+        self,
+        *,
+        pages_filter: PageFilter,
+        search_filter: Optional[SearchWithIdFilter] = None,
+        data_path: Sequence[Union[str, int]],
+        filter_no_change: bool = True,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotSearchResult]]:
+        raise NotImplementedError

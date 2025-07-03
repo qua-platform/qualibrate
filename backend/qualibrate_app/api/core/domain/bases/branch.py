@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from datetime import datetime
 from enum import IntEnum
-from typing import Optional
+from typing import Optional, Union
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -13,6 +13,7 @@ from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.domain.bases.node import NodeBase
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
 from qualibrate_app.api.core.models.branch import Branch as BranchModel
+from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
 from qualibrate_app.api.core.types import (
     DocumentType,
     IdType,
@@ -86,6 +87,18 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
         search_filter: Optional[SearchWithIdFilter] = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
+        pass
+
+    @abstractmethod
+    def search_snapshots_data(
+        self,
+        *,
+        pages_filter: PageFilter,
+        search_filter: Optional[SearchWithIdFilter] = None,
+        data_path: Sequence[Union[str, int]],
+        filter_no_change: bool = True,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotSearchResult]]:
         pass
 
     def dump(self) -> BranchModel:

@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -17,6 +17,7 @@ from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
 from qualibrate_app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
+from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
 from qualibrate_app.api.core.types import (
     DocumentType,
     IdType,
@@ -176,12 +177,13 @@ class BranchTimelineDb(BranchBase):
             for snapshot in snapshots
         ]
 
-    # def search_snapshots_data(
-    #     self,
-    #     data_path: Sequence[Union[str, int]],
-    #     filter_no_change: bool,
-    #     pages_filter: PageFilter,
-    #     search_filter: Optional[SearchFilter] = None,
-    # ) -> Mapping[IdType, Any]:
-    #     # not implemented yet
-    #     return {}
+    def search_snapshots_data(
+        self,
+        *,
+        pages_filter: PageFilter,
+        search_filter: Optional[SearchWithIdFilter] = None,
+        data_path: Sequence[Union[str, int]],
+        filter_no_change: bool = True,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotSearchResult]]:
+        raise NotImplementedError()
