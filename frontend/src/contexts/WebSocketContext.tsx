@@ -27,20 +27,25 @@ export interface NodeExecution {
   run_results: RunResults;
 }
 
-type GraphItem = {
-  is_running: boolean;
+export type GraphItem = {
   name: string;
+  description: string;
   finished_nodes: number;
   total_nodes: number;
+  run_start: string | Date;
+  run_end: number;
+  percentage_complete: number;
   run_duration: number;
-  error: ErrorObject;
+  time_remaining: number;
+  error?: ErrorObject;
+  status: "pending" | "running" | "finished" | "failed"; // koristi preciznije ako znaš sve vrednosti
 };
 
 export type RunStatusType = {
-  graph: GraphItem | null;
   is_running: boolean;
+  graph: GraphItem | null;
   node: NodeExecution | null;
-  runnable_type: string | null;
+  runnable_type: "node" | "graph";
 };
 
 export type HistoryType = {

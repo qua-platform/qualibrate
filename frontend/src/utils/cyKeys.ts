@@ -1,11 +1,12 @@
 const cyKeys = {
-  // tabs
   LOGIN_PAGE: "login-page",
   COMPONENTS_TAB: "components-tab",
   EXPERIMENTS_TAB: "experiments-tab",
   DASHBOARD_TAB: "dashboard-tab",
   PROJECT_TAB: "project-tab",
   DATA_TAB: "data-tab",
+  HELP_TAB: "help-tab",
+  TOGGLE_SIDEBAR: "toggle-sidebar",
   CALIBRATION_TAB: "calibration-tab",
   NODES_TAB: "nodes-tab",
   NOTEBOOK_TAB: "notebook-tab",
