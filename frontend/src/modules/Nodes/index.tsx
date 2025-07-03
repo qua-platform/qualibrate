@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useNodesContext } from "./context/NodesContext";
+import React, { useEffect } from "react";
+import { NodesContextProvider, useNodesContext } from "./context/NodesContext";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../Nodes/NodesPage.module.scss";
 import { NodeElementList } from "./components/NodeElement/NodeElementList";
@@ -43,7 +43,9 @@ export const NodesPage = () => {
 };
 
 export default () => (
+  <NodesContextProvider>
     <SelectionContextProvider>
       <NodesPage />
     </SelectionContextProvider>
+  </NodesContextProvider>
 );
