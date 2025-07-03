@@ -8,10 +8,12 @@ import { Results } from "./components/Results/Results";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
+import { useWebSocketData } from "../../contexts/WebSocketContext";
 
 export const NodesPage = () => {
   const { allNodes, runningNodeInfo, fetchAllNodes } = useNodesContext();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
+  const { runStatus, history } = useWebSocketData();
   const NodeTopBarRefreshButton = () => {
     return (
       <div className={styles.refreshButtonWrapper} data-testid="refresh-button">

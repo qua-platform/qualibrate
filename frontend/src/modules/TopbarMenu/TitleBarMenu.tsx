@@ -3,28 +3,35 @@ import styles from "./styles/TitleBarMenu.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import modulesMap from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
-import { NodesApi } from "../Nodes/api/NodesAPI";
+// import { NodesApi } from "../Nodes/api/NodesAPI";
 import TitleBarGraphCard from "./TitleBarGraphCard/TitleBarGraphCard";
 import { LastRunStatusNodeResponseDTO, LastRunStatusGraphResponseDTO, fallbackNode, fallbackGraph } from "./constants";
+import { useWebSocketData } from "../../contexts/WebSocketContext";
 
 const TitleBarMenu: React.FC = () => {
+  const { runStatus } = useWebSocketData();
   const { activeTab, topBarAdditionalComponents } = useFlexLayoutContext();
   const [node, setNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
   const [graph, setGraph] = useState<LastRunStatusGraphResponseDTO | null>(null);
   const graphToUse = graph ?? fallbackGraph;
 
-  const fetchStatus = async () => {
-    const res = await NodesApi.fetchLastRunStatusInfo();
-    if (res.isOk && res.result) {
-      setNode(res.result.node ?? null);
-      setGraph(res.result.graph ?? null);
-    }
-  };
+  // const fetchStatus = async () => {
+  //   const res = await NodesApi.fetchLastRunStatusInfo();
+  //   if (res.isOk && res.result?.node) {
+  //     setNode(res.result.node);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const interval = setInterval(async () => fetchStatus(), 1000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   useEffect(() => {
-    const interval = setInterval(fetchStatus, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    if (runStatus && runStatus.node) {
+      setNode(runStatus.node);
+    }
+  }, [runStatus]);
 
   return (
     <div className={styles.wrapper}>

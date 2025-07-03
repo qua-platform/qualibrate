@@ -17,7 +17,7 @@ const MainModularPage = () => {
     const checkVersion = async () => {
       const localVersion = localStorage.getItem("appVersion");
       try {
-        const response = await fetch("/manifest.json");
+        const response = await fetch("manifest.json");
         const { version } = await response.json();
 
         if (localVersion && version !== localVersion) {
