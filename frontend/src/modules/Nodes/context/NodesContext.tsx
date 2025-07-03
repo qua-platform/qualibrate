@@ -5,6 +5,7 @@ import { NodesApi } from "../api/NodesAPI";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 import { formatDateTime } from "../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
+import { useWebSocketData } from "../../../contexts/WebSocketContext";
 
 export interface StateUpdateObject {
   key?: string | number;
@@ -108,6 +109,7 @@ export interface StatusResponseType {
 }
 
 export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {
+  const { runStatus } = useWebSocketData();
   const [allNodes, setAllNodes] = useState<NodeMap | undefined>(undefined);
   const [runningNode, setRunningNode] = useState<NodeDTO | undefined>(undefined);
   const [runningNodeInfo, setRunningNodeInfo] = useState<RunningNodeInfo | undefined>(undefined);
@@ -259,17 +261,23 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
     }
   }, [isNodeRunning]);
 
-  const checkIfNodeIsStillRunning = async () => {
-    const response = await NodesApi.checkIsNodeRunning();
-    if (response.isOk) {
-      // console.log("checkIfNodeIsStillRunning", response.result);
-      setIsNodeRunning(response.result as boolean);
-    }
-  };
   useEffect(() => {
-    const checkInterval = setInterval(async () => checkIfNodeIsStillRunning(), 500);
-    return () => clearInterval(checkInterval);
-  }, []);
+    if (runStatus) {
+      setIsNodeRunning(runStatus.is_running);
+    }
+  }, [runStatus]);
+
+  // const checkIfNodeIsStillRunning = async () => {
+  //   const response = await NodesApi.checkIsNodeRunning();
+  //   if (response.isOk) {
+  //     // console.log("checkIfNodeIsStillRunning", response.result);
+  //     setIsNodeRunning(response.result as boolean);
+  //   }
+  // };
+  // useEffect(() => {
+  //   const checkInterval = setInterval(async () => checkIfNodeIsStillRunning(), 500);
+  //   return () => clearInterval(checkInterval);
+  // }, []);
 
   return (
     <NodesContext.Provider
