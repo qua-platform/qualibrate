@@ -137,3 +137,28 @@ class TestLocalStorageRoot:
             descending=False,
         ) == (2, [1, 2])
         patched_branch.assert_called_once_with("main", settings=settings)
+
+    def test_search_snapshots_data(self, mocker, settings):
+        branch = mocker.patch(
+            "qualibrate_app.api.core.domain.local_storage.root.BranchLocalStorage"
+        )
+        search_filter = SearchWithIdFilter()
+        pages_filter = PageFilter()
+        data_path = []
+        descending = True
+        filter_no_change = True
+        self.root.search_snapshots_data(
+            search_filter=search_filter,
+            pages_filter=pages_filter,
+            data_path=data_path,
+            descending=descending,
+            filter_no_change=filter_no_change,
+        )
+        branch.assert_called_once_with("main", settings=settings)
+        branch.return_value.search_snapshots_data.assert_called_once_with(
+            search_filter=search_filter,
+            pages_filter=pages_filter,
+            data_path=data_path,
+            descending=descending,
+            filter_no_change=filter_no_change,
+        )

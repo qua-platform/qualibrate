@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 import pytest
 
@@ -633,5 +633,117 @@ def test_root_nodes_history_paged(
                 lambda d: d[0] in requested_ids,
                 enumerate(zip(snapshots_history, dfss_history)),
             )
+        ],
+    }
+
+
+@pytest.mark.parametrize(
+    (
+        "filter_no_change, descending, page, per_page, has_next_page, "
+        "search_filters, expected_range"
+    ),
+    [
+        (False, True, 2, 3, True, {}, range(3, 6)),
+        (True, True, 2, 3, True, {}, range(3, 6)),
+        (True, False, 2, 3, True, {}, range(5, 2, -1)),
+        (False, False, 2, 3, True, {}, range(5, 2, -1)),
+        (True, True, 2, 3, True, {"max_node_id": 7}, range(5, 8)),
+        (
+            True,
+            True,
+            2,
+            3,
+            False,
+            {"max_node_id": 7, "min_node_id": 4},
+            range(5, 6),
+        ),
+        (
+            True,
+            True,
+            3,
+            3,
+            False,
+            {"max_node_id": 7, "min_node_id": 4},
+            range(0),
+        ),
+        (
+            True,
+            True,
+            1,
+            3,
+            True,
+            {"max_date": date(2024, 4, 25).isoformat()},
+            range(6, 9),
+        ),
+        (
+            True,
+            True,
+            2,
+            3,
+            False,
+            {"max_date": date(2024, 4, 25).isoformat()},
+            range(0),
+        ),
+        (
+            True,
+            True,
+            1,
+            3,
+            True,
+            {"min_date": date(2024, 4, 27).isoformat()},
+            range(3),
+        ),
+        (
+            True,
+            True,
+            2,
+            3,
+            False,
+            {"min_date": date(2024, 4, 27).isoformat()},
+            range(0),
+        ),
+    ],
+)
+def test_data_file_get_node_storage_content(
+    client_custom_settings,
+    snapshots_history,
+    default_local_storage_project,
+    filter_no_change,
+    descending,
+    page,
+    per_page,
+    has_next_page,
+    search_filters,
+    expected_range,
+):
+    response = client_custom_settings.get(
+        "/api/root/snapshots/search",
+        params={
+            "filter_no_change": filter_no_change,
+            "descending": descending,
+            "data_path": "quam.node",
+            "page": page,
+            "per_page": per_page,
+            **search_filters,
+        },
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "page": page,
+        "per_page": per_page,
+        "total_items": 0,
+        "total_pages": 0,
+        "has_next_page": has_next_page,
+        "items": [
+            {
+                "snapshot": {
+                    "id": snapshots_history[i]["id"],
+                    "created_at": snapshots_history[i]["created_at"],
+                    "parents": snapshots_history[i]["parents"],
+                },
+                "key": ["quam", "node"],
+                "value": snapshots_history[i]["id"],
+            }
+            for i in expected_range
         ],
     }
