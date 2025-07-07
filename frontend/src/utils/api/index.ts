@@ -22,38 +22,14 @@ export type ErrorObject = {
 
 export default class Api {
   static get address(): string {
+    if (process.env.USE_RELATIVE_PATHS === "true") {
+      return "";
+    }
     return process.env.API_URL ?? "/";
   }
 
   static api(path: string): string {
     return this.address + API_ADDRESS + path;
-  }
-
-  private static async setupOkResponse(res: Response, message?: string) {
-    let result = undefined;
-    try {
-      result = await res.json();
-    } catch (e) {
-      console.log(e);
-    }
-
-    return {
-      isOk: true,
-      result,
-      message,
-    };
-  }
-
-  private static async setupErrorResponse(res: Response, message?: string) {
-    return {
-      isOk: false,
-      error: await res.json(),
-      message,
-    };
-  }
-
-  private static async getResult<P>(res: Response): Promise<Res<P>> {
-    return res.ok ? this.setupOkResponse(res) : this.setupErrorResponse(res);
   }
 
   static divideProperties(props: GETOptions, extractArrays = false) {
@@ -212,5 +188,40 @@ export default class Api {
         })
         .catch((err) => resolve({ isOk: false, error: err }));
     });
+  }
+
+  private static async setupOkResponse(res: Response, message?: string) {
+    let result = undefined;
+
+    try {
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const text = await res.text();
+
+        if (text) {
+          result = JSON.parse(text);
+        }
+      }
+    } catch (e) {
+      console.warn("JSON parsing failed in setupOkResponse:", e);
+    }
+
+    return {
+      isOk: true,
+      result,
+      message,
+    };
+  }
+
+  private static async setupErrorResponse(res: Response, message?: string) {
+    return {
+      isOk: false,
+      error: await res.json(),
+      message,
+    };
+  }
+
+  private static async getResult<P>(res: Response): Promise<Res<P>> {
+    return res.ok ? this.setupOkResponse(res) : this.setupErrorResponse(res);
   }
 }

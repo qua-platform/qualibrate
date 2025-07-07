@@ -30,11 +30,26 @@
   color: white;
 }
 
-.dot {
-  margin-right: 10px;
-  height: 12px;
+.greenDot {
   width: 12px;
-  background-color: limegreen;
+  height: 12px;
+  background-color: var(--status-color-finished);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.redDot {
+  width: 12px;
+  height: 12px;
+  background-color: var(--status-color-error);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.greyDot {
+  width: 12px;
+  height: 12px;
+  background-color: var(--status-color-pending);
   border-radius: 50%;
   display: inline-block;
 }
@@ -51,7 +66,25 @@
 }
 
 .stopButton {
-  background-color: #e02525;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgb(255 97 115 / 10%);
+  }
+
+  &:focus {
+    outline: none;
+    background-color: rgb(255 97 115 / 10%);
+  }
+
+  &:active {
+    background-color: rgb(255 97 115 / 20%);
+  }
 }
 
 .parameterStatesWrapper {
@@ -162,6 +195,8 @@
   padding-top: 10px;
   width: 100px;
   font-size: 12px;
+  max-width: 170px;
+  flex: 1;
 }
 
 .parameterValue {
@@ -192,7 +227,6 @@
 }
 
 .stateUpdatesTopWrapper {
-  max-height: 170px;
   overflow-y: scroll;
   padding-right: 10px;
   scrollbar-width: thin;
@@ -390,4 +424,84 @@ input:focus {
     padding: 0 !important;
     height: 20px !important;
   }
+}
+
+.jobInfoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leftStatus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nodeText {
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 22px;
+}
+
+.nodeName {
+  color: white;
+  font-family: Roboto, sans-serif;
+  margin-left: 4px;
+  font-size: 20px;
+}
+
+.rightStatus {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.percentage {
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.loadingBarWrapper {
+  width: 100%;
+}
+
+.finishedText {
+  color: #32FFC6;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.errorText {
+  color: var(--status-color-error);
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bar_running {
+  --progress-color: var(--status-color-running);
+}
+
+.bar_pending {
+  --progress-color: var(--status-color-pending);
+}
+
+.bar_finished {
+  --progress-color: var(--status-color-finished);
+}
+
+.bar_error {
+  --progress-color: var(--status-color-error);
 }

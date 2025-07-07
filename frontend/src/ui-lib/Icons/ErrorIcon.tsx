@@ -1,30 +1,39 @@
 import React from "react";
 
-interface ErrorIconProps {
-  className?: string;
-  width?: number;
-  height?: number;
-}
+interface ErrorIconProps extends React.SVGProps<SVGSVGElement> {}
 
 const ErrorIcon: React.FC<ErrorIconProps> = ({
-  className,
-  width = 36,
-  height = 36,
-}) => {
-  return (
-    <svg
-      className={className}
-      width={width}
-      height={height}
-      viewBox="0 0 40 40"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle cx="20" cy="20" r="18" stroke="#ff617352" strokeWidth="3" fill="#ff61731a" />
-      <line x1="20" y1="11" x2="20" y2="23" stroke="#FF6173" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="20" cy="29" r="2" fill="#FF6173" />
-    </svg>
-  );
-};
+  width = 38,
+  height = 38,
+  ...props
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={width}
+    height={height}
+    viewBox="0 0 38 38"
+    fill="none"
+    {...props}
+  >
+    <circle
+      cx="19"
+      cy="19"
+      r="18"
+      stroke="#FF6173"
+      strokeWidth="2"
+      opacity="0.3"
+    />
+    <g transform="translate(7 7)">
+      <path
+        d="M10.4343 6.45598C10.4343 5.73199 10.8796 5.13512 11.5958 4.94721C12.3119 4.79246 13.028 5.10748 13.3349 5.72646C13.4372 5.94753 13.4733 6.16859 13.4733 6.41729C13.4552 6.76271 13.4297 7.10812 13.4041 7.45354C13.3785 7.79895 13.3529 8.14436 13.3349 8.48978C13.3018 9.02311 13.2672 9.55644 13.2326 10.0898C13.198 10.6231 13.1634 11.1564 13.1303 11.6897C13.0942 12.0379 13.0942 12.3529 13.0942 12.6955C13.0641 13.2648 12.5827 13.7014 11.9689 13.7014C11.355 13.7014 10.8796 13.2924 10.8435 12.7287C10.7924 11.897 10.7412 11.0735 10.6901 10.25C10.6389 9.42655 10.5878 8.60308 10.5366 7.77132C10.5186 7.55302 10.502 7.33333 10.4855 7.11365C10.4689 6.89397 10.4524 6.67428 10.4343 6.45598Z"
+        fill="#FF6173"
+      />
+      <path
+        d="M10.4592 17.7084C10.4592 16.9567 11.1452 16.3267 11.9636 16.3267C12.7881 16.3267 13.4681 16.9512 13.432 17.7415C13.4681 18.46 12.752 19.09 11.9636 19.09C11.1452 19.09 10.4592 18.46 10.4592 17.7084Z"
+        fill="#FF6173"
+      />
+    </g>
+  </svg>
+);
 
 export default ErrorIcon;
