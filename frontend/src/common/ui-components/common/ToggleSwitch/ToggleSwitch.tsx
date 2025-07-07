@@ -11,10 +11,10 @@ const ToggleSwitch = ({ title, activeTab, setActiveTab }: IToggleSwitchProps) =>
     <div className={styles.firstRowWrapper}>
       <h1>{title}</h1>
       <div className={styles.switchWrapper}>
-        <div className={`${styles.switchOption} ${activeTab === "live" ? styles.active : ""}`} onClick={() => setActiveTab("live")}>
+        <div className={`${styles.switchOption} ${activeTab === "live" ? styles.selected : ""}`} onClick={() => setActiveTab("live")}>
           Live
         </div>
-        <div className={`${styles.switchOption} ${activeTab === "final" ? styles.active : ""}`} onClick={() => setActiveTab("final")}>
+        <div className={`${styles.switchOption} ${activeTab === "final" ? styles.selected : ""}`} onClick={() => setActiveTab("final")}>
           Final
         </div>
       </div>

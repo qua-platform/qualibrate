@@ -195,6 +195,8 @@
   padding-top: 10px;
   width: 100px;
   font-size: 12px;
+  max-width: 170px;
+  flex: 1;
 }
 
 .parameterValue {
@@ -452,7 +454,7 @@ input:focus {
   color: white;
   font-family: Roboto, sans-serif;
   margin-left: 4px;
-  font-size: 19px;
+  font-size: 20px;
 }
 
 .rightStatus {

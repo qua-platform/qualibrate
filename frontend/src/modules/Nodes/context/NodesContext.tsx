@@ -5,7 +5,7 @@ import { NodesApi } from "../api/NodesAPI";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 import { formatDateTime } from "../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
-import { LastRunStatusNodeResponseDTO } from "../../TopbarMenu/TitleBarMenu";
+import { RunStatusType, useWebSocketData } from "../../../contexts/WebSocketContext";
 
 export interface StateUpdateObject {
   key?: string | number;
@@ -59,8 +59,7 @@ interface INodesContext {
   setIsAllStatusesUpdated: (value: boolean) => void;
   updateAllButtonPressed: boolean;
   setUpdateAllButtonPressed: (a: boolean) => void;
-  lastRunStatusNode: LastRunStatusNodeResponseDTO | null;
-  setLastRunStatusNode: (node: LastRunStatusNodeResponseDTO | null) => void;
+  runStatus: RunStatusType | null;
 }
 
 const NodesContext = React.createContext<INodesContext>({
@@ -81,14 +80,13 @@ const NodesContext = React.createContext<INodesContext>({
   setIsAllStatusesUpdated: noop,
   updateAllButtonPressed: false,
   setUpdateAllButtonPressed: noop,
-  lastRunStatusNode: null,
-  setLastRunStatusNode: noop,
+  runStatus: null,
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
 
 interface NodesContextProviderProps {
-  children?: React.ReactNode;
+  children: React.JSX.Element;
 }
 
 export interface StatusResponseType {
@@ -113,6 +111,7 @@ export interface StatusResponseType {
 }
 
 export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {
+  const { runStatus } = useWebSocketData();
   const [allNodes, setAllNodes] = useState<NodeMap | undefined>(undefined);
   const [runningNode, setRunningNode] = useState<NodeDTO | undefined>(undefined);
   const [runningNodeInfo, setRunningNodeInfo] = useState<RunningNodeInfo | undefined>(undefined);
@@ -121,7 +120,6 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const [submitNodeResponseError, setSubmitNodeResponseError] = useState<ResponseStatusError | undefined>(undefined);
   const [isAllStatusesUpdated, setIsAllStatusesUpdated] = useState<boolean>(false);
   const [updateAllButtonPressed, setUpdateAllButtonPressed] = useState<boolean>(false);
-  const [lastRunStatusNode, setLastRunStatusNode] = useState<LastRunStatusNodeResponseDTO | null>(null);
 
   const fetchAllNodes = async () => {
     const response = await NodesApi.fetchAllNodes();
@@ -248,6 +246,8 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
 
         console.log("last run status was error");
       }
+    } else {
+      console.log("lastRunResponse was ", lastRunResponse);
     }
   };
 
@@ -263,25 +263,11 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
     }
   }, [isNodeRunning]);
 
-  const checkIfNodeIsStillRunning = async () => {
-    const response = await NodesApi.checkIsNodeRunning();
-    if (response.isOk) {
-      // console.log("checkIfNodeIsStillRunning", response.result);
-      setIsNodeRunning(response.result as boolean);
-    }
-  };
-
-  const fetchStatus = async () => {
-    const res = await NodesApi.fetchLastRunStatusInfo();
-    if (res.isOk && res.result?.node) {
-      setLastRunStatusNode(res.result.node);
-    }
-  };
-
   useEffect(() => {
-    const checkInterval = setInterval(() => { (async () => { await checkIfNodeIsStillRunning(); await fetchStatus(); })(); }, 500);
-    return () => clearInterval(checkInterval);
-  }, []);
+    if (runStatus) {
+      setIsNodeRunning(runStatus.is_running);
+    }
+  }, [runStatus]);
 
   return (
     <NodesContext.Provider
@@ -303,8 +289,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         setIsAllStatusesUpdated,
         updateAllButtonPressed,
         setUpdateAllButtonPressed,
-        lastRunStatusNode,
-        setLastRunStatusNode,
+        runStatus,
       }}
     >
       {props.children}

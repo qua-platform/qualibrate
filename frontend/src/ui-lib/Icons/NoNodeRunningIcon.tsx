@@ -6,10 +6,21 @@ interface NoNodeRunningIconProps {
   height?: number;
 }
 
-const NoNodeRunningIcon: React.FC<NoNodeRunningIconProps> = ({ className, width = 50, height = 50 }) => {
+const NoNodeRunningIcon: React.FC<NoNodeRunningIconProps> = ({
+  className,
+  width = 28,
+  height = 28,
+}) => {
   return (
-    <svg className={className} width={width} height={height} viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g opacity="1">
+    <svg
+      className={className}
+      width={width}
+      height={height}
+      viewBox="0 0 28 28"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g opacity="0.5">
         <path
           d="M19.3529 23.1765C19.3529 25.2881 21.0648 27 23.1765 27C25.2881 27 27 25.2881 27 23.1765C27 21.0648 25.2881 19.3529 23.1765 19.3529C21.0648 19.3529 19.3529 21.0648 19.3529 23.1765Z"
           stroke="#A5ACB6"
@@ -23,7 +34,14 @@ const NoNodeRunningIcon: React.FC<NoNodeRunningIconProps> = ({ className, width 
           strokeDasharray="1 1"
         />
       </g>
-      <circle opacity="1" cx="14" cy="14" r="6" stroke="#A5ACB6" strokeWidth="1.6" />
+      <circle
+        opacity="0.5"
+        cx="14"
+        cy="14"
+        r="6"
+        stroke="#A5ACB6"
+        strokeWidth="1.6"
+      />
     </svg>
   );
 };

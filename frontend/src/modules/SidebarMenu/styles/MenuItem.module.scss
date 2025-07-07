@@ -6,17 +6,22 @@
   align-items: center;
   gap: 20px;
   height: 45px;
-  width: 100%;
+  width: calc(100% - 20px);
+  margin: 5px 10px;
+  padding: 0 12px;
+  border-radius: 10px;
   box-sizing: border-box;
   white-space: pre;
-  padding-left: variables.$sidebar_padding !important;
-  border-right: 2px solid transparent;
   font-size: 18px;
   color: var(--menu-text-color);
+  transition: background-color 0.2s;
+
+  &.selected {
+    background-color: var(--menuitem-selected);
+  }
 
   &:hover {
-    background-color: var(--menu-hover-text);
-    border-right: 2px solid var(--menu-accent-color);
+    background-color: var(--menuitem-hover);
   }
 
   svg {

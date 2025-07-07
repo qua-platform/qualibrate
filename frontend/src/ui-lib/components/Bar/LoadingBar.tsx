@@ -21,7 +21,6 @@ const LoadingBar: React.FC<LoadingBarProps> = ({
 
   return (
     <svg
-      role="progressbar"
       width="100%"
       height={height}
       viewBox={`0 0 ${viewBoxWidth} ${height}`}
