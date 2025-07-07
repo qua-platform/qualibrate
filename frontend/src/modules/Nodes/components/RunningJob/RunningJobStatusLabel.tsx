@@ -7,9 +7,9 @@ import { StopIcon } from "../../../../ui-lib/Icons/StopIcon";
 
 export const RunningJobStatusLabel: React.FC<{ status?: string; percentage?: number; onStop?: () => void }> = ({ status, percentage = 0, onStop }) => {
   if (status === "finished") {
-    return (<div className={styles.finishedText}>Finished <CheckmarkIcon height={38} width={38} /> </div>);
+    return (<div className={styles.finishedText}>Finished <CheckmarkIcon height={30} width={30} /> </div>);
   } else if (status === "error") {
-    return (<div className={styles.errorText}>Error <ErrorIcon height={30} width={30} /> </div>);
+    return (<div className={styles.errorText}>Error <ErrorIcon height={22} width={22} /> </div>);
   } else if (status === "running") {
     return (
       <>

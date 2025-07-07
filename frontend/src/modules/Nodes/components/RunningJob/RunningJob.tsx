@@ -11,7 +11,7 @@ export const RunningJob: React.FC = () => {
 
   return (
     <div className={styles.wrapper} data-testid="running-job-wrapper">
-      {runStatus?.node?.status !== null && <RunningJobNodeProgressTracker />}
+      {runStatus?.node?.status !== undefined && <RunningJobNodeProgressTracker />}
       <div className={styles.parameterStatesWrapper}>
         <div className={styles.parameterColumnWrapper}>
           <RunningJobParameters />
