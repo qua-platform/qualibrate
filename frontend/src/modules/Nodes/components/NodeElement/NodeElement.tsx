@@ -52,7 +52,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setAllNodes,
     setIsAllStatusesUpdated,
     setUpdateAllButtonPressed,
-    lastRunStatusNode,
+    runStatus,
   } = useNodesContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
@@ -130,7 +130,13 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
 
   return (
     <div
-      className={getNodeRowClass({ nodeName: node.name, selectedItemName: selectedItemName ?? "", lastRunStatusNode })}
+      className={getNodeRowClass({ 
+        nodeName: node.name, 
+        selectedItemName: selectedItemName ?? "", 
+        runStatus: runStatus && runStatus.node
+            ? { name: runStatus.node.name, status: runStatus.node.status }
+            : null,
+      })}
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {
         setSelectedItemName(node.name);
@@ -152,10 +158,10 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           )}
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
-        {(lastRunStatusNode?.name === node.name || (selectedItemName !== node.name && lastRunStatusNode?.status !== "pending")) && (
+        {(runStatus?.node?.name === node.name || (selectedItemName !== node.name && runStatus?.node?.status !== "pending")) && (
           <StatusVisuals
-            status={lastRunStatusNode?.name === node.name ? lastRunStatusNode.status : "pending"}
-            percentage={Math.round(lastRunStatusNode?.percentage_complete ?? 0)}
+            status={runStatus?.node?.name === node.name ? runStatus?.node?.status : "pending"}
+            percentage={Math.round(runStatus?.node?.percentage_complete ?? 0)}
           />
         )}
         </div>

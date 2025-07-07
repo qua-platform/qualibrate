@@ -4,15 +4,15 @@ import styles from "./NodeElement.module.scss";
 export const getNodeRowClass = ({
   nodeName,
   selectedItemName,
-  lastRunStatusNode,
+  runStatus,
 }: {
   nodeName: string;
   selectedItemName: string;
-  lastRunStatusNode: { name?: string; status?: string } | null;
+  runStatus: { name?: string; status?: string } | null;
 }): string => {
   const isSelected = selectedItemName === nodeName;
-  const isLastRun = lastRunStatusNode?.name === nodeName;
-  const nodeStatus = isLastRun ? lastRunStatusNode?.status : "pending";
+  const isLastRun = runStatus?.name === nodeName;
+  const nodeStatus = isLastRun ? runStatus?.status : "pending";
 
   if (isLastRun && nodeStatus === "finished") {
     return `${styles.rowWrapper} ${styles.nodeSelectedFinished}`;
