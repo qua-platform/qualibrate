@@ -52,3 +52,16 @@
     border-color: var(--box-background) !important;
   }
 }
+
+.descriptionWrapper {
+  padding-left: 10px;
+  align-content: center;
+  text-align: right;
+}
+
+.descriptionTooltip {
+  overflow: scroll;
+  max-height: 500px;
+  white-space: pre-line;
+  border-radius: 6px;
+}

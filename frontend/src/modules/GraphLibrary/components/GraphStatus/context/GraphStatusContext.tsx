@@ -2,6 +2,7 @@ import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from
 import { ElementDefinition } from "cytoscape";
 import noop from "../../../../../common/helpers";
 import { GraphLibraryApi } from "../../../api/GraphLibraryApi";
+import { useWebSocketData } from "../../../../../contexts/WebSocketContext";
 
 interface GraphProviderProps {
   children: React.JSX.Element;
@@ -12,6 +13,7 @@ export interface GlobalParameterStructure {
 }
 
 export interface Measurement {
+  created_at?: string;
   id?: number;
   data?: {
     outcomes: object;
@@ -76,6 +78,7 @@ const GraphContext = React.createContext<IGraphContext>({
 export const useGraphStatusContext = () => useContext<IGraphContext>(GraphContext);
 
 export const GraphStatusContextProvider = (props: GraphProviderProps): React.ReactElement => {
+  const { history } = useWebSocketData();
   const [allMeasurements, setAllMeasurements] = useState<Measurement[] | undefined>(undefined);
   // const [selectedMeasurement, setSelectedMeasurement] = useState<Measurement | undefined>(undefined);
   const [workflowGraphElements, setWorkflowGraphElements] = useState<ElementDefinition[] | undefined>(undefined);
@@ -95,6 +98,16 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
     }
     return [];
   };
+
+  useEffect(() => {
+    fetchAllMeasurements();
+  }, []);
+
+  useEffect(() => {
+    if (history) {
+      setAllMeasurements(history.items);
+    }
+  }, [history]);
 
   // const fetchResultsAndDiffData = (snapshotId1: number, snapshotId2?: number, updateResult = true) => {
   //   const id1 = (snapshotId1 ?? 0).toString();
@@ -130,14 +143,11 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
   //     setDiffData({});
   //   }
   // };
-  useEffect(() => {
-    fetchAllMeasurements();
-  }, []);
 
-  useEffect(() => {
-    const checkInterval = setInterval(async () => fetchAllMeasurements(), 1500);
-    return () => clearInterval(checkInterval);
-  }, []);
+  // useEffect(() => {
+  //   const checkInterval = setInterval(async () => fetchAllMeasurements(), 1500);
+  //   return () => clearInterval(checkInterval);
+  // }, []);
 
   // useEffect(() => {
   //   if (selectedMeasurementName) {

@@ -11,12 +11,15 @@ import GraphLibraryIcon from "../ui-lib/Icons/GraphLibraryIcon";
 import GraphStatusIcon from "../ui-lib/Icons/GraphStatusIcon";
 import GraphStatus from "../modules/GraphLibrary/components/GraphStatus/GraphStatus";
 import { Data } from "../modules/Data";
+import { HelpIcon } from "../ui-lib/Icons/HelpIcon";
 
-const DATA_KEY: ModuleKey = "data";
-const NODES_KEY: ModuleKey = "nodes";
-const PROJECT_TAB: ModuleKey = "project";
-const GRAPH_LIBRARY: ModuleKey = "graph-library";
-const GRAPH_STATUS: ModuleKey = "graph-status";
+export const DATA_KEY: ModuleKey = "data";
+export const NODES_KEY: ModuleKey = "nodes";
+export const PROJECT_TAB: ModuleKey = "project";
+export const GRAPH_LIBRARY: ModuleKey = "graph-library";
+export const GRAPH_STATUS: ModuleKey = "graph-status";
+export const HELP_KEY: ModuleKey = "help";
+export const TOGGLE_SIDEBAR_KEY: ModuleKey = "toggle";
 
 export type ModuleKey =
   | "components"
@@ -108,6 +111,27 @@ export const ModulesRegistry: Array<Module> = [
       title: "Data",
       icon: DataIcon,
       dataCy: cyKeys.DATA_TAB,
+    },
+  },
+  {
+    keyId: HELP_KEY,
+    path: "help",
+    Component: Data,
+    menuItem: {
+      sideBarTitle: "Help",
+      icon: HelpIcon,
+      title: "Help",
+      dataCy: cyKeys.HELP_TAB,
+      atBottom: true,
+    },
+  },
+  {
+    keyId: TOGGLE_SIDEBAR_KEY,
+    path: "toggle",
+    Component: Data,
+    menuItem: {
+      dataCy: cyKeys.TOGGLE_SIDEBAR,
+      atBottom: true,
     },
   },
 ];

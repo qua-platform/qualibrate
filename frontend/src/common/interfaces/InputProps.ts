@@ -9,7 +9,6 @@ export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onCh
   name?: string;
   inputClassName?: string;
   icon?: React.ReactElement;
-  // type?: InputTypes;
   typeOfField?: string;
   error?: string | undefined;
   label?: string;
