@@ -75,7 +75,7 @@ export class SnapshotsApi extends Api {
     });
   }
 
-  static stopNodeRunning(): Promise<Res<void>> {
+  static stopNodeRunning(): Promise<Res<boolean>> {
     return this._fetch(this.api(STOP_RUNNING()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       // body: JSON.stringify({ data_path, value }),

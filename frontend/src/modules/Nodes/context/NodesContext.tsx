@@ -5,7 +5,7 @@ import { NodesApi } from "../api/NodesAPI";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 import { formatDateTime } from "../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
-import { useWebSocketData } from "../../../contexts/WebSocketContext";
+import { RunStatusType, useWebSocketData } from "../../../contexts/WebSocketContext";
 
 export interface StateUpdateObject {
   key?: string | number;
@@ -59,6 +59,7 @@ interface INodesContext {
   setIsAllStatusesUpdated: (value: boolean) => void;
   updateAllButtonPressed: boolean;
   setUpdateAllButtonPressed: (a: boolean) => void;
+  runStatus: RunStatusType | null;
 }
 
 const NodesContext = React.createContext<INodesContext>({
@@ -79,6 +80,7 @@ const NodesContext = React.createContext<INodesContext>({
   setIsAllStatusesUpdated: noop,
   updateAllButtonPressed: false,
   setUpdateAllButtonPressed: noop,
+  runStatus: null,
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
@@ -267,18 +269,6 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
     }
   }, [runStatus]);
 
-  // const checkIfNodeIsStillRunning = async () => {
-  //   const response = await NodesApi.checkIsNodeRunning();
-  //   if (response.isOk) {
-  //     // console.log("checkIfNodeIsStillRunning", response.result);
-  //     setIsNodeRunning(response.result as boolean);
-  //   }
-  // };
-  // useEffect(() => {
-  //   const checkInterval = setInterval(async () => checkIfNodeIsStillRunning(), 500);
-  //   return () => clearInterval(checkInterval);
-  // }, []);
-
   return (
     <NodesContext.Provider
       value={{
@@ -299,6 +289,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         setIsAllStatusesUpdated,
         updateAllButtonPressed,
         setUpdateAllButtonPressed,
+        runStatus,
       }}
     >
       {props.children}
