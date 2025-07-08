@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { bottomMenuItems, HELP_KEY, menuItems, ModuleKey, NODES_KEY, TOGGLE_SIDEBAR_KEY } from "../../routing/ModulesRegistry";
+import { bottomMenuItems, HELP_KEY, menuItems, TOGGLE_SIDEBAR_KEY } from "../../routing/ModulesRegistry";
 import MenuItem from "./MenuItem";
 // import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
 // import ThemeToggle from "../themeModule/ThemeToggle";
