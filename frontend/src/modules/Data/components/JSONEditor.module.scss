@@ -25,17 +25,3 @@
   border: 1px solid var(--border, #42424C);
   align-content: center;
 }
-
-.liveWrapper {
-  display: flex;
-  align-content: center;
-  width: 50%;
-  height: 22px;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  border-radius: 40px;
-  background: rgb(44 203 229 / 60%);
-  margin: 4px;
-  padding: 4px;
-}
