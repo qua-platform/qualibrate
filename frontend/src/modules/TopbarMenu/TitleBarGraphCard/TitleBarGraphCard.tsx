@@ -23,6 +23,8 @@ const TitleBarGraphCard: React.FC = () => {
     }
     if (runStatus && runStatus.graph) {
       setGraph(runStatus.graph);
+    } else {
+      setGraph(fallbackGraph);
     }
   }, [runStatus]);
 
