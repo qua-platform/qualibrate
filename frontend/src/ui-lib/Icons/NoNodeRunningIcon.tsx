@@ -23,13 +23,13 @@ const NoNodeRunningIcon: React.FC<NoNodeRunningIconProps> = ({
       <g opacity="0.5">
         <path
           d="M19.3529 23.1765C19.3529 25.2881 21.0648 27 23.1765 27C25.2881 27 27 25.2881 27 23.1765C27 21.0648 25.2881 19.3529 23.1765 19.3529C21.0648 19.3529 19.3529 21.0648 19.3529 23.1765Z"
-          stroke="#A5ACB6"
+          stroke="var(--grey-highlight)"
           strokeWidth="1.6"
           strokeDasharray="1 1"
         />
         <path
           d="M1 4.82353C1 6.93521 2.71185 8.64706 4.82353 8.64706C6.93521 8.64706 8.64706 6.93521 8.64706 4.82353C8.64706 2.71185 6.93521 1 4.82353 1C2.71185 1 1 2.71185 1 4.82353Z"
-          stroke="#A5ACB6"
+          stroke="var(--grey-highlight)"
           strokeWidth="1.6"
           strokeDasharray="1 1"
         />
