@@ -11,12 +11,12 @@ import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 import QUAlibrateLogoSmallIcon from "../../ui-lib/Icons/QualibrateLogoSmall";
 import ExpandSideMenuIcon from "../../ui-lib/Icons/ExpandSideMenuIcon";
 import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
+import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const [minify, setMinify] = useState(true);
-  const [selectedMenuItem, setSelectedMenuItem] = useState<ModuleKey>(NODES_KEY);
-
+  const { selectedMenuItem, setSelectedMenuItem } = useFlexLayoutContext();
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
 
   useEffect(() => {
