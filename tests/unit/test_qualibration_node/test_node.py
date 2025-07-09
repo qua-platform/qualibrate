@@ -42,7 +42,9 @@ class TestQualibrationNode:
         )
 
         # Mock the superclass __init__
-        mock_super_init = mocker.patch.object(QRunnable, "__init__", return_value=None)
+        mock_super_init = mocker.patch.object(
+            QRunnable, "__init__", return_value=None
+        )
 
         # Mock _warn_if_external_and_interactive_mpl
         mock_warn_if_external = mocker.patch.object(
@@ -164,7 +166,9 @@ class TestQualibrationNode:
         )
 
     def test__validate_passed_parameters_options_with_none(self, mocker):
-        mocked_create_model = mocker.patch("qualibrate.qualibration_node.create_model")
+        mocked_create_model = mocker.patch(
+            "qualibrate.qualibration_node.create_model"
+        )
         params = mocker.patch(
             "qualibrate.qualibration_node.NodeParameters",
             __name__="a",
@@ -244,7 +248,9 @@ class TestQualibrationNode:
         node.storage_manager = None
         assert node.snapshot_idx is None
 
-    def test_save_with_storage_manager(self, mocker, qualibrate_config_and_path_mocked):
+    def test_save_with_storage_manager(
+        self, mocker, qualibrate_config_and_path_mocked
+    ):
         node = QualibrationNode(name="test_node")
         manager = MagicMock(spec=LocalStorageManager)
         mocker.patch.object(node, "_get_storage_manager", return_value=manager)
@@ -300,7 +306,9 @@ class TestQualibrationNode:
         qualibrate_config_and_path_mocked,
     ):
         class P(NodeCreateParametersType):
-            qubits: list[str] = Field(default_factory=lambda: ["target1", "target2"])
+            qubits: list[str] = Field(
+                default_factory=lambda: ["target1", "target2"]
+            )
 
         node = QualibrationNode(name="test_node")
         node.filepath = Path("test_path")
@@ -348,7 +356,9 @@ class TestQualibrationNode:
         qualibrate_config_and_path_mocked,
     ):
         class P(NodeCreateParametersType):
-            qubits: list[str] = Field(default_factory=lambda: ["target1", "target2"])
+            qubits: list[str] = Field(
+                default_factory=lambda: ["target1", "target2"]
+            )
 
         node = QualibrationNode(name="test_node")
         node.filepath = Path("test_path")
@@ -361,7 +371,9 @@ class TestQualibrationNode:
         mock_datetime.now.return_value = datetime(2020, 1, 1)
 
         # Mock run_node_file to raise exception
-        mocker.patch.object(node, "run_node_file", side_effect=Exception("Test error"))
+        mocker.patch.object(
+            node, "run_node_file", side_effect=Exception("Test error")
+        )
 
         # Mock _post_run
         mock_post_run = mocker.patch.object(
@@ -395,7 +407,9 @@ class TestQualibrationNode:
 
         mock_matplotlib.use.assert_any_call("agg")
         mock_matplotlib.use.assert_any_call("tkagg")
-        mock_import_from_path.assert_called_with("_node_test_node", node_filepath)
+        mock_import_from_path.assert_called_with(
+            "_node_test_node", node_filepath
+        )
 
     @pytest.fixture
     def node_active_node_self(self, mocker):
@@ -444,7 +458,9 @@ class TestQualibrationNode:
             "qualibrate.qualibration_node.file_is_calibration_instance",
             return_value=True,
         )
-        mock_scan_node_file = mocker.patch.object(QualibrationNode, "scan_node_file")
+        mock_scan_node_file = mocker.patch.object(
+            QualibrationNode, "scan_node_file"
+        )
 
         QualibrationNode.scan_folder_for_instances(mock_path)
 
