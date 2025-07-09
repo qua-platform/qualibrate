@@ -14,13 +14,13 @@ const ExpandSideMenuIcon: React.FC = () => {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M6.73722 8L0 0.655904L0.684604 0L8.02352 8L0.684604 16L0 15.3441L6.73722 8Z"
-        fill="#A5ACB6"
+        fill="var(--grey-highlight)"
       />
       <path
         fillRule="evenodd"
         clipRule="evenodd"
         d="M14.7137 8L7.97648 0.655904L8.66108 0L16 8L8.66108 16L7.97648 15.3441L14.7137 8Z"
-        fill="#A5ACB6"
+        fill="var(--grey-highlight)"
       />
     </svg>
   );

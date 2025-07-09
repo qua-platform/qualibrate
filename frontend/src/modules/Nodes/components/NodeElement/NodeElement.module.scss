@@ -3,7 +3,7 @@
   font-style: normal;
   font-weight: 500;
   border: 2px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 4px;
   margin-top: 6px;
   margin-bottom: 9px;
   position: relative;
@@ -13,8 +13,21 @@
   min-height: 19px;
 }
 
-.nodeSelected {
-  border-left-color: #00D59A;
+.nodeSelectedFinished {
+  border-left: 2px solid var(--status-color-finished);
+}
+
+.nodeSelectedRunning {
+  border: 2px solid rgb(60 222 248 / 10%);
+  border-left: 2px solid var(--status-color-running);
+}
+
+.nodeSelectedError {
+  border-left: 2px solid var(--status-color-error);
+}
+
+.nodeSelectedPending {
+  border-left: 2px solid #fff;
 }
 
 .row {
@@ -24,17 +37,34 @@
   max-width: 100%;
 }
 
+.highlightRunningRow {
+  background: linear-gradient(0deg, rgb(44 203 229 / 6%) 0%, rgb(44 203 229 / 6%) 100%), #323339;
+}
+
 .dot {
   min-height: 7px;
   min-width: 7px;
-  background-color: rgb(165 172 182 / 20%);
   border-radius: 50%;
   display: inline-block;
   margin-top: 11px;
 }
 
-.dotSelected {
-  background-color: #00D59A;
+.greenDot {
+  @extend .dot;
+
+  background-color: var(--status-color-finished);
+}
+
+.redDot {
+  @extend .dot;
+
+  background-color: var(--status-color-error);
+}
+
+.greyDot {
+  @extend .dot;
+
+  background-color: var(--status-color-pending);
 }
 
 .runButton {
@@ -58,7 +88,6 @@
 .dotWrapper {
   padding-right: 10px;
   padding-left: 10px;
-  display: inline-flex;
   max-width: 80%;
 }
 
