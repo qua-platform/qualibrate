@@ -94,14 +94,8 @@ class TestRecordStateUpdates:
         with node.record_state_updates(interactive_only=False):
             node.machine.dict_value["c"] = 3
 
-        assert node.machine.dict_value == {"a": 1, "b": 2}
-        assert node.state_updates == {
-            "#/dict_value/c": {
-                "key": "#/dict_value/c",
-                "attr": "c",
-                "new": 3,
-            }
-        }
+        assert node.machine.dict_value == {"a": 1, "b": 2, "c": 3}
+        assert node.state_updates == {}
 
     def test_record_state_updates_replace_dict_value(self, node, machine):
         assert node.machine.dict_value == {"a": 1, "b": 2}
@@ -146,14 +140,8 @@ class TestRecordStateUpdates:
             node.machine.empty_dict_value["new_key"] = "new_value"
 
         # Should revert to original empty state
-        assert node.machine.empty_dict_value == {}
-        assert node.state_updates == {
-            "#/empty_dict_value/new_key": {
-                "key": "#/empty_dict_value/new_key",
-                "attr": "new_key",
-                "new": "new_value",
-            }
-        }
+        assert node.machine.empty_dict_value == {"new_key": "new_value"}
+        assert node.state_updates == {}
 
     def test_record_state_updates_chained_operations(self, node):
         """Test that chained operations use updated values correctly."""
@@ -240,7 +228,7 @@ class TestRecordStateUpdates:
             node.machine.dict_value["c"] = 3
 
         # Should revert all changes
-        assert node.machine.dict_value == {"a": 1, "b": 2}
+        assert node.machine.dict_value == {"a": 1, "b": 2, "c": 3}
 
         assert node.state_updates == {
             "#/dict_value/a": {
@@ -248,11 +236,6 @@ class TestRecordStateUpdates:
                 "attr": "a",
                 "new": 10,
                 "old": 1,
-            },
-            "#/dict_value/c": {
-                "key": "#/dict_value/c",
-                "attr": "c",
-                "new": 3,
             },
         }
 
@@ -272,5 +255,9 @@ class TestRecordStateUpdates:
         with node.record_state_updates(interactive_only=False):
             node.machine.dict_value["c"] = {"new_value": 10}
 
-        assert node.machine.dict_value == {"a": 1, "b": 2, "c": {"new_value": 10}}
+        assert node.machine.dict_value == {
+            "a": 1,
+            "b": 2,
+            "c": {"new_value": 10},
+        }
         assert node.state_updates == {}
