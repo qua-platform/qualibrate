@@ -8,6 +8,7 @@ from quam.utils import string_reference
 from qualibrate.parameters import NodeParameters
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.type_protocols import MachineProtocol
+from qualibrate.utils.types_parsing import NoneType
 
 if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
@@ -20,6 +21,7 @@ __all__ = [
 
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
 MachineType = TypeVar("MachineType", bound=MachineProtocol)
+ValueTypeToRecord = (int, float, str, NoneType)
 
 
 def _record_state_update(
@@ -119,7 +121,9 @@ def update_node_machine(
         original_dict, updated_dict
     )
     for patch in patches.patch:
-        if patch["op"] != "replace":
+        if patch["op"] != "replace" or not isinstance(
+            patch["value"], ValueTypeToRecord
+        ):
             continue
         path_ptr = jsonpointer.JsonPointer(patch["path"])
         try:
@@ -129,9 +133,11 @@ def update_node_machine(
         except jsonpointer.JsonPointerException as ex:
             logger.exception(ex)
             continue
-        if string_reference.is_reference(
-            old_value
-        ) or string_reference.is_reference(patch["value"]):
+        if (
+            string_reference.is_reference(old_value)
+            or string_reference.is_reference(patch["value"])
+            or not isinstance(old_value, ValueTypeToRecord)
+        ):
             continue
         quam_path = f"#{path_ptr.path}"
         attr = update_machine_attribute(node.machine, quam_path, old_value)

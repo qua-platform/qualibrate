@@ -699,6 +699,8 @@ class QualibrationNode(
         that occur, specifically during interactive execution. It uses
         custom `__setattr__` and `__setitem__` functions for relevant classes
         to record these changes.
+        Only simple types updates (int, float, bool, str and None) will
+        be recorded.
 
         Args:
             interactive_only: Whether to only record in interactive mode.
