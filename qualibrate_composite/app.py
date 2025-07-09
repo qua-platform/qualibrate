@@ -11,6 +11,7 @@ from qualibrate_composite.config import (
     get_settings,
 )
 from qualibrate_composite.utils.spawn import (
+    app_lifespan,
     spawn_qua_dashboards,
     spawn_qualibrate_app,
     spawn_qualibrate_runner,
@@ -23,7 +24,7 @@ except ImportError:
     json_timeline_db_app = None
 
 
-app = FastAPI(title="Qualibrate")
+app = FastAPI(title="Qualibrate", lifespan=app_lifespan)
 _settings = get_settings(get_config_path())
 
 origins = [

@@ -1,9 +1,12 @@
 import logging
+from collections.abc import AsyncIterator
+from contextlib import AsyncExitStack, asynccontextmanager
 from importlib import metadata
 from importlib.util import find_spec
 from typing import Optional
 
 from fastapi import FastAPI
+from fastapi.routing import Mount
 from packaging.requirements import Requirement
 from packaging.version import Version
 
@@ -121,3 +124,16 @@ def spawn_qua_dashboards(app: FastAPI) -> None:
         WSGIMiddleware(qua_dashboard_app.server),  # type: ignore[arg-type]
         name="qua_dashboards",
     )
+
+
+@asynccontextmanager
+async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    async with AsyncExitStack() as stack:
+        for route in filter(
+            lambda r: isinstance(r, Mount) and isinstance(r.app, FastAPI),
+            app.routes,
+        ):
+            await stack.enter_async_context(
+                route.app.router.lifespan_context(app)  # type: ignore[attr-defined]
+            )
+        yield
