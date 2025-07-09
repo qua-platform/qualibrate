@@ -718,9 +718,9 @@ class QualibrationNode(
             return
 
         logger.debug(f"Init recording state updates for node {self.name}")
-        original_dict = machine.to_dict()
+        original_dict = machine.to_dict(include_defaults=True)
         yield
-        updated_dict = machine.to_dict()
+        updated_dict = machine.to_dict(include_defaults=True)
         update_node_machine(self, original_dict, updated_dict)
 
     @classmethod
