@@ -71,7 +71,12 @@ def validate_runner_version_for_app() -> None:
     )
     requirement: Optional[Requirement] = next(filtered_runner, None)
     if requirement is None:
-        raise RuntimeError("qualibrate-runner dependency is not specified.")
+        logging.warning(
+            "QUAlibrate-runner version is not recognized. This may be because "
+            "the package was installed in editable mode. Cannot verify that "
+            "version match."
+        )
+        return
     requirement_version_lst = list(iter(requirement.specifier))
     if (
         len(requirement_version_lst) != 1
