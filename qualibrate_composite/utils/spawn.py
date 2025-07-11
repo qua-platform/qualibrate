@@ -84,6 +84,7 @@ def validate_runner_version_for_app() -> None:
     ):
         raise RuntimeError(
             "Invalid required qualibrate-runner version format. "
+            f"Your: {requirement.specifier}. "
             "Expected '==X.Y.Z'."
         )
     dep_version = Version(requirement_version_lst[0].version)
