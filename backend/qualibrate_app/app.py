@@ -22,7 +22,7 @@ app = FastAPI(
     title="Qualibrate",
     openapi_url="/app_openapi.json",
     docs_url="/app_docs",
-    exception_handlers={QualibrateException: qualibrate_exception_handler}
+    exception_handlers={QualibrateException: qualibrate_exception_handler},
 )
 _settings = get_settings(get_config_path())
 
