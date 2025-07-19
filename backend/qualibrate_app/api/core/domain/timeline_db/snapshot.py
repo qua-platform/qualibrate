@@ -8,7 +8,7 @@ from qualibrate_config.models import (
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
-    SnapshotLoadType,
+    SnapshotLoadTypeFlag,
 )
 from qualibrate_app.api.core.types import (
     DocumentSequenceType,
@@ -33,13 +33,15 @@ class SnapshotTimelineDb(SnapshotBase):
     ):
         super().__init__(id, content, settings=settings)
 
-    def load(self, load_type: SnapshotLoadType) -> None:
-        if load_type <= self._load_type:
+    def load_from_flag(self, load_type_flag: SnapshotLoadTypeFlag) -> None:
+        if self.load_type_flag.is_set(load_type_flag):
             return None
         fields: Optional[list[str]] = ["id", "_id", "parents", "created_at"]
-        if fields is not None and load_type == SnapshotLoadType.Metadata:
+        if fields is not None and load_type_flag.is_set(
+            SnapshotLoadTypeFlag.Metadata
+        ):
             fields.append("metadata")
-        elif load_type >= SnapshotLoadType.Data:
+        elif load_type_flag.is_set(SnapshotLoadTypeFlag.DataWithoutRefs):
             fields = None
         params = None if fields is None else {"fields": fields}
         timeline_db_config = self.timeline_db_config
@@ -58,15 +60,12 @@ class SnapshotTimelineDb(SnapshotBase):
             raise no_snapshot_ex
         if fields is None or "metadata" in fields:  # metadata was requested
             content["metadata"] = content.get("metadata", {})
-            self._load_type = SnapshotLoadType.Metadata
+            self._load_type_flag |= SnapshotLoadTypeFlag.Metadata
         if fields is None:  # data was requested
             content["data"] = content.get("data", {})
-            self._load_type = SnapshotLoadType.Full
+            self._load_type_flag |= SnapshotLoadTypeFlag.DataWithoutRefs
+        # TODO: load with machine and results
         self.content.update(content)
-
-    @property
-    def load_type(self) -> SnapshotLoadType:
-        return self._load_type
 
     @property
     def id(self) -> Optional[IdType]:
@@ -88,9 +87,14 @@ class SnapshotTimelineDb(SnapshotBase):
         load: bool = False,
     ) -> Optional[DocumentSequenceType]:
         """Make search in current instance of Snapshot."""
-        if self._load_type < SnapshotLoadType.Data and not load:
+        if (
+            not self._load_type_flag.is_set(
+                SnapshotLoadTypeFlag.DataWithMachine
+            )
+            and not load
+        ):
             return None
-        self.load(SnapshotLoadType.Data)
+        self.load_from_flag(SnapshotLoadTypeFlag.DataWithMachine)
         data = self.data
         if data is None:
             return None

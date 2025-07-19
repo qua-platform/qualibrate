@@ -11,7 +11,7 @@ from qualibrate_app.api.core.domain.bases.branch import (
 from qualibrate_app.api.core.domain.bases.node import NodeBase, NodeLoadType
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
-    SnapshotLoadType,
+    SnapshotLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
 from qualibrate_app.api.core.domain.timeline_db.snapshot import (
@@ -79,7 +79,7 @@ class BranchTimelineDb(BranchBase):
         if not snapshot_belonged_to_branch:
             raise QJsonDbException("Snapshot doesn't belong to branch.")
         snapshot = SnapshotTimelineDb(id=id, settings=self._settings)
-        snapshot.load(SnapshotLoadType.Metadata)
+        snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         return snapshot
 
     def get_node(self, id: Optional[IdType] = None) -> NodeBase:

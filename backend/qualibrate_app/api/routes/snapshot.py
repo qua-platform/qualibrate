@@ -9,7 +9,7 @@ from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
-    SnapshotLoadType,
+    SnapshotLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
@@ -30,19 +30,14 @@ from qualibrate_app.api.core.types import DocumentSequenceType, IdType
 from qualibrate_app.api.core.utils.request_utils import get_runner_config
 from qualibrate_app.api.core.utils.types_parsing import types_conversion
 from qualibrate_app.api.dependencies.search import get_search_path
+from qualibrate_app.api.routes.utils.dependencies import (
+    get_snapshot_load_type_flag,
+)
 from qualibrate_app.config import (
     get_settings,
 )
 
 snapshot_router = APIRouter(prefix="/snapshot/{id}", tags=["snapshot"])
-
-
-def is_float(string: str) -> bool:
-    try:
-        float(string)
-        return True
-    except ValueError:
-        return False
 
 
 def _get_snapshot_instance(
@@ -59,10 +54,12 @@ def _get_snapshot_instance(
 @snapshot_router.get("/")
 def get(
     *,
-    load_type: SnapshotLoadType = SnapshotLoadType.Full,
+    load_type_flag: Annotated[
+        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
+    ],
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
 ) -> SnapshotModel:
-    snapshot.load(load_type)
+    snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 
 

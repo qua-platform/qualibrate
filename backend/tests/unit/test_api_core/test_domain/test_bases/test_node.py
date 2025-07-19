@@ -58,7 +58,7 @@ def test_load_snapshot(mocker, settings):
     class _Snapshot:
         loaded = False
 
-        def load(self, load_type):
+        def load_from_flag(self, load_type_flag):
             self.loaded = True
 
     s = _Snapshot()
@@ -73,7 +73,7 @@ def test_load_full(mocker, settings):
     class _Snapshot:
         loaded = False
 
-        def load(self, load_type):
+        def load_from_flag(self, load_type):
             self.loaded = True
 
     s = _Snapshot()
