@@ -12,11 +12,11 @@ class RunnableCollection(dict[_KT, _VT]):
     def __getitem__(self, key: _KT) -> _VT:
         return copy(super().__getitem__(key))
 
-    @overload
+    @overload  # type: ignore[override]
     def get(self, key: _KT) -> Optional[_VT]: ...
 
     @overload
-    def get(self, key: _KT, default: _T) -> Union[_VT, _T]: ...
+    def get(self, key: _KT, default: _VT) -> _VT: ...
 
     def get(
         self, key: _KT, default: Union[_T, None] = None

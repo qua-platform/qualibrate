@@ -29,3 +29,9 @@ class MachineProtocol(Protocol):
         Generates the configuration dictionary for the machine.
         """
         ...
+
+    def to_dict(
+        self, include_defaults: bool = ..., *args: Any, **kwargs: Any
+    ) -> dict[str, Any]: ...
+
+    def get_root(self) -> "MachineProtocol": ...

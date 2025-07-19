@@ -17,6 +17,7 @@ datamodel-code-generator = "^0.26.3"
 matplotlib = "^3.9.4"
 python-json-logger = "^3.2.1"
 qualibrate-config = "^0.1.5"
+jsonpatch = "^1.33"
 
 
 [tool.poetry.group.test.dependencies]
@@ -66,6 +67,7 @@ module = [
     "qualang_tools.*",
     "quam.*",
     "jsonpointer",
+    "jsonpatch",
 ]
 ignore_missing_imports = true
 
