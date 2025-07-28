@@ -1,10 +1,14 @@
 import logging
 from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack, asynccontextmanager
+from importlib import metadata
 from importlib.util import find_spec
+from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.routing import Mount
+from packaging.requirements import Requirement
+from packaging.version import Version
 
 from qualibrate_composite.api.auth_middleware import (
     QualibrateAppAuthMiddleware,
@@ -54,6 +58,49 @@ def spawn_qualibrate_app(app: FastAPI) -> None:
 
     qualibrate_app_app.add_middleware(QualibrateAppAuthMiddleware)
     app.mount("/", qualibrate_app_app, name="qualibrate_app")
+
+
+def validate_runner_version_for_app() -> None:
+    existing_version = Version(metadata.version("qualibrate-runner"))
+    requirements_str = metadata.requires("qualibrate")
+    if requirements_str is None:
+        raise RuntimeError("There are no defined qualibrate dependencies.")
+    requirements = map(Requirement, requirements_str)
+    filtered_runner = filter(
+        lambda r: r.name == "qualibrate-runner", requirements
+    )
+    requirement: Optional[Requirement] = next(filtered_runner, None)
+    if requirement is None:
+        logging.warning(
+            "QUAlibrate-runner version is not recognized. This may be because "
+            "the package was installed in editable mode. Cannot verify that "
+            "version match."
+        )
+        return
+    requirement_version_lst = list(iter(requirement.specifier))
+    if (
+        len(requirement_version_lst) != 1
+        or not requirement_version_lst[0].operator == "=="
+    ):
+        raise RuntimeError(
+            "Invalid required qualibrate-runner version format. "
+            f"Your: {requirement.specifier}. "
+            "Expected '==X.Y.Z'."
+        )
+    dep_version = Version(requirement_version_lst[0].version)
+    if (
+        existing_version.major == dep_version.major
+        and existing_version.minor == dep_version.minor
+        and existing_version.micro >= dep_version.micro
+    ):
+        return
+    max_version = Version(f"{dep_version.major}.{dep_version.minor+1}.0")
+    raise RuntimeError(
+        f"Invalid qualibrate-runner version. Expected: '=={dep_version}'. "
+        f"Allowed: '>={dep_version}, <{max_version}'. "
+        f"Installed: {existing_version}. Please run "
+        "'pip install --upgrade qualibrate' to ensure version compatibility."
+    )
 
 
 def spawn_qua_dashboards(app: FastAPI) -> None:
