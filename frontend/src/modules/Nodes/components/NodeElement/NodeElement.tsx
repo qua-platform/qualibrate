@@ -1,9 +1,8 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import { Checkbox, CircularProgress } from "@mui/material";
+import { Checkbox } from "@mui/material";
 import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
-import { classNames } from "../../../../utils/classnames";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
 import { ErrorResponseWrapper } from "../../../common/Error/ErrorResponseWrapper";
@@ -13,6 +12,8 @@ import { NodesApi } from "../../api/NodesAPI";
 import { RunIcon } from "../../../../ui-lib/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
+import { StatusVisuals } from "./NodeElementStatusVisuals";
+import { getNodeRowClass } from "./helpers";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 export interface NodeDTO {
@@ -51,6 +52,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setAllNodes,
     setIsAllStatusesUpdated,
     setUpdateAllButtonPressed,
+    runStatus,
   } = useNodesContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
@@ -123,17 +125,18 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     }
   };
 
-  const insertSpaces = (str: string, interval = 40) => {
-    let result = "";
-    for (let i = 0; i < str.length; i += interval) {
-      result += str.slice(i, i + interval) + " ";
-    }
-    return result.trim();
-  };
+  const insertSpaces = (str: string, interval = 40) =>
+    str.replace(new RegExp(`(.{${interval}})`, "g"), "$1 ").trim();
 
   return (
     <div
-      className={classNames(styles.rowWrapper, selectedItemName === node.name && styles.nodeSelected)}
+      className={getNodeRowClass({ 
+        nodeName: node.name, 
+        selectedItemName: selectedItemName ?? "", 
+        runStatus: runStatus && runStatus.node
+            ? { name: runStatus.node.name, status: runStatus.node.status }
+            : null,
+      })}
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {
         setSelectedItemName(node.name);
@@ -155,12 +158,13 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           )}
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
-          <div>
-            <div className={classNames(styles.dot, selectedItemName === node.name && styles.dotSelected)} />
-          </div>
+        {(runStatus?.node?.name === node.name || (selectedItemName !== node.name && runStatus?.node?.status !== "pending")) && (
+          <StatusVisuals
+            status={runStatus?.node?.name === node.name ? runStatus?.node?.status : "pending"}
+            percentage={Math.round(runStatus?.node?.percentage_complete ?? 0)}
+          />
+        )}
         </div>
-        {isNodeRunning && node.name === selectedItemName && <CircularProgress data-testid={`circular-progress-${nodeKey}`} />}
-
         {!isNodeRunning && node.name === selectedItemName && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
             <RunIcon className={styles.runButtonIcon} />
