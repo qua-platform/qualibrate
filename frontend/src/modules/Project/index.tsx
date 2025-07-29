@@ -16,6 +16,7 @@ import PageName from "../../common/ui-components/common/Page/PageName";
 import PageSection from "../../common/ui-components/common/Page/PageSection";
 import InputField from "../../common/ui-components/common/Input/InputField";
 import { heading } from "./constants";
+import Divider from "../../ui-lib/components/Bar/Divider";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
@@ -54,7 +55,7 @@ const Project = () => {
               onChange={(f) => setListedProjects(allProjects.filter((p) => p.name.startsWith(f)))}
               icon={<SearchIcon height={18} width={18} />}
             />
-            <div className={styles.projectSearchBarDivider} />
+            <Divider width={910} />
             {listedProjects && (
               <ProjectList projects={listedProjects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} />
             )}

@@ -5,6 +5,7 @@ import Project from "./Project";
 import styles from "./Project.module.scss";
 import React from "react";
 import { ProjectDTO } from "../ProjectDTO";
+import Divider from "../../../ui-lib/components/Bar/Divider";
 
 interface Props {
   projects: ProjectDTO[];
@@ -31,7 +32,7 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
             name={project.name}
             onClick={() => setSelectedProject(project)}
           />
-          {index < projects.length - 1 && <div className={styles.projectDivider} />}
+          <Divider width={855} marginLeft={55} />
         </React.Fragment>
       ))}
     </div>
