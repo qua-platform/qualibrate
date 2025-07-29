@@ -54,6 +54,7 @@ const Project = () => {
               onChange={(f) => setListedProjects(allProjects.filter((p) => p.name.startsWith(f)))}
               icon={<SearchIcon height={18} width={18} />}
             />
+            <div className={styles.projectSearchBarDivider} />
             {listedProjects && (
               <ProjectList projects={listedProjects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} />
             )}

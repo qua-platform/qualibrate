@@ -23,14 +23,16 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
 
   return (
     <div className={styles.splash}>
-      {projects?.map((project: ProjectDTO, index: number) => (
-        <Project
-          key={index}
-          isActive={selectedProject?.name === project.name}
-          projectId={index}
-          name={project.name}
-          onClick={() => setSelectedProject(project)}
-        />
+      {projects.map((project, index) => (
+        <React.Fragment key={index}>
+          <Project
+            isActive={selectedProject?.name === project.name}
+            projectId={index}
+            name={project.name}
+            onClick={() => setSelectedProject(project)}
+          />
+          {index < projects.length - 1 && <div className={styles.projectDivider} />}
+        </React.Fragment>
       ))}
     </div>
   );
