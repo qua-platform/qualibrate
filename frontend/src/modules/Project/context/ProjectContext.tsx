@@ -17,36 +17,40 @@ const ProjectContext = React.createContext<IProjectContext>({
 
 export const useProjectContext = (): IProjectContext => useContext<IProjectContext>(ProjectContext);
 
-interface ProjectContextProviderProps {
-  children: React.ReactNode;
-}
-
-export function ProjectContextProvider(props: ProjectContextProviderProps): React.ReactNode {
+export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [activeProject, setActiveProject] = useState<ProjectDTO | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
 
-  const fetchAllProjects = useCallback(async () => {
-    const { isOk, error, result } = await ProjectViewApi.fetchAllProjects();
-    if (isOk) {
-      setAllProjects(result!);
-    } else if (error) {
-      console.log(error);
-    }
-  }, []);
+  const fetchProjectsAndActive = useCallback(async () => {
+    const [projectsRes, activeNameRes] = await Promise.all([
+      ProjectViewApi.fetchAllProjects(),
+      ProjectViewApi.fetchActiveProject(),
+    ]);
 
-  const fetchActiveProject = useCallback(async () => {
-    const { isOk, error, result } = await ProjectViewApi.fetchActiveProject();
-    if (isOk) {
-      setActiveProject(result!);
-    } else if (error) {
-      console.log(error);
+    if (projectsRes.isOk && projectsRes.result && activeNameRes.isOk && activeNameRes.result) {
+      const all = projectsRes.result as ProjectDTO[];
+      const activeName = activeNameRes.result;
+      const active = activeName ? all.find((p) => p.name === activeName) : undefined;
+
+      setAllProjects(all);
+      setActiveProject(active ?? all[0]);
+      return;
     }
+
+    // fallback in case of failure or empty results
+    const fallback: ProjectDTO = {
+      name: "My Project",
+      created_at: new Date().toISOString(),
+      last_modified_at: new Date().toISOString(),
+      nodes_number: 1,
+    };
+    setAllProjects([fallback]);
+    setActiveProject(fallback);
   }, []);
 
   useEffect(() => {
-    fetchActiveProject();
-    fetchAllProjects();
-  }, []);
+    fetchProjectsAndActive();
+  }, [fetchProjectsAndActive]);
 
   const selectActiveProject = useCallback((project: ProjectDTO) => {
     setActiveProject(project);
@@ -54,16 +58,10 @@ export function ProjectContextProvider(props: ProjectContextProviderProps): Reac
   }, []);
 
   return (
-    <ProjectContext.Provider
-      value={{
-        allProjects,
-        activeProject,
-        selectActiveProject,
-      }}
-    >
-      {props.children}
+    <ProjectContext.Provider value={{ allProjects, activeProject, selectActiveProject }}>
+      {children}
     </ProjectContext.Provider>
   );
-}
+};
 
 export default ProjectContext;

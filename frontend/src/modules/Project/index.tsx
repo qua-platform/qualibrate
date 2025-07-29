@@ -7,7 +7,7 @@ import { IconType } from "../../common/interfaces/InputProps";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
 import React, { useEffect, useState } from "react";
 import ProjectList from "./components/ProjectList";
-import { ProjectContextProvider, useProjectContext } from "./context/ProjectContext";
+import { useProjectContext } from "./context/ProjectContext";
 import cyKeys from "../../utils/cyKeys";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import LoaderPage from "../../ui-lib/loader/LoaderPage";
@@ -15,6 +15,7 @@ import { ProjectDTO } from "./ProjectDTO";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import PageSection from "../../common/ui-components/common/Page/PageSection";
 import InputField from "../../common/ui-components/common/Input/InputField";
+import { heading } from "./constants";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
@@ -27,7 +28,12 @@ const Project = () => {
   }, [allProjects, setListedProjects]);
 
   const handleSubmit = () => {
-    selectActiveProject(selectedProject!);
+    const fallbackProject = allProjects.length > 0 ? allProjects[0] : undefined;
+    const projectToSelect = selectedProject || fallbackProject;
+
+    if (!projectToSelect) return;
+
+    selectActiveProject(projectToSelect);
     openTab("data");
   };
 
@@ -35,12 +41,10 @@ const Project = () => {
     return <LoaderPage />;
   }
 
-  const heading: string = activeProject ? `Currently active project is ${activeProject}` : "Welcome to QUAlibrate";
-
   return (
     <>
       <div className={styles.projectPageLayout}>
-        <PageName>{heading}</PageName>
+        {!activeProject?.name && <PageName>{heading}</PageName>}
         <div className={styles.pageWrapper}>
           <PageSection sectionName="Please select a Project">
             <InputField
@@ -79,7 +83,5 @@ const Project = () => {
 };
 
 export default () => (
-  <ProjectContextProvider>
     <Project />
-  </ProjectContextProvider>
 );
