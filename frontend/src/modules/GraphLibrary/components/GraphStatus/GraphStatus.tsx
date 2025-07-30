@@ -50,6 +50,7 @@ const GraphStatus = () => {
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
             <MeasurementElementGraph
+              key={`${lastRunInfo?.workflowName}-${workflowGraphElements.length}`}
               workflowGraphElements={workflowGraphElements}
               onCytoscapeNodeClick={handleOnCytoscapeNodeClick}
               lastRunInfo={lastRunInfo}
