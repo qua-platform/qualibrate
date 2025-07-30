@@ -22,30 +22,27 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
 
   const fetchProjectsAndActive = useCallback(async () => {
-    const [projectsRes, activeNameRes] = await Promise.all([
-      ProjectViewApi.fetchAllProjects(),
-      ProjectViewApi.fetchActiveProject(),
-    ]);
-
-    if (projectsRes.isOk && projectsRes.result && activeNameRes.isOk && activeNameRes.result) {
-      const all = projectsRes.result as ProjectDTO[];
-      const activeName = activeNameRes.result;
-      const active = activeName ? all.find((p) => p.name === activeName) : undefined;
-
-      setAllProjects(all);
-      setActiveProject(active ?? all[0]);
-      return;
+    try {
+      const [projectsRes, activeNameRes] = await Promise.all([
+        ProjectViewApi.fetchAllProjects(),
+        ProjectViewApi.fetchActiveProject(),
+      ]);
+  
+      if (projectsRes.isOk && projectsRes.result) {
+        const all = projectsRes.result as ProjectDTO[];
+        setAllProjects(all);
+        let active: ProjectDTO | undefined = undefined;
+        if (activeNameRes.isOk && activeNameRes.result) {
+          active = all.find(p => p.name === activeNameRes.result);
+        }
+        // if active not found, fall back to first in list (if exists)
+        if (all.length > 0) {
+          setActiveProject(active ?? all[0]);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching projects or active project:", error);
     }
-
-    // fallback in case of failure or empty results
-    const fallback: ProjectDTO = {
-      name: "My Project",
-      created_at: new Date().toISOString(),
-      last_modified_at: new Date().toISOString(),
-      nodes_number: 1,
-    };
-    setAllProjects([fallback]);
-    setActiveProject(fallback);
   }, []);
 
   useEffect(() => {

@@ -10,7 +10,6 @@ import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeCon
 import { createRoot } from "react-dom/client";
 import { AuthContextProvider } from "./modules/Login/context/AuthContext";
 import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsContext";
-import { ProjectContextProvider } from "./modules/Project/context/ProjectContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 
 type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
@@ -24,7 +23,6 @@ const contextProviders: ProviderComponent[] = [
   WebSocketProvider,
   RouterProvider,
   SnapshotsContextProvider,
-  ProjectContextProvider,
 ];
 
 const Application: React.FunctionComponent = () => {
