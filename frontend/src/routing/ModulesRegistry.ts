@@ -63,8 +63,8 @@ export const ModulesRegistry: Array<Module> = [
     path: "projects",
     Component: Project,
     menuItem: {
-      sideBarTitle: "Project",
-      title: "Project",
+      sideBarTitle: "Projects",
+      title: "Projects",
       // icon: ProjectIcon,
       icon: ProjectIcon,
       dataCy: cyKeys.PROJECT_TAB,
