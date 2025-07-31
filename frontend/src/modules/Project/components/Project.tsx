@@ -16,9 +16,10 @@ interface Props {
   onClick?: (name: string) => void;
   projectId?: number;
   name?: string;
+  lastModifiedAt?: string;
 }
 
-const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: Props) => {
+const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt }: Props) => {
   const handleOnClick = createClickHandler(onClick, name);
   const index = getColorIndex(name || "");
   const projectColor = colorPalette[index];
@@ -29,7 +30,7 @@ const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: 
       onClick={handleOnClick}
       data-cy={cyKeys.projects.PROJECT}
     >
-      <ProjectInfo name={name} colorIcon={projectColor}/>
+      <ProjectInfo name={name} colorIcon={projectColor} date={lastModifiedAt ? new Date(lastModifiedAt) : undefined} />
       <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
     </button>
   );

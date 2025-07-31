@@ -4,6 +4,7 @@ import React from "react";
 import styles from "./Project.module.scss";
 import ProjectFolderIcon from "../../../ui-lib/Icons/ProjectFolderIcon";
 import { extractInitials } from "../helpers";
+import { formatDate } from "../../TopbarMenu/helpers";
 
 interface Props {
   date?: Date;
@@ -19,7 +20,7 @@ const ProjectInfo = ({ name, date, colorIcon }: Props) => {
       </div>
       <div className={styles.projectDetails}>
         <div className={styles.projectName}>{name || ""}</div>
-        {PROJECT_LAST_UPDATES_VISIBLE && <div className={styles.projectDate}>Last updates {date?.toLocaleDateString() || "unknown"}</div>}
+        {PROJECT_LAST_UPDATES_VISIBLE && date && (<div className={styles.projectDate}>Last updated: {formatDate(date)}</div>)}
       </div>
     </div>
   );

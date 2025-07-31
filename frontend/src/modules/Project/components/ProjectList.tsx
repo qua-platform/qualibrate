@@ -31,6 +31,7 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
             projectId={index}
             name={project.name}
             onClick={() => setSelectedProject(project)}
+            lastModifiedAt={project.last_modified_at}
           />
           <Divider width={855} marginLeft={55} />
         </React.Fragment>
