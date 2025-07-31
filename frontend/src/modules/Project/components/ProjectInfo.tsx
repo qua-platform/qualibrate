@@ -14,7 +14,7 @@ const ProjectInfo = ({ name, date }: Props) => {
   return (
     <div className={styles.projectInfo}>
       <div className={styles.projectThumbnail}>
-        <ProjectFolderIcon initials={extractInitials(name)} fillColor={"#5175BD"} width={36} height={36} fontSize={14} />
+        <ProjectFolderIcon initials={extractInitials(name)} />
       </div>
       <div className={styles.projectDetails}>
         <div className={styles.projectName}>{name || ""}</div>
