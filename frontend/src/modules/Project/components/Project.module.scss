@@ -1,20 +1,40 @@
 .projectActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 24px;
+  transition: opacity 0.2s ease;
   opacity: 0;
 }
 
-.project_active {
-  background-color: var(--selection-color);
+.checkWrapper {
+  width: 19px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+
+.projectChecked {
+  .checkWrapper {
+    opacity: 1;
+  }
 
   .projectActions {
     opacity: 1;
   }
 }
 
+.projectActive {
+  background-color: var(--selection-color);
+}
+
 .project {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
+  width: 910px;
   font-size: 16px;
   height: 70px;
   padding-right: 16px;
@@ -37,7 +57,6 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  row-gap: 8px;
   row-gap: 2px;
   align-items: flex-start;
 }
