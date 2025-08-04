@@ -1,8 +1,8 @@
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
@@ -45,12 +45,21 @@ def get_projects_list(
 
 @project_router.post("/create")
 def create_project(
-    project_name: str,
+    project_name: Annotated[str, Query()],
+    storage_location: Annotated[Optional[Path], Body()] = None,
+    calibration_library_folder: Annotated[Optional[Path], Body()] = None,
+    quam_state_path: Annotated[Optional[Path], Body()] = None,
+    *,
     projects_manager: Annotated[
         ProjectsManagerBase, Depends(_get_projects_manager)
     ],
 ) -> str:
-    return projects_manager.create(project_name)
+    return projects_manager.create(
+        project_name,
+        storage_location=storage_location,
+        calibration_library_folder=calibration_library_folder,
+        quam_state_path=quam_state_path,
+    )
 
 
 @project_router.get("/active")

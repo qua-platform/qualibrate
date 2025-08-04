@@ -27,17 +27,6 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
             )
         super()._set_user_storage_project(project_name)
 
-    def create(self, project_name: str) -> str:
-        new_project_path = self._resolve_new_project_path(
-            project_name,
-            self._settings.project,
-            self._settings.storage.location,
-        )
-        if new_project_path.is_dir():
-            raise QValueException(f"Project {project_name} already exists.")
-        new_project_path.mkdir(parents=True)
-        return project_name
-
     def _get_project_info(self, project_path: Path) -> Project:
         project_created_at = datetime.fromtimestamp(
             project_path.stat().st_mtime
