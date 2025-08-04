@@ -28,7 +28,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
             raise QJsonDbException(
                 f"Can't check if project {value} exists in timeline DB."
             )
-        self._set_user_storage_project(value)
+        self._settings.project = value
 
     def create(
         self,

@@ -1,7 +1,9 @@
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Annotated, Optional
+from urllib.parse import urljoin
 
+import requests
 from fastapi import APIRouter, Body, Depends, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
 
@@ -79,4 +81,9 @@ def set_active_project(
     ],
 ) -> str:
     projects_manager.project = active_project
+    settings = get_settings(get_config_path())
+    if settings.runner:
+        requests.post(
+            urljoin(settings.runner.address_with_root, "refresh_settings")
+        )
     return active_project
