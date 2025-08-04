@@ -6,7 +6,7 @@ from qualibrate_config.models import QualibrateConfig
 
 from qualibrate_runner.api.dependencies import get_state
 from qualibrate_runner.config import State
-from qualibrate_runner.config.resolvers import get_settings
+from qualibrate_runner.config.resolvers import get_cl_settings, get_settings
 from qualibrate_runner.core.models.enums import RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
 from qualibrate_runner.core.models.runner_meta import RunnerMeta
@@ -109,3 +109,9 @@ def state_updated(
         )
     state_updates[key].updated = True
     return state.last_run
+
+
+@others_router.post("/refresh_settings")
+def refresh_settings() -> None:
+    get_settings.cache_clear()
+    get_cl_settings.cache_clear()
