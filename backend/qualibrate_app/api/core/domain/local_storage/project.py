@@ -2,6 +2,8 @@ from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
 
+from qualibrate_config.core.project.p_list import verbose_list_projects
+
 from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.api.core.utils.path.node import NodePath
@@ -85,11 +87,7 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
         )
 
     def list(self) -> Sequence[Project]:
-        base_path = self._resolve_base_projects_path(
-            self._settings.project,
-            self._settings.storage.location,
-        )
         return [
-            self._get_project_info(p)
-            for p in filter(Path.is_dir, base_path.iterdir())
+            Project(**p.model_dump())
+            for p in verbose_list_projects(self._config_path).values()
         ]
