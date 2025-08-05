@@ -110,7 +110,7 @@ def spawn_qua_dashboards(app: FastAPI) -> None:
             "is not started"
         )
         return
-    path_prefix = "/dashboards"
+    path_prefix = app.root_path + "/dashboards"
     logging.getLogger("uvicorn.access").addFilter(
         EndpointFilter(excluded_endpoints_starts=(path_prefix,))
     )

@@ -12,7 +12,9 @@ from qualibrate_config.resolvers import (
 )
 
 from qualibrate_composite.config.vars import (
-    CONFIG_PATH_ENV_NAME, CORS_ORIGINS_ENV_NAME,
+    CONFIG_PATH_ENV_NAME,
+    CORS_ORIGINS_ENV_NAME,
+    ROOT_PATH_ENV_NAME,
 )
 
 __all__ = ["get_config_path", "get_settings"]
@@ -37,6 +39,11 @@ def get_cors_origin() -> list[str]:
             ["localhost", "127.0.0.1"], [1234, 8000, 8001]
         )
     )
+
+
+@lru_cache
+def get_root_path() -> str:
+    return os.environ.get(ROOT_PATH_ENV_NAME, "")
 
 
 @lru_cache

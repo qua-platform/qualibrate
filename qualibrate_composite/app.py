@@ -4,7 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from qualibrate_composite.api.routes import base_router
 from qualibrate_composite.config import get_config_path, get_settings
-from qualibrate_composite.config.resolvers import get_cors_origin
+from qualibrate_composite.config.resolvers import get_cors_origin, get_root_path
 from qualibrate_composite.utils.spawn import (
     app_lifespan,
     spawn_qua_dashboards,
@@ -19,7 +19,9 @@ except ImportError:
     json_timeline_db_app = None
 
 
-app = FastAPI(title="Qualibrate", lifespan=app_lifespan)
+app = FastAPI(
+    title="Qualibrate", lifespan=app_lifespan, root_path=get_root_path()
+)
 _settings = get_settings(get_config_path())
 cors_origins = get_cors_origin()
 
@@ -47,9 +49,13 @@ if composite.runner.spawn and composite.app.spawn:
     validate_runner_version_for_app()
 
 
-def main(port: int, host: str, reload: bool) -> None:
+def main(port: int, host: str, reload: bool, root_path: str = "") -> None:
     uvicorn.run(
-        "qualibrate_composite.app:app", port=port, host=host, reload=reload
+        "qualibrate_composite.app:app",
+        port=port,
+        host=host,
+        reload=reload,
+        root_path=root_path,
     )
 
 

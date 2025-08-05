@@ -1,12 +1,14 @@
 import os
 from pathlib import Path
-from typing import Optional
 
 import click
 from qualibrate_config.vars import DEFAULT_CONFIG_FILENAME, QUALIBRATE_PATH
 
 from qualibrate_composite.config import CONFIG_PATH_ENV_NAME
-from qualibrate_composite.config.vars import CORS_ORIGINS_ENV_NAME
+from qualibrate_composite.config.vars import (
+    CORS_ORIGINS_ENV_NAME,
+    ROOT_PATH_ENV_NAME,
+)
 
 try:
     from qualibrate_app.config import (
@@ -58,15 +60,23 @@ except ImportError:
     multiple=True,
     help="CORS origin to use. Can be passed multiple times.",
 )
+@click.option(
+    "--root-path",
+    type=str,
+    default="",
+    help="Root path",
+)
 def start_command(
     config_path: Path,
     port: int,
     host: str,
     reload: bool,
     cors_origin: list[str],
+    root_path: str,
 ) -> None:
     config_path_str = str(config_path)
     os.environ[CONFIG_PATH_ENV_NAME] = config_path_str
+    os.environ[ROOT_PATH_ENV_NAME] = root_path
     if len(cors_origin) != 0:
         os.environ[CORS_ORIGINS_ENV_NAME] = ",".join(cors_origin)
     if QAPP_CONFIG_PATH_ENV_NAME is not None:
@@ -76,4 +86,4 @@ def start_command(
 
     from qualibrate_composite.app import main as app_main
 
-    app_main(port=port, host=host, reload=reload)
+    app_main(port=port, host=host, reload=reload, root_path=root_path)
