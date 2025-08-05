@@ -64,7 +64,9 @@ except ImportError:
     "--root-path",
     type=str,
     default="",
-    help="Root path",
+    help=(
+        "Optional root path for the application if run as a sub-application."
+    ),
 )
 def start_command(
     config_path: Path,
