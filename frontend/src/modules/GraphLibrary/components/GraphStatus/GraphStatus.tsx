@@ -6,7 +6,7 @@ import { Results } from "../../../Nodes/components/Results/Results";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
 import { SelectionContextProvider, useSelectionContext } from "../../../common/context/SelectionContext";
-import { GraphContextProvider, useGraphContext } from "../../context/GraphContext";
+import { useGraphContext } from "../../context/GraphContext";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 const GraphStatus = () => {
@@ -74,11 +74,9 @@ const GraphStatus = () => {
 };
 
 export default () => (
-  <GraphContextProvider>
-    <GraphStatusContextProvider>
-      <SelectionContextProvider>
-        <GraphStatus />
-      </SelectionContextProvider>
-    </GraphStatusContextProvider>
-  </GraphContextProvider>
+  <GraphStatusContextProvider>
+    <SelectionContextProvider>
+      <GraphStatus />
+    </SelectionContextProvider>
+  </GraphStatusContextProvider>
 );
