@@ -1,3 +1,4 @@
+import asyncio
 from functools import cache
 from typing import Annotated, cast
 
@@ -7,6 +8,8 @@ from qualibrate_config.models import CalibrationLibraryConfig
 
 from qualibrate_runner.config import State, get_cl_settings
 from qualibrate_runner.core.types import QGraphType, QLibraryType, QNodeType
+
+library_rescan_lock = asyncio.Lock()
 
 
 @cache
@@ -21,12 +24,13 @@ def get_cached_library(
     return cast(QLibraryType, config.resolver(config.folder))
 
 
-def get_library(
+async def get_library(
     library: Annotated[QLibraryType, Depends(get_cached_library)],
     rescan: bool = False,
 ) -> QLibraryType:
-    if rescan:
-        library.rescan()
+    async with library_rescan_lock:
+        if rescan:
+            library.rescan()
     return library
 
 
