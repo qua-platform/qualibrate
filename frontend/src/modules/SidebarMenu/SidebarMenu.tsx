@@ -16,7 +16,7 @@ import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const [minify, setMinify] = useState(true);
-  const { selectedMenuItem, setSelectedMenuItem } = useFlexLayoutContext();
+  const { activeTabsetName, setActiveTabsetName } = useFlexLayoutContext();
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
 
   useEffect(() => {
@@ -41,8 +41,8 @@ const SidebarMenu: React.FunctionComponent = () => {
                 {...item}
                 key={item.keyId}
                 hideText={minify}
-                onClick={() => setSelectedMenuItem(item.keyId)}
-                isSelected={selectedMenuItem === item.keyId}
+                onClick={() => setActiveTabsetName(item.keyId)}
+                isSelected={activeTabsetName === item.keyId}
                 data-testid={`menu-item-${item.keyId}`}
               />
             ))}

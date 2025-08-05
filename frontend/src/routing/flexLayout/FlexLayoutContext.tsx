@@ -13,13 +13,12 @@ interface IFlexLayoutContext {
   model: Model;
   activeTab: null | ModuleKey;
   activeTabsetName: string | null;
+  setActiveTabsetName: (a: string | null) => void;
   activeTabsetId: null | number;
   topBarAdditionalComponents?: { [id: string]: React.JSX.Element };
   setTopBarAdditionalComponents: (a: { [id: string]: React.JSX.Element } | undefined) => void;
   selectedPageName: ModuleKey | null;
   setSelectedPageName: (a: ModuleKey | null) => void;
-  selectedMenuItem: ModuleKey | null;
-  setSelectedMenuItem: (a: ModuleKey | null) => void;
 }
 
 const FlexLayoutContext = React.createContext<IFlexLayoutContext | null>(null);
@@ -40,7 +39,6 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
     | undefined
   >(undefined);
   const [selectedPageName, setSelectedPageName] = useState<ModuleKey | null>(null);
-  const [selectedMenuItem, setSelectedMenuItem] = useState<ModuleKey | null>(null);
 
   useEffect(() => {
     // openTab("nodes");
@@ -74,7 +72,6 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
     setModel(LayoutBuilder.current.model);
     setActiveTab(tab);
     setActiveTabsetName(activeTab as string);
-    setSelectedMenuItem(tab);
   }, []);
 
   const [activeTabsetId, setActiveTabsetId] = useState(null);
@@ -106,14 +103,13 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
         checkIsEmpty,
         activeTab,
         activeTabsetName,
+        setActiveTabsetName,
         flexLayoutListener,
         activeTabsetId,
         topBarAdditionalComponents,
         setTopBarAdditionalComponents,
         selectedPageName,
         setSelectedPageName,
-        selectedMenuItem,
-        setSelectedMenuItem,
       }}
     >
       {children}
