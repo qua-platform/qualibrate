@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import ProjectInfo from "./ProjectInfo";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
@@ -20,7 +20,7 @@ interface Props {
 
 const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: Props) => {
   const handleOnClick = createClickHandler(onClick, name);
-  const index = getColorIndex(name);
+  const index = useMemo(() => getColorIndex(name), [name]);
   const projectColor = colorPalette[index];
 
   return (
