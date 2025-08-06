@@ -20,7 +20,7 @@ from requests import JSONDecodeError as RequestsJSONDecodeError
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
-    SnapshotLoadType,
+    SnapshotLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.local_storage._id_to_local_path import (
     IdToLocalPath,
@@ -83,7 +83,7 @@ class SnapshotLocalStorage(SnapshotBase):
         id: IdType,
         content: Optional[DocumentType] = None,
         snapshot_loader: snapshot_content_utils.SnapshotContentLoaderType = (
-            snapshot_content_utils.default_snapshot_content_loader
+            snapshot_content_utils.default_snapshot_content_loader_from_flag
         ),
         snapshot_updater: snapshot_content_utils.SnapshotContentUpdaterType = (
             snapshot_content_utils.default_snapshot_content_updater
@@ -113,20 +113,23 @@ class SnapshotLocalStorage(SnapshotBase):
             )
         return self._node_path
 
-    def load(self, load_type: SnapshotLoadType) -> None:
+    def load_from_flag(self, load_type_flag: SnapshotLoadTypeFlag) -> None:
         """
-        Loads snapshot content based on the specified load type.
+        Loads snapshot content based on the specified load type flag.
 
         Args:
-            load_type: The type of content to load.
+            load_type_flag: The fields of content to load.
         """
-        if load_type <= self._load_type:
-            return None
-        content = self._snapshot_loader(
-            self.node_path, load_type, self._settings
+        if self.load_type_flag.is_set(load_type_flag):
+            return
+        self._snapshot_loader(
+            self.node_path,
+            load_type_flag,
+            self._settings,
+            False,
+            self.content,
         )
-        self.content.update(content)
-        self._load_type = load_type
+        self._load_type_flag |= load_type_flag
 
     @property
     def created_at(self) -> Optional[datetime]:
@@ -162,7 +165,7 @@ class SnapshotLocalStorage(SnapshotBase):
             The found value or None if not found.
         """
         if load:
-            self.load(SnapshotLoadType.Data)
+            self.load_from_flag(SnapshotLoadTypeFlag.DataWithMachine)
         if self.data is None or "quam" not in self.data:
             return None
         # TODO: update logic; not use quam directly
@@ -184,7 +187,7 @@ class SnapshotLocalStorage(SnapshotBase):
         """
         storage_location = self._settings.storage.location
         total = find_latest_node_id(storage_location)
-        self.load(SnapshotLoadType.Metadata)
+        self.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         if page == 1 and per_page == 1:
             return total, [self]
         ids = find_n_latest_nodes_ids(
@@ -199,7 +202,7 @@ class SnapshotLocalStorage(SnapshotBase):
         ]
         for snapshot in snapshots:
             with contextlib.suppress(OSError):
-                snapshot.load(SnapshotLoadType.Metadata)
+                snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         return total, [self, *snapshots]
 
     def compare_by_id(
@@ -220,7 +223,7 @@ class SnapshotLocalStorage(SnapshotBase):
         """
         if self.id == other_snapshot_id:
             raise QValueException("Can't compare snapshots with same id")
-        self.load(SnapshotLoadType.Data)
+        self.load_from_flag(SnapshotLoadTypeFlag.DataWithMachine)
         # TODO: update logic; not use quam directly
         this_data = (self.data or {}).get("quam")
         if this_data is None:
@@ -228,7 +231,7 @@ class SnapshotLocalStorage(SnapshotBase):
         other_snapshot = SnapshotLocalStorage(
             other_snapshot_id, settings=self._settings
         )
-        other_snapshot.load(SnapshotLoadType.Data)
+        other_snapshot.load_from_flag(SnapshotLoadTypeFlag.DataWithMachine)
         # TODO: update logic; not use quam directly
         other_data = (other_snapshot.data or {}).get("quam")
         if other_data is None:
@@ -488,8 +491,10 @@ class SnapshotLocalStorage(SnapshotBase):
         Raises:
             QPathException: If an unknown path is encountered during the update.
         """
-        if self.load_type < SnapshotLoadType.Data:
-            self.load(SnapshotLoadType.Data)
+        if not self.load_type_flag.is_set(SnapshotLoadTypeFlag.DataWithMachine):
+            self.load_from_flag(
+                self.load_type_flag | SnapshotLoadTypeFlag.DataWithMachine
+            )
         data = self.data
         if data is None or not isinstance(data.get("quam"), Mapping):
             return False

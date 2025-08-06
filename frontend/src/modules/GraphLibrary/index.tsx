@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphLibrary.module.scss";
-import { GraphContextProvider, useGraphContext } from "./context/GraphContext";
+import { useGraphContext } from "./context/GraphContext";
 import { GraphList } from "./components/GraphList";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
@@ -11,14 +11,18 @@ export const GraphLibrary = () => {
   const { fetchAllCalibrationGraphs } = useGraphContext();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
   const GraphLibraryTopBarRefreshButton = () => {
+    const onClickHandler = useCallback(() => fetchAllCalibrationGraphs(true), [fetchAllCalibrationGraphs]);
     return (
       <div className={styles.buttonWrapper}>
-        <BlueButton onClick={() => fetchAllCalibrationGraphs(true)}>Refresh</BlueButton>
+        <BlueButton onClick={onClickHandler}>Refresh</BlueButton>
       </div>
     );
   };
   useEffect(() => {
-    setTopBarAdditionalComponents({ ...topBarAdditionalComponents, "graph-library": <GraphLibraryTopBarRefreshButton /> });
+    setTopBarAdditionalComponents({
+      ...topBarAdditionalComponents,
+      "graph-library": <GraphLibraryTopBarRefreshButton />,
+    });
   }, []);
   return (
     <div className={styles.wrapper}>
@@ -30,9 +34,7 @@ export const GraphLibrary = () => {
 };
 
 export default () => (
-  <GraphContextProvider>
-    <SelectionContextProvider>
-      <GraphLibrary />
-    </SelectionContextProvider>
-  </GraphContextProvider>
+  <SelectionContextProvider>
+    <GraphLibrary />
+  </SelectionContextProvider>
 );

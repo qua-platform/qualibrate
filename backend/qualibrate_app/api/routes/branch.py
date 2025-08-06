@@ -8,7 +8,9 @@ from qualibrate_app.api.core.domain.bases.branch import (
     BranchLoadType,
 )
 from qualibrate_app.api.core.domain.bases.node import NodeLoadType
-from qualibrate_app.api.core.domain.bases.snapshot import SnapshotLoadType
+from qualibrate_app.api.core.domain.bases.snapshot import (
+    SnapshotLoadTypeFlag,
+)
 from qualibrate_app.api.core.domain.local_storage.branch import (
     BranchLocalStorage,
 )
@@ -21,6 +23,9 @@ from qualibrate_app.api.core.models.snapshot import (
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import IdType
+from qualibrate_app.api.routes.utils.dependencies import (
+    get_snapshot_load_type_flag,
+)
 from qualibrate_app.config import get_settings
 
 branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
@@ -51,26 +56,30 @@ def get(
 def get_snapshot(
     *,
     snapshot_id: IdType,
-    load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
+    load_type_flag: Annotated[
+        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
+    ],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> SnapshotModel:
     snapshot = branch.get_snapshot(snapshot_id)
-    snapshot.load(load_type)
+    snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 
 
 @branch_router.get("/snapshot/latest")
 def get_latest_snapshot(
     *,
-    load_type: SnapshotLoadType = SnapshotLoadType.Metadata,
+    load_type_flag: Annotated[
+        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
+    ],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> SnapshotModel:
     snapshot = branch.get_snapshot()
-    snapshot.load(load_type)
+    snapshot.load_from_flag(load_type_flag)
     return snapshot.dump()
 
 
-@branch_router.get("/node")
+@branch_router.get("/node", deprecated=True)
 def get_node(
     *,
     node_id: int,
@@ -82,7 +91,7 @@ def get_node(
     return node.dump()
 
 
-@branch_router.get("/node/latest")
+@branch_router.get("/node/latest", deprecated=True)
 def get_latest_node(
     *,
     load_type: NodeLoadType = NodeLoadType.Full,
@@ -120,7 +129,7 @@ def get_snapshots_history(
     )
 
 
-@branch_router.get("/nodes_history")
+@branch_router.get("/nodes_history", deprecated=True)
 def get_nodes_history(
     *,
     page: int = Query(1, gt=0),

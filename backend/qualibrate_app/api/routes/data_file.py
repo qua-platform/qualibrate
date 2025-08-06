@@ -7,6 +7,7 @@ from qualibrate_app.api.core.domain.bases.node import NodeLoadType
 from qualibrate_app.api.core.domain.bases.storage import (
     DataFileStorage,
     StorageLoadType,
+    StorageLoadTypeToLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.local_storage.node import NodeLocalStorage
 from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
@@ -16,7 +17,9 @@ from qualibrate_app.config import (
     get_settings,
 )
 
-data_file_router = APIRouter(prefix="/data_file/{node_id}", tags=["data file"])
+data_file_router = APIRouter(
+    prefix="/data_file/{node_id}", tags=["data file"], deprecated=True
+)
 
 
 def _get_storage_instance(
@@ -52,5 +55,5 @@ def get_node_storage_content(
     load_type: StorageLoadType = StorageLoadType.Full,
     storage: Annotated[DataFileStorage, Depends(_get_storage_instance)],
 ) -> Optional[DocumentType]:
-    storage.load(load_type)
+    storage.load_from_flag(StorageLoadTypeToLoadTypeFlag[load_type])
     return storage.data

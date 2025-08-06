@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
+import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
 import noop from "../../../common/helpers";
 import { GraphWorkflow } from "../components/GraphList";
 import { GraphLibraryApi } from "../api/GraphLibraryApi";
@@ -8,10 +8,6 @@ import { NodesApi } from "../../Nodes/api/NodesAPI";
 import { StatusResponseType } from "../../Nodes/context/NodesContext";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 import { useWebSocketData } from "../../../contexts/WebSocketContext";
-
-interface GraphProviderProps {
-  children: React.JSX.Element;
-}
 
 export interface LastRunInfo {
   workflowName?: string;
@@ -71,7 +67,7 @@ const GraphContext = React.createContext<IGraphContext>({
 
 export const useGraphContext = () => useContext<IGraphContext>(GraphContext);
 
-export const GraphContextProvider = (props: GraphProviderProps): React.ReactElement => {
+export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React.ReactElement => {
   const { runStatus } = useWebSocketData();
 
   const [allGraphs, setAllGraphs] = useState<GraphMap | undefined>(undefined);
@@ -192,22 +188,13 @@ export const GraphContextProvider = (props: GraphProviderProps): React.ReactElem
   }, []);
 
   useEffect(() => {
-    if (lastRunInfo?.workflowName) {
-      fetchWorkflowGraph(lastRunInfo?.workflowName);
-    }
-  }, [lastRunInfo]);
-
-  useEffect(() => {
     if (selectedWorkflowName) {
       fetchWorkflowGraph(selectedWorkflowName);
       setSelectedWorkflow(allGraphs?.[selectedWorkflowName]);
+    } else if (lastRunInfo?.workflowName) {
+      fetchWorkflowGraph(lastRunInfo?.workflowName);
     }
-  }, [selectedWorkflowName]);
-
-  // useEffect(() => {
-  //   const checkInterval = setInterval(async () => fetchLastRunWorkflowStatus(), 1500);
-  //   return () => clearInterval(checkInterval);
-  // }, []);
+  }, [lastRunInfo, selectedWorkflowName]);
 
   useEffect(() => {
     if (runStatus && runStatus.graph && runStatus.node) {
