@@ -23,7 +23,7 @@ const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: 
     }
 
     onClick(name);
-  }, [onClick, name]); // TODO Possible BUG
+  }, [onClick, name]);
 
   return (
     <button
