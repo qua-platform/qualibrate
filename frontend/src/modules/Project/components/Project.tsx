@@ -20,7 +20,7 @@ interface Props {
 
 const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: Props) => {
   const handleOnClick = createClickHandler(onClick, name);
-  const index = getColorIndex(name || "");
+  const index = getColorIndex(name);
   const projectColor = colorPalette[index];
 
   return (
