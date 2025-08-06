@@ -1,10 +1,10 @@
+import { useCallback } from "react";
 import ProjectInfo from "./ProjectInfo";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 import cyKeys from "../../../utils/cyKeys";
 import SelectField from "../../../common/ui-components/common/Input/SelectField";
-import { createClickHandler } from "../helpers";
 
 const SelectRuntime = <SelectField options={["Localhost"]} onChange={() => {}} />;
 
@@ -17,7 +17,13 @@ interface Props {
 }
 
 const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: Props) => {
-  const handleOnClick = createClickHandler(onClick, name);
+  const handleOnClick = useCallback(() => {
+    if (!onClick) {
+      return;
+    }
+
+    onClick(name);
+  }, [onClick, name]); // TODO Possible BUG
 
   return (
     <button
