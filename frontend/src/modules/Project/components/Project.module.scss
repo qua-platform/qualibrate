@@ -10,6 +10,22 @@
   }
 }
 
+.projectWrapper {
+  margin: 1px 0;
+
+  &::after {
+    content: "";
+    display: block;
+    height: 1px;
+    background-color: var(--border-color);
+    opacity: 1;
+    margin-left: 56px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    pointer-events: none;
+  }
+}
+
 .project {
   display: flex;
   align-items: center;
@@ -60,16 +76,6 @@
   width: 38px;
 }
 
-.projectDivider {
-  height: 1px;
-  width: 855px;
-  background-color: var(--border-color);
-  opacity: 1;
-  margin-left: 55px;
-  margin-top: 1px;
-  margin-bottom: 1px;
-}
-
 .projectThumbnailBackground {
   position: absolute;
   height: 100%;
@@ -81,4 +87,5 @@
 
 .splash {
   height: 100%;
+  border-top: 1px solid var(--border-color);
 }
