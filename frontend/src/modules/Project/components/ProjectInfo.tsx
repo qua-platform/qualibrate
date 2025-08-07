@@ -1,4 +1,3 @@
-import { PROJECT_LAST_UPDATES_VISIBLE } from "../../../dev.config";
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
@@ -20,7 +19,7 @@ const ProjectInfo = ({ name, date, colorIcon }: Props) => {
       </div>
       <div className={styles.projectDetails}>
         <div className={styles.projectName}>{name || ""}</div>
-        {PROJECT_LAST_UPDATES_VISIBLE && date && (<div className={styles.projectDate}>Last updated: {formatDate(date)}</div>)}
+        {date && (<div className={styles.projectDate}>Last updated: {formatDate(date)}</div>)}
       </div>
     </div>
   );

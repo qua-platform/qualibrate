@@ -19,7 +19,7 @@ interface Props {
   lastModifiedAt?: string;
 }
 
-const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt }: Props) => {
+const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt = "" }: Props) => {
   const handleOnClick = createClickHandler(onClick, name);
   const index = getColorIndex(name || "");
   const projectColor = colorPalette[index];
