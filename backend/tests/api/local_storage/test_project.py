@@ -1,5 +1,5 @@
-import sys
 import operator
+import sys
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -8,7 +8,7 @@ from qualibrate_config.core.project.path import get_project_path
 from qualibrate_config.models import QualibrateConfig
 from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
-from qualibrate_app.config import get_config_path, get_settings
+from qualibrate_app.config import get_config_path
 
 if sys.version_info < (3, 11):
     import tomli as tomllib
@@ -29,7 +29,7 @@ def test_project_list(
         "other_project",
         other_project_path / "storage",
         None,
-        None
+        None,
     )
     response = client_custom_settings.get("/api/projects/list")
     assert response.status_code == 200
@@ -92,13 +92,7 @@ def test_project_active_set_other(
     client_custom_settings: TestClient,
     settings: QualibrateConfig,
 ):
-    create_project(
-        settings_path,
-        "new_project",
-        None,
-        None,
-        None
-    )
+    create_project(settings_path, "new_project", None, None, None)
     new_project = "new_project"
     client_custom_settings.app.dependency_overrides[get_config_path] = (
         lambda: settings_path

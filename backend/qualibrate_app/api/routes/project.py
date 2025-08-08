@@ -88,9 +88,7 @@ def set_active_project(
             settings.runner.address_with_root, "refresh_settings"
         )
         try:
-            requests.post(
-                settings_update_url
-            )
+            requests.post(settings_update_url)
         except requests.exceptions.ConnectionError:
             logging.error(
                 "Failed to send refresh settings request to "
