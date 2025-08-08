@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Annotated, Optional
@@ -83,7 +84,16 @@ def set_active_project(
     projects_manager.project = active_project
     settings = get_settings(get_config_path())
     if settings.runner:
-        requests.post(
-            urljoin(settings.runner.address_with_root, "refresh_settings")
+        settings_update_url = urljoin(
+            settings.runner.address_with_root, "refresh_settings"
         )
+        try:
+            requests.post(
+                settings_update_url
+            )
+        except requests.exceptions.ConnectionError:
+            logging.error(
+                "Failed to send refresh settings request to "
+                f"{settings_update_url}"
+            )
     return active_project
