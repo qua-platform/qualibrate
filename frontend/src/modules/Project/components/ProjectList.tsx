@@ -5,7 +5,6 @@ import Project from "./Project";
 import styles from "./Project.module.scss";
 import React from "react";
 import { ProjectDTO } from "../ProjectDTO";
-import Divider from "../../../ui-lib/components/Bar/Divider";
 
 interface Props {
   projects: ProjectDTO[];
@@ -24,17 +23,15 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
 
   return (
     <div className={styles.splash}>
-      {projects.map((project, index) => (
-        <React.Fragment key={index}>
-          <Project
-            isActive={selectedProject?.name === project.name}
-            projectId={index}
-            name={project.name}
-            onClick={() => setSelectedProject(project)}
-            lastModifiedAt={project.last_modified_at}
-          />
-          <Divider width={855} marginLeft={55} />
-        </React.Fragment>
+      {projects?.map((project: ProjectDTO, index: number) => (
+        <Project
+          key={index}
+          isActive={selectedProject?.name === project.name}
+          projectId={index}
+          name={project.name}
+          onClick={() => setSelectedProject(project)}
+          lastModifiedAt={project.last_modified_at}
+        />
       ))}
     </div>
   );
