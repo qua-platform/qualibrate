@@ -19,20 +19,22 @@ interface Props {
   lastModifiedAt?: string;
 }
 
-const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt }: Props) => {
+const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt = "" }: Props) => {
   const handleOnClick = createClickHandler(onClick, name);
   const index = getColorIndex(name || "");
   const projectColor = colorPalette[index];
 
   return (
-    <button
-      className={classNames(styles.project, isActive && styles.project_active)}
-      onClick={handleOnClick}
-      data-cy={cyKeys.projects.PROJECT}
-    >
-      <ProjectInfo name={name} colorIcon={projectColor} date={lastModifiedAt ? new Date(lastModifiedAt) : undefined} />
-      <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
-    </button>
+    <div className={styles.projectWrapper}>
+      <button
+        className={classNames(styles.project, isActive && styles.project_active)}
+        onClick={handleOnClick}
+        data-cy={cyKeys.projects.PROJECT}
+      >
+        <ProjectInfo name={name} colorIcon={projectColor} date={lastModifiedAt ? new Date(lastModifiedAt) : undefined} />
+        <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
+      </button>
+    </div>
   );
 };
 
