@@ -19,9 +19,8 @@ import { heading } from "./constants";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
-  const { allProjects, activeProject, selectActiveProject } = useProjectContext();
+  const { allProjects, activeProject, selectedProject, selectActiveProject, setSelectedProject } = useProjectContext();
   const [listedProjects, setListedProjects] = useState<ProjectDTO[] | undefined>(allProjects);
-  const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
   useEffect(() => {
     setListedProjects(allProjects);
