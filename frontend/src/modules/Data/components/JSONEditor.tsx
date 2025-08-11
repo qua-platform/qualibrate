@@ -124,7 +124,6 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
   const currentURL = new URL(window.location.pathname, window.location.origin);
   const iframeURL = new URL("dashboards/data-dashboard", currentURL);
 
-
   return (
     <div
       style={{
@@ -164,7 +163,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
         </div>
         {toggleSwitch && (
           <div style={{ width: "100%", height: "100%", display: activeTab === "live" ? "block" : "none" }}>
-            {selectedPageName === pageName && <Iframe targetUrl={iframeURL} />}
+            {selectedPageName === pageName && <Iframe targetUrl={iframeURL.href} />}
           </div>
         )}
       </>
