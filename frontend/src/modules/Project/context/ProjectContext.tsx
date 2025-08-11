@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState, Dispatch, SetStateAction } from "react";
 import noop from "../../../common/helpers";
 import { ProjectViewApi } from "../api/ProjectViewAPI";
 import { ProjectDTO } from "../ProjectDTO";
@@ -6,13 +6,17 @@ import { ProjectDTO } from "../ProjectDTO";
 interface IProjectContext {
   allProjects: ProjectDTO[];
   activeProject: ProjectDTO | undefined;
+  selectedProject: ProjectDTO | undefined;
   selectActiveProject: (projectName: ProjectDTO) => void;
+  setSelectedProject: Dispatch<SetStateAction<ProjectDTO | undefined>>;
 }
 
 const ProjectContext = React.createContext<IProjectContext>({
   allProjects: [],
   selectActiveProject: noop,
   activeProject: undefined,
+  selectedProject: undefined,
+  setSelectedProject: noop,
 });
 
 export const useProjectContext = (): IProjectContext => useContext<IProjectContext>(ProjectContext);
@@ -20,6 +24,7 @@ export const useProjectContext = (): IProjectContext => useContext<IProjectConte
 export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [activeProject, setActiveProject] = useState<ProjectDTO | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
+  const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
   const fetchProjectsAndActive = async () => {
     try {
@@ -58,7 +63,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
   }, []);
 
   return (
-    <ProjectContext.Provider value={{ allProjects, activeProject, selectActiveProject }}>
+    <ProjectContext.Provider value={{ allProjects, activeProject, selectedProject, selectActiveProject, setSelectedProject }}>
       {children}
     </ProjectContext.Provider>
   );
