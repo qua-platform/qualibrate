@@ -23,18 +23,12 @@ const SidebarMenu: React.FunctionComponent = () => {
   const [minify, setMinify] = useState(true);
   const [selectedMenuItem, setSelectedMenuItem] = useState<ModuleKey>(NODES_KEY);
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
-  const { activeProject, selectActiveProject, setSelectedProject } = useProjectContext();
+  const { activeProject } = useProjectContext();
   const { openTab } = useFlexLayoutContext();
   
   const handleProjectClick = useCallback(() => {
-    // If there's an active project, set it as active and selected
-    if (activeProject) {
-      selectActiveProject(activeProject);
-      setSelectedProject(activeProject);
-    }
-    setSelectedMenuItem(PROJECT_TAB);
     openTab("project");
-  }, [openTab, activeProject, selectActiveProject, setSelectedProject]);
+  }, [openTab]);
   
   const handleHelpClick = useCallback(() => {
     window.open("https://qua-platform.github.io/qualibrate/", "_blank", "noopener,noreferrer,width=800,height=600");
@@ -97,7 +91,7 @@ const SidebarMenu: React.FunctionComponent = () => {
               }
 
               return (
-                <MenuItem {...item} menuItem={menuItem} key={item.keyId} hideText={minify} isSelected={selectedMenuItem === item.keyId} onClick={handleOnClick} />
+                <MenuItem {...item} menuItem={menuItem} key={item.keyId} hideText={minify} isSelected={false} onClick={handleOnClick} />
               );
             })}
           </div>
