@@ -8,8 +8,11 @@ import { MeasurementElementGraph } from "./components/MeasurementElementGraph/Me
 import { SelectionContextProvider, useSelectionContext } from "../../../common/context/SelectionContext";
 import { useGraphContext } from "../../context/GraphContext";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
+import { useWebSocketData } from "../../../../contexts/WebSocketContext";
 
 const GraphStatus = () => {
+  const { runStatus } = useWebSocketData();
+
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements, lastRunInfo } = useGraphContext();
   const { allMeasurements, fetchAllMeasurements, setTrackLatest } = useGraphStatusContext();
@@ -50,10 +53,9 @@ const GraphStatus = () => {
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
             <MeasurementElementGraph
-              key={`${lastRunInfo?.workflowName}-${workflowGraphElements.length}`}
+              key={`${runStatus?.graph?.name}-${runStatus?.graph?.total_nodes}`}
               workflowGraphElements={workflowGraphElements}
               onCytoscapeNodeClick={handleOnCytoscapeNodeClick}
-              lastRunInfo={lastRunInfo}
             />
           )}
           <MeasurementHistory />

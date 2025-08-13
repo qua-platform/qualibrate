@@ -15,7 +15,6 @@ import { useFlexLayoutContext } from "../../../../routing/flexLayout/FlexLayoutC
 import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
-import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 
 export interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -40,7 +39,6 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     setLastRunInfo,
     fetchWorkflowGraph,
   } = useGraphContext();
-  const { setResult } = useSnapshotsContext();
   const { openTab, setActiveTabsetName } = useFlexLayoutContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string, workflow?: NodeDTO | GraphWorkflow) => {
