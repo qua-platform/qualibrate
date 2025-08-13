@@ -1,7 +1,4 @@
 import styles from "./Project.module.scss";
-import { NEW_PROJECT_BUTTON_VISIBLE } from "../../dev.config";
-import { ACTIVE_TEXT } from "../../utils/colors";
-import { AddIcon } from "../../ui-lib/Icons/AddIcon";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { IconType } from "../../common/interfaces/InputProps";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
@@ -64,15 +61,8 @@ const Project = () => {
           data-cy={cyKeys.projects.LETS_START_BUTTON}
           isBig
         >
-          Let’s Start
+          Let's Start
         </BlueButton>
-
-        {NEW_PROJECT_BUTTON_VISIBLE && (
-          <BlueButton isSecondary className={styles.actionButton}>
-            <AddIcon height={12} color={ACTIVE_TEXT} />
-            New project
-          </BlueButton>
-        )}
       </div>
     </>
   );

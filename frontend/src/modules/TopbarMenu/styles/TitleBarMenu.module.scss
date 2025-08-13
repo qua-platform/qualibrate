@@ -22,3 +22,23 @@
   margin-right: 25px;
 }
 
+.createProjectWrapper {
+  position: relative;
+  z-index: 10;
+  padding-right: 150px;
+}
+
+.createProjectButton {
+  all: unset;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
