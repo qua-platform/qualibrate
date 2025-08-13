@@ -154,8 +154,6 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
 
       const stateUpdate = { ...stateUpdateObject, stateUpdated: response.result! };
       if (response.isOk && response.result && trackLatestSidePanel) {
-        console.log("fetchOneSnapshot StateUpdateElement handleUpdateClick");
-
         fetchOneSnapshot(Number(latestSnapshotId), Number(secondId), false, true);
       }
       if (setRunningNodeInfo) {

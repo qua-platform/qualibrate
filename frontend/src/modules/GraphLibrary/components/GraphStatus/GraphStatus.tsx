@@ -40,7 +40,6 @@ const GraphStatus = () => {
       setSelectedSnapshotId(measurementId);
       setClickedForSnapshotSelection(true);
       fetchOneSnapshot(measurementId, measurementId - 1, true, true);
-      console.log("fetchOneSnapshot SnapshotsTimeline handleOnClick");
     } else {
       setResult({});
       setDiffData({});

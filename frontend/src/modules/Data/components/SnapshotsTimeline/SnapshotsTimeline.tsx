@@ -10,7 +10,6 @@ export const SnapshotsTimeline = () => {
     setSelectedSnapshotId(id);
     setClickedForSnapshotSelection(true);
     fetchOneSnapshot(id);
-    console.log("fetchOneSnapshot SnapshotsTimeline handleOnClick");
   };
   return (
     allSnapshots?.length > 0 && (

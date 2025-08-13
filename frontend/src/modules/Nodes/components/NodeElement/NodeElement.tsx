@@ -123,7 +123,6 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     }
     if (trackLatestSidePanel) {
       fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
-      console.log("NodeElement fetchOneSnapshot trackLatestSidePanel");
     }
   };
 
@@ -134,7 +133,13 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
       className={getNodeRowClass({
         nodeName: node.name,
         selectedItemName: selectedItemName ?? "",
-        runStatus: runStatus && runStatus.node ? { name: runStatus.node.name, status: runStatus.node.status } : null,
+        runStatus:
+          runStatus && runStatus.node
+            ? {
+                name: runStatus.node.name,
+                status: runStatus.node.status,
+              }
+            : null,
       })}
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {

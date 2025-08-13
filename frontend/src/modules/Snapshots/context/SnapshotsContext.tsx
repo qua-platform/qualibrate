@@ -173,13 +173,10 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
         }
       }
       if (firstTime) {
-        console.log("first time");
         if (items) {
-          console.log("first time items");
           setSelectedSnapshotId(lastElId);
           fetchOneSnapshot(lastElId, lastElId - 1, true, true);
         } else {
-          console.log("first time else");
           if (selectedSnapshotId) {
             fetchOneSnapshot(selectedSnapshotId);
             setReset(false);
