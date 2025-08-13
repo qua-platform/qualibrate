@@ -1,0 +1,81 @@
+
+.createProjectPanel {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--popup-background);
+    padding: 24px;
+    gap: 12px;
+    width: 300px;
+    box-shadow: 0 4px 10px rgb(0 0 0 / 30%);
+  }
+  
+  .header {
+    font-size: 19px;
+    font-weight: 500;
+    color: #fff;
+    opacity: 0.8;
+    margin-bottom: 8px;
+    font-family: Roboto, sans-serif;
+  }
+  
+  label {
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    color: #A5ACB6;
+    margin-top: 6px;
+  }
+  
+  input {
+    background-color: #2A2B31;
+    border: 1px solid #42424C;
+    border-radius: 6px;
+    padding: 8px;
+    color: white;
+    font-size: 14px;
+  
+      &::placeholder {
+        color: rgb(165 172 182 / 60%);
+        font-family: Roboto, sans-serif;
+        font-size: 14px;
+      }
+  }
+  
+  .actions {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 20px;
+    gap: 16px;
+  }
+  
+  .cancel {
+    width: 136px;
+    height: 34px;
+    background: transparent;
+    border: 1px solid rgb(60 223 248 / 30%);
+    color: #3CDEF8;
+    border-radius: 999px;
+    padding: 8px 46px;
+    font-weight: 500;
+    cursor: pointer;
+  
+    &:hover {
+      background: rgb(60 223 248 / 8%);
+    }
+  }
+  
+  .create {
+    width: 136px;
+    height: 34px;
+    background: rgb(44 203 229 / 60%);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 8px 46px;
+    font-weight: 500;
+    cursor: pointer;
+  
+    &:hover {
+      background: rgb(44 203 229 / 70%);
+    }
+  }
+  

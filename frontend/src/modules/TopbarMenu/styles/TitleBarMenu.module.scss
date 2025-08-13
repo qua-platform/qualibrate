@@ -25,7 +25,8 @@
 .createProjectWrapper {
   position: relative;
   z-index: 10;
-  padding-right: 150px;
+  padding-right: 250px;
+  padding-top: 20px;
 }
 
 .createProjectButton {
@@ -42,3 +43,10 @@
   }
 }
 
+.createProjectPanelWrapper {
+  position: absolute;
+  top: 100%;
+  right: 150px;
+  margin-top: 8px;
+  z-index: 11;
+}
