@@ -12,8 +12,7 @@ import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext
 const GraphStatus = () => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements, lastRunInfo } = useGraphContext();
-  const { setTrackLatest } = useGraphStatusContext();
-  const { allMeasurements, fetchAllMeasurements } = useGraphStatusContext();
+  const { allMeasurements, fetchAllMeasurements, setTrackLatest } = useGraphStatusContext();
   const { result, fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
 
   const getMeasurementId = (measurementName: string, measurements: Measurement[]) => {
@@ -38,6 +37,7 @@ const GraphStatus = () => {
       setSelectedSnapshotId(measurementId);
       setClickedForSnapshotSelection(true);
       fetchOneSnapshot(measurementId, measurementId - 1, true, true);
+      console.log("fetchOneSnapshot SnapshotsTimeline handleOnClick");
     } else {
       setResult({});
       setDiffData({});
@@ -61,7 +61,7 @@ const GraphStatus = () => {
       </div>
       <div className={styles.rightContainer}>
         <Results
-          jsonObject={result}
+          jsonObject={selectedItemName && allMeasurements && allMeasurements.length > 0 ? result : {}}
           toggleSwitch={true}
           pageName={"graph-status"}
           style={{ height: "100%", flex: "0 1 auto" }}

@@ -62,6 +62,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
       setSelectedSnapshotId(element.id);
       setClickedForSnapshotSelection(true);
       fetchOneSnapshot(element.id);
+      console.log("fetchOneSnapshot MeasurementElement handleOnClick");
     } else {
       setResult({});
       setDiffData({});

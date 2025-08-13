@@ -34,8 +34,11 @@ export const QuamPanel = () => {
       setFirstIdSelectionMode("selection");
       setTrackLatestSidePanel(false);
       if (trackPreviousSnapshot) {
+        console.log("fetchOneSnapshot trackPreviousSnapshot QuamPanel");
         fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false, true);
       } else {
+        console.log("fetchOneSnapshot trackPreviousSnapshot QuamPanel ELSE");
+
         fetchOneSnapshot(Number(selectedSnapshotId), Number(secondId), false, true);
       }
       setClickedForSnapshotSelection(false);
@@ -73,6 +76,7 @@ export const QuamPanel = () => {
     } else {
       setSecondId(value);
     }
+    console.log("fetchOneSnapshot trackPreviousSnapshot QuamPanel onConfirm");
     fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
   };
 
@@ -84,12 +88,15 @@ export const QuamPanel = () => {
     if (!trackLatestSidePanel) {
       setFirstIdSelectionMode("latest");
       setClickedForSnapshotSelection(false);
+      console.log("fetchOneSnapshot trackPreviousSnapshot QuamPanel onToggleTrackLatest");
       fetchOneSnapshot(Number(latestSnapshotId), Number(latestSnapshotId) - 1, false, true);
     } else {
       setFirstIdSelectionMode("selection");
       if (trackPreviousSnapshot) {
+        console.log("fetchOneSnapshot trackPreviousSnapshot QuamPanel onToggleTrackLatest trackPreviousSnapshot");
         fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false, true);
       } else {
+        console.log("fetchOneSnapshot trackPreviousSnapshot QuamPanel onToggleTrackLatest trackPreviousSnapshot ELSE");
         fetchOneSnapshot(Number(selectedSnapshotId), Number(secondId), false, true);
       }
     }
@@ -98,11 +105,15 @@ export const QuamPanel = () => {
   const onToggleTrackPrevious = () => {
     if (!trackPreviousSnapshot) {
       if (trackLatestSidePanel) {
+        console.log("fetchOneSnapshot trackPreviousSnapshot QuamPanel onToggleTrackPrevious");
+
         fetchOneSnapshot(Number(latestSnapshotId), Number(latestSnapshotId) - 1, false, true);
       } else {
+        console.log("fetchOneSnapshot trackPreviousSnapshot QuamPanel onToggleTrackPrevious ELSE");
         fetchOneSnapshot(Number(selectedSnapshotId), Number(selectedSnapshotId) - 1, false, true);
       }
     } else {
+      console.log("fetchOneSnapshot trackPreviousSnapshot QuamPanel onToggleTrackPrevious ELSE ELSE");
       fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
     }
     setTrackPreviousSnapshot(!trackPreviousSnapshot);

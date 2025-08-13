@@ -30,6 +30,8 @@ export const StateUpdates: React.FC<{
     if (result.isOk) {
       setUpdateAllButtonPressed(result.result!);
       if (result.result && trackLatestSidePanel) {
+        console.log("fetchOneSnapshot StateUpdates handleClick");
+
         fetchOneSnapshot(Number(latestSnapshotId), Number(secondId), false, true);
       }
     }

@@ -6,7 +6,7 @@ import { JSONEditor } from "./components/JSONEditor";
 import { SnapshotsTimeline } from "./components/SnapshotsTimeline/SnapshotsTimeline";
 
 export const Data = () => {
-  const { totalPages, setPageNumber, result } = useSnapshotsContext();
+  const { totalPages, setPageNumber, result, selectedSnapshotId, latestSnapshotId } = useSnapshotsContext();
   return (
     <div className={styles.wrapper}>
       <div className={styles.explorer}>

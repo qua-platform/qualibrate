@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { NodesApi } from "../../Nodes/api/NodesAPI";
 
 export interface LogsViewerResponseDTO {
@@ -42,10 +42,10 @@ export function RightSidePanelContextProvider(props: LogsContextProviderProps): 
     }
   };
 
-  useEffect(() => {
-    const checkInterval = setInterval(async () => checkNewLogs(), 1000);
-    return () => clearInterval(checkInterval);
-  }, [logs]);
+  // useEffect(() => {
+  //   const checkInterval = setInterval(async () => checkNewLogs(), 1000);
+  //   return () => clearInterval(checkInterval);
+  // }, [logs]);
 
   return (
     <RightSidePanelContext.Provider

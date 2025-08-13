@@ -27,6 +27,7 @@ export interface NodeDTO {
 export interface NodeMap {
   [key: string]: NodeDTO;
 }
+
 export const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -122,20 +123,18 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     }
     if (trackLatestSidePanel) {
       fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
+      console.log("NodeElement fetchOneSnapshot trackLatestSidePanel");
     }
   };
 
-  const insertSpaces = (str: string, interval = 40) =>
-    str.replace(new RegExp(`(.{${interval}})`, "g"), "$1 ").trim();
+  const insertSpaces = (str: string, interval = 40) => str.replace(new RegExp(`(.{${interval}})`, "g"), "$1 ").trim();
 
   return (
     <div
-      className={getNodeRowClass({ 
-        nodeName: node.name, 
-        selectedItemName: selectedItemName ?? "", 
-        runStatus: runStatus && runStatus.node
-            ? { name: runStatus.node.name, status: runStatus.node.status }
-            : null,
+      className={getNodeRowClass({
+        nodeName: node.name,
+        selectedItemName: selectedItemName ?? "",
+        runStatus: runStatus && runStatus.node ? { name: runStatus.node.name, status: runStatus.node.status } : null,
       })}
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {
@@ -158,12 +157,12 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           )}
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
-        {(runStatus?.node?.name === node.name || (selectedItemName !== node.name && runStatus?.node?.status !== "pending")) && (
-          <StatusVisuals
-            status={runStatus?.node?.name === node.name ? runStatus?.node?.status : "pending"}
-            percentage={Math.round(runStatus?.node?.percentage_complete ?? 0)}
-          />
-        )}
+          {(runStatus?.node?.name === node.name || (selectedItemName !== node.name && runStatus?.node?.status !== "pending")) && (
+            <StatusVisuals
+              status={runStatus?.node?.name === node.name ? runStatus?.node?.status : "pending"}
+              percentage={Math.round(runStatus?.node?.percentage_complete ?? 0)}
+            />
+          )}
         </div>
         {!isNodeRunning && node.name === selectedItemName && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
