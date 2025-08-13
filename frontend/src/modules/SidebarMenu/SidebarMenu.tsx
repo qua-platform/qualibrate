@@ -72,7 +72,6 @@ const SidebarMenu: React.FunctionComponent = () => {
               } else if (item.keyId === PROJECT_TAB) {
                 handleOnClick = handleProjectClick;
                 if (activeProject?.name) {
-                  // Show active project with custom icon
                   menuItem.sideBarTitle = activeProject.name;
                   menuItem.icon = () => (
                     <ProjectFolderIcon
@@ -84,7 +83,6 @@ const SidebarMenu: React.FunctionComponent = () => {
                     />
                   );
                 } else {
-                  // Fallback to default "Projects" title with ProjectIcon
                   menuItem.sideBarTitle = "Projects";
                   menuItem.icon = ProjectIcon;
                 }

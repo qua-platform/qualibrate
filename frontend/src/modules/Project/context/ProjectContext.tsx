@@ -34,7 +34,6 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
         let active: ProjectDTO | undefined = undefined;
         if (activeNameRes.isOk && activeNameRes.result) {
           active = all.find(p => p.name === activeNameRes.result);
-          // If not found, fall back to first project
           if (!active && all.length > 0) {
             active = all[0];
           }
