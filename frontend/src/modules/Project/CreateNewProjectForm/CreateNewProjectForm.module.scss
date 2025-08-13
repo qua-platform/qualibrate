@@ -6,13 +6,13 @@
     padding: 24px;
     gap: 12px;
     width: 300px;
-    box-shadow: 0 4px 10px rgb(0 0 0 / 30%);
+    box-shadow: 0 4px 10px var(--popup-shadow);
   }
   
   .header {
     font-size: 19px;
     font-weight: 500;
-    color: #fff;
+    color: var(--white);
     opacity: 0.8;
     margin-bottom: 8px;
     font-family: Roboto, sans-serif;
@@ -21,20 +21,20 @@
   label {
     font-family: Roboto, sans-serif;
     font-size: 14px;
-    color: #A5ACB6;
+    color: var(--grey-highlight);
     margin-top: 6px;
   }
   
   input {
-    background-color: #2A2B31;
-    border: 1px solid #42424C;
+    background-color: var(--input-background);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 8px;
-    color: white;
+    color: var(--white);
     font-size: 14px;
   
       &::placeholder {
-        color: rgb(165 172 182 / 60%);
+        color: var(--grey-highlight-light);
         font-family: Roboto, sans-serif;
         font-size: 14px;
       }
@@ -51,23 +51,23 @@
     width: 136px;
     height: 34px;
     background: transparent;
-    border: 1px solid rgb(60 223 248 / 30%);
-    color: #3CDEF8;
+    border: 1px solid var(--blue-button-hover);
+    color: var(--status-color-running);
     border-radius: 999px;
     padding: 8px 46px;
     font-weight: 500;
     cursor: pointer;
   
     &:hover {
-      background: rgb(60 223 248 / 8%);
+      background: var(--blue-button-hover-light);
     }
   }
   
   .create {
     width: 136px;
     height: 34px;
-    background: rgb(44 203 229 / 60%);
-    color: #fff;
+    background: var(--blue-button-active);
+    color: var(--white);
     border: none;
     border-radius: 999px;
     padding: 8px 46px;
@@ -75,7 +75,7 @@
     cursor: pointer;
   
     &:hover {
-      background: rgb(44 203 229 / 70%);
+      background: var(--blue-button-active-light);
     }
   }
   
