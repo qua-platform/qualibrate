@@ -8,7 +8,6 @@
   align-items: center;
   padding: 10px;
   background-color: var(--background-dark);
-  border-radius: 8px;
   width: 100%;
   border-bottom: 1px solid var(--border-color);
 }
@@ -25,11 +24,9 @@
 
 .createProjectWrapper {
   position: relative;
-  z-index: 10;
 }
 
 .createProjectButton {
-  all: unset;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
