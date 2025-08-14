@@ -90,7 +90,7 @@ const SidebarMenu: React.FunctionComponent = () => {
                   menuItem={menuItem} 
                   key={item.keyId} 
                   hideText={minify} 
-                  isSelected={item.keyId === PROJECT_TAB ? selectedMenuItem === PROJECT_TAB : false} 
+                  isSelected={item.keyId === PROJECT_TAB && selectedMenuItem === PROJECT_TAB} 
                   onClick={handleOnClick} 
                 />
               );

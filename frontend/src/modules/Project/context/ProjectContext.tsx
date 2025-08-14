@@ -29,18 +29,18 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
       ]);
   
       if (projectsRes.isOk && projectsRes.result) {
-        const all = projectsRes.result as ProjectDTO[];
-        setAllProjects(all);
-        let active: ProjectDTO | undefined = undefined;
+        const fetchedProjects = projectsRes.result;
+        setAllProjects(fetchedProjects);
+        let fetchedActiveProject: ProjectDTO | undefined = undefined;
         if (activeNameRes.isOk && activeNameRes.result) {
-          active = all.find(p => p.name === activeNameRes.result);
-          if (!active && all.length > 0) {
-            active = all[0];
+          fetchedActiveProject = fetchedProjects.find(p => p.name === activeNameRes.result);
+          if (!fetchedActiveProject && fetchedProjects.length > 0) {
+            fetchedActiveProject = fetchedProjects[0];
           }
-        } else if (all.length > 0) {
-          active = all[0];
+        } else if (fetchedProjects.length > 0) {
+          fetchedActiveProject = fetchedProjects[0];
         }
-        setActiveProject(active);
+        setActiveProject(fetchedActiveProject);
       }
     } catch (error) {
       console.error("Error fetching projects or active project:", error);

@@ -5,7 +5,7 @@ import { AddIcon } from "../../ui-lib/Icons/AddIcon";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { IconType } from "../../common/interfaces/InputProps";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ProjectList from "./components/ProjectList";
 import { useProjectContext } from "./context/ProjectContext";
 import cyKeys from "../../utils/cyKeys";
@@ -27,15 +27,15 @@ const Project = () => {
     setListedProjects(allProjects);
   }, [allProjects, setListedProjects]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     const fallbackProject = allProjects.length > 0 ? allProjects[0] : undefined;
-    const projectToSelect = selectedProject || fallbackProject;
+    const projectToSelect = selectedProject ?? fallbackProject;
 
     if (!projectToSelect) return;
 
     selectActiveProject(projectToSelect);
-    openTab("data");
-  };
+    openTab("nodes");
+  }, [allProjects, selectedProject, selectActiveProject, openTab]);
 
   if (!activeProject) {
     return <LoaderPage />;
