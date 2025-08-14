@@ -8,3 +8,4 @@ export const colorPalette = [
     "#1268D0",
   ];
   
+export const heading: string = "Welcome to QUAlibrate";
