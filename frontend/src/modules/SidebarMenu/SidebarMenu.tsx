@@ -23,18 +23,12 @@ const SidebarMenu: React.FunctionComponent = () => {
   const [minify, setMinify] = useState(true);
   const [selectedMenuItem, setSelectedMenuItem] = useState<ModuleKey>(NODES_KEY);
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
-  const { activeProject, selectActiveProject, setSelectedProject } = useProjectContext();
+  const { activeProject } = useProjectContext();
   const { openTab } = useFlexLayoutContext();
   
   const handleProjectClick = useCallback(() => {
-    // If there's an active project, set it as active and selected
-    if (activeProject) {
-      selectActiveProject(activeProject);
-      setSelectedProject(activeProject);
-    }
-    setSelectedMenuItem(PROJECT_TAB);
     openTab("project");
-  }, [openTab, activeProject, selectActiveProject, setSelectedProject]);
+  }, [openTab]);
   
   const handleHelpClick = useCallback(() => {
     window.open("https://qua-platform.github.io/qualibrate/", "_blank", "noopener,noreferrer,width=800,height=600");
@@ -78,7 +72,6 @@ const SidebarMenu: React.FunctionComponent = () => {
               } else if (item.keyId === PROJECT_TAB) {
                 handleOnClick = handleProjectClick;
                 if (activeProject?.name) {
-                  // Show active project with custom icon
                   menuItem.sideBarTitle = activeProject.name;
                   menuItem.icon = () => (
                     <ProjectFolderIcon
@@ -90,14 +83,13 @@ const SidebarMenu: React.FunctionComponent = () => {
                     />
                   );
                 } else {
-                  // Fallback to default "Projects" title with ProjectIcon
                   menuItem.sideBarTitle = "Projects";
                   menuItem.icon = ProjectIcon;
                 }
               }
 
               return (
-                <MenuItem {...item} menuItem={menuItem} key={item.keyId} hideText={minify} isSelected={selectedMenuItem === item.keyId} onClick={handleOnClick} />
+                <MenuItem {...item} menuItem={menuItem} key={item.keyId} hideText={minify} isSelected={false} onClick={handleOnClick} />
               );
             })}
           </div>
