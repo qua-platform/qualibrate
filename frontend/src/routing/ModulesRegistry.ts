@@ -67,7 +67,6 @@ export const ModulesRegistry: Array<Module> = [
       dataCy: cyKeys.NODES_TAB,
     },
   },
-
   {
     keyId: GRAPH_LIBRARY,
     path: "GRAPH_LIBRARY",

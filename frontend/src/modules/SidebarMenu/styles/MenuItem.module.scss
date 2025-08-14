@@ -33,3 +33,9 @@
     svg { transform: scale(1.1); }
   }
 }
+
+.itemTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
