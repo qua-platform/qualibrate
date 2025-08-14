@@ -4,13 +4,10 @@ import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 import cyKeys from "../../../utils/cyKeys";
-import SelectField from "../../../common/ui-components/common/Input/SelectField";
 import { getColorIndex, createClickHandler } from "../helpers";
 import { colorPalette } from "../constants";
-import ProjectCheckIcon from "../../../ui-lib/Icons/ProjectCheckIcon";
 import { useProjectContext } from "../context/ProjectContext";
-
-const SelectRuntime = <SelectField options={["Localhost"]} onChange={() => {}} />;
+import ProjectActions from "./ProjectActions";
 
 interface Props {
   showRuntime?: boolean;
@@ -44,12 +41,7 @@ const Project = ({ showRuntime = false, isActive = false, onClick, name = "", la
           colorIcon={projectColor}
           date={lastModifiedAt ? new Date(lastModifiedAt) : undefined}
         />
-        <div className={styles.projectActions}>
-          <div className={styles.checkWrapper}>
-            {isCurrentProject && <ProjectCheckIcon />}
-          </div>
-          {showRuntime && SelectRuntime}
-        </div>
+        <ProjectActions isCurrentProject={isCurrentProject} showRuntime={showRuntime} />
       </button>
     </div>
   );
