@@ -66,7 +66,7 @@ const GraphContext = React.createContext<IGraphContext>({
 export const useGraphContext = () => useContext<IGraphContext>(GraphContext);
 
 export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React.ReactElement => {
-  const { runStatus, history } = useWebSocketData();
+  const { runStatus } = useWebSocketData();
 
   const [allGraphs, setAllGraphs] = useState<GraphMap | undefined>(undefined);
   const [selectedWorkflow, setSelectedWorkflow] = useState<GraphWorkflow | undefined>(undefined);
