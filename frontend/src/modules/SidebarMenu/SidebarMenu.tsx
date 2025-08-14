@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { bottomMenuItems, HELP_KEY, menuItems, ModuleKey, NODES_KEY, TOGGLE_SIDEBAR_KEY } from "../../routing/ModulesRegistry";
+import { bottomMenuItems, HELP_KEY, menuItems, TOGGLE_SIDEBAR_KEY } from "../../routing/ModulesRegistry";
 import MenuItem from "./MenuItem";
 // import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
 // import ThemeToggle from "../themeModule/ThemeToggle";
@@ -11,12 +11,12 @@ import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 import QUAlibrateLogoSmallIcon from "../../ui-lib/Icons/QualibrateLogoSmall";
 import ExpandSideMenuIcon from "../../ui-lib/Icons/ExpandSideMenuIcon";
 import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
+import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const [minify, setMinify] = useState(true);
-  const [selectedMenuItem, setSelectedMenuItem] = useState<ModuleKey>(NODES_KEY);
-
+  const { activeTabsetName, setActiveTabsetName } = useFlexLayoutContext();
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
 
   useEffect(() => {
@@ -41,8 +41,8 @@ const SidebarMenu: React.FunctionComponent = () => {
                 {...item}
                 key={item.keyId}
                 hideText={minify}
-                onClick={() => setSelectedMenuItem(item.keyId)}
-                isSelected={selectedMenuItem === item.keyId}
+                onClick={() => setActiveTabsetName(item.keyId)}
+                isSelected={activeTabsetName === item.keyId}
                 data-testid={`menu-item-${item.keyId}`}
               />
             ))}

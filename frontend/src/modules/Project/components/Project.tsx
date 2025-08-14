@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import ProjectInfo from "./ProjectInfo";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
@@ -23,7 +23,7 @@ const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: 
     }
 
     onClick(name);
-  }, [onClick, name]); // TODO Possible BUG
+  }, [onClick, name]);
 
   return (
     <button
