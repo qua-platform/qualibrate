@@ -15,7 +15,6 @@ import { ProjectDTO } from "./ProjectDTO";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import PageSection from "../../common/ui-components/common/Page/PageSection";
 import InputField from "../../common/ui-components/common/Input/InputField";
-import { heading } from "./constants";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
@@ -41,10 +40,12 @@ const Project = () => {
     return <LoaderPage />;
   }
 
+  const heading: string = activeProject ? `Currently active project is ${activeProject}` : "Welcome to QUAlibrate";
+
   return (
     <>
       <div className={styles.projectPageLayout}>
-        {!activeProject?.name && <PageName>{heading}</PageName>}
+        <PageName>{heading}</PageName>
         <div className={styles.pageWrapper}>
           <PageSection sectionName="Please select a Project">
             <InputField
@@ -82,6 +83,4 @@ const Project = () => {
   );
 };
 
-export default () => (
-    <Project />
-);
+export default Project;

@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { bottomMenuItems, HELP_KEY, menuItems, ModuleKey, NODES_KEY, TOGGLE_SIDEBAR_KEY, ACTIVE_PROJECT_KEY } from "../../routing/ModulesRegistry";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { bottomMenuItems, HELP_KEY, menuItems, ModuleKey, NODES_KEY, TOGGLE_SIDEBAR_KEY, PROJECT_TAB } from "../../routing/ModulesRegistry";
 import MenuItem from "./MenuItem";
 // import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
 // import ThemeToggle from "../themeModule/ThemeToggle";
@@ -12,6 +12,7 @@ import QUAlibrateLogoSmallIcon from "../../ui-lib/Icons/QualibrateLogoSmall";
 import ExpandSideMenuIcon from "../../ui-lib/Icons/ExpandSideMenuIcon";
 import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
 import ProjectFolderIcon from "../../ui-lib/Icons/ProjectFolderIcon";
+import ProjectIcon from "../../ui-lib/Icons/ProjectIcon";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import { useProjectContext } from "../Project/context/ProjectContext";
 import { getColorIndex, extractInitials } from "../Project/helpers";
@@ -24,8 +25,14 @@ const SidebarMenu: React.FunctionComponent = () => {
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
   const { activeProject } = useProjectContext();
   const { openTab } = useFlexLayoutContext();
-  const handleProjectClick = () => { openTab("project"); };
-  const handleHelpClick = () => { window.open("https://qua-platform.github.io/qualibrate/", "_blank", "noopener,noreferrer,width=800,height=600"); };
+  
+  const handleProjectClick = useCallback(() => {
+    openTab("project");
+  }, [openTab]);
+  
+  const handleHelpClick = useCallback(() => {
+    window.open("https://qua-platform.github.io/qualibrate/", "_blank", "noopener,noreferrer,width=800,height=600");
+  }, []);
 
   useEffect(() => {
     setMinify(!pinSideMenu);
@@ -62,18 +69,23 @@ const SidebarMenu: React.FunctionComponent = () => {
                 menuItem.icon = minify ? ExpandSideMenuIcon : CollapseSideMenuIcon;
               } else if (item.keyId === HELP_KEY) {
                 handleOnClick = handleHelpClick;
-              } else if (item.keyId === ACTIVE_PROJECT_KEY && activeProject?.name) {
+              } else if (item.keyId === PROJECT_TAB) {
                 handleOnClick = handleProjectClick;
-                menuItem.title = activeProject.name;
-                menuItem.icon = () => (
-                  <ProjectFolderIcon
-                    initials={extractInitials(activeProject.name)}
-                    fillColor={colorPalette[getColorIndex(activeProject.name)]}
-                    width={28}
-                    height={28}
-                    fontSize={13}
-                  />
-                );
+                if (activeProject?.name) {
+                  menuItem.sideBarTitle = activeProject.name;
+                  menuItem.icon = () => (
+                    <ProjectFolderIcon
+                      initials={extractInitials(activeProject.name)}
+                      fillColor={colorPalette[getColorIndex(activeProject.name)]}
+                      width={28}
+                      height={28}
+                      fontSize={13}
+                    />
+                  );
+                } else {
+                  menuItem.sideBarTitle = "Projects";
+                  menuItem.icon = ProjectIcon;
+                }
               }
 
               return (
