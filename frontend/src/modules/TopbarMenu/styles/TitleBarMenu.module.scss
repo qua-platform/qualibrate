@@ -24,12 +24,9 @@
 
 .createProjectWrapper {
   position: relative;
-  z-index: 10;
-  padding-right: 150px;
 }
 
 .createProjectButton {
-  all: unset;
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -41,4 +38,3 @@
     opacity: 0.7;
   }
 }
-
