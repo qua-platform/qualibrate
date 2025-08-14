@@ -37,6 +37,10 @@ const Project = () => {
     openTab("nodes");
   }, [allProjects, selectedProject, selectActiveProject, openTab]);
 
+  const handleSearchChange = useCallback((searchTerm: string) => {
+    setListedProjects(allProjects.filter((p) => p.name.startsWith(searchTerm)));
+  }, [allProjects]);
+
   if (!activeProject) {
     return <LoaderPage />;
   }
@@ -51,7 +55,7 @@ const Project = () => {
               iconType={IconType.INNER}
               placeholder="Project Name"
               className={styles.searchProjectField}
-              onChange={(f) => setListedProjects(allProjects.filter((p) => p.name.startsWith(f)))}
+              onChange={handleSearchChange}
               icon={<SearchIcon height={18} width={18} />}
             />
             {listedProjects && (
