@@ -8,13 +8,14 @@ import { extractInitials } from "../helpers";
 interface Props {
   date?: Date;
   name: string;
+  colorIcon: string;
 }
 
-const ProjectInfo = ({ name, date }: Props) => {
+const ProjectInfo = ({ name, date, colorIcon }: Props) => {
   return (
     <div className={styles.projectInfo}>
       <div className={styles.projectThumbnail}>
-        <ProjectFolderIcon initials={extractInitials(name)} />
+        <ProjectFolderIcon initials={extractInitials(name)} fillColor={colorIcon} />
       </div>
       <div className={styles.projectDetails}>
         <div className={styles.projectName}>{name || ""}</div>
