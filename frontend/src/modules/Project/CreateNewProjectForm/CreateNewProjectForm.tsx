@@ -20,8 +20,10 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
   };
   
   const handleCreate = () => {
-    // Placeholder for backend integration
+    // TODO: Implement backend integration
   };
+
+  const isFormValid = projectPath.trim() !== "" && dataPath.trim() !== "" && quamPath.trim() !== "" && calibrationPath.trim() !== "";
 
   return (
     <div className={styles.createProjectPanel}>
@@ -41,7 +43,7 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
 
       <div className={styles.actions}>
         <button onClick={handleCancel} className={styles.cancel}>Cancel</button>
-        <button onClick={handleCreate} className={styles.create}>Create</button>
+        <button onClick={handleCreate} className={styles.create} disabled={!isFormValid}>Create</button>
       </div>
     </div>
   );
