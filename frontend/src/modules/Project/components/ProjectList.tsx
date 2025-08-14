@@ -3,7 +3,7 @@ import { NoItemsIcon } from "../../../ui-lib/Icons/NoItemsIcon";
 import Project from "./Project";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { ProjectDTO } from "../ProjectDTO";
 
 interface Props {
@@ -17,9 +17,9 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
     return [...projects].sort((a, b) => new Date(b.last_modified_at).getTime() - new Date(a.last_modified_at).getTime());
   }, [projects]);
 
-  const onClickHandler = (project: ProjectDTO) => {
+  const onClickHandler = useCallback((project: ProjectDTO) => {
     setSelectedProject(project);
-  };
+  }, [setSelectedProject]);
 
   if (!projects?.length) {
     return (
