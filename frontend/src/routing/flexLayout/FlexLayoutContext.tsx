@@ -73,7 +73,7 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
     LayoutBuilder.current.openNewTab(tab);
     setModel(LayoutBuilder.current.model);
     setActiveTab(tab);
-    setActiveTabsetName(activeTab as string);
+    setActiveTabsetName(tab as string);
   }, []);
 
   const [activeTabsetId, setActiveTabsetId] = useState(null);
