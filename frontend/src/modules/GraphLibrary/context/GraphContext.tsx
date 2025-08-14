@@ -4,8 +4,6 @@ import { GraphWorkflow } from "../components/GraphList";
 import { GraphLibraryApi } from "../api/GraphLibraryApi";
 import { ElementDefinition } from "cytoscape";
 import { InputParameter } from "../../common/Parameters/Parameters";
-import { NodesApi } from "../../Nodes/api/NodesAPI";
-import { StatusResponseType } from "../../Nodes/context/NodesContext";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 import { useWebSocketData } from "../../../contexts/WebSocketContext";
 
@@ -77,29 +75,6 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
   const [workflowGraphElements, setWorkflowGraphElements] = useState<ElementDefinition[] | undefined>(undefined);
   const [lastRunInfo, setLastRunInfo] = useState<LastRunInfo | undefined>(undefined);
 
-  const fetchLastRunInfo = async () => {
-    const lastRunResponse = await NodesApi.fetchLastRunInfo();
-    if (lastRunResponse && lastRunResponse.isOk) {
-      const lastRunResponseResult = lastRunResponse.result as StatusResponseType;
-      if (lastRunResponseResult && lastRunResponseResult.status !== "error") {
-        setLastRunInfo({
-          workflowName: (lastRunResponse.result as { name: string })?.name,
-          nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
-        });
-      } else {
-        setLastRunInfo({
-          workflowName: (lastRunResponse.result as { name: string })?.name,
-          nodesTotal: Object.keys((lastRunResponse.result as StatusResponseType)?.run_result?.parameters?.nodes ?? {}).length,
-          status: "error",
-          error: lastRunResponse.error as ErrorObject,
-        });
-        console.log("last run status was error");
-      }
-    } else {
-      console.log("lastRunResponse was ", lastRunResponse);
-    }
-  };
-
   const updateObject = (obj: GraphWorkflow): GraphWorkflow => {
     const modifyParameters = (parameters?: InputParameter, isNodeLevel: boolean = false): InputParameter | undefined => {
       if (parameters?.targets_name) {
@@ -165,26 +140,8 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
     }
   };
 
-  // const fetchLastRunWorkflowStatus = async () => {
-  //   const response = await GraphLibraryApi.fetchLastWorkflowStatus();
-  //   if (response.isOk) {
-  //     setLastRunInfo({
-  //       ...lastRunInfo,
-  //       active: response.result?.active,
-  //       activeNodeName: response.result?.active_node_name,
-  //       nodesCompleted: response.result?.nodes_completed,
-  //       nodesTotal: response.result?.nodes_total,
-  //       runDuration: response.result?.run_duration,
-  //       error: response.result?.error,
-  //     });
-  //   } else if (response.error) {
-  //     console.log(response.error);
-  //   }
-  // };
-
   useEffect(() => {
     fetchAllCalibrationGraphs();
-    fetchLastRunInfo();
   }, []);
 
   useEffect(() => {
