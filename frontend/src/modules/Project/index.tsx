@@ -5,7 +5,7 @@ import { AddIcon } from "../../ui-lib/Icons/AddIcon";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { IconType } from "../../common/interfaces/InputProps";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ProjectList from "./components/ProjectList";
 import { useProjectContext } from "./context/ProjectContext";
 import cyKeys from "../../utils/cyKeys";
@@ -27,15 +27,19 @@ const Project = () => {
     setListedProjects(allProjects);
   }, [allProjects, setListedProjects]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     const fallbackProject = allProjects.length > 0 ? allProjects[0] : undefined;
-    const projectToSelect = selectedProject || fallbackProject;
+    const projectToSelect = selectedProject ?? fallbackProject;
 
     if (!projectToSelect) return;
 
     selectActiveProject(projectToSelect);
-    openTab("data");
-  };
+    openTab("nodes");
+  }, [allProjects, selectedProject, selectActiveProject, openTab]);
+
+  const handleSearchChange = useCallback((searchTerm: string) => {
+    setListedProjects(allProjects.filter((p) => p.name.startsWith(searchTerm)));
+  }, [allProjects]);
 
   if (!activeProject) {
     return <LoaderPage />;
@@ -51,7 +55,7 @@ const Project = () => {
               iconType={IconType.INNER}
               placeholder="Project Name"
               className={styles.searchProjectField}
-              onChange={(f) => setListedProjects(allProjects.filter((p) => p.name.startsWith(f)))}
+              onChange={handleSearchChange}
               icon={<SearchIcon height={18} width={18} />}
             />
             {listedProjects && (

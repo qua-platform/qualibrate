@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarGraphCard.module.scss";
 import TitleBarNodeCard from "../TitleBarNodeCard/TitleBarNodeCard";
@@ -28,8 +28,12 @@ const TitleBarGraphCard: React.FC = () => {
     }
   }, [runStatus]);
 
-  const { openTab } = useFlexLayoutContext();
-  const handleClick = () => openTab(graph.status === "pending" ? "graph-library" : "graph-status");
+  const { openTab, setActiveTabsetName } = useFlexLayoutContext();
+
+  const handleOnClick = useCallback(() => {
+    openTab(graph.status === "pending" ? "graph-library" : "graph-status");
+    setActiveTabsetName(graph.status === "pending" ? "graph-library" : "graph-status");
+  }, [openTab, setActiveTabsetName, graph.status]);
 
   const renderElapsedTime = (time: number) => (
     <div className={styles.stopAndTimeWrapper}>
@@ -52,7 +56,7 @@ const TitleBarGraphCard: React.FC = () => {
           placement="bottom"
           componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}
         >
-          <div onClick={handleClick} className={styles.hoverRegion}>
+          <div onClick={handleOnClick} className={styles.hoverRegion}>
             <div className={styles.indicatorWrapper}>
               {StatusIndicator(
                 capitalize(graph.status),

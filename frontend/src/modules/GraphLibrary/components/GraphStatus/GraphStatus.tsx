@@ -6,14 +6,16 @@ import { Results } from "../../../Nodes/components/Results/Results";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
 import { SelectionContextProvider, useSelectionContext } from "../../../common/context/SelectionContext";
-import { GraphContextProvider, useGraphContext } from "../../context/GraphContext";
+import { useGraphContext } from "../../context/GraphContext";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
+import { useWebSocketData } from "../../../../contexts/WebSocketContext";
 
 const GraphStatus = () => {
+  const { runStatus } = useWebSocketData();
+
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { workflowGraphElements, lastRunInfo } = useGraphContext();
-  const { setTrackLatest } = useGraphStatusContext();
-  const { allMeasurements, fetchAllMeasurements } = useGraphStatusContext();
+  const { allMeasurements, fetchAllMeasurements, setTrackLatest } = useGraphStatusContext();
   const { result, fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
 
   const getMeasurementId = (measurementName: string, measurements: Measurement[]) => {
@@ -50,9 +52,9 @@ const GraphStatus = () => {
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
             <MeasurementElementGraph
+              key={`${runStatus?.graph?.name}-${runStatus?.graph?.total_nodes}`}
               workflowGraphElements={workflowGraphElements}
               onCytoscapeNodeClick={handleOnCytoscapeNodeClick}
-              lastRunInfo={lastRunInfo}
             />
           )}
           <MeasurementHistory />
@@ -60,7 +62,7 @@ const GraphStatus = () => {
       </div>
       <div className={styles.rightContainer}>
         <Results
-          jsonObject={result}
+          jsonObject={selectedItemName && allMeasurements && allMeasurements.length > 0 ? result : {}}
           toggleSwitch={true}
           pageName={"graph-status"}
           style={{ height: "100%", flex: "0 1 auto" }}
@@ -73,11 +75,9 @@ const GraphStatus = () => {
 };
 
 export default () => (
-  <GraphContextProvider>
-    <GraphStatusContextProvider>
-      <SelectionContextProvider>
-        <GraphStatus />
-      </SelectionContextProvider>
-    </GraphStatusContextProvider>
-  </GraphContextProvider>
+  <GraphStatusContextProvider>
+    <SelectionContextProvider>
+      <GraphStatus />
+    </SelectionContextProvider>
+  </GraphStatusContextProvider>
 );
