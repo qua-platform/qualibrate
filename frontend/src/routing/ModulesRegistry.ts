@@ -20,7 +20,6 @@ export const GRAPH_LIBRARY: ModuleKey = "graph-library";
 export const GRAPH_STATUS: ModuleKey = "graph-status";
 export const HELP_KEY: ModuleKey = "help";
 export const TOGGLE_SIDEBAR_KEY: ModuleKey = "toggle";
-export const ACTIVE_PROJECT_KEY: ModuleKey = "active-project";
 
 export type ModuleKey =
   | "components"
@@ -38,8 +37,7 @@ export type ModuleKey =
   | "graph-library"
   | "graph-status"
   | "help"
-  | "toggle"
-  | "active-project";
+  | "toggle";
 
 export type Module = {
   keyId: ModuleKey;
@@ -59,18 +57,6 @@ export type Module = {
 
 export const ModulesRegistry: Array<Module> = [
   {
-    keyId: PROJECT_TAB,
-    path: "projects",
-    Component: Project,
-    menuItem: {
-      sideBarTitle: "Projects",
-      title: "Projects",
-      // icon: ProjectIcon,
-      icon: ProjectIcon,
-      dataCy: cyKeys.PROJECT_TAB,
-    },
-  },
-  {
     keyId: NODES_KEY,
     path: "nodes",
     Component: Nodes,
@@ -81,7 +67,6 @@ export const ModulesRegistry: Array<Module> = [
       dataCy: cyKeys.NODES_TAB,
     },
   },
-
   {
     keyId: GRAPH_LIBRARY,
     path: "GRAPH_LIBRARY",
@@ -116,9 +101,14 @@ export const ModulesRegistry: Array<Module> = [
     },
   },
   {
-    keyId: ACTIVE_PROJECT_KEY,
+    keyId: PROJECT_TAB,
+    path: "projects",
+    Component: Project,
     menuItem: {
-      dataCy: "active-project",
+      sideBarTitle: "Projects",
+      title: "Projects",
+      icon: ProjectIcon,
+      dataCy: cyKeys.PROJECT_TAB,
       atBottom: true,
     },
   },  

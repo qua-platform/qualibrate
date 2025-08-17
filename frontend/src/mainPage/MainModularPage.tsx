@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../common/modules";
 
 const MainModularPage = () => {
-  const { model, checkIsEmpty, flexLayoutListener, openTab } = useFlexLayoutContext();
+  const { model, checkIsEmpty, flexLayoutListener, openTab, setActiveTabsetName } = useFlexLayoutContext();
   const { isAuthorized } = useAuthContext();
   const navigate = useNavigate();
 
@@ -48,6 +48,7 @@ const MainModularPage = () => {
       navigate(LOGIN_URL);
     } else {
       openTab("nodes");
+      setActiveTabsetName("nodes");
     }
   }, [isAuthorized]);
 

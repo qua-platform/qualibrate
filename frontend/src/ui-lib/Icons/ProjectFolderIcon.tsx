@@ -11,9 +11,9 @@ interface Props {
 
 const ProjectFolderIcon: React.FC<Props> = ({
   initials,
-  width = 30,
-  height = 30,
-  fillColor = "#7351BD",
+  width = 36,
+  height = 36,
+  fillColor = "#5175BD",
   textColor = "#FFFFFF",
   fontSize = 14,
 }) => {

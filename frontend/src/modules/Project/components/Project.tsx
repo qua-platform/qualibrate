@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import ProjectInfo from "./ProjectInfo";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 import cyKeys from "../../../utils/cyKeys";
-import { getColorIndex, createClickHandler } from "../helpers";
+import { getColorIndex } from "../helpers";
 import { colorPalette } from "../constants";
 import { useProjectContext } from "../context/ProjectContext";
 import ProjectActions from "./ProjectActions";
@@ -21,9 +21,14 @@ interface Props {
 const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt = "" }: Props) => {
   const { activeProject } = useProjectContext();
   const isCurrentProject = activeProject?.name === name;
-  const handleOnClick = createClickHandler(onClick, name);
-  const index = getColorIndex(name || "");
+  const index = useMemo(() => getColorIndex(name), [name]);
   const projectColor = colorPalette[index];
+  const handleOnClick = useCallback(() => {
+    if (!onClick) {
+      return;
+    }
+    onClick(name);
+  }, [onClick, name]);
 
   return (
     <div className={styles.projectWrapper}>

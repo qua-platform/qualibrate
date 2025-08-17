@@ -1,23 +1,22 @@
 import { colorPalette } from "./constants";
 
-export const createClickHandler = (onClick?: (name: string) => void, name = "") => () => {
-  if (onClick) {
-    onClick(name);
-  }
-};
-
 export const extractInitials = (name?: string): string => {
   if (!name) return "";
-  const [first = "", second = ""] = name.trim().split(" ");
+  const parts = name.trim().split(" ").slice(0, 2);
+  const first = parts[0] ?? "";
+  const second = parts[1] ?? "";
   return (first[0] ?? "").toUpperCase() + (second[0] ?? "").toUpperCase();
 };
 
-// Gets folder color via hash function algorithm (with FNV-1a hash for uniform distribution to avoid clustering)
 export const getColorIndex = (name: string): number => {
-    let hash = 2166136261; // FNV offset basis
+    if (!name) return 0;
+
+    let hash = 2166136261;
     for (let i = 0; i < name.length; i++) {
       hash ^= name.charCodeAt(i);
-      hash *= 16777619; // FNV prime
+      hash *= 16777619;
     }
-    return Math.abs(hash) % colorPalette.length;
+
+    const index = Math.abs(hash) % colorPalette.length;
+    return Math.max(0, Math.min(index, colorPalette.length - 1));
   };
