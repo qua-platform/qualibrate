@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import styles from "./CreateNewProjectForm.module.scss";
-import InputField from "../../../common/ui-components/common/Input/InputField";
+import ProjectFormField from "../../../common/ui-components/common/Input/ProjectFormField";
 
 interface Props {
   onCancel: () => void;
@@ -12,38 +12,56 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
   const [calibrationPath, setCalibrationPath] = useState("");
   const [projectPath, setProjectPath] = useState("");
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
+    setProjectPath("");
     setDataPath("");
     setQuamPath("");
     setCalibrationPath("");
     onCancel();
-  };
+  }, [onCancel]);
   
-  const handleCreate = () => {
+  const handleCreate = useCallback(() => {
     // TODO: Implement backend integration
-  };
+  }, []);
 
-  const isFormValid = projectPath.trim() !== "" && dataPath.trim() !== "" && quamPath.trim() !== "" && calibrationPath.trim() !== "";
+  const handleProjectPathChange = useCallback((val: string) => {
+    setProjectPath(val);
+  }, []);
+
+  const handleDataPathChange = useCallback((val: string) => {
+    setDataPath(val);
+  }, []);
+
+  const handleQuamPathChange = useCallback((val: string) => {
+    setQuamPath(val);
+  }, []);
+
+  const handleCalibrationPathChange = useCallback((val: string) => {
+    setCalibrationPath(val);
+  }, []);
+
+  const isFormValid = useCallback(() => {
+    return projectPath.trim() !== "" && 
+           dataPath.trim() !== "" && 
+           quamPath.trim() !== "" && 
+           calibrationPath.trim() !== "";
+  }, [projectPath, dataPath, quamPath, calibrationPath]);
 
   return (
     <div className={styles.createProjectPanel}>
       <h3 className={styles.header}>Create New Project</h3>
 
-      <label>Project name</label>
-      <InputField type="text" placeholder="Enter project name" value={projectPath} onChange={(val: string) => setProjectPath(val)} />
+      <ProjectFormField label="Project name" placeholder="Enter project name" value={projectPath} onChange={handleProjectPathChange} />
 
-      <label>Data path</label>
-      <InputField type="text" placeholder="Enter data path" value={dataPath} onChange={(val: string) => setDataPath(val)} />
+      <ProjectFormField label="Data path" placeholder="Enter data path" value={dataPath} onChange={handleDataPathChange} />
 
-      <label>QUAM state path</label>
-      <InputField type="text" placeholder="Enter QUAM path" value={quamPath} onChange={(val: string) => setQuamPath(val)} />
+      <ProjectFormField label="QUAM state path" placeholder="Enter QUAM path" value={quamPath} onChange={handleQuamPathChange} />
 
-      <label>Calibration library path</label>
-      <InputField type="text" placeholder="Enter calibration path" value={calibrationPath} onChange={(val: string) => setCalibrationPath(val)} />
+      <ProjectFormField label="Calibration library path" placeholder="Enter calibration path" value={calibrationPath} onChange={handleCalibrationPathChange} />
 
       <div className={styles.actions}>
         <button onClick={handleCancel} className={styles.cancel}>Cancel</button>
-        <button onClick={handleCreate} className={styles.create} disabled={!isFormValid}>Create</button>
+        <button onClick={handleCreate} className={styles.create} disabled={!isFormValid()}>Create</button>
       </div>
     </div>
   );

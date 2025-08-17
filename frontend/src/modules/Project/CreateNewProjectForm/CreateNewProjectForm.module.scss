@@ -47,16 +47,20 @@
     gap: 16px;
   }
   
-  .cancel {
+  .button {
     width: 136px;
     height: 34px;
-    background: transparent;
-    border: 1px solid var(--blue-button-hover);
-    color: var(--status-color-running);
     border-radius: 999px;
     padding: 8px 46px;
     font-weight: 500;
     cursor: pointer;
+  }
+  
+  .cancel {
+    @extend .button;
+    background: transparent;
+    color: var(--status-color-running);
+    border: 1px solid var(--blue-button-hover);
   
     &:hover {
       background: var(--blue-button-hover-light);
@@ -64,15 +68,10 @@
   }
   
   .create {
-    width: 136px;
-    height: 34px;
+    @extend .button;
     background: var(--blue-button-active);
     color: var(--white);
     border: none;
-    border-radius: 999px;
-    padding: 8px 46px;
-    font-weight: 500;
-    cursor: pointer;
   
     &:hover {
       background: var(--blue-button-active-light);
