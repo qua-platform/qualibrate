@@ -36,7 +36,7 @@ const MenuItem: React.FC<Module & { hideText: boolean; onClick?: () => void; isS
     >
       {Icon && <Icon color={MENU_TEXT_COLOR} />}
       {!hideText && displayTitle && (
-        <div className={styles.itemTitle} data-testid={`menu-item-title-${keyId}`} title={keyId === "active-project" ? displayTitle : undefined}> 
+        <div className={styles.itemTitle} data-testid={`menu-item-title-${keyId}`} title={keyId === "project" ? displayTitle : undefined}> 
           {displayTitle}
         </div>
       )}

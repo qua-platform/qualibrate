@@ -21,36 +21,35 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
   const [activeProject, setActiveProject] = useState<ProjectDTO | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
 
-  const fetchProjectsAndActive = useCallback(async () => {
-    const [projectsRes, activeNameRes] = await Promise.all([
-      ProjectViewApi.fetchAllProjects(),
-      ProjectViewApi.fetchActiveProject(),
-    ]);
-
-    if (projectsRes.isOk && projectsRes.result && activeNameRes.isOk && activeNameRes.result) {
-      const all = projectsRes.result as ProjectDTO[];
-      const activeName = activeNameRes.result;
-      const active = activeName ? all.find((p) => p.name === activeName) : undefined;
-
-      setAllProjects(all);
-      setActiveProject(active ?? all[0]);
-      return;
+  const fetchProjectsAndActive = async () => {
+    try {
+      const [projectsRes, activeNameRes] = await Promise.all([
+        ProjectViewApi.fetchAllProjects(),
+        ProjectViewApi.fetchActiveProject(),
+      ]);
+  
+      if (projectsRes.isOk && projectsRes.result) {
+        const fetchedProjects = projectsRes.result;
+        setAllProjects(fetchedProjects);
+        let fetchedActiveProject: ProjectDTO | undefined = undefined;
+        if (activeNameRes.isOk && activeNameRes.result) {
+          fetchedActiveProject = fetchedProjects.find(p => p.name === activeNameRes.result);
+          if (!fetchedActiveProject && fetchedProjects.length > 0) {
+            fetchedActiveProject = fetchedProjects[0];
+          }
+        } else if (fetchedProjects.length > 0) {
+          fetchedActiveProject = fetchedProjects[0];
+        }
+        setActiveProject(fetchedActiveProject);
+      }
+    } catch (error) {
+      console.error("Error fetching projects or active project:", error);
     }
-
-    // fallback in case of failure or empty results
-    const fallback: ProjectDTO = {
-      name: "My Project",
-      created_at: new Date().toISOString(),
-      last_modified_at: new Date().toISOString(),
-      nodes_number: 1,
-    };
-    setAllProjects([fallback]);
-    setActiveProject(fallback);
-  }, []);
+  };
 
   useEffect(() => {
     fetchProjectsAndActive();
-  }, [fetchProjectsAndActive]);
+  }, []);
 
   const selectActiveProject = useCallback((project: ProjectDTO) => {
     setActiveProject(project);

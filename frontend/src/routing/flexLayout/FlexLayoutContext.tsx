@@ -13,6 +13,7 @@ interface IFlexLayoutContext {
   model: Model;
   activeTab: null | ModuleKey;
   activeTabsetName: string | null;
+  setActiveTabsetName: (a: string | null) => void;
   activeTabsetId: null | number;
   topBarAdditionalComponents?: { [id: string]: React.JSX.Element };
   setTopBarAdditionalComponents: (a: { [id: string]: React.JSX.Element } | undefined) => void;
@@ -72,7 +73,7 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
     LayoutBuilder.current.openNewTab(tab);
     setModel(LayoutBuilder.current.model);
     setActiveTab(tab);
-    setActiveTabsetName(activeTab as string);
+    setActiveTabsetName(tab as string);
   }, []);
 
   const [activeTabsetId, setActiveTabsetId] = useState(null);
@@ -104,6 +105,7 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
         checkIsEmpty,
         activeTab,
         activeTabsetName,
+        setActiveTabsetName,
         flexLayoutListener,
         activeTabsetId,
         topBarAdditionalComponents,
