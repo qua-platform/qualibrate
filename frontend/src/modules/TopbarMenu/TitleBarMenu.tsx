@@ -1,4 +1,5 @@
 import React from "react";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./styles/TitleBarMenu.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import modulesMap from "../../routing/ModulesRegistry";

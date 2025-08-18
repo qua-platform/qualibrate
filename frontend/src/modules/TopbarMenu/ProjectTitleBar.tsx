@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./styles/TitleBarMenu.module.scss";
 import { NEW_PROJECT_BUTTON_VISIBLE } from "../../dev.config";
@@ -8,6 +8,14 @@ import CreateNewProjectForm from "../Project/CreateNewProjectForm/CreateNewProje
 const ProjectTitleBar: React.FC = () => {
   const [showCreatePanel, setShowCreatePanel] = useState(false);
 
+  const handleTogglePanel = useCallback(() => {
+    setShowCreatePanel(prev => !prev);
+  }, []);
+
+  const handleCancel = useCallback(() => {
+    setShowCreatePanel(false);
+  }, []);
+
   if (!NEW_PROJECT_BUTTON_VISIBLE) {
     return null;
   }
@@ -16,14 +24,14 @@ const ProjectTitleBar: React.FC = () => {
     <div className={styles.createProjectWrapper}>
       <button 
         title="Create new project" 
-        onClick={() => setShowCreatePanel(prev => !prev)} 
+        onClick={handleTogglePanel} 
         className={styles.createProjectButton}
       >
         <NewProjectButtonIcon />
       </button>
       {showCreatePanel && (
         <div className={styles.createProjectPanelWrapper}>
-          <CreateNewProjectForm onCancel={() => setShowCreatePanel(false)} />
+          <CreateNewProjectForm onCancel={handleCancel} />
         </div>
       )}
     </div>

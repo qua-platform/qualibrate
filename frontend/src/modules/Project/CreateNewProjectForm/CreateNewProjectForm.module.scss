@@ -18,11 +18,28 @@
     font-family: Roboto, sans-serif;
   }
   
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
   label {
     font-family: Roboto, sans-serif;
     font-size: 14px;
     color: var(--grey-highlight);
     margin-top: 6px;
+    display: block;
+    
+    &.error {
+      color: var(--error);
+    }
+  }
+  
+  .errorMessage {
+    color: var(--error);
+    font-size: 9px;
+    font-family: Roboto, sans-serif;
   }
   
   input {
@@ -58,6 +75,7 @@
   
   .cancel {
     @extend .button;
+
     background: transparent;
     color: var(--status-color-running);
     border: 1px solid var(--blue-button-hover);
@@ -69,6 +87,7 @@
   
   .create {
     @extend .button;
+
     background: var(--blue-button-active);
     color: var(--white);
     border: none;
