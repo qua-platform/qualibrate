@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 import tomli_w
 from fastapi.testclient import TestClient
+from qualibrate_config.core.project.path import get_project_path
 from qualibrate_config.models import QualibrateConfig
 from qualibrate_config.models.qualibrate import QualibrateTopLevelConfig
 from qualibrate_config.models.storage_type import StorageType
@@ -64,6 +65,10 @@ def client_custom_settings(
     settings_path_filled: Path,
 ) -> Generator[TestClient, None, None]:
     get_config_path.cache_clear()
+    project_path = get_project_path(
+        settings_path_filled.parent, settings.project
+    )
+    project_path.mkdir(parents=True)
     mocker.patch(
         "qualibrate_config.resolvers.get_config_file",
         return_value=settings_path_filled,
