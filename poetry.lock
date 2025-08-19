@@ -2064,14 +2064,14 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.3.3"
+version = "0.4.0a1"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_core-0.3.3-py3-none-any.whl", hash = "sha256:634d70c5a1a814efdc54f67754758c1a95f8878076acb56511c9aa01aed05ae6"},
-    {file = "qualibrate_core-0.3.3.tar.gz", hash = "sha256:85c9f38df390e9277cfafadb18bc3399dea6fd312f1a1b15579920a8317dd686"},
+    {file = "qualibrate_core-0.4.0a1-py3-none-any.whl", hash = "sha256:03190d07ec872748ea3fe5b259cb69fea1edd6f37e6ee082b799c3ea9662c4e9"},
+    {file = "qualibrate_core-0.4.0a1.tar.gz", hash = "sha256:8824c4d2409186fbc99ab00adbe323aea0baf8cf252486ee0900fa9ac98e30d1"},
 ]
 
 [package.dependencies]
@@ -2531,4 +2531,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.13"
-content-hash = "bb6d2f03f71e74b95ffd8b49972b4e016c3284849593f06e27b577ee02094f5b"
+content-hash = "5b3402dc2bc5b544bf1b781728ec5c0b467d67e857857c20596e6f3c7837037f"
