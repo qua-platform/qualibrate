@@ -2272,14 +2272,14 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.3.3"
+version = "0.4.0a1"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_core-0.3.3-py3-none-any.whl", hash = "sha256:634d70c5a1a814efdc54f67754758c1a95f8878076acb56511c9aa01aed05ae6"},
-    {file = "qualibrate_core-0.3.3.tar.gz", hash = "sha256:85c9f38df390e9277cfafadb18bc3399dea6fd312f1a1b15579920a8317dd686"},
+    {file = "qualibrate_core-0.4.0a1-py3-none-any.whl", hash = "sha256:03190d07ec872748ea3fe5b259cb69fea1edd6f37e6ee082b799c3ea9662c4e9"},
+    {file = "qualibrate_core-0.4.0a1.tar.gz", hash = "sha256:8824c4d2409186fbc99ab00adbe323aea0baf8cf252486ee0900fa9ac98e30d1"},
 ]
 
 [package.dependencies]
@@ -2296,14 +2296,14 @@ types-networkx = ">=3.2.1.20240918,<3.3.0.0"
 
 [[package]]
 name = "qualibrate-runner"
-version = "0.3.4a1"
+version = "0.4.0a1"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_runner-0.3.4a1-py3-none-any.whl", hash = "sha256:72f02a65b5aa5063ffd94813dc2324f2d0630093f08bd85adc0a72f79d784204"},
-    {file = "qualibrate_runner-0.3.4a1.tar.gz", hash = "sha256:fc93a9ac9ad803dc3e181055290a27668129947c5d74bb70b8d767b1ba46d851"},
+    {file = "qualibrate_runner-0.4.0a1-py3-none-any.whl", hash = "sha256:7496e5c97d90cffa1e0226fbd01fd83d6d5cc48dfb915eee0f38a679e58b4aba"},
+    {file = "qualibrate_runner-0.4.0a1.tar.gz", hash = "sha256:8da0b75731384c5e08f10ab0b3c097b4bd694563539355df50764da59c661627"},
 ]
 
 [package.dependencies]
@@ -2312,7 +2312,7 @@ fastapi = ">=0.115.2,<0.116.0"
 jsonpatch = ">=1.33,<2.0"
 pydantic-settings = ">=2.2.1,<3.0.0"
 qualibrate-config = ">=0.1.5,<0.2.0"
-qualibrate-core = ">=0.3.3,<0.4.0"
+qualibrate-core = ">=0.4.0a1,<0.5.0"
 tomli = {version = ">=2.0.1,<3.0.0", markers = "python_version < \"3.11\""}
 tomli-w = ">=1.0.0,<2.0.0"
 uvicorn = ">=0.34.0,<0.35.0"
@@ -2785,4 +2785,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.13"
-content-hash = "a6c8fffbffefa491466a21c0346ad21e130716fac41d7e50ed0163e0a70d5abc"
+content-hash = "97a1d742b73cf3afdbcdd3fbd278d11f5dce00c504ad8ad807120b58462abef2"
