@@ -1,6 +1,6 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import { ACTIVE_PROJECT, ALL_PROJECTS } from "../../../utils/api/apiRoutes";
+import { ACTIVE_PROJECT, ALL_PROJECTS, CREATE_PROJECT } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 
 export class ProjectViewApi extends Api {
@@ -30,5 +30,26 @@ export class ProjectViewApi extends Api {
       body: JSON.stringify({ active_project: projectName }),
       queryParams: { active_project: projectName },
     });
+  }
+
+  static createProject(
+    projectName: string,
+    storageLocation: string,
+    calibrationLibraryFolder: string,
+    quamStatePath: string
+  ): Promise<Res<string>> {
+    return this._fetch(
+      this.api(CREATE_PROJECT()),
+      API_METHODS.POST,
+      {
+        headers: BASIC_HEADERS,
+        body: JSON.stringify({
+          storage_location: storageLocation,
+          calibration_library_folder: calibrationLibraryFolder,
+          quam_state_path: quamStatePath,
+        }),
+        queryParams: { project_name: projectName },
+      }
+    );
   }
 }

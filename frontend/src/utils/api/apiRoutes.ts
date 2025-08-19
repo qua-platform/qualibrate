@@ -17,6 +17,7 @@ export const UPDATE_SNAPSHOT = (id: string) => `api/snapshot/${id}/update_entry`
 export const UPDATE_SNAPSHOTS = (id: string) => `api/snapshot/${id}/update_entries`;
 export const ALL_PROJECTS = () => "api/projects/list";
 export const ACTIVE_PROJECT = () => "api/projects/active";
+export const CREATE_PROJECT = () => "api/projects/create";
 export const IS_NODE_RUNNING = () => "execution/is_running";
 export const STOP_RUNNING = () => "execution/stop";
 export const ALL_NODES = () => "execution/get_nodes";

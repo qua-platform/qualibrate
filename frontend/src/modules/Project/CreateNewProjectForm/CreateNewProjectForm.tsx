@@ -3,6 +3,8 @@ import React, { useState, useCallback } from "react";
 import styles from "./CreateNewProjectForm.module.scss";
 import ProjectFormField from "../../../common/ui-components/common/Input/ProjectFormField";
 import { useProjectFormValidation } from "../../../ui-lib/hooks/useProjectFormValidation";
+import { useProjectContext } from "../context/ProjectContext";
+import { ProjectViewApi } from "../api/ProjectViewAPI";
 
 interface Props {
   onCancel: () => void;
@@ -24,8 +26,10 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { validatePath, validateProjectName } = useProjectFormValidation();
+  const { allProjects } = useProjectContext();
 
   const validateField = useCallback((field: keyof FormErrors, value: string) => {
     let error: string | undefined;
@@ -53,6 +57,13 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
     return !error;
   }, [validatePath, validateProjectName]);
 
+  const isFormValid = useCallback(() => {
+    return !validateProjectName(formData.projectPath) &&
+           !validatePath(formData.dataPath, "Data path") &&
+           !validatePath(formData.quamPath, "QUAM path") &&
+           !validatePath(formData.calibrationPath, "Calibration path");
+  }, [formData, validateProjectName, validatePath]);
+
   const handleCancel = useCallback(() => {
     setFormData({
       dataPath: "",
@@ -64,10 +75,45 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
     onCancel();
   }, [onCancel]);
   
-  const handleSubmit = useCallback((event: React.FormEvent) => {
+  const handleSubmit = useCallback(async (event: React.FormEvent) => {
     event.preventDefault();
-    // TODO: Implement backend integration
-  }, []);
+    
+    if (!isFormValid()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Check if project name already exists
+      const projectExists = allProjects.some(project => project.name === formData.projectPath);
+      if (projectExists) {
+        setErrors(prev => ({
+          ...prev,
+          projectPath: "A project with this name already exists"
+        }));
+        return;
+      }
+
+      const { isOk, error, result } = await ProjectViewApi.createProject(
+        formData.projectPath,
+        formData.dataPath,
+        formData.calibrationPath,
+        formData.quamPath
+      );
+
+      if (isOk) {
+        console.log("Project created successfully:", result);
+        handleCancel();
+      } else {
+        console.error("Failed to create project:", error);
+      }
+    } catch (err) {
+      console.error("Error creating project:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [formData, isFormValid, allProjects, handleCancel]);
 
   const handleProjectPathChange = useCallback((val: string) => {
     setFormData({ ...formData, projectPath: val });
@@ -88,13 +134,6 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
     setFormData({ ...formData, calibrationPath: val });
     setTimeout(() => validateField("calibrationPath", val), 300);
   }, [formData, validateField]);
-
-  const isFormValid = useCallback(() => {
-    return !validateProjectName(formData.projectPath) &&
-           !validatePath(formData.dataPath, "Data path") &&
-           !validatePath(formData.quamPath, "QUAM path") &&
-           !validatePath(formData.calibrationPath, "Calibration path");
-  }, [formData, validateProjectName, validatePath]);
 
   return (
     <div className={styles.createProjectPanel}>
@@ -134,8 +173,12 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
         />
 
         <div className={styles.actions}>
-          <button type="button" onClick={handleCancel} className={styles.cancel}>Cancel</button>
-          <button type="submit" className={styles.create} disabled={!isFormValid()}>Create</button>
+          <button type="button" onClick={handleCancel} className={styles.cancel} disabled={isSubmitting}>
+            Cancel
+          </button>
+          <button type="submit" className={styles.create} disabled={!isFormValid() || isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create"}
+          </button>
         </div>
       </form>
     </div>
