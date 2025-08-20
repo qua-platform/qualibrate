@@ -31,7 +31,7 @@ export const GraphLibrary = () => {
         {isRescanningGraphs && (
           <div className={styles.loadingContainer}>
             <CircularProgress size={32} />
-            <span className={styles.loadingText}>Graph library scan in progress</span>
+            Graph library scan in progress
           </div>
         )}
         <GraphList />

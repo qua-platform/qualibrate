@@ -32,7 +32,7 @@ export const NodesPage = () => {
             {isRescanningNodes && (
               <div className={styles.loadingContainer}>
                 <CircularProgress size={32} />
-                <span className={styles.loadingText}>Node library scan in progress</span>
+                Node library scan in progress
               </div>
             )}
             <NodeElementList listOfNodes={allNodes} />
