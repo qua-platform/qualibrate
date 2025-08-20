@@ -160,7 +160,7 @@ class QualibrationNode(
 
     def _post_init(self) -> None:
         self.run_start = datetime.now().astimezone()
-        self.run_end = None
+        self.last_saved_at = None
         self._get_storage_manager()
 
         self._warn_if_external_and_interactive_mpl()
@@ -384,7 +384,7 @@ class QualibrationNode(
             ImportError: Raised if required configurations are not accessible.
         """
         self._get_storage_manager().save(node=self)
-        self.run_end = datetime.now().astimezone()
+        self.last_saved_at = datetime.now().astimezone()
 
     def _load_from_id(
         self,
