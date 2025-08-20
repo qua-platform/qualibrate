@@ -8,9 +8,10 @@ import { Results } from "./components/Results/Results";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
+import { CircularProgress } from "@mui/material";
 
 export const NodesPage = () => {
-  const { allNodes, runningNodeInfo, fetchAllNodes } = useNodesContext();
+  const { allNodes, runningNodeInfo, fetchAllNodes, isRescanningNodes } = useNodesContext();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
   const NodeTopBarRefreshButton = () => {
     return (
@@ -28,6 +29,12 @@ export const NodesPage = () => {
       <div className={styles.nodesAndRunningJobInfoWrapper} data-testid="nodes-and-job-wrapper">
         <div className={styles.nodesContainerTop}>
           <div className={styles.nodeElementListWrapper}>
+            {isRescanningNodes && (
+              <div className={styles.loadingContainer}>
+                <CircularProgress size={32} />
+                <span className={styles.loadingText}>Node library scan in progress</span>
+              </div>
+            )}
             <NodeElementList listOfNodes={allNodes} />
           </div>
         </div>
