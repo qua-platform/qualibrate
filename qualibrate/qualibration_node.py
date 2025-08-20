@@ -147,7 +147,9 @@ class QualibrationNode(
         self._action_manager = ActionManager()
         self.namespace: dict[str, Any] = {}
         if self.modes.inspection:
-            raise StopInspection("Node instantiated in inspection mode", instance=self)
+            raise StopInspection(
+                "Node instantiated in inspection mode", instance=self
+            )
         self._post_init()
 
     @staticmethod
@@ -192,7 +194,9 @@ class QualibrationNode(
         Raises:
             ValueError: If parameters class instantiation fails.
         """
-        params_type_error = ValueError("Node parameters must be of type NodeParameters")
+        params_type_error = ValueError(
+            "Node parameters must be of type NodeParameters"
+        )
         if parameters is not None:
             if not isinstance(parameters, NodeParameters):
                 raise params_type_error
@@ -215,7 +219,10 @@ class QualibrationNode(
                 __doc__=NodeParameters.__doc__,
                 __base__=NodeParameters,
                 __module__=NodeParameters.__module__,
-                **{name: (info.annotation, info) for name, info in fields.items()},
+                **{
+                    name: (info.annotation, info)
+                    for name, info in fields.items()
+                },
             )
             return cast(ParametersType, new_model())
         logger.warning(
@@ -281,11 +288,15 @@ class QualibrationNode(
             f"{name = }, {node_parameters = }"
         )
         if name is not None and not isinstance(name, str):
-            raise ValueError(f"{self.__class__.__name__} should have a string name")
+            raise ValueError(
+                f"{self.__class__.__name__} should have a string name"
+            )
         instance = self.__copy__()
         if name is not None:
             instance.name = name
-        instance._parameters = instance.parameters_class.model_validate(node_parameters)
+        instance._parameters = instance.parameters_class.model_validate(
+            node_parameters
+        )
         # Base class is inherited from user passed model so don't use passed
         # class as base for copied parameters class
         instance.parameters_class = self.build_parameters_class_from_instance(
@@ -431,7 +442,9 @@ class QualibrationNode(
                 self.machine = quam_machine
             if parameters is not None:
                 if build_params_class:
-                    self.parameters_class = cast(ParametersType, parameters).__class__
+                    self.parameters_class = cast(
+                        ParametersType, parameters
+                    ).__class__
                     self._parameters = cast(ParametersType, parameters)
                 else:
                     self._parameters = self.parameters.model_construct(
@@ -513,7 +526,9 @@ class QualibrationNode(
             outcomes.update(
                 {target: Outcome.SUCCESSFUL for target in lost_targets_outcomes}
             )
-        self.outcomes = {name: Outcome(outcome) for name, outcome in outcomes.items()}
+        self.outcomes = {
+            name: Outcome(outcome) for name, outcome in outcomes.items()
+        }
         self.run_summary = NodeRunSummary(
             name=self.name,
             description=self.description,
@@ -568,7 +583,9 @@ class QualibrationNode(
             RuntimeError: Raised if the node filepath is not provided, or
                 execution
         """
-        logger.info(f"Run node {self.name} with parameters: {passed_parameters}")
+        logger.info(
+            f"Run node {self.name} with parameters: {passed_parameters}"
+        )
         self._fraction_complete = 0
         if self.filepath is None:
             ex = RuntimeError(f"Node {self.name} file path was not provided")
@@ -579,7 +596,9 @@ class QualibrationNode(
         )
         params_dict.update(passed_parameters)
         parameters = self.parameters.model_validate(params_dict)
-        initial_targets = copy.copy(parameters.targets) if parameters.targets else []
+        initial_targets = (
+            copy.copy(parameters.targets) if parameters.targets else []
+        )
         self.run_start = datetime.now().astimezone()
         run_error: Optional[RunError] = None
 
@@ -640,7 +659,9 @@ class QualibrationNode(
         # Appending dir with nodes can cause issues with relative imports
         try:
             matplotlib.use("agg")
-            _module = import_from_path(get_module_name(node_filepath), node_filepath)
+            _module = import_from_path(
+                get_module_name(node_filepath), node_filepath
+            )
         finally:
             matplotlib.use(mpl_backend)
 
@@ -793,7 +814,9 @@ class QualibrationNode(
             nodes: dictionary to store nodes.
         """
         if node.name in nodes:
-            logger.warning(f'Node "{node.name}" already exists in library, overwriting')
+            logger.warning(
+                f'Node "{node.name}" already exists in library, overwriting'
+            )
 
         nodes[node.name] = node
 
