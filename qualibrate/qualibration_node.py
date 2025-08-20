@@ -445,8 +445,11 @@ class QualibrationNode(
                     ).__class__
                     self._parameters = cast(ParametersType, parameters)
                 else:
-                    self._parameters = self.parameters.model_construct(
-                        **cast(Mapping[str, Any], parameters)
+                    self._parameters = cast(
+                        ParametersType,
+                        self.parameters.model_construct(
+                            **cast(Mapping[str, Any], parameters)
+                        ),
                     )
 
         data = read_node_data(node_dir, node_id, base_path, custom_loaders)
