@@ -7,7 +7,7 @@ import { useProjectContext } from "../context/ProjectContext";
 import { ProjectViewApi } from "../api/ProjectViewAPI";
 
 interface Props {
-  onCancel: () => void;
+  closeNewProjectForm: () => void;
 }
 
 interface FormErrors {
@@ -17,7 +17,7 @@ interface FormErrors {
   calibrationPath?: string;
 }
 
-const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
+const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
   const [formData, setFormData] = useState({
     dataPath: "",
     quamPath: "",
@@ -58,13 +58,10 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
   }, [validatePath, validateProjectName]);
 
   const isFormValid = useCallback(() => {
-    return !validateProjectName(formData.projectPath) &&
-           !validatePath(formData.dataPath, "Data path") &&
-           !validatePath(formData.quamPath, "QUAM path") &&
-           !validatePath(formData.calibrationPath, "Calibration path");
-  }, [formData, validateProjectName, validatePath]);
+    return !validateProjectName(formData.projectPath);
+  }, [formData, validateProjectName]);
 
-  const handleCancel = useCallback(() => {
+  const handleCloseNewProjectForm = useCallback(() => {
     setFormData({
       dataPath: "",
       quamPath: "",
@@ -72,9 +69,13 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
       projectPath: ""
     });
     setErrors({});
-    onCancel();
-  }, [onCancel]);
+    closeNewProjectForm();
+  }, [closeNewProjectForm]);
   
+  const checkProjectNameExists = useCallback((projectName: string): boolean => {
+    return allProjects.some(project => project.name === projectName);
+  }, [allProjects]);
+
   const handleSubmit = useCallback(async (event: React.FormEvent) => {
     event.preventDefault();
     
@@ -85,9 +86,7 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
     setIsSubmitting(true);
 
     try {
-      // Check if project name already exists
-      const projectExists = allProjects.some(project => project.name === formData.projectPath);
-      if (projectExists) {
+      if (checkProjectNameExists(formData.projectPath)) {
         setErrors(prev => ({
           ...prev,
           projectPath: "A project with this name already exists"
@@ -95,16 +94,11 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
         return;
       }
 
-      const { isOk, error, result } = await ProjectViewApi.createProject(
-        formData.projectPath,
-        formData.dataPath,
-        formData.calibrationPath,
-        formData.quamPath
-      );
+      const { isOk, error, result } = await ProjectViewApi.createProject(formData);
 
       if (isOk) {
         console.log("Project created successfully:", result);
-        handleCancel();
+        handleCloseNewProjectForm();
       } else {
         console.error("Failed to create project:", error);
       }
@@ -113,7 +107,7 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData, isFormValid, allProjects, handleCancel]);
+  }, [formData, isFormValid, checkProjectNameExists, handleCloseNewProjectForm]);
 
   const handleProjectPathChange = useCallback((val: string) => {
     setFormData({ ...formData, projectPath: val });
@@ -122,17 +116,29 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
 
   const handleDataPathChange = useCallback((val: string) => {
     setFormData({ ...formData, dataPath: val });
-    setTimeout(() => validateField("dataPath", val), 300);
+    if (val.trim()) {
+      setTimeout(() => validateField("dataPath", val), 300);
+    } else {
+      setErrors(prev => ({ ...prev, dataPath: undefined }));
+    }
   }, [formData, validateField]);
 
   const handleQuamPathChange = useCallback((val: string) => {
     setFormData({ ...formData, quamPath: val });
-    setTimeout(() => validateField("quamPath", val), 300);
+    if (val.trim()) {
+      setTimeout(() => validateField("quamPath", val), 300);
+    } else {
+      setErrors(prev => ({ ...prev, quamPath: undefined }));
+    }
   }, [formData, validateField]);
 
   const handleCalibrationPathChange = useCallback((val: string) => {
     setFormData({ ...formData, calibrationPath: val });
-    setTimeout(() => validateField("calibrationPath", val), 300);
+    if (val.trim()) {
+      setTimeout(() => validateField("calibrationPath", val), 300);
+    } else {
+      setErrors(prev => ({ ...prev, calibrationPath: undefined }));
+    }
   }, [formData, validateField]);
 
   return (
@@ -173,7 +179,7 @@ const CreateNewProjectForm: React.FC<Props> = ({ onCancel }) => {
         />
 
         <div className={styles.actions}>
-          <button type="button" onClick={handleCancel} className={styles.cancel} disabled={isSubmitting}>
+          <button type="button" onClick={handleCloseNewProjectForm} className={styles.cancel} disabled={isSubmitting}>
             Cancel
           </button>
           <button type="submit" className={styles.create} disabled={!isFormValid() || isSubmitting}>

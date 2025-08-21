@@ -32,23 +32,23 @@ export class ProjectViewApi extends Api {
     });
   }
 
-  static createProject(
-    projectName: string,
-    storageLocation: string,
-    calibrationLibraryFolder: string,
-    quamStatePath: string
-  ): Promise<Res<string>> {
+  static createProject(formData: {
+    projectPath: string;
+    dataPath: string;
+    calibrationPath: string;
+    quamPath: string;
+  }): Promise<Res<string>> {
     return this._fetch(
       this.api(CREATE_PROJECT()),
       API_METHODS.POST,
       {
         headers: BASIC_HEADERS,
         body: JSON.stringify({
-          storage_location: storageLocation,
-          calibration_library_folder: calibrationLibraryFolder,
-          quam_state_path: quamStatePath,
+          storage_location: formData.dataPath,
+          calibration_library_folder: formData.calibrationPath,
+          quam_state_path: formData.quamPath,
         }),
-        queryParams: { project_name: projectName },
+        queryParams: { project_name: formData.projectPath },
       }
     );
   }

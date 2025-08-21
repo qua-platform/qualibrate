@@ -15,7 +15,7 @@ interface Props {
 const ProjectFormField: React.FC<Props> = ({ label, placeholder, value, onChange, type = "text", error }) => {
   return (
     <>
-      <label className={error ? styles.error : ""}>{label}</label>
+      <label className={error ? styles.error : undefined}>{label}</label>
       <InputField type={type} placeholder={placeholder} value={value} onChange={onChange} error={error} />
     </>
   );
