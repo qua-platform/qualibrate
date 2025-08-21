@@ -238,6 +238,16 @@ class QualibrationNode(
                 f"Can't instantiate parameters class of node '{name}'"
             ) from e
 
+    @property
+    def action_label(self) -> str:
+        if self._custom_action_label is not None:
+            return self._custom_action_label
+        return self._action_manager.current_action.name
+
+    @action_label.setter
+    def action_label(self, value: str) -> None:
+        self._custom_action_label = value
+
     def __copy__(self) -> Self:
         """
         Creates a shallow copy of the node.
@@ -369,6 +379,7 @@ class QualibrationNode(
                 # action code; this action is skipped if
                 # skip_if is True.
         """
+        self._custom_action_label = None
         return self._action_manager.register_action(self, func, skip_if=skip_if)
 
     def _get_storage_manager(self) -> StorageManager[Self]:
