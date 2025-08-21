@@ -1,10 +1,12 @@
-import React, { useCallback } from "react";
+import React, { useMemo, useCallback } from "react";
 import ProjectInfo from "./ProjectInfo";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 import cyKeys from "../../../utils/cyKeys";
 import SelectField from "../../../common/ui-components/common/Input/SelectField";
+import { getColorIndex } from "../helpers";
+import { colorPalette } from "../constants";
 
 const SelectRuntime = <SelectField options={["Localhost"]} onChange={() => {}} />;
 
@@ -17,13 +19,15 @@ interface Props {
 }
 
 const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: Props) => {
+  const index = useMemo(() => getColorIndex(name), [name]);
+  const projectColor = colorPalette[index];  
   const handleOnClick = useCallback(() => {
     if (!onClick) {
       return;
     }
 
     onClick(name);
-  }, [onClick, name]); // TODO Possible BUG
+  }, [onClick, name]);
 
   return (
     <button
@@ -31,7 +35,7 @@ const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: 
       onClick={handleOnClick}
       data-cy={cyKeys.projects.PROJECT}
     >
-      <ProjectInfo name={name} />
+      <ProjectInfo name={name} colorIcon={projectColor}/>
       <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
     </button>
   );

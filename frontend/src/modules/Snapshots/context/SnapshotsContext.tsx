@@ -1,7 +1,6 @@
-import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
+import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState } from "react";
 import { SnapshotDTO } from "../SnapshotDTO";
-import { SnapshotResult, SnapshotsApi } from "../api/SnapshotsApi";
-import { Res } from "../../../common/interfaces/Api";
+import { SnapshotsApi } from "../api/SnapshotsApi";
 
 interface ISnapshotsContext {
   // trackLatestSidePanel: boolean;
@@ -92,41 +91,91 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
   const [reset, setReset] = useState<boolean>(false);
 
   const [jsonDataSidePanel, setJsonDataSidePanel] = useState<object | undefined>(undefined);
-  const [jsonData, setJsonData] = useState<object | undefined>(undefined);
+  const [jsonData, setJsonData] = useState<object | undefined>();
   const [diffData, setDiffData] = useState<object | undefined>(undefined);
   const [result, setResult] = useState<object | undefined>(undefined);
 
   const [firstId, setFirstId] = useState<string>("0");
   const [secondId, setSecondId] = useState<string>("0");
 
-  // -----------------------------------------------------------
-  // FIRST FETCH ALL SNAPSHOTS ON THE BEGINNING
-  const fetchGitgraphSnapshots = (firstTime: boolean, page: number) => {
-    SnapshotsApi.fetchAllSnapshots(page).then((promise: Res<SnapshotResult>) => {
-      if (promise.isOk) {
-        setTotalPages(promise.result?.total_pages ?? 1);
-        setPageNumber(promise.result?.page ?? 1);
-        setAllSnapshots(promise?.result?.items ?? []);
-        let lastElId = 0;
+  const fetchSnapshotJsonData = useCallback((id: string) => {
+    try {
+      return SnapshotsApi.fetchSnapshot(id);
+    } catch (e) {
+      console.error(`Failed to fetch a snapshot (id=${id}):`, e);
+      return null;
+    }
+  }, []);
+  const fetchSnapshotResults = useCallback((id: string) => {
+    try {
+      return SnapshotsApi.fetchSnapshotResult(id);
+    } catch (e) {
+      console.error(`Failed to fetch results for the snapshot (id=${id}):`, e);
+      return undefined;
+    }
+  }, []);
+  const fetchSnapshotDiff = useCallback((id2: string, id1: string) => {
+    try {
+      return SnapshotsApi.fetchSnapshotUpdate(id1, id2);
+    } catch (e) {
+      console.error(`Failed to fetch snapshot updates for the snapshots (id2=${id2}, id1=${id1}):`, e);
+      return undefined;
+    }
+  }, []);
 
-        if (promise?.result?.items) {
-          lastElId = promise?.result.items.length > 0 ? promise?.result.items[0]?.id : 0;
-          setLatestSnapshotId(lastElId);
-          if (trackLatestSidePanel) {
-            if (trackPreviousSnapshot) {
-              fetchOneSnapshot(lastElId, lastElId - 1, false, true);
-            } else {
-              fetchOneSnapshot(lastElId, Number(secondId), false, true);
-            }
-          }
+  const fetchOneSnapshot = async (snapshotId: number, snapshotId2?: number, updateResult = true, fetchUpdate = false) => {
+    const id1 = (snapshotId ?? 0).toString();
+    const id2 = snapshotId2 ? snapshotId2.toString() : snapshotId - 1 >= 0 ? (snapshotId - 1).toString() : "0";
+    const resSnapshotJsonData = await fetchSnapshotJsonData(id1);
+    if (resSnapshotJsonData?.isOk) {
+      if (updateResult) {
+        setJsonData(resSnapshotJsonData.result?.data);
+        const resSnapshotResults = await fetchSnapshotResults(id1);
+        if (resSnapshotResults?.isOk) {
+          setResult(resSnapshotResults?.result);
         }
-        if (firstTime) {
-          if (promise?.result?.items) {
-            // const lastElId = promise?.result.items.length > 0 ? promise?.result.items[0].id : 0;
-            setSelectedSnapshotId(lastElId);
-            // const lastIndex = promise?.result.items.length - 1;
-            fetchOneSnapshot(lastElId, lastElId - 1, false, true);
-          }
+      }
+      setJsonDataSidePanel(resSnapshotJsonData?.result?.data?.quam ?? {});
+    }
+    if (id1 !== id2 && fetchUpdate) {
+      const resSnapshotDiff = await fetchSnapshotDiff(id2, id1);
+      if (resSnapshotDiff?.isOk) {
+        setDiffData(resSnapshotDiff?.result ?? {});
+      }
+    } else {
+      setDiffData({});
+    }
+  };
+  const fetchAllSnapshots = useCallback(async (page: number) => {
+    try {
+      return SnapshotsApi.fetchAllSnapshots(page);
+    } catch (e) {
+      console.error(`Failed to fetch all snapshots (page=${page}):`, e);
+      return null;
+    }
+  }, []);
+
+  const fetchGitgraphSnapshots = async (firstTime: boolean, page: number) => {
+    const resAllSnapshots = await fetchAllSnapshots(page);
+    if (resAllSnapshots && resAllSnapshots?.isOk) {
+      const items = resAllSnapshots.result?.items;
+      setTotalPages(resAllSnapshots.result?.total_pages ?? 1);
+      setPageNumber(resAllSnapshots.result?.page ?? 1);
+      setAllSnapshots(resAllSnapshots.result?.items ?? []);
+      let lastElId = 0;
+      if (items) {
+        lastElId = items.length > 0 ? items[0]?.id : 0;
+        setLatestSnapshotId(lastElId);
+        if (trackLatestSidePanel) {
+          const snapshotId1 = lastElId;
+          const snapshotId2 = trackPreviousSnapshot ? lastElId - 1 : Number(secondId);
+          fetchOneSnapshot(snapshotId1, snapshotId2, false, true);
+        }
+      }
+      if (firstTime) {
+        if (items) {
+          setSelectedSnapshotId(lastElId);
+          fetchOneSnapshot(lastElId, lastElId - 1, true, true);
         } else {
           if (selectedSnapshotId) {
             fetchOneSnapshot(selectedSnapshotId);
@@ -134,7 +183,7 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
           }
         }
       }
-    });
+    }
   };
 
   useEffect(() => {
@@ -146,26 +195,26 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
 
   // -----------------------------------------------------------
   // PERIODICAL FETCH ALL SNAPSHOTS
-  const intervalFetch = (page: number) => {
-    SnapshotsApi.fetchAllSnapshots(page).then((promise: Res<SnapshotResult>) => {
-      setTotalPages(promise.result?.total_pages as number);
-      setPageNumber(promise.result?.page as number);
-      const newMaxId = promise.result?.items[0]?.id;
+  const intervalFetch = async (page: number) => {
+    const resAllSnapshots = await fetchAllSnapshots(page);
+    if (resAllSnapshots) {
+      setTotalPages(resAllSnapshots.result?.total_pages as number);
+      setPageNumber(resAllSnapshots.result?.page as number);
+      const newMaxId = resAllSnapshots.result?.items[0]?.id;
       const odlMaxId = allSnapshots[0]?.id;
       console.log(`Max snapshot ID - previous=${odlMaxId}, latest=${newMaxId}`);
-      if (newMaxId !== odlMaxId! && allSnapshots.length !== 0) {
+      if (newMaxId !== odlMaxId! && resAllSnapshots.result?.items?.length !== 0) {
         setReset(true);
       } else {
         setReset(false);
       }
-      return promise;
-    });
+    }
   };
 
   // TODO Add lastSelectedId! in state
 
   useEffect(() => {
-    const checkInterval = setInterval(async () => intervalFetch(pageNumber), 1000);
+    const checkInterval = setInterval(() => intervalFetch(pageNumber), 1000);
     return () => clearInterval(checkInterval);
   }, [allSnapshots, pageNumber]);
   // -----------------------------------------------------------
@@ -180,68 +229,6 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
     }
   }, [reset, pageNumber]);
   // -----------------------------------------------------------
-
-  const fetchOneSnapshot = (snapshotId: number, snapshotId2?: number, updateResult = true, fetchUpdate = false) => {
-    // console.log("fetchOneSnapshot", snapshotId, snapshotId2, updateResult);
-    // const fetchOneSnapshot = (snapshots: SnapshotDTO[], index: number) => {
-    // const id1 = snapshots[index].id.toString();
-    // const index2 = index - 1 >= 0 ? index - 1 : 0;
-    // const index2 = selectedSnapshotId ? (selectedSnapshotId - 1 >= 0 ? selectedSnapshotId - 1 : 0) : 0;
-    const id1 = (snapshotId ?? 0).toString();
-    const id2 = snapshotId2 ? snapshotId2.toString() : snapshotId - 1 >= 0 ? (snapshotId - 1).toString() : "0";
-    SnapshotsApi.fetchSnapshot(id1)
-      .then((promise: Res<SnapshotDTO>) => {
-        if (updateResult) {
-          setJsonData(promise?.result?.data);
-        }
-        setJsonDataSidePanel(promise?.result?.data?.quam ?? {});
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-    if (updateResult) {
-      SnapshotsApi.fetchSnapshotResult(id1)
-        .then((promise: Res<object>) => {
-          if (promise.result) {
-            setResult(promise?.result);
-          } else {
-            setResult(undefined);
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    }
-    if (id1 !== id2 && fetchUpdate) {
-      SnapshotsApi.fetchSnapshotUpdate(id2, id1)
-        .then((promise: Res<object>) => {
-          if (promise.result) {
-            setDiffData(promise?.result);
-          } else {
-            setDiffData({});
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    } else {
-      setDiffData({});
-    }
-  };
-  // const gitgraphUpdate = () => {
-  //   const newArray = allSnapshots.map((res, index) => {
-  //     return Object.assign(res, { isSelected: index === selectedSnapshotIndex });
-  //   });
-  //   setAllSnapshots(newArray);
-  // };
-
-  // useEffect(() => {
-  //   if (flag) {
-  //     setAllSnapshots([]);
-  //     const updateFn = setTimeout(() => gitgraphUpdate(), 20);
-  //     return () => clearTimeout(updateFn);
-  //   }
-  // }, [selectedSnapshotIndex, flag]);
 
   return (
     <SnapshotsContext.Provider

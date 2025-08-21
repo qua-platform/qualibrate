@@ -1,51 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import styles from "./MeasurementElementGraph.module.scss";
 import CytoscapeGraph from "../../../CytoscapeGraph/CytoscapeGraph";
 import cytoscape from "cytoscape";
-import { LastRunInfo } from "../../../../context/GraphContext";
 import { CircularProgress } from "@mui/material";
 import { SnapshotsApi } from "../../../../../Snapshots/api/SnapshotsApi";
 import BlueButton from "../../../../../../ui-lib/components/Button/BlueButton";
 import { classNames } from "../../../../../../utils/classnames";
+import { useWebSocketData } from "../../../../../../contexts/WebSocketContext";
 
 interface IProps {
   workflowGraphElements: cytoscape.ElementDefinition[];
   onCytoscapeNodeClick?: (name: string) => void;
-  active?: boolean;
-  nodesCompleted?: number;
-  runDuration?: number;
-  lastRunInfo?: LastRunInfo;
 }
 
-export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements, onCytoscapeNodeClick, lastRunInfo }) => {
-  const [tuneUpName, setTuneUpName] = useState<string | undefined>(lastRunInfo?.workflowName);
+export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements, onCytoscapeNodeClick }) => {
+  const { runStatus } = useWebSocketData();
 
-  useEffect(() => {
-    if (lastRunInfo?.workflowName) {
-      setTuneUpName(lastRunInfo.workflowName);
-    }
-  }, [lastRunInfo?.workflowName]);
-
-  const isRunning = lastRunInfo?.active;
+  const isRunning = runStatus?.graph?.status === "running";
 
   const graphProgressMessage =
-    lastRunInfo?.nodesCompleted !== undefined &&
-    lastRunInfo?.nodesCompleted !== null &&
-    lastRunInfo?.nodesTotal !== undefined &&
-    lastRunInfo?.nodesTotal !== null
-      ? `${lastRunInfo?.nodesCompleted}/${lastRunInfo?.nodesTotal} node${lastRunInfo?.nodesCompleted > 1 ? "s" : ""} completed`
-      : "";
-  const runDurationMessage = lastRunInfo?.runDuration ? `${lastRunInfo?.runDuration}s` : undefined;
-  const statusMessage = lastRunInfo?.error
-    ? "error"
-    : lastRunInfo?.active
-      ? "running"
-      : lastRunInfo?.status !== "error"
-        ? "finished"
-        : lastRunInfo.status;
-  const handleStopClick = () => {
+    runStatus?.graph?.finished_nodes && runStatus?.graph?.total_nodes
+      ? `${runStatus?.graph?.finished_nodes}/${runStatus?.graph?.total_nodes} node${runStatus?.graph?.finished_nodes > 1 ? "s" : ""} completed`
+      : "-";
+  const handleStopClick = useCallback(() => {
     SnapshotsApi.stopNodeRunning();
-  };
+  }, []);
 
   return (
     <div className={styles.wrapper}>
@@ -53,24 +32,26 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
         <span
           className={classNames(
             styles.dot,
-            isRunning ? styles.blinkingYellow : lastRunInfo?.active === false ? styles.solidGreen : styles.defaultBlue
+            isRunning ? styles.blinkingYellow : runStatus?.graph?.status === "finished" ? styles.solidGreen : styles.defaultBlue
           )}
         />
         <span className={styles.label}>Active Calibration Graph:</span>
-        <span className={styles.tuneUpName}>{tuneUpName || "Unknown Tune-up"}</span>
+        <span className={styles.tuneUpName}>{runStatus?.graph?.name || "Unknown Tune-up"}</span>
       </div>
 
       <div className={styles.insideWrapper}>
         <div className={styles.lowerContainer}>
           <div className={styles.lowerUpperContainer}>
             <div className={styles.lowerUpperLeftContainer}>
-              <div>Status: {statusMessage}</div>
-              <div>Run duration: {runDurationMessage ?? <CircularProgress size="2rem" />}</div>
-              <div>Graph progress: {graphProgressMessage ?? <CircularProgress size="2rem" />}</div>
-              {/*{lastRunInfo?.error && <ErrorStatusWrapper error={lastRunInfo?.error} />}*/}
+              <div>Status: {runStatus?.graph?.status}</div>
+              <div>
+                Run duration:&nbsp;
+                {(runStatus?.graph?.run_duration ? `${runStatus?.graph?.run_duration}s` : undefined) ?? <CircularProgress size="2rem" />}
+              </div>
+              <div>Graph progress:&nbsp;{graphProgressMessage ?? <CircularProgress size="2rem" />}</div>
             </div>
             <div className={styles.lowerUpperRightContainer}>
-              {lastRunInfo?.active && <BlueButton onClick={handleStopClick}>Stop</BlueButton>}
+              {runStatus?.graph?.status === "running" && <BlueButton onClick={handleStopClick}>Stop</BlueButton>}
             </div>
           </div>
           <div className={styles.lowerLowerContainer}>

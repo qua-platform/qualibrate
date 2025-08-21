@@ -38,7 +38,7 @@ export const fallbackGraph: GraphItem = {
   finished_nodes: 0,
   total_nodes: 1,
   status: "pending",
-  run_start: 0,
+  run_start: "0",
   run_end: 0,
   run_duration: 0,
   percentage_complete: 0,

@@ -77,8 +77,9 @@ const WebSocketContext = createContext<WebSocketData>({
 export const useWebSocketData = () => useContext(WebSocketContext);
 
 export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const protocol = process.env.WS_PROTOCOL || "ws";
-  const host = process.env.WS_BASE_URL || "localhost:8001/";
+  const protocol = window.location.protocol === "http:" ? "ws" : "wss";
+  const location = process.env.WS_BASE_URL || `${window.location.host}${window.location.pathname}`;
+  const host = process.env.WS_BASE_URL || location;
   const runStatusWS = useRef<WebSocketService<RunStatusType> | null>(null);
   const historyWS = useRef<WebSocketService<HistoryType> | null>(null);
   const [runStatus, setRunStatus] = useState<RunStatusType | null>(null);

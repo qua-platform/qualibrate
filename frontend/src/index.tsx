@@ -11,6 +11,7 @@ import { createRoot } from "react-dom/client";
 import { AuthContextProvider } from "./modules/Login/context/AuthContext";
 import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
+import { GraphContextProvider } from "./modules/GraphLibrary/context/GraphContext";
 
 type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
 
@@ -23,6 +24,7 @@ const contextProviders: ProviderComponent[] = [
   WebSocketProvider,
   RouterProvider,
   SnapshotsContextProvider,
+  GraphContextProvider,
 ];
 
 const Application: React.FunctionComponent = () => {
