@@ -22,6 +22,7 @@ WORKFLOW_STATUS_ENDPOINT = "/execution/last_run/workflow/status"
 WORKFLOW_HISTORY_ENDPOINT = "/execution/last_run/workflow/execution_history"
 EXECUTION_LAST_RUN_STATUS_ENDPOINT = "/execution/last_run/status"
 SNAPSHOTS_HISTORY_ENDPOINT = "/api/branch/main/snapshots_history"
+OUTPUT_LOGS_ENDPOINT = "/execution/output_logs"
 
 
 def spawn_qualibrate_runner(app: FastAPI) -> None:
@@ -40,6 +41,7 @@ def spawn_qualibrate_runner(app: FastAPI) -> None:
                 WORKFLOW_HISTORY_ENDPOINT,
                 EXECUTION_LAST_RUN_STATUS_ENDPOINT,
                 SNAPSHOTS_HISTORY_ENDPOINT,
+                OUTPUT_LOGS_ENDPOINT,
             )
         )
     )
@@ -94,7 +96,7 @@ def validate_runner_version_for_app() -> None:
         and existing_version.micro >= dep_version.micro
     ):
         return
-    max_version = Version(f"{dep_version.major}.{dep_version.minor+1}.0")
+    max_version = Version(f"{dep_version.major}.{dep_version.minor + 1}.0")
     raise RuntimeError(
         f"Invalid qualibrate-runner version. Expected: '=={dep_version}'. "
         f"Allowed: '>={dep_version}, <{max_version}'. "
