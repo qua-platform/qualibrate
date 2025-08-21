@@ -130,10 +130,10 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
       const allFetchedGraphs = response.result! as GraphMap;
       const updatedGraphs = updateAllGraphs(allFetchedGraphs);
       setAllGraphs(updatedGraphs);
+      setIsRescanningGraphs(false);
     } else if (response.error) {
       console.log(response.error);
     }
-    setIsRescanningGraphs(false);
   };
 
   const fetchWorkflowGraph = async (nodeName: string) => {

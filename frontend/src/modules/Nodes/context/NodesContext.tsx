@@ -129,10 +129,10 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
     const response = await NodesApi.fetchAllNodes();
     if (response.isOk) {
       setAllNodes(response.result! as NodeMap);
+      setIsRescanningNodes(false);
     } else if (response.error) {
       console.log(response.error);
     }
-    setIsRescanningNodes(false);
   };
   useEffect(() => {
     fetchAllNodes();
