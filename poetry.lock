@@ -2230,14 +2230,14 @@ two-qubit-rb = ["cirq (==1.2.0) ; python_version >= \"3.10\"", "tqdm (>=4.67.1,<
 
 [[package]]
 name = "qualibrate-app"
-version = "0.3.6a2"
+version = "0.4.0a1"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_app-0.3.6a2-py3-none-any.whl", hash = "sha256:ec08ee610f21a14a5cf859ad53f8a0e1d87dc0931feff71f1e6390d7b83abb05"},
-    {file = "qualibrate_app-0.3.6a2.tar.gz", hash = "sha256:5e9f6222af84ddfd7a62b198fe91b76584f11fe38c4f940ffba84c059609742c"},
+    {file = "qualibrate_app-0.4.0a1-py3-none-any.whl", hash = "sha256:bc461ece5b3aa7bb444765182f4ec69adffdf0ae272d56329c723afc85aac19d"},
+    {file = "qualibrate_app-0.4.0a1.tar.gz", hash = "sha256:00cde182cba4dbda35c91fedb097d62a790c46f3c1c029c81ad033880e7a5f51"},
 ]
 
 [package.dependencies]
@@ -2272,14 +2272,14 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.4.0a1"
+version = "0.4.0a3"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_core-0.4.0a1-py3-none-any.whl", hash = "sha256:03190d07ec872748ea3fe5b259cb69fea1edd6f37e6ee082b799c3ea9662c4e9"},
-    {file = "qualibrate_core-0.4.0a1.tar.gz", hash = "sha256:8824c4d2409186fbc99ab00adbe323aea0baf8cf252486ee0900fa9ac98e30d1"},
+    {file = "qualibrate_core-0.4.0a3-py3-none-any.whl", hash = "sha256:a87c2f8e2214c1572f44d504e054f5e7e7de1091be7e5214963eb129ef2ae90d"},
+    {file = "qualibrate_core-0.4.0a3.tar.gz", hash = "sha256:512a1e5329b31736ab4a875630d863367acc2e240d1d1a737b2902bf743f3959"},
 ]
 
 [package.dependencies]
@@ -2291,19 +2291,19 @@ networkx = ">=3.2.0,<3.3.0"
 pydantic = ">=2.9.2,<3.0.0"
 python-json-logger = ">=3.2.1,<4.0.0"
 qualang-tools = {version = ">=0.18.2", markers = "python_version >= \"3.9\" and python_version < \"3.13\""}
-qualibrate-config = ">=0.1.5,<0.2.0"
+qualibrate-config = ">=0.1.6,<0.2.0"
 types-networkx = ">=3.2.1.20240918,<3.3.0.0"
 
 [[package]]
 name = "qualibrate-runner"
-version = "0.4.0a1"
+version = "0.4.0a2"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_runner-0.4.0a1-py3-none-any.whl", hash = "sha256:7496e5c97d90cffa1e0226fbd01fd83d6d5cc48dfb915eee0f38a679e58b4aba"},
-    {file = "qualibrate_runner-0.4.0a1.tar.gz", hash = "sha256:8da0b75731384c5e08f10ab0b3c097b4bd694563539355df50764da59c661627"},
+    {file = "qualibrate_runner-0.4.0a2-py3-none-any.whl", hash = "sha256:e53b60f0fa4cad528cbf10422d3c9ccfd72700d05e7cffab4a7531e8a6e431c8"},
+    {file = "qualibrate_runner-0.4.0a2.tar.gz", hash = "sha256:def3e07021b26a74b64bf7ac9abb894842dfefda4ab87adb43a2f75d5a7affd3"},
 ]
 
 [package.dependencies]
@@ -2311,8 +2311,8 @@ click = ">=8.1.7,<9.0.0"
 fastapi = ">=0.115.2,<0.116.0"
 jsonpatch = ">=1.33,<2.0"
 pydantic-settings = ">=2.2.1,<3.0.0"
-qualibrate-config = ">=0.1.5,<0.2.0"
-qualibrate-core = ">=0.4.0a1,<0.5.0"
+qualibrate-config = ">=0.1.6,<0.2.0"
+qualibrate-core = ">=0.4.0a3,<0.5.0"
 tomli = {version = ">=2.0.1,<3.0.0", markers = "python_version < \"3.11\""}
 tomli-w = ">=1.0.0,<2.0.0"
 uvicorn = ">=0.34.0,<0.35.0"
@@ -2785,4 +2785,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.13"
-content-hash = "e331ee5966f69f381e141d5da3cc50b32e489087a1d8a79fda7480e55f89d956"
+content-hash = "8caf0788564331a5f197bc5434d8b927df400ed6024b210326357a5577985e26"
