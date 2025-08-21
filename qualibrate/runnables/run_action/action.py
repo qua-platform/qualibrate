@@ -63,7 +63,10 @@ class Action:
         Executes the stored function with the given node.
         """
         self.manager.current_action = self
+        node.action_label = None
         result = self._run_and_update_namespace(node, *args, **kwargs)
+        node.action_label = None
+        self.manager.current_action = None
         if not is_interactive() or not isinstance(result, Mapping):
             return result
         stack = inspect.stack()

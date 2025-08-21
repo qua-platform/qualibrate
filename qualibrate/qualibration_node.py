@@ -380,7 +380,6 @@ class QualibrationNode(
                 # action code; this action is skipped if
                 # skip_if is True.
         """
-        self._custom_action_label = None
         return self._action_manager.register_action(self, func, skip_if=skip_if)
 
     def _get_storage_manager(self) -> StorageManager[Self]:
