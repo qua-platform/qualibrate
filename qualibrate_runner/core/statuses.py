@@ -46,7 +46,7 @@ def get_node_run_status(
         id=node.snapshot_idx or last_run.idx,
         status=get_node_status_enum(last_run, node, graph),
         run_start=node.run_start,
-        current_action=node.current_action_name,
+        current_action=node.action_label,
         run_end=last_run.completed_at,
         percentage_complete=node.fraction_complete * 100,
         run_results=(
