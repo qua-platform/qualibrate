@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate"
-version = "0.3.0a4"
+version = "0.3.0a5"
 description = "Qubit calibration software"
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate"
@@ -18,7 +18,7 @@ tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 qualibrate-core = "0.4.0a3"
 qualibrate-runner = "0.4.0a2"
-qualibrate-app = "0.4.0a2"
+qualibrate-app = "0.4.0a3"
 qualibrate-config = "0.1.6"
 a2wsgi = "^1.10.8"
 
