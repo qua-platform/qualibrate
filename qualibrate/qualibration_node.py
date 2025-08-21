@@ -163,6 +163,7 @@ class QualibrationNode(
     def _post_init(self) -> None:
         self.run_start = datetime.now().astimezone()
         self.last_saved_at: Optional[datetime] = None
+        self._custom_action_label: Optional[str] = None
         self._get_storage_manager()
 
         self._warn_if_external_and_interactive_mpl()
@@ -237,6 +238,16 @@ class QualibrationNode(
             raise ValueError(
                 f"Can't instantiate parameters class of node '{name}'"
             ) from e
+
+    @property
+    def action_label(self) -> Optional[str]:
+        if self._custom_action_label is not None:
+            return self._custom_action_label
+        return self.current_action_name
+
+    @action_label.setter
+    def action_label(self, value: str) -> None:
+        self._custom_action_label = value
 
     def __copy__(self) -> Self:
         """
