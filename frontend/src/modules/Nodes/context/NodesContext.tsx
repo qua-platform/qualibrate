@@ -60,6 +60,7 @@ interface INodesContext {
   updateAllButtonPressed: boolean;
   setUpdateAllButtonPressed: (a: boolean) => void;
   runStatus: RunStatusType | null;
+  isRescanningNodes: boolean;
 }
 
 const NodesContext = React.createContext<INodesContext>({
@@ -81,6 +82,7 @@ const NodesContext = React.createContext<INodesContext>({
   updateAllButtonPressed: false,
   setUpdateAllButtonPressed: noop,
   runStatus: null,
+  isRescanningNodes: false,
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
@@ -120,14 +122,17 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const [submitNodeResponseError, setSubmitNodeResponseError] = useState<ResponseStatusError | undefined>(undefined);
   const [isAllStatusesUpdated, setIsAllStatusesUpdated] = useState<boolean>(false);
   const [updateAllButtonPressed, setUpdateAllButtonPressed] = useState<boolean>(false);
+  const [isRescanningNodes, setIsRescanningNodes] = useState<boolean>(false);
 
   const fetchAllNodes = async () => {
+    setIsRescanningNodes(true);
     const response = await NodesApi.fetchAllNodes();
     if (response.isOk) {
       setAllNodes(response.result! as NodeMap);
     } else if (response.error) {
       console.log(response.error);
     }
+    setIsRescanningNodes(false);
   };
   useEffect(() => {
     fetchAllNodes();
@@ -290,6 +295,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         updateAllButtonPressed,
         setUpdateAllButtonPressed,
         runStatus,
+        isRescanningNodes,
       }}
     >
       {props.children}
