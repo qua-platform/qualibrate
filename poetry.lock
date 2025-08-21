@@ -2230,14 +2230,14 @@ two-qubit-rb = ["cirq (==1.2.0) ; python_version >= \"3.10\"", "tqdm (>=4.67.1,<
 
 [[package]]
 name = "qualibrate-app"
-version = "0.4.0a1"
+version = "0.4.0a2"
 description = ""
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "qualibrate_app-0.4.0a1-py3-none-any.whl", hash = "sha256:bc461ece5b3aa7bb444765182f4ec69adffdf0ae272d56329c723afc85aac19d"},
-    {file = "qualibrate_app-0.4.0a1.tar.gz", hash = "sha256:00cde182cba4dbda35c91fedb097d62a790c46f3c1c029c81ad033880e7a5f51"},
+    {file = "qualibrate_app-0.4.0a2-py3-none-any.whl", hash = "sha256:1d176a753f27ed2ca2635a78489434bbb9c1765f786e27b2ee7c8abdc95a8c36"},
+    {file = "qualibrate_app-0.4.0a2.tar.gz", hash = "sha256:4f65a54a13833fa511aee6f303b3426d864e156e212b8e4e4d401e9070557019"},
 ]
 
 [package.dependencies]
@@ -2785,4 +2785,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.13"
-content-hash = "8caf0788564331a5f197bc5434d8b927df400ed6024b210326357a5577985e26"
+content-hash = "2c354325708617eecea20dea6df98f4876d827e96b8b91e245baa6bbe4442cb0"
