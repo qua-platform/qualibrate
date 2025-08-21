@@ -180,8 +180,6 @@ def search_snapshots_data_with_filter_ascending(
         else:
             yield _get_snapshot_search_result(snapshot, search_result)
 
-    return None
-
 
 def search_snapshots_data_with_filter_descending(
     snapshots: Iterator[SnapshotType],
@@ -205,4 +203,3 @@ def search_snapshots_data_with_filter_descending(
             yield _get_snapshot_search_result(*previous)
         previous = snapshot, search_result
     yield _get_snapshot_search_result(*previous)
-    return None

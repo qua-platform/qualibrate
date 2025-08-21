@@ -66,7 +66,6 @@ def find_nodes_ids_by_filter(
 ) -> Generator[IdType, None, None]:
     storage = IdToLocalPath().get_project_manager(project_name, base_path)
     yield from sorted(storage.get_ids(search_filter), reverse=descending)
-    return None
 
 
 def find_n_latest_nodes_ids(
