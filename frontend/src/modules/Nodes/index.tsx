@@ -33,6 +33,9 @@ export const NodesPage = () => {
               <div className={styles.loadingContainer}>
                 <CircularProgress size={32} />
                 Node library scan in progress
+                <div>
+                  See <span className={styles.logsText}>LOGS</span> for details (bottomright){" "}
+                </div>
               </div>
             )}
             <NodeElementList listOfNodes={allNodes} />

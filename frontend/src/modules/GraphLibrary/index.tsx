@@ -32,6 +32,9 @@ export const GraphLibrary = () => {
           <div className={styles.loadingContainer}>
             <CircularProgress size={32} />
             Graph library scan in progress
+            <div>
+              See <span className={styles.logsText}>LOGS</span> for details (bottomright)
+            </div>
           </div>
         )}
         <GraphList />
