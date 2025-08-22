@@ -92,6 +92,7 @@ class RootLocalStorage(RootBase):
             pages_filter=PageFilter(page=1, per_page=1),
             data_path=data_path,
             descending=descending,
+            filter_no_change=False,
         )
 
     def search_snapshots_data(
