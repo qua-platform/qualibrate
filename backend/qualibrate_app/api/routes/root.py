@@ -234,13 +234,17 @@ def search_snapshot(
 
 @root_router.get("/snapshot/search")
 def search_snapshot_data(
+    *,
     search_filters: Annotated[
         SearchWithIdFilter, Depends(get_search_with_id_filter)
     ],
     data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
+    descending: bool = True,
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> Any:
-    return root.search_snapshot(search_filters, data_path)
+    return root.search_snapshot(
+        search_filters, data_path, descending=descending
+    )
 
 
 @root_router.get("/snapshots/search")

@@ -85,12 +85,13 @@ class RootLocalStorage(RootBase):
         self,
         search_filter: SearchWithIdFilter,
         data_path: Sequence[Union[str, int]],
+        descending: bool = False,
     ) -> Any:
         return self.search_snapshots_data(
             search_filter=search_filter,
             pages_filter=PageFilter(page=1, per_page=1),
             data_path=data_path,
-            descending=True,
+            descending=descending,
         )
 
     def search_snapshots_data(

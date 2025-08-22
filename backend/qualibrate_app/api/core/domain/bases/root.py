@@ -59,6 +59,7 @@ class RootBase(DomainWithConfigBase, ABC):
         self,
         search_filter: SearchWithIdFilter,
         data_path: Sequence[Union[str, int]],
+        descending: bool = False,
     ) -> Any:
         pass
 

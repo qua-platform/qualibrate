@@ -119,6 +119,7 @@ class RootTimelineDb(RootBase):
         self,
         search_filter: SearchWithIdFilter,
         data_path: Sequence[Union[str, int]],
+        descending: bool = False,
     ) -> Any:
         if search_filter.id is None:
             return None
