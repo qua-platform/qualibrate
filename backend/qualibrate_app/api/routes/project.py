@@ -21,7 +21,8 @@ from qualibrate_app.config import (
     get_settings,
 )
 
-project_router = APIRouter(prefix="/projects", tags=["project"])
+project_router = APIRouter(prefix="/project", tags=["project"])
+projects_router = APIRouter(prefix="/projects", tags=["project"])
 
 
 def _get_projects_manager(
@@ -35,15 +36,6 @@ def _get_projects_manager(
     return project_types[settings.storage.type](
         settings=settings, config_path=config_path
     )
-
-
-@project_router.get("/list")
-def get_projects_list(
-    projects_manager: Annotated[
-        ProjectsManagerBase, Depends(_get_projects_manager)
-    ],
-) -> Sequence[Project]:
-    return projects_manager.list()
 
 
 @project_router.post("/create")
@@ -95,3 +87,12 @@ def set_active_project(
                 f"{settings_update_url}"
             )
     return active_project
+
+
+@projects_router.get("/")
+def get_projects_list(
+    projects_manager: Annotated[
+        ProjectsManagerBase, Depends(_get_projects_manager)
+    ],
+) -> Sequence[Project]:
+    return projects_manager.list()
