@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from contextvars import ContextVar
 from copy import copy
+from datetime import datetime
 from pathlib import Path
 from typing import (
     Any,
@@ -81,6 +82,10 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         Sets `run_summary` to None.
         """
         self.run_summary = None
+
+    @property
+    def run_end(self) -> Optional[datetime]:
+        return self.run_summary.completed_at if self.run_summary else None
 
     @staticmethod
     def build_parameters_class_from_instance(
