@@ -34,6 +34,7 @@ qualibrate-runner = "qualibrate_runner.__main__:main"
 python_version = "3.9"
 strict = true
 warn_return_any = true
+plugins = ['pydantic.mypy']
 
 [[tool.mypy.overrides]]
 module = ["jsonpatch", "jsonpointer"]
