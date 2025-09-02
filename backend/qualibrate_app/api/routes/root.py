@@ -116,12 +116,13 @@ def get_latest_snapshot(
 def get_snapshot_filtered(
     *,
     search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
+    descending: bool = True,
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> Optional[SnapshotModel]:
     _, snapshots = root.get_latest_snapshots(
         pages_filter=PageFilter(per_page=1, page=1),
         search_filter=SearchWithIdFilter(**search_filters.model_dump()),
-        descending=True,
+        descending=descending,
     )
     if len(snapshots) == 0:
         return None
