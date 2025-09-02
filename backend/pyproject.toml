@@ -51,6 +51,7 @@ python_version = "3.9"
 strict = true
 warn_return_any = true
 exclude = ['tests/']
+plugins = ['pydantic.mypy']
 
 [[tool.mypy.overrides]]
 # TODO: add py.typed to json_timeline_database and remove from ignore imports
