@@ -42,7 +42,10 @@ def _parse_snapshot_load_type(
 
 def parse_load_type_flag(
     load_type_flag: Annotated[
-        Optional[list[SnapshotLoadTypeStr]], Query()
+        Optional[list[SnapshotLoadTypeStr]],
+        Query(
+            description="Bitwise flags specifying which snapshot parts to load."
+        ),
     ] = None,
 ) -> SnapshotLoadTypeFlag:
     if load_type_flag is None:

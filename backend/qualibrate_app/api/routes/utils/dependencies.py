@@ -20,18 +20,41 @@ from qualibrate_app.api.routes.utils.snapshot_load_type import (
 
 
 def get_page_filter(
-    page: int = Query(1, gt=0),
-    per_page: int = Query(50, gt=0),
+    page: int = Query(
+        1,
+        gt=0,
+        description="Page number (1-based).",
+    ),
+    per_page: int = Query(
+        50,
+        gt=0,
+        description="Number of items per page.",
+    ),
 ) -> PageFilter:
     return PageFilter(page=page, per_page=per_page)
 
 
 def get_search_filter(
-    name_part: Annotated[Optional[str], Query()] = None,
-    min_node_id: Annotated[IdType, Query()] = 1,
-    max_node_id: Annotated[Optional[IdType], Query()] = None,
-    min_date: Annotated[Optional[date], Query()] = None,
-    max_date: Annotated[Optional[date], Query()] = None,
+    name_part: Annotated[
+        Optional[str],
+        Query(description="Substring to match within snapshot name."),
+    ] = None,
+    min_node_id: Annotated[
+        IdType,
+        Query(description="Lower bound (inclusive) for node ID range."),
+    ] = 1,
+    max_node_id: Annotated[
+        Optional[IdType],
+        Query(description="Upper bound (inclusive) for node ID range."),
+    ] = None,
+    min_date: Annotated[
+        Optional[date],
+        Query(description="Earliest snapshot date (inclusive)."),
+    ] = None,
+    max_date: Annotated[
+        Optional[date],
+        Query(description="Latest snapshot date (inclusive)."),
+    ] = None,
 ) -> SearchFilter:
     return SearchFilter(
         min_node_id=min_node_id,
@@ -44,7 +67,15 @@ def get_search_filter(
 
 def get_search_with_id_filter(
     search_filter: Annotated[SearchFilter, Depends(get_search_filter)],
-    id: Annotated[Optional[IdType], Query()] = None,
+    id: Annotated[
+        Optional[IdType],
+        Query(
+            description=(
+                "Exact snapshot ID to match (overrides name/date filters "
+                "if set)."
+            )
+        ),
+    ] = None,
 ) -> SearchWithIdFilter:
     return SearchWithIdFilter(
         id=id,
