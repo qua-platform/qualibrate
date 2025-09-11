@@ -19,7 +19,10 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
         self._settings = get_settings(self._config_path)
 
     def list(self) -> Sequence[Project]:
-        return [
-            Project(**p.model_dump())
-            for p in verbose_list_projects(self._config_path).values()
-        ]
+        try:
+            return [
+                Project(**p.model_dump())
+                for p in verbose_list_projects(self._config_path).values()
+            ]
+        except NotADirectoryError:
+            return []
