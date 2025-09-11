@@ -18,7 +18,7 @@ import InputField from "../../common/ui-components/common/Input/InputField";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
-  const { allProjects, activeProject, selectActiveProject } = useProjectContext();
+  const { allProjects, activeProject, handleSelectActiveProject } = useProjectContext();
   const [listedProjects, setListedProjects] = useState<ProjectDTO[] | undefined>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
@@ -27,7 +27,7 @@ const Project = () => {
   }, [allProjects, setListedProjects]);
 
   const handleSubmit = () => {
-    selectActiveProject(selectedProject!);
+    handleSelectActiveProject(selectedProject!);
     openTab("data");
   };
 
@@ -35,7 +35,7 @@ const Project = () => {
     return <LoaderPage />;
   }
 
-  const heading: string = activeProject ? `Currently active project is ${activeProject}` : "Welcome to QUAlibrate";
+  const heading: string = activeProject ? `Currently active project is ${activeProject.name}` : "Welcome to QUAlibrate";
 
   return (
     <>
