@@ -31,7 +31,7 @@ def test_project_list(
         None,
         None,
     )
-    response = client_custom_settings.get("/api/projects/list")
+    response = client_custom_settings.get("/api/projects/")
     assert response.status_code == 200
     projects_l = list(sorted(response.json(), key=operator.itemgetter("name")))
     assert projects_l[0]["name"] == "other_project"
@@ -54,15 +54,15 @@ def test_project_create(
         local_storage_path / "project"
     ]
     response = client_custom_settings.post(
-        "/api/projects/create", params={"project_name": "new_project"}
+        "/api/project/create", params={"project_name": "new_project"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json() == "new_project"
     assert get_project_path(settings_path.parent, "new_project").is_dir()
 
 
 def test_project_active_get(client_custom_settings: TestClient):
-    response = client_custom_settings.get("/api/projects/active")
+    response = client_custom_settings.get("/api/project/active")
     assert response.status_code == 200
     assert response.json() == "project"
 
@@ -78,7 +78,7 @@ def test_project_active_set_same(
     )
     assert settings.project == "project"
     response = client_custom_settings.post(
-        "/api/projects/active", params={"active_project": "project"}
+        "/api/project/active", json="project"
     )
     assert response.status_code == 200
     assert response.json() == "project"
@@ -100,7 +100,7 @@ def test_project_active_set_other(
     (local_storage_path / new_project).mkdir()
     assert settings.project == "project"
     response = client_custom_settings.post(
-        "/api/projects/active", params={"active_project": "new_project"}
+        "/api/project/active", json="new_project"
     )
     assert response.status_code == 200
     with settings_path.open("rb") as f:
