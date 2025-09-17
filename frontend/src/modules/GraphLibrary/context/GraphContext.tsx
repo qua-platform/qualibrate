@@ -38,6 +38,7 @@ interface IGraphContext {
   setLastRunInfo: Dispatch<SetStateAction<LastRunInfo | undefined>>;
   fetchAllCalibrationGraphs: (rescan?: boolean) => void;
   fetchWorkflowGraph: (nodeName: string) => void;
+  isRescanningGraphs: boolean;
 }
 
 const GraphContext = React.createContext<IGraphContext>({
@@ -61,6 +62,7 @@ const GraphContext = React.createContext<IGraphContext>({
   fetchAllCalibrationGraphs: noop,
 
   fetchWorkflowGraph: noop,
+  isRescanningGraphs: false,
 });
 
 export const useGraphContext = () => useContext<IGraphContext>(GraphContext);
@@ -74,6 +76,7 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
   const [selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow] = useState<string | undefined>(undefined);
   const [workflowGraphElements, setWorkflowGraphElements] = useState<ElementDefinition[] | undefined>(undefined);
   const [lastRunInfo, setLastRunInfo] = useState<LastRunInfo | undefined>(undefined);
+  const [isRescanningGraphs, setIsRescanningGraphs] = useState(false);
 
   const updateObject = (obj: GraphWorkflow): GraphWorkflow => {
     const modifyParameters = (parameters?: InputParameter, isNodeLevel: boolean = false): InputParameter | undefined => {
@@ -121,6 +124,7 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
   };
 
   const fetchAllCalibrationGraphs = async (rescan = false) => {
+    setIsRescanningGraphs(true);
     const response = await GraphLibraryApi.fetchAllGraphs(rescan);
     if (response.isOk) {
       const allFetchedGraphs = response.result! as GraphMap;
@@ -129,6 +133,7 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
     } else if (response.error) {
       console.log(response.error);
     }
+    setIsRescanningGraphs(false);
   };
 
   const fetchWorkflowGraph = async (nodeName: string) => {
@@ -185,6 +190,7 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
         setLastRunInfo,
         fetchAllCalibrationGraphs,
         fetchWorkflowGraph,
+        isRescanningGraphs,
       }}
     >
       {props.children}
