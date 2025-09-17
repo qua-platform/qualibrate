@@ -21,12 +21,15 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
         self._config_path = config_path
 
     @property
-    def project(self) -> str:
-        return self._settings.project
+    def project(self) -> Optional[str]:
+        return self._active_project_getter()
 
     @project.setter
     def project(self, value: str) -> None:
         self._active_project_setter(value)
+
+    def _active_project_getter(self) -> Optional[str]:
+        return self._settings.project
 
     @abstractmethod
     def _active_project_setter(self, value: str) -> None:

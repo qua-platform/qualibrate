@@ -1,6 +1,7 @@
 export interface ProjectDTO {
+  name: string;
+  path: string;
   created_at: string;
   last_modified_at: string;
-  name: string;
   nodes_number: number;
 }

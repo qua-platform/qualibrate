@@ -15,8 +15,8 @@ export const SNAPSHOT_DIFF = (currentSnapshotId: string, newSnapshotId: string) 
   `api/snapshot/${currentSnapshotId}/compare?id_to_compare=${newSnapshotId}`;
 export const UPDATE_SNAPSHOT = (id: string) => `api/snapshot/${id}/update_entry`;
 export const UPDATE_SNAPSHOTS = (id: string) => `api/snapshot/${id}/update_entries`;
-export const ALL_PROJECTS = () => "api/projects/list";
-export const ACTIVE_PROJECT = () => "api/projects/active";
+export const ALL_PROJECTS = () => "api/projects/";
+export const ACTIVE_PROJECT = () => "api/project/active";
 export const IS_NODE_RUNNING = () => "execution/is_running";
 export const STOP_RUNNING = () => "execution/stop";
 export const ALL_NODES = () => "execution/get_nodes";

@@ -6,9 +6,10 @@ import { GraphList } from "./components/GraphList";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
+import { CircularProgress } from "@mui/material";
 
 export const GraphLibrary = () => {
-  const { fetchAllCalibrationGraphs } = useGraphContext();
+  const { fetchAllCalibrationGraphs, isRescanningGraphs } = useGraphContext();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
   const GraphLibraryTopBarRefreshButton = () => {
     const onClickHandler = useCallback(() => fetchAllCalibrationGraphs(true), [fetchAllCalibrationGraphs]);
@@ -27,6 +28,15 @@ export const GraphLibrary = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.nodesContainer}>
+        {isRescanningGraphs && (
+          <div className={styles.loadingContainer}>
+            <CircularProgress size={32} />
+            Graph library scan in progress
+            <div>
+              See <span className={styles.logsText}>LOGS</span> for details (bottomright)
+            </div>
+          </div>
+        )}
         <GraphList />
       </div>
     </div>
