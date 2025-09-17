@@ -1,5 +1,6 @@
 import click
 from qualibrate_config.cli.config import config_command
+from qualibrate_config.cli.project import project_group
 
 from qualibrate_composite.cli import start_command
 
@@ -10,6 +11,7 @@ def cli() -> None:
 
 
 cli.add_command(config_command)
+cli.add_command(project_group)
 cli.add_command(start_command)
 
 
