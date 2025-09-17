@@ -1,52 +1,49 @@
 import operator
-import sys
+from datetime import datetime
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-from qualibrate_config.core.project.create import create_project
-from qualibrate_config.core.project.path import get_project_path
 from qualibrate_config.models import QualibrateConfig
-from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
 from qualibrate_app.config import get_config_path
 
-if sys.version_info < (3, 11):
-    import tomli as tomllib
-else:
-    import tomllib
-
 
 def test_project_list(
-    client_custom_settings: TestClient,
-    local_storage_path: Path,
-    settings_path_filled: Path,
+    client_custom_settings: TestClient, local_storage_path: Path
 ):
-    other_project_path = get_project_path(
-        settings_path_filled.parent, "other_project"
+    other_project = local_storage_path / "other_project"
+    other_project.mkdir()
+    default_project_created_at = (
+        datetime.fromtimestamp((local_storage_path / "project").stat().st_mtime)
+        .astimezone()
+        .isoformat(timespec="seconds")
     )
-    create_project(
-        settings_path_filled,
-        "other_project",
-        other_project_path / "storage",
-        None,
-        None,
+    other_project_created_at = (
+        datetime.fromtimestamp(other_project.stat().st_mtime)
+        .astimezone()
+        .isoformat(timespec="seconds")
     )
     response = client_custom_settings.get("/api/projects/")
     assert response.status_code == 200
-    projects_l = list(sorted(response.json(), key=operator.itemgetter("name")))
-    assert projects_l[0]["name"] == "other_project"
-    assert projects_l[0]["nodes_number"] == 0
-    assert "created_at" in projects_l[0]
-    assert "last_modified_at" in projects_l[0]
-
-    assert projects_l[1]["name"] == "project"
-    assert projects_l[1]["nodes_number"] == 9
-    assert "created_at" in projects_l[1]
-    assert "last_modified_at" in projects_l[1]
+    tz = datetime.now().astimezone().tzinfo
+    last_modified = datetime(2024, 4, 27, 18, 27, 0, tzinfo=tz)
+    assert list(sorted(response.json(), key=operator.itemgetter("name"))) == [
+        {
+            "name": "other_project",
+            "nodes_number": -1,
+            "created_at": other_project_created_at,
+            "last_modified_at": other_project_created_at,
+        },
+        {
+            "name": "project",
+            "nodes_number": 9,
+            "created_at": default_project_created_at,
+            "last_modified_at": last_modified.isoformat(timespec="seconds"),
+        },
+    ]
 
 
 def test_project_create(
-    settings_path: Path,
     client_custom_settings: TestClient,
     local_storage_path: Path,
 ):
@@ -58,7 +55,10 @@ def test_project_create(
     )
     assert response.status_code == 201
     assert response.json() == "new_project"
-    assert get_project_path(settings_path.parent, "new_project").is_dir()
+    assert list(sorted(local_storage_path.iterdir())) == [
+        local_storage_path / "new_project",
+        local_storage_path / "project",
+    ]
 
 
 def test_project_active_get(client_custom_settings: TestClient):
@@ -87,15 +87,14 @@ def test_project_active_set_same(
 
 def test_project_active_set_other(
     tmp_path: Path,
-    settings_path: Path,
     local_storage_path: Path,
     client_custom_settings: TestClient,
     settings: QualibrateConfig,
 ):
-    create_project(settings_path, "new_project", None, None, None)
     new_project = "new_project"
+    config_path = tmp_path / "config.toml"
     client_custom_settings.app.dependency_overrides[get_config_path] = (
-        lambda: settings_path
+        lambda: config_path
     )
     (local_storage_path / new_project).mkdir()
     assert settings.project == "project"
@@ -103,6 +102,5 @@ def test_project_active_set_other(
         "/api/project/active", json="new_project"
     )
     assert response.status_code == 200
-    with settings_path.open("rb") as f:
-        updated_settings = tomllib.load(f)
-    assert updated_settings[QUALIBRATE_CONFIG_KEY]["project"] == "new_project"
+    assert response.json() == new_project
+    assert settings.project == new_project

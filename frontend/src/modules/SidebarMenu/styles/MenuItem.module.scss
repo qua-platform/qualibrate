@@ -20,13 +20,22 @@
     background-color: var(--menuitem-selected);
   }
 
-  &:hover {
-    background-color: var(--menuitem-hover);
-  }
-
   svg {
     height: 24px;
     width: 24px;
     min-width: 24px;
+    transition: transform 0.2s ease-in-out;
   }
+
+  &:hover {
+    background-color: var(--menuitem-hover);
+    font-weight: 500;
+    svg { transform: scale(1.1); }
+  }
+}
+
+.itemTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

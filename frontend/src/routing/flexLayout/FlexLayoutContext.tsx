@@ -54,6 +54,8 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
       setSelectedPageName("graph-library");
     } else if (tab === "data") {
       setSelectedPageName("data");
+    } else if (tab === "project") {
+      setSelectedPageName("project");
     } else {
       setSelectedPageName(null);
     }
@@ -71,7 +73,7 @@ export function FlexLayoutContextProvider(props: PropsWithChildren<ReactNode | R
     LayoutBuilder.current.openNewTab(tab);
     setModel(LayoutBuilder.current.model);
     setActiveTab(tab);
-    setActiveTabsetName(activeTab as string);
+    setActiveTabsetName(tab as string);
   }, []);
 
   const [activeTabsetId, setActiveTabsetId] = useState(null);
