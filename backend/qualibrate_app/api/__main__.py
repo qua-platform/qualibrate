@@ -1,6 +1,10 @@
 from fastapi import APIRouter
 
-from qualibrate_app.api.routes import project_router, storage_router
+from qualibrate_app.api.routes import (
+    project_router,
+    projects_router,
+    storage_router,
+)
 
 api_router = APIRouter()
 
@@ -11,4 +15,5 @@ def ping() -> str:
 
 
 api_router.include_router(project_router)
+api_router.include_router(projects_router)
 api_router.include_router(storage_router)
