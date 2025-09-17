@@ -5,7 +5,7 @@ import { AddIcon } from "../../ui-lib/Icons/AddIcon";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { IconType } from "../../common/interfaces/InputProps";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ProjectList from "./components/ProjectList";
 import { useProjectContext } from "./context/ProjectContext";
 import cyKeys from "../../utils/cyKeys";
@@ -19,7 +19,7 @@ import { heading } from "./constants";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
-  const { allProjects, activeProject, selectActiveProject } = useProjectContext();
+  const { allProjects, activeProject, handleSelectActiveProject } = useProjectContext();
   const [listedProjects, setListedProjects] = useState<ProjectDTO[] | undefined>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
@@ -33,13 +33,16 @@ const Project = () => {
 
     if (!projectToSelect) return;
 
-    selectActiveProject(projectToSelect);
+    handleSelectActiveProject(projectToSelect);
     openTab("nodes");
-  }, [allProjects, selectedProject, selectActiveProject, openTab]);
+  }, [allProjects, selectedProject, handleSelectActiveProject, openTab]);
 
-  const handleSearchChange = useCallback((searchTerm: string) => {
-    setListedProjects(allProjects.filter((p) => p.name.startsWith(searchTerm)));
-  }, [allProjects]);
+  const handleSearchChange = useCallback(
+    (searchTerm: string) => {
+      setListedProjects(allProjects.filter((p) => p.name.startsWith(searchTerm)));
+    },
+    [allProjects]
+  );
 
   if (!activeProject) {
     return <LoaderPage />;

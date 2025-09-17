@@ -23,7 +23,7 @@ def test_project_list(
         .astimezone()
         .isoformat(timespec="seconds")
     )
-    response = client_custom_settings.get("/api/projects/list")
+    response = client_custom_settings.get("/api/projects/")
     assert response.status_code == 200
     tz = datetime.now().astimezone().tzinfo
     last_modified = datetime(2024, 4, 27, 18, 27, 0, tzinfo=tz)
@@ -51,9 +51,9 @@ def test_project_create(
         local_storage_path / "project"
     ]
     response = client_custom_settings.post(
-        "/api/projects/create", params={"project_name": "new_project"}
+        "/api/project/create", params={"project_name": "new_project"}
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json() == "new_project"
     assert list(sorted(local_storage_path.iterdir())) == [
         local_storage_path / "new_project",
@@ -62,7 +62,7 @@ def test_project_create(
 
 
 def test_project_active_get(client_custom_settings: TestClient):
-    response = client_custom_settings.get("/api/projects/active")
+    response = client_custom_settings.get("/api/project/active")
     assert response.status_code == 200
     assert response.json() == "project"
 
@@ -78,7 +78,7 @@ def test_project_active_set_same(
     )
     assert settings.project == "project"
     response = client_custom_settings.post(
-        "/api/projects/active", params={"active_project": "project"}
+        "/api/project/active", json="project"
     )
     assert response.status_code == 200
     assert response.json() == "project"
@@ -99,7 +99,7 @@ def test_project_active_set_other(
     (local_storage_path / new_project).mkdir()
     assert settings.project == "project"
     response = client_custom_settings.post(
-        "/api/projects/active", params={"active_project": "new_project"}
+        "/api/project/active", json="new_project"
     )
     assert response.status_code == 200
     assert response.json() == new_project
