@@ -30,6 +30,7 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
           projectId={index}
           name={project.name}
           onClick={() => setSelectedProject(project)}
+          lastModifiedAt={project.last_modified_at}
         />
       ))}
     </div>
