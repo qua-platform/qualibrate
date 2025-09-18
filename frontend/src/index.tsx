@@ -21,6 +21,7 @@ const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
   AuthContextProvider,
   FlexLayoutContextProvider,
+  ProjectContextProvider,
   WebSocketProvider,
   RouterProvider,
   SnapshotsContextProvider,

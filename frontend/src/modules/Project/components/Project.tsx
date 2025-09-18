@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import ProjectInfo from "./ProjectInfo";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
@@ -16,11 +16,12 @@ interface Props {
   onClick?: (name: string) => void;
   projectId?: number;
   name?: string;
+  lastModifiedAt: string;
 }
 
-const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: Props) => {
+const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt = "" }: Props) => {
   const index = useMemo(() => getColorIndex(name), [name]);
-  const projectColor = colorPalette[index];  
+  const projectColor = colorPalette[index];
   const handleOnClick = useCallback(() => {
     if (!onClick) {
       return;
@@ -30,14 +31,16 @@ const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: 
   }, [onClick, name]);
 
   return (
-    <button
-      className={classNames(styles.project, isActive && styles.project_active)}
-      onClick={handleOnClick}
-      data-cy={cyKeys.projects.PROJECT}
-    >
-      <ProjectInfo name={name} colorIcon={projectColor}/>
-      <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
-    </button>
+    <div className={styles.projectWrapper}>
+      <button
+        className={classNames(styles.project, isActive && styles.project_active)}
+        onClick={handleOnClick}
+        data-cy={cyKeys.projects.PROJECT}
+      >
+        <ProjectInfo name={name} colorIcon={projectColor} date={lastModifiedAt ? new Date(lastModifiedAt) : undefined} />
+        <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
+      </button>
+    </div>
   );
 };
 

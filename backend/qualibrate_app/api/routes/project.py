@@ -139,7 +139,7 @@ def create_project(
     "/active",
     summary="Get active project",
     description="Return the name of the currently active project.",
-    response_model=Optional[str],
+    response_model=str,
     responses={
         status.HTTP_200_OK: {
             "description": "Active project name",
@@ -149,11 +149,7 @@ def create_project(
                         "active_example": {
                             "summary": "Active project",
                             "value": "experiment_alpha",
-                        },
-                        "no_active_project": {
-                            "summary": "Active project not specified",
-                            "value": None,
-                        },
+                        }
                     }
                 }
             },
@@ -164,8 +160,8 @@ def get_active_project(
     projects_manager: Annotated[
         ProjectsManagerBase, Depends(_get_projects_manager)
     ],
-) -> Optional[str]:
-    """Name of the active project. Can be `None` if active project isn't set."""
+) -> str:
+    """Get the name of the active project."""
     return projects_manager.project
 
 

@@ -17,44 +17,36 @@ const ProjectContext = React.createContext<IProjectContext>({
 
 export const useProjectContext = (): IProjectContext => useContext<IProjectContext>(ProjectContext);
 
-interface ProjectContextProviderProps {
-  children: React.ReactNode;
-}
-
-export function ProjectContextProvider(props: ProjectContextProviderProps): React.ReactNode {
+export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [activeProject, setActiveProject] = useState<ProjectDTO | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
 
-  const fetchAllProjects = useCallback(async () => {
-    const { isOk, error, result } = await ProjectViewApi.fetchAllProjects();
-    if (isOk && result) {
-      setAllProjects(result);
-    } else if (error) {
-      console.log(error);
-    }
-  }, []);
+  const fetchProjectsAndActive = async () => {
+    try {
+      const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
 
-  const fetchActiveProject = useCallback(async () => {
-    const { isOk, error, result } = await ProjectViewApi.fetchActiveProjectName();
-    if (isOk && result) {
-      const activeProject = allProjects.find((el) => el.name === result);
-      if (activeProject) {
-        setActiveProject(activeProject);
-      } else {
-        console.log("ERROR: No active project with the name '" + result + "'");
+      if (projectsRes.isOk && projectsRes.result) {
+        const fetchedProjects = projectsRes.result;
+        setAllProjects(fetchedProjects);
+        let fetchedActiveProject: ProjectDTO | undefined = undefined;
+        if (activeNameRes.isOk && activeNameRes.result) {
+          fetchedActiveProject = fetchedProjects.find((p) => p.name === activeNameRes.result);
+          if (!fetchedActiveProject && fetchedProjects.length > 0) {
+            fetchedActiveProject = fetchedProjects[0];
+          }
+        } else if (fetchedProjects.length > 0) {
+          fetchedActiveProject = fetchedProjects[0];
+        }
+        setActiveProject(fetchedActiveProject);
       }
-    } else if (error) {
-      console.log(error);
+    } catch (error) {
+      console.error("Error fetching projects or active project:", error);
     }
-  }, [allProjects]);
+  };
 
   useEffect(() => {
-    fetchAllProjects();
+    fetchProjectsAndActive();
   }, []);
-
-  useEffect(() => {
-    fetchActiveProject();
-  }, [allProjects]);
 
   const handleSelectActiveProject = useCallback(
     async (project: ProjectDTO) => {
@@ -78,7 +70,7 @@ export function ProjectContextProvider(props: ProjectContextProviderProps): Reac
         handleSelectActiveProject,
       }}
     >
-      {props.children}
+      {children}
     </ProjectContext.Provider>
   );
-}
+};

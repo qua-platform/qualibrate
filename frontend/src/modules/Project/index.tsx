@@ -5,9 +5,9 @@ import { AddIcon } from "../../ui-lib/Icons/AddIcon";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { IconType } from "../../common/interfaces/InputProps";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ProjectList from "./components/ProjectList";
-import { ProjectContextProvider, useProjectContext } from "./context/ProjectContext";
+import { useProjectContext } from "./context/ProjectContext";
 import cyKeys from "../../utils/cyKeys";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import LoaderPage from "../../ui-lib/loader/LoaderPage";
@@ -26,10 +26,22 @@ const Project = () => {
     setListedProjects(allProjects);
   }, [allProjects, setListedProjects]);
 
-  const handleSubmit = () => {
-    handleSelectActiveProject(selectedProject!);
-    openTab("data");
-  };
+  const handleSubmit = useCallback(() => {
+    const fallbackProject = allProjects.length > 0 ? allProjects[0] : undefined;
+    const projectToSelect = selectedProject ?? fallbackProject;
+
+    if (!projectToSelect) return;
+
+    handleSelectActiveProject(projectToSelect);
+    openTab("nodes");
+  }, [allProjects, selectedProject, handleSelectActiveProject, openTab]);
+
+  const handleSearchChange = useCallback(
+    (searchTerm: string) => {
+      setListedProjects(allProjects.filter((p) => p.name.startsWith(searchTerm)));
+    },
+    [allProjects]
+  );
 
   if (!activeProject) {
     return <LoaderPage />;
@@ -40,14 +52,14 @@ const Project = () => {
   return (
     <>
       <div className={styles.projectPageLayout}>
-        <PageName>{heading}</PageName>
+        {!activeProject?.name && <PageName>{heading}</PageName>}
         <div className={styles.pageWrapper}>
           <PageSection sectionName="Please select a Project">
             <InputField
               iconType={IconType.INNER}
               placeholder="Project Name"
               className={styles.searchProjectField}
-              onChange={(f) => setListedProjects(allProjects.filter((p) => p.name.startsWith(f)))}
+              onChange={handleSearchChange}
               icon={<SearchIcon height={18} width={18} />}
             />
             {listedProjects && (
@@ -78,8 +90,4 @@ const Project = () => {
   );
 };
 
-export default () => (
-  <ProjectContextProvider>
-    <Project />
-  </ProjectContextProvider>
-);
+export default Project;
