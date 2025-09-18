@@ -23,17 +23,14 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
 
   const fetchProjectsAndActive = async () => {
     try {
-      const [projectsRes, activeNameRes] = await Promise.all([
-        ProjectViewApi.fetchAllProjects(),
-        ProjectViewApi.fetchActiveProject(),
-      ]);
+      const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
 
       if (projectsRes.isOk && projectsRes.result) {
         const fetchedProjects = projectsRes.result;
         setAllProjects(fetchedProjects);
         let fetchedActiveProject: ProjectDTO | undefined = undefined;
         if (activeNameRes.isOk && activeNameRes.result) {
-          fetchedActiveProject = fetchedProjects.find(p => p.name === activeNameRes.result);
+          fetchedActiveProject = fetchedProjects.find((p) => p.name === activeNameRes.result);
           if (!fetchedActiveProject && fetchedProjects.length > 0) {
             fetchedActiveProject = fetchedProjects[0];
           }
