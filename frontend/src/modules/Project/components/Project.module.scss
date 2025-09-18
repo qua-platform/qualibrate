@@ -1,12 +1,45 @@
 .projectActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 24px;
+  transition: opacity 0.2s ease;
   opacity: 0;
 }
 
-.project_active {
-  background-color: var(--selection-color);
+.checkWrapper {
+  width: 19px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
 
+.projectChecked {
+  .checkWrapper,
   .projectActions {
     opacity: 1;
+  }
+}
+
+.projectActive {
+  background-color: var(--selection-color);
+}
+
+.projectWrapper {
+  margin: 1px 0;
+
+  &::after {
+    content: "";
+    display: block;
+    height: 1px;
+    background-color: var(--border-color);
+    opacity: 1;
+    margin-left: 56px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    pointer-events: none;
   }
 }
 
@@ -67,4 +100,5 @@
 
 .splash {
   height: 100%;
+  border-top: 1px solid var(--border-color);
 }
