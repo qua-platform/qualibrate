@@ -13,6 +13,7 @@ import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsC
 import { ProjectContextProvider } from "./modules/Project/context/ProjectContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 import { GraphContextProvider } from "./modules/GraphLibrary/context/GraphContext";
+import { NodesContextProvider } from "./modules/Nodes/context/NodesContext";
 
 type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
 
@@ -27,6 +28,7 @@ const contextProviders: ProviderComponent[] = [
   RouterProvider,
   SnapshotsContextProvider,
   GraphContextProvider,
+  NodesContextProvider,
 ];
 
 const Application: React.FunctionComponent = () => {
