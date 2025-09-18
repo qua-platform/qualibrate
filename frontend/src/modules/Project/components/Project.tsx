@@ -30,16 +30,14 @@ const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: 
   }, [onClick, name]);
 
   return (
-    <div className={styles.projectWrapper}>
-      <button
-        className={classNames(styles.project, isActive && styles.project_active)}
-        onClick={handleOnClick}
-        data-cy={cyKeys.projects.PROJECT}
-      >
-        <ProjectInfo name={name} colorIcon={projectColor}/>
-        <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
-      </button>
-    </div>
+    <button
+      className={classNames(styles.project, isActive && styles.project_active)}
+      onClick={handleOnClick}
+      data-cy={cyKeys.projects.PROJECT}
+    >
+      <ProjectInfo name={name} colorIcon={projectColor}/>
+      <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
+    </button>
   );
 };
 

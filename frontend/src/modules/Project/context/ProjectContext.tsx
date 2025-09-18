@@ -17,48 +17,54 @@ const ProjectContext = React.createContext<IProjectContext>({
 
 export const useProjectContext = (): IProjectContext => useContext<IProjectContext>(ProjectContext);
 
-export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+interface ProjectContextProviderProps {
+  children: React.ReactNode;
+}
+
+export function ProjectContextProvider(props: ProjectContextProviderProps): React.ReactNode {
   const [activeProject, setActiveProject] = useState<ProjectDTO | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
 
-  const fetchProjectsAndActive = useCallback(async () => {
-    try {
-      const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
+  const fetchAllProjects = useCallback(async () => {
+    const { isOk, error, result } = await ProjectViewApi.fetchAllProjects();
+    if (isOk && result) {
+      setAllProjects(result);
+    } else if (error) {
+      console.log(error);
+    }
+  }, []);
 
-      if (projectsRes.isOk && projectsRes.result) {
-        const fetchedProjects = projectsRes.result;
-        setAllProjects(fetchedProjects);
-        let fetchedActiveProject: ProjectDTO | undefined = undefined;
-        if (activeNameRes.isOk && activeNameRes.result) {
-          fetchedActiveProject = fetchedProjects.find((p) => p.name === activeNameRes.result);
-          if (!fetchedActiveProject && fetchedProjects.length > 0) {
-            fetchedActiveProject = fetchedProjects[0];
-          }
-        } else if (fetchedProjects.length > 0) {
-          fetchedActiveProject = fetchedProjects[0];
-        }
-        setActiveProject(fetchedActiveProject);
+  const fetchActiveProject = useCallback(async () => {
+    const { isOk, error, result } = await ProjectViewApi.fetchActiveProjectName();
+    if (isOk && result) {
+      const activeProject = allProjects.find((el) => el.name === result);
+      if (activeProject) {
+        setActiveProject(activeProject);
+      } else {
+        console.log("ERROR: No active project with the name '" + result + "'");
       }
-    } catch (error) {
-      console.error("Error fetching projects or active project:", error);
+    } else if (error) {
+      console.log(error);
     }
   }, [allProjects]);
 
   useEffect(() => {
-    fetchProjectsAndActive();
+    fetchAllProjects();
   }, []);
+
+  useEffect(() => {
+    fetchActiveProject();
+  }, [allProjects]);
 
   const handleSelectActiveProject = useCallback(
     async (project: ProjectDTO) => {
-      const previousProject = { ...(activeProject as ProjectDTO) };
-      setActiveProject(project);
       try {
         const { isOk, result } = await ProjectViewApi.selectActiveProject(project.name);
-        if (!isOk || (result !== project.name && previousProject)) {
-          setActiveProject(previousProject);
+        if (isOk && result === project.name) {
+          setActiveProject(project);
         }
       } catch (err) {
-        console.error("Failed to select active project:", err);
+        console.error("Failed to activate project:", err);
       }
     },
     [setActiveProject]
@@ -72,9 +78,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
         handleSelectActiveProject,
       }}
     >
-      {children}
+      {props.children}
     </ProjectContext.Provider>
   );
-};
-
-export default ProjectContext;
+}
