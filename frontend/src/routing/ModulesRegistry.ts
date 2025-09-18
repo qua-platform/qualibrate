@@ -57,18 +57,6 @@ export type Module = {
 
 export const ModulesRegistry: Array<Module> = [
   {
-    keyId: PROJECT_TAB,
-    path: "projects",
-    Component: Project,
-    menuItem: {
-      sideBarTitle: "Project",
-      title: "Project",
-      // icon: ProjectIcon,
-      icon: ProjectIcon,
-      dataCy: cyKeys.PROJECT_TAB,
-    },
-  },
-  {
     keyId: NODES_KEY,
     path: "nodes",
     Component: Nodes,
@@ -79,7 +67,6 @@ export const ModulesRegistry: Array<Module> = [
       dataCy: cyKeys.NODES_TAB,
     },
   },
-
   {
     keyId: GRAPH_LIBRARY,
     path: "GRAPH_LIBRARY",
@@ -113,6 +100,18 @@ export const ModulesRegistry: Array<Module> = [
       dataCy: cyKeys.DATA_TAB,
     },
   },
+  {
+    keyId: PROJECT_TAB,
+    path: "projects",
+    Component: Project,
+    menuItem: {
+      sideBarTitle: "Projects",
+      title: "Projects",
+      icon: ProjectIcon,
+      dataCy: cyKeys.PROJECT_TAB,
+      atBottom: true,
+    },
+  },  
   {
     keyId: HELP_KEY,
     path: "help",
