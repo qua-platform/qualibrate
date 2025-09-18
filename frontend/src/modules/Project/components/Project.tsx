@@ -16,30 +16,28 @@ interface Props {
   onClick?: (name: string) => void;
   projectId?: number;
   name?: string;
-  lastModifiedAt?: string;
 }
 
-const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt = "" }: Props) => {
+const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: Props) => {
   const index = useMemo(() => getColorIndex(name), [name]);
-  const projectColor = colorPalette[index];
+  const projectColor = colorPalette[index];  
   const handleOnClick = useCallback(() => {
     if (!onClick) {
       return;
     }
+
     onClick(name);
   }, [onClick, name]);
 
   return (
-    <div className={styles.projectWrapper}>
-      <button
-        className={classNames(styles.project, isActive && styles.project_active)}
-        onClick={handleOnClick}
-        data-cy={cyKeys.projects.PROJECT}
-      >
-        <ProjectInfo name={name} colorIcon={projectColor} date={lastModifiedAt ? new Date(lastModifiedAt) : undefined} />
-        <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
-      </button>
-    </div>
+    <button
+      className={classNames(styles.project, isActive && styles.project_active)}
+      onClick={handleOnClick}
+      data-cy={cyKeys.projects.PROJECT}
+    >
+      <ProjectInfo name={name} colorIcon={projectColor}/>
+      <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
+    </button>
   );
 };
 
