@@ -21,7 +21,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
   const [activeProject, setActiveProject] = useState<ProjectDTO | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
 
-  const fetchProjectsAndActive = useCallback(async () => {
+  const fetchProjectsAndActive = async () => {
     try {
       const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
 
@@ -42,7 +42,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
     } catch (error) {
       console.error("Error fetching projects or active project:", error);
     }
-  }, [allProjects]);
+  };
 
   useEffect(() => {
     fetchProjectsAndActive();
@@ -50,15 +50,13 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
 
   const handleSelectActiveProject = useCallback(
     async (project: ProjectDTO) => {
-      const previousProject = { ...(activeProject as ProjectDTO) };
-      setActiveProject(project);
       try {
         const { isOk, result } = await ProjectViewApi.selectActiveProject(project.name);
-        if (!isOk || (result !== project.name && previousProject)) {
-          setActiveProject(previousProject);
+        if (isOk && result === project.name) {
+          setActiveProject(project);
         }
       } catch (err) {
-        console.error("Failed to select active project:", err);
+        console.error("Failed to activate project:", err);
       }
     },
     [setActiveProject]
@@ -76,5 +74,3 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
     </ProjectContext.Provider>
   );
 };
-
-export default ProjectContext;

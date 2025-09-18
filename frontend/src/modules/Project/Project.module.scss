@@ -20,8 +20,10 @@
 }
 
 .pageActions {
+  display: flex;
   column-gap: 30px;
   position: absolute;
+  bottom: 50px;
   left: 70px;
 }
 
