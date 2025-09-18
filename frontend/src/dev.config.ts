@@ -7,6 +7,7 @@ export const TWEAK_BUTTON_VISIBLE = false;
 export const TRACKER_BUTTON_VISIBLE = false;
 export const THEME_TOGGLE_VISIBLE = true;
 export const READ_OUR_ARTICLES_VISIBLE = false;
+export const PROJECT_LAST_UPDATES_VISIBLE = false;
 
 export const DRIVER_FIELDS_VISIBLE = false;
 export const EDITING_FUNCTION_ACTIVE = true;
