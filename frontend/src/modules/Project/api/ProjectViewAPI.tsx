@@ -19,17 +19,16 @@ export class ProjectViewApi extends Api {
     });
   }
 
-  static fetchActiveProject(): Promise<Res<string>> {
+  static fetchActiveProjectName(): Promise<Res<string>> {
     return this._fetch(this.api(ACTIVE_PROJECT()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }
 
-  static setActiveProject(projectName: string): Promise<Res<void>> {
+  static selectActiveProject(projectName: string): Promise<Res<string>> {
     return this._fetch(this.api(ACTIVE_PROJECT()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
-      body: JSON.stringify({ active_project: projectName }),
-      queryParams: { active_project: projectName },
+      body: JSON.stringify(projectName),
     });
   }
 }

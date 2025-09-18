@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import ProjectInfo from "./ProjectInfo";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
@@ -16,7 +16,7 @@ interface Props {
   onClick?: (name: string) => void;
   projectId?: number;
   name?: string;
-  lastModifiedAt?: string;
+  lastModifiedAt: string;
 }
 
 const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt = "" }: Props) => {
@@ -26,6 +26,7 @@ const Project = ({ showRuntime = false, isActive = false, onClick, name = "", la
     if (!onClick) {
       return;
     }
+
     onClick(name);
   }, [onClick, name]);
 

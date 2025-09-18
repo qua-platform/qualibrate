@@ -6,12 +6,12 @@ import { ProjectDTO } from "../ProjectDTO";
 interface IProjectContext {
   allProjects: ProjectDTO[];
   activeProject: ProjectDTO | undefined;
-  selectActiveProject: (projectName: ProjectDTO) => void;
+  handleSelectActiveProject: (projectName: ProjectDTO) => void;
 }
 
 const ProjectContext = React.createContext<IProjectContext>({
   allProjects: [],
-  selectActiveProject: noop,
+  handleSelectActiveProject: noop,
   activeProject: undefined,
 });
 
@@ -23,17 +23,14 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
 
   const fetchProjectsAndActive = async () => {
     try {
-      const [projectsRes, activeNameRes] = await Promise.all([
-        ProjectViewApi.fetchAllProjects(),
-        ProjectViewApi.fetchActiveProject(),
-      ]);
-  
+      const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
+
       if (projectsRes.isOk && projectsRes.result) {
         const fetchedProjects = projectsRes.result;
         setAllProjects(fetchedProjects);
         let fetchedActiveProject: ProjectDTO | undefined = undefined;
         if (activeNameRes.isOk && activeNameRes.result) {
-          fetchedActiveProject = fetchedProjects.find(p => p.name === activeNameRes.result);
+          fetchedActiveProject = fetchedProjects.find((p) => p.name === activeNameRes.result);
           if (!fetchedActiveProject && fetchedProjects.length > 0) {
             fetchedActiveProject = fetchedProjects[0];
           }
@@ -51,16 +48,29 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
     fetchProjectsAndActive();
   }, []);
 
-  const selectActiveProject = useCallback((project: ProjectDTO) => {
-    setActiveProject(project);
-    ProjectViewApi.setActiveProject(project.name);
-  }, []);
+  const handleSelectActiveProject = useCallback(
+    async (project: ProjectDTO) => {
+      try {
+        const { isOk, result } = await ProjectViewApi.selectActiveProject(project.name);
+        if (isOk && result === project.name) {
+          setActiveProject(project);
+        }
+      } catch (err) {
+        console.error("Failed to activate project:", err);
+      }
+    },
+    [setActiveProject]
+  );
 
   return (
-    <ProjectContext.Provider value={{ allProjects, activeProject, selectActiveProject }}>
+    <ProjectContext.Provider
+      value={{
+        allProjects,
+        activeProject,
+        handleSelectActiveProject,
+      }}
+    >
       {children}
     </ProjectContext.Provider>
   );
 };
-
-export default ProjectContext;
