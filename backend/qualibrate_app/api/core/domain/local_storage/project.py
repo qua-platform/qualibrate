@@ -1,5 +1,7 @@
 from collections.abc import Sequence
+from typing import Optional
 
+from qualibrate_config.core.project.active import get_active_project
 from qualibrate_config.core.project.p_list import verbose_list_projects
 from qualibrate_config.core.project.switch import switch_project
 
@@ -10,6 +12,9 @@ from qualibrate_app.config import get_settings
 
 
 class ProjectsManagerLocalStorage(ProjectsManagerBase):
+    def _active_project_getter(self) -> Optional[str]:
+        return get_active_project(self._config_path)
+
     def _active_project_setter(self, value: str) -> None:
         try:
             switch_project(self._config_path, value, raise_if_error=True)
