@@ -19,7 +19,7 @@ import { heading } from "./constants";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
-  const { allProjects, activeProject, selectActiveProject } = useProjectContext();
+  const { allProjects, activeProject, handleSelectActiveProject } = useProjectContext();
   const [listedProjects, setListedProjects] = useState<ProjectDTO[] | undefined>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
@@ -33,9 +33,9 @@ const Project = () => {
 
     if (!projectToSelect) return;
 
-    selectActiveProject(projectToSelect);
+    handleSelectActiveProject(projectToSelect);
     openTab("nodes");
-  }, [allProjects, selectedProject, selectActiveProject, openTab]);
+  }, [allProjects, selectedProject, handleSelectActiveProject, openTab]);
 
   const handleSearchChange = useCallback((searchTerm: string) => {
     setListedProjects(allProjects.filter((p) => p.name.startsWith(searchTerm)));
@@ -44,6 +44,8 @@ const Project = () => {
   if (!activeProject) {
     return <LoaderPage />;
   }
+
+  const heading: string = activeProject ? `Currently active project is ${activeProject.name}` : "Welcome to QUAlibrate";
 
   return (
     <>
