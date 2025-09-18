@@ -87,10 +87,6 @@ const NodesContext = React.createContext<INodesContext>({
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
 
-interface NodesContextProviderProps {
-  children: React.JSX.Element;
-}
-
 export interface StatusResponseType {
   idx: number;
   completed_at?: string;
@@ -112,7 +108,7 @@ export interface StatusResponseType {
   };
 }
 
-export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {
+export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const { runStatus } = useWebSocketData();
   const [allNodes, setAllNodes] = useState<NodeMap | undefined>(undefined);
   const [runningNode, setRunningNode] = useState<NodeDTO | undefined>(undefined);
@@ -298,7 +294,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         isRescanningNodes,
       }}
     >
-      {props.children}
+      {children}
     </NodesContext.Provider>
   );
-}
+};

@@ -15,12 +15,18 @@ import { ProjectDTO } from "./ProjectDTO";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import PageSection from "../../common/ui-components/common/Page/PageSection";
 import InputField from "../../common/ui-components/common/Input/InputField";
+import { useNodesContext } from "../Nodes/context/NodesContext";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
   const { allProjects, activeProject, handleSelectActiveProject } = useProjectContext();
+  const { fetchAllNodes } = useNodesContext();
   const [listedProjects, setListedProjects] = useState<ProjectDTO[] | undefined>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
+
+  useEffect(() => {
+    fetchAllNodes();
+  }, [activeProject]);
 
   useEffect(() => {
     setListedProjects(allProjects);
