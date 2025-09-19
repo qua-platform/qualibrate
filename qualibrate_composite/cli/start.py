@@ -1,3 +1,4 @@
+import importlib
 import os
 from pathlib import Path
 
@@ -9,19 +10,6 @@ from qualibrate_composite.config.vars import (
     CORS_ORIGINS_ENV_NAME,
     ROOT_PATH_ENV_NAME,
 )
-
-try:
-    from qualibrate_app.config import (
-        CONFIG_PATH_ENV_NAME as QAPP_CONFIG_PATH_ENV_NAME,
-    )
-except ImportError:
-    QAPP_CONFIG_PATH_ENV_NAME = None  # type: ignore[assignment]
-try:
-    from qualibrate_runner.config import (
-        CONFIG_PATH_ENV_NAME as RUNNER_CONFIG_PATH_ENV_NAME,
-    )
-except ImportError:
-    RUNNER_CONFIG_PATH_ENV_NAME = None  # type: ignore[assignment]
 
 
 @click.command(name="start")
@@ -81,10 +69,20 @@ def start_command(
     os.environ[ROOT_PATH_ENV_NAME] = root_path
     if len(cors_origin) != 0:
         os.environ[CORS_ORIGINS_ENV_NAME] = ",".join(cors_origin)
-    if QAPP_CONFIG_PATH_ENV_NAME is not None:
-        os.environ[QAPP_CONFIG_PATH_ENV_NAME] = str(config_path)
-    if RUNNER_CONFIG_PATH_ENV_NAME is not None:
-        os.environ[RUNNER_CONFIG_PATH_ENV_NAME] = str(config_path)
+    app_config_m = importlib.import_module("qualibrate_app.config")
+    if app_config_m and (
+        app_config_path_env_name := getattr(
+            app_config_m, "CONFIG_PATH_ENV_NAME", None
+        )
+    ):
+        os.environ[app_config_path_env_name] = str(config_path)
+    runner_config_m = importlib.import_module("qualibrate_runner.config")
+    if runner_config_m and (
+        runner_config_path_env_name := getattr(
+            runner_config_m, "CONFIG_PATH_ENV_NAME", None
+        )
+    ):
+        os.environ[runner_config_path_env_name] = str(config_path)
 
     from qualibrate_composite.app import main as app_main
 
