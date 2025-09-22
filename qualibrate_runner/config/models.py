@@ -19,3 +19,12 @@ class State(BaseModel):
             self.last_run is not None
             and self.last_run.status == RunStatusEnum.RUNNING
         )
+
+    def clear(self) -> None:
+        if (
+            self.last_run is not None
+            and self.last_run.status == RunStatusEnum.RUNNING
+        ):
+            raise RuntimeError("Can't clear while item is running")
+        self.last_run = None
+        self.run_item = None

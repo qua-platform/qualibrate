@@ -112,6 +112,9 @@ def state_updated(
 
 
 @others_router.post("/refresh_settings")
-def refresh_settings() -> None:
+def refresh_settings(
+    state: Annotated[State, Depends(get_state)],
+) -> None:
+    state.clear()
     get_settings.cache_clear()
     get_cl_settings.cache_clear()
