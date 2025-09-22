@@ -16,10 +16,12 @@ import { useNodesContext } from "../Nodes/context/NodesContext";
 import LoaderPage from "../../ui-lib/loader/LoaderPage";
 import { useGraphContext } from "../GraphLibrary/context/GraphContext";
 import { useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
+import LoadingBar from "../../ui-lib/loader/LoadingBar";
+import { NoItemsIcon } from "../../ui-lib/Icons/NoItemsIcon";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
-  const { allProjects, activeProject, handleSelectActiveProject } = useProjectContext();
+  const { allProjects, activeProject, handleSelectActiveProject, isScanningProjects } = useProjectContext();
   const { fetchAllNodes } = useNodesContext();
   const { fetchAllCalibrationGraphs } = useGraphContext();
   const { reset, setReset, setSelectedSnapshotId, setAllSnapshots, setJsonData, setResult, setDiffData } = useSnapshotsContext();
@@ -68,7 +70,7 @@ const Project = () => {
     [allProjects]
   );
 
-  if (!allProjects || allProjects?.length === 0) {
+  if (isScanningProjects) {
     return <LoaderPage />;
   }
 
@@ -86,7 +88,12 @@ const Project = () => {
         />
       </div>
       <ProjectList projects={listedProjects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} />
-      {listedProjects && listedProjects?.length > 0 && (
+      {isScanningProjects && listedProjects?.length === 0 && (
+        <div className={styles.splashNoProject}>
+          <LoadingBar icon={<NoItemsIcon height={204} width={200} />} text="No projects found" />
+        </div>
+      )}
+      {!isScanningProjects && listedProjects?.length > 0 && (
         <div className={styles.pageActions}>
           <BlueButton
             onClick={handleSubmit}

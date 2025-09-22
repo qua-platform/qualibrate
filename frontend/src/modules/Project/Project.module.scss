@@ -8,7 +8,14 @@
   color: var(--sub-text-color);
   font-size: 16px;
   font-weight: 400;
+}
 
+.splashNoProject {
+  padding-top: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
 }
 
 .projectPageSubtitleText {

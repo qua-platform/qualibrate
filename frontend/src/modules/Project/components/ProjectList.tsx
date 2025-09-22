@@ -4,6 +4,7 @@ import React, { useCallback, useMemo } from "react";
 import { ProjectDTO } from "../ProjectDTO";
 import LoadingBar from "../../../ui-lib/loader/LoadingBar";
 import { NoItemsIcon } from "../../../ui-lib/Icons/NoItemsIcon";
+import { useProjectContext } from "../context/ProjectContext";
 
 interface Props {
   projects: ProjectDTO[];
@@ -12,6 +13,8 @@ interface Props {
 }
 
 const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) => {
+  const { isScanningProjects } = useProjectContext();
+
   const sortedProjects = useMemo(() => {
     return [...projects].sort((a, b) => new Date(b.last_modified_at).getTime() - new Date(a.last_modified_at).getTime());
   }, [projects]);
@@ -23,7 +26,7 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
     [setSelectedProject]
   );
 
-  if (!projects?.length) {
+  if (!isScanningProjects && projects?.length === 0) {
     return (
       <div className={styles.splashNoProject}>
         <LoadingBar icon={<NoItemsIcon height={204} width={200} />} text="No projects found" />

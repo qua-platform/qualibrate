@@ -5,14 +5,16 @@ import { ProjectDTO } from "../ProjectDTO";
 
 interface IProjectContext {
   allProjects: ProjectDTO[];
-  activeProject: ProjectDTO | null | undefined;
   handleSelectActiveProject: (projectName: ProjectDTO) => void;
+  activeProject: ProjectDTO | null | undefined;
+  isScanningProjects: boolean;
 }
 
 const ProjectContext = React.createContext<IProjectContext>({
   allProjects: [],
   handleSelectActiveProject: noop,
   activeProject: undefined,
+  isScanningProjects: false,
 });
 
 export const useProjectContext = (): IProjectContext => useContext<IProjectContext>(ProjectContext);
@@ -20,8 +22,10 @@ export const useProjectContext = (): IProjectContext => useContext<IProjectConte
 export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [activeProject, setActiveProject] = useState<ProjectDTO | null | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
+  const [isScanningProjects, setIsScanningProjects] = useState<boolean>(false);
 
   const fetchProjectsAndActive = async () => {
+    setIsScanningProjects(true);
     try {
       const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
 
@@ -36,6 +40,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
     } catch (error) {
       console.error("Error fetching projects or active project:", error);
     }
+    setIsScanningProjects(false);
   };
 
   useEffect(() => {
@@ -62,6 +67,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
         allProjects,
         activeProject,
         handleSelectActiveProject,
+        isScanningProjects,
       }}
     >
       {children}
