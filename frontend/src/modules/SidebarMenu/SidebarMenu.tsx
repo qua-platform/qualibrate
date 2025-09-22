@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { bottomMenuItems, HELP_KEY, menuItems, PROJECT_TAB, TOGGLE_SIDEBAR_KEY } from "../../routing/ModulesRegistry";
+import { bottomMenuItems, HELP_KEY, menuItems, PROJECT_KEY, TOGGLE_SIDEBAR_KEY } from "../../routing/ModulesRegistry";
 import MenuItem from "./MenuItem";
 // import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
 // import ThemeToggle from "../themeModule/ThemeToggle";
@@ -25,7 +25,7 @@ const SidebarMenu: React.FunctionComponent = () => {
   const { activeProject } = useProjectContext();
 
   const handleProjectClick = useCallback(() => {
-    openTab(PROJECT_TAB);
+    openTab(PROJECT_KEY);
   }, [openTab]);
 
   const handleHelpClick = useCallback(() => {
@@ -45,16 +45,19 @@ const SidebarMenu: React.FunctionComponent = () => {
 
         <div className={styles.menuContent}>
           <div className={styles.menuUpperContent}>
-            {menuItems.map((item) => (
-              <MenuItem
-                {...item}
-                key={item.keyId}
-                hideText={minify}
-                onClick={() => setActiveTabsetName(item.keyId)}
-                isSelected={activeTabsetName === item.keyId}
-                data-testid={`menu-item-${item.keyId}`}
-              />
-            ))}
+            {menuItems.map((item) => {
+              return (
+                <MenuItem
+                  {...item}
+                  key={item.keyId}
+                  hideText={minify}
+                  onClick={() => setActiveTabsetName(item.keyId)}
+                  isSelected={activeTabsetName === item.keyId}
+                  isDisabled={!activeProject}
+                  data-testid={`menu-item-${item.keyId}`}
+                />
+              );
+            })}
           </div>
 
           <div className={styles.menuBottomContent}>
@@ -67,9 +70,9 @@ const SidebarMenu: React.FunctionComponent = () => {
                 menuItem.icon = minify ? ExpandSideMenuIcon : CollapseSideMenuIcon;
               } else if (item.keyId === HELP_KEY) {
                 handleOnClick = handleHelpClick;
-              } else if (item.keyId === PROJECT_TAB) {
+              } else if (item.keyId === PROJECT_KEY) {
+                handleOnClick = handleProjectClick;
                 if (activeProject) {
-                  handleOnClick = handleProjectClick;
                   menuItem.sideBarTitle = activeProject.name;
                   menuItem.icon = () => (
                     <ProjectFolderIcon
@@ -89,7 +92,7 @@ const SidebarMenu: React.FunctionComponent = () => {
                   menuItem={menuItem}
                   key={item.keyId}
                   hideText={minify}
-                  isSelected={item.keyId === PROJECT_TAB && activeTabsetName === PROJECT_TAB}
+                  isSelected={item.keyId === PROJECT_KEY && activeTabsetName === PROJECT_KEY}
                   onClick={handleOnClick}
                 />
               );

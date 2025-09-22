@@ -10,22 +10,28 @@ import ProjectList from "./components/ProjectList";
 import { useProjectContext } from "./context/ProjectContext";
 import cyKeys from "../../utils/cyKeys";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
-import LoaderPage from "../../ui-lib/loader/LoaderPage";
 import { ProjectDTO } from "./ProjectDTO";
-import PageName from "../../common/ui-components/common/Page/PageName";
 import PageSection from "../../common/ui-components/common/Page/PageSection";
 import InputField from "../../common/ui-components/common/Input/InputField";
 import { useNodesContext } from "../Nodes/context/NodesContext";
+import LoaderPage from "../../ui-lib/loader/LoaderPage";
+import { useGraphContext } from "../GraphLibrary/context/GraphContext";
+import { useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
   const { allProjects, activeProject, handleSelectActiveProject } = useProjectContext();
   const { fetchAllNodes } = useNodesContext();
-  const [listedProjects, setListedProjects] = useState<ProjectDTO[] | undefined>(allProjects);
+  const { fetchAllCalibrationGraphs } = useGraphContext();
+  const { reset, setReset, setSelectedSnapshotId, allSnapshots, setAllSnapshots, setJsonData, setResult, setDiffData } =
+    useSnapshotsContext();
+  const [listedProjects, setListedProjects] = useState<ProjectDTO[]>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
   useEffect(() => {
-    fetchAllNodes();
+    if (activeProject) {
+      fetchAllNodes();
+    }
   }, [activeProject]);
 
   useEffect(() => {
@@ -33,32 +39,45 @@ const Project = () => {
   }, [allProjects, setListedProjects]);
 
   const handleSubmit = useCallback(() => {
-    const fallbackProject = allProjects.length > 0 ? allProjects[0] : undefined;
-    const projectToSelect = selectedProject ?? fallbackProject;
+    if (!selectedProject) return;
 
-    if (!projectToSelect) return;
+    handleSelectActiveProject(selectedProject);
+    setSelectedSnapshotId(undefined);
+    setJsonData(undefined);
+    setResult(undefined);
+    setDiffData(undefined);
+    fetchAllCalibrationGraphs(false);
+    setReset(true);
 
-    handleSelectActiveProject(projectToSelect);
     openTab("nodes");
-  }, [allProjects, selectedProject, handleSelectActiveProject, openTab]);
+  }, [
+    allProjects,
+    selectedProject,
+    handleSelectActiveProject,
+    openTab,
+    setAllSnapshots,
+    setSelectedSnapshotId,
+    setJsonData,
+    setResult,
+    setDiffData,
+    setReset,
+    reset,
+  ]);
 
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
       setListedProjects(allProjects.filter((p) => p.name.startsWith(searchTerm)));
     },
-    [allProjects]
+    [allProjects, selectedProject]
   );
 
-  if (!activeProject) {
+  if (!listedProjects || listedProjects?.length === 0) {
     return <LoaderPage />;
   }
-
-  const heading: string = activeProject ? `Currently active project is ${activeProject.name}` : "Welcome to QUAlibrate";
 
   return (
     <>
       <div className={styles.projectPageLayout}>
-        {!activeProject?.name && <PageName>{heading}</PageName>}
         <div className={styles.pageWrapper}>
           <PageSection sectionName="Please select a Project">
             <InputField
@@ -68,9 +87,7 @@ const Project = () => {
               onChange={handleSearchChange}
               icon={<SearchIcon height={18} width={18} />}
             />
-            {listedProjects && (
-              <ProjectList projects={listedProjects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} />
-            )}
+            <ProjectList projects={listedProjects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} />
           </PageSection>
         </div>
       </div>

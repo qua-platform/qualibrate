@@ -7,10 +7,13 @@ import { useFlexLayoutContext } from "../routing/flexLayout/FlexLayoutContext";
 import { useAuthContext } from "../modules/Login/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../common/modules";
+import { useProjectContext } from "../modules/Project/context/ProjectContext";
+import { NODES_KEY, PROJECT_KEY } from "../routing/ModulesRegistry";
 
 const MainModularPage = () => {
-  const { model, checkIsEmpty, flexLayoutListener, openTab, setActiveTabsetName } = useFlexLayoutContext();
   const { isAuthorized } = useAuthContext();
+  const { model, checkIsEmpty, flexLayoutListener, openTab, setActiveTabsetName } = useFlexLayoutContext();
+  const { activeProject } = useProjectContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,11 +49,14 @@ const MainModularPage = () => {
   useEffect(() => {
     if (!isAuthorized) {
       navigate(LOGIN_URL);
+    } else if (!activeProject) {
+      openTab(PROJECT_KEY);
+      setActiveTabsetName(PROJECT_KEY);
     } else {
-      openTab("nodes");
-      setActiveTabsetName("nodes");
+      openTab(NODES_KEY);
+      setActiveTabsetName(NODES_KEY);
     }
-  }, [isAuthorized]);
+  }, [isAuthorized, activeProject]);
 
   useEffect(checkIsEmpty, []);
   return (
