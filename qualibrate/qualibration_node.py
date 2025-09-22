@@ -727,11 +727,19 @@ class QualibrationNode(
                 updates.
         """
         machine = self.machine
-        if (
-            (not self.modes.interactive and interactive_only)
-            or machine is None
-            or not hasattr(machine, "to_dict")
-        ):
+        if not self.modes.interactive and interactive_only:
+            yield
+            return
+
+        if machine is None or not hasattr(machine, "to_dict"):
+            self.log(
+                (
+                    "Unable to perform `QualibrationNode."
+                    "record_state_updates()` because `node.machine` has not "
+                    "been set. Any changes will be automatically applied."
+                ),
+                level="warning",
+            )
             yield
             return
 
