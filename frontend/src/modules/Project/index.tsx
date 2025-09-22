@@ -49,7 +49,6 @@ const Project = () => {
 
     openTab("nodes");
   }, [
-    allProjects,
     selectedProject,
     handleSelectActiveProject,
     openTab,
@@ -66,7 +65,7 @@ const Project = () => {
     (searchTerm: string) => {
       setListedProjects(allProjects.filter((p) => p.name.startsWith(searchTerm)));
     },
-    [allProjects, selectedProject]
+    [allProjects]
   );
 
   if (!allProjects || allProjects?.length === 0) {
