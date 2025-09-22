@@ -2,7 +2,8 @@ import Project from "./Project"; // eslint-disable-next-line css-modules/no-unus
 import styles from "./Project.module.scss";
 import React, { useCallback, useMemo } from "react";
 import { ProjectDTO } from "../ProjectDTO";
-import LoaderPage from "../../../ui-lib/loader/LoaderPage";
+import LoadingBar from "../../../ui-lib/loader/LoadingBar";
+import { NoItemsIcon } from "../../../ui-lib/Icons/NoItemsIcon";
 
 interface Props {
   projects: ProjectDTO[];
@@ -24,8 +25,8 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
 
   if (!projects?.length) {
     return (
-      <div className={styles.splash}>
-        <LoaderPage />;
+      <div className={styles.splashNoProject}>
+        <LoadingBar icon={<NoItemsIcon height={204} width={200} />} text="No projects found" />
       </div>
     );
   }

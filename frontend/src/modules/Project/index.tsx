@@ -11,7 +11,6 @@ import { useProjectContext } from "./context/ProjectContext";
 import cyKeys from "../../utils/cyKeys";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import { ProjectDTO } from "./ProjectDTO";
-import PageSection from "../../common/ui-components/common/Page/PageSection";
 import InputField from "../../common/ui-components/common/Input/InputField";
 import { useNodesContext } from "../Nodes/context/NodesContext";
 import LoaderPage from "../../ui-lib/loader/LoaderPage";
@@ -23,8 +22,7 @@ const Project = () => {
   const { allProjects, activeProject, handleSelectActiveProject } = useProjectContext();
   const { fetchAllNodes } = useNodesContext();
   const { fetchAllCalibrationGraphs } = useGraphContext();
-  const { reset, setReset, setSelectedSnapshotId, allSnapshots, setAllSnapshots, setJsonData, setResult, setDiffData } =
-    useSnapshotsContext();
+  const { reset, setReset, setSelectedSnapshotId, setAllSnapshots, setJsonData, setResult, setDiffData } = useSnapshotsContext();
   const [listedProjects, setListedProjects] = useState<ProjectDTO[]>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
@@ -71,44 +69,44 @@ const Project = () => {
     [allProjects, selectedProject]
   );
 
-  if (!listedProjects || listedProjects?.length === 0) {
+  if (!allProjects || allProjects?.length === 0) {
     return <LoaderPage />;
   }
 
   return (
     <>
-      <div className={styles.projectPageLayout}>
-        <div className={styles.pageWrapper}>
-          <PageSection sectionName="Please select a Project">
-            <InputField
-              iconType={IconType.INNER}
-              placeholder="Project Name"
-              className={styles.searchProjectField}
-              onChange={handleSearchChange}
-              icon={<SearchIcon height={18} width={18} />}
-            />
-            <ProjectList projects={listedProjects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} />
-          </PageSection>
-        </div>
+      <div className={styles.projectPageWrapper}>
+        <div className={styles.projectPageSubtitleText}>Please select a Project</div>
+        <InputField
+          name={"search"}
+          iconType={IconType.INNER}
+          placeholder="Project Name"
+          className={styles.searchProjectField}
+          onChange={handleSearchChange}
+          icon={<SearchIcon height={18} width={18} />}
+        />
       </div>
-      <div className={styles.pageActions}>
-        <BlueButton
-          onClick={handleSubmit}
-          className={styles.actionButton}
-          disabled={selectedProject === undefined}
-          data-cy={cyKeys.projects.LETS_START_BUTTON}
-          isBig
-        >
-          Let’s Start
-        </BlueButton>
-
-        {NEW_PROJECT_BUTTON_VISIBLE && (
-          <BlueButton isSecondary className={styles.actionButton}>
-            <AddIcon height={12} color={ACTIVE_TEXT} />
-            New project
+      <ProjectList projects={listedProjects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} />
+      {listedProjects && listedProjects?.length > 0 && (
+        <div className={styles.pageActions}>
+          <BlueButton
+            onClick={handleSubmit}
+            className={styles.actionButton}
+            disabled={selectedProject === undefined}
+            data-cy={cyKeys.projects.LETS_START_BUTTON}
+            isBig
+          >
+            Let’s Start
           </BlueButton>
-        )}
-      </div>
+
+          {NEW_PROJECT_BUTTON_VISIBLE && (
+            <BlueButton isSecondary className={styles.actionButton}>
+              <AddIcon height={12} color={ACTIVE_TEXT} />
+              New project
+            </BlueButton>
+          )}
+        </div>
+      )}
     </>
   );
 };
