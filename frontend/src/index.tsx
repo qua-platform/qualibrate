@@ -23,12 +23,12 @@ const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
   AuthContextProvider,
   FlexLayoutContextProvider,
+  RouterProvider,
   ProjectContextProvider,
   WebSocketProvider,
-  RouterProvider,
-  SnapshotsContextProvider,
   GraphContextProvider,
   NodesContextProvider,
+  SnapshotsContextProvider,
 ];
 
 const Application: React.FunctionComponent = () => {

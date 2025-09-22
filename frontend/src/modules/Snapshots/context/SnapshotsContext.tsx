@@ -37,6 +37,8 @@ interface ISnapshotsContext {
   setFirstId: (id: string) => void;
   secondId: string;
   setSecondId: (id: string) => void;
+  reset: boolean;
+  setReset: (val: boolean) => void;
 }
 
 export const SnapshotsContext = React.createContext<ISnapshotsContext>({
@@ -73,6 +75,8 @@ export const SnapshotsContext = React.createContext<ISnapshotsContext>({
   setFirstId: () => {},
   secondId: "0",
   setSecondId: () => {},
+  reset: false,
+  setReset: () => {},
 });
 
 export const useSnapshotsContext = (): ISnapshotsContext => useContext<ISnapshotsContext>(SnapshotsContext);
@@ -91,7 +95,7 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
   const [reset, setReset] = useState<boolean>(false);
 
   const [jsonDataSidePanel, setJsonDataSidePanel] = useState<object | undefined>(undefined);
-  const [jsonData, setJsonData] = useState<object | undefined>();
+  const [jsonData, setJsonData] = useState<object | undefined>(undefined);
   const [diffData, setDiffData] = useState<object | undefined>(undefined);
   const [result, setResult] = useState<object | undefined>(undefined);
 
@@ -157,6 +161,7 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
 
   const fetchGitgraphSnapshots = async (firstTime: boolean, page: number) => {
     const resAllSnapshots = await fetchAllSnapshots(page);
+    setAllSnapshots([]);
     if (resAllSnapshots && resAllSnapshots?.isOk) {
       const items = resAllSnapshots.result?.items;
       setTotalPages(resAllSnapshots.result?.total_pages ?? 1);
@@ -201,7 +206,7 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
       setTotalPages(resAllSnapshots.result?.total_pages as number);
       setPageNumber(resAllSnapshots.result?.page as number);
       const newMaxId = resAllSnapshots.result?.items[0]?.id;
-      const odlMaxId = allSnapshots[0]?.id;
+      const odlMaxId = allSnapshots ? allSnapshots[0]?.id : 0;
       console.log(`Max snapshot ID - previous=${odlMaxId}, latest=${newMaxId}`);
       if (newMaxId !== odlMaxId! && resAllSnapshots.result?.items?.length !== 0) {
         setReset(true);
@@ -265,6 +270,8 @@ export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): R
         setFirstId,
         secondId,
         setSecondId,
+        reset,
+        setReset,
       }}
     >
       {props.children}

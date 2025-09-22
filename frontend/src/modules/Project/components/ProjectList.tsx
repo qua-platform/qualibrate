@@ -1,9 +1,10 @@
-import LoadingBar from "../../../ui-lib/loader/LoadingBar";
-import { NoItemsIcon } from "../../../ui-lib/Icons/NoItemsIcon";
 import Project from "./Project"; // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { ProjectDTO } from "../ProjectDTO";
+import LoadingBar from "../../../ui-lib/loader/LoadingBar";
+import { NoItemsIcon } from "../../../ui-lib/Icons/NoItemsIcon";
+import { useProjectContext } from "../context/ProjectContext";
 
 interface Props {
   projects: ProjectDTO[];
@@ -12,18 +13,23 @@ interface Props {
 }
 
 const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) => {
+  const { isScanningProjects } = useProjectContext();
+
   const sortedProjects = useMemo(() => {
     return [...projects].sort((a, b) => new Date(b.last_modified_at).getTime() - new Date(a.last_modified_at).getTime());
   }, [projects]);
 
-  const onClickHandler = useCallback((project: ProjectDTO) => {
-    setSelectedProject(project);
-  }, [setSelectedProject]);
+  const handleOnClick = useCallback(
+    (project: ProjectDTO) => {
+      setSelectedProject(project);
+    },
+    [setSelectedProject]
+  );
 
-  if (!projects?.length) {
+  if (!isScanningProjects && projects?.length === 0) {
     return (
-      <div className={styles.splash}>
-        <LoadingBar icon={<NoItemsIcon />} text="No projects" />
+      <div className={styles.splashNoProject}>
+        <LoadingBar icon={<NoItemsIcon height={204} width={200} />} text="No projects found" />
       </div>
     );
   }
@@ -36,7 +42,7 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
           isActive={selectedProject?.name === project.name}
           projectId={index}
           name={project.name}
-          onClick={() => onClickHandler(project)}
+          onClick={() => handleOnClick(project)}
           lastModifiedAt={project.last_modified_at}
         />
       ))}

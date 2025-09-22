@@ -10,22 +10,28 @@ import ProjectList from "./components/ProjectList";
 import { useProjectContext } from "./context/ProjectContext";
 import cyKeys from "../../utils/cyKeys";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
-import LoaderPage from "../../ui-lib/loader/LoaderPage";
 import { ProjectDTO } from "./ProjectDTO";
-import PageName from "../../common/ui-components/common/Page/PageName";
-import PageSection from "../../common/ui-components/common/Page/PageSection";
 import InputField from "../../common/ui-components/common/Input/InputField";
 import { useNodesContext } from "../Nodes/context/NodesContext";
+import LoaderPage from "../../ui-lib/loader/LoaderPage";
+import { useGraphContext } from "../GraphLibrary/context/GraphContext";
+import { useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
+import LoadingBar from "../../ui-lib/loader/LoadingBar";
+import { NoItemsIcon } from "../../ui-lib/Icons/NoItemsIcon";
 
 const Project = () => {
   const { openTab } = useFlexLayoutContext();
-  const { allProjects, activeProject, handleSelectActiveProject } = useProjectContext();
+  const { allProjects, activeProject, handleSelectActiveProject, isScanningProjects } = useProjectContext();
   const { fetchAllNodes } = useNodesContext();
-  const [listedProjects, setListedProjects] = useState<ProjectDTO[] | undefined>(allProjects);
+  const { fetchAllCalibrationGraphs } = useGraphContext();
+  const { reset, setReset, setSelectedSnapshotId, setAllSnapshots, setJsonData, setResult, setDiffData } = useSnapshotsContext();
+  const [listedProjects, setListedProjects] = useState<ProjectDTO[]>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
   useEffect(() => {
-    fetchAllNodes();
+    if (activeProject) {
+      fetchAllNodes();
+    }
   }, [activeProject]);
 
   useEffect(() => {
@@ -33,14 +39,29 @@ const Project = () => {
   }, [allProjects, setListedProjects]);
 
   const handleSubmit = useCallback(() => {
-    const fallbackProject = allProjects.length > 0 ? allProjects[0] : undefined;
-    const projectToSelect = selectedProject ?? fallbackProject;
+    if (!selectedProject) return;
 
-    if (!projectToSelect) return;
+    handleSelectActiveProject(selectedProject);
+    setSelectedSnapshotId(undefined);
+    setJsonData(undefined);
+    setResult(undefined);
+    setDiffData(undefined);
+    fetchAllCalibrationGraphs(false);
+    setReset(true);
 
-    handleSelectActiveProject(projectToSelect);
     openTab("nodes");
-  }, [allProjects, selectedProject, handleSelectActiveProject, openTab]);
+  }, [
+    selectedProject,
+    handleSelectActiveProject,
+    openTab,
+    setAllSnapshots,
+    setSelectedSnapshotId,
+    setJsonData,
+    setResult,
+    setDiffData,
+    setReset,
+    reset,
+  ]);
 
   const handleSearchChange = useCallback(
     (searchTerm: string) => {
@@ -49,49 +70,49 @@ const Project = () => {
     [allProjects]
   );
 
-  if (!activeProject) {
+  if (isScanningProjects) {
     return <LoaderPage />;
   }
 
-  const heading: string = activeProject ? `Currently active project is ${activeProject.name}` : "Welcome to QUAlibrate";
-
   return (
     <>
-      <div className={styles.projectPageLayout}>
-        {!activeProject?.name && <PageName>{heading}</PageName>}
-        <div className={styles.pageWrapper}>
-          <PageSection sectionName="Please select a Project">
-            <InputField
-              iconType={IconType.INNER}
-              placeholder="Project Name"
-              className={styles.searchProjectField}
-              onChange={handleSearchChange}
-              icon={<SearchIcon height={18} width={18} />}
-            />
-            {listedProjects && (
-              <ProjectList projects={listedProjects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} />
-            )}
-          </PageSection>
+      <div className={styles.projectPageWrapper}>
+        <div className={styles.projectPageSubtitleText}>Please select a Project</div>
+        <InputField
+          name={"search"}
+          iconType={IconType.INNER}
+          placeholder="Project Name"
+          className={styles.searchProjectField}
+          onChange={handleSearchChange}
+          icon={<SearchIcon height={18} width={18} />}
+        />
+      </div>
+      <ProjectList projects={listedProjects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} />
+      {isScanningProjects && listedProjects?.length === 0 && (
+        <div className={styles.splashNoProject}>
+          <LoadingBar icon={<NoItemsIcon height={204} width={200} />} text="No projects found" />
         </div>
-      </div>
-      <div className={styles.pageActions}>
-        <BlueButton
-          onClick={handleSubmit}
-          className={styles.actionButton}
-          disabled={selectedProject === undefined}
-          data-cy={cyKeys.projects.LETS_START_BUTTON}
-          isBig
-        >
-          Let’s Start
-        </BlueButton>
-
-        {NEW_PROJECT_BUTTON_VISIBLE && (
-          <BlueButton isSecondary className={styles.actionButton}>
-            <AddIcon height={12} color={ACTIVE_TEXT} />
-            New project
+      )}
+      {!isScanningProjects && listedProjects?.length > 0 && (
+        <div className={styles.pageActions}>
+          <BlueButton
+            onClick={handleSubmit}
+            className={styles.actionButton}
+            disabled={selectedProject === undefined}
+            data-cy={cyKeys.projects.LETS_START_BUTTON}
+            isBig
+          >
+            Let’s Start
           </BlueButton>
-        )}
-      </div>
+
+          {NEW_PROJECT_BUTTON_VISIBLE && (
+            <BlueButton isSecondary className={styles.actionButton}>
+              <AddIcon height={12} color={ACTIVE_TEXT} />
+              New project
+            </BlueButton>
+          )}
+        </div>
+      )}
     </>
   );
 };

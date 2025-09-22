@@ -15,9 +15,9 @@ import { HelpIcon } from "../ui-lib/Icons/HelpIcon";
 
 export const DATA_KEY: ModuleKey = "data";
 export const NODES_KEY: ModuleKey = "nodes";
-export const PROJECT_TAB: ModuleKey = "project";
-export const GRAPH_LIBRARY: ModuleKey = "graph-library";
-export const GRAPH_STATUS: ModuleKey = "graph-status";
+export const PROJECT_KEY: ModuleKey = "project";
+export const GRAPH_LIBRARY_KEY: ModuleKey = "graph-library";
+export const GRAPH_STATUS_KEY: ModuleKey = "graph-status";
 export const HELP_KEY: ModuleKey = "help";
 export const TOGGLE_SIDEBAR_KEY: ModuleKey = "toggle";
 
@@ -68,7 +68,7 @@ export const ModulesRegistry: Array<Module> = [
     },
   },
   {
-    keyId: GRAPH_LIBRARY,
+    keyId: GRAPH_LIBRARY_KEY,
     path: "GRAPH_LIBRARY",
     Component: CalibrationGraph,
     menuItem: {
@@ -79,7 +79,7 @@ export const ModulesRegistry: Array<Module> = [
     },
   },
   {
-    keyId: GRAPH_STATUS,
+    keyId: GRAPH_STATUS_KEY,
     path: "graph-status",
     Component: GraphStatus,
     menuItem: {
@@ -101,7 +101,7 @@ export const ModulesRegistry: Array<Module> = [
     },
   },
   {
-    keyId: PROJECT_TAB,
+    keyId: PROJECT_KEY,
     path: "projects",
     Component: Project,
     menuItem: {
@@ -111,7 +111,7 @@ export const ModulesRegistry: Array<Module> = [
       dataCy: cyKeys.PROJECT_TAB,
       atBottom: true,
     },
-  },  
+  },
   {
     keyId: HELP_KEY,
     path: "help",

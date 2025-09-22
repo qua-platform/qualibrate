@@ -5,43 +5,42 @@ import { ProjectDTO } from "../ProjectDTO";
 
 interface IProjectContext {
   allProjects: ProjectDTO[];
-  activeProject: ProjectDTO | undefined;
   handleSelectActiveProject: (projectName: ProjectDTO) => void;
+  activeProject: ProjectDTO | null | undefined;
+  isScanningProjects: boolean;
 }
 
 const ProjectContext = React.createContext<IProjectContext>({
   allProjects: [],
   handleSelectActiveProject: noop,
   activeProject: undefined,
+  isScanningProjects: false,
 });
 
 export const useProjectContext = (): IProjectContext => useContext<IProjectContext>(ProjectContext);
 
 export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
-  const [activeProject, setActiveProject] = useState<ProjectDTO | undefined>(undefined);
+  const [activeProject, setActiveProject] = useState<ProjectDTO | null | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
+  const [isScanningProjects, setIsScanningProjects] = useState<boolean>(false);
 
   const fetchProjectsAndActive = async () => {
+    setIsScanningProjects(true);
     try {
       const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
 
       if (projectsRes.isOk && projectsRes.result) {
         const fetchedProjects = projectsRes.result;
         setAllProjects(fetchedProjects);
-        let fetchedActiveProject: ProjectDTO | undefined = undefined;
         if (activeNameRes.isOk && activeNameRes.result) {
-          fetchedActiveProject = fetchedProjects.find((p) => p.name === activeNameRes.result);
-          if (!fetchedActiveProject && fetchedProjects.length > 0) {
-            fetchedActiveProject = fetchedProjects[0];
-          }
-        } else if (fetchedProjects.length > 0) {
-          fetchedActiveProject = fetchedProjects[0];
+          const fetchedActiveProject = fetchedProjects.find((p) => p.name === activeNameRes.result);
+          setActiveProject(fetchedActiveProject);
         }
-        setActiveProject(fetchedActiveProject);
       }
     } catch (error) {
       console.error("Error fetching projects or active project:", error);
     }
+    setIsScanningProjects(false);
   };
 
   useEffect(() => {
@@ -68,6 +67,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
         allProjects,
         activeProject,
         handleSelectActiveProject,
+        isScanningProjects,
       }}
     >
       {children}
