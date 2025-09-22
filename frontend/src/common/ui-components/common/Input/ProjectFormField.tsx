@@ -4,6 +4,7 @@ import InputField from "./InputField";
 import styles from "../../../../modules/Project/CreateNewProjectForm/CreateNewProjectForm.module.scss";
 
 interface Props {
+  id: string;
   label: string;
   placeholder: string;
   value: string;
@@ -12,11 +13,13 @@ interface Props {
   error?: string;
 }
 
-const ProjectFormField: React.FC<Props> = ({ label, placeholder, value, onChange, type = "text", error }) => {
+const ProjectFormField: React.FC<Props> = ({ id, label, placeholder, value, onChange, type = "text", error }) => {
   return (
     <>
-      <label className={error ? styles.error : undefined}>{label}</label>
-      <InputField type={type} placeholder={placeholder} value={value} onChange={onChange} error={error} />
+      <label htmlFor={id} className={error ? styles.error : undefined}>
+        {label}
+      </label>
+      <InputField id={id} type={type} placeholder={placeholder} value={value} onChange={onChange} error={error} />
     </>
   );
 };

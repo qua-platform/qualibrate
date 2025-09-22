@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-app"
-version = "0.3.6a1"
+version = "0.4.0a3"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate-app"
@@ -51,6 +51,7 @@ python_version = "3.9"
 strict = true
 warn_return_any = true
 exclude = ['tests/']
+plugins = ['pydantic.mypy']
 
 [[tool.mypy.overrides]]
 # TODO: add py.typed to json_timeline_database and remove from ignore imports

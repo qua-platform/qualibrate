@@ -1,7 +1,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import { Checkbox } from "@mui/material";
+import { Checkbox, CircularProgress } from "@mui/material";
 import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
@@ -15,6 +15,7 @@ import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
 import { StatusVisuals } from "./NodeElementStatusVisuals";
 import { getNodeRowClass } from "./helpers";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
+import { useWebSocketData } from "../../../../contexts/WebSocketContext";
 
 export interface NodeDTO {
   name: string;
@@ -27,6 +28,7 @@ export interface NodeDTO {
 export interface NodeMap {
   [key: string]: NodeDTO;
 }
+
 export const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -42,7 +44,6 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { firstId, secondId, fetchOneSnapshot, trackLatestSidePanel } = useSnapshotsContext();
   const {
-    isNodeRunning,
     setRunningNodeInfo,
     setSubmitNodeResponseError,
     submitNodeResponseError,
@@ -52,8 +53,8 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setAllNodes,
     setIsAllStatusesUpdated,
     setUpdateAllButtonPressed,
-    runStatus,
   } = useNodesContext();
+  const { runStatus } = useWebSocketData();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
     const updatedParameters = {
@@ -125,16 +126,19 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     }
   };
 
-  const insertSpaces = (str: string, interval = 40) =>
-    str.replace(new RegExp(`(.{${interval}})`, "g"), "$1 ").trim();
+  const insertSpaces = (str: string, interval = 40) => str.replace(new RegExp(`(.{${interval}})`, "g"), "$1 ").trim();
 
   return (
     <div
-      className={getNodeRowClass({ 
-        nodeName: node.name, 
-        selectedItemName: selectedItemName ?? "", 
-        runStatus: runStatus && runStatus.node
-            ? { name: runStatus.node.name, status: runStatus.node.status }
+      className={getNodeRowClass({
+        nodeName: node.name,
+        selectedItemName: selectedItemName ?? "",
+        runStatus:
+          runStatus && runStatus.node
+            ? {
+                name: runStatus.node.name,
+                status: runStatus.node.status,
+              }
             : null,
       })}
       data-testid={`node-element-${nodeKey}`}
@@ -158,19 +162,20 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           )}
         </div>
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
-        {(runStatus?.node?.name === node.name || (selectedItemName !== node.name && runStatus?.node?.status !== "pending")) && (
-          <StatusVisuals
-            status={runStatus?.node?.name === node.name ? runStatus?.node?.status : "pending"}
-            percentage={Math.round(runStatus?.node?.percentage_complete ?? 0)}
-          />
-        )}
+          {(runStatus?.node?.name === node.name || (selectedItemName !== node.name && runStatus?.node?.status !== "pending")) && (
+            <StatusVisuals
+              status={runStatus?.node?.name === node.name ? runStatus?.node?.status : "pending"}
+              percentage={Math.round(runStatus?.node?.percentage_complete ?? 0)}
+            />
+          )}
         </div>
-        {!isNodeRunning && node.name === selectedItemName && (
+        {!runStatus?.is_running && node.name === selectedItemName && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
             <RunIcon className={styles.runButtonIcon} />
             <span className={styles.runButtonText}>Run</span>
           </BlueButton>
         )}
+        {runStatus?.is_running && node.name === selectedItemName && <CircularProgress size={32} />}
       </div>
       {node.name === selectedItemName && node.name === submitNodeResponseError?.nodeName && (
         <ErrorResponseWrapper error={submitNodeResponseError} />

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./CreateNewProjectForm.module.scss";
 import ProjectFormField from "../../../common/ui-components/common/Input/ProjectFormField";
@@ -10,183 +10,163 @@ interface Props {
   closeNewProjectForm: () => void;
 }
 
+interface FormData {
+  projectName: string;
+  dataPath: string;
+  quamPath: string;
+  calibrationPath: string;
+}
+
 interface FormErrors {
-  projectPath?: string;
+  projectName?: string;
   dataPath?: string;
   quamPath?: string;
   calibrationPath?: string;
 }
 
-const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
-  const [formData, setFormData] = useState({
-    dataPath: "",
-    quamPath: "",
-    calibrationPath: "",
-    projectPath: ""
-  });
+const initialFormData: FormData = {
+  projectName: "",
+  dataPath: "",
+  quamPath: "",
+  calibrationPath: "",
+};
 
+const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
+  const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { validatePath, validateProjectName } = useProjectFormValidation();
-  const { allProjects } = useProjectContext();
+  const { allProjects, fetchProjectsAndActive } = useProjectContext();
 
-  const validateField = useCallback((field: keyof FormErrors, value: string) => {
-    let error: string | undefined;
-    
-    switch (field) {
-      case "projectPath":
+  const validateField = useCallback(
+    (field: keyof FormData, value: string) => {
+      let error: string | undefined;
+
+      if (field === "projectName") {
         error = validateProjectName(value);
-        break;
-      case "dataPath":
-        error = validatePath(value, "Data path");
-        break;
-      case "quamPath":
-        error = validatePath(value, "QUAM path");
-        break;
-      case "calibrationPath":
-        error = validatePath(value, "Calibration path");
-        break;
-    }
-    
-    setErrors(prev => ({
-      ...prev,
-      [field]: error
-    }));
-    
-    return !error;
-  }, [validatePath, validateProjectName]);
+      } else if (value.trim()) {
+        const labelMap: Record<keyof FormData, string> = {
+          projectName: "Project name",
+          dataPath: "Data path",
+          quamPath: "QUAM path",
+          calibrationPath: "Calibration path",
+        };
+        error = validatePath(value, labelMap[field]);
+      } else {
+        error = undefined;
+      }
+
+      setErrors((prev) => ({ ...prev, [field]: error }));
+      return !error;
+    },
+    [validatePath, validateProjectName]
+  );
 
   const isFormValid = useCallback(() => {
-    return !validateProjectName(formData.projectPath);
-  }, [formData, validateProjectName]);
+    return !validateProjectName(formData.projectName);
+  }, [formData.projectName, validateProjectName]);
 
   const handleCloseNewProjectForm = useCallback(() => {
-    setFormData({
-      dataPath: "",
-      quamPath: "",
-      calibrationPath: "",
-      projectPath: ""
-    });
+    setFormData(initialFormData);
     setErrors({});
     closeNewProjectForm();
   }, [closeNewProjectForm]);
-  
-  const checkProjectNameExists = useCallback((projectName: string): boolean => {
-    return allProjects.some(project => project.name === projectName);
-  }, [allProjects]);
 
-  const handleSubmit = useCallback(async (event: React.FormEvent) => {
-    event.preventDefault();
-    
-    if (!isFormValid()) {
-      return;
-    }
+  const checkProjectNameExists = useCallback(
+    (projectName: string) => allProjects.some((project) => project.name === projectName),
+    [allProjects]
+  );
 
-    setIsSubmitting(true);
+  const handleSubmit = useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
+      if (!isFormValid()) return;
 
-    try {
-      if (checkProjectNameExists(formData.projectPath)) {
-        setErrors(prev => ({
-          ...prev,
-          projectPath: "A project with this name already exists"
-        }));
-        return;
+      setIsSubmitting(true);
+      try {
+        if (checkProjectNameExists(formData.projectName)) {
+          setErrors((prev) => ({
+            ...prev,
+            projectName: "A project with this name already exists",
+          }));
+          return;
+        }
+
+        const { isOk, error, result } = await ProjectViewApi.createProject(formData);
+
+        if (isOk) {
+          console.log("Project created successfully:", result);
+          await fetchProjectsAndActive();
+          handleCloseNewProjectForm();
+        } else {
+          console.error("Failed to create project:", error);
+        }
+      } catch (err) {
+        console.error("Error creating project:", err);
+      } finally {
+        setIsSubmitting(false);
       }
+    },
+    [formData, isFormValid, checkProjectNameExists, handleCloseNewProjectForm]
+  );
 
-      const { isOk, error, result } = await ProjectViewApi.createProject(formData);
+  const createChangeHandler = useCallback(
+    (field: keyof FormData) => (val: string) => {
+      setFormData((prev) => ({ ...prev, [field]: val }));
+      setTimeout(() => validateField(field, val), 300);
+    },
+    [validateField]
+  );
 
-      if (isOk) {
-        console.log("Project created successfully:", result);
-        handleCloseNewProjectForm();
-      } else {
-        console.error("Failed to create project:", error);
-      }
-    } catch (err) {
-      console.error("Error creating project:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [formData, isFormValid, checkProjectNameExists, handleCloseNewProjectForm]);
-
-  const handleProjectPathChange = useCallback((val: string) => {
-    setFormData({ ...formData, projectPath: val });
-    setTimeout(() => validateField("projectPath", val), 300);
-  }, [formData, validateField]);
-
-  const handleDataPathChange = useCallback((val: string) => {
-    setFormData({ ...formData, dataPath: val });
-    if (val.trim()) {
-      setTimeout(() => validateField("dataPath", val), 300);
-    } else {
-      setErrors(prev => ({ ...prev, dataPath: undefined }));
-    }
-  }, [formData, validateField]);
-
-  const handleQuamPathChange = useCallback((val: string) => {
-    setFormData({ ...formData, quamPath: val });
-    if (val.trim()) {
-      setTimeout(() => validateField("quamPath", val), 300);
-    } else {
-      setErrors(prev => ({ ...prev, quamPath: undefined }));
-    }
-  }, [formData, validateField]);
-
-  const handleCalibrationPathChange = useCallback((val: string) => {
-    setFormData({ ...formData, calibrationPath: val });
-    if (val.trim()) {
-      setTimeout(() => validateField("calibrationPath", val), 300);
-    } else {
-      setErrors(prev => ({ ...prev, calibrationPath: undefined }));
-    }
-  }, [formData, validateField]);
+  const handleProjectNameChange = createChangeHandler("projectName");
+  const handleDataPathChange = createChangeHandler("dataPath");
+  const handleQuamPathChange = createChangeHandler("quamPath");
+  const handleCalibrationPathChange = createChangeHandler("calibrationPath");
 
   return (
     <div className={styles.createProjectPanel}>
       <h3 className={styles.header}>Create New Project</h3>
-
-      <form onSubmit={handleSubmit}>
-        <ProjectFormField 
-          label="Project name" 
-          placeholder="Enter project name" 
-          value={formData.projectPath} 
-          onChange={handleProjectPathChange}
-          error={errors.projectPath}
-        />
-
-        <ProjectFormField 
-          label="Data path" 
-          placeholder="Enter data path" 
-          value={formData.dataPath} 
-          onChange={handleDataPathChange}
-          error={errors.dataPath}
-        />
-
-        <ProjectFormField 
-          label="QUAM state path" 
-          placeholder="Enter QUAM path" 
-          value={formData.quamPath} 
-          onChange={handleQuamPathChange}
-          error={errors.quamPath}
-        />
-
-        <ProjectFormField 
-          label="Calibration library path" 
-          placeholder="Enter calibration path" 
-          value={formData.calibrationPath} 
-          onChange={handleCalibrationPathChange}
-          error={errors.calibrationPath}
-        />
-
-        <div className={styles.actions}>
-          <button type="button" onClick={handleCloseNewProjectForm} className={styles.cancel} disabled={isSubmitting}>
-            Cancel
-          </button>
-          <button type="submit" className={styles.create} disabled={!isFormValid() || isSubmitting}>
-            {isSubmitting ? "Creating..." : "Create"}
-          </button>
-        </div>
-      </form>
+      <ProjectFormField
+        id="project_name"
+        label="Project name*"
+        placeholder="Enter project name"
+        value={formData.projectName}
+        onChange={handleProjectNameChange}
+        error={errors.projectName}
+      />
+      <ProjectFormField
+        id="data_path"
+        label="Data path"
+        placeholder="Enter data path"
+        value={formData.dataPath}
+        onChange={handleDataPathChange}
+        error={errors.dataPath}
+      />
+      <ProjectFormField
+        id="quam_state_path"
+        label="QUAM state path"
+        placeholder="Enter QUAM path"
+        value={formData.quamPath}
+        onChange={handleQuamPathChange}
+        error={errors.quamPath}
+      />
+      <ProjectFormField
+        id="calibration_library_path"
+        label="Calibration library path"
+        placeholder="Enter calibration path"
+        value={formData.calibrationPath}
+        onChange={handleCalibrationPathChange}
+        error={errors.calibrationPath}
+      />
+      <div className={styles.actions}>
+        <button type="button" onClick={handleCloseNewProjectForm} className={styles.cancel} disabled={isSubmitting}>
+          Cancel
+        </button>
+        <button type="submit" onClick={handleSubmit} className={styles.create} disabled={!isFormValid() || isSubmitting}>
+          {isSubmitting ? "Creating..." : "Create"}
+        </button>
+      </div>
     </div>
   );
 };

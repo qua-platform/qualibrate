@@ -12,6 +12,15 @@ import {
 import { API_METHODS } from "../../../common/enums/Api";
 import { SnapshotDTO } from "../SnapshotDTO";
 
+export type SnapshotLoadTypeFlag =
+  | "Minified"
+  | "Metadata"
+  | "DataWithoutRefs"
+  | "DataWithMachine"
+  | "DataWithResults"
+  | "DataWithResultsWithImgs"
+  | "Full";
+
 export interface SnapshotResult {
   items: SnapshotDTO[];
   per_page: number;
@@ -35,8 +44,18 @@ export class SnapshotsApi extends Api {
     });
   }
 
-  static fetchSnapshot(id: string): Promise<Res<SnapshotDTO>> {
-    return this._fetch(this.api(ONE_SNAPSHOT(id)), API_METHODS.GET, {
+  static fetchSnapshot(id: string, loadTypeFlag?: SnapshotLoadTypeFlag[]): Promise<Res<SnapshotDTO>> {
+    const url = this.api(ONE_SNAPSHOT(id));
+    const params = new URLSearchParams();
+
+    // Use DataWithMachine as default if no load type flag is provided
+    const flagsToUse = loadTypeFlag && loadTypeFlag.length > 0 ? loadTypeFlag : ["DataWithMachine"];
+
+    flagsToUse.forEach((flag) => params.append("load_type_flag", flag));
+
+    const urlWithParams = `${url}?${params.toString()}`;
+
+    return this._fetch(urlWithParams, API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }

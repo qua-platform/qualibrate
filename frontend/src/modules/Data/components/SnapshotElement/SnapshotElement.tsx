@@ -46,7 +46,7 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
             />
             <MeasurementElementStatusInfoAndParameters
               title="Parameters"
-              data={(jsonData as { parameters: object })?.parameters}
+              data={(jsonData as { parameters?: { model?: object } })?.parameters?.model}
               filterEmpty={true}
               className={classNames(additionalStyles.parameters, styles.additionalWidth)}
             />
