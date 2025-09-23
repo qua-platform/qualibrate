@@ -16,12 +16,13 @@ import styles from "./Project.module.scss";
 const Project = () => {
   const { allProjects, activeProject, isScanningProjects } = useProjectContext();
   const { fetchAllNodes } = useNodesContext();
-  const { fetchAllCalibrationGraphs } = useGraphContext();
+  const { fetchAllCalibrationGraphs, setWorkflowGraphElements } = useGraphContext();
   const [listedProjects, setListedProjects] = useState<ProjectDTO[]>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
   useEffect(() => {
     if (activeProject) {
+      setWorkflowGraphElements(undefined);
       fetchAllNodes();
       fetchAllCalibrationGraphs(false);
     }

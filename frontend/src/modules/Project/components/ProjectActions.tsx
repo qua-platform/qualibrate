@@ -46,7 +46,7 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({ isCurrentProject, proje
   ]);
   return (
     <div>
-      <div className={styles.checkWrapper}>{isCurrentProject && <ProjectCheckIcon />}</div>
+      <div>{isCurrentProject && <ProjectCheckIcon />}</div>
       <div className={styles.pageActions}>
         {selectedProject?.name === projectName && !isCurrentProject && (
           <BlueButton

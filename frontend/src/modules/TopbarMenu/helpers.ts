@@ -24,7 +24,10 @@ export const formatDate = (date?: string | Date | null): string => {
 };
 
 export const capitalize = (text: string): string => {
-  return text.charAt(0).toUpperCase() + text.slice(1);
+  if (text && text.length > 0) {
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+  return text;
 };
 
 export const getWrapperClass = (status: string, styles: { [key: string]: string }): string => {

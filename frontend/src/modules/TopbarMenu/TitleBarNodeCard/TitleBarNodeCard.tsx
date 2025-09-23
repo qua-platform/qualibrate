@@ -8,14 +8,12 @@ import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutCont
 import { StatusIndicator } from "./TitleBarStatusIndicator";
 import { getStatusLabelElement } from "./TitleBarGetStatusLabelElement";
 import { capitalize, formatTime, getWrapperClass } from "../helpers";
-import { DEFAULT_TOOLTIP_SX, LastRunStatusNodeResponseDTO } from "../constants";
+import { DEFAULT_TOOLTIP_SX } from "../constants";
+import { useWebSocketData } from "../../../contexts/WebSocketContext";
 
-interface IProps {
-  node: LastRunStatusNodeResponseDTO;
-}
-
-const TitleBarNodeCard: React.FC<IProps> = ({ node }) => {
+const TitleBarNodeCard: React.FC = () => {
   const { openTab, setActiveTabsetName } = useFlexLayoutContext();
+  const { runStatus } = useWebSocketData();
 
   const handleOnClick = useCallback(() => {
     openTab("nodes");
@@ -23,13 +21,13 @@ const TitleBarNodeCard: React.FC<IProps> = ({ node }) => {
   }, [openTab, setActiveTabsetName]);
 
   return (
-    <Tooltip title={<TitleBarTooltipContent node={node} />} placement="bottom" componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}>
+    <Tooltip title={<TitleBarTooltipContent />} placement="bottom" componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}>
       <div onClick={handleOnClick} className={styles.hoverRegion}>
-        <div className={classNames(styles.wrapper, getWrapperClass(node.status, styles))}>
+        <div className={classNames(styles.wrapper, getWrapperClass(runStatus?.node?.status ?? "", styles))}>
           <div className={styles.indicatorWrapper}>
             {StatusIndicator(
-              capitalize(node.status),
-              node.percentage_complete ?? 0,
+              capitalize(runStatus?.node?.status ?? "pending"),
+              runStatus?.node?.percentage_complete ?? 0,
               {
                 Running: { width: 30, height: 30 },
                 Finished: { width: 38, height: 38 },
@@ -41,18 +39,23 @@ const TitleBarNodeCard: React.FC<IProps> = ({ node }) => {
           </div>
           <div className={styles.textWrapper}>
             <div className={styles.topRowWrapper}>
-              {node.status?.toLowerCase() === "pending" ? (
+              {runStatus?.node?.status?.toLowerCase() === "pending" ? (
                 <div className={styles.noNodeRunningLabel}>No node is running</div>
               ) : (
                 <div className={styles.nodeRunningLabel}>
-                  Active Node:&nbsp;&nbsp;{node.id === -1 ? node.name : `#${node.id} ${node.name}`}
+                  {runStatus?.node?.id || runStatus?.node?.name ? "Active Node:" : "No node is running"}&nbsp;&nbsp;
+                  {runStatus?.node?.id === -1
+                    ? runStatus?.node?.name
+                    : runStatus?.node?.id && runStatus?.node?.name
+                      ? `#${runStatus?.node?.id} ${runStatus?.node?.name}`
+                      : ""}
                 </div>
               )}
             </div>
             <div className={styles.bottomRowWrapper}>
-              {getStatusLabelElement(node.status ?? undefined, node.current_action ?? undefined)}
-              {node.status?.toLowerCase() === "running" && node.percentage_complete > 0 && (
-                <div className={styles.timeRemainingText}>{formatTime(node.time_remaining ?? 0)}&nbsp;left</div>
+              {getStatusLabelElement(runStatus?.node?.status ?? undefined, runStatus?.node?.current_action ?? undefined)}
+              {runStatus?.node?.status?.toLowerCase() === "running" && runStatus?.node?.percentage_complete > 0 && (
+                <div className={styles.timeRemainingText}>{formatTime(runStatus?.node?.time_remaining ?? 0)}&nbsp;left</div>
               )}
             </div>
           </div>

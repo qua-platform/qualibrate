@@ -17,12 +17,12 @@ export interface NodeExecution {
   description: string | null;
   id: number;
   name: string;
-  parameters: Record<string, unknown>; // prazni objekti – fleksibilna struktura
+  parameters: Record<string, unknown>;
   percentage_complete: number;
   run_duration: number;
-  run_end: string; // ISO timestamp string
-  run_start: string; // ISO timestamp string
-  status: "pending" | "running" | "finished" | "failed" | string; // koristi preciznije ako znaš sve vrednosti
+  run_end: string;
+  run_start: string;
+  status: "pending" | "running" | "finished" | "failed" | string;
   time_remaining: number;
   run_results: RunResults;
 }
@@ -38,7 +38,7 @@ export type GraphItem = {
   run_duration: number;
   time_remaining: number;
   error?: ErrorObject;
-  status: "pending" | "running" | "finished" | "failed"; // koristi preciznije ako znaš sve vrednosti
+  status: "pending" | "running" | "finished" | "failed";
 };
 
 export type RunStatusType = {
