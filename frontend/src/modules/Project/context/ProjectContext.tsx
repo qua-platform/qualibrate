@@ -5,6 +5,7 @@ import { ProjectDTO } from "../ProjectDTO";
 
 interface IProjectContext {
   allProjects: ProjectDTO[];
+  setAllProjects: (projects: ProjectDTO[]) => void;
   handleSelectActiveProject: (projectName: ProjectDTO) => void;
   activeProject: ProjectDTO | null | undefined;
   isScanningProjects: boolean;
@@ -13,6 +14,7 @@ interface IProjectContext {
 
 const ProjectContext = React.createContext<IProjectContext>({
   allProjects: [],
+  setAllProjects: noop,
   handleSelectActiveProject: noop,
   activeProject: undefined,
   isScanningProjects: false,
@@ -67,6 +69,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
     <ProjectContext.Provider
       value={{
         allProjects,
+        setAllProjects,
         activeProject,
         handleSelectActiveProject,
         isScanningProjects,

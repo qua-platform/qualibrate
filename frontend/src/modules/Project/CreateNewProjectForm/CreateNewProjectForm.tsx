@@ -10,11 +10,11 @@ interface Props {
   closeNewProjectForm: () => void;
 }
 
-interface FormData {
+export interface NewProjectFormData {
   projectName: string;
-  dataPath: string;
-  quamPath: string;
-  calibrationPath: string;
+  dataPath?: string;
+  quamPath?: string;
+  calibrationPath?: string;
 }
 
 interface FormErrors {
@@ -24,29 +24,26 @@ interface FormErrors {
   calibrationPath?: string;
 }
 
-const initialFormData: FormData = {
+const initialFormData: NewProjectFormData = {
   projectName: "",
-  dataPath: "",
-  quamPath: "",
-  calibrationPath: "",
 };
 
 const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
-  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [formData, setFormData] = useState<NewProjectFormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { validatePath, validateProjectName } = useProjectFormValidation();
-  const { allProjects, fetchProjectsAndActive } = useProjectContext();
+  const { allProjects, setAllProjects } = useProjectContext();
 
   const validateField = useCallback(
-    (field: keyof FormData, value: string) => {
+    (field: keyof NewProjectFormData, value: string) => {
       let error: string | undefined;
 
       if (field === "projectName") {
         error = validateProjectName(value);
       } else if (value.trim()) {
-        const labelMap: Record<keyof FormData, string> = {
+        const labelMap: Record<keyof NewProjectFormData, string> = {
           projectName: "Project name",
           dataPath: "Data path",
           quamPath: "QUAM path",
@@ -97,7 +94,9 @@ const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
 
         if (isOk) {
           console.log("Project created successfully:", result);
-          await fetchProjectsAndActive();
+          if (result) {
+            setAllProjects([result, ...allProjects]);
+          }
           handleCloseNewProjectForm();
         } else {
           console.error("Failed to create project:", error);
@@ -112,7 +111,7 @@ const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
   );
 
   const createChangeHandler = useCallback(
-    (field: keyof FormData) => (val: string) => {
+    (field: keyof NewProjectFormData) => (val: string) => {
       setFormData((prev) => ({ ...prev, [field]: val }));
       setTimeout(() => validateField(field, val), 300);
     },
