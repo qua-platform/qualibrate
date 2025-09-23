@@ -5,7 +5,7 @@ from typing import Annotated, Optional
 from urllib.parse import urljoin
 
 import requests
-from fastapi import APIRouter, Body, Depends, Query, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
@@ -48,7 +48,7 @@ def _get_projects_manager(
     "/create",
     status_code=status.HTTP_201_CREATED,
     summary="Create a new project",
-    response_model=str,
+    response_model=Project,
     responses={
         status.HTTP_201_CREATED: {
             "description": "Project created",
@@ -110,7 +110,7 @@ def create_project(
         ProjectsManagerBase,
         Depends(_get_projects_manager),
     ],
-) -> str:
+) -> Project:
     """
     Create a project in the configured storage backend. You can optionally set
     a custom storage location, a calibration library folder, and a path to a
@@ -127,12 +127,21 @@ def create_project(
     - quam_state_path (Optional[Path]): Path to an initial QUAM state file
     that will be set on project creation.
     """
-    return projects_manager.create(
+    projects_manager.create(
         project_name,
         storage_location=storage_location,
         calibration_library_folder=calibration_library_folder,
         quam_state_path=quam_state_path,
     )
+    project = next(
+        filter(lambda p: p.name == project_name, projects_manager.list()), None
+    )
+    if project is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Project not found",
+        )
+    return project
 
 
 @project_router.get(
