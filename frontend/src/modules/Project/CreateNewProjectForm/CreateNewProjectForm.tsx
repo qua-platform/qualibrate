@@ -138,7 +138,7 @@ const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
         id="data_path"
         label="Data path"
         placeholder="Enter data path"
-        value={formData.dataPath}
+        value={formData.dataPath ?? ""}
         onChange={handleDataPathChange}
         error={errors.dataPath}
       />
@@ -146,7 +146,7 @@ const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
         id="quam_state_path"
         label="QUAM state path"
         placeholder="Enter QUAM path"
-        value={formData.quamPath}
+        value={formData.quamPath ?? ""}
         onChange={handleQuamPathChange}
         error={errors.quamPath}
       />
@@ -154,7 +154,7 @@ const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
         id="calibration_library_path"
         label="Calibration library path"
         placeholder="Enter calibration path"
-        value={formData.calibrationPath}
+        value={formData.calibrationPath ?? ""}
         onChange={handleCalibrationPathChange}
         error={errors.calibrationPath}
       />
