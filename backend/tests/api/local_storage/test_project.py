@@ -9,6 +9,7 @@ from qualibrate_config.core.project.path import get_project_path
 from qualibrate_config.models import QualibrateConfig
 from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
+from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.config import get_config_path
 
 if sys.version_info < (3, 11):
@@ -58,7 +59,9 @@ def test_project_create(
         "/api/project/create", params={"project_name": "new_project"}
     )
     assert response.status_code == 201
-    assert response.json() == "new_project"
+    project = response.json()
+    assert project["name"] == "new_project"
+    assert project.keys() == Project.model_fields.keys()
     assert get_project_path(settings_path.parent, "new_project").is_dir()
 
 
