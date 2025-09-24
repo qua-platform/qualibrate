@@ -5,65 +5,72 @@ import { ProjectDTO } from "../ProjectDTO";
 
 interface IProjectContext {
   allProjects: ProjectDTO[];
-  activeProject: ProjectDTO | undefined;
-  selectActiveProject: (projectName: ProjectDTO) => void;
+  handleSelectActiveProject: (projectName: ProjectDTO) => void;
+  activeProject: ProjectDTO | null | undefined;
+  isScanningProjects: boolean;
 }
 
 const ProjectContext = React.createContext<IProjectContext>({
   allProjects: [],
-  selectActiveProject: noop,
+  handleSelectActiveProject: noop,
   activeProject: undefined,
+  isScanningProjects: false,
 });
 
 export const useProjectContext = (): IProjectContext => useContext<IProjectContext>(ProjectContext);
 
-interface ProjectContextProviderProps {
-  children: React.ReactNode;
-}
-
-export function ProjectContextProvider(props: ProjectContextProviderProps): React.ReactNode {
-  const [activeProject, setActiveProject] = useState<ProjectDTO | undefined>(undefined);
+export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
+  const [activeProject, setActiveProject] = useState<ProjectDTO | null | undefined>(undefined);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
+  const [isScanningProjects, setIsScanningProjects] = useState<boolean>(false);
 
-  const fetchAllProjects = useCallback(async () => {
-    const { isOk, error, result } = await ProjectViewApi.fetchAllProjects();
-    if (isOk) {
-      setAllProjects(result!);
-    } else if (error) {
-      console.log(error);
-    }
-  }, []);
+  const fetchProjectsAndActive = async () => {
+    setIsScanningProjects(true);
+    try {
+      const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
 
-  const fetchActiveProject = useCallback(async () => {
-    const { isOk, error, result } = await ProjectViewApi.fetchActiveProject();
-    if (isOk) {
-      setActiveProject(result!);
-    } else if (error) {
-      console.log(error);
+      if (projectsRes.isOk && projectsRes.result) {
+        const fetchedProjects = projectsRes.result;
+        setAllProjects(fetchedProjects);
+        if (activeNameRes.isOk && activeNameRes.result) {
+          const fetchedActiveProject = fetchedProjects.find((p) => p.name === activeNameRes.result);
+          setActiveProject(fetchedActiveProject);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching projects or active project:", error);
     }
-  }, []);
+    setIsScanningProjects(false);
+  };
 
   useEffect(() => {
-    fetchActiveProject();
-    fetchAllProjects();
+    fetchProjectsAndActive();
   }, []);
 
-  const selectActiveProject = useCallback((project: ProjectDTO) => {
-    setActiveProject(project);
-    ProjectViewApi.setActiveProject(project.name);
-  }, []);
+  const handleSelectActiveProject = useCallback(
+    async (project: ProjectDTO) => {
+      try {
+        const { isOk, result } = await ProjectViewApi.selectActiveProject(project.name);
+        if (isOk && result === project.name) {
+          setActiveProject(project);
+        }
+      } catch (err) {
+        console.error("Failed to activate project:", err);
+      }
+    },
+    [setActiveProject]
+  );
 
   return (
     <ProjectContext.Provider
       value={{
         allProjects,
         activeProject,
-        selectActiveProject,
+        handleSelectActiveProject,
+        isScanningProjects,
       }}
     >
-      {props.children}
+      {children}
     </ProjectContext.Provider>
   );
-}
-
-export default ProjectContext;
+};

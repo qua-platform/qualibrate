@@ -146,10 +146,6 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
   };
 
   useEffect(() => {
-    fetchAllCalibrationGraphs();
-  }, []);
-
-  useEffect(() => {
     if (selectedWorkflowName) {
       fetchWorkflowGraph(selectedWorkflowName);
       setSelectedWorkflow(allGraphs?.[selectedWorkflowName]);

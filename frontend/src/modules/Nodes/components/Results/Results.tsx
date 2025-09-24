@@ -39,7 +39,7 @@ export const Results: React.FC<{
   showSearch?: boolean;
   toggleSwitch?: boolean;
   pageName?: ModuleKey;
-  errorObject?: ErrorObject;
+  errorObject: ErrorObject | null | undefined;
   style?: React.CSSProperties;
 }> = ({ title, jsonObject, showSearch = true, toggleSwitch = false, pageName, style, errorObject }) => {
   let jsonData = jsonObject;

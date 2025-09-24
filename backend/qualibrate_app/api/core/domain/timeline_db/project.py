@@ -1,5 +1,7 @@
 from collections.abc import Sequence
 from datetime import datetime
+from pathlib import Path
+from typing import Optional
 from urllib.parse import urljoin
 
 import requests
@@ -26,12 +28,15 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
             raise QJsonDbException(
                 f"Can't check if project {value} exists in timeline DB."
             )
-        self._set_user_storage_project(value)
+        self._settings.project = value
 
-    def _set_user_storage_project(self, project_name: str) -> None:
-        super()._set_user_storage_project(project_name)
-
-    def create(self, project_name: str) -> str:
+    def create(
+        self,
+        project_name: str,
+        storage_location: Optional[Path] = None,
+        calibration_library_folder: Optional[Path] = None,
+        quam_state_path: Optional[Path] = None,
+    ) -> str:
         if any(project.name == project_name for project in self.list()):
             raise QValueException(f"Project {project_name} already exists.")
         response = request_with_db(
@@ -44,13 +49,12 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
 
         if response.status_code != 200 or response.json() != project_name:
             raise QJsonDbException(f"Can't create project {project_name}.")
-        new_project_path = self._resolve_new_project_path(
+        return super().create(
             project_name,
-            self._settings.project,
-            self._settings.storage.location,
+            storage_location,
+            calibration_library_folder,
+            quam_state_path,
         )
-        new_project_path.mkdir(parents=True, exist_ok=True)
-        return project_name
 
     def list(self) -> Sequence[Project]:
         response = requests.get(

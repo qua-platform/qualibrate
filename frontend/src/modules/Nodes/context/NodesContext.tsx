@@ -49,7 +49,7 @@ interface INodesContext {
   setRunningNode: (selectedNode: NodeDTO) => void;
   setRunningNodeInfo: (runningNodeInfo: RunningNodeInfo) => void;
   allNodes?: NodeMap;
-  setAllNodes: (nodes: NodeMap) => void;
+  setAllNodes: (nodes: NodeMap | undefined) => void;
   isNodeRunning: boolean;
   setIsNodeRunning: (value: boolean) => void;
   results?: unknown | object;
@@ -87,10 +87,6 @@ const NodesContext = React.createContext<INodesContext>({
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
 
-interface NodesContextProviderProps {
-  children: React.JSX.Element;
-}
-
 export interface StatusResponseType {
   idx: number;
   completed_at?: string;
@@ -112,7 +108,7 @@ export interface StatusResponseType {
   };
 }
 
-export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {
+export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const { runStatus } = useWebSocketData();
   const [allNodes, setAllNodes] = useState<NodeMap | undefined>(undefined);
   const [runningNode, setRunningNode] = useState<NodeDTO | undefined>(undefined);
@@ -125,6 +121,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const [isRescanningNodes, setIsRescanningNodes] = useState<boolean>(false);
 
   const fetchAllNodes = async () => {
+    setAllNodes(undefined);
     setIsRescanningNodes(true);
     const response = await NodesApi.fetchAllNodes();
     if (response.isOk) {
@@ -134,9 +131,6 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
     }
     setIsRescanningNodes(false);
   };
-  useEffect(() => {
-    fetchAllNodes();
-  }, []);
 
   function parseDateString(dateString: string): Date {
     const [datePart, timePart] = dateString.split(" ");
@@ -298,7 +292,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         isRescanningNodes,
       }}
     >
-      {props.children}
+      {children}
     </NodesContext.Provider>
   );
-}
+};

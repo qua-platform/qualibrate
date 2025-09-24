@@ -3,6 +3,8 @@ import { ButtonTypes } from "../../common/interfaces/ButtonTypes";
 import React from "react";
 import { WorkflowPlaceHolderIcon } from "../Icons/WorkflowPlaceholderIcon";
 import { classNames } from "../../utils/classnames";
+// eslint-disable-next-line css-modules/no-unused-class
+import styles from "./LoaderPage.module.scss";
 
 const DEFAULT_LOADING_PHRASE = "Loading...";
 
@@ -34,7 +36,7 @@ const LoadingBar = ({ text = DEFAULT_LOADING_PHRASE, icon = <WorkflowPlaceHolder
   return (
     <div className={classNames(className)} style={{ whiteSpace: "pre-wrap" }}>
       {icon}
-      <div>{formatError(text)}</div>
+      <div className={styles.text}>{formatError(text)}</div>
       {actionButton || retryButton}
     </div>
   );

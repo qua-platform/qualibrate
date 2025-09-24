@@ -1,14 +1,13 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import ProjectInfo from "./ProjectInfo";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 import cyKeys from "../../../utils/cyKeys";
-import SelectField from "../../../common/ui-components/common/Input/SelectField";
 import { getColorIndex } from "../helpers";
 import { colorPalette } from "../constants";
-
-const SelectRuntime = <SelectField options={["Localhost"]} onChange={() => {}} />;
+import { useProjectContext } from "../context/ProjectContext";
+import ProjectActions from "./ProjectActions";
 
 interface Props {
   showRuntime?: boolean;
@@ -16,11 +15,14 @@ interface Props {
   onClick?: (name: string) => void;
   projectId?: number;
   name?: string;
+  lastModifiedAt: string;
 }
 
-const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: Props) => {
+const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt = "" }: Props) => {
+  const { activeProject } = useProjectContext();
+  const isCurrentProject = activeProject?.name === name;
   const index = useMemo(() => getColorIndex(name), [name]);
-  const projectColor = colorPalette[index];  
+  const projectColor = colorPalette[index];
   const handleOnClick = useCallback(() => {
     if (!onClick) {
       return;
@@ -30,14 +32,24 @@ const Project = ({ showRuntime = false, isActive = false, onClick, name = "" }: 
   }, [onClick, name]);
 
   return (
-    <button
-      className={classNames(styles.project, isActive && styles.project_active)}
-      onClick={handleOnClick}
-      data-cy={cyKeys.projects.PROJECT}
-    >
-      <ProjectInfo name={name} colorIcon={projectColor}/>
-      <div className={styles.projectActions}>{showRuntime && SelectRuntime}</div>
-    </button>
+    <div className={styles.projectWrapper}>
+      <button
+        className={classNames(
+          styles.project,
+          isActive && styles.projectActive,
+          isCurrentProject && styles.projectChecked
+        )}
+        onClick={handleOnClick}
+        data-cy={cyKeys.projects.PROJECT}
+      >
+        <ProjectInfo
+          name={name}
+          colorIcon={projectColor}
+          date={lastModifiedAt ? new Date(lastModifiedAt) : undefined}
+        />
+        <ProjectActions isCurrentProject={isCurrentProject} showRuntime={showRuntime} />
+      </button>
+    </div>
   );
 };
 
