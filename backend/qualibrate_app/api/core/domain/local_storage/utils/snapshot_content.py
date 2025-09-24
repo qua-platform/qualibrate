@@ -1,13 +1,10 @@
 import json
 import logging
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import (
     Any,
-    Callable,
-    Optional,
-    cast,
 )
 
 from qualibrate_config.models import QualibrateConfig
@@ -47,7 +44,7 @@ SnapshotContentLoaderType = Callable[
         SnapshotLoadTypeFlag,
         QualibrateConfig,
         bool,
-        Optional[dict[str, Any]],
+        dict[str, Any] | None,
     ],
     DocumentType,
 ]
@@ -148,7 +145,7 @@ def get_node_filepath(snapshot_path: NodePath) -> Path:
 
 def get_data_node_path(
     node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
-) -> Optional[Path]:
+) -> Path | None:
     node_data = dict(node_info.get("data", {}))
     quam_relative_path = node_data.get("quam") or node_data.get("machine")
     if quam_relative_path is None:
@@ -161,7 +158,7 @@ def get_data_node_path(
 
 def get_data_node_dir(
     snapshot_path: Path, quam_dir_name: str = "quam_state"
-) -> Optional[Path]:
+) -> Path | None:
     quam_state_dir = snapshot_path / quam_dir_name
     return quam_state_dir if quam_state_dir.is_dir() else None
 
@@ -323,7 +320,7 @@ def default_snapshot_content_loader(
     node_filepath = get_node_filepath(snapshot_path)
     node_info = _node_info_from_node_filename(node_filepath)
     if raw:
-        return cast(DocumentType, node_info)
+        return node_info
     content = read_minified_node_content(
         node_info, node_filepath, snapshot_path, settings
     )
@@ -448,7 +445,7 @@ def default_snapshot_content_loader_from_flag(
     load_type: SnapshotLoadTypeFlag,
     settings: QualibrateConfig,
     raw: bool = False,
-    snapshot_content: Optional[dict[str, Any]] = None,
+    snapshot_content: dict[str, Any] | None = None,
 ) -> DocumentType:
     if snapshot_content is None:
         snapshot_content = {}
@@ -457,7 +454,7 @@ def default_snapshot_content_loader_from_flag(
     node_filepath = get_node_filepath(snapshot_path)
     node_info = _node_info_from_node_filename(node_filepath)
     if raw:
-        return cast(DocumentType, node_info)
+        return node_info
     # TODO: Issue: Iterate over flag use only Minified value if qualibrate-app
     #  is part of qualibrate
     for lt in SnapshotLoadTypeFlag.__members__.values():

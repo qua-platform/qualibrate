@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Any, Optional, Union
+from typing import Any
 
 from qualibrate_app.api.core.domain.bases.branch import BranchBase
 from qualibrate_app.api.core.domain.bases.node import NodeBase
@@ -39,12 +39,12 @@ class RootLocalStorage(RootBase):
             raise QFileNotFoundException(f"There is no {error_msg}")
         return id
 
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         if id is None:
             id = self._get_latest_node_id("snapshot")
         return SnapshotLocalStorage(id, settings=self._settings)
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         if id is None:
             id = self._get_latest_node_id("node")
         return NodeLocalStorage(id, settings=self._settings)
@@ -70,6 +70,6 @@ class RootLocalStorage(RootBase):
         ).get_latest_nodes(page, per_page, reverse)
 
     def search_snapshot(
-        self, snapshot_id: IdType, data_path: Sequence[Union[str, int]]
+        self, snapshot_id: IdType, data_path: Sequence[str | int]
     ) -> Any:
         return self.get_snapshot(snapshot_id).search(data_path, load=True)

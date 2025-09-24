@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Optional
 
 from qualibrate_config.core.project.create import create_project
 from qualibrate_config.models import QualibrateConfig
@@ -19,14 +18,14 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
         self._config_path = config_path
 
     @property
-    def project(self) -> Optional[str]:
+    def project(self) -> str | None:
         return self._active_project_getter()
 
     @project.setter
     def project(self, value: str) -> None:
         self._active_project_setter(value)
 
-    def _active_project_getter(self) -> Optional[str]:
+    def _active_project_getter(self) -> str | None:
         return self._settings.project
 
     @abstractmethod
@@ -36,9 +35,9 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
     def create(
         self,
         project_name: str,
-        storage_location: Optional[Path] = None,
-        calibration_library_folder: Optional[Path] = None,
-        quam_state_path: Optional[Path] = None,
+        storage_location: Path | None = None,
+        calibration_library_folder: Path | None = None,
+        quam_state_path: Path | None = None,
     ) -> str:
         try:
             create_project(

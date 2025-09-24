@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 from urllib.parse import urljoin
 
 import requests
@@ -33,9 +32,9 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
     def create(
         self,
         project_name: str,
-        storage_location: Optional[Path] = None,
-        calibration_library_folder: Optional[Path] = None,
-        quam_state_path: Optional[Path] = None,
+        storage_location: Path | None = None,
+        calibration_library_folder: Path | None = None,
+        quam_state_path: Path | None = None,
     ) -> str:
         if any(project.name == project_name for project in self.list()):
             raise QValueException(f"Project {project_name} already exists.")

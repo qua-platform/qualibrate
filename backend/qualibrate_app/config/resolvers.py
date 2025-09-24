@@ -2,7 +2,7 @@ import os
 import warnings
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Depends
 from qualibrate_config.models import (
@@ -25,7 +25,7 @@ __all__ = [
 ]
 
 
-def get_default_static_files_path() -> Optional[Path]:
+def get_default_static_files_path() -> Path | None:
     import sys
 
     module_file = sys.modules["qualibrate_app"].__file__
@@ -53,7 +53,7 @@ def get_settings(
 @lru_cache
 def get_quam_state_path(
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
-) -> Optional[Path]:
+) -> Path | None:
     root = settings.__class__._root
     if root is None:
         return None
