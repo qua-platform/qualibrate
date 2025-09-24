@@ -7,48 +7,40 @@ import cyKeys from "../../../utils/cyKeys";
 import { getColorIndex } from "../helpers";
 import { colorPalette } from "../constants";
 import { useProjectContext } from "../context/ProjectContext";
+import { ProjectDTO } from "../ProjectDTO";
 import ProjectActions from "./ProjectActions";
 
 interface Props {
-  showRuntime?: boolean;
   isActive?: boolean;
-  onClick?: (name: string) => void;
-  projectId?: number;
-  name?: string;
   lastModifiedAt: string;
+  project: ProjectDTO;
+  selectedProject: ProjectDTO | undefined;
+  setSelectedProject: React.Dispatch<React.SetStateAction<ProjectDTO | undefined>>;
 }
 
-const Project = ({ showRuntime = false, isActive = false, onClick, name = "", lastModifiedAt = "" }: Props) => {
+const Project = ({ isActive = false, lastModifiedAt = "", project, selectedProject, setSelectedProject }: Props) => {
   const { activeProject } = useProjectContext();
-  const isCurrentProject = activeProject?.name === name;
-  const index = useMemo(() => getColorIndex(name), [name]);
+  const isCurrentProjectActive = activeProject?.name === project.name;
+  const index = useMemo(() => getColorIndex(project.name), [project.name]);
   const projectColor = colorPalette[index];
-  const handleOnClick = useCallback(() => {
-    if (!onClick) {
-      return;
-    }
 
-    onClick(name);
-  }, [onClick, name]);
+  const handleOnClick = useCallback(
+    (project: ProjectDTO) => {
+      setSelectedProject(project);
+    },
+    [setSelectedProject]
+  );
 
   return (
     <div className={styles.projectWrapper}>
-      <button
-        className={classNames(
-          styles.project,
-          isActive && styles.projectActive,
-          isCurrentProject && styles.projectChecked
-        )}
-        onClick={handleOnClick}
+      <div
+        className={classNames(styles.project, isActive && styles.projectActive, isCurrentProjectActive && styles.projectChecked)}
+        onClick={() => handleOnClick(project)}
         data-cy={cyKeys.projects.PROJECT}
       >
-        <ProjectInfo
-          name={name}
-          colorIcon={projectColor}
-          date={lastModifiedAt ? new Date(lastModifiedAt) : undefined}
-        />
-        <ProjectActions isCurrentProject={isCurrentProject} showRuntime={showRuntime} />
-      </button>
+        <ProjectInfo name={project.name} colorIcon={projectColor} date={lastModifiedAt ? new Date(lastModifiedAt) : undefined} />
+        <ProjectActions isCurrentProject={isCurrentProjectActive} projectName={project.name} selectedProject={selectedProject} />
+      </div>
     </div>
   );
 };

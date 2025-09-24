@@ -266,10 +266,15 @@ button {
   --grey: #c6cdd6;
   --grey-light: #37393f;
   --grey-highlight: #A5ACB6;
+  --grey-highlight-light: #a5acb699;
   --tag-hover-color: #2b444d;
   --popup-fade-wrapper: rgb(33 33 37 / 80%);
   --action-button-hover: #31424a;
   --action-button-hover-border: #2f7988;
+  --blue-button-active: #2ccbe599;
+  --blue-button-active-light: #2ccbe5b3;
+  --blue-button-hover: #3cdff84d;
+  --blue-button-hover-light: #3cdff814;
   --color-splitter: #212125;
   --color-splitter-hover: #2b444d;
   --status-color-running: #3CDEF8;
@@ -278,6 +283,7 @@ button {
   --status-color-pending: #A5ACB6;
   --menuitem-hover: #2ccbe51f;
   --menuitem-selected: #2ccbe514;
+  --popup-shadow: #0000004d;
 }
 
 ::-webkit-scrollbar {

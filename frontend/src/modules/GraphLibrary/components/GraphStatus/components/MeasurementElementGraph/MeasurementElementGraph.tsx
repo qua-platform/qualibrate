@@ -46,7 +46,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
               <div>Status: {runStatus?.graph?.status}</div>
               <div>
                 Run duration:&nbsp;
-                {(runStatus?.graph?.run_duration ? `${runStatus?.graph?.run_duration}s` : undefined) ?? <CircularProgress size="2rem" />}
+                {runStatus?.graph?.run_duration ? `${runStatus?.graph?.run_duration}s` : undefined}
               </div>
               <div>Graph progress:&nbsp;{graphProgressMessage ?? <CircularProgress size="2rem" />}</div>
             </div>

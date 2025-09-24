@@ -1,6 +1,6 @@
 import Project from "./Project"; // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import { ProjectDTO } from "../ProjectDTO";
 import LoadingBar from "../../../ui-lib/loader/LoadingBar";
 import { NoItemsIcon } from "../../../ui-lib/Icons/NoItemsIcon";
@@ -19,13 +19,6 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
     return [...projects].sort((a, b) => new Date(b.last_modified_at).getTime() - new Date(a.last_modified_at).getTime());
   }, [projects]);
 
-  const handleOnClick = useCallback(
-    (project: ProjectDTO) => {
-      setSelectedProject(project);
-    },
-    [setSelectedProject]
-  );
-
   if (!isScanningProjects && projects?.length === 0) {
     return (
       <div className={styles.splashNoProject}>
@@ -40,10 +33,10 @@ const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) =
         <Project
           key={index}
           isActive={selectedProject?.name === project.name}
-          projectId={index}
-          name={project.name}
-          onClick={() => handleOnClick(project)}
+          project={project}
           lastModifiedAt={project.last_modified_at}
+          selectedProject={selectedProject}
+          setSelectedProject={setSelectedProject}
         />
       ))}
     </div>
