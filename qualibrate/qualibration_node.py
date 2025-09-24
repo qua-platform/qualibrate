@@ -117,12 +117,12 @@ class QualibrationNode(
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        parameters: Optional[ParametersType] = None,
-        description: Optional[str] = None,
+        name: str | None = None,
+        parameters: ParametersType | None = None,
+        description: str | None = None,
         *,
-        parameters_class: Optional[type[ParametersType]] = None,
-        modes: Optional[RunModes] = None,
+        parameters_class: type[ParametersType] | None = None,
+        modes: RunModes | None = None,
     ):
         if self.__class__.active_node is not None:
             return
@@ -140,8 +140,8 @@ class QualibrationNode(
         # class is used just for passing reference to the running instance
         self._fraction_complete = 0.0
         self.results: dict[Any, Any] = {}
-        self.machine: Optional[MachineType] = None
-        self.storage_manager: Optional[StorageManager[Self]] = None
+        self.machine: MachineType | None = None
+        self.storage_manager: StorageManager[Self] | None = None
 
         # Initialize the ActionManager to handle run_action logic.
         self._action_manager = ActionManager()
@@ -162,8 +162,8 @@ class QualibrationNode(
 
     def _post_init(self) -> None:
         self.run_start = datetime.now().astimezone()
-        self.last_saved_at: Optional[datetime] = None
-        self._custom_action_label: Optional[str] = None
+        self.last_saved_at: datetime | None = None
+        self._custom_action_label: str | None = None
         self._get_storage_manager()
 
         self._warn_if_external_and_interactive_mpl()
@@ -172,8 +172,8 @@ class QualibrationNode(
     def _validate_passed_parameters_options(
         cls,
         name: str,
-        parameters: Optional[ParametersType],
-        parameters_class: Optional[type[ParametersType]],
+        parameters: ParametersType | None,
+        parameters_class: type[ParametersType] | None,
     ) -> ParametersType:
         """
         Validates passed parameters and parameters class.
@@ -240,13 +240,13 @@ class QualibrationNode(
             ) from e
 
     @property
-    def action_label(self) -> Optional[str]:
+    def action_label(self) -> str | None:
         if self._custom_action_label is not None:
             return self._custom_action_label
         return self.current_action_name
 
     @action_label.setter
-    def action_label(self, value: str) -> None:
+    def action_label(self, value: str | None) -> None:
         self._custom_action_label = value
 
     def __copy__(self) -> Self:
@@ -276,7 +276,7 @@ class QualibrationNode(
         finally:
             self.__class__.active_node = active_node
 
-    def copy(self, name: Optional[str] = None, **node_parameters: Any) -> Self:
+    def copy(self, name: str | None = None, **node_parameters: Any) -> Self:
         """
         Creates a modified copy of the node with updated parameters.
 
@@ -345,7 +345,7 @@ class QualibrationNode(
         )
 
     @property
-    def snapshot_idx(self) -> Optional[int]:
+    def snapshot_idx(self) -> int | None:
         """
         Returns the snapshot index from the storage manager.
 
@@ -361,7 +361,7 @@ class QualibrationNode(
 
     def run_action(
         self,
-        func: Optional[ActionCallableType] = None,
+        func: ActionCallableType | None = None,
         *,
         skip_if: bool = False,
     ) -> ActionDecoratorType:
@@ -411,10 +411,10 @@ class QualibrationNode(
     def _load_from_id(
         self,
         node_id: int,
-        base_path: Optional[Path] = None,
-        custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
+        base_path: Path | None = None,
+        custom_loaders: Sequence[type[BaseLoader]] | None = None,
         build_params_class: bool = False,
-    ) -> Optional[Self]:
+    ) -> Self | None:
         """
         Loads a node by its identifier, parsing its content and data.
 
@@ -477,8 +477,8 @@ class QualibrationNode(
             type["QualibrationNode[ParametersType, MachineType]"],
         ],
         node_id: int,
-        base_path: Optional[Path] = None,
-        custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
+        base_path: Path | None = None,
+        custom_loaders: Sequence[type[BaseLoader]] | None = None,
     ) -> Optional["QualibrationNode[ParametersType, MachineType]"]:
         """
         Class or instance method to load a node by its identifier.
@@ -513,7 +513,7 @@ class QualibrationNode(
         self,
         initial_targets: Sequence[TargetType],
         parameters: NodeParameters,
-        run_error: Optional[RunError],
+        run_error: RunError | None,
     ) -> NodeRunSummary:
         """
         Finalizes the node's execution and creates a summary.
@@ -571,7 +571,7 @@ class QualibrationNode(
         self,
         interactive: bool = False,
         *,
-        skip_actions: Union[bool, Sequence[str]] = False,
+        skip_actions: bool | Sequence[str] = False,
         **passed_parameters: Any,
     ) -> BaseRunSummary:
         """
@@ -614,7 +614,7 @@ class QualibrationNode(
             copy.copy(parameters.targets) if parameters.targets else []
         )
         self.run_start = datetime.now().astimezone()
-        run_error: Optional[RunError] = None
+        run_error: RunError | None = None
 
         if run_modes_ctx.get() is not None:
             logger.error(
@@ -846,7 +846,7 @@ class QualibrationNode(
         self,
         msg: object,
         *args: Any,
-        level: Union[LOG_LEVEL_NAMES_TYPE, int] = "info",
+        level: LOG_LEVEL_NAMES_TYPE | int = "info",
         **kwargs: Any,
     ) -> None:
         name = self.name if len(self.name) <= 20 else f"{self.name[:17]}..."
@@ -867,7 +867,7 @@ class QualibrationNode(
         self._fraction_complete = max(min(value, 1.0), 0.0)
 
     @property
-    def current_action_name(self) -> Optional[str]:
+    def current_action_name(self) -> str | None:
         action = self._action_manager.current_action
         return action.name if action else None
 

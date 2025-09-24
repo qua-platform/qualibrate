@@ -45,7 +45,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
     active_library: Optional["QualibrationLibrary[NodeTypeVar]"] = None
 
     def __init__(
-        self, library_folder: Optional[Path] = None, set_active: bool = True
+        self, library_folder: Path | None = None, set_active: bool = True
     ):
         self.nodes: RunnableCollection[str, NodeTypeVar] = RunnableCollection()
         self.graphs: RunnableCollection[str, QualibrationGraph[NodeTypeVar]] = (
@@ -92,7 +92,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
 
     @classmethod
     def get_active_library(
-        cls, library_folder: Optional[Path] = None, create: bool = True
+        cls, library_folder: Path | None = None, create: bool = True
     ) -> "QualibrationLibrary[NodeTypeVar]":
         """
         Gets or creates the active library instance.

@@ -1,5 +1,5 @@
 from collections.abc import Mapping, Sequence
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import (
     AwareDatetime,
@@ -29,7 +29,7 @@ class ItemMetadata(BaseModel):
 
     name: str
     status: NodeStatus
-    description: Optional[str] = None
+    description: str | None = None
     run_start: AwareDatetime
     run_end: AwareDatetime
 
@@ -41,10 +41,10 @@ class ItemMetadata(BaseModel):
 class ItemData(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    quam: Optional[dict[str, Any]] = None
+    quam: dict[str, Any] | None = None
     parameters: NodeParameters
     outcomes: dict[TargetType, Outcome] = Field(default_factory=dict)
-    error: Optional[RunError] = None
+    error: RunError | None = None
 
     @field_serializer("parameters")
     def serialize_parameters(
@@ -58,7 +58,7 @@ class ExecutionHistoryItem(BaseModel):
 
     model_config = ConfigDict()
 
-    id: Optional[int] = None
+    id: int | None = None
     created_at: AwareDatetime
     metadata: ItemMetadata
     data: ItemData

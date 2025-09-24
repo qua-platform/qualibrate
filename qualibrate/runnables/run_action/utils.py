@@ -1,7 +1,6 @@
 import inspect
 import sys
 from types import FrameType
-from typing import Optional
 
 from qualibrate.utils.logger_m import logger
 
@@ -12,7 +11,7 @@ def is_interactive() -> bool:
 
 def get_frame_to_update_from_action(
     stack: list[inspect.FrameInfo],
-) -> Optional[FrameType]:
+) -> FrameType | None:
     without_args = _registered_without_args(stack)
     if without_args is None:
         return None
@@ -45,7 +44,7 @@ def get_defined_in_frame_names(frame: FrameType) -> set[str]:
     }
 
 
-def _registered_without_args(stack: list[inspect.FrameInfo]) -> Optional[bool]:
+def _registered_without_args(stack: list[inspect.FrameInfo]) -> bool | None:
     wrapper_frame = stack[1].frame
     wrapper_code = wrapper_frame.f_code
     if (

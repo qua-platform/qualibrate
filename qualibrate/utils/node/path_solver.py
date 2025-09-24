@@ -1,12 +1,12 @@
 from collections.abc import Mapping
 from os import PathLike
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from qualibrate.utils.logger_m import logger
 
 
-def get_node_dir_path(id: int, base_path: Path) -> Optional[Path]:
+def get_node_dir_path(id: int, base_path: Path) -> Path | None:
     """
     Retrieves the directory path for a specific node ID.
 
@@ -49,7 +49,7 @@ def get_data_filepath(node_path: Path) -> Path:
 
 def get_node_quam_path(
     node_data: Mapping[str, Any], node_dir: Path
-) -> Optional[Path]:
+) -> Path | None:
     """
     Resolves the file path to the QUAM state file for a node.
 

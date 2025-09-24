@@ -1,4 +1,4 @@
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 import pytest
 from pydantic import ValidationError
@@ -9,9 +9,9 @@ from qualibrate.utils.type_protocols import TargetType
 
 class TestTargetParameter:
     class SampleTargetParameter(TargetParameter):
-        targets_name: ClassVar[Optional[str]] = "test_targets"
-        test_targets: Optional[list[TargetType]] = None
-        other_field: Optional[str] = None
+        targets_name: ClassVar[str | None] = "test_targets"
+        test_targets: list[TargetType] | None = None
+        other_field: str | None = None
 
     def test_prepare_targets_with_targets_name(self):
         instance = TestTargetParameter.SampleTargetParameter(
