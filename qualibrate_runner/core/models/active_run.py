@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any
 
 from pydantic import AwareDatetime, BaseModel, Field, computed_field
 
@@ -12,7 +12,7 @@ __all__ = ["RunStatus", "RunStatusNode", "RunStatusGraph"]
 
 class RunStatusBase(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     parameters: Mapping[str, Any] = Field(default_factory=dict)
     status: Annotated[
         RunStatusEnum,
@@ -27,11 +27,11 @@ class RunStatusBase(BaseModel):
         AwareDatetime, Field(description="The start time of the run.")
     ]
     run_end: Annotated[
-        Optional[AwareDatetime],
+        AwareDatetime | None,
         Field(description="The completion time of the run."),
     ] = None
     run_results: Annotated[
-        Optional[RunResults],
+        RunResults | None,
         Field(description="The results of the run."),
     ] = None
 
@@ -46,7 +46,7 @@ class RunStatusBase(BaseModel):
 
     def _time_remaining(
         self, percentage_complete: float, run_start: AwareDatetime
-    ) -> Optional[float]:
+    ) -> float | None:
         if self.status in (RunStatusEnum.PENDING, RunStatusEnum.ERROR):
             return None
         if percentage_complete == 0:
@@ -61,12 +61,12 @@ class RunStatusBase(BaseModel):
 
 
 class RunStatusNode(RunStatusBase):
-    id: Optional[int] = None
+    id: int | None = None
     percentage_complete: Annotated[float, Field(ge=0, le=100)] = 0
-    current_action: Optional[str] = None
+    current_action: str | None = None
 
     @computed_field
-    def time_remaining(self) -> Optional[float]:
+    def time_remaining(self) -> float | None:
         return self._time_remaining(self.percentage_complete, self.run_start)
 
 
@@ -79,7 +79,7 @@ class RunStatusGraph(RunStatusBase):
         return (self.finished_nodes / self.total_nodes) * 100
 
     @computed_field
-    def time_remaining(self) -> Optional[float]:
+    def time_remaining(self) -> float | None:
         return self._time_remaining(
             self.percentage_complete,  # type: ignore[arg-type]
             self.run_start,
@@ -88,9 +88,9 @@ class RunStatusGraph(RunStatusBase):
 
 class RunStatus(BaseModel):
     is_running: bool = False
-    runnable_type: Optional[RunnableType] = None
-    node: Optional[RunStatusNode] = None
-    graph: Optional[RunStatusGraph] = None
+    runnable_type: RunnableType | None = None
+    node: RunStatusNode | None = None
+    graph: RunStatusGraph | None = None
 
 
 if __name__ == "__main__":

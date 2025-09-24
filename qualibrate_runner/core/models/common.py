@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -15,7 +15,7 @@ class RunError(BaseModel):
 
 class StateUpdate(BaseModel):
     key: str
-    attr: Union[str, int]
+    attr: str | int
     old: Any
     new: Any
     updated: bool = False

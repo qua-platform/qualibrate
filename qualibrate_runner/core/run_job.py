@@ -1,7 +1,7 @@
 import traceback
 from collections.abc import Mapping
 from datetime import datetime
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from fastapi import HTTPException, status
 from pydantic import BaseModel, ValidationError
@@ -69,7 +69,7 @@ def run_node(
             status=run_status,
             idx=idx,
             # TODO: Make run summary generic
-            run_result=cast(Optional[NodeRunSummary], node.run_summary),
+            run_result=cast(NodeRunSummary | None, node.run_summary),
             runnable_type=state.last_run.runnable_type,
             passed_parameters=passed_input_parameters,
             started_at=state.last_run.started_at,
@@ -123,7 +123,7 @@ def run_workflow(
             name=state.last_run.name,
             status=run_status,
             idx=idx,
-            run_result=cast(Optional[GraphRunSummary], workflow.run_summary),
+            run_result=cast(GraphRunSummary | None, workflow.run_summary),
             started_at=state.last_run.started_at,
             completed_at=datetime.now().astimezone(),
             runnable_type=state.last_run.runnable_type,
