@@ -2,12 +2,10 @@
 const path = require("path");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Dotenv = require("dotenv-webpack");
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -17,7 +15,7 @@ const inProjectSrc = (file) => inProject("src", file);
 const public_path = process.env.PUBLIC_PATH || ".";
 
 const config = {
-  mode: "development",
+  mode: "production",
   devtool: "inline-source-map",
   entry: {
     main: [inProjectSrc("index")],
@@ -25,8 +23,11 @@ const config = {
   output: {
     path: inProject("dist"),
     publicPath: public_path,
-    filename: "bundle.[fullhash].js",
+    filename: "[name].[contenthash].js",
+    chunkFilename: "[name].[contenthash].js",
+    clean: true,
   },
+
   resolve: {
     modules: [inProject("src"), "node_modules"],
     extensions: [".ts", ".tsx", ".js", ".jsx"],
@@ -123,6 +124,14 @@ const config = {
         ],
       },
     ],
+  },
+  optimization: {
+    splitChunks: {
+      chunks: "all",
+    },
+  },
+  performance: {
+    hints: false,
   },
 };
 
