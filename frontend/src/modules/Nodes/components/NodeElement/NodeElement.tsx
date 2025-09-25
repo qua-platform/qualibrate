@@ -53,6 +53,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setAllNodes,
     setIsAllStatusesUpdated,
     setUpdateAllButtonPressed,
+    setResults,
   } = useNodesContext();
   const { runStatus } = useWebSocketData();
 
@@ -101,8 +102,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
   };
 
   const handleClick = async () => {
-    setUpdateAllButtonPressed(false);
     setIsNodeRunning(true);
+    setResults({});
+    setUpdateAllButtonPressed(false);
     setIsAllStatusesUpdated(false);
     setRunningNode(node);
     setSubmitNodeResponseError(undefined);

@@ -13,7 +13,7 @@ import { useWebSocketData } from "../../contexts/WebSocketContext";
 
 export const NodesPage = () => {
   const { runStatus } = useWebSocketData();
-  const { fetchAllNodes, isRescanningNodes } = useNodesContext();
+  const { fetchAllNodes, isRescanningNodes, results } = useNodesContext();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
   const NodeTopBarRefreshButton = () => {
     return (
@@ -47,7 +47,13 @@ export const NodesPage = () => {
           <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results showSearch={false} toggleSwitch={true} pageName={"nodes"} errorObject={runStatus?.node?.run_results?.error} />
+          <Results
+            jsonObject={results ?? {}}
+            showSearch={false}
+            toggleSwitch={true}
+            pageName={"nodes"}
+            errorObject={runStatus?.node?.run_results?.error}
+          />
         </div>
       </div>
     </div>

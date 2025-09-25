@@ -169,6 +169,10 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
     }
   }, [runStatus]);
 
+  useEffect(() => {
+    fetchAllCalibrationGraphs();
+  }, []);
+
   return (
     <GraphContext.Provider
       value={{
