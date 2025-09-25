@@ -1,4 +1,5 @@
 import operator
+import shutil
 import sys
 from pathlib import Path
 
@@ -59,6 +60,20 @@ def test_project_create(
     assert response.status_code == 201
     assert response.json() == "new_project"
     assert get_project_path(settings_path.parent, "new_project").is_dir()
+
+
+def test_project_active_get_no_active(
+    client_custom_settings: TestClient,
+    settings: QualibrateConfig,
+    settings_path_filled: Path,
+):
+    project_path = get_project_path(
+        settings_path_filled.parent, settings.project
+    )
+    shutil.rmtree(project_path)
+    response = client_custom_settings.get("/api/project/active")
+    assert response.status_code == 200
+    assert response.json() is None
 
 
 def test_project_active_get(client_custom_settings: TestClient):

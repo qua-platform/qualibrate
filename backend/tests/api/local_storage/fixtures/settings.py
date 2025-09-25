@@ -69,6 +69,7 @@ def client_custom_settings(
         settings_path_filled.parent, settings.project
     )
     project_path.mkdir(parents=True)
+    (project_path / "config.toml").touch()
     mocker.patch(
         "qualibrate_config.resolvers.get_config_file",
         return_value=settings_path_filled,
