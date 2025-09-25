@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, Response, status
 from fastapi.responses import JSONResponse
@@ -21,7 +21,7 @@ def login_required(
 
 @base_router.post("/login")
 def login(
-    password: Annotated[Optional[str], Body()] = None,
+    password: Annotated[str | None, Body()] = None,
     *,
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> Response:
