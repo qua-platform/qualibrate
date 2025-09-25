@@ -1,4 +1,5 @@
 import operator
+import shutil
 import sys
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from qualibrate_config.core.project.path import get_project_path
 from qualibrate_config.models import QualibrateConfig
 from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
+from qualibrate_app.api.core.models.project import Project
 from qualibrate_app.config import get_config_path
 
 if sys.version_info < (3, 11):
@@ -57,8 +59,24 @@ def test_project_create(
         "/api/project/create", params={"project_name": "new_project"}
     )
     assert response.status_code == 201
-    assert response.json() == "new_project"
+    project = response.json()
+    assert project["name"] == "new_project"
+    assert project.keys() == Project.model_fields.keys()
     assert get_project_path(settings_path.parent, "new_project").is_dir()
+
+
+def test_project_active_get_no_active(
+    client_custom_settings: TestClient,
+    settings: QualibrateConfig,
+    settings_path_filled: Path,
+):
+    project_path = get_project_path(
+        settings_path_filled.parent, settings.project
+    )
+    shutil.rmtree(project_path)
+    response = client_custom_settings.get("/api/project/active")
+    assert response.status_code == 200
+    assert response.json() is None
 
 
 def test_project_active_get(client_custom_settings: TestClient):
