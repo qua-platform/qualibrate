@@ -25,7 +25,7 @@ const contextProviders: ProviderComponent[] = [
   FlexLayoutContextProvider,
   RouterProvider,
   ProjectContextProvider,
-  WebSocketProvider,
+  // WebSocketProvider,
   GraphContextProvider,
   NodesContextProvider,
   SnapshotsContextProvider,
@@ -35,13 +35,15 @@ const Application: React.FunctionComponent = () => {
   useEffect(updateColorTheme, []);
   return (
     <GlobalThemeContextProvider>
-      {contextProviders.reduce(
-        (Comp, Provider) => {
-          const TempProvider = Provider as unknown as React.FC<PropsWithChildren<object>>;
-          return <TempProvider>{Comp}</TempProvider>;
-        },
-        <AppRoutes />
-      )}
+      <WebSocketProvider>
+        {contextProviders.reduce(
+          (Comp, Provider) => {
+            const TempProvider = Provider as unknown as React.FC<PropsWithChildren<object>>;
+            return <TempProvider>{Comp}</TempProvider>;
+          },
+          <AppRoutes />
+        )}
+      </WebSocketProvider>
     </GlobalThemeContextProvider>
   );
 };

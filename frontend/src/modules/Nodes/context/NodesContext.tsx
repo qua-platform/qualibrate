@@ -263,7 +263,7 @@ export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({
   }, [isNodeRunning]);
 
   useEffect(() => {
-    if (runStatus) {
+    if (runStatus && runStatus.runnable_type === "node") {
       setIsNodeRunning(runStatus.is_running);
     }
   }, [runStatus]);
