@@ -17,7 +17,14 @@ from qualibrate_composite.config.vars import (
     ROOT_PATH_ENV_NAME,
 )
 
-__all__ = ["get_config_path", "get_settings"]
+__all__ = [
+    "get_config_path",
+    "get_cors_origin",
+    "get_settings",
+    "get_root_path",
+    "get_qualibrate_config",
+    "get_composite_settings",
+]
 
 
 @lru_cache

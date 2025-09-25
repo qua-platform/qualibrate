@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import click
+from qualibrate_config.resolvers import set_qualibrate_config_path
 from qualibrate_config.vars import DEFAULT_CONFIG_FILENAME, QUALIBRATE_PATH
 
 from qualibrate_composite.config import CONFIG_PATH_ENV_NAME
@@ -69,6 +70,7 @@ def start_command(
     os.environ[ROOT_PATH_ENV_NAME] = root_path
     if len(cors_origin) != 0:
         os.environ[CORS_ORIGINS_ENV_NAME] = ",".join(cors_origin)
+    set_qualibrate_config_path(config_path_str, force=False)
     app_config_m = importlib.import_module("qualibrate_app.config")
     if app_config_m and (
         app_config_path_env_name := getattr(
