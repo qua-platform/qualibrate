@@ -5,7 +5,6 @@ import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext
 import modulesMap, { PROJECT_KEY } from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import TitleBarGraphCard from "./TitleBarGraphCard/TitleBarGraphCard";
-import ProjectTitleBar from "./ProjectTitleBar";
 
 const TopBar: React.FC = () => {
   const { activeTab } = useFlexLayoutContext();

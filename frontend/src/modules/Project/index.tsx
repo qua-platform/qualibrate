@@ -47,8 +47,8 @@ const Project = () => {
   return (
     <>
       <div className={styles.projectPageWrapper}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div className={styles.projectPageSubtitleText}>Please select a Project</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>Please select a Project</div>
           <ProjectTitleBar />
         </div>
         <InputField
