@@ -10,7 +10,7 @@ import ProjectTitleBar from "./ProjectTitleBar";
 const TopBar: React.FC = () => {
   const { activeTab } = useFlexLayoutContext();
 
-  return activeTab === PROJECT_KEY ? <ProjectTitleBar /> : <TitleBarGraphCard />;
+  return activeTab === PROJECT_KEY ? null : <TitleBarGraphCard />;
 };
 
 const TitleBarMenu: React.FC = () => {
