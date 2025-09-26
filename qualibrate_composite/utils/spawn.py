@@ -3,7 +3,6 @@ from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack, asynccontextmanager
 from importlib import metadata
 from importlib.util import find_spec
-from typing import Optional
 
 from fastapi import FastAPI
 from fastapi.routing import Mount
@@ -71,7 +70,7 @@ def validate_runner_version_for_app() -> None:
     filtered_runner = filter(
         lambda r: r.name == "qualibrate-runner", requirements
     )
-    requirement: Optional[Requirement] = next(filtered_runner, None)
+    requirement: Requirement | None = next(filtered_runner, None)
     if requirement is None:
         logging.warning(
             "QUAlibrate-runner version is not recognized. This may be because "

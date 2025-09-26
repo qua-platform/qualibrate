@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, cast
+from typing import cast
 
 
 class EndpointFilter(logging.Filter):
@@ -10,7 +10,7 @@ class EndpointFilter(logging.Filter):
         name: str = "",
         *,
         excluded_endpoints_starts: tuple[str, ...],
-        success_status_codes: Optional[tuple[int, ...]] = None,
+        success_status_codes: tuple[int, ...] | None = None,
     ) -> None:
         """
         Initialize the EndpointFilter class.
