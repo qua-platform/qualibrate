@@ -10,6 +10,7 @@ import LoaderPage from "../../ui-lib/loader/LoaderPage";
 import { useGraphContext } from "../GraphLibrary/context/GraphContext";
 import LoadingBar from "../../ui-lib/loader/LoadingBar";
 import { NoItemsIcon } from "../../ui-lib/Icons/NoItemsIcon";
+import ProjectTitleBar from "../TopbarMenu/ProjectTitleBar";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 
@@ -46,7 +47,10 @@ const Project = () => {
   return (
     <>
       <div className={styles.projectPageWrapper}>
-        <div className={styles.projectPageSubtitleText}>Please select a Project</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>Please select a Project</div>
+          <ProjectTitleBar />
+        </div>
         <InputField
           name={"search"}
           iconType={IconType.INNER}
