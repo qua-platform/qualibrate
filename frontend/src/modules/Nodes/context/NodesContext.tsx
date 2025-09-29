@@ -54,7 +54,7 @@ interface INodesContext {
   setIsNodeRunning: (value: boolean) => void;
   results?: unknown | object;
   setResults: (value: unknown | object | undefined) => void;
-  fetchAllNodes: () => void;
+  fetchAllNodes: (rescan?: boolean) => void;
   isAllStatusesUpdated: boolean;
   setIsAllStatusesUpdated: (value: boolean) => void;
   updateAllButtonPressed: boolean;
@@ -64,25 +64,25 @@ interface INodesContext {
 }
 
 const NodesContext = React.createContext<INodesContext>({
-    submitNodeResponseError: undefined,
-    setSubmitNodeResponseError: noop,
-    runningNode: undefined,
-    runningNodeInfo: undefined,
-    setRunningNode: noop,
-    setRunningNodeInfo: noop,
-    allNodes: undefined,
-    setAllNodes: noop,
-    isNodeRunning: false,
-    setIsNodeRunning: noop,
-    results: undefined,
-    setResults: noop,
-    fetchAllNodes: noop,
-    isAllStatusesUpdated: false,
-    setIsAllStatusesUpdated: noop,
-    updateAllButtonPressed: false,
-    setUpdateAllButtonPressed: noop,
-    runStatus: null,
-    isRescanningNodes: false,
+  submitNodeResponseError: undefined,
+  setSubmitNodeResponseError: noop,
+  runningNode: undefined,
+  runningNodeInfo: undefined,
+  setRunningNode: noop,
+  setRunningNodeInfo: noop,
+  allNodes: undefined,
+  setAllNodes: noop,
+  isNodeRunning: false,
+  setIsNodeRunning: noop,
+  results: undefined,
+  setResults: noop,
+  fetchAllNodes: noop,
+  isAllStatusesUpdated: false,
+  setIsAllStatusesUpdated: noop,
+  updateAllButtonPressed: false,
+  setUpdateAllButtonPressed: noop,
+  runStatus: null,
+  isRescanningNodes: false,
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
@@ -120,7 +120,7 @@ export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({
   const [updateAllButtonPressed, setUpdateAllButtonPressed] = useState<boolean>(false);
   const [isRescanningNodes, setIsRescanningNodes] = useState<boolean>(false);
 
-    const fetchAllNodes = async (rescan = false) => {
+  const fetchAllNodes = async (rescan = false) => {
     setAllNodes(undefined);
     setIsRescanningNodes(true);
     const response = await NodesApi.fetchAllNodes(rescan);

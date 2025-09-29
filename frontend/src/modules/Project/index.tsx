@@ -25,7 +25,7 @@ const Project = () => {
     if (activeProject) {
       setWorkflowGraphElements(undefined);
       fetchAllNodes();
-      fetchAllCalibrationGraphs(false);
+      fetchAllCalibrationGraphs();
     }
   }, [activeProject]);
 
