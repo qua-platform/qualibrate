@@ -49,45 +49,43 @@ interface INodesContext {
   setRunningNode: (selectedNode: NodeDTO) => void;
   setRunningNodeInfo: (runningNodeInfo: RunningNodeInfo) => void;
   allNodes?: NodeMap;
-  setAllNodes: (nodes: NodeMap) => void;
+  setAllNodes: (nodes: NodeMap | undefined) => void;
   isNodeRunning: boolean;
   setIsNodeRunning: (value: boolean) => void;
   results?: unknown | object;
   setResults: (value: unknown | object | undefined) => void;
-  fetchAllNodes: (rescan?: boolean) => void;
+  fetchAllNodes: () => void;
   isAllStatusesUpdated: boolean;
   setIsAllStatusesUpdated: (value: boolean) => void;
   updateAllButtonPressed: boolean;
   setUpdateAllButtonPressed: (a: boolean) => void;
   runStatus: RunStatusType | null;
+  isRescanningNodes: boolean;
 }
 
 const NodesContext = React.createContext<INodesContext>({
-  submitNodeResponseError: undefined,
-  setSubmitNodeResponseError: noop,
-  runningNode: undefined,
-  runningNodeInfo: undefined,
-  setRunningNode: noop,
-  setRunningNodeInfo: noop,
-  allNodes: undefined,
-  setAllNodes: noop,
-  isNodeRunning: false,
-  setIsNodeRunning: noop,
-  results: undefined,
-  setResults: noop,
-  fetchAllNodes: noop,
-  isAllStatusesUpdated: false,
-  setIsAllStatusesUpdated: noop,
-  updateAllButtonPressed: false,
-  setUpdateAllButtonPressed: noop,
-  runStatus: null,
+    submitNodeResponseError: undefined,
+    setSubmitNodeResponseError: noop,
+    runningNode: undefined,
+    runningNodeInfo: undefined,
+    setRunningNode: noop,
+    setRunningNodeInfo: noop,
+    allNodes: undefined,
+    setAllNodes: noop,
+    isNodeRunning: false,
+    setIsNodeRunning: noop,
+    results: undefined,
+    setResults: noop,
+    fetchAllNodes: noop,
+    isAllStatusesUpdated: false,
+    setIsAllStatusesUpdated: noop,
+    updateAllButtonPressed: false,
+    setUpdateAllButtonPressed: noop,
+    runStatus: null,
+    isRescanningNodes: false,
 });
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
-
-interface NodesContextProviderProps {
-  children: React.JSX.Element;
-}
 
 export interface StatusResponseType {
   idx: number;
@@ -110,7 +108,7 @@ export interface StatusResponseType {
   };
 }
 
-export function NodesContextProvider(props: NodesContextProviderProps): React.ReactElement {
+export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const { runStatus } = useWebSocketData();
   const [allNodes, setAllNodes] = useState<NodeMap | undefined>(undefined);
   const [runningNode, setRunningNode] = useState<NodeDTO | undefined>(undefined);
@@ -120,18 +118,19 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   const [submitNodeResponseError, setSubmitNodeResponseError] = useState<ResponseStatusError | undefined>(undefined);
   const [isAllStatusesUpdated, setIsAllStatusesUpdated] = useState<boolean>(false);
   const [updateAllButtonPressed, setUpdateAllButtonPressed] = useState<boolean>(false);
+  const [isRescanningNodes, setIsRescanningNodes] = useState<boolean>(false);
 
-  const fetchAllNodes = async (rescan = false) => {
+    const fetchAllNodes = async (rescan = false) => {
+    setAllNodes(undefined);
+    setIsRescanningNodes(true);
     const response = await NodesApi.fetchAllNodes(rescan);
     if (response.isOk) {
       setAllNodes(response.result! as NodeMap);
     } else if (response.error) {
       console.log(response.error);
     }
+    setIsRescanningNodes(false);
   };
-  useEffect(() => {
-    fetchAllNodes();
-  }, []);
 
   function parseDateString(dateString: string): Date {
     const [datePart, timePart] = dateString.split(" ");
@@ -264,7 +263,7 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
   }, [isNodeRunning]);
 
   useEffect(() => {
-    if (runStatus) {
+    if (runStatus && runStatus.runnable_type === "node") {
       setIsNodeRunning(runStatus.is_running);
     }
   }, [runStatus]);
@@ -290,9 +289,10 @@ export function NodesContextProvider(props: NodesContextProviderProps): React.Re
         updateAllButtonPressed,
         setUpdateAllButtonPressed,
         runStatus,
+        isRescanningNodes,
       }}
     >
-      {props.children}
+      {children}
     </NodesContext.Provider>
   );
-}
+};

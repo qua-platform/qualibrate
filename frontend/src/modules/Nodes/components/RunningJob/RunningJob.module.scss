@@ -334,27 +334,15 @@
   //text-overflow: ellipsis; /* Dodaje "..." ako je tekst predugačak */
 }
 
-.valueContainerHovered {
-  display: inline-block;
-  padding: 2px 4px;
-  font-size: 14px;
-  background-color: rgb(44 203 229 / 10%);
-  color: #3CDEF8;
-  border-radius: 6px;
-  border: 1px solid rgb(44 203 229 / 10%);
-  cursor: pointer;
-
-}
-
 .valueContainerEditable {
   display: inline-block;
   padding: 2px 4px;
   font-size: 14px;
+  background: rgb(44 203 229 / 10%);
   color: #3CDEF8;
   border-radius: 6px;
-  cursor: pointer;
   border: 1px solid rgb(44 203 229 / 10%);
-  background: rgb(44 203 229 / 10%);
+  cursor: pointer;
 }
 
 .valueContainerDisabled {

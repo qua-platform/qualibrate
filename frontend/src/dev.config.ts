@@ -1,7 +1,7 @@
 export const COMPONENTS_VISIBLE = false;
 // export const SEARCH_MAIN_MENU_VISIBLE = true;
 export const HIDE_DELETE_BUTTON_ON_JOBS_PAGE = false;
-export const NEW_PROJECT_BUTTON_VISIBLE = false;
+export const NEW_PROJECT_BUTTON_VISIBLE = true;
 
 export const TWEAK_BUTTON_VISIBLE = false;
 export const TRACKER_BUTTON_VISIBLE = false;

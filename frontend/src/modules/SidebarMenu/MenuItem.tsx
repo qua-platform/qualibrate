@@ -5,13 +5,14 @@ import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext
 import { MENU_TEXT_COLOR } from "../../utils/colors";
 import { classNames } from "../../utils/classnames";
 
-const MenuItem: React.FC<Module & { hideText: boolean; onClick?: () => void; isSelected?: boolean }> = ({
-  menuItem,
-  keyId,
-  hideText,
-  onClick,
-  isSelected = false,
-}) => {
+const MenuItem: React.FC<
+  Module & {
+    hideText: boolean;
+    onClick?: () => void;
+    isSelected?: boolean;
+    isDisabled?: boolean;
+  }
+> = ({ menuItem, keyId, hideText, onClick, isSelected = false, isDisabled = false }) => {
   const { openTab } = useFlexLayoutContext();
   if (!menuItem) {
     return null;
@@ -29,6 +30,7 @@ const MenuItem: React.FC<Module & { hideText: boolean; onClick?: () => void; isS
 
   return (
     <button
+      disabled={isDisabled}
       onClick={handleClick}
       className={classNames(styles.itemWrapper, isSelected && styles.selected)}
       data-cy={dataCy}

@@ -62,7 +62,7 @@ const GraphStatus = () => {
       </div>
       <div className={styles.rightContainer}>
         <Results
-          jsonObject={selectedItemName && allMeasurements && allMeasurements.length > 0 ? result : {}}
+          jsonObject={selectedItemName && allMeasurements && allMeasurements.length > 0 && result ? result : {}}
           toggleSwitch={true}
           pageName={"graph-status"}
           style={{ height: "100%", flex: "0 1 auto" }}

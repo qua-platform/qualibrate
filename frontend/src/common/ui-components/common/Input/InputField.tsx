@@ -6,6 +6,7 @@ import { classNames } from "../../../../utils/classnames";
 
 const InputField = (props: InputProps) => {
   const {
+    name = "",
     value,
     onChange,
     typeOfField,
@@ -35,6 +36,7 @@ const InputField = (props: InputProps) => {
         </div>
       )}
       <input
+        name={name}
         autoComplete={"new-password"}
         className={inputClassName}
         value={value}

@@ -13,9 +13,13 @@
   font-family: Roboto, serif;
   font-style: normal;
   font-weight: 400;
-  font-size: 16px;
   line-height: 24px;
   text-align: center;
   white-space: pre-wrap;
   color: var(--sub-text-color);
+
+  span {
+    font-size: 18px;
+
+  }
 }
