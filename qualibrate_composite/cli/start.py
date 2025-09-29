@@ -1,16 +1,13 @@
 import importlib
 import os
 from pathlib import Path
+from types import ModuleType
+from typing import Any
 
 import click
-from qualibrate_config.resolvers import set_qualibrate_config_path
-from qualibrate_config.vars import DEFAULT_CONFIG_FILENAME, QUALIBRATE_PATH
+from qualibrate_config import vars as config_vars
 
-from qualibrate_composite.config import CONFIG_PATH_ENV_NAME
-from qualibrate_composite.config.vars import (
-    CORS_ORIGINS_ENV_NAME,
-    ROOT_PATH_ENV_NAME,
-)
+from qualibrate_composite.config import vars as composite_vars
 
 
 @click.command(name="start")
@@ -22,7 +19,7 @@ from qualibrate_composite.config.vars import (
         dir_okay=True,
         path_type=Path,
     ),
-    default=QUALIBRATE_PATH / DEFAULT_CONFIG_FILENAME,
+    default=config_vars.QUALIBRATE_PATH / config_vars.DEFAULT_CONFIG_FILENAME,
     help="Path to `config.toml` file",
     show_default=True,
 )
@@ -66,25 +63,51 @@ def start_command(
     root_path: str,
 ) -> None:
     config_path_str = str(config_path)
-    os.environ[CONFIG_PATH_ENV_NAME] = config_path_str
-    os.environ[ROOT_PATH_ENV_NAME] = root_path
+    str_port = f"_{port}"
+
+    def _update_module_attr_with_port(
+        module: ModuleType, attr_name: str, suffix: str, new_attr_value: Any
+    ) -> None:
+        new_value = getattr(module, attr_name) + suffix
+        setattr(module, attr_name, new_value)
+        os.environ[new_value] = new_attr_value
+
+    _update_module_attr_with_port(
+        config_vars, "CONFIG_PATH_ENV_NAME", str_port, config_path_str
+    )
+    _update_module_attr_with_port(
+        composite_vars, "CONFIG_PATH_ENV_NAME", str_port, config_path_str
+    )
+    _update_module_attr_with_port(
+        composite_vars, "ROOT_PATH_ENV_NAME", str_port, root_path
+    )
     if len(cors_origin) != 0:
-        os.environ[CORS_ORIGINS_ENV_NAME] = ",".join(cors_origin)
-    set_qualibrate_config_path(config_path_str, force=False)
-    app_config_m = importlib.import_module("qualibrate_app.config")
-    if app_config_m and (
-        app_config_path_env_name := getattr(
-            app_config_m, "CONFIG_PATH_ENV_NAME", None
+        _update_module_attr_with_port(
+            composite_vars,
+            "CORS_ORIGINS_ENV_NAME",
+            str_port,
+            ",".join(cors_origin),
         )
-    ):
-        os.environ[app_config_path_env_name] = str(config_path)
-    runner_config_m = importlib.import_module("qualibrate_runner.config")
-    if runner_config_m and (
-        runner_config_path_env_name := getattr(
-            runner_config_m, "CONFIG_PATH_ENV_NAME", None
+    app_config_vars_m = importlib.import_module("qualibrate_app.config.vars")
+    if app_config_vars_m and hasattr(app_config_vars_m, "CONFIG_PATH_ENV_NAME"):
+        _update_module_attr_with_port(
+            app_config_vars_m,
+            "CONFIG_PATH_ENV_NAME",
+            str_port,
+            config_path_str,
         )
+    runner_config_vars_m = importlib.import_module(
+        "qualibrate_runner.config.vars"
+    )
+    if runner_config_vars_m and hasattr(
+        runner_config_vars_m, "CONFIG_PATH_ENV_NAME"
     ):
-        os.environ[runner_config_path_env_name] = str(config_path)
+        _update_module_attr_with_port(
+            runner_config_vars_m,
+            "CONFIG_PATH_ENV_NAME",
+            str_port,
+            config_path_str,
+        )
 
     from qualibrate_composite.app import main as app_main
 
