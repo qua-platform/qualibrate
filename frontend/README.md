@@ -24,12 +24,12 @@ npm install
 
 ### Running the Development Server
 
-**Local development with environment file:**
 ```bash
-npm run start:local:dev
+npm run start               # Default dev server
+npm run start:local:dev     # With .env file
+npm run start:dev           # Against dev server
 ```
 
-Requires a `.env` file in the `frontend/` directory with:
 ```env
 API_URL=http://127.0.0.1:8001/
 baseUrl=http://localhost:1234
@@ -39,96 +39,97 @@ USE_RELATIVE_PATHS=false
 PUBLIC_PATH="/"
 ```
 
-**Development against dev server:**
+### Production Build
+
 ```bash
-npm run start:dev
+npm run build    # Creates dist/ directory
+npm run clean    # Clean dist directory
 ```
 
-The development server will open automatically at `http://localhost:1234/`.
+### Code Quality
 
-### Available Scripts
-
-**Development:**
-- `npm run start` - Start Webpack dev server
-- `npm run start:local:dev` - Start with `.env` file
-- `npm run start:dev` - Start against dev server
-
-**Building:**
-- `npm run build` - Production build (creates `dist/`)
-- `npm run clean` - Clean dist directory
-
-**Code Quality:**
-- `npm run lint` - Run ESLint + Stylelint
-- `npm run lint:code` - Run ESLint only
-- `npm run lint:style` - Run Stylelint only
-- `npm run lint:fix` - Auto-fix linting issues
-- `npm run format` - Format with Prettier
-
-**Testing:**
-- `npm run test:e2e` - Run E2E tests (Playwright)
-- `npm run test:e2e:headed` - Run tests with visible browser
-- `npm run test:e2e:debug` - Run tests with Playwright inspector
-- `npm run test:e2e:ui` - Run tests with Playwright UI mode
+```bash
+npm run lint           # ESLint + Stylelint
+npm run lint:fix       # Auto-fix issues
+npm run format         # Prettier formatting
+```
 
 ## Testing
 
-### End-to-End Tests (Playwright)
+Two types of tests:
+- **Unit Tests** (Vitest) - Fast, no backend required
+- **E2E Tests** (Playwright) - Slow, requires backend
 
-The E2E tests verify complete user workflows including node execution, parameter modification, and results validation.
+### Unit Tests (Vitest)
+
+Fast tests for development. No backend required.
+
+```bash
+npm test                    # Run all unit tests
+npm run test:unit:watch     # Watch mode (recommended)
+npm run test:unit:ui        # Interactive UI
+npm run test:unit:coverage  # Coverage report
+npm run test:contexts       # Context tests only
+npm run test:components     # Component tests only
+```
+
+**Test Structure:**
+```
+src/
+├── test-utils/             # Test setup and utilities
+│   ├── setup.ts           # Global configuration
+│   ├── providers.tsx      # React test wrappers
+│   └── mocks/             # MSW API mocks
+├── contexts/__tests__/    # Context tests
+└── modules/*/tests/       # Component tests
+```
+
+### E2E Tests (Playwright)
+
+Slow integration tests. **Requires backend running.**
 
 **Prerequisites:**
-1. **Start the QUAlibrate backend** before running tests:
-   ```bash
-   # From the root QUAlibrate directory
-   cd /Users/jku/QUAlibrate
-   qualibrate start
-   ```
-
-2. Wait for the backend to be ready (should see server logs and be accessible at `http://localhost:8001/`)
-
-**Running Tests:**
-
 ```bash
-# Run all E2E tests
-npm run test:e2e
-
-# Run with visible browser (helpful for debugging)
-npm run test:e2e:headed
-
-# Run with Playwright debugger
-npm run test:e2e:debug
-
-# Run with Playwright UI (interactive mode)
-npm run test:e2e:ui
+# Start backend first
+qualibrate start
 ```
 
-**From the tests directory:**
+**Running E2E Tests:**
 ```bash
-cd tests
-npm run test                    # All tests
-npm run test:workflow1          # Specific workflow test
+npm run test:e2e          # Run all E2E tests
+npm run test:e2e:headed   # With visible browser
+npm run test:e2e:debug    # With debugger
+npm run test:e2e:ui       # Playwright UI mode
 ```
 
-**Test Configuration:**
-- Tests are located in `tests/e2e/`
-- Configuration: `tests/playwright.config.ts`
-- Test timeout: 60 seconds (for calibration job execution)
+**Configuration:**
+- Location: `tests/e2e/`
+- Config: `tests/playwright.config.ts`
+- Timeout: 60 seconds
 - Retries: 1 locally, 2 in CI
-- Screenshots and videos captured on failure
 
-**Troubleshooting Tests:**
-- Ensure backend is running at `http://localhost:8001/`
-- Check that `qualibrate-examples` repository is available for calibration scripts
-- View test traces: `npx playwright show-trace <path-to-trace.zip>`
+### Test Workflow
 
-## Production Build
+**During development:**
+```bash
+npm run test:unit:watch   # Auto-runs on file changes
+```
 
-Build the frontend for production:
+**Before committing:**
+```bash
+npm test                  # Unit tests
+npm run lint             # Code quality
+```
+
+**Before deploying:**
+```bash
+npm run test:all         # Unit + E2E (requires backend)
+```
+
+## Deployment
+
+The `dist/` directory is served by the FastAPI backend in production. Build the frontend before starting the backend:
 
 ```bash
 npm run build
 ```
-
-This creates optimized files in the `dist/` directory, which are served by the FastAPI backend in production.
-
-**Note:** The backend requires the frontend to be built before it can serve the static files.
