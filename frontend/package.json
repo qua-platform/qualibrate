@@ -20,7 +20,11 @@
     "lint:fix": "npm run lint:code -- --fix && npm run lint:style -- --fix",
     "start:local": "cross-env API_URL=http://localhost/ npm run start",
     "prepare": "cd .. && husky frontend/.husky",
-    "format": "prettier --write src public package.json"
+    "format": "prettier --write src public package.json",
+    "test:e2e": "cd tests && npm run test",
+    "test:e2e:headed": "cd tests && npx playwright test --headed",
+    "test:e2e:debug": "cd tests && npx playwright test --headed --debug",
+    "test:e2e:ui": "cd tests && npx playwright test --ui"
   },
   "pre-commit": [
     "format"
