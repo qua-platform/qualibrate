@@ -1,5 +1,3 @@
-from typing import Optional
-
 from qualibrate import QualibrationGraph, QualibrationNode
 from qualibrate.models.execution_history import ExecutionHistory
 
@@ -25,7 +23,7 @@ __all__ = [
 def get_node_status_enum(
     last_run: LastRun,
     node: QNodeType,
-    graph: Optional[QGraphType],
+    graph: QGraphType | None,
 ) -> RunStatusEnum:
     if graph is None:
         return last_run.status
@@ -37,7 +35,7 @@ def get_node_status_enum(
 
 
 def get_node_run_status(
-    last_run: LastRun, node: QNodeType, graph: Optional[QGraphType]
+    last_run: LastRun, node: QNodeType, graph: QGraphType | None
 ) -> RunStatusNode:
     return RunStatusNode(
         name=node.name,
@@ -58,8 +56,8 @@ def get_node_run_status(
 
 
 def get_graph_and_node_run_status(
-    last_run: LastRun, graph: QGraphType, node: Optional[QNodeType]
-) -> tuple[RunStatusGraph, Optional[RunStatusNode]]:
+    last_run: LastRun, graph: QGraphType, node: QNodeType | None
+) -> tuple[RunStatusGraph, RunStatusNode | None]:
     graph_status = RunStatusGraph(
         name=graph.name,
         description=graph.description,
@@ -100,8 +98,8 @@ def get_run_status(state: State) -> RunStatus:
     if last_run is None:
         return RunStatus()
     if isinstance(state.run_item, QualibrationNode):
-        node: Optional[QNodeType] = state.run_item
-        graph: Optional[QGraphType] = None
+        node: QNodeType | None = state.run_item
+        graph: QGraphType | None = None
     elif isinstance(state.run_item, QualibrationGraph):
         graph = state.run_item
         node = (
@@ -113,8 +111,8 @@ def get_run_status(state: State) -> RunStatus:
         node = None
         graph = None
 
-    node_status: Optional[RunStatusNode] = None
-    graph_status: Optional[RunStatusGraph] = None
+    node_status: RunStatusNode | None = None
+    graph_status: RunStatusGraph | None = None
     if node:
         node_status = get_node_run_status(last_run, node, graph)
     if graph:
@@ -132,7 +130,7 @@ def get_run_status(state: State) -> RunStatus:
 
 def get_graph_execution_history(
     state: State, reverse: bool = False
-) -> Optional[ExecutionHistory]:
+) -> ExecutionHistory | None:
     if not isinstance(state.run_item, QualibrationGraph):
         return None
     graph: QGraphType = state.run_item

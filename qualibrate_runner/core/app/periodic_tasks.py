@@ -1,7 +1,7 @@
 import asyncio
-from collections.abc import Coroutine
+from collections.abc import Callable, Coroutine
 from functools import wraps
-from typing import Any, Callable, Optional, Union
+from typing import Any
 
 from fastapi.concurrency import run_in_threadpool
 
@@ -9,8 +9,8 @@ NoArgsNoReturnFuncT = Callable[[], None]
 NoArgsNoReturnAsyncFuncT = Callable[[], Coroutine[Any, Any, None]]
 ExcArgNoReturnFuncT = Callable[[Exception], None]
 ExcArgNoReturnAsyncFuncT = Callable[[Exception], Coroutine[Any, Any, None]]
-NoArgsNoReturnAnyFuncT = Union[NoArgsNoReturnFuncT, NoArgsNoReturnAsyncFuncT]
-ExcArgNoReturnAnyFuncT = Union[ExcArgNoReturnFuncT, ExcArgNoReturnAsyncFuncT]
+NoArgsNoReturnAnyFuncT = NoArgsNoReturnFuncT | NoArgsNoReturnAsyncFuncT
+ExcArgNoReturnAnyFuncT = ExcArgNoReturnFuncT | ExcArgNoReturnAsyncFuncT
 
 __all__ = ["repeat_every"]
 
@@ -23,7 +23,7 @@ async def _handle_func(func: NoArgsNoReturnAnyFuncT) -> None:
 
 
 async def _handle_exc(
-    exc: Exception, on_exception: Optional[ExcArgNoReturnAnyFuncT]
+    exc: Exception, on_exception: ExcArgNoReturnAnyFuncT | None
 ) -> None:
     if on_exception is None:
         return
@@ -36,7 +36,7 @@ async def _handle_exc(
 def repeat_every(
     *,
     seconds: float,
-    on_exception: Optional[Callable[[Exception], None]] = None,
+    on_exception: Callable[[Exception], None] | None = None,
 ) -> Callable[[NoArgsNoReturnAnyFuncT], NoArgsNoReturnAsyncFuncT]:
     """
     This function returns a decorator that modifies a function so it is

@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from qualibrate import QualibrationGraph
@@ -40,7 +40,7 @@ The last run if available, `None` otherwise.
 )
 def get_last_run(
     state: Annotated[State, Depends(get_state)],
-) -> Optional[LastRun]:
+) -> LastRun | None:
     return state.last_run
 
 
@@ -71,7 +71,7 @@ Workflow status if active/last run item is workflow, `None` otherwise.
 )
 def get_workflow_status(
     state: Annotated[State, Depends(get_state)],
-) -> Optional[WorkflowStatus]:
+) -> WorkflowStatus | None:
     if not isinstance(state.run_item, QualibrationGraph):
         return None
     graph: QGraphType = state.run_item
@@ -94,5 +94,5 @@ def get_workflow_status(
 def get_execution_history(
     state: Annotated[State, Depends(get_state)],
     reverse: bool = False,
-) -> Optional[ExecutionHistory]:
+) -> ExecutionHistory | None:
     return get_graph_execution_history(state, reverse)

@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from pydantic import BaseModel, Field
 
@@ -17,7 +17,7 @@ class WorkflowStatus(BaseModel):
         RunStatusEnum, Field(description="The current status of the workflow.")
     ]
     active_node_name: Annotated[
-        Optional[str],
+        str | None,
         Field(description="The name of the currently active node, if any."),
     ]
     nodes_completed: Annotated[
@@ -40,7 +40,7 @@ class WorkflowStatus(BaseModel):
         ),
     ]
     error: Annotated[
-        Optional[RunError],
+        RunError | None,
         Field(
             description=(
                 "Any error encountered during the workflow execution, "

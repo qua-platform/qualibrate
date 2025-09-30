@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from datetime import datetime
-from typing import Annotated, Any, Optional, Union
+from typing import Annotated, Any
 
 from pydantic import AwareDatetime, BaseModel, Field, computed_field
 from qualibrate.models.run_summary.graph import GraphRunSummary
@@ -28,7 +28,7 @@ class LastRun(BaseModel):
         AwareDatetime, Field(..., description="The start time of the run.")
     ]
     completed_at: Annotated[
-        Optional[AwareDatetime],
+        AwareDatetime | None,
         Field(description="The completion time of the run."),
     ] = None
     name: Annotated[str, Field(description="The name of the run.")]
@@ -50,7 +50,7 @@ class LastRun(BaseModel):
         ),
     ]
     run_result: Annotated[
-        Optional[Union[NodeRunSummary, GraphRunSummary]],
+        NodeRunSummary | GraphRunSummary | None,
         Field(
             description=(
                 "The result of the run. Can be result of node or graph."
@@ -65,7 +65,7 @@ class LastRun(BaseModel):
         description="The state updates during the run.",
     )
     error: Annotated[
-        Optional[RunError],
+        RunError | None,
         Field(description="Any error encountered during the run."),
     ] = None
 

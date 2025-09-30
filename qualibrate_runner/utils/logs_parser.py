@@ -5,17 +5,11 @@ from datetime import datetime
 from functools import partial
 from itertools import islice
 from pathlib import Path
-from sys import version_info
-from typing import Any, Optional, TextIO, cast
+from typing import Any, TextIO, cast
 
 from qualibrate.utils.logger_m import LazyInitLogger, logger
 from qualibrate.utils.logger_utils.filters import filter_log_date
 from qualibrate_config.models import QualibrateConfig
-
-if version_info >= (3, 10):
-    from types import NoneType  # type: ignore[attr-defined]
-else:
-    NoneType = type(None)
 
 __all__ = [
     "parse_log_line",
@@ -28,7 +22,7 @@ default_asctime_log_format = "%Y-%m-%d %H:%M:%S,%f"
 
 
 def parse_log_line(
-    line: str, previous_msg: Optional[dict[str, Any]] = None
+    line: str, previous_msg: dict[str, Any] | None = None
 ) -> dict[str, Any]:
     # JSON format
     if line.startswith("{"):
@@ -60,7 +54,7 @@ def parse_log_line(
 
 def parse_log_line_with_previous(
     file: TextIO,
-) -> Generator[dict[str, Any], None, NoneType]:
+) -> Generator[dict[str, Any], None, None]:
     previous = None
     for line in file:
         previous = parse_log_line(line, previous)
@@ -68,12 +62,11 @@ def parse_log_line_with_previous(
             yield previous
         except TypeError as e:
             logging.exception(line, exc_info=e)
-    return None
 
 
 def get_logs_from_qualibrate_files(
-    after: Optional[datetime] = None,
-    before: Optional[datetime] = None,
+    after: datetime | None = None,
+    before: datetime | None = None,
     num_entries: int = 100,
     *,
     config: QualibrateConfig,
@@ -98,8 +91,8 @@ def get_logs_from_qualibrate_files(
 
 
 def get_logs_from_qualibrate_in_memory_storage(
-    after: Optional[datetime] = None,
-    before: Optional[datetime] = None,
+    after: datetime | None = None,
+    before: datetime | None = None,
     num_entries: int = 100,
     *,
     config: QualibrateConfig,

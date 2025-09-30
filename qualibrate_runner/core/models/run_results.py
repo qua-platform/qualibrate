@@ -2,7 +2,7 @@
 of RunStatus fields"""
 
 from collections.abc import Mapping
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 from qualibrate.models.outcome import Outcome
@@ -16,7 +16,7 @@ class RunResults(BaseModel):
 
     parameters: dict[str, Any]
     outcomes: dict[TargetType, Outcome]
-    error: Optional[RunError] = None
+    error: RunError | None = None
 
     initial_targets: list[TargetType] = Field(default_factory=list)
     successful_targets: list[TargetType] = Field(default_factory=list)

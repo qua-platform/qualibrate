@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from qualibrate_config.models import QualibrateConfig
@@ -33,8 +33,8 @@ def check_running(
 
 @others_router.get("/output_logs")
 def get_output_logs(
-    after: Optional[datetime] = None,
-    before: Optional[datetime] = None,
+    after: datetime | None = None,
+    before: datetime | None = None,
     num_entries: int = 100,
     parse_files: bool = False,
     reverse: bool = False,
@@ -92,7 +92,7 @@ def stop_running(
 def state_updated(
     state: Annotated[State, Depends(get_state)],
     key: str,
-) -> Optional[LastRun]:
+) -> LastRun | None:
     if (
         state.last_run is None
         or state.last_run.status != RunStatusEnum.FINISHED
