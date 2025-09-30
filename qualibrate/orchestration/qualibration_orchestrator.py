@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
-from typing import Any, Generic, Optional
+from typing import Any, Generic
 
 from pydantic import create_model
 
@@ -32,7 +32,7 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
     """
 
     def __init__(self, **parameters: Any):
-        self._graph: Optional[QualibrationGraph[NodeTypeVar]] = None
+        self._graph: QualibrationGraph[NodeTypeVar] | None = None
         self._is_stopped: bool = False
         self.parameters_class = create_model(
             "OrchestratorParameters",
@@ -42,14 +42,14 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
             },
         )
         self._parameters = self.parameters_class()
-        self.initial_targets: Optional[list[Any]] = None
-        self.targets: Optional[list[Any]] = None
+        self.initial_targets: list[Any] | None = None
+        self.targets: list[Any] | None = None
         self._execution_history: list[ExecutionHistoryItem] = []
-        self._active_node: Optional[NodeTypeVar] = None
+        self._active_node: NodeTypeVar | None = None
         self.final_outcomes: dict[Any, Outcome] = {}
 
     @property
-    def active_node(self) -> Optional[NodeTypeVar]:
+    def active_node(self) -> NodeTypeVar | None:
         """
         Gets the currently active node.
 
@@ -60,7 +60,7 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
         return self._active_node
 
     @property
-    def active_node_name(self) -> Optional[str]:
+    def active_node_name(self) -> str | None:
         """
         Gets the name of the currently active node.
 

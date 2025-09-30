@@ -4,13 +4,13 @@ __all__ = ["UserLogFilter", "NonUserLogFilter", "filter_log_date"]
 
 from collections.abc import Mapping
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 
 def filter_log_date(
     log_line: Mapping[str, Any],
-    after: Optional[datetime] = None,
-    before: Optional[datetime] = None,
+    after: datetime | None = None,
+    before: datetime | None = None,
 ) -> bool:
     asctime = log_line["asctime"]
     if not isinstance(asctime, datetime):

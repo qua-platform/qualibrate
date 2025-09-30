@@ -3,7 +3,6 @@ from collections.abc import Mapping, Sequence
 from typing import (
     Any,
     ClassVar,
-    Optional,
     cast,
 )
 
@@ -50,7 +49,7 @@ class RunnableParameters(BaseModel):
 
 
 class TargetParameter(BaseModel):
-    targets_name: ClassVar[Optional[str]] = None
+    targets_name: ClassVar[str | None] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -80,7 +79,7 @@ class TargetParameter(BaseModel):
         return self
 
     @property
-    def targets(self) -> Optional[list[TargetType]]:
+    def targets(self) -> list[TargetType] | None:
         if (
             self.targets_name is None
             or self.targets_name not in self.model_fields
@@ -121,7 +120,7 @@ class TargetParameter(BaseModel):
 
 
 class NodeParameters(RunnableParameters, TargetParameter):
-    targets_name: ClassVar[Optional[str]] = "qubits"
+    targets_name: ClassVar[str | None] = "qubits"
 
     @classmethod
     def serialize(
@@ -138,7 +137,7 @@ class NodesParameters(RunnableParameters):
 
 
 class GraphParameters(RunnableParameters, TargetParameter):
-    targets_name: ClassVar[Optional[str]] = "qubits"
+    targets_name: ClassVar[str | None] = "qubits"
 
     @classmethod
     def serialize(

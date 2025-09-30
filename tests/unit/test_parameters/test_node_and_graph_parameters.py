@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pytest
 from pydantic import ValidationError
 
@@ -8,11 +6,11 @@ from qualibrate.parameters import GraphParameters, NodeParameters
 
 class TestCreateParameters:
     class SampleNodeParameters(NodeParameters):
-        qubits: Optional[list[str]] = None
+        qubits: list[str] | None = None
         other_param: str = "test"
 
     class SampleGraphParameters(GraphParameters):
-        qubits: Optional[list[str]] = None
+        qubits: list[str] | None = None
         other_param: str = "test"
 
     @pytest.mark.parametrize(

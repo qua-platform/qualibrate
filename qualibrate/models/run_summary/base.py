@@ -1,5 +1,5 @@
 from collections.abc import Mapping, Sequence
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import (
     AwareDatetime,
@@ -19,17 +19,17 @@ __all__ = ["BaseRunSummary"]
 
 class BaseRunSummary(BaseModel):
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     created_at: AwareDatetime
     completed_at: AwareDatetime
-    parameters: Optional[RunnableParameters] = None
+    parameters: RunnableParameters | None = None
     outcomes: dict[TargetType, Outcome]
-    error: Optional[RunError] = None
+    error: RunError | None = None
 
     initial_targets: Sequence[TargetType] = Field(default_factory=list)
     successful_targets: list[TargetType] = Field(default_factory=list)
     failed_targets: list[TargetType] = Field(default_factory=list)
-    dropped_targets: Optional[list[TargetType]] = None
+    dropped_targets: list[TargetType] | None = None
     state_updates: Mapping[str, Any] = Field(default_factory=dict)
 
     @computed_field

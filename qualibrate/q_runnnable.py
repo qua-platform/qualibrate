@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import (
     Any,
     Generic,
-    Optional,
     TypeVar,
     cast,
 )
@@ -33,7 +32,7 @@ def file_is_calibration_instance(file: Path, klass: str) -> bool:
     return f"{klass}(" in contents or f"{klass}[" in contents
 
 
-run_modes_ctx: ContextVar[Optional[RunModes]] = ContextVar(
+run_modes_ctx: ContextVar[RunModes | None] = ContextVar(
     "run_modes", default=None
 )
 
@@ -55,9 +54,9 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self,
         name: str,
         parameters: CreateParametersType,
-        description: Optional[str] = None,
+        description: str | None = None,
         *,
-        modes: Optional[RunModes] = None,
+        modes: RunModes | None = None,
     ):
         self.name = name
         self.parameters_class = self.build_parameters_class_from_instance(
@@ -68,12 +67,12 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
 
         self.modes = self.get_run_modes(modes)
 
-        self.filepath: Optional[Path] = None
+        self.filepath: Path | None = None
 
         self._state_updates: dict[str, Any] = {}
 
         self.outcomes: dict[TargetType, Outcome] = {}
-        self.run_summary: Optional[BaseRunSummary] = None
+        self.run_summary: BaseRunSummary | None = None
 
     def cleanup(self) -> None:
         """
@@ -84,7 +83,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         self.run_summary = None
 
     @property
-    def run_end(self) -> Optional[datetime]:
+    def run_end(self) -> datetime | None:
         return self.run_summary.completed_at if self.run_summary else None
 
     @staticmethod
@@ -122,7 +121,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         return cast(type[CreateParametersType], model)
 
     @classmethod
-    def get_run_modes(cls, modes: Optional[RunModes] = None) -> RunModes:
+    def get_run_modes(cls, modes: RunModes | None = None) -> RunModes:
         """
         Determines the run modes for the QRunnable.
         If modes are provided, they are returned.

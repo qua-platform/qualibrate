@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 from numpy.lib.npyio import NpzFile
@@ -21,7 +21,7 @@ class NumpyArrayLoader(BaseLoader):
 
     def __init__(self) -> None:
         self.filepath_to_array: dict[
-            Path, Union[np.ndarray[Any, np.dtype[Any]], NpzFile]
+            Path, np.ndarray[Any, np.dtype[Any]] | NpzFile
         ] = {}
 
     def load(self, path: Path, **kwargs: Any) -> Any:

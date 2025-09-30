@@ -1,9 +1,7 @@
 import inspect
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from functools import wraps
-from typing import TYPE_CHECKING, Any, Callable, Optional, Union
-
-from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 from qualibrate.runnables.run_action.action import (
     Action,
@@ -19,9 +17,9 @@ from qualibrate.utils.logger_m import logger
 if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
 
-ActionDecoratorType: TypeAlias = Union[
-    ActionCallableType, Callable[..., ActionCallableType]
-]
+ActionDecoratorType: TypeAlias = (
+    ActionCallableType | Callable[..., ActionCallableType]
+)
 
 
 class ActionManager:
@@ -32,7 +30,7 @@ class ActionManager:
 
     def __init__(self) -> None:
         self.actions: dict[str, Action] = {}
-        self.current_action: Optional[Action] = None
+        self.current_action: Action | None = None
         self._skip_actions: bool = False
         self._skip_actions_names: set[str] = set()
         stack = inspect.stack()
@@ -40,11 +38,11 @@ class ActionManager:
         self.predefined_names = get_defined_in_frame_names(frame_for_names)
 
     @property
-    def skip_actions(self) -> Union[bool, Sequence[str]]:
+    def skip_actions(self) -> bool | Sequence[str]:
         return self._skip_actions
 
     @skip_actions.setter
-    def skip_actions(self, to_skip: Union[bool, Sequence[str]]) -> None:
+    def skip_actions(self, to_skip: bool | Sequence[str]) -> None:
         if isinstance(to_skip, bool):
             self._skip_actions = to_skip
             self._skip_actions_names = set()
@@ -66,7 +64,7 @@ class ActionManager:
         node: "QualibrationNode[Any, Any]",
         *args: Any,
         **kwargs: Any,
-    ) -> Optional[ActionReturnType]:
+    ) -> ActionReturnType | None:
         action = self.actions.get(action_name)
         if action is None:
             logger.warning(f"Can't run action {action_name} of node {node}")
@@ -82,7 +80,7 @@ class ActionManager:
     def register_action(
         self,
         node: "QualibrationNode[Any, Any]",
-        func: Optional[ActionCallableType] = None,
+        func: ActionCallableType | None = None,
         *,
         skip_if: bool = False,
     ) -> ActionDecoratorType:
@@ -115,9 +113,7 @@ class ActionManager:
             node._action_manager.actions[action_name] = action
 
             @wraps(f)
-            def wrapper(
-                *args: Any, **kwargs: Any
-            ) -> Optional[ActionReturnType]:
+            def wrapper(*args: Any, **kwargs: Any) -> ActionReturnType | None:
                 return self.run_action(action_name, node, *args, **kwargs)
 
             if skip_if:

@@ -2,7 +2,7 @@ import traceback
 from collections.abc import Sequence
 from datetime import datetime
 from queue import Queue
-from typing import Any, Generic, Optional
+from typing import Any, Generic
 
 import networkx as nx
 
@@ -111,7 +111,7 @@ class BasicOrchestrator(
             == NodeStatus.finished
         )
 
-    def get_next_node(self) -> Optional[NodeTypeVar]:
+    def get_next_node(self) -> NodeTypeVar | None:
         """
         Gets the next node to execute.
 
@@ -170,7 +170,7 @@ class BasicOrchestrator(
             logger.info(f"Graph. Node to run. {node_to_run}")
             node_to_run_parameters = getattr(nodes_parameters, node_to_run.name)
             run_start = datetime.now().astimezone()
-            run_error: Optional[RunError] = None
+            run_error: RunError | None = None
             try:
                 self._active_node = node_to_run
                 node_to_run_parameters.targets = self.targets

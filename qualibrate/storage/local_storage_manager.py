@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Generic,
-    Optional,
     TypeVar,
 )
 
@@ -41,7 +40,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
     """
 
     def __init__(
-        self, root_data_folder: Path, active_machine_path: Optional[Path] = None
+        self, root_data_folder: Path, active_machine_path: Path | None = None
     ):
         self.root_data_folder = root_data_folder
         self.data_handler = DataHandler(root_data_folder=root_data_folder)
@@ -137,7 +136,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
     def _save_machine(
         self,
         machine: MachineProtocol,
-        relative_data_path: Optional[str] = "./quam_state.json",
+        relative_data_path: str | None = "./quam_state.json",
     ) -> None:
         quam = importlib.import_module("quam")
         if quam is not None:
