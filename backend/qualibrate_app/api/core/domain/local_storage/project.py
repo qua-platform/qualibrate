@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from typing import Optional
 
 from qualibrate_config.core.project.active import get_active_project
 from qualibrate_config.core.project.p_list import verbose_list_projects
@@ -12,7 +11,7 @@ from qualibrate_app.config import get_settings
 
 
 class ProjectsManagerLocalStorage(ProjectsManagerBase):
-    def _active_project_getter(self) -> Optional[str]:
+    def _active_project_getter(self) -> str | None:
         return get_active_project(self._config_path)
 
     def _active_project_setter(self, value: str) -> None:

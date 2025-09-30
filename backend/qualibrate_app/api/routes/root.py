@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Any, Union
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
@@ -152,7 +152,7 @@ def get_nodes_history(
 @root_router.get("/search")
 def search_snapshot(
     id: IdType,
-    data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
+    data_path: Annotated[Sequence[str | int], Depends(get_search_path)],
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> Any:
     return root.search_snapshot(id, data_path)

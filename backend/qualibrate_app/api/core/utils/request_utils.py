@@ -1,6 +1,6 @@
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from functools import partial
-from typing import Any, Callable, Optional, Union
+from typing import Any
 from urllib.parse import urljoin
 
 import requests
@@ -25,11 +25,11 @@ def get_runner_config(
 def request_with_db(
     path: str,
     *,
-    params: Optional[Mapping[str, Any]] = None,
+    params: Mapping[str, Any] | None = None,
     db_name: str,
     timeout: float,
     method: Callable[..., requests.Response] = requests.get,
-    host: Union[HttpUrl, str],
+    host: HttpUrl | str,
     **kwargs: Any,
 ) -> requests.Response:
     if params is None:

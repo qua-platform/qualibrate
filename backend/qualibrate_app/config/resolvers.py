@@ -2,20 +2,16 @@ import os
 import warnings
 from functools import lru_cache
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Depends
+from qualibrate_config.file import get_config_file
 from qualibrate_config.models import (
     QualibrateConfig,
 )
-from qualibrate_config.resolvers import (
-    get_qualibrate_config,
-    get_qualibrate_config_path,
-)
+from qualibrate_config.resolvers import get_qualibrate_config
 
-from qualibrate_app.config.vars import (
-    CONFIG_PATH_ENV_NAME,
-)
+from qualibrate_app.config import vars as config_vars
 
 __all__ = [
     "get_default_static_files_path",
@@ -25,7 +21,7 @@ __all__ = [
 ]
 
 
-def get_default_static_files_path() -> Optional[Path]:
+def get_default_static_files_path() -> Path | None:
     import sys
 
     module_file = sys.modules["qualibrate_app"].__file__
@@ -37,10 +33,13 @@ def get_default_static_files_path() -> Optional[Path]:
 
 @lru_cache
 def get_config_path() -> Path:
-    path = os.environ.get(CONFIG_PATH_ENV_NAME)
-    if path is not None:
-        return Path(path)
-    return get_qualibrate_config_path()
+    return get_config_file(
+        config_path=os.environ.get(config_vars.CONFIG_PATH_ENV_NAME),
+        default_config_specific_filename=(
+            config_vars.DEFAULT_QUALIBRATE_APP_CONFIG_FILENAME
+        ),
+        raise_not_exists=True,
+    )
 
 
 @lru_cache
@@ -53,7 +52,7 @@ def get_settings(
 @lru_cache
 def get_quam_state_path(
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
-) -> Optional[Path]:
+) -> Path | None:
     root = settings.__class__._root
     if root is None:
         return None

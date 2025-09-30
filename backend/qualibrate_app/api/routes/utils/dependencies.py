@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Depends, Query
 
@@ -14,7 +14,7 @@ from qualibrate_app.api.routes.utils.snapshot_load_type import (
 
 def get_snapshot_load_type_flag(
     load_type: Annotated[
-        Optional[SnapshotLoadType], Query(deprecated="use load_type_flag")
+        SnapshotLoadType | None, Query(deprecated="use load_type_flag")
     ] = None,
     load_type_flag: Annotated[
         SnapshotLoadTypeFlag, Depends(parse_load_type_flag)

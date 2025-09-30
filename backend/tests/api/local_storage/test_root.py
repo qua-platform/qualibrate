@@ -570,7 +570,9 @@ def test_root_nodes_history_default_args(
         "total_pages": 1,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-            for snapshot, dfs in zip(snapshots_history, dfss_history)
+            for snapshot, dfs in zip(
+                snapshots_history, dfss_history, strict=False
+            )
         ],
     }
 
@@ -590,7 +592,7 @@ def test_root_nodes_history_reverse(
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for snapshot, dfs in zip(
-                snapshots_history[::-1], dfss_history[::-1]
+                snapshots_history[::-1], dfss_history[::-1], strict=False
             )
         ],
     }
@@ -612,7 +614,7 @@ def test_root_nodes_history_reverse_paged(
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for snapshot, dfs in zip(
-                snapshots_history[3:1:-1], dfss_history[3:1:-1]
+                snapshots_history[3:1:-1], dfss_history[3:1:-1], strict=False
             )
         ],
     }
@@ -634,7 +636,7 @@ def test_root_nodes_history_global_reverse(
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for snapshot, dfs in zip(
-                snapshots_history[::-1], dfss_history[::-1]
+                snapshots_history[::-1], dfss_history[::-1], strict=False
             )
         ],
     }
@@ -657,7 +659,7 @@ def test_root_nodes_history_global_reverse_paged(
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for snapshot, dfs in zip(
-                snapshots_history[7:5:-1], dfss_history[7:5:-1]
+                snapshots_history[7:5:-1], dfss_history[7:5:-1], strict=False
             )
         ],
     }
@@ -701,7 +703,7 @@ def test_root_nodes_history_paged(
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
             for _, (snapshot, dfs) in filter(
                 lambda d: d[0] in requested_ids,
-                enumerate(zip(snapshots_history, dfss_history)),
+                enumerate(zip(snapshots_history, dfss_history, strict=False)),
             )
         ],
     }
