@@ -21,6 +21,7 @@ else:
     from typing import Self
 
 import matplotlib
+import matplotlib.pyplot as plt
 from matplotlib.backends import (  # type: ignore[attr-defined]
     BackendFilter,
     backend_registry,
@@ -329,6 +330,7 @@ class QualibrationNode(
             list[str],
             backend_registry.list_builtin(BackendFilter.INTERACTIVE),  # type: ignore[no-untyped-call]
         ):
+            plt.close("all")
             matplotlib.use("agg")
             logger.warning(
                 f"Using interactive matplotlib backend '{mpl_backend}' in "
@@ -672,6 +674,7 @@ class QualibrationNode(
         mpl_backend = matplotlib.get_backend()
         # Appending dir with nodes can cause issues with relative imports
         try:
+            plt.close("all")
             matplotlib.use("agg")
             _module = import_from_path(
                 get_module_name(node_filepath), node_filepath

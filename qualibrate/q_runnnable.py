@@ -103,7 +103,8 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             A new parameter class type.
         """
         fields = {
-            name: copy(field) for name, field in parameters.model_fields.items()
+            name: copy(field)
+            for name, field in parameters.__class__.model_fields.items()
         }
         for param_name, param_value in parameters.model_dump().items():
             fields[param_name].default = param_value

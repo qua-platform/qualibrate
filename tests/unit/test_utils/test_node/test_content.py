@@ -50,7 +50,7 @@ def test_load_parameters_with_build():
         "list_values": (Sequence[int] | None, False, [1, 2, 3]),
     }
     for field_name, props in expected_field_props.items():
-        field = loaded_parameters.model_fields[field_name]
+        field = loaded_parameters.__class__.model_fields[field_name]
         required = field.is_required()
         if field.annotation != props[0] or props[1] is not required:
             failed.update({field_name: {"expected": props, "loaded": field}})
