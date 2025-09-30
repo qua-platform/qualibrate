@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-runner"
-version = "0.4.0a2"
+version = "0.4.0"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 readme = "README.md"
@@ -14,8 +14,8 @@ click = "^8.1.7,<8.2.0"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 jsonpatch = "^1.33"
-qualibrate-core = "^0.4.0a3"
-qualibrate-config = "^0.1.6"
+qualibrate-core = "^0.4.0,<0.5.0"
+qualibrate-config = "^0.1.7,<0.2.0"
 websockets = "^15.0.1"
 
 [tool.poetry.group.dev.dependencies]
