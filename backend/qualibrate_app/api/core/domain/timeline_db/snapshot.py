@@ -1,6 +1,6 @@
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
 
 from qualibrate_config.models import (
     QualibrateConfig,
@@ -27,7 +27,7 @@ class SnapshotTimelineDb(SnapshotBase):
     def __init__(
         self,
         id: IdType,
-        content: Optional[DocumentType] = None,
+        content: DocumentType | None = None,
         *,
         settings: QualibrateConfig,
     ):
@@ -36,7 +36,7 @@ class SnapshotTimelineDb(SnapshotBase):
     def load_from_flag(self, load_type_flag: SnapshotLoadTypeFlag) -> None:
         if self.load_type_flag.is_set(load_type_flag):
             return None
-        fields: Optional[list[str]] = ["id", "_id", "parents", "created_at"]
+        fields: list[str] | None = ["id", "_id", "parents", "created_at"]
         if fields is not None and load_type_flag.is_set(
             SnapshotLoadTypeFlag.Metadata
         ):
@@ -68,24 +68,24 @@ class SnapshotTimelineDb(SnapshotBase):
         self.content.update(content)
 
     @property
-    def id(self) -> Optional[IdType]:
+    def id(self) -> IdType | None:
         return self._id
 
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         if "created_at" not in self.content:
             return None
         return datetime.fromisoformat(str(self.content.get("created_at")))
 
     @property
-    def parents(self) -> Optional[list[IdType]]:
+    def parents(self) -> list[IdType] | None:
         return self.content.get("parents")
 
     def search(
         self,
-        search_path: Sequence[Union[str, int]],
+        search_path: Sequence[str | int],
         load: bool = False,
-    ) -> Optional[DocumentSequenceType]:
+    ) -> DocumentSequenceType | None:
         """Make search in current instance of Snapshot."""
         if (
             not self._load_type_flag.is_set(
@@ -157,12 +157,12 @@ class SnapshotTimelineDb(SnapshotBase):
         self,
         path: str,
         **kwargs: Mapping[str, Any],
-    ) -> Optional[Mapping[str, Any]]:
+    ) -> Mapping[str, Any] | None:
         return None
 
     def extract_state_update_types(
         self,
         paths: Sequence[str],
         **kwargs: Mapping[str, Any],
-    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+    ) -> Mapping[str, Mapping[str, Any] | None]:
         return {}

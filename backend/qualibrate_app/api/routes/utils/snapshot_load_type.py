@@ -1,7 +1,7 @@
 import operator
 import sys
 from functools import reduce
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import HTTPException, Query
 
@@ -41,9 +41,7 @@ def _parse_snapshot_load_type(
 
 
 def parse_load_type_flag(
-    load_type_flag: Annotated[
-        Optional[list[SnapshotLoadTypeStr]], Query()
-    ] = None,
+    load_type_flag: Annotated[list[SnapshotLoadTypeStr] | None, Query()] = None,
 ) -> SnapshotLoadTypeFlag:
     if load_type_flag is None:
         return SnapshotLoadTypeFlag.Minified

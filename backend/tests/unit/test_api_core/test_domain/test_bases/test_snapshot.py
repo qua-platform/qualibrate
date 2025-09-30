@@ -1,6 +1,6 @@
 from collections.abc import Mapping, Sequence
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Any
 from unittest.mock import PropertyMock
 
 import pytest
@@ -20,16 +20,16 @@ class SnapshotBaseCustom(SnapshotBase):
         raise NotImplementedError()
 
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         raise NotImplementedError()
 
     @property
-    def parents(self) -> Optional[list[IdType]]:
+    def parents(self) -> list[IdType] | None:
         raise NotImplementedError()
 
     def search(
-        self, search_path: Sequence[Union[str, int]], load: bool = False
-    ) -> Optional[DocumentSequenceType]:
+        self, search_path: Sequence[str | int], load: bool = False
+    ) -> DocumentSequenceType | None:
         raise NotImplementedError()
 
     def get_latest_snapshots(
@@ -49,14 +49,14 @@ class SnapshotBaseCustom(SnapshotBase):
         self,
         path: str,
         **kwargs: Mapping[str, Any],
-    ) -> Optional[Mapping[str, Any]]:
+    ) -> Mapping[str, Any] | None:
         raise NotImplementedError()
 
     def extract_state_update_types(
         self,
         paths: Sequence[str],
         **kwargs: Mapping[str, Any],
-    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+    ) -> Mapping[str, Mapping[str, Any] | None]:
         raise NotImplementedError()
 
 

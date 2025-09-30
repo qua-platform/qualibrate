@@ -1,4 +1,4 @@
-from typing import Annotated, Optional, Union
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path
 from qualibrate_config.models import QualibrateConfig, StorageType
@@ -27,7 +27,7 @@ def _get_storage_instance(
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> DataFileStorage:
     node_types: dict[
-        StorageType, Union[type[NodeLocalStorage], type[NodeTimelineDb]]
+        StorageType, type[NodeLocalStorage] | type[NodeTimelineDb]
     ] = {
         StorageType.local_storage: NodeLocalStorage,
         StorageType.timeline_db: NodeTimelineDb,
@@ -54,6 +54,6 @@ def get_node_storage_content(
     *,
     load_type: StorageLoadType = StorageLoadType.Full,
     storage: Annotated[DataFileStorage, Depends(_get_storage_instance)],
-) -> Optional[DocumentType]:
+) -> DocumentType | None:
     storage.load_from_flag(StorageLoadTypeToLoadTypeFlag[load_type])
     return storage.data

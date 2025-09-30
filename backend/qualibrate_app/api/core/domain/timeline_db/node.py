@@ -1,5 +1,3 @@
-from typing import Optional
-
 from qualibrate_config.models import QualibrateConfig
 
 from qualibrate_app.api.core.domain.bases.node import NodeBase
@@ -15,7 +13,7 @@ class NodeTimelineDb(NodeBase):
     def __init__(
         self,
         node_id: IdType,
-        snapshot_content: Optional[DocumentType] = None,
+        snapshot_content: DocumentType | None = None,
         *,
         settings: QualibrateConfig,
     ):
