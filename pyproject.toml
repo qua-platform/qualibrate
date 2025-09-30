@@ -8,42 +8,42 @@ packages = [{ include = "qualibrate_composite" }]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.13"
-fastapi = "^0.115.2"
-uvicorn = "^0.34.0"
-pydantic = "^2.7.4"
-pydantic-settings = "^2.3.4"
-click = "^8.1.7"
+python = "^3.10,<3.13"
+fastapi = "^0.117.1"
+uvicorn = "^0.37.0"
+pydantic = "^2.11.9"
+pydantic-settings = "^2.11.0"
+click = "^8.1.7,<8.2.0"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
+a2wsgi = "^1.10.8"
 qualibrate-core = "0.4.0a3"
 qualibrate-runner = "0.4.0a2"
 qualibrate-app = "0.4.0a3"
 qualibrate-config = "0.1.6"
-a2wsgi = "^1.10.8"
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.8.0"
-ruff = "^0.8.0"
-poethepoet = "^0.31.1"
+mypy = "^1.18.2"
+ruff = "^0.13.1"
+poethepoet = "^0.37.0"
 
-# [tool.poetry.group.qm-dev.dependencies]
+#[tool.poetry.group.qm-dev.dependencies]
 #qualibrate-config = {path = "../qualibrate-config", develop = true}
 #qualibrate-app = {path = "../qualibrate-app/backend", develop = true}
 #qualibrate-runner = {path = "../qualibrate-runner", develop = true}
 #qualibrate-core = {path = "../qualibrate-core", develop = true}
-# qua-dashboards = { path = "../qua-dashboards", develop = true }
+#qua-dashboards = { path = "../qua-dashboards", develop = true }
 
 [tool.poetry.group.test.dependencies]
-pytest = "^8.0.0"
-pytest-mock = "^3.12.0"
+pytest = "^8.4.2"
+pytest-mock = "^3.15.1"
 
 [tool.poetry.scripts]
 qualibrate = "qualibrate_composite.__main__:main"
 
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 strict = true
 warn_return_any = true
 exclude = ['tests/']
@@ -61,7 +61,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 80
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = [
