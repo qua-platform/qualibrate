@@ -108,6 +108,16 @@ def start_command(
             str_port,
             config_path_str,
         )
+    quam_config_vars_m = importlib.import_module("quam.config.vars")
+    if quam_config_vars_m and hasattr(
+        quam_config_vars_m, "CONFIG_PATH_ENV_NAME"
+    ):
+        _update_module_attr_with_port(
+            quam_config_vars_m,
+            "CONFIG_PATH_ENV_NAME",
+            str_port,
+            config_path_str,
+        )
 
     from qualibrate_composite.app import main as app_main
 
