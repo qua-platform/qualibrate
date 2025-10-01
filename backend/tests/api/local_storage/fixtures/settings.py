@@ -71,18 +71,15 @@ def client_custom_settings(
     project_path.mkdir(parents=True)
     (project_path / "config.toml").touch()
     mocker.patch(
-        "qualibrate_config.resolvers.get_config_file",
+        "qualibrate_app.config.resolvers.get_config_path",
         return_value=settings_path_filled,
-    )
-    # TODO: fix patch settings
-    mocker.patch(
-        "qualibrate_app.config.resolvers.get_settings", return_value=settings
     )
 
     from qualibrate_app.app import app
 
     client = TestClient(app)
 
+    app.dependency_overrides[get_config_path] = lambda: settings_path_filled
     app.dependency_overrides[get_settings] = lambda: settings
 
     yield client
