@@ -1,6 +1,5 @@
 from abc import ABC
 from enum import IntEnum
-from typing import Optional
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -45,7 +44,7 @@ class NodeBase(DomainWithConfigBase, IDump, ABC):
         self._node_id = node_id
         self._load_type = NodeLoadType.Empty
         self._snapshot = snapshot
-        self._storage: Optional[DataFileStorage] = None
+        self._storage: DataFileStorage | None = None
 
     @property
     def load_type(self) -> NodeLoadType:
@@ -60,11 +59,11 @@ class NodeBase(DomainWithConfigBase, IDump, ABC):
         self._fill_storage()
 
     @property
-    def snapshot(self) -> Optional[SnapshotBase]:
+    def snapshot(self) -> SnapshotBase | None:
         return self._snapshot
 
     @property
-    def storage(self) -> Optional[DataFileStorage]:
+    def storage(self) -> DataFileStorage | None:
         return self._storage
 
     def _fill_storage(self) -> None:

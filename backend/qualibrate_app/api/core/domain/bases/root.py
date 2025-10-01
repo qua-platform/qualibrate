@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from typing import Any, Optional, Union
+from typing import Any
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -24,11 +24,11 @@ class RootBase(DomainWithConfigBase, ABC):
         pass
 
     @abstractmethod
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         pass
 
     @abstractmethod
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         pass
 
     @abstractmethod
@@ -53,6 +53,6 @@ class RootBase(DomainWithConfigBase, ABC):
     def search_snapshot(
         self,
         snapshot_id: IdType,
-        data_path: Sequence[Union[str, int]],
+        data_path: Sequence[str | int],
     ) -> Any:
         pass

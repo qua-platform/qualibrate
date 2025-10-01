@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Any, Optional, Union
+from typing import Any
 
 from qualibrate_app.api.core.domain.bases.root import RootBase
 from qualibrate_app.api.core.domain.timeline_db.branch import BranchTimelineDb
@@ -47,7 +47,7 @@ class RootTimelineDb(RootBase):
             raise QJsonDbException("Latest snapshot wasn't retrieved.")
         return snapshots[0]
 
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotTimelineDb:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotTimelineDb:
         if id is None:
             snapshot_data = self._get_latest_snapshot()
             return SnapshotTimelineDb(
@@ -57,7 +57,7 @@ class RootTimelineDb(RootBase):
             )
         return SnapshotTimelineDb(id=id, settings=self._settings)
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeTimelineDb:
+    def get_node(self, id: IdType | None = None) -> NodeTimelineDb:
         if id is None:
             snapshot_data = self._get_latest_snapshot()
             return NodeTimelineDb(
@@ -98,7 +98,7 @@ class RootTimelineDb(RootBase):
         ]
 
     def search_snapshot(
-        self, snapshot_id: IdType, data_path: Sequence[Union[str, int]]
+        self, snapshot_id: IdType, data_path: Sequence[str | int]
     ) -> Any:
         data_path_joined = ".".join(map(str, data_path))
         timeline_db_config = self.timeline_db_config

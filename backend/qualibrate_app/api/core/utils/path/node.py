@@ -1,6 +1,5 @@
 from datetime import date, datetime, time
 from functools import cached_property, lru_cache
-from typing import Optional
 
 from qualibrate_app.api.core.types import IdType
 from qualibrate_app.api.core.utils.path import ConcretePath
@@ -12,7 +11,7 @@ __all__ = ["NodePath"]
 @lru_cache(maxsize=16)
 def _get_node_id_name_time(
     node_path: "NodePath",
-) -> tuple[Optional[IdType], str, Optional[time]]:
+) -> tuple[IdType | None, str, time | None]:
     parts = node_path.stem.split("_")
     if len(parts) < 3:
         return None, node_path.stem, None
@@ -48,11 +47,11 @@ class NodePath(ConcretePath):
 
     def get_node_id_name_time(
         self,
-    ) -> tuple[Optional[IdType], str, Optional[time]]:
+    ) -> tuple[IdType | None, str, time | None]:
         return _get_node_id_name_time(self)
 
     @cached_property
-    def id(self) -> Optional[IdType]:
+    def id(self) -> IdType | None:
         return self.get_node_id_name_time()[0]
 
     @cached_property
@@ -60,5 +59,5 @@ class NodePath(ConcretePath):
         return self.get_node_id_name_time()[1]
 
     @cached_property
-    def time(self) -> Optional[time]:
+    def time(self) -> time | None:
         return self.get_node_id_name_time()[2]

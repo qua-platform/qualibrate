@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Optional
 
 import pytest
 from pydantic import ValidationError
@@ -16,16 +15,16 @@ from qualibrate_app.api.core.types import IdType
 
 class CustomBranchBase(BranchBase):
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         raise NotImplementedError
 
     def load(self, load_type: BranchLoadType) -> None:
         raise NotImplementedError
 
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         raise NotImplementedError
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         raise NotImplementedError
 
     def get_latest_snapshots(self, num: int = 50) -> Sequence[SnapshotBase]:
