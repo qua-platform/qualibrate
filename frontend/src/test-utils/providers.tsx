@@ -1,7 +1,7 @@
 // Test utilities for React component testing
-import React from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import React from "react";
+import { render, RenderOptions } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
 
 /**
  * Minimal mock providers for testing components in isolation
@@ -19,7 +19,7 @@ const customRender = (ui: React.ReactElement, options?: RenderOptions) =>
   render(ui, { wrapper: MockedProviders, ...options });
 
 // Re-export everything from @testing-library/react
-export * from '@testing-library/react';
+export * from "@testing-library/react";
 
 // Override the default render with our custom one
 export { customRender as render };

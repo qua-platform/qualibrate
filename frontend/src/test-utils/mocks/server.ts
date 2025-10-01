@@ -1,6 +1,6 @@
 // MSW server setup for Node.js test environment
-import { setupServer } from 'msw/node';
-import { handlers } from './handlers';
+import { setupServer } from "msw/node";
+import { handlers } from "./handlers";
 
 /**
  * MSW server instance for intercepting HTTP requests in tests

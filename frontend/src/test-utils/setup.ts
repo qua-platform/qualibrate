@@ -1,8 +1,8 @@
 // Global test setup file
-import '@testing-library/jest-dom';
-import 'vitest-canvas-mock';
-import { beforeAll, afterAll, afterEach, vi } from 'vitest';
-import { server } from './mocks/server';
+import "@testing-library/jest-dom";
+import "vitest-canvas-mock";
+import { beforeAll, afterAll, afterEach, vi } from "vitest";
+import { server } from "./mocks/server";
 
 // Mock WebSocket globally
 global.WebSocket = vi.fn(() => ({
