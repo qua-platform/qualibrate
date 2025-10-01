@@ -80,8 +80,9 @@ The E2E tests verify complete user workflows including node execution, parameter
 1. **Start the QUAlibrate backend** before running tests:
    ```bash
    # From the root QUAlibrate directory
-   cd /Users/jku/QUAlibrate
    qualibrate start
+   # Then in a separate terminal:
+   cd frontend
    ```
 
 2. Wait for the backend to be ready (should see server logs and be accessible at `http://localhost:8001/`)

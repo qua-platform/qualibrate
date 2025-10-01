@@ -12,7 +12,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
 
   // 1. Navigate to the Application
   // Open http://127.0.0.1:8001/ in your web browser.
-  await page.goto("http://localhost:8001/");
+  await page.goto("http://localhost:8001/", { waitUntil: 'load' });
   expect(page.url()).toBe("http://localhost:8001/"); // page loaded successfully
 
   // 2. Verify Calibration Nodes
@@ -23,7 +23,9 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
   // await expect(page.getByTestId('title-wrapper')).toContainText('Run calibration node'); // title is correct
   await expect(page.getByTestId("refresh-button")).toBeVisible(); // refresh button is visible
   await expect(page.getByTestId("menu-item-nodes")).toBeVisible(); // node library is showing as the landing page
-  await expect(page.getByTestId("node-list-wrapper")).toBeVisible(); // node library list of nodes are visible
+
+  // Wait for the node library to load with increased timeout (backend may still be initializing)
+  await expect(page.getByTestId("node-list-wrapper")).toBeVisible({ timeout: 30000 }); // node library list of nodes are visible
   await expect(page.getByTestId("node-element-test_cal")).toBeVisible(); // test_cal 'calibration node tab' is visible in the node library
   await expect(page.getByTestId("title-or-name-test_cal")).toBeVisible(); // test_cal label is visible in the node library
   // Check that the test_cal node has no visible parameters
@@ -48,6 +50,15 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
   const resonatorField = testCalNode.getByTestId("input-field-resonator");
   const samplingPointsField = testCalNode.getByTestId("input-field-sampling_points");
   const noiseFactorField = testCalNode.getByTestId("input-field-noise_factor");
+
+  // Wait for default values to load from backend
+  // The backend may take time to scan the calibration library and load parameter defaults
+  // We use longer timeouts and check each field has a non-empty value before proceeding
+  await expect(resonatorField).not.toHaveValue("", { timeout: 30000 });
+  await expect(samplingPointsField).not.toHaveValue("", { timeout: 30000 });
+  await expect(noiseFactorField).not.toHaveValue("", { timeout: 30000 });
+
+  // Now verify the actual default values are correct
   await expect(resonatorField).toHaveValue("q1.resonator");
   await expect(samplingPointsField).toHaveValue("100");
   await expect(noiseFactorField).toHaveValue("0.1");
@@ -77,15 +88,15 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
   // Click the Run button for test_cal.
   await page.getByTestId("run-button").click();
 
-  // Wait for job execution - the job executes very quickly
-  await page.waitForTimeout(3000); // Wait 3 seconds for job to execute and complete
+  // Wait for node execution - the node executes very quickly
+  await page.waitForTimeout(3000); // Wait 3 seconds for node to execute and complete
 
   const screenshotPathStep5 = `screenshot-after-step5-${Date.now()}.png`;
   await page.screenshot({ path: screenshotPathStep5 });
   await testInfo.attach('screenshot-after-step5', { path: screenshotPathStep5, contentType: 'image/png' });
 
   // Verify:
-  // The running job section should be visible (even after job completes)
+  // The running node section should be visible (even after node completes)
   await expect(page.getByTestId("running-job-wrapper")).toBeVisible({ timeout: 10000 });
 
   // The parameters section should show the parameters we set
@@ -121,9 +132,9 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
   await expect(page.getByTestId("data-key-pairarr")).toBeVisible();
 
   // 7. Check/Update State Values
-  // First, wait for the job to complete (state updates appear after completion)
-  // Wait up to 30 seconds for job completion
-  await page.waitForTimeout(5000); // Additional wait for job to finish if not already done
+  // First, wait for the node to complete (state updates appear after completion)
+  // Wait up to 30 seconds for node completion
+  await page.waitForTimeout(5000); // Additional wait for node to finish if not already done
 
   // Verify the State Updates section displays suggested changes.
   // Note: states-column-wrapper should be in the running-job-wrapper we already verified
