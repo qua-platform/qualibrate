@@ -94,6 +94,8 @@ Slow integration tests. **Requires backend running.**
 qualibrate start
 ```
 
+Then wait for the backend to be ready (should see server logs)
+
 **Running E2E Tests:**
 ```bash
 npm run test:e2e          # Run all E2E tests
