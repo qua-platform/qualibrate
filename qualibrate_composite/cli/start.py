@@ -1,8 +1,6 @@
 import importlib
 import os
 from pathlib import Path
-from types import ModuleType
-from typing import Any
 
 import click
 from qualibrate_config import vars as config_vars
@@ -63,61 +61,40 @@ def start_command(
     root_path: str,
 ) -> None:
     config_path_str = str(config_path)
-    str_port = f"_{port}"
 
-    def _update_module_attr_with_port(
-        module: ModuleType, attr_name: str, suffix: str, new_attr_value: Any
-    ) -> None:
-        new_value = getattr(module, attr_name) + suffix
-        setattr(module, attr_name, new_value)
-        os.environ[new_value] = new_attr_value
-
-    _update_module_attr_with_port(
-        config_vars, "CONFIG_PATH_ENV_NAME", str_port, config_path_str
-    )
-    _update_module_attr_with_port(
-        composite_vars, "CONFIG_PATH_ENV_NAME", str_port, config_path_str
-    )
-    _update_module_attr_with_port(
-        composite_vars, "ROOT_PATH_ENV_NAME", str_port, root_path
-    )
+    os.environ.setdefault(config_vars.CONFIG_PATH_ENV_NAME, config_path_str)
+    os.environ.setdefault(composite_vars.CONFIG_PATH_ENV_NAME, config_path_str)
+    os.environ.setdefault(composite_vars.ROOT_PATH_ENV_NAME, root_path)
     if len(cors_origin) != 0:
-        _update_module_attr_with_port(
-            composite_vars,
-            "CORS_ORIGINS_ENV_NAME",
-            str_port,
-            ",".join(cors_origin),
+        os.environ.setdefault(
+            composite_vars.CORS_ORIGINS_ENV_NAME, ",".join(cors_origin)
         )
-    app_config_vars_m = importlib.import_module("qualibrate_app.config.vars")
-    if app_config_vars_m and hasattr(app_config_vars_m, "CONFIG_PATH_ENV_NAME"):
-        _update_module_attr_with_port(
-            app_config_vars_m,
-            "CONFIG_PATH_ENV_NAME",
-            str_port,
-            config_path_str,
-        )
-    runner_config_vars_m = importlib.import_module(
-        "qualibrate_runner.config.vars"
+
+    def _set_module_env_name_and_value(
+        module_path: str,
+        *,
+        attr_to_set: str = "CONFIG_PATH_ENV_NAME",
+        env_value_to_set: str,
+    ) -> None:
+        module = importlib.import_module(module_path)
+        if module and (attr_to_set := getattr(module, attr_to_set)):
+            os.environ.setdefault(attr_to_set, env_value_to_set)
+
+    _set_module_env_name_and_value(
+        "qualibrate_app.config.vars",
+        attr_to_set="CONFIG_PATH_ENV_NAME",
+        env_value_to_set=config_path_str,
     )
-    if runner_config_vars_m and hasattr(
-        runner_config_vars_m, "CONFIG_PATH_ENV_NAME"
-    ):
-        _update_module_attr_with_port(
-            runner_config_vars_m,
-            "CONFIG_PATH_ENV_NAME",
-            str_port,
-            config_path_str,
-        )
-    quam_config_vars_m = importlib.import_module("quam.config.vars")
-    if quam_config_vars_m and hasattr(
-        quam_config_vars_m, "CONFIG_PATH_ENV_NAME"
-    ):
-        _update_module_attr_with_port(
-            quam_config_vars_m,
-            "CONFIG_PATH_ENV_NAME",
-            str_port,
-            config_path_str,
-        )
+    _set_module_env_name_and_value(
+        "qualibrate_runner.config.vars",
+        attr_to_set="CONFIG_PATH_ENV_NAME",
+        env_value_to_set=config_path_str,
+    )
+    _set_module_env_name_and_value(
+        "quam.config.vars",
+        attr_to_set="CONFIG_PATH_ENV_NAME",
+        env_value_to_set=config_path_str,
+    )
 
     from qualibrate_composite.app import main as app_main
 
