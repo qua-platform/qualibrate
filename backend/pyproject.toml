@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-app"
-version = "0.4.0a3"
+version = "0.4.0"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate-app"
@@ -10,7 +10,7 @@ readme = "README.md"
 include = [{ path = "qualibrate_static/**/*", format = ["sdist", "wheel"] }]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.10,<3.13"
 fastapi = "^0.117.1"
 uvicorn = "^0.37.0"
 click = "^8.1.7,<8.2.0"
@@ -18,7 +18,7 @@ tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 requests = "^2.32.4"
 jsonpatch = "^1.33"
-qualibrate-config = "^0.1.6"
+qualibrate-config = "^0.1.7,<0.2.0"
 # TODO: replace after publishing timeline-db
 # json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
 
@@ -40,7 +40,7 @@ httpx = "^0.28.1"
 #qualibrate-config = {path = "../../qualibrate-config", develop = true}
 
 [tool.poetry.group.fe_test.dependencies]
-quam = { version = "^0.4.0", python = ">=3.9,<3.13" }
+quam = { version = "^0.4.2", python = ">=3.10,<3.13" }
 xarray = "~2025.6.1"
 
 [tool.poetry.scripts]
