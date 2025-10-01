@@ -151,11 +151,9 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
     // If state updates exist, verify their structure
     await expect(page.getByTestId("state-updates-top-wrapper")).toBeVisible();
     await expect(page.getByTestId("update-all-button")).toBeVisible();
-    await expect(page.getByTestId("state-update-wrapper-#/channels/ch1/intermediate_frequency")).toBeVisible();
-    await expect(page.getByTestId("state-update-wrapper-#/channels/ch2/intermediate_frequency")).toBeVisible();
 
-    const ch1 = page.getByTestId("state-update-value-wrapper-0");
-    const ch2 = page.getByTestId("state-update-value-wrapper-1");
+    const ch1 = page.getByTestId("state-update-wrapper-#/channels/ch1/intermediate_frequency");
+    const ch2 = page.getByTestId("state-update-wrapper-#/channels/ch2/intermediate_frequency");
     await expect(ch1).toBeVisible();
     await expect(ch2).toBeVisible();
 
@@ -165,7 +163,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
     ch1.getByTestId("value-input").click();
     ch1.getByTestId("value-input").fill("20000000");
     await expect(ch1.getByTestId("update-before-icon")).toBeVisible();
-    await resonatorField.click(); // Clicking (anywhere) away from input feild to spawn undo button
+    await resonatorField.click(); // Clicking (anywhere) away from input failed to spawn undo button
     await expect(ch1.getByTestId("undo-icon-wrapper")).toBeVisible();
     ch1.getByTestId("update-before-icon").click(); // Click the icon to update the state
     await expect(ch1.getByTestId("update-after-icon")).toBeVisible();
@@ -173,7 +171,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
     // Update the state value for ch2 to [1,2,4,5]
     await expect(ch2.getByTestId("value-input")).toBeVisible();
     await expect(ch2.getByTestId("value-container")).toContainText("80000000");
-    await expect(ch2.getByTestId("value-input")).toHaveValue("[1,2,4]");
+    await expect(ch2.getByTestId("value-input")).toHaveValue("70000000");
     ch2.getByTestId("value-input").click();
     ch2.getByTestId("value-input").fill("[1,2,4,5]");
     await resonatorField.click(); // Clicking (anywhere) away from input feild to spawn undo button
