@@ -173,15 +173,31 @@ jobs:
       - name: Start Qualibrate Server
         run: |
           nohup qualibrate start > qualibrate-server.log 2>&1 &
+          echo "Waiting for server to start..."
           for i in {1..15}; do
             if curl -s http://localhost:8001/ > /dev/null; then
-              echo "Server is up and running"
+              echo "Server root endpoint is responding"
               break
             fi
-            echo "Waiting for server to start..."
+            echo "Attempt $i: Waiting for server to start..."
             sleep 2
           done
+
+          # Additional wait for backend API to be fully initialized
+          echo "Waiting for API endpoints to be ready..."
+          for i in {1..10}; do
+            if curl -s http://localhost:8001/api/v0/nodes > /dev/null; then
+              echo "API nodes endpoint is ready"
+              break
+            fi
+            echo "Attempt $i: Waiting for API to initialize..."
+            sleep 2
+          done
+
+          # Show server status
           curl -v http://localhost:8001/
+          echo "Checking nodes API endpoint..."
+          curl -v http://localhost:8001/api/v0/nodes || true
 
       # Step 16: Run Playwright tests
       - name: Run Playwright Tests
