@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-app"
-version = "0.4.0a3"
+version = "0.4.0"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate-app"
@@ -10,15 +10,15 @@ readme = "README.md"
 include = [{ path = "qualibrate_static/**/*", format = ["sdist", "wheel"] }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-fastapi = "^0.115.2"
-uvicorn = "^0.34.0"
-click = "^8.1.7"
+python = "^3.10,<3.13"
+fastapi = "^0.117.1"
+uvicorn = "^0.37.0"
+click = "^8.1.7,<8.2.0"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
-requests = "^2.31.0"
+requests = "^2.32.4"
 jsonpatch = "^1.33"
-qualibrate-config = "^0.1.5"
+qualibrate-config = "^0.1.7,<0.2.0"
 # TODO: replace after publishing timeline-db
 # json-timeline-database = { path = "../../json-timeline-database", optional = true, develop = true }
 
@@ -26,28 +26,28 @@ qualibrate-config = "^0.1.5"
 json-timeline-db = ["json-timeline-database"]
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.8.0"
-ruff = "^0.7.0"
-types-requests = "^2.31.0.20240218"
-poethepoet = "^0.25.0"
+mypy = "^1.18.2"
+ruff = "^0.13.1"
+poethepoet = "^0.37.0"
+types-requests = "^2.32.4.20250913"
 
 [tool.poetry.group.test.dependencies]
-pytest = "^8.0.0"
-pytest-mock = "^3.12.0"
-httpx = "^0.27.0"
+pytest = "^8.4.2"
+pytest-mock = "^3.15.1"
+httpx = "^0.28.1"
 
 #[tool.poetry.group.qm-dev.dependencies]
 #qualibrate-config = {path = "../../qualibrate-config", develop = true}
 
 [tool.poetry.group.fe_test.dependencies]
-quam = "^0.3.8"
-# Try to find an xarray version that is compatible with this (poetry add xarray --group fe_test)
+quam = { version = "^0.4.2", python = ">=3.10,<3.13" }
+xarray = "~2025.6.1"
 
 [tool.poetry.scripts]
 qualibrate-app = "qualibrate_app.__main__:main"
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 strict = true
 warn_return_any = true
 exclude = ['tests/']
@@ -60,7 +60,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 80
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 extend-select = [

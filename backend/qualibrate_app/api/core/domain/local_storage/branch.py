@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Optional
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -32,7 +31,7 @@ class BranchLocalStorage(BranchBase):
     def __init__(
         self,
         name: str,
-        content: Optional[DocumentType] = None,
+        content: DocumentType | None = None,
         *,
         settings: QualibrateConfig,
     ):
@@ -62,12 +61,12 @@ class BranchLocalStorage(BranchBase):
             raise QFileNotFoundException(f"There is no {error_msg}")
         return id
 
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         if id is None:
             id = self._get_latest_node_id("snapshots")
         return SnapshotLocalStorage(id, settings=self._settings)
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         if id is None:
             id = self._get_latest_node_id("nodes")
         return NodeLocalStorage(id, settings=self._settings)

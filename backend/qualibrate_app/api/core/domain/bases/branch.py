@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from datetime import datetime
 from enum import IntEnum
-from typing import Optional
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -27,7 +26,7 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
     def __init__(
         self,
         name: str,
-        content: Optional[DocumentType] = None,
+        content: DocumentType | None = None,
         *,
         settings: QualibrateConfig,
     ):
@@ -50,7 +49,7 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
 
     @property
     @abstractmethod
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         pass
 
     @abstractmethod
@@ -58,11 +57,11 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
         pass
 
     @abstractmethod
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         pass
 
     @abstractmethod
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         pass
 
     @abstractmethod

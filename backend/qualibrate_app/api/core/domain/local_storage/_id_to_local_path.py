@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 from qualibrate_app.api.core.types import IdType
 from qualibrate_app.api.core.utils.path.node import NodePath
@@ -9,10 +9,10 @@ from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
 __all__ = ["default_node_path_solver", "IdToLocalPath", "NodePathSolverType"]
 
 
-NodePathSolverType = Callable[[IdType, Path], Optional[NodePath]]
+NodePathSolverType = Callable[[IdType, Path], NodePath | None]
 
 
-def default_node_path_solver(id: IdType, base_path: Path) -> Optional[NodePath]:
+def default_node_path_solver(id: IdType, base_path: Path) -> NodePath | None:
     node_path = next(base_path.glob(f"*/#{id}_*"), None)
     return NodePath(node_path) if node_path is not None else None
 
@@ -27,7 +27,7 @@ class _IdToProjectLocalPath:
         self,
         id: IdType,
         solver: NodePathSolverType = default_node_path_solver,
-    ) -> Optional[NodePath]:
+    ) -> NodePath | None:
         if id in self._mapping:
             return self._mapping[id]
         path = solver(id, self._project_path)
@@ -47,7 +47,7 @@ class IdToLocalPath(metaclass=Singleton):
         id: IdType,
         project_path: Path,
         solver: NodePathSolverType = default_node_path_solver,
-    ) -> Optional[NodePath]:
+    ) -> NodePath | None:
         if project not in self._project_to_path:
             self._project_to_path[project] = _IdToProjectLocalPath(
                 project, project_path

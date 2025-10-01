@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 from urllib.parse import urljoin
 
 import requests
@@ -76,7 +76,7 @@ def create_project(
         ),
     ],
     storage_location: Annotated[
-        Optional[Path],
+        Path | None,
         Body(
             ...,
             description=(
@@ -87,7 +87,7 @@ def create_project(
         ),
     ] = None,
     calibration_library_folder: Annotated[
-        Optional[Path],
+        Path | None,
         Body(
             ...,
             description="Optional folder containing the calibration library.",
@@ -95,7 +95,7 @@ def create_project(
         ),
     ] = None,
     quam_state_path: Annotated[
-        Optional[Path],
+        Path | None,
         Body(
             ...,
             description=(
@@ -148,7 +148,7 @@ def create_project(
     "/active",
     summary="Get active project",
     description="Return the name of the currently active project.",
-    response_model=Optional[str],
+    response_model=str | None,
     responses={
         status.HTTP_200_OK: {
             "description": "Active project name",
@@ -173,7 +173,7 @@ def get_active_project(
     projects_manager: Annotated[
         ProjectsManagerBase, Depends(_get_projects_manager)
     ],
-) -> Optional[str]:
+) -> str | None:
     """Name of the active project. Can be `None` if active project isn't set."""
     return projects_manager.project
 

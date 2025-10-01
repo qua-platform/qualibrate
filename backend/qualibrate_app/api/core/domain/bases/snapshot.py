@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from enum import IntEnum
-from typing import Any, ClassVar, Optional, Union
+from typing import Any, ClassVar
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -79,7 +79,7 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
     def __init__(
         self,
         id: IdType,
-        content: Optional[DocumentType] = None,
+        content: DocumentType | None = None,
         *,
         settings: QualibrateConfig,
     ):
@@ -121,38 +121,38 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         return self._load_type_flag
 
     @property
-    def id(self) -> Optional[IdType]:
+    def id(self) -> IdType | None:
         return self._id
 
     @property
     @abstractmethod
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         pass
 
     @property
     @abstractmethod
-    def parents(self) -> Optional[list[IdType]]:
+    def parents(self) -> list[IdType] | None:
         pass
 
     @property
-    def metadata(self) -> Optional[DocumentType]:
+    def metadata(self) -> DocumentType | None:
         return self.content.get("metadata")
 
     @property
-    def data(self) -> Optional[DocumentType]:
+    def data(self) -> DocumentType | None:
         return self.content.get("data")
 
     @abstractmethod
     def search(
         self,
-        search_path: Sequence[Union[str, int]],
+        search_path: Sequence[str | int],
         load: bool = False,
-    ) -> Optional[DocumentSequenceType]:
+    ) -> DocumentSequenceType | None:
         pass
 
     def search_recursive(
         self, target_key: str, load: bool = False
-    ) -> Optional[DocumentSequenceType]:
+    ) -> DocumentSequenceType | None:
         if (
             not self._load_type_flag.is_set(
                 SnapshotLoadTypeFlag.DataWithMachine
@@ -187,7 +187,7 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         self,
         path: str,
         **kwargs: Mapping[str, Any],
-    ) -> Optional[Mapping[str, Any]]:
+    ) -> Mapping[str, Any] | None:
         pass
 
     @abstractmethod
@@ -195,7 +195,7 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         self,
         paths: Sequence[str],
         **kwargs: Mapping[str, Any],
-    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+    ) -> Mapping[str, Mapping[str, Any] | None]:
         pass
 
     @abstractmethod

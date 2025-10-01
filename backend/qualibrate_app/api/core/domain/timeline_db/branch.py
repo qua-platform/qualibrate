@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Optional
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -28,14 +27,14 @@ class BranchTimelineDb(BranchBase):
     def __init__(
         self,
         name: str,
-        content: Optional[DocumentType] = None,
+        content: DocumentType | None = None,
         *,
         settings: QualibrateConfig,
     ):
         super().__init__(name, content, settings=settings)
 
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         if "created_at" not in self.content:
             return None
         return datetime.fromisoformat(
@@ -61,7 +60,7 @@ class BranchTimelineDb(BranchBase):
         self.content.update(content)
         self._load_type = BranchLoadType.Full
 
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         if id is None:
             latest = self.get_latest_snapshots(1)
             if len(latest) != 1:
@@ -82,7 +81,7 @@ class BranchTimelineDb(BranchBase):
         snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         return snapshot
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         if id is None:
             latest = self.get_latest_nodes(1)
             if len(latest) != 1:
