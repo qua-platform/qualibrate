@@ -45,21 +45,19 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({ isCurrentProject, proje
     reset,
   ]);
   return (
-    <div>
-      <div>{isCurrentProject && <ProjectCheckIcon />}</div>
-      <div className={styles.pageActions}>
-        {selectedProject?.name === projectName && !isCurrentProject && (
-          <BlueButton
-            onClick={handleSubmit}
-            className={styles.actionButton}
-            disabled={selectedProject === undefined}
-            data-cy={cyKeys.projects.LETS_START_BUTTON}
-            isBig
-          >
-            Let’s Start
-          </BlueButton>
-        )}
-      </div>
+    <div className={styles.pageActions}>
+      {selectedProject?.name === projectName && (
+        <BlueButton
+          onClick={handleSubmit}
+          className={styles.actionButton}
+          disabled={selectedProject === undefined}
+          data-cy={cyKeys.projects.LETS_START_BUTTON}
+          isBig
+        >
+          Let’s Start
+        </BlueButton>
+      )}
+      {isCurrentProject && <ProjectCheckIcon />}
     </div>
   );
 };

@@ -8,6 +8,7 @@ interface IProjectContext {
   setAllProjects: (projects: ProjectDTO[]) => void;
   handleSelectActiveProject: (projectName: ProjectDTO) => void;
   activeProject: ProjectDTO | null | undefined;
+  shouldGoToProjectPage: boolean;
   isScanningProjects: boolean;
   fetchProjectsAndActive: () => void;
 }
@@ -17,6 +18,7 @@ const ProjectContext = React.createContext<IProjectContext>({
   setAllProjects: noop,
   handleSelectActiveProject: noop,
   activeProject: undefined,
+  shouldGoToProjectPage: true,
   isScanningProjects: false,
   fetchProjectsAndActive: noop,
 });
@@ -25,6 +27,7 @@ export const useProjectContext = (): IProjectContext => useContext<IProjectConte
 
 export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [activeProject, setActiveProject] = useState<ProjectDTO | null | undefined>(undefined);
+  const [shouldGoToProjectPage, setShouldGoToProjectPage] = useState<boolean>(true);
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
   const [isScanningProjects, setIsScanningProjects] = useState<boolean>(false);
 
@@ -47,7 +50,20 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
     setIsScanningProjects(false);
   };
 
+  const fetchShouldRedirectUserToProjectPage = async () => {
+    try {
+      const response = await ProjectViewApi.fetchShouldRedirectUserToProjectPage();
+
+      if (response.isOk && response.result !== null && response.result !== undefined) {
+        setShouldGoToProjectPage(response.result);
+      }
+    } catch (error) {
+      console.error("Error fetching should user be redirected to project page:", error);
+    }
+  };
+
   useEffect(() => {
+    fetchShouldRedirectUserToProjectPage();
     fetchProjectsAndActive();
   }, []);
 
@@ -71,6 +87,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
         allProjects,
         setAllProjects,
         activeProject,
+        shouldGoToProjectPage,
         handleSelectActiveProject,
         isScanningProjects,
         fetchProjectsAndActive,
