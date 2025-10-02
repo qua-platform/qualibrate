@@ -63,7 +63,7 @@ qualibrate project delete <name>
 Removes the project directory, blocking deletion if that project is currently active.
 
 !!! note "Advanced overrides"
-Only the three common paths are exposed as CLI flags or web form fields today. You can open a project’s `config.toml` and add any other configuration entries manually whenever you need custom behaviour.
+    Only the three common paths are exposed as CLI flags or web form fields today. You can open a project’s `config.toml` and add any other configuration entries manually whenever you need custom behaviour.
 
 ## How Projects Work
 
