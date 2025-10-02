@@ -49,6 +49,7 @@ nav:
   - calibration_library.md
   - calibration_graphs.md
   - web_app.md
+  - projects.md
   - configuration.md
   - "Additional features":
       - node_actions.md
