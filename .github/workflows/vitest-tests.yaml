@@ -6,7 +6,7 @@ on:
 
 jobs:
   call-reusable-vitest-tests:
-    uses: qua-platform/qualibrate-app/.github/workflows/reusable-vitest-tests.yaml@main
+    uses: ./.github/workflows/reusable-vitest-tests.yaml
     with:
       qualibrate-app-ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
     secrets: inherit
