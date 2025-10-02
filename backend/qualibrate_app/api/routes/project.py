@@ -44,6 +44,9 @@ def _get_projects_manager(
     )
 
 
+ACTIVE_PROJECT_SET = False
+
+
 @project_router.post(
     "/create",
     status_code=status.HTTP_201_CREATED,
@@ -220,6 +223,8 @@ def set_active_project(
         `{runner.address_with_root}/refresh_settings`. Failures are logged.
     """
     projects_manager.project = active_project
+    global ACTIVE_PROJECT_SET
+    ACTIVE_PROJECT_SET = True
     settings = get_settings(get_config_path())
     if settings.runner:
         settings_update_url = urljoin(
@@ -233,6 +238,15 @@ def set_active_project(
                 settings_update_url,
             )
     return active_project
+
+
+@project_router.get(
+    "/redirect",
+    summary="Is redirect to projects page needed",
+    response_model=bool,
+)
+def redirect() -> bool:
+    return ACTIVE_PROJECT_SET
 
 
 @projects_router.get(
