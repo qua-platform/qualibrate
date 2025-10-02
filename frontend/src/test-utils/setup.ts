@@ -15,6 +15,7 @@ global.WebSocket = vi.fn(() => ({
   OPEN: 1,
   CLOSING: 2,
   CLOSED: 3,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 })) as any;
 
 // Mock IntersectionObserver
@@ -22,6 +23,7 @@ global.IntersectionObserver = vi.fn(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 })) as any;
 
 // Mock ResizeObserver
@@ -29,6 +31,7 @@ global.ResizeObserver = vi.fn(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 })) as any;
 
 // Setup MSW server
