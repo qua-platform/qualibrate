@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, Optional, TypeVar
 
 import jsonpatch
 import jsonpointer
-from quam.utils import string_reference
 
 from qualibrate.parameters import NodeParameters
 from qualibrate.utils.logger_m import logger
@@ -12,6 +11,12 @@ from qualibrate.utils.type_protocols import MachineProtocol
 
 if TYPE_CHECKING:
     from qualibrate.qualibration_node import QualibrationNode
+
+try:
+    from quam.utils import string_reference
+except ModuleNotFoundError:
+    string_reference = None
+
 
 __all__ = [
     "record_state_update",
@@ -88,6 +93,10 @@ def update_machine_attribute(
     quam_path: str,
     old_value: Any,
 ) -> str | int:
+    if string_reference is None:
+        raise RuntimeError(
+            "QUAM is not installed, skipping state update recording"
+        )
     ref_path, str_key = string_reference.split_reference(quam_path)
     try:
         key = int(str_key)
@@ -116,6 +125,9 @@ def update_node_machine(
     updated_dict: dict[str, Any],
 ) -> None:
     if node.machine is None:
+        return
+    if string_reference is None:
+        logger.warning("QUAM is not installed, skipping state update recording")
         return
     patches: jsonpatch.JsonPatch = jsonpatch.make_patch(
         original_dict, updated_dict
