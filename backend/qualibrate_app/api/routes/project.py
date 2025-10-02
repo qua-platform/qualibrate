@@ -44,7 +44,7 @@ def _get_projects_manager(
     )
 
 
-ACTIVE_PROJECT_SET = False
+ACTIVE_PROJECT_NOT_SET = True
 
 
 @project_router.post(
@@ -223,8 +223,8 @@ def set_active_project(
         `{runner.address_with_root}/refresh_settings`. Failures are logged.
     """
     projects_manager.project = active_project
-    global ACTIVE_PROJECT_SET
-    ACTIVE_PROJECT_SET = True
+    global ACTIVE_PROJECT_NOT_SET
+    ACTIVE_PROJECT_NOT_SET = False
     settings = get_settings(get_config_path())
     if settings.runner:
         settings_update_url = urljoin(
@@ -246,7 +246,7 @@ def set_active_project(
     response_model=bool,
 )
 def redirect() -> bool:
-    return ACTIVE_PROJECT_SET
+    return ACTIVE_PROJECT_NOT_SET
 
 
 @projects_router.get(
