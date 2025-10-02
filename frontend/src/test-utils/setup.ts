@@ -35,6 +35,20 @@ global.ResizeObserver = vi.fn(() => ({
 })) as any;
 
 // Setup MSW server
-beforeAll(() => server.listen({ onUnhandledRequest: "warn" }));
+// Configure to bypass WebSocket URLs (MSW cannot intercept ws:// protocol)
+beforeAll(() =>
+  server.listen({
+    onUnhandledRequest(request, print) {
+      // Ignore WebSocket connection attempts
+      const url = new URL(request.url);
+      if (url.protocol === "ws:" || url.protocol === "wss:") {
+        return;
+      }
+
+      // Warn about unhandled HTTP requests
+      print.warning();
+    },
+  })
+);
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());

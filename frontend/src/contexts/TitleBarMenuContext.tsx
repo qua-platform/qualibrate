@@ -20,7 +20,7 @@ export interface MenuCard {
 
 interface TitleBarContextState {
   actions: {
-    addMenuCard: (card: MenuCard, place: number) => void;
+    addMenuCard: (card: MenuCard, place?: number) => void;
     removeMenuCard: (id: string) => void;
   };
 
