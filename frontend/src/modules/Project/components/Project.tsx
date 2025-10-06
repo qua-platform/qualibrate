@@ -32,7 +32,7 @@ const Project = ({ isActive = false, lastModifiedAt = "", project, selectedProje
   );
 
   return (
-    <div className={styles.projectWrapper}>
+    <div className={styles.projectWrapper} data-testid={"project-wrapper-" + project.name}>
       <div
         className={classNames(styles.project, isActive && styles.projectActive, isCurrentProjectActive && styles.projectChecked)}
         onClick={() => handleOnClick(project)}

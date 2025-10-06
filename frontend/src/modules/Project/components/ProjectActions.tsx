@@ -52,6 +52,7 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({ isCurrentProject, proje
           className={styles.actionButton}
           disabled={selectedProject === undefined}
           data-cy={cyKeys.projects.LETS_START_BUTTON}
+          data-testid={"lets-start-button-" + projectName}
           isBig
         >
           Let’s Start
