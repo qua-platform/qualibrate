@@ -1,0 +1,12 @@
+name: Vitest Tests [PR or Manual]
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  call-reusable-vitest-tests:
+    uses: ./.github/workflows/reusable-vitest-tests.yaml
+    with:
+      qualibrate-app-ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+    secrets: inherit

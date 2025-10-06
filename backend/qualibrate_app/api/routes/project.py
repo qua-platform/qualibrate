@@ -211,6 +211,8 @@ def set_active_project(
     projects_manager: Annotated[
         ProjectsManagerBase, Depends(_get_projects_manager)
     ],
+    config_path: Annotated[Path, Depends(get_config_path)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> str:
     """Set the active project and notify runner if present. Returns the newly
     active project name.
@@ -220,18 +222,29 @@ def set_active_project(
         `{runner.address_with_root}/refresh_settings`. Failures are logged.
     """
     projects_manager.project = active_project
-    settings = get_settings(get_config_path())
-    if settings.runner:
+
+    def notify_runner(q_settings: QualibrateConfig) -> None:
+        if not q_settings.runner:
+            return
         settings_update_url = urljoin(
-            settings.runner.address_with_root, "refresh_settings"
+            q_settings.runner.address_with_root, "refresh_settings"
         )
         try:
             requests.post(settings_update_url, timeout=5)
         except requests.exceptions.RequestException:
             logging.error(
-                "Failed to send refresh settings request to %s",
-                settings_update_url,
+                "Failed to send refresh settings request "
+                f"to {settings_update_url}",
             )
+
+    notify_runner(settings)
+    new_settings = get_settings(config_path)
+    if (
+        settings.runner
+        and new_settings.runner
+        and new_settings.runner != settings.runner
+    ):
+        notify_runner(new_settings)
     return active_project
 
 
