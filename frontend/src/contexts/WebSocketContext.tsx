@@ -377,20 +377,20 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
     historyWS.current = new WebSocketService<HistoryType>(historyUrl, setHistory);
 
     // Initiate connections with default 5 retry attempts and 1s delay between retries
-    if (runStatusWS.current && !runStatusWS.current.isOpen()) {
+    if (runStatusWS.current && !runStatusWS.current.isConnected()) {
       runStatusWS.current.connect();
     }
-    if (historyWS.current && !runStatusWS.current.isOpen()) {
+    if (historyWS.current && !historyWS.current.isConnected()) {
       historyWS.current.connect();
     }
 
     // Cleanup function: disconnect WebSockets when component unmounts
     // Prevents memory leaks and dangling connections
     return () => {
-      if (runStatusWS.current && !runStatusWS.current.isOpen()) {
+      if (runStatusWS.current && runStatusWS.current.isConnected()) {
         runStatusWS.current.disconnect();
       }
-      if (historyWS.current && !historyWS.current.isOpen()) {
+      if (historyWS.current && historyWS.current.isConnected()) {
         historyWS.current.disconnect();
       }
     };

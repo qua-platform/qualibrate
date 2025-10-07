@@ -14,24 +14,53 @@
  * - Automatic reconnection with configurable retry attempts (default: 5 retries, 1s delay)
  * - Pub/sub pattern allowing multiple callbacks per WebSocket connection
  * - JSON serialization/deserialization of all messages
- * - Connection state tracking with isConnected flag
+ * - Robust connection state tracking with 5-state state machine (ConnectionState enum)
  *
  * **Architecture Pattern**:
  * The service implements a facade pattern over the native WebSocket API, adding
  * resilience features (reconnection) and developer experience improvements (pub/sub,
  * type safety) without requiring changes to consuming code.
  *
- * **FRAGILE AREAS (Improvement Opportunities)**:
+ * **RECENT IMPROVEMENTS**:
+ * - **State Tracking**: Replaced manual boolean flag with ConnectionState enum for accurate state tracking
+ *
+ * **REMAINING AREAS FOR IMPROVEMENT**:
  * 1. **Reconnection Strategy**: Linear backoff (constant delay) instead of exponential
  * 2. **Retry Exhaustion**: After 5 failed attempts, connection permanently fails
- * 3. **State Tracking**: Manual isConnected flag may become out-of-sync with WebSocket.readyState
- * 4. **Error Handling**: Console-only logging, no user-facing error notifications
- * 5. **Subscriber Errors**: Uncaught errors in subscribers can affect other subscribers
- * 6. **No Runtime Type Validation**: Type safety is compile-time only
+ * 3. **Error Handling**: Console-only logging, no user-facing error notifications
+ * 4. **Subscriber Errors**: Uncaught errors in subscribers can affect other subscribers
+ * 5. **No Runtime Type Validation**: Type safety is compile-time only
  *
  * @see WebSocketContext for React integration and provider implementation
  * @see WS_GET_STATUS and WS_EXECUTION_HISTORY for WebSocket endpoint routes
  */
+
+/**
+ * WebSocket connection state machine.
+ *
+ * **State Transitions**:
+ * - DISCONNECTED → CONNECTING: connect() called
+ * - CONNECTING → CONNECTED: WebSocket onopen event fires
+ * - CONNECTING → FAILED: Connection attempt fails (onclose during CONNECTING)
+ * - CONNECTED → FAILED: Unexpected disconnection (onclose during CONNECTED)
+ * - FAILED → RECONNECTING: Automatic retry initiated
+ * - RECONNECTING → CONNECTING: Retry attempt starts
+ * - ANY_STATE → DISCONNECTED: disconnect() called (manual shutdown)
+ *
+ * **State Meanings**:
+ * - DISCONNECTED: Initial state, no connection exists or manually disconnected
+ * - CONNECTING: Connection attempt in progress (waiting for onopen)
+ * - CONNECTED: Successfully connected and ready to send/receive messages
+ * - RECONNECTING: Waiting to retry after connection failure
+ * - FAILED: Connection attempt failed, either retrying or exhausted retries
+ */
+enum ConnectionState {
+  DISCONNECTED = "disconnected",
+  CONNECTING = "connecting",
+  CONNECTED = "connected",
+  RECONNECTING = "reconnecting",
+  FAILED = "failed"
+}
 
 /**
  * Generic WebSocket client with automatic reconnection and pub/sub pattern.
@@ -47,18 +76,24 @@
  * 1. Run Status WebSocket (`/execution/ws/run_status`) - node/graph execution updates
  * 2. Execution History WebSocket (`/execution/ws/workflow_execution_history`) - historical data
  *
- * **FRAGILE: Reconnection Limitations**:
+ * **Connection State Management**:
+ * Uses a 5-state state machine (ConnectionState enum) for accurate connection tracking:
+ * - DISCONNECTED: Initial state or manually disconnected
+ * - CONNECTING: Connection attempt in progress
+ * - CONNECTED: Successfully connected and ready
+ * - RECONNECTING: Waiting to retry after failure
+ * - FAILED: Connection failed (may retry or be exhausted)
+ *
+ * The isConnected() method provides dual verification by checking both the internal
+ * ConnectionState and the actual WebSocket.readyState for maximum reliability.
+ *
+ * **REMAINING LIMITATIONS**:
  * After retry exhaustion (default 5 attempts), the WebSocket remains permanently
  * disconnected until page refresh. Consider implementing:
  * - Exponential backoff instead of linear backoff for better network resilience
  * - Unlimited reconnection attempts with increasing delays (e.g., cap at 30s)
  * - User-facing "reconnect" button when connection lost
  * - Circuit breaker pattern to avoid overwhelming server during outages
- *
- * **FRAGILE: State Tracking**:
- * `isConnected` flag is manually managed and may become out-of-sync with actual
- * WebSocket.readyState. The send() method performs an additional readyState check
- * as a safety measure. Consider using WebSocket.readyState directly as source of truth.
  *
  * **IMPROVEMENT NEEDED: Error Handling**:
  * - Connection errors only log to console (no user feedback mechanism)
@@ -86,16 +121,22 @@ export default class WebSocketService<T> {
   private readonly url: string;
 
   /**
-   * Manual connection state tracking flag.
+   * Current connection state using state machine pattern.
    *
-   * FRAGILE: This flag is manually managed and may become out-of-sync with
-   * the actual WebSocket.readyState. The send() method performs an additional
-   * readyState check as a safety measure. Consider refactoring to use
-   * WebSocket.readyState as the single source of truth.
+   * Tracks the connection lifecycle through 5 distinct states:
+   * - DISCONNECTED: No connection, initial state
+   * - CONNECTING: Connection attempt in progress
+   * - CONNECTED: Successfully connected and operational
+   * - RECONNECTING: Waiting before retry attempt
+   * - FAILED: Connection attempt failed
+   *
+   * This replaces the previous boolean isConnected flag to provide more
+   * granular state information and eliminate synchronization issues with
+   * WebSocket.readyState.
    *
    * @private
    */
-  private isConnected: boolean = false;
+  private connectionState: ConnectionState = ConnectionState.DISCONNECTED;
 
   /**
    * Primary message callback provided during construction.
@@ -180,11 +221,14 @@ export default class WebSocketService<T> {
    * @see isOpen for checking current connection state
    */
   connect(retries = 5, delay = 1000) {
-    // Guard: prevent duplicate connections by checking isConnected flag
-    if (this.isConnected) {
+    // Guard: prevent duplicate connections by checking connection state
+    if (this.connectionState === ConnectionState.CONNECTED) {
       console.warn("⚠️ WebSocket is already connected:", this.url);
       return;
     }
+
+    // Set state to CONNECTING before attempting connection
+    this.connectionState = ConnectionState.CONNECTING;
 
     try {
       // Create WebSocket instance - may throw if URL is invalid
@@ -192,7 +236,7 @@ export default class WebSocketService<T> {
 
       // Event handler: connection successfully established
       this.ws.onopen = () => {
-        this.isConnected = true;
+        this.connectionState = ConnectionState.CONNECTED;
         console.log("✅ WebSocket connected:", this.url);
       };
 
@@ -228,19 +272,25 @@ export default class WebSocketService<T> {
       // Implements automatic reconnection with linear backoff
       this.ws.onclose = () => {
         console.warn("🔌 WebSocket closed:", this.url);
-        this.isConnected = false;
+
+        // Mark as FAILED before attempting reconnection
+        this.connectionState = ConnectionState.FAILED;
 
         // Retry logic: decrement retries and reconnect after delay
         // FRAGILE: Linear backoff (same delay between all retries)
         // FRAGILE: After retries exhausted, connection fails permanently
         if (retries > 0) {
+          this.connectionState = ConnectionState.RECONNECTING;
           setTimeout(() => this.connect(retries - 1, delay), delay);
+        } else {
+          // Retries exhausted, remain in FAILED state
+          console.error("❌ WebSocket max retries exceeded:", this.url);
         }
       };
     } catch (err) {
       // Constructor threw error (likely invalid URL format)
       console.warn("❌ Failed to connect WebSocket:", this.url, err);
-      this.isConnected = false;
+      this.connectionState = ConnectionState.FAILED;
     }
   }
 
@@ -248,17 +298,13 @@ export default class WebSocketService<T> {
    * Send typed message over WebSocket connection.
    *
    * Serializes message to JSON and sends over WebSocket if connection is open.
-   * Performs dual connection checks for safety: isConnected flag AND WebSocket.readyState.
+   * Uses isConnected() method which performs dual verification of both internal
+   * state and WebSocket.readyState for maximum reliability.
    *
    * **Safety Checks**:
-   * 1. Check isConnected flag (manual state tracking)
-   * 2. Check ws is not null (connection exists)
-   * 3. Check WebSocket.readyState === OPEN (actual connection state)
-   *
-   * **FRAGILE: Dual State Checking**:
-   * The dual check (isConnected flag + readyState) suggests the isConnected flag
-   * may become out-of-sync with actual connection state. Consider refactoring to
-   * use WebSocket.readyState as the single source of truth.
+   * The isConnected() method verifies:
+   * 1. Internal connectionState === CONNECTED
+   * 2. WebSocket instance exists and readyState === OPEN
    *
    * **Current Usage in QUAlibrate**:
    * This method appears UNUSED in the current application - WebSockets are used
@@ -269,7 +315,7 @@ export default class WebSocketService<T> {
    *
    * @remarks
    * **Silently fails if connection not open** - returns early with console warning.
-   * Check isOpen() before sending critical messages to detect failures.
+   * Check isConnected() before sending critical messages to detect failures.
    *
    * **No return value or error propagation** - callers cannot detect send failures.
    * Consider returning boolean success status or throwing errors for better error handling.
@@ -277,13 +323,12 @@ export default class WebSocketService<T> {
    * **No message queuing** - messages sent while disconnected are lost permanently.
    * Consider implementing message queue to retry sending after reconnection.
    *
-   * @see isOpen for checking connection state before sending
+   * @see isConnected for checking connection state before sending
    * @see connect for establishing connection
    */
   send(data: T) {
-    // Triple guard: manual flag, null check, and actual WebSocket state
-    // FRAGILE: Suggests isConnected flag may be unreliable
-    if (!this.isConnected || !this.ws || this.ws.readyState !== WebSocket.OPEN) {
+    // Use isConnected() for reliable connection check
+    if (!this.isConnected()) {
       console.warn("❌ Cannot send message: WebSocket not connected:", this.url);
       return;
     }
@@ -292,7 +337,7 @@ export default class WebSocketService<T> {
       // Serialize to JSON string and send
       // FRAGILE: No validation that data is JSON-serializable
       // Will throw if data contains non-serializable values (functions, circular refs)
-      this.ws.send(JSON.stringify(data));
+      this.ws!.send(JSON.stringify(data));
     } catch (err) {
       // Serialization or send failed - log but don't propagate error
       console.warn("❌ Failed to send data over WebSocket:", err);
@@ -302,13 +347,13 @@ export default class WebSocketService<T> {
   /**
    * Gracefully close WebSocket connection and clean up resources.
    *
-   * Closes the WebSocket connection, clears the connection instance, and resets
-   * the isConnected flag. Does not clear subscribers (they persist for reconnection).
+   * Closes the WebSocket connection, clears the connection instance, and sets
+   * state to DISCONNECTED. Does not clear subscribers (they persist for reconnection).
    *
    * **Cleanup Behavior**:
    * - Calls WebSocket.close() to initiate graceful shutdown
    * - Sets ws to null to allow garbage collection
-   * - Sets isConnected to false
+   * - Sets connectionState to DISCONNECTED
    * - Does NOT clear subscribers array (intentional for reconnection scenarios)
    *
    * **IMPORTANT: Stops Reconnection**:
@@ -324,7 +369,8 @@ export default class WebSocketService<T> {
    * See WebSocketContext.tsx useEffect cleanup function for example.
    *
    * @see connect for establishing new connection
-   * @see isOpen for checking if disconnection was successful
+   * @see isConnected for checking connection state
+   * @see getConnectionState for detailed state information
    */
   disconnect() {
     if (this.ws) {
@@ -335,11 +381,10 @@ export default class WebSocketService<T> {
 
       // Clear reference to allow garbage collection
       this.ws = null;
-
-      // Reset connection flag
-      this.isConnected = false;
     }
-    // No-op if already disconnected (ws is null)
+
+    // Set state to DISCONNECTED (manual disconnect)
+    this.connectionState = ConnectionState.DISCONNECTED;
   }
 
   /**
@@ -408,38 +453,70 @@ export default class WebSocketService<T> {
   }
 
   /**
-   * Check if WebSocket connection is currently open.
+   * Get current connection state.
    *
-   * Returns the isConnected flag state. Note this is manually managed and
-   * may not reflect the actual WebSocket connection state.
+   * Returns the current ConnectionState enum value, providing granular
+   * information about the connection lifecycle.
    *
-   * **FRAGILE: Manual State Tracking**:
-   * Returns the isConnected flag, which is manually set in connect()/disconnect().
-   * This flag may become out-of-sync with WebSocket.readyState. The send() method
-   * performs additional readyState check as a safety measure.
+   * **Use Cases**:
+   * - UI status indicators showing connection state
+   * - Conditional logic based on connection phase
+   * - Debugging connection issues
+   * - Monitoring reconnection attempts
    *
-   * **Potential Race Condition**:
-   * isConnected is set to true in onopen handler, which fires asynchronously.
-   * Calling isOpen() immediately after connect() may return false even if
-   * connection will succeed shortly.
-   *
-   * @returns {boolean} True if connection is open, false otherwise
+   * @returns {ConnectionState} Current connection state (one of 5 enum values)
    *
    * @remarks
-   * **IMPROVEMENT NEEDED**: Consider checking WebSocket.readyState directly:
-   * ```typescript
-   * isOpen(): boolean {
-   *   return this.ws?.readyState === WebSocket.OPEN;
-   * }
-   * ```
-   * This would provide accurate real-time connection state without manual tracking.
+   * Prefer this method over isConnected() when you need detailed state information.
+   * Use isConnected() when you only need to know if messages can be sent/received.
    *
-   * @see connect for connection establishment
-   * @see send for connection state checking before sending
+   * **State meanings**:
+   * - DISCONNECTED: No connection, can call connect()
+   * - CONNECTING: Connection attempt in progress
+   * - CONNECTED: Ready to send/receive messages
+   * - RECONNECTING: Waiting before retry attempt
+   * - FAILED: Connection failed (may be retrying or exhausted)
+   *
+   * @see isConnected for simple boolean connection check
+   * @see ConnectionState enum for state definitions
    */
-  isOpen(): boolean {
-    // Returns manual flag, not actual WebSocket.readyState
-    // FRAGILE: May be out-of-sync with actual connection state
-    return this.isConnected;
+  getConnectionState(): ConnectionState {
+    return this.connectionState;
+  }
+
+  /**
+   * Check if WebSocket is connected and ready to send messages.
+   *
+   * Performs dual verification for maximum reliability:
+   * 1. Checks internal connectionState === CONNECTED
+   * 2. Verifies actual WebSocket.readyState === OPEN
+   *
+   * This eliminates the previous risk of state desynchronization between
+   * the manual isConnected flag and the actual WebSocket state.
+   *
+   * **Use Cases**:
+   * - Check before calling send() to avoid errors
+   * - Conditional UI rendering based on connectivity
+   * - Guard conditions for WebSocket-dependent operations
+   *
+   * @returns {boolean} True if connected and ready, false otherwise
+   *
+   * @remarks
+   * This method provides a reliable boolean check for "can I send messages now?"
+   * Use getConnectionState() if you need more detailed state information.
+   *
+   * **Dual Check Benefits**:
+   * - Catches cases where WebSocket closed but state not yet updated
+   * - Catches cases where state updated but WebSocket not yet open
+   * - Provides defense-in-depth against edge cases
+   *
+   * @see getConnectionState for detailed state information
+   * @see send for message sending (which uses this method)
+   */
+  isConnected(): boolean {
+    return (
+      this.connectionState === ConnectionState.CONNECTED &&
+      this.ws?.readyState === WebSocket.OPEN
+    );
   }
 }

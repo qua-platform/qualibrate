@@ -97,6 +97,16 @@ describe("WebSocketService - Current Implementation", () => {
   });
 
   /**
+   * Helper function to simulate WebSocket opening.
+   * Sets readyState to OPEN before calling onopen handler.
+   * This is required because isConnected() checks both connectionState and readyState.
+   */
+  const simulateOpen = () => {
+    mockWebSocket.readyState = mockWebSocket.OPEN;
+    mockWebSocket.onopen?.();
+  };
+
+  /**
    * ========================================================================
    * TEST GROUP 1: Constructor and Initialization
    * ========================================================================
@@ -111,7 +121,7 @@ describe("WebSocketService - Current Implementation", () => {
 
       // Service should exist and be ready to connect
       expect(service).toBeDefined();
-      expect(service.isOpen()).toBe(false);
+      expect(service.isConnected()).toBe(false);
     });
 
     it("should accept generic type for type-safe messages", () => {
@@ -155,13 +165,13 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       service.connect();
-      expect(service.isOpen()).toBe(false); // Not yet open
+      expect(service.isConnected()).toBe(false); // Not yet open
 
       // Simulate connection open
       mockWebSocket.readyState = mockWebSocket.OPEN;
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
-      expect(service.isOpen()).toBe(true);
+      expect(service.isConnected()).toBe(true);
     });
 
     it("should prevent duplicate connections (early return if already connected)", () => {
@@ -186,13 +196,14 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       service.connect();
-      mockWebSocket.onopen?.();
-      expect(service.isOpen()).toBe(true);
+      mockWebSocket.readyState = mockWebSocket.OPEN;
+      simulateOpen();
+      expect(service.isConnected()).toBe(true);
 
       service.disconnect();
 
       expect(mockWebSocket.close).toHaveBeenCalled();
-      expect(service.isOpen()).toBe(false);
+      expect(service.isConnected()).toBe(false);
     });
 
     it("should handle disconnect when already disconnected (safe no-op)", () => {
@@ -203,7 +214,7 @@ describe("WebSocketService - Current Implementation", () => {
 
       // Disconnect without ever connecting
       expect(() => service.disconnect()).not.toThrow();
-      expect(service.isOpen()).toBe(false);
+      expect(service.isConnected()).toBe(false);
     });
 
     it("should handle WebSocket constructor errors gracefully", () => {
@@ -218,7 +229,7 @@ describe("WebSocketService - Current Implementation", () => {
 
       // Should not throw, just log error
       expect(() => service.connect()).not.toThrow();
-      expect(service.isOpen()).toBe(false);
+      expect(service.isConnected()).toBe(false);
     });
   });
 
@@ -235,7 +246,7 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       // Simulate incoming message
       const testMessage = { type: "status", value: 42 };
@@ -256,7 +267,7 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       // Send invalid JSON
       const messageEvent = new MessageEvent("message", {
@@ -277,7 +288,7 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       // Complex nested message
       const complexMessage = {
@@ -318,7 +329,7 @@ describe("WebSocketService - Current Implementation", () => {
       service.subscribe(subscriber2);
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const testMessage = { type: "test" };
       const messageEvent = new MessageEvent("message", {
@@ -349,7 +360,7 @@ describe("WebSocketService - Current Implementation", () => {
       service.subscribe(subscriber3);
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const messageEvent = new MessageEvent("message", {
         data: JSON.stringify({ test: true }),
@@ -374,7 +385,7 @@ describe("WebSocketService - Current Implementation", () => {
       service.unsubscribe(subscriber1);
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const messageEvent = new MessageEvent("message", {
         data: JSON.stringify({ test: true }),
@@ -401,7 +412,7 @@ describe("WebSocketService - Current Implementation", () => {
       expect(() => service.unsubscribe(neverSubscribed)).not.toThrow();
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const messageEvent = new MessageEvent("message", {
         data: JSON.stringify({ test: true }),
@@ -426,7 +437,7 @@ describe("WebSocketService - Current Implementation", () => {
       service.subscribe(subscriber);
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const messageEvent = new MessageEvent("message", {
         data: JSON.stringify({ test: true }),
@@ -454,7 +465,7 @@ describe("WebSocketService - Current Implementation", () => {
       service.unsubscribe(subscriber);
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const messageEvent = new MessageEvent("message", {
         data: JSON.stringify({ test: true }),
@@ -480,7 +491,7 @@ describe("WebSocketService - Current Implementation", () => {
 
       service.connect();
       mockWebSocket.readyState = mockWebSocket.OPEN;
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const testMessage = { type: "command", value: 123 };
       service.send(testMessage);
@@ -529,7 +540,7 @@ describe("WebSocketService - Current Implementation", () => {
 
       service.connect();
       mockWebSocket.readyState = mockWebSocket.OPEN;
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       // Create circular reference (cannot be JSON serialized)
       const circular: { self?: unknown } = {};
@@ -687,9 +698,9 @@ describe("WebSocketService - Current Implementation", () => {
 
       // Third connection succeeds - set readyState THEN call onopen
       mockWebSocket.readyState = mockWebSocket.OPEN;
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
-      expect(service.isOpen()).toBe(true);
+      expect(service.isConnected()).toBe(true);
 
       // Send message to verify connection works
       service.send({ type: "test" });
@@ -732,7 +743,7 @@ describe("WebSocketService - Current Implementation", () => {
       service.subscribe(subscriber2);
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const messageEvent = new MessageEvent("message", {
         data: JSON.stringify({ test: true }),
@@ -768,7 +779,7 @@ describe("WebSocketService - Current Implementation", () => {
       service.subscribe(subscriber);
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const messageEvent = new MessageEvent("message", {
         data: JSON.stringify({ test: true }),
@@ -814,7 +825,7 @@ describe("WebSocketService - Current Implementation", () => {
 
       // However, if we check again, the reconnection guard will prevent further attempts
       // because isConnected is now set by the reconnection attempt
-      expect(service.isOpen()).toBe(false);
+      expect(service.isConnected()).toBe(false);
     });
   });
 
@@ -831,16 +842,18 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       service.connect();
-      mockWebSocket.onopen?.();
-      expect(service.isOpen()).toBe(true);
+      mockWebSocket.readyState = mockWebSocket.OPEN;
+      simulateOpen();
+      expect(service.isConnected()).toBe(true);
 
       service.disconnect();
-      expect(service.isOpen()).toBe(false);
+      expect(service.isConnected()).toBe(false);
 
       // Reconnect immediately
       service.connect();
-      mockWebSocket.onopen?.();
-      expect(service.isOpen()).toBe(true);
+      mockWebSocket.readyState = mockWebSocket.OPEN;
+      simulateOpen();
+      expect(service.isConnected()).toBe(true);
 
       // Should work normally
       expect(WebSocketConstructorSpy).toHaveBeenCalledTimes(2);
@@ -856,12 +869,12 @@ describe("WebSocketService - Current Implementation", () => {
       service.subscribe(subscriber);
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
       service.disconnect();
 
       // Reconnect
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const messageEvent = new MessageEvent("message", {
         data: JSON.stringify({ test: true }),
@@ -880,7 +893,7 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       // Test various JSON-compatible types
       const testCases = [
@@ -914,19 +927,20 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       // Initial state
-      expect(service.isOpen()).toBe(false);
+      expect(service.isConnected()).toBe(false);
 
       // After connect (before open)
       service.connect();
-      expect(service.isOpen()).toBe(false);
+      expect(service.isConnected()).toBe(false);
 
       // After open
-      mockWebSocket.onopen?.();
-      expect(service.isOpen()).toBe(true);
+      mockWebSocket.readyState = mockWebSocket.OPEN;
+      simulateOpen();
+      expect(service.isConnected()).toBe(true);
 
       // After close
       mockWebSocket.onclose?.();
-      expect(service.isOpen()).toBe(false);
+      expect(service.isConnected()).toBe(false);
     });
 
     it("should handle multiple WebSocket error events", () => {
@@ -971,7 +985,7 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const typedMessage: TypedMessage = {
         id: 123,
@@ -1003,7 +1017,7 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       service.connect();
-      mockWebSocket.onopen?.();
+      simulateOpen();
 
       const statusMessage: UnionMessage = { type: "status", value: 100 };
       const errorMessage: UnionMessage = { type: "error", message: "failed" };
