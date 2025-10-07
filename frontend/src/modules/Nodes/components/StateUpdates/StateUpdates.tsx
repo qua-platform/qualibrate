@@ -3,7 +3,7 @@ import { RunningNodeInfo, StateUpdate } from "../../context/NodesContext";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
-import { StateUpdateElement, StateUpdateProps } from "./StateUpdateElement";
+import { StateUpdateElement } from "./StateUpdateElement";
 import { Button } from "@mui/material";
 // import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
@@ -62,16 +62,17 @@ export const StateUpdates: React.FC<{
       {/*// )}*/}
       {runningNodeInfo?.state_updates && (
         <div className={styles.stateUpdatesTopWrapper} data-testid="state-updates-top-wrapper">
-          {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject], index) =>
-            StateUpdateElement({
-              key,
-              index,
-              stateUpdateObject,
-              runningNodeInfo,
-              setRunningNodeInfo,
-              updateAllButtonPressed,
-            } as StateUpdateProps)
-          )}
+          {Object.entries(runningNodeInfo?.state_updates ?? {}).map(([key, stateUpdateObject], index) => (
+            <StateUpdateElement
+              key={key}
+              stateKey={key}
+              index={index}
+              stateUpdateObject={stateUpdateObject}
+              runningNodeInfo={runningNodeInfo}
+              setRunningNodeInfo={setRunningNodeInfo}
+              updateAllButtonPressed={updateAllButtonPressed}
+            />
+          ))}
 
           {/*{runningNodeInfo?.error && <ErrorStatusWrapper error={runningNodeInfo?.error} />}*/}
         </div>
