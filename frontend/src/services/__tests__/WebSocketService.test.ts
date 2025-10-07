@@ -315,7 +315,7 @@ describe("WebSocketService - Current Implementation", () => {
    * TEST GROUP 4: Subscriber Management (Pub/Sub Pattern)
    * ========================================================================
    */
-  describe("Subscriber Management", () => {
+  describe("Subscriber Management - Legacy Behavior", () => {
     it("should notify subscribers after onMessage callback", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
@@ -424,7 +424,7 @@ describe("WebSocketService - Current Implementation", () => {
       expect(subscriber).toHaveBeenCalled();
     });
 
-    it("should allow duplicate subscriptions (current limitation)", () => {
+    it("should allow duplicate subscriptions (OLD BEHAVIOR - now prevented)", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
         onMessageCallback
@@ -432,7 +432,8 @@ describe("WebSocketService - Current Implementation", () => {
 
       const subscriber = vi.fn();
 
-      // FRAGILE: Same callback can be subscribed multiple times
+      // OLD BEHAVIOR: Same callback could be subscribed multiple times
+      // NEW BEHAVIOR: Duplicates are prevented
       service.subscribe(subscriber);
       service.subscribe(subscriber);
 
@@ -445,11 +446,12 @@ describe("WebSocketService - Current Implementation", () => {
 
       mockWebSocket.onmessage?.(messageEvent);
 
-      // CURRENT BEHAVIOR: Called twice because subscribed twice
-      expect(subscriber).toHaveBeenCalledTimes(2);
+      // NEW BEHAVIOR: Called once because duplicate prevented
+      // OLD BEHAVIOR: Was called twice
+      expect(subscriber).toHaveBeenCalledTimes(1);
     });
 
-    it("should remove all instances when unsubscribing duplicates", () => {
+    it("should remove all instances when unsubscribing duplicates (backward compatibility)", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
         onMessageCallback
@@ -457,11 +459,13 @@ describe("WebSocketService - Current Implementation", () => {
 
       const subscriber = vi.fn();
 
+      // NEW BEHAVIOR: Duplicates are now prevented automatically
+      // So these three calls only add the subscriber once
       service.subscribe(subscriber);
       service.subscribe(subscriber);
       service.subscribe(subscriber);
 
-      // Unsubscribe once removes ALL instances
+      // Unsubscribe once removes the single instance
       service.unsubscribe(subscriber);
 
       service.connect();
@@ -474,6 +478,406 @@ describe("WebSocketService - Current Implementation", () => {
       mockWebSocket.onmessage?.(messageEvent);
 
       expect(subscriber).not.toHaveBeenCalled();
+    });
+  });
+
+  /**
+   * ========================================================================
+   * TEST GROUP 4B: Improved Subscribe Method (New Features)
+   * ========================================================================
+   */
+  describe("Subscriber Management - New Improved Features", () => {
+    it("should prevent duplicate subscriptions", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber = vi.fn();
+
+      // Subscribe the same callback multiple times
+      service.subscribe(subscriber);
+      service.subscribe(subscriber);
+      service.subscribe(subscriber);
+
+      service.connect();
+      simulateOpen();
+
+      const messageEvent = new MessageEvent("message", {
+        data: JSON.stringify({ test: true }),
+      });
+
+      mockWebSocket.onmessage?.(messageEvent);
+
+      // Should only be called once, not three times
+      expect(subscriber).toHaveBeenCalledTimes(1);
+    });
+
+    it("should return an unsubscribe function from subscribe()", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber = vi.fn();
+
+      // New pattern: subscribe returns unsubscribe function
+      const unsubscribe = service.subscribe(subscriber);
+
+      expect(unsubscribe).toBeTypeOf("function");
+    });
+
+    it("should unsubscribe using the returned function", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber1 = vi.fn();
+      const subscriber2 = vi.fn();
+
+      // Subscribe and get unsubscribe function
+      const unsubscribe1 = service.subscribe(subscriber1);
+      service.subscribe(subscriber2);
+
+      // Unsubscribe using returned function
+      unsubscribe1();
+
+      service.connect();
+      simulateOpen();
+
+      const messageEvent = new MessageEvent("message", {
+        data: JSON.stringify({ test: true }),
+      });
+
+      mockWebSocket.onmessage?.(messageEvent);
+
+      // subscriber1 should NOT be called (was unsubscribed)
+      expect(subscriber1).not.toHaveBeenCalled();
+      // subscriber2 should be called (still subscribed)
+      expect(subscriber2).toHaveBeenCalled();
+    });
+
+    it("should allow multiple unsubscribe calls safely (idempotent)", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber = vi.fn();
+      const unsubscribe = service.subscribe(subscriber);
+
+      // Unsubscribe multiple times (should be safe)
+      unsubscribe();
+      unsubscribe();
+      unsubscribe();
+
+      service.connect();
+      simulateOpen();
+
+      const messageEvent = new MessageEvent("message", {
+        data: JSON.stringify({ test: true }),
+      });
+
+      mockWebSocket.onmessage?.(messageEvent);
+
+      expect(subscriber).not.toHaveBeenCalled();
+    });
+
+    it("should work with both new and legacy unsubscribe patterns", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber1 = vi.fn();
+      const subscriber2 = vi.fn();
+
+      // New pattern: use returned unsubscribe function
+      const unsubscribe1 = service.subscribe(subscriber1);
+
+      // Legacy pattern: use separate unsubscribe method
+      service.subscribe(subscriber2);
+
+      // Unsubscribe using different methods
+      unsubscribe1(); // New pattern
+      service.unsubscribe(subscriber2); // Legacy pattern
+
+      service.connect();
+      simulateOpen();
+
+      const messageEvent = new MessageEvent("message", {
+        data: JSON.stringify({ test: true }),
+      });
+
+      mockWebSocket.onmessage?.(messageEvent);
+
+      // Both should be unsubscribed
+      expect(subscriber1).not.toHaveBeenCalled();
+      expect(subscriber2).not.toHaveBeenCalled();
+    });
+
+    it("should handle React useEffect cleanup pattern", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber = vi.fn();
+
+      // Simulate React useEffect pattern
+      const cleanup = service.subscribe(subscriber);
+
+      service.connect();
+      simulateOpen();
+
+      // Message before cleanup
+      const messageEvent1 = new MessageEvent("message", {
+        data: JSON.stringify({ test: 1 }),
+      });
+      mockWebSocket.onmessage?.(messageEvent1);
+      expect(subscriber).toHaveBeenCalledTimes(1);
+
+      // Cleanup (like React useEffect cleanup)
+      cleanup();
+
+      // Message after cleanup - should NOT be received
+      const messageEvent2 = new MessageEvent("message", {
+        data: JSON.stringify({ test: 2 }),
+      });
+      mockWebSocket.onmessage?.(messageEvent2);
+
+      // Still only called once (before cleanup)
+      expect(subscriber).toHaveBeenCalledTimes(1);
+    });
+
+    it("should prevent duplicate even when subscribing before and after connection", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber = vi.fn();
+
+      // Subscribe before connection
+      service.subscribe(subscriber);
+
+      service.connect();
+      simulateOpen();
+
+      // Try to subscribe again after connection (should be prevented)
+      service.subscribe(subscriber);
+
+      const messageEvent = new MessageEvent("message", {
+        data: JSON.stringify({ test: true }),
+      });
+
+      mockWebSocket.onmessage?.(messageEvent);
+
+      // Should only be called once
+      expect(subscriber).toHaveBeenCalledTimes(1);
+    });
+
+    it("should allow re-subscription after unsubscribe", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber = vi.fn();
+
+      // Subscribe
+      const unsubscribe1 = service.subscribe(subscriber);
+
+      service.connect();
+      simulateOpen();
+
+      // First message
+      const messageEvent1 = new MessageEvent("message", {
+        data: JSON.stringify({ test: 1 }),
+      });
+      mockWebSocket.onmessage?.(messageEvent1);
+      expect(subscriber).toHaveBeenCalledTimes(1);
+
+      // Unsubscribe
+      unsubscribe1();
+
+      // Message while unsubscribed (should not be received)
+      const messageEvent2 = new MessageEvent("message", {
+        data: JSON.stringify({ test: 2 }),
+      });
+      mockWebSocket.onmessage?.(messageEvent2);
+      expect(subscriber).toHaveBeenCalledTimes(1); // Still 1
+
+      // Re-subscribe (should be allowed)
+      const unsubscribe2 = service.subscribe(subscriber);
+
+      // Message after re-subscription (should be received)
+      const messageEvent3 = new MessageEvent("message", {
+        data: JSON.stringify({ test: 3 }),
+      });
+      mockWebSocket.onmessage?.(messageEvent3);
+      expect(subscriber).toHaveBeenCalledTimes(2); // Now 2
+
+      // Cleanup
+      unsubscribe2();
+    });
+
+    it("should handle multiple subscribers with individual unsubscribe functions", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber1 = vi.fn();
+      const subscriber2 = vi.fn();
+      const subscriber3 = vi.fn();
+
+      const unsubscribe1 = service.subscribe(subscriber1);
+      const unsubscribe2 = service.subscribe(subscriber2);
+      const unsubscribe3 = service.subscribe(subscriber3);
+
+      service.connect();
+      simulateOpen();
+
+      // All should receive first message
+      const messageEvent1 = new MessageEvent("message", {
+        data: JSON.stringify({ test: 1 }),
+      });
+      mockWebSocket.onmessage?.(messageEvent1);
+      expect(subscriber1).toHaveBeenCalledTimes(1);
+      expect(subscriber2).toHaveBeenCalledTimes(1);
+      expect(subscriber3).toHaveBeenCalledTimes(1);
+
+      // Unsubscribe middle subscriber
+      unsubscribe2();
+
+      // Second message
+      const messageEvent2 = new MessageEvent("message", {
+        data: JSON.stringify({ test: 2 }),
+      });
+      mockWebSocket.onmessage?.(messageEvent2);
+      expect(subscriber1).toHaveBeenCalledTimes(2);
+      expect(subscriber2).toHaveBeenCalledTimes(1); // Still 1 (unsubscribed)
+      expect(subscriber3).toHaveBeenCalledTimes(2);
+
+      // Cleanup remaining subscribers
+      unsubscribe1();
+      unsubscribe3();
+    });
+
+    it("should isolate errors in subscriber callbacks", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber1 = vi.fn();
+      const subscriber2 = vi.fn(() => {
+        throw new Error("Subscriber 2 threw an error");
+      });
+      const subscriber3 = vi.fn();
+
+      service.subscribe(subscriber1);
+      service.subscribe(subscriber2);
+      service.subscribe(subscriber3);
+
+      service.connect();
+      simulateOpen();
+
+      const messageEvent = new MessageEvent("message", {
+        data: JSON.stringify({ test: true }),
+      });
+
+      // Should not throw even though subscriber2 throws
+      expect(() => {
+        mockWebSocket.onmessage?.(messageEvent);
+      }).not.toThrow();
+
+      // All subscribers should be called
+      expect(subscriber1).toHaveBeenCalledTimes(1);
+      expect(subscriber2).toHaveBeenCalledTimes(1);
+      expect(subscriber3).toHaveBeenCalledTimes(1);
+    });
+
+    it("should handle multiple subscribers with errors", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber1 = vi.fn(() => {
+        throw new Error("Error 1");
+      });
+      const subscriber2 = vi.fn();
+      const subscriber3 = vi.fn(() => {
+        throw new Error("Error 3");
+      });
+      const subscriber4 = vi.fn();
+
+      service.subscribe(subscriber1);
+      service.subscribe(subscriber2);
+      service.subscribe(subscriber3);
+      service.subscribe(subscriber4);
+
+      service.connect();
+      simulateOpen();
+
+      const messageEvent = new MessageEvent("message", {
+        data: JSON.stringify({ test: true }),
+      });
+
+      // Should not throw even with multiple errors
+      expect(() => {
+        mockWebSocket.onmessage?.(messageEvent);
+      }).not.toThrow();
+
+      // All subscribers should be called despite errors
+      expect(subscriber1).toHaveBeenCalledTimes(1);
+      expect(subscriber2).toHaveBeenCalledTimes(1);
+      expect(subscriber3).toHaveBeenCalledTimes(1);
+      expect(subscriber4).toHaveBeenCalledTimes(1);
+    });
+
+    it("should continue processing messages after subscriber errors", () => {
+      const service = new WebSocketService(
+        "ws://localhost:8001/test",
+        onMessageCallback
+      );
+
+      const subscriber = vi.fn((data) => {
+        if (data.value === 2) {
+          throw new Error("Error on message 2");
+        }
+      });
+
+      service.subscribe(subscriber);
+
+      service.connect();
+      simulateOpen();
+
+      // First message - no error
+      const messageEvent1 = new MessageEvent("message", {
+        data: JSON.stringify({ value: 1 }),
+      });
+      mockWebSocket.onmessage?.(messageEvent1);
+      expect(subscriber).toHaveBeenCalledTimes(1);
+
+      // Second message - throws error
+      const messageEvent2 = new MessageEvent("message", {
+        data: JSON.stringify({ value: 2 }),
+      });
+      expect(() => {
+        mockWebSocket.onmessage?.(messageEvent2);
+      }).not.toThrow();
+      expect(subscriber).toHaveBeenCalledTimes(2);
+
+      // Third message - continues to work
+      const messageEvent3 = new MessageEvent("message", {
+        data: JSON.stringify({ value: 3 }),
+      });
+      mockWebSocket.onmessage?.(messageEvent3);
+      expect(subscriber).toHaveBeenCalledTimes(3);
     });
   });
 
@@ -728,7 +1132,7 @@ describe("WebSocketService - Current Implementation", () => {
       expect(() => mockWebSocket.onerror?.(errorEvent)).not.toThrow();
     });
 
-    it("should catch subscriber errors but not propagate them (current behavior)", () => {
+    it("should isolate subscriber errors and not affect other subscribers (FIXED)", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
         onMessageCallback
@@ -738,9 +1142,11 @@ describe("WebSocketService - Current Implementation", () => {
         throw new Error("Subscriber 1 error");
       });
       const subscriber2 = vi.fn();
+      const subscriber3 = vi.fn();
 
       service.subscribe(subscriber1);
       service.subscribe(subscriber2);
+      service.subscribe(subscriber3);
 
       service.connect();
       simulateOpen();
@@ -749,20 +1155,16 @@ describe("WebSocketService - Current Implementation", () => {
         data: JSON.stringify({ test: true }),
       });
 
-      // CURRENT BEHAVIOR: The try/catch in onmessage catches ALL errors
-      // including subscriber errors. This means errors are swallowed and
-      // logged to console, but subscriber2 is never called because the
-      // error stops forEach execution before it reaches subscriber2.
-      //
-      // FRAGILE: Errors swallowed silently (only console.warn)
-      // FRAGILE: One bad subscriber prevents others from being notified
+      // NEW BEHAVIOR: Each subscriber is wrapped in its own try/catch
+      // Errors in subscriber1 don't affect subscriber2 or subscriber3
       expect(() => {
         mockWebSocket.onmessage?.(messageEvent);
-      }).not.toThrow(); // Error is caught by try/catch
+      }).not.toThrow(); // Error is caught and logged
 
+      // All subscribers should be called, even though subscriber1 threw an error
       expect(subscriber1).toHaveBeenCalled();
-      // subscriber2 NOT called because forEach stops on error
-      expect(subscriber2).not.toHaveBeenCalled();
+      expect(subscriber2).toHaveBeenCalled();
+      expect(subscriber3).toHaveBeenCalled();
     });
 
     it("should catch onMessage callback errors and prevent subscriber execution", () => {

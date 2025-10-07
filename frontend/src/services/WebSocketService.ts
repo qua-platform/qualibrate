@@ -252,13 +252,21 @@ export default class WebSocketService<T> {
           this.onMessage(data);
 
           // Then notify all subscribers (pub/sub pattern)
-          // FRAGILE: Errors in subscriber callbacks will propagate and may affect
-          // subsequent subscribers. Consider wrapping in try/catch per subscriber.
-          this.subscribers.forEach((cb) => cb(data));
+          // Wrap each subscriber in try/catch to isolate errors
+          this.subscribers.forEach((cb) => {
+            try {
+              cb(data);
+            } catch (error) {
+              // Log subscriber error but don't propagate
+              // This allows other subscribers to continue processing
+              console.error("❌ Error in WebSocket subscriber:", error);
+              // TODO: Report to error monitoring service in UI
+            }
+          });
         } catch (e) {
           // JSON parsing failed - log warning but don't crash
           // IMPROVEMENT: Consider exposing parse errors to caller
-          console.warn("⚠️ Failed to parse WebSocket message:", event.data);
+          console.warn("⚠️ Failed to parse WebSocket message:", event.data, e);
         }
       };
 
@@ -388,39 +396,62 @@ export default class WebSocketService<T> {
   }
 
   /**
-   * Register callback to receive WebSocket messages (pub/sub pattern).
+   * Subscribe to WebSocket messages.
    *
-   * Adds callback to subscribers array. All subscribers are notified after
-   * the primary onMessage callback when messages are received.
+   * Adds callback to subscribers array with duplicate prevention.
+   * All subscribers are notified after the primary onMessage callback
+   * when messages are received.
    *
    * **Callback Notification Order**:
    * 1. Primary onMessage callback (constructor parameter)
    * 2. All subscribers in registration order
    *
-   * **FRAGILE: No Duplicate Prevention**:
-   * Same callback can be registered multiple times, resulting in multiple
-   * invocations per message. Consider using Set or checking for duplicates.
+   * **Duplicate Prevention**:
+   * Same callback reference will not be registered multiple times.
+   * Uses reference equality (===) for duplicate detection.
    *
-   * **FRAGILE: Error Propagation**:
-   * Uncaught errors in subscriber callbacks will propagate and may prevent
-   * subsequent subscribers from being notified. Consider wrapping each callback
-   * in try/catch for isolation.
+   * **Error Isolation**:
+   * Errors thrown in subscriber callbacks are caught and logged, preventing
+   * them from affecting other subscribers. Each subscriber is isolated in its
+   * own try-catch block. Errors are logged to console.error.
    *
    * @param cb - Callback function to invoke on each message. Receives parsed message data.
+   * @returns Unsubscribe function for convenience (modern pattern)
    *
    * @remarks
-   * Subscribers are NOT automatically unsubscribed on disconnect. They persist
-   * across disconnect/reconnect cycles. Call unsubscribe() to remove.
+   * **New Pattern (Use this)**:
+   * ```typescript
+   * const unsubscribe = ws.subscribe((data) => console.log(data));
+   * // Later...
+   * unsubscribe();
+   * ```
+   *
+   * **Legacy Pattern (Don't use)**:
+   * ```typescript
+   * const callback = (data) => console.log(data);
+   * ws.subscribe(callback);
+   * // Later...
+   * ws.unsubscribe(callback);
+   * ```
+   *
+   * Subscribers persist across disconnect/reconnect cycles unless explicitly
+   * unsubscribed via the returned function or unsubscribe() method.
    *
    * Callbacks are invoked synchronously in the onmessage event handler.
    * Long-running callbacks will block WebSocket message processing.
    *
-   * @see unsubscribe for removing callbacks
    * @see connect for the message handling flow
    */
-  subscribe(cb: (data: T) => void) {
-    // FRAGILE: No duplicate check - same callback can be added multiple times
-    this.subscribers.push(cb);
+  subscribe(cb: (data: T) => void): () => void {
+    // Check for duplicates to prevent double-subscription
+    if (!this.subscribers.includes(cb)) {
+      this.subscribers.push(cb);
+    }
+
+    // Return unsubscribe function for convenience
+    return () => {
+      this.subscribers = this.subscribers.filter((s) => s !== cb);
+    };
   }
 
   /**
@@ -435,16 +466,15 @@ export default class WebSocketService<T> {
    *
    * @param cb - Callback function to remove (must be same reference as subscribed)
    *
-   * @remarks
+   * @deprecated Use the unsubscribe function returned by subscribe() instead.
+   *
    * **Safe to call if callback not subscribed** - filter will return unchanged array.
    *
    * **Removes all instances** - if callback was subscribed multiple times
-   * (due to lack of duplicate prevention), all instances are removed.
    *
    * **Performance consideration**: Uses Array.filter which creates a new array.
    * For high-frequency unsubscribe operations, consider using Set for O(1) removal.
    *
-   * @see subscribe for adding callbacks
    */
   unsubscribe(cb: (data: T) => void) {
     // Filter creates new array without matching callbacks
