@@ -16,6 +16,7 @@ from qualibrate_app.api.core.domain.timeline_db.project import (
     ProjectsManagerTimelineDb,
 )
 from qualibrate_app.api.core.models.project import Project
+from qualibrate_app.api.routes.utils import vars as routes_vars
 from qualibrate_app.config import (
     get_config_path,
     get_settings,
@@ -42,9 +43,6 @@ def _get_projects_manager(
     return project_types[settings.storage.type](
         settings=settings, config_path=config_path
     )
-
-
-ACTIVE_PROJECT_NOT_SET = True
 
 
 @project_router.post(
@@ -225,8 +223,7 @@ def set_active_project(
         `{runner.address_with_root}/refresh_settings`. Failures are logged.
     """
     projects_manager.project = active_project
-    global ACTIVE_PROJECT_NOT_SET
-    ACTIVE_PROJECT_NOT_SET = False
+    routes_vars.ACTIVE_PROJECT_NOT_SET = False
 
     def notify_runner(q_settings: QualibrateConfig) -> None:
         if not q_settings.runner:
@@ -251,15 +248,6 @@ def set_active_project(
     ):
         notify_runner(new_settings)
     return active_project
-
-
-@project_router.get(
-    "/redirect",
-    summary="Is redirect to projects page needed",
-    response_model=bool,
-)
-def redirect() -> bool:
-    return ACTIVE_PROJECT_NOT_SET
 
 
 @projects_router.get(
