@@ -229,10 +229,8 @@ export type HistoryType = {
  * @property history - Historical execution records (null if not yet received)
  * @property sendRunStatus - Send message to run status WebSocket (rarely used from frontend)
  * @property sendHistory - Send message to history WebSocket (rarely used from frontend)
- * @property subscribeToRunStatus - Register callback for run status updates
- * @property unsubscribeFromRunStatus - Remove callback from run status updates
- * @property subscribeToHistory - Register callback for history updates
- * @property unsubscribeFromHistory - Remove callback from history updates
+ * @property subscribeToRunStatus - Register callback for run status updates, returns unsubscribe function
+ * @property subscribeToHistory - Register callback for history updates, returns unsubscribe function
  *
  * @see useWebSocketData for the hook to access this context
  * @see WebSocketProvider for the provider component
@@ -242,10 +240,8 @@ type WebSocketData = {
   history: HistoryType | null;
   sendRunStatus: (data: RunStatusType) => void;
   sendHistory: (data: HistoryType) => void;
-  subscribeToRunStatus: (cb: (data: RunStatusType) => void) => void;
-  unsubscribeFromRunStatus: (cb: (data: RunStatusType) => void) => void;
-  subscribeToHistory: (cb: (data: HistoryType) => void) => void;
-  unsubscribeFromHistory: (cb: (data: HistoryType) => void) => void;
+  subscribeToRunStatus: (cb: (data: RunStatusType) => void) => () => void;
+  subscribeToHistory: (cb: (data: HistoryType) => void) => () => void;
 };
 
 /**
@@ -259,10 +255,8 @@ const WebSocketContext = createContext<WebSocketData>({
   history: null,
   sendRunStatus: () => {},
   sendHistory: () => {},
-  subscribeToRunStatus: () => {},
-  unsubscribeFromRunStatus: () => {},
-  subscribeToHistory: () => {},
-  unsubscribeFromHistory: () => {},
+  subscribeToRunStatus: () => () => {},
+  subscribeToHistory: () => () => {},
 });
 
 /**
@@ -276,10 +270,8 @@ const WebSocketContext = createContext<WebSocketData>({
  *   - history: Historical execution records (null if not yet received)
  *   - sendRunStatus: Send message to status WebSocket
  *   - sendHistory: Send message to history WebSocket
- *   - subscribeToRunStatus: Register callback for status updates
- *   - unsubscribeFromRunStatus: Remove callback from status updates
- *   - subscribeToHistory: Register callback for history updates
- *   - unsubscribeFromHistory: Remove callback from history updates
+ *   - subscribeToRunStatus: Register callback for status updates, returns unsubscribe function
+ *   - subscribeToHistory: Register callback for history updates, returns unsubscribe function
  *
  * @throws Implicitly throws if used outside WebSocketProvider (context will have default no-op values)
  *
@@ -402,11 +394,14 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
 
   // Pub/sub subscription functions for advanced use cases
   // Most consumers just read runStatus/history from context without subscribing
-  const subscribeToRunStatus = (cb: (data: RunStatusType) => void) => runStatusWS.current?.subscribe(cb);
-  const unsubscribeFromRunStatus = (cb: (data: RunStatusType) => void) => runStatusWS.current?.unsubscribe(cb);
+  // Now returns unsubscribe function for convenient cleanup
+  const subscribeToRunStatus = (cb: (data: RunStatusType) => void) => {
+    return runStatusWS.current?.subscribe(cb) ?? (() => {});
+  };
 
-  const subscribeToHistory = (cb: (data: HistoryType) => void) => historyWS.current?.subscribe(cb);
-  const unsubscribeFromHistory = (cb: (data: HistoryType) => void) => historyWS.current?.unsubscribe(cb);
+  const subscribeToHistory = (cb: (data: HistoryType) => void) => {
+    return historyWS.current?.subscribe(cb) ?? (() => {});
+  };
 
   return (
     <WebSocketContext.Provider
@@ -416,9 +411,7 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
         sendRunStatus,
         sendHistory,
         subscribeToRunStatus,
-        unsubscribeFromRunStatus,
         subscribeToHistory,
-        unsubscribeFromHistory,
       }}
     >
       {children}

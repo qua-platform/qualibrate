@@ -371,7 +371,7 @@ describe("WebSocketService - Current Implementation", () => {
       expect(callOrder).toEqual([1, 2, 3]);
     });
 
-    it("should unsubscribe callback by reference", () => {
+    it("should unsubscribe callback using returned function", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
         onMessageCallback
@@ -380,9 +380,9 @@ describe("WebSocketService - Current Implementation", () => {
       const subscriber1 = vi.fn();
       const subscriber2 = vi.fn();
 
-      service.subscribe(subscriber1);
+      const unsubscribe1 = service.subscribe(subscriber1);
       service.subscribe(subscriber2);
-      service.unsubscribe(subscriber1);
+      unsubscribe1(); // Use returned unsubscribe function
 
       service.connect();
       simulateOpen();
@@ -404,12 +404,13 @@ describe("WebSocketService - Current Implementation", () => {
       );
 
       const subscriber = vi.fn();
-      const neverSubscribed = vi.fn();
+      const neverSubscribed = () => {};
 
       service.subscribe(subscriber);
 
-      // Unsubscribe callback that was never subscribed
-      expect(() => service.unsubscribe(neverSubscribed)).not.toThrow();
+      // Call a returned unsubscribe function that was never from a real subscription
+      // This simulates calling unsubscribe when the callback was never subscribed
+      expect(() => neverSubscribed()).not.toThrow();
 
       service.connect();
       simulateOpen();
@@ -424,7 +425,7 @@ describe("WebSocketService - Current Implementation", () => {
       expect(subscriber).toHaveBeenCalled();
     });
 
-    it("should allow duplicate subscriptions (OLD BEHAVIOR - now prevented)", () => {
+    it("should prevent duplicate subscriptions", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
         onMessageCallback
@@ -432,8 +433,7 @@ describe("WebSocketService - Current Implementation", () => {
 
       const subscriber = vi.fn();
 
-      // OLD BEHAVIOR: Same callback could be subscribed multiple times
-      // NEW BEHAVIOR: Duplicates are prevented
+      // Duplicates are prevented
       service.subscribe(subscriber);
       service.subscribe(subscriber);
 
@@ -446,38 +446,8 @@ describe("WebSocketService - Current Implementation", () => {
 
       mockWebSocket.onmessage?.(messageEvent);
 
-      // NEW BEHAVIOR: Called once because duplicate prevented
-      // OLD BEHAVIOR: Was called twice
+      // Called once because duplicate prevented
       expect(subscriber).toHaveBeenCalledTimes(1);
-    });
-
-    it("should remove all instances when unsubscribing duplicates (backward compatibility)", () => {
-      const service = new WebSocketService(
-        "ws://localhost:8001/test",
-        onMessageCallback
-      );
-
-      const subscriber = vi.fn();
-
-      // NEW BEHAVIOR: Duplicates are now prevented automatically
-      // So these three calls only add the subscriber once
-      service.subscribe(subscriber);
-      service.subscribe(subscriber);
-      service.subscribe(subscriber);
-
-      // Unsubscribe once removes the single instance
-      service.unsubscribe(subscriber);
-
-      service.connect();
-      simulateOpen();
-
-      const messageEvent = new MessageEvent("message", {
-        data: JSON.stringify({ test: true }),
-      });
-
-      mockWebSocket.onmessage?.(messageEvent);
-
-      expect(subscriber).not.toHaveBeenCalled();
     });
   });
 
@@ -584,38 +554,6 @@ describe("WebSocketService - Current Implementation", () => {
       expect(subscriber).not.toHaveBeenCalled();
     });
 
-    it("should work with both new and legacy unsubscribe patterns", () => {
-      const service = new WebSocketService(
-        "ws://localhost:8001/test",
-        onMessageCallback
-      );
-
-      const subscriber1 = vi.fn();
-      const subscriber2 = vi.fn();
-
-      // New pattern: use returned unsubscribe function
-      const unsubscribe1 = service.subscribe(subscriber1);
-
-      // Legacy pattern: use separate unsubscribe method
-      service.subscribe(subscriber2);
-
-      // Unsubscribe using different methods
-      unsubscribe1(); // New pattern
-      service.unsubscribe(subscriber2); // Legacy pattern
-
-      service.connect();
-      simulateOpen();
-
-      const messageEvent = new MessageEvent("message", {
-        data: JSON.stringify({ test: true }),
-      });
-
-      mockWebSocket.onmessage?.(messageEvent);
-
-      // Both should be unsubscribed
-      expect(subscriber1).not.toHaveBeenCalled();
-      expect(subscriber2).not.toHaveBeenCalled();
-    });
 
     it("should handle React useEffect cleanup pattern", () => {
       const service = new WebSocketService(

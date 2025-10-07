@@ -455,34 +455,6 @@ export default class WebSocketService<T> {
   }
 
   /**
-   * Unregister callback from receiving WebSocket messages.
-   *
-   * Removes callback from subscribers array using reference equality.
-   * If callback was registered multiple times, removes ALL instances.
-   *
-   * **Reference Equality**:
-   * Uses strict equality (===) to match callbacks. Anonymous functions or
-   * functions created in different scopes won't match even if identical code.
-   *
-   * @param cb - Callback function to remove (must be same reference as subscribed)
-   *
-   * @deprecated Use the unsubscribe function returned by subscribe() instead.
-   *
-   * **Safe to call if callback not subscribed** - filter will return unchanged array.
-   *
-   * **Removes all instances** - if callback was subscribed multiple times
-   *
-   * **Performance consideration**: Uses Array.filter which creates a new array.
-   * For high-frequency unsubscribe operations, consider using Set for O(1) removal.
-   *
-   */
-  unsubscribe(cb: (data: T) => void) {
-    // Filter creates new array without matching callbacks
-    // FRAGILE: O(n) operation, consider Set for better performance
-    this.subscribers = this.subscribers.filter((s) => s !== cb);
-  }
-
-  /**
    * Get current connection state.
    *
    * Returns the current ConnectionState enum value, providing granular
