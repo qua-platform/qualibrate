@@ -54,8 +54,9 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
     try {
       const response = await ProjectViewApi.fetchShouldRedirectUserToProjectPage();
 
-      if (response.isOk && response.result !== null && response.result !== undefined) {
-        setShouldGoToProjectPage(response.result);
+      if (response.isOk && response.result) {
+        localStorage.setItem("backandWorking", "true");
+        setShouldGoToProjectPage(response.result.page === "project");
       }
     } catch (error) {
       console.error("Error fetching should user be redirected to project page:", error);

@@ -3,6 +3,7 @@ import WebSocketService from "../services/WebSocketService";
 import { WS_EXECUTION_HISTORY, WS_GET_STATUS } from "../services/webSocketRoutes";
 import { ErrorObject } from "../modules/common/Error/ErrorStatusWrapper";
 import { Measurement } from "../modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
+import { BasicDialog } from "../common/ui-components/common/BasicDialog/BasicDialog";
 
 export interface RunResults {
   parameters: Record<string, unknown>;
@@ -84,13 +85,35 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
   const historyWS = useRef<WebSocketService<HistoryType> | null>(null);
   const [runStatus, setRunStatus] = useState<RunStatusType | null>(null);
   const [history, setHistory] = useState<HistoryType | null>(null);
+  const [showConnectionErrorDialog, setShowConnectionErrorDialog] = useState<boolean>(false);
+
+  const handleShowConnectionErrorDialog = () => {
+    if (localStorage.getItem("backandWorking") === "true") {
+      setShowConnectionErrorDialog(true);
+      localStorage.setItem("backandWorking", "false");
+    }
+  };
+
+  const handleHideConnectionErrorDialog = () => {
+    setShowConnectionErrorDialog(false);
+  };
 
   useEffect(() => {
     const runStatusUrl = `${protocol}://${host}${WS_GET_STATUS}`;
     const historyUrl = `${protocol}://${host}${WS_EXECUTION_HISTORY}`;
 
-    runStatusWS.current = new WebSocketService<RunStatusType>(runStatusUrl, setRunStatus);
-    historyWS.current = new WebSocketService<HistoryType>(historyUrl, setHistory);
+    runStatusWS.current = new WebSocketService<RunStatusType>(
+      runStatusUrl,
+      setRunStatus,
+      handleHideConnectionErrorDialog,
+      handleShowConnectionErrorDialog
+    );
+    historyWS.current = new WebSocketService<HistoryType>(
+      historyUrl,
+      setHistory,
+      handleHideConnectionErrorDialog,
+      handleShowConnectionErrorDialog
+    );
 
     if (runStatusWS.current) {
       runStatusWS.current.connect();
@@ -131,6 +154,9 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
         unsubscribeFromHistory,
       }}
     >
+      {showConnectionErrorDialog && (
+        <BasicDialog open={showConnectionErrorDialog} title={"Error"} description={"Connection with the server lost!"} />
+      )}
       {children}
     </WebSocketContext.Provider>
   );

@@ -21,10 +21,10 @@ const RouterProvider = process.env.USE_RELATIVE_PATHS === "true" ? HashRouter : 
 
 const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
-  AuthContextProvider,
   FlexLayoutContextProvider,
-  RouterProvider,
   ProjectContextProvider,
+  AuthContextProvider,
+  RouterProvider,
   // WebSocketProvider,
   GraphContextProvider,
   NodesContextProvider,

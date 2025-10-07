@@ -1,9 +1,10 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import { ACTIVE_PROJECT, ALL_PROJECTS, CREATE_PROJECT, SHOULD_REDIRECT_USER_TO_PROJECT_PAGE } from "../../../utils/api/apiRoutes";
+import { ACTIVE_PROJECT, ALL_PROJECTS, CREATE_PROJECT, SHOULD_REDIRECT_USER_TO_SPECIFIC_PAGE } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { ProjectDTO } from "../ProjectDTO";
 import { NewProjectFormData } from "../CreateNewProjectForm/CreateNewProjectForm";
+import { ProjectApiDTO } from "../ProjectApiDTO";
 
 export class ProjectViewApi extends Api {
   constructor() {
@@ -26,8 +27,8 @@ export class ProjectViewApi extends Api {
     });
   }
 
-  static fetchShouldRedirectUserToProjectPage(): Promise<Res<boolean>> {
-    return this._fetch(this.api(SHOULD_REDIRECT_USER_TO_PROJECT_PAGE()), API_METHODS.GET, {
+  static fetchShouldRedirectUserToProjectPage(): Promise<Res<ProjectApiDTO>> {
+    return this._fetch(this.api(SHOULD_REDIRECT_USER_TO_SPECIFIC_PAGE()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }

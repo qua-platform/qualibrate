@@ -3,11 +3,15 @@ export default class WebSocketService<T> {
   private readonly url: string;
   private isConnected: boolean = false;
   private readonly onMessage: (data: T) => void;
+  private readonly onConnected?: () => void;
+  private readonly onClose?: () => void;
   private subscribers: ((data: T) => void)[] = [];
 
-  constructor(url: string, onMessage: (data: T) => void) {
+  constructor(url: string, onMessage: (data: T) => void, onConnected?: () => void, onClose?: () => void) {
     this.url = url;
     this.onMessage = onMessage;
+    this.onConnected = onConnected;
+    this.onClose = onClose;
   }
 
   connect(retries = 5, delay = 1000) {
@@ -22,6 +26,9 @@ export default class WebSocketService<T> {
       this.ws.onopen = () => {
         this.isConnected = true;
         console.log("✅ WebSocket connected:", this.url);
+        if (this.onConnected) {
+          this.onConnected();
+        }
       };
 
       this.ws.onmessage = (event) => {
@@ -41,7 +48,9 @@ export default class WebSocketService<T> {
       this.ws.onclose = () => {
         console.warn("🔌 WebSocket closed:", this.url);
         this.isConnected = false;
-
+        if (this.onClose) {
+          this.onClose();
+        }
         if (retries > 0) {
           setTimeout(() => this.connect(retries - 1, delay), delay);
         }
