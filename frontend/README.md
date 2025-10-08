@@ -25,9 +25,9 @@ npm install
 ### Running the Development Server
 
 ```bash
-npm run start               # Default dev server
+npm run start               # Default dev server (don't use - won't work with backend)
 npm run start:local:dev     # With .env file
-npm run start:dev           # Against dev server
+npm run start:dev           # Against dev server (don't use - won't work with backend)
 ```
 
 ```env
@@ -37,6 +37,7 @@ WS_PROTOCOL=ws
 WS_BASE_URL=127.0.0.1:8001/
 USE_RELATIVE_PATHS=false
 PUBLIC_PATH="/"
+DASHBOARD_APP_PATH=http://127.0.0.1:8001
 ```
 
 ### Production Build

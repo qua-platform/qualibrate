@@ -121,7 +121,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
     setJsonData(filteredData);
   };
 
-  const currentURL = new URL(window.location.pathname, window.location.origin);
+  const currentURL = new URL(window.location.pathname, process.env.DASHBOARD_APP_PATH ?? window.location.origin);
   const iframeURL = new URL("dashboards/data-dashboard", currentURL);
 
   return (
