@@ -11,7 +11,7 @@
  *
  * **Key Features**:
  * - Type-safe message handling via TypeScript generics
- * - Automatic reconnection with configurable retry attempts (default: 5 retries, 1s delay)
+ * - Automatic reconnection every second until the server becomes available again
  * - Pub/sub pattern allowing multiple callbacks per WebSocket connection
  * - JSON serialization/deserialization of all messages
  * - Robust connection state tracking with 5-state state machine (ConnectionState enum)
@@ -25,8 +25,8 @@
  * - **State Tracking**: Replaced manual boolean flag with ConnectionState enum for accurate state tracking
  *
  * **REMAINING AREAS FOR IMPROVEMENT**:
- * 1. **Reconnection Strategy**: Linear backoff (constant delay) instead of exponential
- * 2. **Retry Exhaustion**: After 5 failed attempts, connection permanently fails
+ * 1. **Reconnection Strategy**: Constant 1s retries without jitter can cause thundering herd patterns
+ * 2. **Retry Telemetry**: No built-in analytics for how long a reconnect cycle has been running
  * 3. **Error Handling**: Console-only logging, no user-facing error notifications
  * 4. **Subscriber Errors**: Uncaught errors in subscribers can affect other subscribers
  * 5. **No Runtime Type Validation**: Type safety is compile-time only
@@ -88,12 +88,9 @@ enum ConnectionState {
  * ConnectionState and the actual WebSocket.readyState for maximum reliability.
  *
  * **REMAINING LIMITATIONS**:
- * After retry exhaustion (default 5 attempts), the WebSocket remains permanently
- * disconnected until page refresh. Consider implementing:
- * - Exponential backoff instead of linear backoff for better network resilience
- * - Unlimited reconnection attempts with increasing delays (e.g., cap at 30s)
- * - User-facing "reconnect" button when connection lost
- * - Circuit breaker pattern to avoid overwhelming server during outages
+ * Continuous 1s retries may overwhelm unstable networks or servers during outages.
+ * Consider introducing jitter or a maximum delay cap, and exposing retry telemetry
+ * to users when connection issues persist.
  *
  * **IMPROVEMENT NEEDED: Error Handling**:
  * - Connection errors only log to console (no user feedback mechanism)
@@ -135,8 +132,12 @@ export default class WebSocketService<T> {
    * WebSocket.readyState.
    *
    * @private
-   */
+  */
   private connectionState: ConnectionState = ConnectionState.DISCONNECTED;
+
+  private reconnectAttempt = 0;
+  private shouldReconnect = true;
+  private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   /**
    * Primary message callback provided during construction.
@@ -200,33 +201,18 @@ export default class WebSocketService<T> {
    * 2. Create new WebSocket instance with this.url
    * 3. Set isConnected=true on successful open
    * 4. Handle incoming messages by parsing JSON and notifying callbacks
-   * 5. On connection close, retry with decremented retry count
+   * 5. On connection close, retry automatically after a short delay
    *
    * **Reconnection Behavior**:
-   * - Uses LINEAR backoff (same delay between all retry attempts)
-   * - Default: 5 retries with 1 second delay = max 5 seconds of retry attempts
-   * - After retry exhaustion, connection permanently fails (no further attempts)
-   * - Each retry decrements the retries parameter by 1
-   *
-   * **FRAGILE: No Exponential Backoff**:
-   * Linear backoff can overwhelm server during outages (constant retry rate).
-   * Consider exponential backoff: delay = 1s, 2s, 4s, 8s, 16s, capped at 30s.
-   *
-   * **FRAGILE: Limited Retry Attempts**:
-   * After 5 failed attempts, reconnection stops permanently until page refresh.
-   * Users lose real-time updates for the rest of their session. Consider:
-   * - Unlimited retries with increasing delays (exponential backoff to 30s max)
-   * - User-facing "reconnect" button when connection fails
-   * - React context state to expose connection status to UI
+   * - Attempts to reconnect indefinitely
+   * - Uses a fixed one second delay between attempts (no exponential backoff)
+   * - Logs each retry to the console for visibility
    *
    * **Error Handling**:
    * - Constructor errors caught and logged (connection attempt failures)
    * - Message parsing errors caught in onmessage handler (invalid JSON)
    * - All errors only log to console, no user-facing notifications
    * - No distinction between recoverable vs permanent failures
-   *
-   * @param retries - Number of reconnection attempts remaining (default: 5)
-   * @param delay - Milliseconds between retry attempts (default: 1000)
    *
    * @remarks
    * Connection failures are logged to console but don't throw errors.
@@ -238,92 +224,103 @@ export default class WebSocketService<T> {
    * @see disconnect for closing connection gracefully
    * @see isOpen for checking current connection state
    */
-  connect(retries = 5, delay = 1000) {
-    // Guard: prevent duplicate connections by checking connection state
+  connect() {
     if (this.connectionState === ConnectionState.CONNECTED) {
       console.warn("⚠️ WebSocket is already connected:", this.url);
       return;
     }
 
-    // Set state to CONNECTING before attempting connection
+    this.shouldReconnect = true;
+    this.reconnectAttempt = 0;
+    this.clearReconnectTimeout();
+    this.tryConnect();
+  }
+
+  private tryConnect() {
+    if (!this.shouldReconnect) {
+      this.connectionState = ConnectionState.DISCONNECTED;
+      return;
+    }
+
     this.connectionState = ConnectionState.CONNECTING;
 
     try {
-      // Create WebSocket instance - may throw if URL is invalid
       this.ws = new WebSocket(this.url);
 
-      // Event handler: connection successfully established
       this.ws.onopen = () => {
         this.connectionState = ConnectionState.CONNECTED;
+        this.reconnectAttempt = 0;
+        this.clearReconnectTimeout();
         console.log("✅ WebSocket connected:", this.url);
-          if (this.onConnected) {
-              this.onConnected();
-          }
+        if (this.onConnected) {
+          this.onConnected();
+        }
       };
 
-      // Event handler: message received from server
-      // All messages expected to be JSON, parsed and distributed to callbacks
       this.ws.onmessage = (event) => {
         try {
-          // Parse JSON message and type-cast to expected type T
-          // FRAGILE: No runtime type validation, only compile-time type safety
           const data = JSON.parse(event.data) as T;
-
-          // Call primary callback first (provided in constructor)
           this.onMessage(data);
-
-          // Then notify all subscribers (pub/sub pattern)
-          // Wrap each subscriber in try/catch to isolate errors
           this.subscribers.forEach((cb) => {
             try {
               cb(data);
             } catch (error) {
-              // Log subscriber error but don't propagate
-              // This allows other subscribers to continue processing
               console.error("❌ Error in WebSocket subscriber:", error);
-              // TODO: Report to error monitoring service in UI
             }
           });
         } catch (e) {
-          // JSON parsing failed - log warning but don't crash
-          // IMPROVEMENT: Consider exposing parse errors to caller
           console.warn("⚠️ Failed to parse WebSocket message:", event.data, e);
         }
       };
 
-      // Event handler: connection error occurred
-      // NOTE: This fires for connection errors, NOT for errors after connection established
       this.ws.onerror = (err) => {
         console.warn("⚠️ WebSocket error on", this.url, err);
       };
 
-      // Event handler: connection closed (normal close or error)
-      // Implements automatic reconnection with linear backoff
       this.ws.onclose = () => {
-        console.warn("🔌 WebSocket closed:", this.url);
+        this.ws = null;
+        this.clearReconnectTimeout();
 
-          if (this.onClose) {
-              this.onClose();
-          }
-        // Mark as FAILED before attempting reconnection
-        this.connectionState = ConnectionState.FAILED;
-
-        // Retry logic: decrement retries and reconnect after delay
-        // FRAGILE: Linear backoff (same delay between all retries)
-        // FRAGILE: After retries exhausted, connection fails permanently
-        if (retries > 0) {
-          this.connectionState = ConnectionState.RECONNECTING;
-          setTimeout(() => this.connect(retries - 1, delay), delay);
-        } else {
-          // Retries exhausted, remain in FAILED state
-          console.error("❌ WebSocket max retries exceeded:", this.url);
+        if (!this.shouldReconnect || this.connectionState === ConnectionState.DISCONNECTED) {
+          this.connectionState = ConnectionState.DISCONNECTED;
+          return;
         }
+
+        console.warn("🔌 WebSocket closed:", this.url);
+        this.connectionState = ConnectionState.FAILED;
+        if (this.onClose) {
+          this.onClose();
+        }
+        this.scheduleReconnect();
       };
     } catch (err) {
-      // Constructor threw error (likely invalid URL format)
       console.warn("❌ Failed to connect WebSocket:", this.url, err);
       this.connectionState = ConnectionState.FAILED;
+      this.scheduleReconnect();
     }
+  }
+
+  private clearReconnectTimeout() {
+    if (this.reconnectTimeoutId !== null) {
+      clearTimeout(this.reconnectTimeoutId);
+      this.reconnectTimeoutId = null;
+    }
+  }
+
+  private scheduleReconnect() {
+    if (!this.shouldReconnect) {
+      this.connectionState = ConnectionState.DISCONNECTED;
+      return;
+    }
+
+    this.connectionState = ConnectionState.RECONNECTING;
+    const delayMs = 1000;
+    console.warn(`⏳ Attempting to reconnect to ${this.url} in ${delayMs}ms (attempt ${this.reconnectAttempt + 1})`);
+    this.reconnectAttempt += 1;
+    this.reconnectTimeoutId = setTimeout(() => {
+      this.reconnectTimeoutId = null;
+      this.tryConnect();
+    }, delayMs);
   }
 
   /**
@@ -405,18 +402,19 @@ export default class WebSocketService<T> {
    * @see getConnectionState for detailed state information
    */
   disconnect() {
-    if (this.ws) {
-      // Close WebSocket connection gracefully
-      // Triggers onclose handler, but automatic reconnection won't occur
-      // because retries parameter is exhausted
-      this.ws.close();
+    this.shouldReconnect = false;
+    this.clearReconnectTimeout();
+    this.reconnectAttempt = 0;
 
-      // Clear reference to allow garbage collection
+    if (this.ws) {
+      const socket = this.ws;
+      this.connectionState = ConnectionState.DISCONNECTED;
+      socket.close();
       this.ws = null;
+    } else {
+      this.connectionState = ConnectionState.DISCONNECTED;
     }
 
-    // Set state to DISCONNECTED (manual disconnect)
-    this.connectionState = ConnectionState.DISCONNECTED;
   }
 
   /**

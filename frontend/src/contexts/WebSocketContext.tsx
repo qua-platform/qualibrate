@@ -8,7 +8,7 @@
  *
  * **Architecture**:
  * - Uses singleton WebSocketService instances per connection (stored in useRef)
- * - Auto-reconnects with linear backoff (5 retries, 1s delay between attempts) - perhaps make it exponential?
+ * - Auto-reconnects once per second until the server becomes available again
  * - Supports pub/sub pattern with subscribe/unsubscribe for multiple consumers
  * - Updates pushed to state every ~500ms during active calibration runs
  *
@@ -22,15 +22,15 @@
  * **Connection Lifecycle**:
  * - Connects on mount (via useEffect initialization)
  * - Disconnects on unmount (cleanup function)
- * - Reconnection handled automatically by WebSocketService with 5 retry attempts
+ * - Reconnection handled automatically by WebSocketService with continuous 1s retries
  *
  * **Critical Integration Point**:
  * NodesContext.tsx subscribes to runStatus changes via useEffect,
  * triggering node execution state updates when runStatus.runnable_type === "node".
  *
  * **IMPROVEMENT NEEDED: Error Handling**:
- * - WebSocket errors only log to console (no user feedback)
- * - Connection failures during reconnection are silent after retry exhaustion
+ * - WebSocket errors only log to console (limited user feedback beyond the dialog)
+ * - Connection failures during reconnection rely solely on automatic retry (no manual override)
  * - No circuit breaker pattern for persistent connection failures
  * - Consider adding connection status indicator and error boundaries
  *
@@ -39,12 +39,13 @@
  * @see GraphContext for graph workflow visualization integration
  */
 
-import React, {createContext, PropsWithChildren, useContext, useEffect, useRef, useState} from "react";
+import React, {createContext, PropsWithChildren, useCallback, useContext, useEffect, useRef, useState} from "react";
 import WebSocketService from "../services/WebSocketService";
 import {WS_EXECUTION_HISTORY, WS_GET_STATUS} from "../services/webSocketRoutes";
 import {ErrorObject} from "../modules/common/Error/ErrorStatusWrapper";
 import {Measurement} from "../modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
 import {BasicDialog} from "../common/ui-components/common/BasicDialog/BasicDialog";
+import { useProjectContext } from "../modules/Project/context/ProjectContext";
 
 /**
  * Results of a completed calibration node execution.
@@ -304,7 +305,7 @@ export const useWebSocketData = () => useContext(WebSocketContext);
  *
  * **Lifecycle Management**:
  * - Connections established on component mount (useEffect with empty deps)
- * - Both connections use same WebSocketService with 5 retry attempts
+ * - Both connections use same WebSocketService with continuous 1s retry cadence
  * - Disconnects gracefully on component unmount via cleanup function
  * - Reconnection handled automatically by WebSocketService (linear backoff, 1s delay)
  *
@@ -357,16 +358,58 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
   const [runStatus, setRunStatus] = useState<RunStatusType | null>(null);
   const [history, setHistory] = useState<HistoryType | null>(null);
   const [showConnectionErrorDialog, setShowConnectionErrorDialog] = useState<boolean>(false);
+  const [connectionLostAt, setConnectionLostAt] = useState<number | null>(null);
+  const [connectionLostSeconds, setConnectionLostSeconds] = useState<number>(0);
+  const connectionLostAtRef = useRef<number | null>(null);
+  const {refreshShouldGoToProjectPage} = useProjectContext();
 
-  const handleShowConnectionErrorDialog = () => {
-    if (localStorage.getItem("backandWorking") === "true") {
-      setShowConnectionErrorDialog(true);
-      localStorage.setItem("backandWorking", "false");
+  const handleShowConnectionErrorDialog = useCallback(() => {
+    if (localStorage.getItem("backandWorking") !== "true") {
+      return;
     }
-  };
 
-  const handleHideConnectionErrorDialog = () => {
-    setShowConnectionErrorDialog(false);
+    if (connectionLostAtRef.current === null) {
+      const now = Date.now();
+      connectionLostAtRef.current = now;
+      setConnectionLostAt(now);
+      setConnectionLostSeconds(0);
+    }
+    setShowConnectionErrorDialog(true);
+    localStorage.setItem("backandWorking", "false");
+  }, []);
+
+  const handleHideConnectionErrorDialog = useCallback(() => {
+    setShowConnectionErrorDialog((isVisible) => {
+      if (!isVisible) {
+        return isVisible;
+      }
+      localStorage.setItem("backandWorking", "true");
+      connectionLostAtRef.current = null;
+      setConnectionLostAt(null);
+      setConnectionLostSeconds(0);
+      void refreshShouldGoToProjectPage();
+      return false;
+    });
+  }, [refreshShouldGoToProjectPage]);
+
+  useEffect(() => {
+    if (!showConnectionErrorDialog || connectionLostAt === null) {
+      return;
+    }
+    setConnectionLostSeconds(Math.floor((Date.now() - connectionLostAt) / 1000));
+    const intervalId = window.setInterval(() => {
+      setConnectionLostSeconds(Math.floor((Date.now() - connectionLostAt) / 1000));
+    }, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [showConnectionErrorDialog, connectionLostAt]);
+
+  const formatElapsed = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return minutes > 0 ? `${minutes}m ${secs.toString().padStart(2, "0")}s` : `${secs}s`;
   };
 
   // Establish WebSocket connections on mount, disconnect on unmount
@@ -389,7 +432,7 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
       handleShowConnectionErrorDialog
     );
 
-    // Initiate connections with default 5 retry attempts and 1s delay between retries
+    // Initiate connections with continuous 1-second retry cadence
     if (runStatusWS.current && !runStatusWS.current.isConnected()) {
       runStatusWS.current.connect();
     }
@@ -400,12 +443,8 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
     // Cleanup function: disconnect WebSockets when component unmounts
     // Prevents memory leaks and dangling connections
     return () => {
-      if (runStatusWS.current && runStatusWS.current.isConnected()) {
-        runStatusWS.current.disconnect();
-      }
-      if (historyWS.current && historyWS.current.isConnected()) {
-        historyWS.current.disconnect();
-      }
+      runStatusWS.current?.disconnect();
+      historyWS.current?.disconnect();
     };
   }, []); // Empty deps: run once on mount, cleanup on unmount
 
@@ -436,7 +475,17 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
       }}
     >
       {showConnectionErrorDialog && (
-        <BasicDialog open={showConnectionErrorDialog} title={"Error"} description={"Connection with the server lost!"} />
+        <BasicDialog
+          open={showConnectionErrorDialog}
+          title={"Connection lost"}
+          description={
+            <>
+              Connection with the server has been lost.
+              <br />
+              Retrying for {formatElapsed(connectionLostSeconds)}...
+            </>
+          }
+        />
       )}
       {children}
     </WebSocketContext.Provider>

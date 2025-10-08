@@ -22,10 +22,8 @@ const RouterProvider = process.env.USE_RELATIVE_PATHS === "true" ? HashRouter : 
 const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
   FlexLayoutContextProvider,
-  ProjectContextProvider,
   AuthContextProvider,
   RouterProvider,
-  // WebSocketProvider,
   GraphContextProvider,
   NodesContextProvider,
   SnapshotsContextProvider,
@@ -35,15 +33,17 @@ const Application: React.FunctionComponent = () => {
   useEffect(updateColorTheme, []);
   return (
     <GlobalThemeContextProvider>
-      <WebSocketProvider>
-        {contextProviders.reduce(
-          (Comp, Provider) => {
-            const TempProvider = Provider as unknown as React.FC<PropsWithChildren<object>>;
-            return <TempProvider>{Comp}</TempProvider>;
-          },
-          <AppRoutes />
-        )}
-      </WebSocketProvider>
+      <ProjectContextProvider>
+        <WebSocketProvider>
+          {contextProviders.reduce(
+            (Comp, Provider) => {
+              const TempProvider = Provider as unknown as React.FC<PropsWithChildren<object>>;
+              return <TempProvider>{Comp}</TempProvider>;
+            },
+            <AppRoutes />
+          )}
+        </WebSocketProvider>
+      </ProjectContextProvider>
     </GlobalThemeContextProvider>
   );
 };

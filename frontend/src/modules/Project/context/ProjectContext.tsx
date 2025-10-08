@@ -11,6 +11,7 @@ interface IProjectContext {
   shouldGoToProjectPage: boolean;
   isScanningProjects: boolean;
   fetchProjectsAndActive: () => void;
+  refreshShouldGoToProjectPage: () => Promise<void>;
 }
 
 const ProjectContext = React.createContext<IProjectContext>({
@@ -21,6 +22,7 @@ const ProjectContext = React.createContext<IProjectContext>({
   shouldGoToProjectPage: true,
   isScanningProjects: false,
   fetchProjectsAndActive: noop,
+  refreshShouldGoToProjectPage: async () => {},
 });
 
 export const useProjectContext = (): IProjectContext => useContext<IProjectContext>(ProjectContext);
@@ -31,7 +33,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
   const [allProjects, setAllProjects] = useState<ProjectDTO[]>([]);
   const [isScanningProjects, setIsScanningProjects] = useState<boolean>(false);
 
-  const fetchProjectsAndActive = async () => {
+  const fetchProjectsAndActive = useCallback(async () => {
     setIsScanningProjects(true);
     try {
       const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
@@ -48,9 +50,9 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
       console.error("Error fetching projects or active project:", error);
     }
     setIsScanningProjects(false);
-  };
+  }, []);
 
-  const fetchShouldRedirectUserToProjectPage = async () => {
+  const fetchShouldRedirectUserToProjectPage = useCallback(async () => {
     try {
       const response = await ProjectViewApi.fetchShouldRedirectUserToProjectPage();
 
@@ -61,12 +63,12 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
     } catch (error) {
       console.error("Error fetching should user be redirected to project page:", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchShouldRedirectUserToProjectPage();
     fetchProjectsAndActive();
-  }, []);
+  }, [fetchShouldRedirectUserToProjectPage, fetchProjectsAndActive]);
 
   const handleSelectActiveProject = useCallback(
     async (project: ProjectDTO) => {
@@ -74,12 +76,13 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
         const { isOk, result } = await ProjectViewApi.selectActiveProject(project.name);
         if (isOk && result === project.name) {
           setActiveProject(project);
+          setShouldGoToProjectPage(false);
         }
       } catch (err) {
         console.error("Failed to activate project:", err);
       }
     },
-    [setActiveProject]
+    [setActiveProject, setShouldGoToProjectPage]
   );
 
   return (
@@ -92,6 +95,7 @@ export const ProjectContextProvider: React.FC<{ children?: React.ReactNode }> = 
         handleSelectActiveProject,
         isScanningProjects,
         fetchProjectsAndActive,
+        refreshShouldGoToProjectPage: fetchShouldRedirectUserToProjectPage,
       }}
     >
       {children}

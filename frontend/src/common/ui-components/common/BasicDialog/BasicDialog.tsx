@@ -1,10 +1,10 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
 
 interface BasicDialogProps {
   open: boolean;
   title: string;
-  description: string;
+  description: ReactNode;
   onClose?: () => void;
   buttons?: ReactElement[];
 }
