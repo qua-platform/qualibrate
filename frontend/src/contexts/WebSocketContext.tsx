@@ -45,7 +45,7 @@ import {WS_EXECUTION_HISTORY, WS_GET_STATUS} from "../services/webSocketRoutes";
 import {ErrorObject} from "../modules/common/Error/ErrorStatusWrapper";
 import {Measurement} from "../modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
 import {BasicDialog} from "../common/ui-components/common/BasicDialog/BasicDialog";
-import { useProjectContext } from "../modules/Project/context/ProjectContext";
+import {useProjectContext} from "../modules/Project/context/ProjectContext";
 
 /**
  * Results of a completed calibration node execution.
@@ -361,7 +361,7 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
   const [connectionLostAt, setConnectionLostAt] = useState<number | null>(null);
   const [connectionLostSeconds, setConnectionLostSeconds] = useState<number>(0);
   const connectionLostAtRef = useRef<number | null>(null);
-  const {refreshShouldGoToProjectPage} = useProjectContext();
+  const { refreshShouldGoToProjectPage } = useProjectContext();
 
   const handleShowConnectionErrorDialog = useCallback(() => {
     if (localStorage.getItem("backandWorking") !== "true") {
@@ -443,8 +443,12 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
     // Cleanup function: disconnect WebSockets when component unmounts
     // Prevents memory leaks and dangling connections
     return () => {
-      runStatusWS.current?.disconnect();
-      historyWS.current?.disconnect();
+      if (runStatusWS.current && runStatusWS.current.isConnected()) {
+        runStatusWS.current.disconnect();
+      }
+      if (historyWS.current && historyWS.current.isConnected()) {
+        historyWS.current.disconnect();
+      }
     };
   }, []); // Empty deps: run once on mount, cleanup on unmount
 

@@ -59,7 +59,7 @@ enum ConnectionState {
   CONNECTING = "connecting",
   CONNECTED = "connected",
   RECONNECTING = "reconnecting",
-  FAILED = "failed"
+  FAILED = "failed",
 }
 
 /**
@@ -132,7 +132,7 @@ export default class WebSocketService<T> {
    * WebSocket.readyState.
    *
    * @private
-  */
+   */
   private connectionState: ConnectionState = ConnectionState.DISCONNECTED;
 
   private reconnectAttempt = 0;
@@ -147,20 +147,20 @@ export default class WebSocketService<T> {
    */
   private readonly onMessage: (data: T) => void;
 
-    /**
-     * Primary callback when the connection is established.
-     * Called every time connection is established.
-     * @private
-     * @readonly
-     */
+  /**
+   * Primary callback when the connection is established.
+   * Called every time connection is established.
+   * @private
+   * @readonly
+   */
   private readonly onConnected?: () => void;
 
-    /**
-     * Primary callback when the connection is closed.
-     * Called every time connection is closed.
-     * @private
-     * @readonly
-     */
+  /**
+   * Primary callback when the connection is closed.
+   * Called every time connection is closed.
+   * @private
+   * @readonly
+   */
   private readonly onClose?: () => void;
 
   /**
@@ -234,93 +234,6 @@ export default class WebSocketService<T> {
     this.reconnectAttempt = 0;
     this.clearReconnectTimeout();
     this.tryConnect();
-  }
-
-  private tryConnect() {
-    if (!this.shouldReconnect) {
-      this.connectionState = ConnectionState.DISCONNECTED;
-      return;
-    }
-
-    this.connectionState = ConnectionState.CONNECTING;
-
-    try {
-      this.ws = new WebSocket(this.url);
-
-      this.ws.onopen = () => {
-        this.connectionState = ConnectionState.CONNECTED;
-        this.reconnectAttempt = 0;
-        this.clearReconnectTimeout();
-        console.log("✅ WebSocket connected:", this.url);
-        if (this.onConnected) {
-          this.onConnected();
-        }
-      };
-
-      this.ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data) as T;
-          this.onMessage(data);
-          this.subscribers.forEach((cb) => {
-            try {
-              cb(data);
-            } catch (error) {
-              console.error("❌ Error in WebSocket subscriber:", error);
-            }
-          });
-        } catch (e) {
-          console.warn("⚠️ Failed to parse WebSocket message:", event.data, e);
-        }
-      };
-
-      this.ws.onerror = (err) => {
-        console.warn("⚠️ WebSocket error on", this.url, err);
-      };
-
-      this.ws.onclose = () => {
-        this.ws = null;
-        this.clearReconnectTimeout();
-
-        if (!this.shouldReconnect || this.connectionState === ConnectionState.DISCONNECTED) {
-          this.connectionState = ConnectionState.DISCONNECTED;
-          return;
-        }
-
-        console.warn("🔌 WebSocket closed:", this.url);
-        this.connectionState = ConnectionState.FAILED;
-        if (this.onClose) {
-          this.onClose();
-        }
-        this.scheduleReconnect();
-      };
-    } catch (err) {
-      console.warn("❌ Failed to connect WebSocket:", this.url, err);
-      this.connectionState = ConnectionState.FAILED;
-      this.scheduleReconnect();
-    }
-  }
-
-  private clearReconnectTimeout() {
-    if (this.reconnectTimeoutId !== null) {
-      clearTimeout(this.reconnectTimeoutId);
-      this.reconnectTimeoutId = null;
-    }
-  }
-
-  private scheduleReconnect() {
-    if (!this.shouldReconnect) {
-      this.connectionState = ConnectionState.DISCONNECTED;
-      return;
-    }
-
-    this.connectionState = ConnectionState.RECONNECTING;
-    const delayMs = 1000;
-    console.warn(`⏳ Attempting to reconnect to ${this.url} in ${delayMs}ms (attempt ${this.reconnectAttempt + 1})`);
-    this.reconnectAttempt += 1;
-    this.reconnectTimeoutId = setTimeout(() => {
-      this.reconnectTimeoutId = null;
-      this.tryConnect();
-    }, delayMs);
   }
 
   /**
@@ -408,13 +321,10 @@ export default class WebSocketService<T> {
 
     if (this.ws) {
       const socket = this.ws;
-      this.connectionState = ConnectionState.DISCONNECTED;
       socket.close();
       this.ws = null;
-    } else {
-      this.connectionState = ConnectionState.DISCONNECTED;
     }
-
+    this.connectionState = ConnectionState.DISCONNECTED;
   }
 
   /**
@@ -538,9 +448,93 @@ export default class WebSocketService<T> {
    * @see send for message sending (which uses this method)
    */
   isConnected(): boolean {
-    return (
-      this.connectionState === ConnectionState.CONNECTED &&
-      this.ws?.readyState === WebSocket.OPEN
-    );
+    return this.connectionState === ConnectionState.CONNECTED && this.ws?.readyState === WebSocket.OPEN;
+  }
+
+  private tryConnect() {
+    if (!this.shouldReconnect) {
+      this.connectionState = ConnectionState.DISCONNECTED;
+      return;
+    }
+
+    this.connectionState = ConnectionState.CONNECTING;
+
+    try {
+      this.ws = new WebSocket(this.url);
+
+      this.ws.onopen = () => {
+        this.connectionState = ConnectionState.CONNECTED;
+        this.reconnectAttempt = 0;
+        this.clearReconnectTimeout();
+        console.log("✅ WebSocket connected:", this.url);
+        if (this.onConnected) {
+          this.onConnected();
+        }
+      };
+
+      this.ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data) as T;
+          this.onMessage(data);
+          this.subscribers.forEach((cb) => {
+            try {
+              cb(data);
+            } catch (error) {
+              console.error("❌ Error in WebSocket subscriber:", error);
+            }
+          });
+        } catch (e) {
+          console.warn("⚠️ Failed to parse WebSocket message:", event.data, e);
+        }
+      };
+
+      this.ws.onerror = (err) => {
+        console.warn("⚠️ WebSocket error on", this.url, err);
+      };
+
+      this.ws.onclose = () => {
+        this.ws = null;
+        this.clearReconnectTimeout();
+
+        if (!this.shouldReconnect || this.connectionState === ConnectionState.DISCONNECTED) {
+          this.connectionState = ConnectionState.DISCONNECTED;
+          return;
+        }
+
+        console.warn("🔌 WebSocket closed:", this.url);
+        this.connectionState = ConnectionState.FAILED;
+        if (this.onClose) {
+          this.onClose();
+        }
+        this.scheduleReconnect();
+      };
+    } catch (err) {
+      console.warn("❌ Failed to connect WebSocket:", this.url, err);
+      this.connectionState = ConnectionState.FAILED;
+      this.scheduleReconnect();
+    }
+  }
+
+  private clearReconnectTimeout() {
+    if (this.reconnectTimeoutId !== null) {
+      clearTimeout(this.reconnectTimeoutId);
+      this.reconnectTimeoutId = null;
+    }
+  }
+
+  private scheduleReconnect() {
+    if (!this.shouldReconnect) {
+      this.connectionState = ConnectionState.DISCONNECTED;
+      return;
+    }
+
+    this.connectionState = ConnectionState.RECONNECTING;
+    const delayMs = 1000;
+    console.warn(`⏳ Attempting to reconnect to ${this.url} in ${delayMs}ms (attempt ${this.reconnectAttempt + 1})`);
+    this.reconnectAttempt += 1;
+    this.reconnectTimeoutId = setTimeout(() => {
+      this.reconnectTimeoutId = null;
+      this.tryConnect();
+    }, delayMs);
   }
 }
