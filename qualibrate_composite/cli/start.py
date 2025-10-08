@@ -21,9 +21,7 @@ from qualibrate_composite.config import vars as composite_vars
     help="Path to `config.toml` file",
     show_default=True,
 )
-@click.option(
-    "--reload", is_flag=True, hidden=True
-)  # env QUALIBRATE_START_RELOAD
+@click.option("--reload", is_flag=True, hidden=True)  # env QUALIBRATE_START_RELOAD
 @click.option(
     "--port",
     type=int,
@@ -48,9 +46,7 @@ from qualibrate_composite.config import vars as composite_vars
     "--root-path",
     type=str,
     default="",
-    help=(
-        "Optional root path for the application if run as a sub-application."
-    ),
+    help=("Optional root path for the application if run as a sub-application."),
 )
 def start_command(
     config_path: Path,
@@ -60,10 +56,8 @@ def start_command(
     cors_origin: list[str],
     root_path: str,
 ) -> None:
-    if (
-        not config_path.exists()
-        and config_path == config_vars.DEFAULT_CONFIG_FILEPATH
-    ):
+    if not config_path.exists() and config_path == config_vars.DEFAULT_CONFIG_FILEPATH:
+        click.echo(f"No config found. Auto-creating config at {config_path}")
         config_command(
             ["--config-path", config_path, "--auto-accept"],
             standalone_mode=False,
