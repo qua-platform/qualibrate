@@ -138,6 +138,7 @@ export default class WebSocketService<T> {
   private reconnectAttempt = 0;
   private shouldReconnect = true;
   private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private retryDelay = 1000;
 
   /**
    * Primary message callback provided during construction.
@@ -224,7 +225,7 @@ export default class WebSocketService<T> {
    * @see disconnect for closing connection gracefully
    * @see isOpen for checking current connection state
    */
-  connect() {
+  connect(retryDelay: number = 1000) {
     if (this.connectionState === ConnectionState.CONNECTED) {
       console.warn("⚠️ WebSocket is already connected:", this.url);
       return;
@@ -232,6 +233,7 @@ export default class WebSocketService<T> {
 
     this.shouldReconnect = true;
     this.reconnectAttempt = 0;
+    this.retryDelay = retryDelay;
     this.clearReconnectTimeout();
     this.tryConnect();
   }
@@ -529,7 +531,7 @@ export default class WebSocketService<T> {
     }
 
     this.connectionState = ConnectionState.RECONNECTING;
-    const delayMs = 1000;
+    const delayMs = this.retryDelay;
     console.warn(`⏳ Attempting to reconnect to ${this.url} in ${delayMs}ms (attempt ${this.reconnectAttempt + 1})`);
     this.reconnectAttempt += 1;
     this.reconnectTimeoutId = setTimeout(() => {
