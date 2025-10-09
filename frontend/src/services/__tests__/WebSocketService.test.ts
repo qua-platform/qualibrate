@@ -42,8 +42,13 @@ describe("WebSocketService - Current Implementation", () => {
     CLOSED: number;
   };
 
-  // Track WebSocket constructor calls
-  let WebSocketConstructorSpy: ReturnType<typeof vi.fn>;
+  // Track WebSocket constructor calls with proper typing
+  let WebSocketConstructorSpy: ReturnType<typeof vi.fn> & {
+    CONNECTING: number;
+    OPEN: number;
+    CLOSING: number;
+    CLOSED: number;
+  };
 
   // Test callback functions
   let onMessageCallback: ReturnType<typeof vi.fn>;
@@ -68,13 +73,12 @@ describe("WebSocketService - Current Implementation", () => {
     };
 
     // Spy on WebSocket constructor and return our mock
-    WebSocketConstructorSpy = vi.fn(() => mockWebSocket);
-
-    // Add static properties to the constructor function
-    WebSocketConstructorSpy.CONNECTING = 0;
-    WebSocketConstructorSpy.OPEN = 1;
-    WebSocketConstructorSpy.CLOSING = 2;
-    WebSocketConstructorSpy.CLOSED = 3;
+    WebSocketConstructorSpy = Object.assign(vi.fn(() => mockWebSocket), {
+      CONNECTING: 0,
+      OPEN: 1,
+      CLOSING: 2,
+      CLOSED: 3,
+    });
 
     // Use vi.stubGlobal to properly stub the WebSocket global
     vi.stubGlobal("WebSocket", WebSocketConstructorSpy);
@@ -131,7 +135,7 @@ describe("WebSocketService - Current Implementation", () => {
         payload: number;
       }
 
-      const typedCallback = vi.fn<[TestMessage], void>();
+      const typedCallback: (data: TestMessage) => void = vi.fn();
       const service = new WebSocketService<TestMessage>(
         "ws://localhost:8001/test",
         typedCallback
@@ -1317,7 +1321,7 @@ describe("WebSocketService - Current Implementation", () => {
     }
 
     it("should maintain type safety with generic parameter", () => {
-      const typedCallback = vi.fn<[TypedMessage], void>();
+      const typedCallback: (data: TypedMessage) => void = vi.fn();
       const service = new WebSocketService<TypedMessage>(
         "ws://localhost:8001/test",
         typedCallback
@@ -1349,7 +1353,7 @@ describe("WebSocketService - Current Implementation", () => {
         | { type: "status"; value: number }
         | { type: "error"; message: string };
 
-      const unionCallback = vi.fn<[UnionMessage], void>();
+      const unionCallback: (data: UnionMessage) => void = vi.fn();
       const service = new WebSocketService<UnionMessage>(
         "ws://localhost:8001/test",
         unionCallback
