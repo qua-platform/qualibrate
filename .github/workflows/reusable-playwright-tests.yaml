@@ -204,23 +204,6 @@ jobs:
         working-directory: ./qualibrate-app/frontend/tests
         run: npx playwright test
 
-      # Step 16b: Debug - List test output directories
-      - name: List Test Output Files
-        if: always()
-        run: |
-          echo "=== Listing test output directories ==="
-          echo "Current directory:"
-          pwd
-          echo ""
-          echo "Files in qualibrate-app/frontend/tests:"
-          ls -la ./qualibrate-app/frontend/tests/ || echo "Directory not found"
-          echo ""
-          echo "Playwright report directory:"
-          ls -la ./qualibrate-app/frontend/tests/playwright-report/ || echo "playwright-report not found"
-          echo ""
-          echo "Test results directory:"
-          ls -la ./qualibrate-app/frontend/tests/test-results/ || echo "test-results not found"
-
       # Step 17: Upload Playwright Report (HTML)
       - name: Upload Playwright Report
         if: always()
