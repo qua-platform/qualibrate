@@ -27,7 +27,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
 
   // 2. Verify Calibration Nodes
   // Check that at least one calibration node (e.g., test_cal) is displayed in the Node Library.
-  await expect(page.getByTestId("nodes-and-job-wrapper")).toBeVisible({ timeout: 10000 }); // Node page loaded sucessfully
+  await expect(page.getByTestId("nodes-and-job-wrapper")).toBeVisible({ timeout: 1000 }); // Node page loaded sucessfully
   await expect(page.getByTestId("nodes-page-wrapper")).toBeVisible(); // Node page loaded sucessfully
   // await expect(page.getByTestId('title-wrapper')).toBeVisible(); // title wrapper is visible
   // await expect(page.getByTestId('title-wrapper')).toContainText('Run calibration node'); // title is correct
