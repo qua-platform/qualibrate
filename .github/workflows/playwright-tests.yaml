@@ -27,7 +27,10 @@ on:
 
 jobs:
   call-reusable-playwright-tests:
-    uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@${{ github.sha }}
+    # NOTE: When testing workflow changes, temporarily change @main to your branch name
+    # e.g., @feat/open-project-page-on-BE-start
+    # Remember to change back to @main before merging!
+    uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@feat/open-project-page-on-BE-start
     with:
       qualibrate-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-ref }}
       qualibrate-app-ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
