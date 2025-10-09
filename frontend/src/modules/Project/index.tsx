@@ -22,6 +22,10 @@ const Project = () => {
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
   useEffect(() => {
+    setSelectedProject(activeProject ?? undefined);
+  }, [activeProject]);
+
+  useEffect(() => {
     if (activeProject) {
       setWorkflowGraphElements(undefined);
       fetchAllNodes();

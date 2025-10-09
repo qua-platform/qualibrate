@@ -42,8 +42,13 @@ describe("WebSocketService - Current Implementation", () => {
     CLOSED: number;
   };
 
-  // Track WebSocket constructor calls
-  let WebSocketConstructorSpy: ReturnType<typeof vi.fn>;
+  // Track WebSocket constructor calls with proper typing
+  let WebSocketConstructorSpy: ReturnType<typeof vi.fn> & {
+    CONNECTING: number;
+    OPEN: number;
+    CLOSING: number;
+    CLOSED: number;
+  };
 
   // Test callback functions
   let onMessageCallback: ReturnType<typeof vi.fn>;
@@ -68,13 +73,12 @@ describe("WebSocketService - Current Implementation", () => {
     };
 
     // Spy on WebSocket constructor and return our mock
-    WebSocketConstructorSpy = vi.fn(() => mockWebSocket);
-
-    // Add static properties to the constructor function
-    WebSocketConstructorSpy.CONNECTING = 0;
-    WebSocketConstructorSpy.OPEN = 1;
-    WebSocketConstructorSpy.CLOSING = 2;
-    WebSocketConstructorSpy.CLOSED = 3;
+    WebSocketConstructorSpy = Object.assign(vi.fn(() => mockWebSocket), {
+      CONNECTING: 0,
+      OPEN: 1,
+      CLOSING: 2,
+      CLOSED: 3,
+    });
 
     // Use vi.stubGlobal to properly stub the WebSocket global
     vi.stubGlobal("WebSocket", WebSocketConstructorSpy);
@@ -82,9 +86,10 @@ describe("WebSocketService - Current Implementation", () => {
     // Create test callback
     onMessageCallback = vi.fn();
 
-    // Suppress console warnings during tests
+    // Suppress console output during tests
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -130,7 +135,7 @@ describe("WebSocketService - Current Implementation", () => {
         payload: number;
       }
 
-      const typedCallback = vi.fn<[TestMessage], void>();
+      const typedCallback: (data: TestMessage) => void = vi.fn();
       const service = new WebSocketService<TestMessage>(
         "ws://localhost:8001/test",
         typedCallback
@@ -914,7 +919,7 @@ describe("WebSocketService - Current Implementation", () => {
         return mockWebSocket;
       });
 
-      service.connect(3, 1000); // 3 retries, 1 second delay
+      service.connect(1000); // 3 retries, 1 second delay
 
       // Initial connection attempt
       expect(connectionAttempts).toBe(1);
@@ -935,7 +940,7 @@ describe("WebSocketService - Current Implementation", () => {
       expect(connectionAttempts).toBe(4);
     });
 
-    it("should stop retrying after retry exhaustion (current limitation)", () => {
+    it("should retry indefinitely on connection failure", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
         onMessageCallback
@@ -947,26 +952,27 @@ describe("WebSocketService - Current Implementation", () => {
         return mockWebSocket;
       });
 
-      service.connect(5, 1000); // 5 retries, 1 second delay
+      service.connect(1000); // 1 second delay
 
       // Initial attempt
       expect(connectionAttempts).toBe(1);
 
-      // Simulate 5 connection failures
-      for (let i = 0; i < 5; i++) {
+      // Simulate 10 connection failures - should keep retrying
+      for (let i = 0; i < 10; i++) {
         mockWebSocket.onclose?.();
         vi.advanceTimersByTime(1000);
       }
 
-      // Should have made initial + 5 retries = 6 total attempts
-      expect(connectionAttempts).toBe(6);
+      // Should have made initial + 10 retries = 11 total attempts
+      expect(connectionAttempts).toBe(11);
 
-      // Advance more time - should NOT retry again
-      vi.advanceTimersByTime(10000);
-      expect(connectionAttempts).toBe(6); // Still only 6 attempts
+      // Simulate more failures - should continue retrying
+      mockWebSocket.onclose?.();
+      vi.advanceTimersByTime(1000);
+      expect(connectionAttempts).toBe(12); // Still retrying
     });
 
-    it("should use configurable retry count and delay", () => {
+    it("should use configurable delay", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
         onMessageCallback
@@ -978,7 +984,7 @@ describe("WebSocketService - Current Implementation", () => {
         return mockWebSocket;
       });
 
-      service.connect(2, 500); // 2 retries, 500ms delay
+      service.connect(500); // 500ms delay
 
       expect(connectionAttempts).toBe(1);
 
@@ -992,13 +998,13 @@ describe("WebSocketService - Current Implementation", () => {
       vi.advanceTimersByTime(500);
       expect(connectionAttempts).toBe(3);
 
-      // No more retries
+      // Third retry - should continue indefinitely
       mockWebSocket.onclose?.();
       vi.advanceTimersByTime(500);
-      expect(connectionAttempts).toBe(3);
+      expect(connectionAttempts).toBe(4);
     });
 
-    it("should default to 5 retries with 1 second delay", () => {
+    it("should default to 1 second delay", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
         onMessageCallback
@@ -1013,13 +1019,13 @@ describe("WebSocketService - Current Implementation", () => {
       // Call connect() without parameters
       service.connect();
 
-      // Simulate all retries
-      for (let i = 0; i < 5; i++) {
-        mockWebSocket.onclose?.();
-        vi.advanceTimersByTime(1000); // Default 1 second delay
-      }
-
-      expect(connectionAttempts).toBe(6); // Initial + 5 retries
+      // Verify default 1 second delay
+      mockWebSocket.onclose?.();
+      vi.advanceTimersByTime(500); // Not enough time
+      expect(connectionAttempts).toBe(1); // No retry yet
+      
+      vi.advanceTimersByTime(500); // Now 1 second total
+      expect(connectionAttempts).toBe(2); // Retry triggered
     });
 
     it("should handle successful reconnection after failed attempts", () => {
@@ -1028,7 +1034,7 @@ describe("WebSocketService - Current Implementation", () => {
         onMessageCallback
       );
 
-      service.connect(3, 1000);
+      service.connect(1000);
 
       // First connection fails
       mockWebSocket.onclose?.();
@@ -1135,13 +1141,13 @@ describe("WebSocketService - Current Implementation", () => {
       expect(subscriber).not.toHaveBeenCalled();
     });
 
-    it("should NOT prevent scheduled reconnection when disconnect is called", () => {
+    it("should prevent scheduled reconnection when disconnect is called", () => {
       const service = new WebSocketService(
         "ws://localhost:8001/test",
         onMessageCallback
       );
 
-      service.connect(5, 1000);
+      service.connect(1000);
 
       // Initial connection created
       expect(WebSocketConstructorSpy).toHaveBeenCalledTimes(1);
@@ -1152,19 +1158,16 @@ describe("WebSocketService - Current Implementation", () => {
       // Advance time partially (reconnection scheduled but not executed)
       vi.advanceTimersByTime(500);
 
-      // User calls disconnect (sets isConnected=false, but can't cancel setTimeout)
+      // User calls disconnect (clears the reconnect timeout)
       service.disconnect();
 
-      // Advance remaining time - reconnection WILL happen
+      // Advance remaining time - reconnection should NOT happen
       vi.advanceTimersByTime(500);
 
-      // CURRENT LIMITATION: Scheduled reconnection still fires even after disconnect
-      // because there's no way to cancel the setTimeout callback
-      // The reconnection attempt is made, creating a second WebSocket
-      expect(WebSocketConstructorSpy).toHaveBeenCalledTimes(2);
+      // The scheduled reconnection was cancelled, so no second WebSocket
+      expect(WebSocketConstructorSpy).toHaveBeenCalledTimes(1);
 
-      // However, if we check again, the reconnection guard will prevent further attempts
-      // because isConnected is now set by the reconnection attempt
+      // Connection state should be disconnected
       expect(service.isConnected()).toBe(false);
     });
   });
@@ -1318,7 +1321,7 @@ describe("WebSocketService - Current Implementation", () => {
     }
 
     it("should maintain type safety with generic parameter", () => {
-      const typedCallback = vi.fn<[TypedMessage], void>();
+      const typedCallback: (data: TypedMessage) => void = vi.fn();
       const service = new WebSocketService<TypedMessage>(
         "ws://localhost:8001/test",
         typedCallback
@@ -1350,7 +1353,7 @@ describe("WebSocketService - Current Implementation", () => {
         | { type: "status"; value: number }
         | { type: "error"; message: string };
 
-      const unionCallback = vi.fn<[UnionMessage], void>();
+      const unionCallback: (data: UnionMessage) => void = vi.fn();
       const service = new WebSocketService<UnionMessage>(
         "ws://localhost:8001/test",
         unionCallback

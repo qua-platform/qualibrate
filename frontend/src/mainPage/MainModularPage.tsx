@@ -13,7 +13,7 @@ import { NODES_KEY, PROJECT_KEY } from "../routing/ModulesRegistry";
 const MainModularPage = () => {
   const { isAuthorized } = useAuthContext();
   const { model, checkIsEmpty, flexLayoutListener, openTab, setActiveTabsetName } = useFlexLayoutContext();
-  const { activeProject } = useProjectContext();
+  const { activeProject, shouldGoToProjectPage } = useProjectContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,14 +49,14 @@ const MainModularPage = () => {
   useEffect(() => {
     if (!isAuthorized) {
       navigate(LOGIN_URL);
-    } else if (!activeProject) {
+    } else if (!activeProject || shouldGoToProjectPage) {
       openTab(PROJECT_KEY);
       setActiveTabsetName(PROJECT_KEY);
     } else {
       openTab(NODES_KEY);
       setActiveTabsetName(NODES_KEY);
     }
-  }, [isAuthorized, activeProject]);
+  }, [isAuthorized, activeProject, shouldGoToProjectPage]);
 
   useEffect(checkIsEmpty, []);
   return (
