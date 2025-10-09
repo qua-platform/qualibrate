@@ -26,24 +26,8 @@ on:
         type: string
 
 jobs:
-  # Determine which branch to use for the reusable workflow
-  get-workflow-ref:
-    runs-on: ubuntu-latest
-    outputs:
-      ref: ${{ steps.get-ref.outputs.ref }}
-    steps:
-      - name: Get workflow ref
-        id: get-ref
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "ref=${{ github.head_ref }}" >> $GITHUB_OUTPUT
-          else
-            echo "ref=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          fi
-
   call-reusable-playwright-tests:
-    needs: get-workflow-ref
-    uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@${{ needs.get-workflow-ref.outputs.ref }}
+    uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@${{ github.sha }}
     with:
       qualibrate-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-ref }}
       qualibrate-app-ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
