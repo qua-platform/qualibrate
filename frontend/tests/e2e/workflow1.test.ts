@@ -17,11 +17,11 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
 
   // 1a. Verify Project Page and go to project (node) page
   try {
-    await expect(page.getByTestId("project-wrapper-init_project")).toBeVisible({ timeout: 2000 });  // This wait is too long, it is better to check if nodes-and-job-wrapper is visible
+    await expect(page.getByTestId("project-wrapper-demo_project")).toBeVisible({ timeout: 2000 });
   } catch {
   }
   try {
-    const lets_start_button = page.getByTestId("lets-start-button-init_project");
+    const lets_start_button = page.getByTestId("lets-start-button-demo_project");
     await expect(lets_start_button).toBeVisible({ timeout: 1000 }); // Project page loaded sucessfully
     await lets_start_button.click();
   } catch {
