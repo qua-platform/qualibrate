@@ -82,9 +82,10 @@ describe("WebSocketService - Current Implementation", () => {
     // Create test callback
     onMessageCallback = vi.fn();
 
-    // Suppress console warnings during tests
+    // Suppress console output during tests
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
