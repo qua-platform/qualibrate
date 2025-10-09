@@ -22,7 +22,7 @@ const SidebarMenu: React.FunctionComponent = () => {
   const [minify, setMinify] = useState(true);
   const { activeTabsetName, setActiveTabsetName, openTab } = useFlexLayoutContext();
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
-  const { activeProject } = useProjectContext();
+  const { activeProject, shouldGoToProjectPage } = useProjectContext();
 
   const handleProjectClick = useCallback(() => {
     openTab(PROJECT_KEY);
@@ -53,7 +53,7 @@ const SidebarMenu: React.FunctionComponent = () => {
                   hideText={minify}
                   onClick={() => setActiveTabsetName(item.keyId)}
                   isSelected={activeTabsetName === item.keyId}
-                  isDisabled={!activeProject}
+                  isDisabled={!activeProject || shouldGoToProjectPage}
                   data-testid={`menu-item-${item.keyId}`}
                 />
               );
