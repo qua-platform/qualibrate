@@ -214,17 +214,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      # Step 18: Upload Test Results (screenshots, videos, traces)
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-test-results
-          path: qualibrate-app/frontend/tests/test-results
-          if-no-files-found: warn
-          retention-days: 30
-
-      # Step 19: Upload Server Logs (for debugging failures)
+      # Step 18: Upload Server Logs (for debugging failures)
       - name: Upload Server Logs
         if: always()
         uses: actions/upload-artifact@v4
