@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate-core"
-version = "0.4.0"
+version = "0.4.1"
 description = ""
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 readme = "README.md"
