@@ -2934,14 +2934,14 @@ two-qubit-rb = ["cirq (==1.2.0) ; python_version >= \"3.10\"", "tqdm (>=4.67.1,<
 
 [[package]]
 name = "qualibrate-app"
-version = "0.4.0"
+version = "0.4.1"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.10"
 groups = ["main"]
 files = [
-    {file = "qualibrate_app-0.4.0-py3-none-any.whl", hash = "sha256:08414b39e9326d7c0ce55cc7908b8f199297df25f56f6ef9aba674051b3eea3f"},
-    {file = "qualibrate_app-0.4.0.tar.gz", hash = "sha256:e87a108da00083454139eacf6a8cf5de781666ac4d79ce1929fecd3b594485f6"},
+    {file = "qualibrate_app-0.4.1-py3-none-any.whl", hash = "sha256:7157d3996ddfa38fad551666f14d368beac6b544c76fbc3cf5c2d1f84e26d49f"},
+    {file = "qualibrate_app-0.4.1.tar.gz", hash = "sha256:f948bfd764042d158ad59e59889a8560c9674813121800f4594e4d466cbeb829"},
 ]
 
 [package.dependencies]
@@ -2956,14 +2956,14 @@ uvicorn = ">=0.37.0,<0.38.0"
 
 [[package]]
 name = "qualibrate-config"
-version = "0.1.7"
+version = "0.1.8"
 description = "Configuration for Qualibrate"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "qualibrate_config-0.1.7-py3-none-any.whl", hash = "sha256:788d86c8c93680c3188b03c74b817c3e8798be5e0454daabb18d7428cfeb4fb6"},
-    {file = "qualibrate_config-0.1.7.tar.gz", hash = "sha256:82f8f46ad3526ee4e9b39f9dc57a0430461f6a17cfdedef59b4bdf431da59faf"},
+    {file = "qualibrate_config-0.1.8-py3-none-any.whl", hash = "sha256:58969295ada9253540e18208387acad9097a4883051dd8ed72887e89b4f6d37f"},
+    {file = "qualibrate_config-0.1.8.tar.gz", hash = "sha256:7deccb0d160a0f1863ca43c87c5712d7a7e40a4c89fa03a8ed06d2ff552a1176"},
 ]
 
 [package.dependencies]
@@ -2976,14 +2976,14 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.4.0"
+version = "0.4.1"
 description = ""
 optional = false
 python-versions = "<3.13,>=3.10"
 groups = ["main"]
 files = [
-    {file = "qualibrate_core-0.4.0-py3-none-any.whl", hash = "sha256:82a54fe773ddbad91741e326e60d240a9ae6a8578cf57783dac3bc18e6b49008"},
-    {file = "qualibrate_core-0.4.0.tar.gz", hash = "sha256:17d34b38c58bf09729de84b2646c1f54098bbd179ae313699a7c32f3c2832600"},
+    {file = "qualibrate_core-0.4.1-py3-none-any.whl", hash = "sha256:c1124aee019e5774079705d5bd04b91e8e2e4911de26a9e16830256a1c13fd83"},
+    {file = "qualibrate_core-0.4.1.tar.gz", hash = "sha256:969047b8ca0156d2f27f4a838cf1198b32732c51610abf39d426a8c8c2e5949f"},
 ]
 
 [package.dependencies]
@@ -3924,4 +3924,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.13"
-content-hash = "f106e2c185191feab56ef72f96844810a414dc33df9d5c52b29946c04bd37a52"
+content-hash = "2873ce52ff59e097a9a787ec8ffb40f3a45de6087814e4edb885110072bbfedb"
