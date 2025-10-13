@@ -1,4 +1,4 @@
-import React, { Dispatch, PropsWithChildren, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState } from "react";
+import React, { Dispatch, PropsWithChildren, SetStateAction, useCallback, useContext, useEffect, useState } from "react";
 import { SnapshotDTO } from "../SnapshotDTO";
 import { SnapshotsApi } from "../api/SnapshotsApi";
 
@@ -81,7 +81,7 @@ export const SnapshotsContext = React.createContext<ISnapshotsContext>({
 
 export const useSnapshotsContext = (): ISnapshotsContext => useContext<ISnapshotsContext>(SnapshotsContext);
 
-export function SnapshotsContextProvider(props: PropsWithChildren<ReactNode>): React.ReactElement {
+export function SnapshotsContextProvider(props: PropsWithChildren): React.ReactElement {
   const [trackLatestSidePanel, setTrackLatestSidePanel] = useState(true);
   const [trackPreviousSnapshot, setTrackPreviousSnapshot] = useState(true);
   const [pageNumber, setPageNumber] = useState<number>(1);

@@ -7,6 +7,7 @@ import { SelectionContextProvider } from "../../../common/context/SelectionConte
 import { SnapshotsContextProvider } from "../../../Snapshots/context/SnapshotsContext";
 import { BrowserRouter } from "react-router-dom";
 import type { RunStatusType, HistoryType } from "../../../../contexts/WebSocketContext";
+import type { NodeMap } from "./NodeElement";
 
 // Mock WebSocket context
 const WebSocketContext = createContext<{
@@ -26,7 +27,7 @@ const WebSocketContext = createContext<{
 });
 
 // Test wrapper that sets up nodes via context
-const TestWrapper = ({ children, nodes }: { children: React.ReactNode; nodes?: Record<string, unknown> }) => {
+const TestWrapper: React.FC<{ children: React.ReactNode; nodes?: NodeMap }> = ({ children, nodes }) => {
   return (
     <BrowserRouter>
       <WebSocketContext.Provider
@@ -53,7 +54,7 @@ const TestWrapper = ({ children, nodes }: { children: React.ReactNode; nodes?: R
 };
 
 // Helper component to set nodes in context
-const NodesSetter = ({ nodes }: { nodes: Record<string, unknown> }) => {
+const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
   const { setAllNodes } = useNodesContext();
 
   // Set nodes immediately

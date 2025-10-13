@@ -81,7 +81,7 @@ afterEach(async (context: { task?: { result?: { state?: string; errors?: unknown
   // Check if test failed
   const testFailed =
     context?.task?.result?.state === "fail" ||
-    context?.task?.result?.errors?.length > 0;
+    (context?.task?.result?.errors && context.task.result.errors.length > 0);
 
   if (testFailed) {
     // Print buffered console output

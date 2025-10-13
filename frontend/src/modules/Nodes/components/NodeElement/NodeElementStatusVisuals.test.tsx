@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
 import { StatusVisuals } from "./NodeElementStatusVisuals";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 
 describe("StatusVisuals", () => {
