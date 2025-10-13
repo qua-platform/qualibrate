@@ -54,7 +54,7 @@ interface INodesContext {
   setIsNodeRunning: (value: boolean) => void;
   results?: unknown | object;
   setResults: (value: unknown | object | undefined) => void;
-  fetchAllNodes: () => void;
+  fetchAllNodes: (rescan?: boolean) => void;
   isAllStatusesUpdated: boolean;
   setIsAllStatusesUpdated: (value: boolean) => void;
   updateAllButtonPressed: boolean;
@@ -120,10 +120,10 @@ export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({
   const [updateAllButtonPressed, setUpdateAllButtonPressed] = useState<boolean>(false);
   const [isRescanningNodes, setIsRescanningNodes] = useState<boolean>(false);
 
-  const fetchAllNodes = async () => {
+  const fetchAllNodes = async (rescan = false) => {
     setAllNodes(undefined);
     setIsRescanningNodes(true);
-    const response = await NodesApi.fetchAllNodes();
+    const response = await NodesApi.fetchAllNodes(rescan);
     if (response.isOk) {
       setAllNodes(response.result! as NodeMap);
     } else if (response.error) {
