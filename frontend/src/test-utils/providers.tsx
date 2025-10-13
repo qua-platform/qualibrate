@@ -1,9 +1,9 @@
 // Test utilities for React component testing
-import React, { createContext } from "react";
+import React, { createContext, useEffect } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { NodesContextProvider } from "../modules/Nodes/context/NodesContext";
-import { SelectionContextProvider } from "../modules/common/context/SelectionContext";
+import { SelectionContextProvider, useSelectionContext } from "../modules/common/context/SelectionContext";
 import { SnapshotsContextProvider } from "../modules/Snapshots/context/SnapshotsContext";
 import type { RunStatusType, HistoryType } from "../contexts/WebSocketContext";
 
@@ -21,8 +21,9 @@ interface MockWebSocketContextValue {
 
 /**
  * Mock WebSocket context for testing
+ * Export it so tests can use useWebSocketData() hook
  */
-const WebSocketContext = createContext<MockWebSocketContextValue>({
+export const WebSocketContext = createContext<MockWebSocketContextValue>({
   runStatus: null,
   history: null,
   sendRunStatus: () => {},
@@ -39,12 +40,14 @@ const WebSocketContext = createContext<MockWebSocketContextValue>({
  *
  * @example
  * const Providers = createTestProviders({
- *   webSocket: { runStatus: { is_running: true, ... } }
+ *   webSocket: { runStatus: { is_running: true, ... } },
+ *   selection: { selectedItemName: "test_cal" }
  * });
  * render(<Providers><NodeElement /></Providers>);
  */
 export const createTestProviders = (overrides: {
   webSocket?: Partial<MockWebSocketContextValue>;
+  selection?: { selectedItemName?: string | null };
 } = {}) => {
   const defaultWebSocketValue: MockWebSocketContextValue = {
     runStatus: null,
@@ -56,13 +59,28 @@ export const createTestProviders = (overrides: {
     ...overrides.webSocket,
   };
 
+  // Helper component to set initial selection
+  const SelectionSetter: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { setSelectedItemName } = useSelectionContext();
+
+    useEffect(() => {
+      if (overrides.selection?.selectedItemName) {
+        setSelectedItemName(overrides.selection.selectedItemName);
+      }
+    }, [setSelectedItemName]);
+
+    return <>{children}</>;
+  };
+
   const TestProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <BrowserRouter>
       <WebSocketContext.Provider value={defaultWebSocketValue}>
         <NodesContextProvider>
           <SelectionContextProvider>
             <SnapshotsContextProvider>
-              {children}
+              <SelectionSetter>
+                {children}
+              </SelectionSetter>
             </SnapshotsContextProvider>
           </SelectionContextProvider>
         </NodesContextProvider>

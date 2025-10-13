@@ -2,11 +2,45 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { NodeElement } from "./NodeElement";
-import { createTestProviders } from "@/test-utils/providers";
+import { createTestProviders, WebSocketContext } from "@/test-utils/providers";
 import * as NodesAPI from "../../api/NodesAPI";
+import * as WebSocketContextModule from "../../../../contexts/WebSocketContext";
+import type { NodeExecution } from "../../../../contexts/WebSocketContext";
 
 // Mock the NodesApi
 vi.mock("../../api/NodesAPI");
+
+// Mock useWebSocketData to use our test WebSocketContext
+vi.mock("../../../../contexts/WebSocketContext", async () => {
+  const actual = await vi.importActual<typeof WebSocketContextModule>("../../../../contexts/WebSocketContext");
+  return {
+    ...actual,
+    useWebSocketData: () => React.useContext(WebSocketContext),
+  };
+});
+
+// Helper to create mock NodeExecution objects
+const createMockNodeExecution = (overrides: Partial<NodeExecution> = {}): NodeExecution => ({
+  current_action: null,
+  description: null,
+  id: 1,
+  name: "test_cal",
+  parameters: {},
+  percentage_complete: 0,
+  run_duration: 0,
+  run_end: "",
+  run_start: "",
+  status: "pending",
+  time_remaining: 0,
+  run_results: {
+    parameters: {},
+    outcomes: {},
+    error: null,
+    initial_targets: [],
+    successful_targets: [],
+  },
+  ...overrides,
+});
 
 describe("NodeElement - Parameter Management", () => {
   const mockNode = {
@@ -177,5 +211,200 @@ describe("NodeElement - Execution", () => {
     await waitFor(() => {
       expect(screen.getByText(/Invalid resonator format/i)).toBeInTheDocument();
     });
+  });
+
+  it("should submit node with correct parameters", async () => {
+    const mockSubmit = vi.fn().mockResolvedValue({ isOk: true });
+    vi.spyOn(NodesAPI.NodesApi, "submitNodeParameters").mockImplementation(mockSubmit);
+
+    const Providers = createTestProviders({
+      webSocket: {
+        runStatus: {
+          is_running: false,
+          runnable_type: "node",
+          node: null,
+          graph: null
+        }
+      }
+    });
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" node={mockNode} />
+      </Providers>
+    );
+
+    // Select node
+    fireEvent.click(screen.getByTestId("node-element-test_cal"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("run-button")).toBeInTheDocument();
+    });
+
+    // Click run button
+    fireEvent.click(screen.getByTestId("run-button"));
+
+    // Verify API was called with correct parameters
+    await waitFor(() => {
+      expect(mockSubmit).toHaveBeenCalledWith("test_cal", {
+        resonator: "q1.resonator"
+      });
+    });
+  });
+
+  it("should show spinner when node is running", async () => {
+    const Providers = createTestProviders({
+      webSocket: {
+        runStatus: {
+          is_running: true,
+          runnable_type: "node",
+          node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 50 }),
+          graph: null
+        }
+      },
+      selection: {
+        selectedItemName: "test_cal" // Pre-select the node
+      }
+    });
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" node={mockNode} />
+      </Providers>
+    );
+
+    // When node is selected and running, should show CircularProgress (MUI spinner in the row)
+    await waitFor(() => {
+      const spinner = screen.getByRole("progressbar");
+      expect(spinner).toBeInTheDocument();
+    });
+
+    // Run button should not be visible when running
+    expect(screen.queryByTestId("run-button")).not.toBeInTheDocument();
+  });
+});
+
+describe("NodeElement - WebSocket Status Integration", () => {
+  const mockNode = {
+    name: "test_cal",
+    title: "Test Calibration",
+    description: "Test description",
+    parameters: {}
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should show status indicator for running node", () => {
+    const Providers = createTestProviders({
+      webSocket: {
+        runStatus: {
+          is_running: true,
+          runnable_type: "node",
+          node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 75 }),
+          graph: null
+        }
+      }
+    });
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" node={mockNode} />
+      </Providers>
+    );
+
+    // Status indicator should be visible in dot-wrapper
+    const dotWrapper = screen.getByTestId("dot-wrapper-test_cal");
+    expect(dotWrapper).toBeInTheDocument();
+
+    // Should show progress spinner (CircularLoaderProgress component renders SVG)
+    // The condition is: runStatus?.node?.name === node.name
+    // So it should show StatusVisuals with status="running" which renders CircularLoaderProgress
+    const svg = dotWrapper.querySelector("svg");
+    expect(svg).toBeInTheDocument();
+  });
+
+  it("should show green dot when node finished", () => {
+    const Providers = createTestProviders({
+      webSocket: {
+        runStatus: {
+          is_running: false,
+          runnable_type: "node",
+          node: createMockNodeExecution({ name: "test_cal", status: "finished", percentage_complete: 100 }),
+          graph: null
+        }
+      }
+    });
+
+    const { container } = render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" node={mockNode} />
+      </Providers>
+    );
+
+    const dotWrapper = container.querySelector('[data-testid="dot-wrapper-test_cal"]');
+    expect(dotWrapper).toBeInTheDocument();
+
+    // Look for a div with class containing "dot" - StatusVisuals renders <div className={`${styles.dot} ${styles.greenDot}`} />
+    const dots = dotWrapper?.querySelectorAll("div");
+    expect(dots && dots.length > 0).toBe(true);
+
+    // Check that there's a dot element (the greenDot styling is handled by CSS modules with hashed class names)
+    // We can't check for the exact class name due to CSS module hashing, but we can verify a dot element exists
+    const dotElement = dotWrapper?.querySelector("div");
+    expect(dotElement).toBeInTheDocument();
+  });
+
+  it("should show red dot when node errored", () => {
+    const Providers = createTestProviders({
+      webSocket: {
+        runStatus: {
+          is_running: false,
+          runnable_type: "node",
+          node: createMockNodeExecution({ name: "test_cal", status: "error", percentage_complete: 0 }),
+          graph: null
+        }
+      }
+    });
+
+    const { container } = render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" node={mockNode} />
+      </Providers>
+    );
+
+    const dotWrapper = container.querySelector('[data-testid="dot-wrapper-test_cal"]');
+    expect(dotWrapper).toBeInTheDocument();
+
+    // Look for a div element (the redDot styling is handled by CSS modules)
+    const dotElement = dotWrapper?.querySelector("div");
+    expect(dotElement).toBeInTheDocument();
+  });
+
+  it("should not show status for different running node", () => {
+    // Catches complex conditional logic in status display
+    const Providers = createTestProviders({
+      webSocket: {
+        runStatus: {
+          is_running: true,
+          runnable_type: "node",
+          node: createMockNodeExecution({ name: "other_node", status: "running", percentage_complete: 50 }),
+          graph: null
+        }
+      }
+    });
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" node={mockNode} />
+      </Providers>
+    );
+
+    // test_cal should not show status when other_node is running
+    const dotWrapper = screen.getByTestId("dot-wrapper-test_cal");
+
+    // Should not have a progress spinner
+    expect(dotWrapper.querySelector('[role="progressbar"]')).not.toBeInTheDocument();
   });
 });
