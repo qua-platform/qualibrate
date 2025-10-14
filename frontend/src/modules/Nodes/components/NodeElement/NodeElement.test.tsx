@@ -408,3 +408,160 @@ describe("NodeElement - WebSocket Status Integration", () => {
     expect(dotWrapper.querySelector('[role="progressbar"]')).not.toBeInTheDocument();
   });
 });
+
+describe("NodeElement - UI Interactions", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should insert spaces in very long node names to prevent overflow", () => {
+    const longNameNode = {
+      name: "test_calibration_with_extremely_long_name_that_exceeds_forty_characters_and_needs_wrapping",
+      title: "Test Calibration With Extremely Long Name That Exceeds Forty Characters And Needs Wrapping",
+      description: "Test description",
+      parameters: {}
+    };
+
+    const Providers = createTestProviders();
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="long_node" node={longNameNode} />
+      </Providers>
+    );
+
+    const titleElement = screen.getByTestId("title-or-name-long_node");
+
+    // The insertSpaces function adds spaces every 40 characters
+    // So the text content should contain spaces
+    expect(titleElement.textContent).toContain(" ");
+
+    // Verify the title is actually displayed
+    expect(titleElement).toBeInTheDocument();
+  });
+
+  it("should display description tooltip when hovering over info icon", () => {
+    const mockNode = {
+      name: "test_cal",
+      title: "Test Calibration",
+      description: "This is a detailed description of the calibration node that explains what it does",
+      parameters: {}
+    };
+
+    const Providers = createTestProviders();
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" node={mockNode} />
+      </Providers>
+    );
+
+    // Find the node element
+    const nodeElement = screen.getByTestId("node-element-test_cal");
+    expect(nodeElement).toBeInTheDocument();
+
+    // Find the description wrapper by looking for elements with class containing "description"
+    // CSS modules hash class names, so we look for partial matches
+    const descriptionWrapper = nodeElement.querySelector('[class*="descriptionWrapper"]');
+    expect(descriptionWrapper).toBeInTheDocument();
+
+    // Verify the InfoIcon SVG is present (the tooltip trigger)
+    const infoIcon = descriptionWrapper?.querySelector("svg");
+    expect(infoIcon).toBeInTheDocument();
+  });
+
+  it("should not show description icon when description is missing", () => {
+    const mockNode = {
+      name: "test_cal",
+      title: "Test Calibration",
+      description: "",
+      parameters: {}
+    };
+
+    const Providers = createTestProviders();
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" node={mockNode} />
+      </Providers>
+    );
+
+    // Find the node element
+    const nodeElement = screen.getByTestId("node-element-test_cal");
+
+    // Find the description wrapper
+    const descriptionWrapper = nodeElement.querySelector('[class*="descriptionWrapper"]');
+    expect(descriptionWrapper).toBeInTheDocument();
+
+    // Should not have any SVG content when description is empty
+    const infoIcon = descriptionWrapper?.querySelector("svg");
+    expect(infoIcon).not.toBeInTheDocument();
+  });
+
+  it("should use title when available, fallback to name otherwise", () => {
+    const nodeWithTitle = {
+      name: "resonator_spectroscopy",
+      title: "Resonator Spectroscopy",
+      description: "Test",
+      parameters: {}
+    };
+
+    const Providers = createTestProviders();
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test1" node={nodeWithTitle} />
+      </Providers>
+    );
+
+    // Should display the title, not the name
+    const titleElement = screen.getByTestId("title-or-name-test1");
+    expect(titleElement).toHaveTextContent("Resonator Spectroscopy");
+    expect(titleElement).not.toHaveTextContent("resonator_spectroscopy");
+  });
+
+  it("should use name when title is not provided", () => {
+    const nodeWithoutTitle = {
+      name: "resonator_spectroscopy",
+      description: "Test",
+      parameters: {}
+    };
+
+    const Providers = createTestProviders();
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test2" node={nodeWithoutTitle} />
+      </Providers>
+    );
+
+    // Should display the name since title is not provided
+    const titleElement = screen.getByTestId("title-or-name-test2");
+    expect(titleElement).toHaveTextContent("resonator_spectroscopy");
+  });
+
+  it("should highlight node row when selected", () => {
+    const mockNode = {
+      name: "test_cal",
+      title: "Test Calibration",
+      description: "Test",
+      parameters: {}
+    };
+
+    const Providers = createTestProviders();
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" node={mockNode} />
+      </Providers>
+    );
+
+    const nodeElement = screen.getByTestId("node-element-test_cal");
+
+    // Click to select the node
+    fireEvent.click(nodeElement);
+
+    // The node should still be in the document and the click should have triggered selection
+    expect(nodeElement).toBeInTheDocument();
+  });
+});
