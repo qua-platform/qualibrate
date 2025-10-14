@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Collapsible graph workflow card with parameters and visualization.
+ *
+ * Displays a calibration graph with editable parameters, node details, and a
+ * Cytoscape preview. Handles parameter transformation for API submission and
+ * opens the graph-status panel when execution starts.
+ *
+ * @see GraphList - Renders multiple GraphElements
+ * @see CytoscapeGraph - Embedded graph visualization
+ * @see GraphContext - Manages graph selection and execution state
+ */
 import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
@@ -21,6 +32,10 @@ export interface ICalibrationGraphElementProps {
   calibrationGraph: GraphWorkflow;
 }
 
+/**
+ * Transformed graph structure for API submission.
+ * Flattens parameter defaults from InputParameter format to simple key-value pairs.
+ */
 interface TransformedGraph {
   parameters: { [key: string]: string | number };
   nodes: { [key: string]: { parameters: InputParameter } };
@@ -86,6 +101,10 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         );
     }
   };
+  /**
+   * Transforms graph and node parameters from InputParameter format to flat key-value pairs.
+   * Extracts parameter.default values for API submission.
+   */
   const transformDataForSubmit = () => {
     const input = allGraphs?.[selectedWorkflowName ?? ""];
     const workflowParameters = input?.parameters;
@@ -112,6 +131,10 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     return transformedGraph;
   };
 
+  /**
+   * Submits workflow for execution and opens graph-status panel.
+   * Sets lastRunInfo.active to trigger UI updates via GraphContext.
+   */
   const handleSubmit = async () => {
     if (selectedWorkflowName) {
       setLastRunInfo({

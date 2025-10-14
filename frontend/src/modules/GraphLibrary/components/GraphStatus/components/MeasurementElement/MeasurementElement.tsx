@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Collapsible measurement list item showing node execution results.
+ *
+ * Displays measurement ID, name, status dot (success/failure ratio), and expandable
+ * details including run info, parameters, and per-qubit outcomes. Clicking fetches
+ * snapshot data and displays in Results panel.
+ *
+ * @see MeasurementHistory - Parent list component
+ * @see MeasurementElementInfoSection - Renders expandable details
+ */
 import React from "react";
 import styles from "./MeasurementElement.module.scss";
 import { Measurement, useGraphStatusContext } from "../../context/GraphStatusContext";
@@ -17,7 +27,9 @@ interface MeasurementElementProps {
   dataMeasurementId: string;
 }
 
-// Formats a date-time string into a more readable format.
+/**
+ * Formats ISO 8601 timestamp to "YYYY-MM-DD HH:MM:SS" format.
+ */
 export const formatDateTime = (dateTimeString: string) => {
   const [date, time] = dateTimeString.split("T");
   const timeWithoutZone = time.split("+")[0].split("Z")[0];
@@ -28,20 +40,23 @@ export const formatDateTime = (dateTimeString: string) => {
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, dataMeasurementId }) => {
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
-  // const { fetchResultsAndDiffData } = useGraphStatusContext();
   const { fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
   const { trackLatest, setTrackLatest } = useGraphStatusContext();
 
-  // Check if the current measurement is selected in either the list or Cytoscape graph
+  // Check if selected via list click or Cytoscape graph node click
   const measurementSelected =
     selectedItemName && (selectedItemName === element.id?.toString() || selectedItemName === element.metadata?.name);
   const cytoscapeNodeSelected =
     selectedNodeNameInWorkflow &&
     (selectedNodeNameInWorkflow === element.id?.toString() || selectedNodeNameInWorkflow === element.metadata?.name);
 
+  /**
+   * Generates conic gradient for status dot based on outcome success ratio.
+   * Green segment shows success percentage, red shows failures.
+   */
   const getDotStyle = () => {
     if (!element.data?.outcomes || Object.keys(element.data?.outcomes).length === 0) {
-      return { backgroundColor: "#40a8f5" }; // Default blue color if no outcomes
+      return { backgroundColor: "#40a8f5" };
     }
     const outcomes = Object.values(element.data?.outcomes);
     const total = outcomes.length;
