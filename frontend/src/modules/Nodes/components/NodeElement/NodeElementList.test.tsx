@@ -26,6 +26,18 @@ const WebSocketContext = createContext<{
   subscribeToHistory: () => () => {}
 });
 
+// Helper component to set nodes in context
+const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
+  const { setAllNodes } = useNodesContext();
+
+  // Set nodes immediately
+  React.useEffect(() => {
+    setAllNodes(nodes);
+  }, [nodes, setAllNodes]);
+
+  return null;
+};
+
 // Test wrapper that sets up nodes via context
 const TestWrapper: React.FC<{ children: React.ReactNode; nodes?: NodeMap }> = ({ children, nodes }) => {
   return (
@@ -51,18 +63,6 @@ const TestWrapper: React.FC<{ children: React.ReactNode; nodes?: NodeMap }> = ({
       </WebSocketContext.Provider>
     </BrowserRouter>
   );
-};
-
-// Helper component to set nodes in context
-const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
-  const { setAllNodes } = useNodesContext();
-
-  // Set nodes immediately
-  React.useEffect(() => {
-    setAllNodes(nodes);
-  }, [nodes, setAllNodes]);
-
-  return null;
 };
 
 describe("NodeElementList", () => {

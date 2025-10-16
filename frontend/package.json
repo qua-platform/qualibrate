@@ -18,7 +18,7 @@
     "lint": "npm run lint:types && npm run lint:code && npm run lint:style",
     "lint:types": "tsc --noEmit",
     "lint:code": "eslint --ext ts,tsx src",
-    "lint:style": "stylelint --fix -f verbose src/**/*.scss",
+    "lint:style": "stylelint -f verbose src/**/*.scss",
     "lint:fix": "npm run lint:code -- --fix && npm run lint:style -- --fix",
     "start:local": "cross-env API_URL=http://localhost/ npm run start",
     "prepare": "cd .. && husky frontend/.husky",
