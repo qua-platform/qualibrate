@@ -24,6 +24,15 @@
     background-color: var(--menuitem-hover);
   }
 
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
   svg {
     height: 24px;
     width: 24px;

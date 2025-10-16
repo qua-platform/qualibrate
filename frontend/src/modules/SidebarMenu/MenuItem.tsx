@@ -1,4 +1,5 @@
 import React from "react";
+import Tooltip from "@mui/material/Tooltip";
 import { Module } from "../../routing/ModulesRegistry";
 import styles from "./styles/MenuItem.module.scss";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
@@ -28,7 +29,7 @@ const MenuItem: React.FC<
     onClick?.();
   };
 
-  return (
+  const button = (
     <button
       disabled={isDisabled}
       onClick={handleClick}
@@ -39,6 +40,14 @@ const MenuItem: React.FC<
       {Icon && <Icon color={MENU_TEXT_COLOR} />}
       {!hideText && displayTitle && <div data-testid={`menu-item-title-${keyId}`}> {displayTitle} </div>}
     </button>
+  );
+
+  return isDisabled ? (
+    <Tooltip title="Please select a project before accessing these pages" placement="right">
+      <span>{button}</span>
+    </Tooltip>
+  ) : (
+    button
   );
 };
 

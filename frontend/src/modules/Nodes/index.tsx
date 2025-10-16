@@ -18,7 +18,7 @@ export const NodesPage = () => {
   const NodeTopBarRefreshButton = () => {
     return (
       <div className={styles.refreshButtonWrapper} data-testid="refresh-button">
-        <BlueButton onClick={() => fetchAllNodes()}>Refresh</BlueButton>
+        <BlueButton onClick={() => fetchAllNodes(true)}>Refresh</BlueButton>
       </div>
     );
   };
