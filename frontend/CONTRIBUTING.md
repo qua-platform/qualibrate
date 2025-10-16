@@ -47,6 +47,7 @@ Fast tests for development. No backend required.
 npm test                    # Run all unit tests
 npm run test:unit:watch     # Watch mode (recommended)
 npm run test:unit:ui        # Interactive UI
+npm run test:unit:debug     # Prints debug messages during tests (disabled by default)
 npm run test:unit:coverage  # Coverage report
 npm run test:contexts       # Context tests only
 npm run test:components     # Component tests only
@@ -62,6 +63,14 @@ src/
 ├── contexts/__tests__/    # Context tests
 └── modules/*/tests/       # Component tests
 ```
+
+**Console Output Suppression:**
+
+Console output and stderr are buffered during Vitest execution and only shown  if a test fails. This keeps output clean when all tests pass, but shows helpful debug information when tests fail.
+
+To see ALL console output (even for passing tests):
+- Set environment variable: DEBUG_TESTS=true npm test
+- Or use npm script: npm run test:unit:debug
 
 ### E2E Tests (Playwright)
 
