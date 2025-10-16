@@ -104,7 +104,7 @@ describe("NodeElement - Parameter Management", () => {
     const longNameNode = {
       ...mockNode,
       name: "very_long_node_name_that_exceeds_forty_characters_definitely",
-      title: "Very Long Node Name That Exceeds Forty Characters Definitely"
+      title: "VeryVeryLongNodeNameThatExceedsFortyCharactersDefinitely"
     };
 
     const Providers = createTestProviders();
