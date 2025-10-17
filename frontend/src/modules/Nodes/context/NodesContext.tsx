@@ -241,12 +241,13 @@ export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({
             // parameters: lastRunResponseResult.run_result?.parameters,
             error,
           });
+          console.error("Last run status was error", lastRunResponse);
         }
-
-        console.log("last run status was error");
       }
     } else {
-      console.log("lastRunResponse was ", lastRunResponse);
+        if (!lastRunResponse.isOk) {  // Do nothing if isOK, since this means that there was no last run
+          console.log("Failed to fetch last run info:", lastRunResponse);
+        }
     }
   };
 
