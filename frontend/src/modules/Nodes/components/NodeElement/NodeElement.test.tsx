@@ -7,9 +7,6 @@ import * as NodesAPI from "../../api/NodesAPI";
 import * as WebSocketContextModule from "../../../../contexts/WebSocketContext";
 import type { NodeExecution } from "../../../../contexts/WebSocketContext";
 
-// Mock the NodesApi
-vi.mock("../../api/NodesAPI");
-
 // Mock useWebSocketData to use our test WebSocketContext
 vi.mock("../../../../contexts/WebSocketContext", async () => {
   const actual = await vi.importActual<typeof WebSocketContextModule>("../../../../contexts/WebSocketContext");

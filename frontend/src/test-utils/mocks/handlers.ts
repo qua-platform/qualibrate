@@ -10,20 +10,6 @@ import { http, HttpResponse } from "msw";
  */
 export const handlers = [
   // Node endpoints
-  http.get("/execution/get_nodes", () => {
-    return HttpResponse.json([
-      {
-        name: "test_cal",
-        parameters: {
-          resonator: "q1.resonator",
-          sampling_points: 100,
-          noise_factor: 0.1,
-        },
-        runnable: true,
-      },
-    ]);
-  }),
-
   http.post("/execution/submit/node", () => {
     return HttpResponse.json({
       jobId: "job-123",
@@ -76,8 +62,36 @@ export const handlers = [
     });
   }),
 
-  // Last run info endpoint (called by NodesContext)
-  http.get("/execution/last_run_info", () => {
-    return HttpResponse.json(null);
+  // Last run info endpoint (called by NodesContext.fetchNodeResults)
+  // Returns null to indicate no previous run (no active/previous calibration execution)
+  // This is the expected response when there's no prior calibration run
+  http.get("/execution/last_run/", () => {
+    return HttpResponse.json(null, { status: 200 });
+  }),
+
+  // Get all graphs endpoint (called by GraphContext.fetchAllCalibrationGraphs)
+  http.get("/execution/get_graphs", () => {
+    return HttpResponse.json({
+      test_workflow: {
+        name: "test_workflow",
+        title: "Test Workflow",
+        description: "A test workflow graph",
+        parameters: {},
+        nodes: {
+          node1: {
+            name: "test_cal",
+            parameters: {}
+          }
+        }
+      }
+    });
+  }),
+
+  // Execution history endpoint (called by GraphStatusContext.fetchAllMeasurements)
+  http.get("/execution/last_run/workflow/execution_history", () => {
+    return HttpResponse.json({
+      items: [],
+      total: 0
+    });
   }),
 ];
