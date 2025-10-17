@@ -104,4 +104,6 @@ export function InterfaceContextProvider(props: InterfaceContextProviderProps): 
   );
 }
 
+export const useInterfaceContext = () => React.useContext(InterfaceContext);
+
 export default InterfaceContext;

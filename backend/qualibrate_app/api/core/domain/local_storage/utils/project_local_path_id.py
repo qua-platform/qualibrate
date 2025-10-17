@@ -3,7 +3,6 @@ from collections.abc import Iterable
 from datetime import date
 from itertools import chain
 from pathlib import Path
-from typing import Optional
 
 from qualibrate_app.api.core.types import (
     IdType,
@@ -41,7 +40,7 @@ class IdToProjectLocalPath:
                 continue
             self._add_node(node_path)
 
-    def _fill_date(self, dt: Optional[date] = None) -> None:
+    def _fill_date(self, dt: date | None = None) -> None:
         if dt is None:
             dt = date.today()
         today_dir = self._project_path / dt.isoformat()
@@ -81,8 +80,8 @@ class IdToProjectLocalPath:
 
     def _get_suited_ids_by_date(
         self,
-        date_start: Optional[date] = None,
-        date_end: Optional[date] = None,
+        date_start: date | None = None,
+        date_end: date | None = None,
     ) -> set[IdType]:
         date_start = date_start or date.min
         date_end = date_end or date.max
@@ -100,9 +99,9 @@ class IdToProjectLocalPath:
 
     def _get_suited_ids_by_id_range(
         self,
-        id: Optional[IdType] = None,
-        min_id: Optional[IdType] = None,
-        max_id: Optional[IdType] = None,
+        id: IdType | None = None,
+        min_id: IdType | None = None,
+        max_id: IdType | None = None,
     ) -> set[IdType]:
         existing_ids: Iterable[IdType] = self._id2path.keys()
         if id is not None:
@@ -119,7 +118,7 @@ class IdToProjectLocalPath:
 
     def get_ids(
         self,
-        filters: Optional[SearchWithIdFilter] = None,
+        filters: SearchWithIdFilter | None = None,
     ) -> set[IdType]:
         self._fill_date()
         if filters is None:
@@ -130,7 +129,7 @@ class IdToProjectLocalPath:
             and filters.min_node_id > filters.max_node_id
         ):
             return set()
-        allowed_ids: Optional[set[IdType]] = None
+        allowed_ids: set[IdType] | None = None
         if filters.name_part:
             allowed_ids = self._get_suited_ids_by_name_part(filters.name_part)
         if allowed_ids is not None and len(allowed_ids) == 0:
@@ -158,7 +157,7 @@ class IdToProjectLocalPath:
     def get_path(
         self,
         id: IdType,
-    ) -> Optional[NodePath]:
+    ) -> NodePath | None:
         return self._id2path.get(id)
 
     @property

@@ -1,8 +1,8 @@
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from datetime import date
 from functools import partial
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
 
 from qualibrate_app.api.core.domain.local_storage.utils.local_path_id import (
     IdToLocalPath,
@@ -17,10 +17,10 @@ from qualibrate_app.api.core.utils.path.node import NodePath
 from qualibrate_app.api.core.utils.path.node_date import NodesDatePath
 
 
-def find_latest_node(base_path: Path) -> Optional[NodePath]:
+def find_latest_node(base_path: Path) -> NodePath | None:
     return max(
         map(NodePath, base_path.glob("*/#*")),
-        key=lambda p: p.id or -1,  # type: ignore[union-attr]
+        key=lambda p: p.id or -1,
         default=None,
     )
 
@@ -32,8 +32,8 @@ def find_latest_node_id(base_path: Path) -> IdType:
 
 def _validate_date_range(
     date_path: NodesDatePath,
-    min_date: Optional[date] = None,
-    max_date: Optional[date] = None,
+    min_date: date | None = None,
+    max_date: date | None = None,
 ) -> bool:
     try:
         dt = date_path.date
@@ -60,7 +60,7 @@ def _validate_node_id(
 def find_nodes_ids_by_filter(
     base_path: Path,
     *,
-    search_filter: Optional[SearchWithIdFilter] = None,
+    search_filter: SearchWithIdFilter | None = None,
     project_name: str,
     descending: bool = False,
 ) -> Generator[IdType, None, None]:
@@ -72,7 +72,7 @@ def find_n_latest_nodes_ids(
     base_path: Path,
     *,
     pages_filter: PageFilter,
-    search_filter: Optional[SearchFilter] = None,
+    search_filter: SearchFilter | None = None,
     project_name: str,
 ) -> Generator[IdType, None, None]:
     """

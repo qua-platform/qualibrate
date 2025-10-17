@@ -65,13 +65,13 @@ def test_parse_float(data, expected):
 @pytest.mark.parametrize(
     "data, expected",
     (
-        (1.0, "1.0"),
-        (1, "1"),
+        (1.0, 1.0),
+        (1, 1),
         ("2", "2"),
         ("-3", "-3"),
         ("true", "true"),
         ("random", "random"),
-        (b"random", "b'random'"),
+        (b"random", b"random"),
     ),
 )
 def test_parse_str(data, expected):
@@ -129,7 +129,7 @@ def test_parse_typed_list_raise_error(mocker):
 
 def test__parse_list_no_item_type():
     lst = [1, 2, "a"]
-    assert types_parsing._parse_list(lst, None) == lst
+    assert types_parsing._parse_list(lst, types_parsing._missing) == lst
 
 
 def test__parse_list_with_item_type(mocker):

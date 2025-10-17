@@ -20,6 +20,7 @@
   align-items: start;
   justify-content: space-between;
   background: var(--menu-background);
+  border-right: 1px solid var(--border-color);
   transition: width ease-in-out 0.1s;
 
   &.opened {

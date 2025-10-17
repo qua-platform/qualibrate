@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Any, Optional, Union
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
@@ -238,7 +238,7 @@ def get_snapshot_filtered(
         ),
     ] = True,
     root: Annotated[RootBase, Depends(_get_root_instance)],
-) -> Optional[SnapshotModel]:
+) -> SnapshotModel | None:
     """
     Retrieve the newest (or oldest) snapshot that satisfies the provided
     criteria. Order is controlled by the `descending` flag. Use
@@ -625,7 +625,7 @@ def get_nodes_history(
 @root_router.get("/search", deprecated=True)
 def search_snapshot(
     id: Annotated[IdType, Query(description="Snapshot id.")],
-    data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
+    data_path: Annotated[Sequence[str | int], Depends(get_search_path)],
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> Any:
     """
@@ -644,7 +644,7 @@ def search_snapshot_data(
     search_filters: Annotated[
         SearchWithIdFilter, Depends(get_search_with_id_filter)
     ],
-    data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
+    data_path: Annotated[Sequence[str | int], Depends(get_search_path)],
     descending: Annotated[
         bool,
         Query(description="When true, list occurrences from newest to oldest."),
@@ -688,7 +688,7 @@ def search_snapshot_data(
 @root_router.get("/snapshots/search", summary="Search values across snapshots")
 def search_snapshots_data(
     *,
-    data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
+    data_path: Annotated[Sequence[str | int], Depends(get_search_path)],
     filter_no_change: Annotated[
         bool,
         Query(

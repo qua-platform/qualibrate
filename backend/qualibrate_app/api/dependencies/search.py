@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Union
+from typing import Annotated
 
 from fastapi import Query
 
@@ -36,7 +36,7 @@ def get_search_path(
             )
         ),
     ],
-) -> Sequence[Union[str, int]]:
+) -> Sequence[str | int]:
     """Generate list of search subpaths from search path.
 
     Raises:

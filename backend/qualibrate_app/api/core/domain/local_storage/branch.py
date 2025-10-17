@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -43,7 +42,7 @@ class BranchLocalStorage(BranchBase):
     def __init__(
         self,
         name: str,
-        content: Optional[DocumentType] = None,
+        content: DocumentType | None = None,
         *,
         settings: QualibrateConfig,
     ):
@@ -72,14 +71,12 @@ class BranchLocalStorage(BranchBase):
             raise QFileNotFoundException(f"There is no {error_msg}")
         return node_id
 
-    def get_snapshot(
-        self, snapshot_id: Optional[IdType] = None
-    ) -> SnapshotBase:
+    def get_snapshot(self, snapshot_id: IdType | None = None) -> SnapshotBase:
         if snapshot_id is None:
             snapshot_id = self._get_latest_node_id("snapshots")
         return SnapshotLocalStorage(snapshot_id, settings=self._settings)
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         if id is None:
             id = self._get_latest_node_id("nodes")
         return NodeLocalStorage(id, settings=self._settings)
@@ -88,7 +85,7 @@ class BranchLocalStorage(BranchBase):
         self,
         storage_location: Path,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> Sequence[IdType]:
         ids = find_nodes_ids_by_filter(
@@ -102,7 +99,7 @@ class BranchLocalStorage(BranchBase):
     def get_latest_snapshots(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         storage_location = self._settings.storage.location
@@ -128,7 +125,7 @@ class BranchLocalStorage(BranchBase):
     def get_latest_nodes(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
         storage_location = self._settings.storage.location
@@ -162,8 +159,8 @@ class BranchLocalStorage(BranchBase):
         self,
         *,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
-        data_path: Sequence[Union[str, int]],
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
         filter_no_change: bool = True,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotSearchResult]]:

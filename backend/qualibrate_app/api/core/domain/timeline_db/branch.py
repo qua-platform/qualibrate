@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Optional, Union
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -34,14 +33,14 @@ class BranchTimelineDb(BranchBase):
     def __init__(
         self,
         name: str,
-        content: Optional[DocumentType] = None,
+        content: DocumentType | None = None,
         *,
         settings: QualibrateConfig,
     ):
         super().__init__(name, content, settings=settings)
 
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         if "created_at" not in self.content:
             return None
         return datetime.fromisoformat(
@@ -67,7 +66,7 @@ class BranchTimelineDb(BranchBase):
         self.content.update(content)
         self._load_type = BranchLoadType.Full
 
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         if id is None:
             latest = self.get_latest_snapshots(
                 pages_filter=PageFilter(page=1, per_page=1)
@@ -90,7 +89,7 @@ class BranchTimelineDb(BranchBase):
         snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         return snapshot
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         if id is None:
             latest = self.get_latest_nodes(
                 pages_filter=PageFilter(page=1, per_page=1)
@@ -144,7 +143,7 @@ class BranchTimelineDb(BranchBase):
     def get_latest_snapshots(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, list[SnapshotBase]]:
         """Retrieve last num_snapshots from this branch"""
@@ -161,7 +160,7 @@ class BranchTimelineDb(BranchBase):
     def get_latest_nodes(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, list[NodeBase]]:
         """Retrieve last num_snapshots from this branch"""
@@ -181,8 +180,8 @@ class BranchTimelineDb(BranchBase):
         self,
         *,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
-        data_path: Sequence[Union[str, int]],
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
         filter_no_change: bool = True,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotSearchResult]]:

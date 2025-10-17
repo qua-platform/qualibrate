@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 from datetime import datetime
-from typing import Optional, Union
 
 import pytest
 from pydantic import ValidationError
@@ -21,22 +20,22 @@ from qualibrate_app.api.core.types import (
 
 class CustomBranchBase(BranchBase):
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         raise NotImplementedError
 
     def load(self, load_type: BranchLoadType) -> None:
         raise NotImplementedError
 
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         raise NotImplementedError
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         raise NotImplementedError
 
     def get_latest_snapshots(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> Sequence[SnapshotBase]:
         raise NotImplementedError
@@ -44,7 +43,7 @@ class CustomBranchBase(BranchBase):
     def get_latest_nodes(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> Sequence[NodeBase]:
         raise NotImplementedError
@@ -53,8 +52,8 @@ class CustomBranchBase(BranchBase):
         self,
         *,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
-        data_path: Sequence[Union[str, int]],
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
         filter_no_change: bool = True,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotSearchResult]]:

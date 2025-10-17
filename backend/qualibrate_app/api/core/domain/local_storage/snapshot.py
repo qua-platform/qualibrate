@@ -5,8 +5,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import (
     Any,
-    Optional,
-    Union,
     cast,
 )
 from urllib.parse import urljoin
@@ -83,7 +81,7 @@ class SnapshotLocalStorage(SnapshotBase):
     def __init__(
         self,
         id: IdType,
-        content: Optional[DocumentType] = None,
+        content: DocumentType | None = None,
         snapshot_loader: snapshot_content_utils.SnapshotContentLoaderType = (
             snapshot_content_utils.default_snapshot_content_loader_from_flag
         ),
@@ -97,7 +95,7 @@ class SnapshotLocalStorage(SnapshotBase):
         super().__init__(id=id, content=content, settings=settings)
         self._snapshot_loader = snapshot_loader
         self._snapshot_updater = snapshot_updater
-        self._node_path: Optional[NodePath] = None
+        self._node_path: NodePath | None = None
 
     @property
     def node_path(self) -> NodePath:
@@ -134,7 +132,7 @@ class SnapshotLocalStorage(SnapshotBase):
         self._load_type_flag |= load_type_flag
 
     @property
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         """
         Returns the creation date of the snapshot.
 
@@ -144,7 +142,7 @@ class SnapshotLocalStorage(SnapshotBase):
         return self.content.get("created_at")
 
     @property
-    def parents(self) -> Optional[list[IdType]]:
+    def parents(self) -> list[IdType] | None:
         """
         Returns the list of parent snapshot IDs.
 
@@ -154,8 +152,8 @@ class SnapshotLocalStorage(SnapshotBase):
         return self.content.get("parents")
 
     def search(
-        self, search_path: Sequence[Union[str, int]], load: bool = False
-    ) -> Optional[Sequence[MachineSearchResults]]:
+        self, search_path: Sequence[str | int], load: bool = False
+    ) -> Sequence[MachineSearchResults] | None:
         """
         Searches for a value in the snapshot data at a specified path.
 
@@ -177,7 +175,7 @@ class SnapshotLocalStorage(SnapshotBase):
         self,
         storage_location: Path,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> Sequence[IdType]:
         ids = find_nodes_ids_by_filter(
@@ -290,7 +288,7 @@ class SnapshotLocalStorage(SnapshotBase):
     def get_state_updates_from_runner(
         self,
         **kwargs: Any,
-    ) -> Optional[StateUpdates]:
+    ) -> StateUpdates | None:
         """
         Retrieves state updates from the runner.
 
@@ -305,7 +303,7 @@ class SnapshotLocalStorage(SnapshotBase):
             return None
         try:
             cookies = cast(
-                Optional[MutableMapping[str, str]], kwargs.get("cookies")
+                MutableMapping[str, str] | None, kwargs.get("cookies")
             )
             last_run_response = requests.get(
                 urljoin(self._settings.runner.address_with_root, "last_run/"),
@@ -326,9 +324,9 @@ class SnapshotLocalStorage(SnapshotBase):
     def _extract_state_update_type_from_runner(
         self,
         path: str,
-        state_updates: Optional[StateUpdates] = None,
+        state_updates: StateUpdates | None = None,
         **kwargs: Any,
-    ) -> Optional[Mapping[str, Any]]:
+    ) -> Mapping[str, Any] | None:
         """
         Extracts the state update type for a specific path from the runner.
 
@@ -350,9 +348,9 @@ class SnapshotLocalStorage(SnapshotBase):
     def extract_state_update_types_from_runner(
         self,
         paths: Sequence[str],
-        state_updates: Optional[StateUpdates] = None,
+        state_updates: StateUpdates | None = None,
         **kwargs: Any,
-    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+    ) -> Mapping[str, Mapping[str, Any] | None]:
         """
         Extracts state update types for multiple paths from the runner.
 
@@ -377,7 +375,7 @@ class SnapshotLocalStorage(SnapshotBase):
 
     def get_quam_state(
         self,
-    ) -> Optional[Mapping[str, Any]]:
+    ) -> Mapping[str, Any] | None:
         """
         Retrieves the QuAM state from the snapshot.
 
@@ -401,8 +399,8 @@ class SnapshotLocalStorage(SnapshotBase):
             return None
 
     def _extract_state_update_type_from_quam_state(
-        self, path: str, quam_state: Optional[Mapping[str, Any]] = None
-    ) -> Optional[Mapping[str, Any]]:
+        self, path: str, quam_state: Mapping[str, Any] | None = None
+    ) -> Mapping[str, Any] | None:
         """
         Extracts the state update type for a specific path from the QuAM state.
 
@@ -425,8 +423,8 @@ class SnapshotLocalStorage(SnapshotBase):
     def extract_state_update_types_from_quam_state(
         self,
         paths: Sequence[str],
-        quam_state: Optional[Mapping[str, Any]] = None,
-    ) -> Optional[Mapping[str, Any]]:
+        quam_state: Mapping[str, Any] | None = None,
+    ) -> Mapping[str, Any] | None:
         """
         Extracts state update types for multiple paths from the QuAM state.
 
@@ -458,7 +456,7 @@ class SnapshotLocalStorage(SnapshotBase):
         self,
         path: str,
         **kwargs: Mapping[str, Any],
-    ) -> Optional[Mapping[str, Any]]:
+    ) -> Mapping[str, Any] | None:
         """
         Extracts the state update type for a specific path from either the
         runner or QuAM state.
@@ -481,7 +479,7 @@ class SnapshotLocalStorage(SnapshotBase):
         self,
         paths: Sequence[str],
         **kwargs: Mapping[str, Any],
-    ) -> Mapping[str, Optional[Mapping[str, Any]]]:
+    ) -> Mapping[str, Mapping[str, Any] | None]:
         """
         Extracts state update types for multiple paths from either the runner
         or QuAM state.

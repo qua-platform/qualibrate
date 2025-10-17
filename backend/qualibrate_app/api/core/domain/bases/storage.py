@@ -1,9 +1,9 @@
 import json
 from base64 import b64encode
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from enum import IntEnum
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -74,8 +74,8 @@ def _storage_loader_from_flag(
     snapshot_path: Path,
     data_file: Path,
     load_type: StorageLoadTypeFlag,
-    content: Optional[dict[str, Any]] = None,
-) -> Optional[dict[str, Any]]:
+    content: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
     if content is None:
         content = {}
     if load_type == StorageLoadTypeFlag.Empty:
@@ -112,7 +112,7 @@ class DataFileStorage(IDump):
             raise QFileNotFoundException(f"{rel_path} does not exist.")
         self._path = path
         self._load_type_flag = StorageLoadTypeFlag.Empty
-        self._data: Optional[dict[str, Any]] = None
+        self._data: dict[str, Any] | None = None
         self._settings = settings
 
     @property
@@ -120,14 +120,14 @@ class DataFileStorage(IDump):
         return self._path.relative_to(self._settings.storage.location)
 
     @property
-    def data(self) -> Optional[Mapping[str, Any]]:
+    def data(self) -> Mapping[str, Any] | None:
         return self._data
 
     @property
     def load_type_flag(self) -> StorageLoadTypeFlag:
         return self._load_type_flag
 
-    def _get_filename(self) -> Optional[Path]:
+    def _get_filename(self) -> Path | None:
         for filename in self.__class__.possible_filenames:
             filepath = self._path / filename
             if filepath.is_file():

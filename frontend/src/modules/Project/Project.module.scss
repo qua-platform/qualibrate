@@ -1,39 +1,59 @@
-.projectPageLayout {
-  position: relative;
+.projectPageWrapper {
+  max-width: 100%;
+  padding: 50px 70px 20px;
+  position: sticky;
+  top: 0;
   background-color: var(--background-color);
-  padding: 50px 70px;
-
-  @media (width <= 900px) {
-    padding: 40px 30px;
-  }
-
-  @media (width <= 700px) {
-    padding: 30px 20px;
-  }
+  z-index: 20;
+  color: var(--sub-text-color);
+  font-size: 16px;
+  font-weight: 400;
 }
 
-.pageWrapper {
-  position: relative;
+.splashNoProject {
+  padding-top: 80px;
   display: flex;
-  flex: 1;
-  gap: 70px;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
+}
+
+
+.projectPageLayout {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color);
+  max-width: 100%;
+  padding-left: 70px;
+  padding-right: 70px;
+  position: relative;
+}
+
+.projectActions {
+  padding-right: 20px;
 }
 
 .pageActions {
-  display: flex;
-  column-gap: 30px;
-  position: absolute;
-  bottom: 50px;
+  border-radius: 45px;
+  height: 100%;
+  width: fit-content;
+  position: sticky;
+  bottom: 80px;
   left: 70px;
-}
-
-.searchProjectField {
-  margin-bottom: 18px;
+  background-color: var(--background-color);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .actionButton {
-  width: 172px;
-  justify-content: center;
-  padding: 0;
-  gap: 8px;
+  width: 150px;
+  height: 40px;
+}
+
+.searchProjectField {
+  input {
+    border-radius: 45px;
+  }
 }

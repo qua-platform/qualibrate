@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Any, Optional, Union
+from typing import Annotated, Any
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
 
@@ -14,14 +14,14 @@ class SimplifiedSnapshot(ModelWithIdCreatedAt):
 class SnapshotMetadata(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    status: Optional[str] = None
-    name: Optional[str] = None
-    description: Optional[str] = None
-    run_start: Optional[AwareDatetime] = None
-    run_end: Optional[AwareDatetime] = None
+    status: str | None = None
+    name: str | None = None
+    description: str | None = None
+    run_start: AwareDatetime | None = None
+    run_end: AwareDatetime | None = None
 
     @computed_field
-    def run_duration(self) -> Optional[float]:
+    def run_duration(self) -> float | None:
         if self.run_start is None or self.run_end is None:
             return None
         return round((self.run_end - self.run_start).total_seconds(), 3)
@@ -34,13 +34,13 @@ class SimplifiedSnapshotWithMetadata(SimplifiedSnapshot):
 class SnapshotData(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    quam: Optional[dict[str, Any]] = None
-    parameters: Optional[dict[str, Any]] = None
-    results: Optional[dict[str, Any]] = None
-    outcomes: Optional[dict[str, Any]] = None
+    quam: dict[str, Any] | None = None
+    parameters: dict[str, Any] | None = None
+    results: dict[str, Any] | None = None
+    outcomes: dict[str, Any] | None = None
 
     @computed_field
-    def machine(self) -> Optional[dict[str, Any]]:
+    def machine(self) -> dict[str, Any] | None:
         return self.quam
 
 
@@ -48,11 +48,11 @@ class Snapshot(SimplifiedSnapshot):
     metadata: Annotated[
         SnapshotMetadata, Field(default_factory=SnapshotMetadata)
     ]
-    data: Optional[SnapshotData] = None
+    data: SnapshotData | None = None
 
 
 class MachineSearchResults(BaseModel):
-    key: Optional[Sequence[Union[str, int]]] = None
+    key: Sequence[str | int] | None = None
     value: Any
 
 

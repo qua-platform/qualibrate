@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from typing import Any, Optional, Union
+from typing import Any
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -29,18 +29,18 @@ class RootBase(DomainWithConfigBase, ABC):
         pass
 
     @abstractmethod
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         pass
 
     @abstractmethod
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         pass
 
     @abstractmethod
     def get_latest_snapshots(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         pass
@@ -49,7 +49,7 @@ class RootBase(DomainWithConfigBase, ABC):
     def get_latest_nodes(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
         pass
@@ -58,7 +58,7 @@ class RootBase(DomainWithConfigBase, ABC):
     def search_snapshot(
         self,
         search_filter: SearchWithIdFilter,
-        data_path: Sequence[Union[str, int]],
+        data_path: Sequence[str | int],
         descending: bool = False,
     ) -> Any:
         pass
@@ -68,8 +68,8 @@ class RootBase(DomainWithConfigBase, ABC):
         self,
         *,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
-        data_path: Sequence[Union[str, int]],
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
         filter_no_change: bool = True,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotSearchResult]]:

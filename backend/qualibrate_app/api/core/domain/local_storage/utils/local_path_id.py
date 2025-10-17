@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from qualibrate_app.api.core.domain.local_storage.utils.project_local_path_id import (  # noqa: E501
     IdToProjectLocalPath,
@@ -30,7 +29,7 @@ class IdToLocalPath(metaclass=Singleton):
         project: str,
         id: IdType,
         project_path: Path,
-    ) -> Optional[NodePath]:
+    ) -> NodePath | None:
         return self.get_project_manager(project, project_path).get_path(id)
 
     def get_path_or_raise(

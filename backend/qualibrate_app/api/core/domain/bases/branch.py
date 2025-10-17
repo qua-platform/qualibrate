@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from datetime import datetime
 from enum import IntEnum
-from typing import Optional, Union
 
 from qualibrate_config.models import QualibrateConfig
 
@@ -33,7 +32,7 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
     def __init__(
         self,
         name: str,
-        content: Optional[DocumentType] = None,
+        content: DocumentType | None = None,
         *,
         settings: QualibrateConfig,
     ):
@@ -56,7 +55,7 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
 
     @property
     @abstractmethod
-    def created_at(self) -> Optional[datetime]:
+    def created_at(self) -> datetime | None:
         pass
 
     @abstractmethod
@@ -64,18 +63,18 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
         pass
 
     @abstractmethod
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         pass
 
     @abstractmethod
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         pass
 
     @abstractmethod
     def get_latest_snapshots(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         pass
@@ -84,7 +83,7 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
     def get_latest_nodes(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
         pass
@@ -94,8 +93,8 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
         self,
         *,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
-        data_path: Sequence[Union[str, int]],
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
         filter_no_change: bool = True,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotSearchResult]]:

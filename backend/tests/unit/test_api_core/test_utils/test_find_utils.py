@@ -300,7 +300,7 @@ def test_search_snapshots_data_with_filter_ascending_no_filter_no_change(
     patched_get_res.assert_has_calls(
         [mocker.call(s, "path") for s in snapshots]
     )
-    expected_res = list(zip(snapshots, search_res))
+    expected_res = list(zip(snapshots, search_res, strict=False))
     patched_get_s_res.assert_has_calls([mocker.call(*a) for a in expected_res])
     assert res_list == expected_res
 
@@ -365,6 +365,6 @@ def test_search_snapshots_data_with_filter_descending_no_filter_no_change(
     patched_get_res.assert_has_calls(
         [mocker.call(s, "path") for s in snapshots]
     )
-    expected_res = list(zip(snapshots, search_res))
+    expected_res = list(zip(snapshots, search_res, strict=False))
     patched_get_s_res.assert_has_calls([mocker.call(*a) for a in expected_res])
     assert res_list == expected_res

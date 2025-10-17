@@ -1,7 +1,7 @@
 import string
 from collections.abc import Mapping, Sequence
 from datetime import date
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -18,12 +18,12 @@ class PageFilter(BaseModel):
 
 
 class SearchFilter(BaseModel):
-    name_part: Optional[str] = None
+    name_part: str | None = None
     min_node_id: IdType = 1
-    max_node_id: Optional[int] = None
-    min_date: Optional[date] = None
-    max_date: Optional[date] = None
+    max_node_id: int | None = None
+    min_date: date | None = None
+    max_date: date | None = None
 
 
 class SearchWithIdFilter(SearchFilter):
-    id: Optional[IdType] = None
+    id: IdType | None = None

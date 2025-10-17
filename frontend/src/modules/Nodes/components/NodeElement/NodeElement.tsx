@@ -1,7 +1,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import { Checkbox } from "@mui/material";
+import { Checkbox, CircularProgress } from "@mui/material";
 import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
 import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
 import { useSelectionContext } from "../../../common/context/SelectionContext";
@@ -15,6 +15,7 @@ import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
 import { StatusVisuals } from "./NodeElementStatusVisuals";
 import { getNodeRowClass } from "./helpers";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
+import { useWebSocketData } from "../../../../contexts/WebSocketContext";
 
 export interface NodeDTO {
   name: string;
@@ -43,7 +44,6 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
   const { selectedItemName, setSelectedItemName } = useSelectionContext();
   const { firstId, secondId, fetchOneSnapshot, trackLatestSidePanel } = useSnapshotsContext();
   const {
-    isNodeRunning,
     setRunningNodeInfo,
     setSubmitNodeResponseError,
     submitNodeResponseError,
@@ -53,8 +53,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
     setAllNodes,
     setIsAllStatusesUpdated,
     setUpdateAllButtonPressed,
-    runStatus,
+    setResults,
   } = useNodesContext();
+  const { runStatus } = useWebSocketData();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
     const updatedParameters = {
@@ -101,8 +102,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
   };
 
   const handleClick = async () => {
-    setUpdateAllButtonPressed(false);
     setIsNodeRunning(true);
+    setResults({});
+    setUpdateAllButtonPressed(false);
     setIsAllStatusesUpdated(false);
     setRunningNode(node);
     setSubmitNodeResponseError(undefined);
@@ -169,12 +171,13 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
             />
           )}
         </div>
-        {!isNodeRunning && node.name === selectedItemName && (
+        {!runStatus?.is_running && node.name === selectedItemName && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
             <RunIcon className={styles.runButtonIcon} />
             <span className={styles.runButtonText}>Run</span>
           </BlueButton>
         )}
+        {runStatus?.is_running && node.name === selectedItemName && <CircularProgress size={32} />}
       </div>
       {node.name === selectedItemName && node.name === submitNodeResponseError?.nodeName && (
         <ErrorResponseWrapper error={submitNodeResponseError} />

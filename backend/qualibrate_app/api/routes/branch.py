@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated, Optional, Union
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
@@ -211,7 +211,7 @@ def get_snapshot_filtered(
         ),
     ] = True,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> Optional[SnapshotModel]:
+) -> SnapshotModel | None:
     """
     Retrieve the newest (or oldest) snapshot that satisfies the provided
     criteria. Order is controlled by the `descending` flag. Use
@@ -621,7 +621,7 @@ def get_nodes_history(
 )
 def search_snapshots_data(
     *,
-    data_path: Annotated[Sequence[Union[str, int]], Depends(get_search_path)],
+    data_path: Annotated[Sequence[str | int], Depends(get_search_path)],
     filter_no_change: Annotated[
         bool,
         Query(

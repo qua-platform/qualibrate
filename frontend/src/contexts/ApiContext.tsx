@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactElement, ReactNode, useState } from "react";
+import React, { PropsWithChildren, ReactElement, useState } from "react";
 import noop from "../common/helpers";
 
 const yesterdayDay = new Date(new Date().setDate(new Date().getDate() - 1));
@@ -13,8 +13,9 @@ const ApiContext = React.createContext<ApiContextProps>({
   setDateRange: noop,
 });
 
-export function ApiContextProvider(props: PropsWithChildren<ReactNode | React.JSX.Element>): ReactElement {
-  const { children } = props;
+export const useApiContext = () => React.useContext(ApiContext);
+
+export function ApiContextProvider({ children }: PropsWithChildren): ReactElement {
 
   const [dateRange, setDateRange] = useState({
     startDate: new Date(new Date().setDate(new Date().getDate() - 1)),

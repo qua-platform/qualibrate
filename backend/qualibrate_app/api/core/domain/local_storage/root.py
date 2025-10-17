@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Any, Optional, Union
+from typing import Any
 
 from qualibrate_app.api.core.domain.bases.branch import BranchBase
 from qualibrate_app.api.core.domain.bases.node import NodeBase
@@ -43,12 +43,12 @@ class RootLocalStorage(RootBase):
             raise QFileNotFoundException(f"There is no {error_msg}")
         return id
 
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotBase:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         if id is None:
             id = self._get_latest_node_id("snapshot")
         return SnapshotLocalStorage(id, settings=self._settings)
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeBase:
+    def get_node(self, id: IdType | None = None) -> NodeBase:
         if id is None:
             id = self._get_latest_node_id("node")
         return NodeLocalStorage(id, settings=self._settings)
@@ -56,7 +56,7 @@ class RootLocalStorage(RootBase):
     def get_latest_snapshots(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         return BranchLocalStorage(
@@ -70,7 +70,7 @@ class RootLocalStorage(RootBase):
     def get_latest_nodes(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
         return BranchLocalStorage(
@@ -84,7 +84,7 @@ class RootLocalStorage(RootBase):
     def search_snapshot(
         self,
         search_filter: SearchWithIdFilter,
-        data_path: Sequence[Union[str, int]],
+        data_path: Sequence[str | int],
         descending: bool = False,
     ) -> Any:
         _, data = self.search_snapshots_data(
@@ -102,8 +102,8 @@ class RootLocalStorage(RootBase):
         self,
         *,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
-        data_path: Sequence[Union[str, int]],
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
         filter_no_change: bool = True,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotSearchResult]]:

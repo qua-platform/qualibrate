@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Depends, Query
 
@@ -36,7 +36,7 @@ def get_page_filter(
 
 def get_search_filter(
     name_part: Annotated[
-        Optional[str],
+        str | None,
         Query(description="Substring to match within snapshot name."),
     ] = None,
     min_node_id: Annotated[
@@ -44,15 +44,15 @@ def get_search_filter(
         Query(description="Lower bound (inclusive) for node ID range."),
     ] = 1,
     max_node_id: Annotated[
-        Optional[IdType],
+        IdType | None,
         Query(description="Upper bound (inclusive) for node ID range."),
     ] = None,
     min_date: Annotated[
-        Optional[date],
+        date | None,
         Query(description="Earliest snapshot date (inclusive)."),
     ] = None,
     max_date: Annotated[
-        Optional[date],
+        date | None,
         Query(description="Latest snapshot date (inclusive)."),
     ] = None,
 ) -> SearchFilter:
@@ -68,7 +68,7 @@ def get_search_filter(
 def get_search_with_id_filter(
     search_filter: Annotated[SearchFilter, Depends(get_search_filter)],
     id: Annotated[
-        Optional[IdType],
+        IdType | None,
         Query(
             description=(
                 "Exact snapshot ID to match (overrides name/date filters "
@@ -85,7 +85,7 @@ def get_search_with_id_filter(
 
 def get_snapshot_load_type_flag(
     load_type: Annotated[
-        Optional[SnapshotLoadType], Query(deprecated="use load_type_flag")
+        SnapshotLoadType | None, Query(deprecated="use load_type_flag")
     ] = None,
     load_type_flag: Annotated[
         SnapshotLoadTypeFlag, Depends(parse_load_type_flag)

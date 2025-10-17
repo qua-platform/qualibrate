@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pytest
 
 from qualibrate_app.api.core.domain.local_storage.root import RootLocalStorage
@@ -116,7 +114,7 @@ class TestLocalStorageRoot:
             def get_latest_snapshots(
                 self,
                 pages_filter: PageFilter,
-                search_filter: Optional[SearchFilter] = None,
+                search_filter: SearchFilter | None = None,
                 descending: bool = True,
             ):
                 assert pages_filter == PageFilter(page=1, per_page=2)

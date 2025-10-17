@@ -2,14 +2,14 @@
 const path = require("path");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Dotenv = require("dotenv-webpack");
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 const inProject = path.resolve.bind(path, __dirname);
 const inProjectSrc = (file) => inProject("src", file);
@@ -17,15 +17,17 @@ const inProjectSrc = (file) => inProject("src", file);
 const public_path = process.env.PUBLIC_PATH || ".";
 
 const config = {
-  mode: "development",
-  devtool: "inline-source-map",
+  mode: "production",
+  devtool: "source-map",
   entry: {
     main: [inProjectSrc("index")],
   },
   output: {
     path: inProject("dist"),
     publicPath: public_path,
-    filename: "bundle.[fullhash].js",
+    filename: "[name].[contenthash:8].js",
+    chunkFilename: "[name].[contenthash:8].chunk.js",
+    clean: true,
   },
   resolve: {
     modules: [inProject("src"), "node_modules"],
@@ -36,20 +38,21 @@ const config = {
       "react/jsx-runtime": "react/jsx-runtime",
     },
   },
-  devServer: {
-    static: false,
-    port: 1234,
-    hot: true,
-    historyApiFallback: true,
-    headers: {
-      "Access-Control-Allow-Origin": "*", // ili preciznije: 'http://localhost:3000'
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-      "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization",
-    },
-  },
   plugins: [
     new HtmlWebpackPlugin({
       template: "./public/index.html",
+      minify: {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true,
+        removeEmptyAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        keepClosingSlash: true,
+        minifyJS: true,
+        minifyCSS: true,
+        minifyURLs: true,
+      },
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -63,7 +66,10 @@ const config = {
         },
       ],
     }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: "[name].[contenthash:8].css",
+      chunkFilename: "[name].[contenthash:8].chunk.css",
+    }),
     new Dotenv({
       systemvars: true,
     }),
@@ -76,8 +82,11 @@ const config = {
         use: ["babel-loader"],
       },
       {
-        test: /\.(png|svg)$/,
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: "asset/resource",
+        generator: {
+          filename: "assets/[name].[contenthash:8][ext]",
+        },
       },
       {
         test: /\.tsx?$/,
@@ -92,7 +101,7 @@ const config = {
         exclude: /node_modules/,
       },
       {
-        test: /\.(sass|scss)$/,
+        test: /\.module\.(sass|scss)$/,
         use: [
           MiniCssExtractPlugin.loader,
           {
@@ -100,29 +109,89 @@ const config = {
             options: {
               url: false,
               modules: {
-                localIdentName: "[name]__[local]__[hash:base64:5]",
+                localIdentName: "[name]__[local]",
+                exportLocalsConvention: "camelCase",
               },
+              sourceMap: true,
             },
           },
           "sass-loader",
         ],
       },
       {
-        test: /\.(css)$/,
+        test: /\.(sass|scss)$/,
+        exclude: /\.module\.(sass|scss)$/,
         use: [
           MiniCssExtractPlugin.loader,
           {
             loader: "css-loader",
             options: {
               url: false,
-              modules: {
-                localIdentName: "[local]",
-              },
+              modules: false,
+              sourceMap: true,
+            },
+          },
+          "sass-loader",
+        ],
+      },
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: "css-loader",
+            options: {
+              url: false,
+              modules: false,
+              sourceMap: true,
             },
           },
         ],
       },
     ],
+  },
+  optimization: {
+    minimize: true,
+    minimizer: [new CssMinimizerPlugin()],
+    splitChunks: {
+      chunks: "all",
+      cacheGroups: {
+        mui: {
+          test: /[\\/]node_modules[\\/]@mui[\\/]/,
+          name: "mui",
+          chunks: "all",
+          priority: 40,
+          reuseExistingChunk: true,
+        },
+        react: {
+          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+          name: "react",
+          chunks: "all",
+          priority: 50,
+          reuseExistingChunk: true,
+        },
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendors",
+          chunks: "all",
+          priority: 10,
+          reuseExistingChunk: true,
+        },
+        common: {
+          name: "common",
+          minChunks: 2,
+          chunks: "all",
+          priority: 5,
+          reuseExistingChunk: true,
+        },
+      },
+    },
+    runtimeChunk: {
+      name: "runtime",
+    },
+  },
+  performance: {
+    hints: false,
   },
 };
 

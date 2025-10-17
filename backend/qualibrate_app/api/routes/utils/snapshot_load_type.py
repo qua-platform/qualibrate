@@ -1,7 +1,7 @@
 import operator
 import sys
 from functools import reduce
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import HTTPException, Query
 
@@ -42,7 +42,7 @@ def _parse_snapshot_load_type(
 
 def parse_load_type_flag(
     load_type_flag: Annotated[
-        Optional[list[SnapshotLoadTypeStr]],
+        list[SnapshotLoadTypeStr] | None,
         Query(
             description="Bitwise flags specifying which snapshot parts to load."
         ),

@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Any, Optional, Union
+from typing import Any
 
 from qualibrate_app.api.core.domain.bases.root import RootBase
 from qualibrate_app.api.core.domain.timeline_db.branch import BranchTimelineDb
@@ -29,7 +29,7 @@ class RootTimelineDb(RootBase):
         self,
         *,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         reverse: bool,
     ) -> tuple[int, DocumentSequenceType]:
         timeline_db_config = self.timeline_db_config
@@ -57,7 +57,7 @@ class RootTimelineDb(RootBase):
             raise QJsonDbException("Latest snapshot wasn't retrieved.")
         return snapshots[0]
 
-    def get_snapshot(self, id: Optional[IdType] = None) -> SnapshotTimelineDb:
+    def get_snapshot(self, id: IdType | None = None) -> SnapshotTimelineDb:
         if id is None:
             snapshot_data = self._get_latest_snapshot()
             return SnapshotTimelineDb(
@@ -67,7 +67,7 @@ class RootTimelineDb(RootBase):
             )
         return SnapshotTimelineDb(id=id, settings=self._settings)
 
-    def get_node(self, id: Optional[IdType] = None) -> NodeTimelineDb:
+    def get_node(self, id: IdType | None = None) -> NodeTimelineDb:
         if id is None:
             snapshot_data = self._get_latest_snapshot()
             return NodeTimelineDb(
@@ -80,7 +80,7 @@ class RootTimelineDb(RootBase):
     def get_latest_snapshots(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotTimelineDb]]:
         total, snapshots = self._get_latest_snapshots(
@@ -98,7 +98,7 @@ class RootTimelineDb(RootBase):
     def get_latest_nodes(
         self,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
+        search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[NodeTimelineDb]]:
         total, snapshots = self._get_latest_snapshots(
@@ -118,7 +118,7 @@ class RootTimelineDb(RootBase):
     def search_snapshot(
         self,
         search_filter: SearchWithIdFilter,
-        data_path: Sequence[Union[str, int]],
+        data_path: Sequence[str | int],
         descending: bool = False,
     ) -> Any:
         if search_filter.id is None:
@@ -140,8 +140,8 @@ class RootTimelineDb(RootBase):
         self,
         *,
         pages_filter: PageFilter,
-        search_filter: Optional[SearchWithIdFilter] = None,
-        data_path: Sequence[Union[str, int]],
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
         filter_no_change: bool = True,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotSearchResult]]:

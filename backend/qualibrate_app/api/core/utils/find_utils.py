@@ -1,12 +1,9 @@
-from collections.abc import Generator, Iterator, Mapping, Sequence
+from collections.abc import Callable, Generator, Iterator, Mapping, Sequence
 from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Optional,
     TypeVar,
-    Union,
     cast,
 )
 
@@ -20,9 +17,9 @@ if TYPE_CHECKING:
 
 
 def _get_subpath_value_wildcard(
-    obj: Union[Mapping[str, Any], Sequence[Any]],
-    target_path: Sequence[Union[str, int]],
-    current_path: list[Union[str, int]],
+    obj: Mapping[str, Any] | Sequence[Any],
+    target_path: Sequence[str | int],
+    current_path: list[str | int],
 ) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
         if isinstance(obj, Sequence):
@@ -41,9 +38,7 @@ def _get_subpath_value_wildcard(
     if not isinstance(obj, (Mapping, Sequence)):
         return []
     iter_function = cast(
-        Callable[
-            ..., Union[Sequence[tuple[str, Any]], Sequence[tuple[int, Any]]]
-        ],
+        Callable[..., Sequence[tuple[str, Any]] | Sequence[tuple[int, Any]]],
         enumerate if isinstance(obj, Sequence) else dict.items,
     )
     return list(
@@ -54,7 +49,7 @@ def _get_subpath_value_wildcard(
     )
 
 
-def _check_key_valid(obj: Any, key: Union[str, int]) -> bool:
+def _check_key_valid(obj: Any, key: str | int) -> bool:
     if isinstance(obj, Sequence):
         return isinstance(key, int) and 0 <= key < len(obj)
     if isinstance(obj, Mapping):
@@ -64,8 +59,8 @@ def _check_key_valid(obj: Any, key: Union[str, int]) -> bool:
 
 def get_subpath_value_mapping(
     obj: Mapping[str, Any],
-    target_path: Sequence[Union[str, int]],
-    current_path: list[Union[str, int]],
+    target_path: Sequence[str | int],
+    current_path: list[str | int],
     key: str,
 ) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
@@ -78,8 +73,8 @@ def get_subpath_value_mapping(
 
 def get_subpath_value_sequence(
     obj: Sequence[Any],
-    target_path: Sequence[Union[str, int]],
-    current_path: list[Union[str, int]],
+    target_path: Sequence[str | int],
+    current_path: list[str | int],
     key: int,
 ) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
@@ -91,9 +86,9 @@ def get_subpath_value_sequence(
 
 
 def get_subpath_value(
-    obj: Union[Mapping[str, Any], Sequence[Any]],
-    target_path: Sequence[Union[str, int]],
-    current_path: Optional[list[Union[str, int]]] = None,
+    obj: Mapping[str, Any] | Sequence[Any],
+    target_path: Sequence[str | int],
+    current_path: list[str | int] | None = None,
 ) -> Sequence[MachineSearchResults]:
     if current_path is None:
         current_path = []
@@ -115,10 +110,10 @@ def get_subpath_value(
 
 
 def get_subpath_value_on_any_depth(
-    obj: Union[Mapping[str, Any], Sequence[Any]],
+    obj: Mapping[str, Any] | Sequence[Any],
     key: str,
-    current_path: Optional[list[Union[str, int]]] = None,
-    paths: Optional[list[MachineSearchResults]] = None,
+    current_path: list[str | int] | None = None,
+    paths: list[MachineSearchResults] | None = None,
 ) -> list[MachineSearchResults]:
     if current_path is None:
         current_path = []
@@ -144,8 +139,8 @@ SnapshotType = TypeVar("SnapshotType", bound="SnapshotBase")
 
 
 def _get_search_result(
-    snapshot: SnapshotType, data_path: Sequence[Union[str, int]]
-) -> Optional[MachineSearchResults]:
+    snapshot: SnapshotType, data_path: Sequence[str | int]
+) -> MachineSearchResults | None:
     search_results = snapshot.search(data_path, load=True)
     return (
         search_results[0]
@@ -156,7 +151,7 @@ def _get_search_result(
 
 def _get_snapshot_search_result(
     snapshot: SnapshotType,
-    result: Optional[MachineSearchResults],
+    result: MachineSearchResults | None,
 ) -> SnapshotSearchResult:
     result_dict = {} if result is None else result.model_dump()
     snapshot_dump = snapshot.dump()
@@ -165,10 +160,10 @@ def _get_snapshot_search_result(
 
 def search_snapshots_data_with_filter_ascending(
     snapshots: Iterator[SnapshotType],
-    data_path: Sequence[Union[str, int]],
+    data_path: Sequence[str | int],
     filter_no_change: bool,
 ) -> Generator[SnapshotSearchResult, None, None]:
-    previous_search_result: Optional[MachineSearchResults] = None
+    previous_search_result: MachineSearchResults | None = None
     for snapshot in snapshots:
         search_result = _get_search_result(snapshot, data_path)
         if filter_no_change:
@@ -183,7 +178,7 @@ def search_snapshots_data_with_filter_ascending(
 
 def search_snapshots_data_with_filter_descending(
     snapshots: Iterator[SnapshotType],
-    data_path: Sequence[Union[str, int]],
+    data_path: Sequence[str | int],
     filter_no_change: bool,
 ) -> Generator[SnapshotSearchResult, None, None]:
     snapshot = next(snapshots, None)

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { NodesContextProvider, useNodesContext } from "./context/NodesContext";
+import { useNodesContext } from "./context/NodesContext";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../Nodes/NodesPage.module.scss";
 import { NodeElementList } from "./components/NodeElement/NodeElementList";
@@ -9,14 +9,16 @@ import { SelectionContextProvider } from "../common/context/SelectionContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import { CircularProgress } from "@mui/material";
+import { useWebSocketData } from "../../contexts/WebSocketContext";
 
 export const NodesPage = () => {
-  const { allNodes, runningNodeInfo, fetchAllNodes, isRescanningNodes } = useNodesContext();
+  const { runStatus } = useWebSocketData();
+  const { fetchAllNodes, isRescanningNodes, results } = useNodesContext();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
   const NodeTopBarRefreshButton = () => {
     return (
       <div className={styles.refreshButtonWrapper} data-testid="refresh-button">
-        <BlueButton onClick={() => fetchAllNodes()}>Refresh</BlueButton>
+        <BlueButton onClick={() => fetchAllNodes(true)}>Refresh</BlueButton>
       </div>
     );
   };
@@ -38,14 +40,20 @@ export const NodesPage = () => {
                 </div>
               </div>
             )}
-            <NodeElementList listOfNodes={allNodes} />
+            {!isRescanningNodes && <NodeElementList />}
           </div>
         </div>
         <div className={styles.nodesContainerDown}>
           <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results showSearch={false} toggleSwitch={true} pageName={"nodes"} errorObject={runningNodeInfo?.error} />
+          <Results
+            jsonObject={results ?? {}}
+            showSearch={false}
+            toggleSwitch={true}
+            pageName={"nodes"}
+            errorObject={runStatus?.node?.run_results?.error}
+          />
         </div>
       </div>
     </div>
@@ -53,9 +61,7 @@ export const NodesPage = () => {
 };
 
 export default () => (
-  <NodesContextProvider>
-    <SelectionContextProvider>
-      <NodesPage />
-    </SelectionContextProvider>
-  </NodesContextProvider>
+  <SelectionContextProvider>
+    <NodesPage />
+  </SelectionContextProvider>
 );
