@@ -88,11 +88,24 @@ src/
 
 **Console Output Suppression:**
 
-Console output and stderr are buffered during Vitest execution and only shown  if a test fails. This keeps output clean when all tests pass, but shows helpful debug information when tests fail.
+Console output and stderr are buffered during Vitest execution and only shown if a test fails. This keeps output clean when all tests pass, but shows helpful debug information when tests fail.
 
 To see ALL console output (even for passing tests):
 - Set environment variable: DEBUG_TESTS=true npm test
 - Or use npm script: npm run test:unit:debug
+
+**Unit test tricks**
+
+When debugging unit tests, it can be useful to insert this into the code:
+```
+screen.logTestingPlaygroundURL();
+```
+This will print a link to a page with a playground for testing components specific to the test.
+
+If you use the debugger on a test, if you're at a breakpoint, you can observe the test DOM with commands like this:
+- document.body.innerHTML
+- document.querySelector('.test-name')
+- document.querySelector('.test-name').innerHTML
 
 ### E2E Tests (Playwright)
 

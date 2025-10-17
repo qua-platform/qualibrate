@@ -127,7 +127,7 @@ export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({
     if (response.isOk) {
       setAllNodes(response.result! as NodeMap);
     } else if (response.error) {
-      console.log(response.error);
+      console.error("Failed to fetch all nodes:", response.error);
     }
     setIsRescanningNodes(false);
   };
@@ -201,10 +201,10 @@ export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({
             }
             setResults(snapshotResponse.result);
           } else {
-            console.log("snapshotResponse error", snapshotResponse.error);
+            console.error("Failed to fetch snapshot result:", snapshotResponse.error);
           }
         } else {
-          console.log("last run idx is falsy = ", lastRunResponseResult.idx);
+          console.warn("Last run idx is falsy:", lastRunResponseResult.idx);
         }
       } else {
         const error = lastRunResponseResult && lastRunResponseResult.error ? lastRunResponseResult.error : undefined;

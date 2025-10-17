@@ -12,7 +12,7 @@ process.stderr.write = ((chunk: string | Uint8Array, ...args: unknown[]) => {
   // Check if tests are running via global flag set in setup.ts
   const testsRunning = (globalThis as unknown as { __vitest_tests_running__?: boolean }).__vitest_tests_running__;
 
-  if (process.env.DEBUG_TESTS === "true" || !testsRunning) {
+  if (process.env.DEBUG_TESTS !== "false" || !testsRunning) {
     // Pass through in debug mode or before tests start
     return originalStderrWrite(chunk as string, ...(args as [string?, BufferEncoding?, (() => void)?]));
   }
