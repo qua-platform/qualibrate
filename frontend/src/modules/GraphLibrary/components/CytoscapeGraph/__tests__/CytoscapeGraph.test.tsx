@@ -7,7 +7,7 @@
  * @see CytoscapeGraph.integration.test.tsx for real Cytoscape integration tests
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, waitFor } from "@testing-library/react";
+import { render, waitFor, act } from "@testing-library/react";
 import { createTestProviders } from "@/test-utils/providers";
 import { createSimpleGraph, createGraphWithStatuses } from "@/test-utils/builders/cytoscapeElements";
 import { cytoscapeMock, createMockCytoscape, createMockCytoscapeElement } from "@/test-utils/mocks/cytoscape";
@@ -344,13 +344,16 @@ describe("CytoscapeGraph - Event Handling & Cleanup", () => {
     const nodesChain = mockCy.nodes();
     const clickHandler = nodesChain.on.mock.calls[0][1];
 
-    // Simulate node click
+    // Simulate node click - wrap in act() to handle React state updates
     const mockEvent = {
       target: {
         data: () => ({ id: "node2" }),
       },
     };
-    clickHandler(mockEvent);
+
+    act(() => {
+      clickHandler(mockEvent);
+    });
 
     // Verify callback was called with node ID
     expect(mockOnNodeClick).toHaveBeenCalledWith("node2");
