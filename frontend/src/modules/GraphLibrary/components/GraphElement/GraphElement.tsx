@@ -143,6 +143,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
       });
       const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
       if (response.isOk) {
+        setErrorObject(undefined);  // This is a bugfix - previously it didn't clear errorObject on success
         openTab("graph-status");
         setActiveTabsetName("graph-status");
       } else {
