@@ -1,6 +1,8 @@
+import itertools
 from datetime import datetime
 from unittest.mock import MagicMock
 
+import networkx as nx
 import pytest
 
 from qualibrate import QualibrationGraph, QualibrationNode
@@ -8,7 +10,7 @@ from qualibrate.models.node_status import NodeStatus
 from qualibrate.models.run_mode import RunModes
 from qualibrate.parameters import GraphParameters
 from qualibrate.q_runnnable import QRunnable
-from qualibrate.utils.exceptions import StopInspection
+from qualibrate.utils.exceptions import CyclicGraphError, StopInspection
 
 
 class TestQualibrationGraph:
@@ -45,9 +47,9 @@ class TestQualibrationGraph:
     def pre_setup_graph_init(
         self, mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
     ):
-        mocked_add_node = mocker.patch(
-            "qualibrate.qualibration_graph.QualibrationGraph._add_node_by_name",
-            side_effect=lambda x: x,
+        mocked_add_nodes_and_connections = mocker.patch(
+            "qualibrate.qualibration_graph.QualibrationGraph."
+            "_add_nodes_and_connections",
         )
         mocked_build_base_parameters, mocked_build_full_parameters = (
             pre_setup_graph_parameters_build
@@ -55,7 +57,7 @@ class TestQualibrationGraph:
 
         return (
             pre_setup_graph_nodes,
-            mocked_add_node,
+            mocked_add_nodes_and_connections,
             mocked_build_base_parameters,
             mocked_build_full_parameters,
         )
@@ -63,7 +65,7 @@ class TestQualibrationGraph:
     def test_init_graph_base(self, mocker, pre_setup_graph_init):
         (
             nodes,
-            mocked_add_node,
+            mocked_validate_nodes_and_connections,
             mocked_build_base_parameters,
             mocked_build_full_parameters,
         ) = pre_setup_graph_init
@@ -85,12 +87,51 @@ class TestQualibrationGraph:
         assert graph.name == "test_graph"
         mocked_build_base_parameters.assert_called_once()
         mocked_build_full_parameters.assert_called_once()
-        mocked_add_node.assert_has_calls(
-            [mocker.call("node1"), mocker.call("node2")], any_order=True
+        mocked_validate_nodes_and_connections.assert_called_once()
+
+    def test__add_nodes_and_connections(
+        self, mocker, pre_setup_graph_parameters_build
+    ):
+        nodes = {}
+        for node_name in ["node1", "node2", "node3"]:
+            node = MagicMock(QualibrationNode)
+            node.name = node_name
+            nodes[node_name] = node
+
+        mocked_add_node_by_name = mocker.patch(
+            "qualibrate.qualibration_graph.QualibrationGraph._add_node_by_name",
         )
-        mock_nx_graph.add_edge.assert_called_once_with(
-            nodes["node1"], nodes["node2"]
+        mocked_get_qnode_or_error = mocker.patch(
+            "qualibrate.qualibration_graph.QualibrationGraph"
+            "._get_qnode_or_error"
         )
+        mocked_validate_graph_acyclic = mocker.patch(
+            "qualibrate.qualibration_graph.QualibrationGraph."
+            "_validate_graph_acyclic",
+        )
+
+        connectivity = [
+            ("node1", "node2"),
+            ("node2", "node3"),
+            ("node1", "node3"),
+        ]
+        mocker.patch("networkx.DiGraph")
+        QualibrationGraph(
+            name="test_graph",
+            parameters=MagicMock(spec=GraphParameters),
+            nodes=nodes,
+            connectivity=connectivity,
+        )
+
+        mocked_add_node_by_name.assert_has_calls(
+            [mocker.call(name) for name in nodes]
+        )
+        mocked_get_qnode_or_error.assert_has_calls(
+            itertools.chain.from_iterable(
+                [mocker.call(x), mocker.call(v)] for x, v in connectivity
+            )
+        )
+        mocked_validate_graph_acyclic.assert_called_once()
 
     def test_init_graph_with_inspection_mode(self, pre_setup_graph_init):
         (nodes, _, _, _) = pre_setup_graph_init
@@ -306,3 +347,51 @@ class TestQualibrationGraph:
 
         orchestrator.stop.assert_called_once()
         assert result is True
+
+    def test__validate_graph_acyclic_with_cycle(
+        self, mock_orchestrator, pre_setup_graph_init
+    ):
+        (nodes, _, _, _) = pre_setup_graph_init
+        node1, node2 = nodes["node1"], nodes["node2"]
+        nx_g = nx.DiGraph()
+        nx_g.add_nodes_from([node1, node2])
+        nx_g.add_edge(node1, node2)
+        nx_g.add_edge(node2, node1)
+        graph = QualibrationGraph(
+            name="test_graph",
+            parameters=MagicMock(spec=GraphParameters),
+            nodes=nodes,
+            connectivity=[("node1", "node2"), ("node2", "node1")],
+        )
+        graph._graph = nx_g
+        with pytest.raises(CyclicGraphError) as ex:
+            graph._validate_graph_acyclic()
+
+        ex_str = str(ex)
+        assert "test_graph" in ex_str
+        assert ex_str.count("node1") == 2
+        assert ex_str.count("node2") == 1
+
+    def test__validate_graph_acyclic_without_cycle(
+        self, mock_orchestrator, pre_setup_graph_init
+    ):
+        (nodes, _, _, _) = pre_setup_graph_init
+        for node_name in ["node3", "node4"]:
+            node = MagicMock(QualibrationNode)
+            node.name = node_name
+            nodes[node_name] = node
+        connectivity = [
+            ("node1", "node2"),
+            ("node2", "node3"),
+            ("node3", "node4"),
+            ("node1", "node3"),
+            ("node1", "node4"),
+        ]
+        graph = QualibrationGraph(
+            name="test_graph",
+            parameters=MagicMock(spec=GraphParameters),
+            nodes=nodes,
+            connectivity=connectivity,
+            orchestrator=mock_orchestrator,
+        )
+        graph._validate_graph_acyclic()

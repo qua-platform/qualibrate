@@ -33,7 +33,11 @@ from qualibrate.q_runnnable import (
 )
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.runnables.runnable_collection import RunnableCollection
-from qualibrate.utils.exceptions import StopInspection, TargetsFieldNotExist
+from qualibrate.utils.exceptions import (
+    CyclicGraphError,
+    StopInspection,
+    TargetsFieldNotExist,
+)
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import TargetType
@@ -174,6 +178,23 @@ class QualibrationGraph(
 
         return new_graph
 
+    def _validate_graph_acyclic(self) -> None:
+        """Check if directed nodes graph contains cycles.
+
+        Raises:
+            CyclicGraphError: There is a cycle in graph
+        """
+        try:
+            cycle = nx.find_cycle(self._graph, orientation="original")
+        except nx.NetworkXNoCycle:
+            return
+        node_names = tuple(
+            [cycle[0][0].name, *[edge[1].name for edge in cycle]]
+        )
+        raise CyclicGraphError(
+            f"Detected cycle in graph {self.name}: {node_names}",
+        )
+
     def _add_nodes_and_connections(self) -> None:
         """
         Adds nodes and their connections to the internal graph representation.
@@ -206,6 +227,7 @@ class QualibrationGraph(
                 ) from ex
             if not self._graph.has_edge(v, x):
                 self._graph.add_edge(v, x)
+        self._validate_graph_acyclic()
 
     @staticmethod
     def _validate_nodes_names_mapping(
