@@ -5,54 +5,59 @@ This guide will provide a detailed walkthrough for installing QUAlibrate, a user
 ## :one: Pre-requisites
 
 /// tab | For Windows
+
 - Windows 10 (build 1809 and later), or Windows 11
 - 3.9 ≤ Python ≤ 3.11, we recommend Python 3.10 or 3.11
 
 /// details | Using a virtual environment in Windows
-    type: tip
+type: tip
 
 It is recommended to install QuAM in a Python virtual environment.
 
 If using Anaconda, this can be done via
 
 ```bash
-conda create -n {environment_name}  
+conda create -n {environment_name}
 conda activate {environment_name}
 ```
 
 Be sure to replace `{environment_name}` with a name of your choosing
 
 To create a virtual environment without Anaconda, open PowerShell :octicons-terminal-16:, navigate to
-a folder where you would like to create a virtual environment, and execute the 
+a folder where you would like to create a virtual environment, and execute the
 following command:
 
 ```
-python -m venv {environment_name}  
+python -m venv {environment_name}
 source {environment_name}\Scripts\Activate.ps1
 ```
+
 ///
 ///
 
 /// tab | For MacOS
+
 - Tested on MacOS Ventura and MacOS Sonoma
 - 3.9 ≤ Python ≤ 3.11, we recommend Python 3.10 or 3.11
 
 /// details | Using a virtual environment in MacOS
-    type: tip
+type: tip
 
 It is recommended to install QuAM in a Python virtual environment.  
 To create a virtual environment, open terminal :octicons-terminal-16:, navigate to a folder where you would like to create a virtual environment, and execute the following command:
+
 ```
 python -m venv {environment_name}
 source {environment_name}/bin/activate
 ```
+
 ///
 ///
 
 /// tab | For Linux
-- QuAM has not been tested on Linux. However, it should follow similar instructions as MacOS.
-///
 
+- QuAM has not been tested on Linux. However, it should follow similar instructions as MacOS.
+  ///
 
 ## :two: Install QUAlibrate
 
@@ -90,10 +95,10 @@ Typically the following two settings need to be configured:
 These settings can either be modified by directly editing the configuration file (`~/.qualibrate/config.toml`) or through the command line:
 
 ```bash
-qualibrate config --app-user-storage DATA_LOCATION --runner-calibration-library-folder LIBRARY_FOLDER
+qualibrate config --storage-location DATA_LOCATION --runner-calibration-library-folder LIBRARY_FOLDER
 ```
 
-where `DATA_LOCATION` and `LIBRARY_FOLDER` need to be modified accordingly.   
+where `DATA_LOCATION` and `LIBRARY_FOLDER` need to be modified accordingly.
 
 ## :four: Verify Installation
 
