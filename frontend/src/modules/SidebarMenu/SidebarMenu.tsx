@@ -12,21 +12,21 @@ import QUAlibrateLogoSmallIcon from "../../ui-lib/Icons/QualibrateLogoSmall";
 import ExpandSideMenuIcon from "../../ui-lib/Icons/ExpandSideMenuIcon";
 import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
 import ProjectFolderIcon from "../../ui-lib/Icons/ProjectFolderIcon";
-import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
+import { useMainPageContext } from "../../routing/MainPageContext";
 import { useProjectContext } from "../Project/context/ProjectContext";
 import { extractInitials, getColorIndex } from "../Project/helpers";
 import { colorPalette } from "../Project/constants";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
-  const [minify, setMinify] = useState(true);
-  const { activeTabsetName, setActiveTabsetName, openTab } = useFlexLayoutContext();
+  const [minify, setMinify] = useState(false);
+  const { activePage, setActivePage } = useMainPageContext();
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
   const { activeProject, shouldGoToProjectPage } = useProjectContext();
 
   const handleProjectClick = useCallback(() => {
-    openTab(PROJECT_KEY);
-  }, [openTab]);
+    setActivePage(PROJECT_KEY);
+  }, [setActivePage]);
 
   const handleHelpClick = useCallback(() => {
     window.open("https://qua-platform.github.io/qualibrate/", "_blank", "noopener,noreferrer,width=800,height=600");
@@ -51,8 +51,8 @@ const SidebarMenu: React.FunctionComponent = () => {
                   {...item}
                   key={item.keyId}
                   hideText={minify}
-                  onClick={() => setActiveTabsetName(item.keyId)}
-                  isSelected={activeTabsetName === item.keyId}
+                  onClick={() => setActivePage(item.keyId)}
+                  isSelected={activePage === item.keyId}
                   isDisabled={!activeProject || shouldGoToProjectPage}
                   data-testid={`menu-item-${item.keyId}`}
                 />
@@ -92,7 +92,7 @@ const SidebarMenu: React.FunctionComponent = () => {
                   menuItem={menuItem}
                   key={item.keyId}
                   hideText={minify}
-                  isSelected={item.keyId === PROJECT_KEY && activeTabsetName === PROJECT_KEY}
+                  isSelected={item.keyId === PROJECT_KEY && activePage === PROJECT_KEY}
                   onClick={handleOnClick}
                 />
               );

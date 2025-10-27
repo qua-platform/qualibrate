@@ -11,10 +11,11 @@ import { useGraphContext } from "../../context/GraphContext";
 import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
 import { GraphLibraryApi } from "../../api/GraphLibraryApi";
 import { NodeDTO } from "../../../Nodes/components/NodeElement/NodeElement";
-import { useFlexLayoutContext } from "../../../../routing/flexLayout/FlexLayoutContext";
+import { useMainPageContext } from "../../../../routing/MainPageContext";
 import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
+import { GRAPH_STATUS_KEY } from "../../../../routing/ModulesRegistry";
 
 export interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -39,7 +40,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     setLastRunInfo,
     fetchWorkflowGraph,
   } = useGraphContext();
-  const { openTab, setActiveTabsetName } = useFlexLayoutContext();
+  const { setActivePage } = useMainPageContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string, workflow?: NodeDTO | GraphWorkflow) => {
     const updatedParameters = {
@@ -120,8 +121,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
       });
       const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
       if (response.isOk) {
-        openTab("graph-status");
-        setActiveTabsetName("graph-status");
+        setActivePage(GRAPH_STATUS_KEY);
       } else {
         setErrorObject(response.error);
       }
