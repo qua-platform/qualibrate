@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { HOME_URL, LOGIN_URL } from "../common/modules";
-import MainModularPage from "../mainPage/MainModularPage";
+import MainPage from "./MainPage/MainPage";
 import { Login } from "../modules/Login";
 import { useAuthContext } from "../modules/Login/context/AuthContext";
 import LoaderPage from "../ui-lib/loader/LoaderPage";
@@ -27,7 +27,7 @@ const AppRoutes = () => {
           path={HOME_URL}
           element={
             <ProtectedRoute>
-              <MainModularPage />
+              <MainPage />
             </ProtectedRoute>
           }
         />
