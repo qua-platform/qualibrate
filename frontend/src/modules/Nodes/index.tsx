@@ -51,7 +51,6 @@ export const NodesPage = () => {
             jsonObject={results ?? {}}
             showSearch={false}
             toggleSwitch={true}
-            pageName={"nodes"}
             errorObject={runStatus?.node?.run_results?.error}
           />
         </div>
