@@ -1,8 +1,8 @@
 /**
- * @fileoverview Generic WebSocket client with automatic reconnection and pub/sub pattern.
+ * @fileoverview WebSocket client with automatic reconnection and pub/sub pattern.
  *
- * Provides a reusable WebSocket wrapper class for real-time bidirectional communication
- * with automatic reconnection logic and multiple subscriber support.
+ * Used by WebSocketContext for two connections: run status and execution history.
+ * Auto-reconnects every second until server available.
  *
  * **Primary Use Case**:
  * Used by WebSocketContext.tsx to manage two real-time connections for quantum calibration:
@@ -21,39 +21,10 @@
  * resilience features (reconnection) and developer experience improvements (pub/sub,
  * type safety) without requiring changes to consuming code.
  *
- * **RECENT IMPROVEMENTS**:
- * - **State Tracking**: Replaced manual boolean flag with ConnectionState enum for accurate state tracking
- *
- * **REMAINING AREAS FOR IMPROVEMENT**:
- * 1. **Reconnection Strategy**: Constant 1s retries without jitter can cause thundering herd patterns
- * 2. **Retry Telemetry**: No built-in analytics for how long a reconnect cycle has been running
- * 3. **Error Handling**: Console-only logging, no user-facing error notifications
- * 4. **Subscriber Errors**: Uncaught errors in subscribers can affect other subscribers
- * 5. **No Runtime Type Validation**: Type safety is compile-time only
- *
- * @see WebSocketContext for React integration and provider implementation
- * @see WS_GET_STATUS and WS_EXECUTION_HISTORY for WebSocket endpoint routes
+ * @see WebSocketContext
  */
 
-/**
- * WebSocket connection state machine.
- *
- * **State Transitions**:
- * - DISCONNECTED → CONNECTING: connect() called
- * - CONNECTING → CONNECTED: WebSocket onopen event fires
- * - CONNECTING → FAILED: Connection attempt fails (onclose during CONNECTING)
- * - CONNECTED → FAILED: Unexpected disconnection (onclose during CONNECTED)
- * - FAILED → RECONNECTING: Automatic retry initiated
- * - RECONNECTING → CONNECTING: Retry attempt starts
- * - ANY_STATE → DISCONNECTED: disconnect() called (manual shutdown)
- *
- * **State Meanings**:
- * - DISCONNECTED: Initial state, no connection exists or manually disconnected
- * - CONNECTING: Connection attempt in progress (waiting for onopen)
- * - CONNECTED: Successfully connected and ready to send/receive messages
- * - RECONNECTING: Waiting to retry after connection failure
- * - FAILED: Connection attempt failed, either retrying or exhausted retries
- */
+/** WebSocket lifecycle states. Auto-reconnects on failure. */
 enum ConnectionState {
   DISCONNECTED = "disconnected",
   CONNECTING = "connecting",
@@ -63,126 +34,30 @@ enum ConnectionState {
 }
 
 /**
- * Generic WebSocket client with automatic reconnection and pub/sub pattern.
+ * WebSocket client with automatic reconnection and pub/sub pattern.
+ * Messages must be JSON-serializable.
  *
- * **Message Protocol**:
- * - All messages must be JSON-serializable objects
- * - Messages automatically parsed via JSON.parse() on receive
- * - Invalid JSON messages logged as warnings, not thrown as errors
- * - Type safety enforced via generic parameter T (compile-time only, no runtime validation)
- *
- * **Current Usage in QUAlibrate**:
- * Used by WebSocketContext.tsx to manage two real-time connections:
- * 1. Run Status WebSocket (`/execution/ws/run_status`) - node/graph execution updates
- * 2. Execution History WebSocket (`/execution/ws/workflow_execution_history`) - historical data
- *
- * **Connection State Management**:
- * Uses a 5-state state machine (ConnectionState enum) for accurate connection tracking:
- * - DISCONNECTED: Initial state or manually disconnected
- * - CONNECTING: Connection attempt in progress
- * - CONNECTED: Successfully connected and ready
- * - RECONNECTING: Waiting to retry after failure
- * - FAILED: Connection failed (may retry or be exhausted)
- *
- * The isConnected() method provides dual verification by checking both the internal
- * ConnectionState and the actual WebSocket.readyState for maximum reliability.
- *
- * **REMAINING LIMITATIONS**:
- * Continuous 1s retries may overwhelm unstable networks or servers during outages.
- * Consider introducing jitter or a maximum delay cap, and exposing retry telemetry
- * to users when connection issues persist.
- *
- * **IMPROVEMENT NEEDED: Error Handling**:
- * - Connection errors only log to console (no user feedback mechanism)
- * - No connection timeout handling (browser default timeout varies)
- * - No distinction between recoverable (network issues) vs non-recoverable (bad URL) errors
- *
- * @template T - The message type for this WebSocket connection (must be JSON-serializable)
- *
- * @see WebSocketContext for React integration and usage in component tree
- * @see WS_GET_STATUS and WS_EXECUTION_HISTORY for WebSocket route constants
+ * @template T - Message type for this connection
+ * @see WebSocketContext
  */
 export default class WebSocketService<T> {
-  /**
-   * WebSocket connection instance. Null when disconnected.
-   * @private
-   */
   private ws: WebSocket | null = null;
-
-  /**
-   * WebSocket URL (e.g., "ws://localhost:8001/execution/ws/run_status").
-   * Immutable after construction.
-   * @private
-   * @readonly
-   */
   private readonly url: string;
-
-  /**
-   * Current connection state using state machine pattern.
-   *
-   * Tracks the connection lifecycle through 5 distinct states:
-   * - DISCONNECTED: No connection, initial state
-   * - CONNECTING: Connection attempt in progress
-   * - CONNECTED: Successfully connected and operational
-   * - RECONNECTING: Waiting before retry attempt
-   * - FAILED: Connection attempt failed
-   *
-   * This replaces the previous boolean isConnected flag to provide more
-   * granular state information and eliminate synchronization issues with
-   * WebSocket.readyState.
-   *
-   * @private
-   */
   private connectionState: ConnectionState = ConnectionState.DISCONNECTED;
-
   private reconnectAttempt = 0;
   private shouldReconnect = true;
   private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private retryDelay = 1000;
-
-  /**
-   * Primary message callback provided during construction.
-   * Called for every message received, before notifying subscribers.
-   * @private
-   * @readonly
-   */
   private readonly onMessage: (data: T) => void;
-
-  /**
-   * Primary callback when the connection is established.
-   * Called every time connection is established.
-   * @private
-   * @readonly
-   */
   private readonly onConnected?: () => void;
-
-  /**
-   * Primary callback when the connection is closed.
-   * Called every time connection is closed.
-   * @private
-   * @readonly
-   */
   private readonly onClose?: () => void;
-
-  /**
-   * Array of subscriber callbacks registered via subscribe() method.
-   * All subscribers are notified after onMessage callback.
-   *
-   * Subscribers are responsible for their own error handling - uncaught errors
-   * in subscriber callbacks will propagate and may affect other subscribers.
-   *
-   * @private
-   */
   private subscribers: ((data: T) => void)[] = [];
 
   /**
-   * Construct a new WebSocket service instance.
-   *
-   * Does NOT automatically connect - call connect() to establish connection.
-   *
-   * @param url - Full WebSocket URL (e.g., "ws://localhost:8001/ws/status")
-   * @param onMessage - Callback invoked for every received message (before subscribers)
-   *
+   * @param url - WebSocket URL
+   * @param onMessage - Callback for received messages
+   * @param onConnected - Optional callback when connection established
+   * @param onClose - Optional callback when connection closed
    */
   constructor(url: string, onMessage: (data: T) => void, onConnected?: () => void, onClose?: () => void) {
     this.url = url;
@@ -215,15 +90,9 @@ export default class WebSocketService<T> {
    * - All errors only log to console, no user-facing notifications
    * - No distinction between recoverable vs permanent failures
    *
-   * @remarks
-   * Connection failures are logged to console but don't throw errors.
-   * Use isOpen() to check connection state after calling connect().
+   * Connect to WebSocket with automatic reconnection.
    *
-   * Guard against duplicate connections: returns early if isConnected is true.
-   * However, isConnected flag can become stale (see FRAGILE note in field docs).
-   *
-   * @see disconnect for closing connection gracefully
-   * @see isOpen for checking current connection state
+   * @param retryDelay - Milliseconds between reconnection attempts (default: 1000)
    */
   connect(retryDelay: number = 1000) {
     if (this.connectionState === ConnectionState.CONNECTED) {
@@ -239,83 +108,23 @@ export default class WebSocketService<T> {
   }
 
   /**
-   * Send typed message over WebSocket connection.
-   *
-   * Serializes message to JSON and sends over WebSocket if connection is open.
-   * Uses isConnected() method which performs dual verification of both internal
-   * state and WebSocket.readyState for maximum reliability.
-   *
-   * **Safety Checks**:
-   * The isConnected() method verifies:
-   * 1. Internal connectionState === CONNECTED
-   * 2. WebSocket instance exists and readyState === OPEN
-   *
-   * **Current Usage in QUAlibrate**:
-   * This method appears UNUSED in the current application - WebSockets are used
-   * receive-only (server pushes data, frontend doesn't send). The send methods
-   * in WebSocketContext.tsx (sendRunStatus, sendHistory) exist but are not called.
-   *
-   * @param data - Message to send. Must match type T and be JSON-serializable.
-   *
-   * @remarks
-   * **Silently fails if connection not open** - returns early with console warning.
-   * Check isConnected() before sending critical messages to detect failures.
-   *
-   * **No return value or error propagation** - callers cannot detect send failures.
-   * Consider returning boolean success status or throwing errors for better error handling.
-   *
-   * **No message queuing** - messages sent while disconnected are lost permanently.
-   * Consider implementing message queue to retry sending after reconnection.
-   *
-   * @see isConnected for checking connection state before sending
-   * @see connect for establishing connection
+   * Send message over WebSocket. Silently fails if not connected.
+   * @param data - Message to send (must be JSON-serializable)
    */
   send(data: T) {
-    // Use isConnected() for reliable connection check
     if (!this.isConnected()) {
       console.warn("❌ Cannot send message: WebSocket not connected:", this.url);
       return;
     }
 
     try {
-      // Serialize to JSON string and send
-      // FRAGILE: No validation that data is JSON-serializable
-      // Will throw if data contains non-serializable values (functions, circular refs)
       this.ws!.send(JSON.stringify(data));
     } catch (err) {
-      // Serialization or send failed - log but don't propagate error
       console.warn("❌ Failed to send data over WebSocket:", err);
     }
   }
 
-  /**
-   * Gracefully close WebSocket connection and clean up resources.
-   *
-   * Closes the WebSocket connection, clears the connection instance, and sets
-   * state to DISCONNECTED. Does not clear subscribers (they persist for reconnection).
-   *
-   * **Cleanup Behavior**:
-   * - Calls WebSocket.close() to initiate graceful shutdown
-   * - Sets ws to null to allow garbage collection
-   * - Sets connectionState to DISCONNECTED
-   * - Does NOT clear subscribers array (intentional for reconnection scenarios)
-   *
-   * **IMPORTANT: Stops Reconnection**:
-   * After calling disconnect(), automatic reconnection will NOT occur even if
-   * onclose handler fires. This is because the retries parameter is local to
-   * the connect() method call stack. To reconnect, must call connect() again.
-   *
-   * @remarks
-   * Safe to call when already disconnected (no-op if ws is null).
-   * Does not unsubscribe callbacks - subscribers persist across disconnect/reconnect cycles.
-   *
-   * Typical usage: component unmount cleanup to prevent memory leaks.
-   * See WebSocketContext.tsx useEffect cleanup function for example.
-   *
-   * @see connect for establishing new connection
-   * @see isConnected for checking connection state
-   * @see getConnectionState for detailed state information
-   */
+  /** Disconnect and stop auto-reconnection. Subscribers persist. */
   disconnect() {
     this.shouldReconnect = false;
     this.clearReconnectTimeout();
@@ -331,131 +140,30 @@ export default class WebSocketService<T> {
 
   /**
    * Subscribe to WebSocket messages.
-   *
-   * Adds callback to subscribers array with duplicate prevention.
-   * All subscribers are notified after the primary onMessage callback
-   * when messages are received.
-   *
-   * **Callback Notification Order**:
-   * 1. Primary onMessage callback (constructor parameter)
-   * 2. All subscribers in registration order
-   *
-   * **Duplicate Prevention**:
-   * Same callback reference will not be registered multiple times.
-   * Uses reference equality (===) for duplicate detection.
-   *
-   * **Error Isolation**:
-   * Errors thrown in subscriber callbacks are caught and logged, preventing
-   * them from affecting other subscribers. Each subscriber is isolated in its
-   * own try-catch block. Errors are logged to console.error.
-   *
-   * @param cb - Callback function to invoke on each message. Receives parsed message data.
-   * @returns Unsubscribe function for convenience (modern pattern)
-   *
-   * @remarks
-   * **New Pattern (Use this)**:
-   * ```typescript
-   * const unsubscribe = ws.subscribe((data) => console.log(data));
-   * // Later...
-   * unsubscribe();
-   * ```
-   *
-   * **Legacy Pattern (Don't use)**:
-   * ```typescript
-   * const callback = (data) => console.log(data);
-   * ws.subscribe(callback);
-   * // Later...
-   * ws.unsubscribe(callback);
-   * ```
-   *
-   * Subscribers persist across disconnect/reconnect cycles unless explicitly
-   * unsubscribed via the returned function or unsubscribe() method.
-   *
-   * Callbacks are invoked synchronously in the onmessage event handler.
-   * Long-running callbacks will block WebSocket message processing.
-   *
-   * @see connect for the message handling flow
+   * @param cb - Callback invoked on each message
+   * @returns Unsubscribe function
    */
   subscribe(cb: (data: T) => void): () => void {
-    // Check for duplicates to prevent double-subscription
     if (!this.subscribers.includes(cb)) {
       this.subscribers.push(cb);
     }
 
-    // Return unsubscribe function for convenience
     return () => {
       this.subscribers = this.subscribers.filter((s) => s !== cb);
     };
   }
 
-  /**
-   * Get current connection state.
-   *
-   * Returns the current ConnectionState enum value, providing granular
-   * information about the connection lifecycle.
-   *
-   * **Use Cases**:
-   * - UI status indicators showing connection state
-   * - Conditional logic based on connection phase
-   * - Debugging connection issues
-   * - Monitoring reconnection attempts
-   *
-   * @returns {ConnectionState} Current connection state (one of 5 enum values)
-   *
-   * @remarks
-   * Prefer this method over isConnected() when you need detailed state information.
-   * Use isConnected() when you only need to know if messages can be sent/received.
-   *
-   * **State meanings**:
-   * - DISCONNECTED: No connection, can call connect()
-   * - CONNECTING: Connection attempt in progress
-   * - CONNECTED: Ready to send/receive messages
-   * - RECONNECTING: Waiting before retry attempt
-   * - FAILED: Connection failed (may be retrying or exhausted)
-   *
-   * @see isConnected for simple boolean connection check
-   * @see ConnectionState enum for state definitions
-   */
   getConnectionState(): ConnectionState {
     return this.connectionState;
   }
 
-  /**
-   * Check if WebSocket is connected and ready to send messages.
-   *
-   * Performs dual verification for maximum reliability:
-   * 1. Checks internal connectionState === CONNECTED
-   * 2. Verifies actual WebSocket.readyState === OPEN
-   *
-   * This eliminates the previous risk of state desynchronization between
-   * the manual isConnected flag and the actual WebSocket state.
-   *
-   * **Use Cases**:
-   * - Check before calling send() to avoid errors
-   * - Conditional UI rendering based on connectivity
-   * - Guard conditions for WebSocket-dependent operations
-   *
-   * @returns {boolean} True if connected and ready, false otherwise
-   *
-   * @remarks
-   * This method provides a reliable boolean check for "can I send messages now?"
-   * Use getConnectionState() if you need more detailed state information.
-   *
-   * **Dual Check Benefits**:
-   * - Catches cases where WebSocket closed but state not yet updated
-   * - Catches cases where state updated but WebSocket not yet open
-   * - Provides defense-in-depth against edge cases
-   *
-   * @see getConnectionState for detailed state information
-   * @see send for message sending (which uses this method)
-   */
+  /** Check if connected and ready to send/receive messages. */
   isConnected(): boolean {
     return this.connectionState === ConnectionState.CONNECTED && this.ws?.readyState === WebSocket.OPEN;
   }
 
   private tryConnect() {
-    if (!this.shouldReconnect) {
-      this.connectionState = ConnectionState.DISCONNECTED;
+    if (!this.shouldReconnect) {this.connectionState = ConnectionState.DISCONNECTED;
       return;
     }
 
