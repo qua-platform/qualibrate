@@ -13,13 +13,13 @@
     /* Enable all strict type-checking options */
     "strict": true,
     /* Specify module resolution strategy */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     /* Base directory to resolve non-absolute module names */
-    //    "baseUrl": "./src",
+    "baseUrl": "./",
     /* Maps imports to locations - e.g. ~models will go to ./src/models */
-    //    "paths": {
-    //      "~*": ["./*"]
-    //    },
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     /* List of folders to include type definitions from */
     //    "typeRoots": ["node_modules/@types"],
     /* allow import React instead of import * as React */
@@ -32,8 +32,7 @@
     "noEmit": true,
     "isolatedModules": true,
     "allowJs": true,
-    "skipLibCheck": true,
-    "traceResolution": true
+    "skipLibCheck": true
   },
   "include": ["src", "./src/**/*.ts", "./src/**/*.tsx"],
   "exclude": ["./src/**/*.jsx", "./src/**/*.js"]

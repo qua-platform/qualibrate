@@ -49,4 +49,35 @@ export const handlers = [
       data: { results: "mock-data" },
     });
   }),
+
+  // Snapshots history endpoint (called by SnapshotsContext)
+  http.get("/api/branch/:branch/snapshots_history", () => {
+    return HttpResponse.json({
+      items: [],
+      total: 0,
+      page: 1,
+      per_page: 100,
+    });
+  }),
+
+  // Snapshot comparison endpoint (called by SnapshotsContext)
+  http.get("/api/snapshot/:id/compare", () => {
+    return HttpResponse.json({
+      comparison: {},
+      differences: [],
+    });
+  }),
+
+  // Data file content endpoint (called by SnapshotsContext)
+  http.get("/api/data_file/:id/content", () => {
+    return HttpResponse.json({
+      content: "",
+      filename: "test.json",
+    });
+  }),
+
+  // Last run info endpoint (called by NodesContext)
+  http.get("/execution/last_run_info", () => {
+    return HttpResponse.json(null);
+  }),
 ];
