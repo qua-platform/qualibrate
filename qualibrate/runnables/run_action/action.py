@@ -1,14 +1,11 @@
 import inspect
 import weakref
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Optional,
+    TypeAlias,
 )
-
-from typing_extensions import TypeAlias
 
 from qualibrate.runnables.run_action.utils import (
     get_frame_to_update_from_action,
@@ -21,7 +18,7 @@ if TYPE_CHECKING:
     from qualibrate.runnables.run_action.action_manager import ActionManager
 
 ActionReturnType: TypeAlias = Mapping[str, Any]
-ActionCallableType: TypeAlias = Callable[..., Optional[ActionReturnType]]
+ActionCallableType: TypeAlias = Callable[..., ActionReturnType | None]
 
 
 class Action:
@@ -47,7 +44,7 @@ class Action:
         node: "QualibrationNode[Any, Any]",
         *args: Any,
         **kwargs: Any,
-    ) -> Optional[ActionReturnType]:
+    ) -> ActionReturnType | None:
         result = self.func(node, *args, **kwargs)
         if isinstance(result, Mapping):
             node.namespace.update(result)
@@ -58,12 +55,15 @@ class Action:
         node: "QualibrationNode[Any, Any]",
         *args: Any,
         **kwargs: Any,
-    ) -> Optional[ActionReturnType]:
+    ) -> ActionReturnType | None:
         """
         Executes the stored function with the given node.
         """
         self.manager.current_action = self
+        node.action_label = None
         result = self._run_and_update_namespace(node, *args, **kwargs)
+        node.action_label = None
+        self.manager.current_action = None
         if not is_interactive() or not isinstance(result, Mapping):
             return result
         stack = inspect.stack()

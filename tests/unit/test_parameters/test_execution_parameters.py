@@ -1,5 +1,3 @@
-from typing import Optional
-
 import pytest
 from pydantic import Field
 
@@ -14,14 +12,14 @@ from qualibrate.utils.type_protocols import TargetType
 
 
 class Node1(NodeParameters):
-    qubits: Optional[list[TargetType]] = Field(
+    qubits: list[TargetType] | None = Field(
         default_factory=lambda: ["a", "b", "c"]
     )
     int_value: int = 1
 
 
 class Node2(NodeParameters):
-    qubits: Optional[list[TargetType]] = Field(
+    qubits: list[TargetType] | None = Field(
         default_factory=lambda: ["d", "e", "f"]
     )
     float_value: float = 2.0

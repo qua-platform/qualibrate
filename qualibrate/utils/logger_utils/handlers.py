@@ -2,7 +2,7 @@ import json
 import logging
 from collections import deque
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from qualibrate.utils.logger_utils.filters import filter_log_date
 
@@ -32,8 +32,8 @@ class InMemoryLogHandler(logging.Handler):
 
     def get_logs(
         self,
-        after: Optional[datetime] = None,
-        before: Optional[datetime] = None,
+        after: datetime | None = None,
+        before: datetime | None = None,
         num_entries: int = 100,
     ) -> list[dict[str, Any]]:
         filtered_logs = [

@@ -3,7 +3,6 @@ from collections.abc import Mapping, Sequence
 from typing import (
     Any,
     ClassVar,
-    Optional,
     cast,
 )
 
@@ -50,7 +49,7 @@ class RunnableParameters(BaseModel):
 
 
 class TargetParameter(BaseModel):
-    targets_name: ClassVar[Optional[str]] = None
+    targets_name: ClassVar[str | None] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -73,17 +72,17 @@ class TargetParameter(BaseModel):
 
     @model_validator(mode="after")
     def targets_exists_if_specified(self) -> Self:
-        if self.targets_name not in self.model_fields:
+        if self.targets_name not in self.__class__.model_fields:
             return self
         if self.targets is not None and not isinstance(self.targets, Sequence):
             raise AssertionError(f"Targets must be an iterable of {TargetType}")
         return self
 
     @property
-    def targets(self) -> Optional[list[TargetType]]:
+    def targets(self) -> list[TargetType] | None:
         if (
             self.targets_name is None
-            or self.targets_name not in self.model_fields
+            or self.targets_name not in self.__class__.model_fields
         ):
             return None
         return cast(list[TargetType], getattr(self, self.targets_name))
@@ -92,7 +91,7 @@ class TargetParameter(BaseModel):
     def targets(self, new_targets: Sequence[TargetType]) -> None:
         if self.targets_name is None:
             return
-        if self.targets_name not in self.model_fields:
+        if self.targets_name not in self.__class__.model_fields:
             raise TargetsFieldNotExist(
                 f"Targets name ({self.targets_name}) specified but field does "
                 "not exist"
@@ -121,7 +120,7 @@ class TargetParameter(BaseModel):
 
 
 class NodeParameters(RunnableParameters, TargetParameter):
-    targets_name: ClassVar[Optional[str]] = "qubits"
+    targets_name: ClassVar[str | None] = "qubits"
 
     @classmethod
     def serialize(
@@ -138,7 +137,7 @@ class NodesParameters(RunnableParameters):
 
 
 class GraphParameters(RunnableParameters, TargetParameter):
-    targets_name: ClassVar[Optional[str]] = "qubits"
+    targets_name: ClassVar[str | None] = "qubits"
 
     @classmethod
     def serialize(

@@ -1,4 +1,5 @@
-from typing import Any, Callable, Optional, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 T = TypeVar("T")
 
@@ -16,7 +17,7 @@ class InstanceOrClassMethod:
         self.func = func
 
     def __get__(
-        self, obj: T, objtype: Optional[type[T]] = None
+        self, obj: T, objtype: type[T] | None = None
     ) -> Callable[..., Any]:
         """
         Returns a callable that binds the method to either the instance

@@ -1,9 +1,7 @@
 from collections.abc import Sequence
-from typing import Optional, Union
 
 from qualibrate import NodeParameters
 from qualibrate.utils.node import content
-from qualibrate.utils.types_parsing import NoneType
 
 
 def test_load_parameters_without_build():
@@ -46,13 +44,13 @@ def test_load_parameters_with_build():
     failed = {}
     expected_field_props = {
         "resonator": (str, True, None),
-        "sampling_points": (Union[int, NoneType], False, 100),
-        "noise_factor": (Union[float, NoneType], False, 0.1),
-        "wait_time": (Union[float, NoneType], False, 4),
-        "list_values": (Optional[Sequence[int]], False, [1, 2, 3]),
+        "sampling_points": (int | None, False, 100),
+        "noise_factor": (float | None, False, 0.1),
+        "wait_time": (float | None, False, 4),
+        "list_values": (Sequence[int] | None, False, [1, 2, 3]),
     }
     for field_name, props in expected_field_props.items():
-        field = loaded_parameters.model_fields[field_name]
+        field = loaded_parameters.__class__.model_fields[field_name]
         required = field.is_required()
         if field.annotation != props[0] or props[1] is not required:
             failed.update({field_name: {"expected": props, "loaded": field}})

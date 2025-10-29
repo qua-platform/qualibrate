@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, Optional, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 if TYPE_CHECKING:
     from typing import Any
@@ -19,7 +19,7 @@ class StorageManager(ABC, Generic[NodeTypeVar]):
     managing snapshots of the node's state.
     """
 
-    snapshot_idx: Optional[int] = None
+    snapshot_idx: int | None = None
 
     @abstractmethod
     def save(self, node: NodeTypeVar) -> None:

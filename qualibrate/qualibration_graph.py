@@ -91,9 +91,9 @@ class QualibrationGraph(
         nodes: Mapping[str, NodeTypeVar],
         connectivity: Sequence[tuple[str, str]],
         orchestrator: Optional["QualibrationOrchestrator[NodeTypeVar]"] = None,
-        description: Optional[str] = None,
+        description: str | None = None,
         *,
-        modes: Optional[RunModes] = None,
+        modes: RunModes | None = None,
     ):
         if not isinstance(parameters, GraphParameters):
             raise ValueError("Graph parameters must be of type GraphParameters")
@@ -365,7 +365,7 @@ class QualibrationGraph(
         )
 
     @property
-    def active_node_name(self) -> Optional[str]:
+    def active_node_name(self) -> str | None:
         return (
             self._orchestrator.active_node_name
             if self._orchestrator is not None
@@ -464,7 +464,7 @@ class QualibrationGraph(
     def _post_run(
         self,
         created_at: datetime,
-        run_error: Optional[RunError],
+        run_error: RunError | None,
     ) -> GraphRunSummary:
         """
         Finalizes the graph execution and generates a summary.
@@ -529,7 +529,7 @@ class QualibrationGraph(
             f"Run graph {self.name} with parameters: {passed_parameters}"
         )
         self.run_start = datetime.now().astimezone()
-        run_error: Optional[RunError] = None
+        run_error: RunError | None = None
         try:
             self._run(**passed_parameters)
         except Exception as ex:
@@ -646,7 +646,7 @@ class QualibrationGraph(
         nodes = {}
         connectivity = []
         for node, adjacency in zip(
-            nx_data.pop("nodes"), nx_data.pop("adjacency")
+            nx_data.pop("nodes"), nx_data.pop("adjacency"), strict=False
         ):
             node_id = node["id"]
             nodes[node_id] = node
@@ -681,7 +681,9 @@ class QualibrationGraph(
         for key in ("multigraph", "directed", "graph"):
             data.pop(key)
         if node_names_only:
-            for node, adjacency in zip(data["nodes"], data["adjacency"]):
+            for node, adjacency in zip(
+                data["nodes"], data["adjacency"], strict=False
+            ):
                 node["id"] = node["id"].name
                 for adj in adjacency:
                     adj["id"] = adj["id"].name
@@ -742,7 +744,7 @@ class QualibrationGraph(
             bool: True if successful in stopping execution, False otherwise.
         """
         logger.debug(f"Stop graph {self.name}")
-        stop_node: Optional[bool] = kwargs.get("stop_graph_node")
+        stop_node: bool | None = kwargs.get("stop_graph_node")
         node_stop = True
         orchestrator = self._orchestrator
         if orchestrator is None:

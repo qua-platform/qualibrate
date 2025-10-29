@@ -1,11 +1,10 @@
 import warnings
 from pathlib import Path
-from typing import Optional
 
 from qualibrate_config.models import QualibrateConfig
 
 
-def get_quam_state_path(config: QualibrateConfig) -> Optional[Path]:
+def get_quam_state_path(config: QualibrateConfig) -> Path | None:
     root = config.__class__._root
     if root is None:
         return None

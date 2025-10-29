@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from types import TracebackType
-from typing import Literal, Optional, Union, get_args
+from typing import Literal, get_args
 
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
@@ -21,12 +21,13 @@ from qualibrate.utils.logger_utils.fotmatters import (
 )
 from qualibrate.utils.logger_utils.handlers import InMemoryLogHandler
 
-_SysExcInfoType = Union[
-    tuple[type[BaseException], BaseException, Optional[TracebackType]],
-    tuple[None, None, None],
-]
-_ExcInfoType = Optional[Union[bool, _SysExcInfoType, BaseException]]
-_ArgsType = Union[tuple[object, ...], Mapping[str, object]]
+_SysExcInfoType = (
+    tuple[type[BaseException], BaseException, TracebackType | None]
+    | tuple[None, None, None]
+)
+
+_ExcInfoType = bool | _SysExcInfoType | BaseException | None
+_ArgsType = tuple[object, ...] | Mapping[str, object]
 LOG_LEVEL_NAMES_TYPE = Literal[
     "debug", "info", "warning", "error", "exception", "critical", "fatal"
 ]
@@ -44,7 +45,7 @@ __all__ = [
 
 
 class LazyInitLogger(logging.Logger):
-    def __init__(self, name: str, level: Union[int, str] = 0) -> None:
+    def __init__(self, name: str, level: int | str = 0) -> None:
         super().__init__(name, level or logging.DEBUG)
         self.in_memory_handler = InMemoryLogHandler()
         self.in_memory_handler.setFormatter(QualibrateJsonFormatter())
@@ -69,8 +70,8 @@ class LazyInitLogger(logging.Logger):
         level: int,
         msg: object,
         args: _ArgsType,
-        exc_info: Optional[_ExcInfoType] = None,
-        extra: Optional[Mapping[str, object]] = None,
+        exc_info: _ExcInfoType | None = None,
+        extra: Mapping[str, object] | None = None,
         stack_info: bool = False,
         stacklevel: int = 1,
     ) -> None:

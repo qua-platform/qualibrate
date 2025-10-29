@@ -4,10 +4,9 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime
 from itertools import chain
 from pathlib import Path
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
 
 import datamodel_code_generator as dmcg
-from datamodel_code_generator.format import DatetimeClassType
 from datamodel_code_generator.model import get_data_model_types
 from datamodel_code_generator.parser.jsonschema import JsonSchemaParser
 from pydantic import ConfigDict, Field, PydanticDeprecatedSince20  # noqa: F401
@@ -31,7 +30,6 @@ from qualibrate.utils.node.path_solver import (
 DATA_MODEL_TYPES = get_data_model_types(
     dmcg.DataModelType.PydanticV2BaseModel,
     target_python_version=dmcg.PythonVersion.PY_311,
-    target_datetime_class=DatetimeClassType.Datetime,
 )
 
 
@@ -75,7 +73,7 @@ def read_raw_node_file(
 
 def read_minified_node_content(
     node_info: Mapping[str, Any],
-    f_node_id: Optional[int],
+    f_node_id: int | None,
     node_filepath: Path,
     base_path: Path,
 ) -> dict[str, Any]:
@@ -141,7 +139,7 @@ def read_metadata_node_content(
 
 def read_data_node_content(
     node_info: Mapping[str, Any], node_filepath: Path, node_dir: Path
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Read quam data based on node info.
 
     Args:
@@ -157,7 +155,7 @@ def read_node_content(
     node_id: int,
     base_path: Path,
     data_path_key: str = "data_path",
-) -> Optional[Mapping[str, Any]]:
+) -> Mapping[str, Any] | None:
     """
     Finds a node file in the given directory, reads the file, and processes
     the contents of the node.
@@ -195,7 +193,7 @@ def parse_node_content(
     node_id: int,
     node_dir: Path,
     build_params_class: bool,
-) -> tuple[Optional[Any], Optional[Union[NodeParameters, Mapping[str, Any]]]]:
+) -> tuple[Any | None, NodeParameters | Mapping[str, Any] | None]:
     """
     Parses the content of a node to extract its machine and parameters.
 
@@ -227,8 +225,8 @@ def parse_node_content(
 
 
 def _get_filename_and_subreference(
-    filepath: Union[str, Path],
-) -> tuple[Path, Optional[str]]:
+    filepath: str | Path,
+) -> tuple[Path, str | None]:
     """
     Extracts the base filename and subreference from a given file path.
 
@@ -365,8 +363,8 @@ def read_node_data(
     node_dir: Path,
     node_id: int,
     base_path: Path,
-    custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
-) -> Optional[dict[str, Any]]:
+    custom_loaders: Sequence[type[BaseLoader]] | None = None,
+) -> dict[str, Any] | None:
     """
     Reads and processes node data (results), resolving references within the
     data.
@@ -407,7 +405,7 @@ def load_parameters(
     parameters: Mapping[str, Any],
     node_id: int,
     build_params_class: bool,
-) -> Optional[Union[NodeParameters, Mapping[str, Any]]]:
+) -> NodeParameters | Mapping[str, Any] | None:
     """
     Loads and optionally builds a parameters class from the provided data.
 

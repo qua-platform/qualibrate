@@ -41,7 +41,7 @@ def test_load_from_id_class_empty(
     )
     assert loaded_node is not None
     assert isinstance(loaded_node.parameters, NodeParameters)
-    assert loaded_node.parameters.model_fields == {}
+    assert loaded_node.parameters.__class__.model_fields == {}
     assert loaded_node.machine is None
     assert loaded_node.results == {}
 

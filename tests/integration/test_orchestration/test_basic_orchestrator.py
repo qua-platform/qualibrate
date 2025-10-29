@@ -94,7 +94,9 @@ def test_run_sequence_no_error(
                 error=None,
             ),
         )
-        for item, outcomes in zip(execution_history, expected_outcomes)
+        for item, outcomes in zip(
+            execution_history, expected_outcomes, strict=False
+        )
     ]
 
 

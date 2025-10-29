@@ -5,7 +5,6 @@ import traceback
 from collections.abc import Generator, Mapping, Sequence
 from contextlib import contextmanager
 from datetime import datetime
-from functools import partialmethod
 from pathlib import Path
 from typing import (
     Any,
@@ -16,14 +15,13 @@ from typing import (
     cast,
 )
 
-from qualibrate.runnables.runnable_collection import RunnableCollection
-
 if sys.version_info < (3, 11):
     from typing_extensions import Self
 else:
     from typing import Self
 
 import matplotlib
+import matplotlib.pyplot as plt
 from matplotlib.backends import (  # type: ignore[attr-defined]
     BackendFilter,
     backend_registry,
@@ -51,6 +49,7 @@ from qualibrate.runnables.run_action.action_manager import (
     ActionDecoratorType,
     ActionManager,
 )
+from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate.storage import StorageManager
 from qualibrate.storage.local_storage_manager import LocalStorageManager
 from qualibrate.utils.exceptions import StopInspection
@@ -69,12 +68,9 @@ from qualibrate.utils.node.loaders.base_loader import BaseLoader
 from qualibrate.utils.node.path_solver import (
     get_node_dir_path,
 )
-from qualibrate.utils.node.record_state_update import (
-    record_state_update_getattr,
-    record_state_update_getitem,
-)
+from qualibrate.utils.node.record_state_update import update_node_machine
 from qualibrate.utils.read_files import get_module_name, import_from_path
-from qualibrate.utils.type_protocols import TargetType
+from qualibrate.utils.type_protocols import MachineProtocol, TargetType
 
 __all__ = [
     "QualibrationNode",
@@ -85,7 +81,7 @@ __all__ = [
 NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
-MachineType = TypeVar("MachineType")
+MachineType = TypeVar("MachineType", bound=MachineProtocol)
 
 
 class QualibrationNode(
@@ -122,12 +118,12 @@ class QualibrationNode(
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        parameters: Optional[ParametersType] = None,
-        description: Optional[str] = None,
+        name: str | None = None,
+        parameters: ParametersType | None = None,
+        description: str | None = None,
         *,
-        parameters_class: Optional[type[ParametersType]] = None,
-        modes: Optional[RunModes] = None,
+        parameters_class: type[ParametersType] | None = None,
+        modes: RunModes | None = None,
     ):
         if self.__class__.active_node is not None:
             return
@@ -145,8 +141,8 @@ class QualibrationNode(
         # class is used just for passing reference to the running instance
         self._fraction_complete = 0.0
         self.results: dict[Any, Any] = {}
-        self.machine: Optional[MachineType] = None
-        self.storage_manager: Optional[StorageManager[Self]] = None
+        self.machine: MachineType | None = None
+        self.storage_manager: StorageManager[Self] | None = None
 
         # Initialize the ActionManager to handle run_action logic.
         self._action_manager = ActionManager()
@@ -167,6 +163,8 @@ class QualibrationNode(
 
     def _post_init(self) -> None:
         self.run_start = datetime.now().astimezone()
+        self.last_saved_at: datetime | None = None
+        self._custom_action_label: str | None = None
         self._get_storage_manager()
 
         self._warn_if_external_and_interactive_mpl()
@@ -175,8 +173,8 @@ class QualibrationNode(
     def _validate_passed_parameters_options(
         cls,
         name: str,
-        parameters: Optional[ParametersType],
-        parameters_class: Optional[type[ParametersType]],
+        parameters: ParametersType | None,
+        parameters_class: type[ParametersType] | None,
     ) -> ParametersType:
         """
         Validates passed parameters and parameters class.
@@ -242,6 +240,16 @@ class QualibrationNode(
                 f"Can't instantiate parameters class of node '{name}'"
             ) from e
 
+    @property
+    def action_label(self) -> str | None:
+        if self._custom_action_label is not None:
+            return self._custom_action_label
+        return self.current_action_name
+
+    @action_label.setter
+    def action_label(self, value: str | None) -> None:
+        self._custom_action_label = value
+
     def __copy__(self) -> Self:
         """
         Creates a shallow copy of the node.
@@ -269,7 +277,7 @@ class QualibrationNode(
         finally:
             self.__class__.active_node = active_node
 
-    def copy(self, name: Optional[str] = None, **node_parameters: Any) -> Self:
+    def copy(self, name: str | None = None, **node_parameters: Any) -> Self:
         """
         Creates a modified copy of the node with updated parameters.
 
@@ -322,6 +330,7 @@ class QualibrationNode(
             list[str],
             backend_registry.list_builtin(BackendFilter.INTERACTIVE),  # type: ignore[no-untyped-call]
         ):
+            plt.close("all")
             matplotlib.use("agg")
             logger.warning(
                 f"Using interactive matplotlib backend '{mpl_backend}' in "
@@ -338,7 +347,7 @@ class QualibrationNode(
         )
 
     @property
-    def snapshot_idx(self) -> Optional[int]:
+    def snapshot_idx(self) -> int | None:
         """
         Returns the snapshot index from the storage manager.
 
@@ -354,7 +363,7 @@ class QualibrationNode(
 
     def run_action(
         self,
-        func: Optional[ActionCallableType] = None,
+        func: ActionCallableType | None = None,
         *,
         skip_if: bool = False,
     ) -> ActionDecoratorType:
@@ -399,14 +408,15 @@ class QualibrationNode(
             ImportError: Raised if required configurations are not accessible.
         """
         self._get_storage_manager().save(node=self)
+        self.last_saved_at = datetime.now().astimezone()
 
     def _load_from_id(
         self,
         node_id: int,
-        base_path: Optional[Path] = None,
-        custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
+        base_path: Path | None = None,
+        custom_loaders: Sequence[type[BaseLoader]] | None = None,
         build_params_class: bool = False,
-    ) -> Optional[Self]:
+    ) -> Self | None:
         """
         Loads a node by its identifier, parsing its content and data.
 
@@ -450,8 +460,11 @@ class QualibrationNode(
                     ).__class__
                     self._parameters = cast(ParametersType, parameters)
                 else:
-                    self._parameters = self.parameters.model_construct(
-                        **cast(Mapping[str, Any], parameters)
+                    self._parameters = cast(
+                        ParametersType,
+                        self.parameters.model_construct(
+                            **cast(Mapping[str, Any], parameters)
+                        ),
                     )
 
         data = read_node_data(node_dir, node_id, base_path, custom_loaders)
@@ -466,8 +479,8 @@ class QualibrationNode(
             type["QualibrationNode[ParametersType, MachineType]"],
         ],
         node_id: int,
-        base_path: Optional[Path] = None,
-        custom_loaders: Optional[Sequence[type[BaseLoader]]] = None,
+        base_path: Path | None = None,
+        custom_loaders: Sequence[type[BaseLoader]] | None = None,
     ) -> Optional["QualibrationNode[ParametersType, MachineType]"]:
         """
         Class or instance method to load a node by its identifier.
@@ -502,7 +515,7 @@ class QualibrationNode(
         self,
         initial_targets: Sequence[TargetType],
         parameters: NodeParameters,
-        run_error: Optional[RunError],
+        run_error: RunError | None,
     ) -> NodeRunSummary:
         """
         Finalizes the node's execution and creates a summary.
@@ -558,9 +571,9 @@ class QualibrationNode(
 
     def run(
         self,
-        interactive: bool = True,
+        interactive: bool = False,
         *,
-        skip_actions: Union[bool, Sequence[str]] = False,
+        skip_actions: bool | Sequence[str] = False,
         **passed_parameters: Any,
     ) -> BaseRunSummary:
         """
@@ -603,7 +616,7 @@ class QualibrationNode(
             copy.copy(parameters.targets) if parameters.targets else []
         )
         self.run_start = datetime.now().astimezone()
-        run_error: Optional[RunError] = None
+        run_error: RunError | None = None
 
         if run_modes_ctx.get() is not None:
             logger.error(
@@ -661,6 +674,7 @@ class QualibrationNode(
         mpl_backend = matplotlib.get_backend()
         # Appending dir with nodes can cause issues with relative imports
         try:
+            plt.close("all")
             matplotlib.use("agg")
             _module = import_from_path(
                 get_module_name(node_filepath), node_filepath
@@ -704,6 +718,8 @@ class QualibrationNode(
         that occur, specifically during interactive execution. It uses
         custom `__setattr__` and `__setitem__` functions for relevant classes
         to record these changes.
+        Only simple types updates (int, float, bool, str and None) will
+        be recorded.
 
         Args:
             interactive_only: Whether to only record in interactive mode.
@@ -713,58 +729,28 @@ class QualibrationNode(
             None: Allows wrapped operations to execute while recording state
                 updates.
         """
+        machine = self.machine
         if not self.modes.interactive and interactive_only:
             yield
             return
 
-        logger.debug(f"Init recording state updates for node {self.name}")
-        # Override QuamComponent.__setattr__()
-        try:
-            from quam.core import (
-                QuamBase,
-                QuamComponent,
-                QuamDict,
-                QuamList,
-                QuamRoot,
+        if machine is None or not hasattr(machine, "to_dict"):
+            self.log(
+                (
+                    "Unable to perform `QualibrationNode."
+                    "record_state_updates()` because `node.machine` has not "
+                    "been set. Any changes will be automatically applied."
+                ),
+                level="warning",
             )
-        except ImportError as ex:
-            print(ex)
             yield
             return
 
-        quam_classes_mapping = (
-            QuamBase,
-            QuamComponent,
-            QuamRoot,
-            QuamDict,
-        )
-        quam_classes_sequences = (QuamList, QuamDict)
-
-        cls_setattr_funcs = {
-            cls: cls.__dict__["__setattr__"]
-            for cls in quam_classes_mapping
-            if "__setattr__" in cls.__dict__
-        }
-        cls_setitem_funcs = {
-            cls: cls.__dict__["__setitem__"]
-            for cls in quam_classes_sequences
-            if "__setitem__" in cls.__dict__
-        }
-        try:
-            for cls in cls_setattr_funcs:
-                cls.__setattr__ = partialmethod(
-                    record_state_update_getattr, node=self
-                )
-            for cls in cls_setitem_funcs:
-                cls.__setitem__ = partialmethod(
-                    record_state_update_getitem, node=self
-                )
-            yield
-        finally:
-            for cls, setattr_func in cls_setattr_funcs.items():
-                cls.__setattr__ = setattr_func
-            for cls, setitem_func in cls_setitem_funcs.items():
-                cls.__setitem__ = setitem_func
+        logger.debug(f"Init recording state updates for node {self.name}")
+        original_dict = machine.to_dict(include_defaults=True)
+        yield
+        updated_dict = machine.to_dict(include_defaults=True)
+        update_node_machine(self, original_dict, updated_dict)
 
     @classmethod
     def scan_folder_for_instances(
@@ -863,7 +849,7 @@ class QualibrationNode(
         self,
         msg: object,
         *args: Any,
-        level: Union[LOG_LEVEL_NAMES_TYPE, int] = "info",
+        level: LOG_LEVEL_NAMES_TYPE | int = "info",
         **kwargs: Any,
     ) -> None:
         name = self.name if len(self.name) <= 20 else f"{self.name[:17]}..."
@@ -884,7 +870,7 @@ class QualibrationNode(
         self._fraction_complete = max(min(value, 1.0), 0.0)
 
     @property
-    def current_action_name(self) -> Optional[str]:
+    def current_action_name(self) -> str | None:
         action = self._action_manager.current_action
         return action.name if action else None
 
