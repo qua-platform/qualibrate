@@ -16,7 +16,7 @@ export const ResultsError: React.FC<{ style?: React.CSSProperties; errorObject: 
       </div>
       <div className={styles.errorContent}>
         <div>
-          <div className={styles.errorLabel}>Error occurred:</div>
+          <div className={styles.errorLabel}>{errorObject.error_class} Error occurred:</div>
           <div className={styles.errorText}>{errorObject.message}</div>
         </div>
         <div>
