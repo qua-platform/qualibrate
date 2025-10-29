@@ -230,6 +230,34 @@ class BasicOrchestrator(
                 for successor in successors[node_to_run]:
                     self._execution_queue.put(successor)
         self._active_node = None
-        # TODO: correct resolving of outcomes
-        for target in targets:
-            self.final_outcomes[target] = Outcome.SUCCESSFUL
+        self._fill_final_outcomes()
+
+    def _fill_final_outcomes(self) -> None:
+        """Compute and fill final orchestration outcomes from nodes without
+        successors. Logic and operator is used. Orchestrator target is marked
+        as successful only if the target is successful for all related nodes.
+
+        | target | node_1 | node_2 | graph |
+        | ------ | ------ | ------ | ----- |
+        | q1 | successful | successful | successful|
+        | q2 | successful | failed | failed |
+        | q3 | failed | failed | failed |
+
+        """
+        successors = self.nx_graph.succ
+        elements_without_successors = list(
+            filter(lambda n: len(successors[n]) == 0, successors.keys())
+        )
+        for target in self.initial_targets or []:
+            successful = all(
+                map(
+                    lambda outcome: outcome == Outcome.SUCCESSFUL,
+                    [
+                        node.outcomes.get(target, Outcome.FAILED)
+                        for node in elements_without_successors
+                    ],
+                )
+            )
+            self.final_outcomes[target] = (
+                Outcome.SUCCESSFUL if successful else Outcome.FAILED
+            )
