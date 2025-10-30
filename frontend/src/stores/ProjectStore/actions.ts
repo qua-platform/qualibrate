@@ -18,13 +18,12 @@ export const fetchProjectsAndActive = () => async (dispatch: RootDispatch) => {
       const fetchedActiveProject = fetchedProjects.find((p) => p.name === activeNameRes.result);
 
       dispatch(setActiveProject(fetchedActiveProject));
+    } else if (!activeNameRes.isOk && activeNameRes.error) {
+      console.error("Error fetching projects or active project:", activeNameRes.error);
     }
   } else {
     if (!projectsRes.isOk && projectsRes.error) {
       console.error("Error fetching projects or active project:", projectsRes.error);
-    }
-    if (!activeNameRes.isOk && activeNameRes.error) {
-      console.error("Error fetching projects or active project:", activeNameRes.error);
     }
   }
 
