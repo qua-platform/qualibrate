@@ -6,9 +6,10 @@ import { ProjectDTO } from "../ProjectDTO";
 import BlueButton from "../../../ui-lib/components/Button/BlueButton";
 import cyKeys from "../../../utils/cyKeys";
 import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
-import { useProjectContext } from "../context/ProjectContext";
 import { useSnapshotsContext } from "../../Snapshots/context/SnapshotsContext";
 import { NODES_KEY } from "../../../routing/ModulesRegistry";
+import { useRootDispatch } from "../../../stores";
+import { selectActiveProject } from "../../../stores/ProjectStore/actions";
 
 interface ProjectActionsProps {
   isCurrentProject: boolean;
@@ -18,13 +19,13 @@ interface ProjectActionsProps {
 
 const ProjectActions: React.FC<ProjectActionsProps> = ({ isCurrentProject, projectName, selectedProject }) => {
   const { openTab } = useFlexLayoutContext();
-  const { handleSelectActiveProject } = useProjectContext();
+  const dispatch = useRootDispatch();
   const { reset, setReset, setSelectedSnapshotId, setAllSnapshots, setJsonData, setResult, setDiffData } = useSnapshotsContext();
 
   const handleSubmit = useCallback(() => {
     if (!selectedProject) return;
 
-    handleSelectActiveProject(selectedProject);
+    dispatch(selectActiveProject(selectedProject));
     setSelectedSnapshotId(undefined);
     setJsonData(undefined);
     setResult(undefined);
@@ -34,7 +35,7 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({ isCurrentProject, proje
     openTab(NODES_KEY);
   }, [
     selectedProject,
-    handleSelectActiveProject,
+    dispatch,
     openTab,
     setAllSnapshots,
     setSelectedSnapshotId,

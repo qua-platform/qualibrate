@@ -6,15 +6,16 @@ import MainLayout from "../ui-lib/layouts/MainLayout";
 import { useFlexLayoutContext } from "../routing/flexLayout/FlexLayoutContext";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../common/modules";
-import { useProjectContext } from "../modules/Project/context/ProjectContext";
 import { NODES_KEY, PROJECT_KEY } from "../routing/ModulesRegistry";
 import { useSelector } from "react-redux";
 import { getIsAuthorized } from "../stores/AuthStore/selectors";
+import { getActiveProject, getShouldGoToProjectPage } from "../stores/ProjectStore/selectors";
 
 const MainModularPage = () => {
   const isAuthorized = useSelector(getIsAuthorized);
   const { model, checkIsEmpty, flexLayoutListener, openTab, setActiveTabsetName } = useFlexLayoutContext();
-  const { activeProject, shouldGoToProjectPage } = useProjectContext();
+  const activeProject = useSelector(getActiveProject);
+  const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
   const navigate = useNavigate();
 
   useEffect(() => {

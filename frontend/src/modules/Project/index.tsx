@@ -2,7 +2,6 @@ import { IconType } from "../../common/interfaces/InputProps";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
 import React, { useCallback, useEffect, useState } from "react";
 import ProjectList from "./components/ProjectList";
-import { useProjectContext } from "./context/ProjectContext";
 import { ProjectDTO } from "./ProjectDTO";
 import InputField from "../../common/ui-components/common/Input/InputField";
 import { useNodesContext } from "../Nodes/context/NodesContext";
@@ -13,9 +12,13 @@ import { NoItemsIcon } from "../../ui-lib/Icons/NoItemsIcon";
 import ProjectTitleBar from "../TopbarMenu/ProjectTitleBar";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
+import { useSelector } from "react-redux";
+import { getActiveProject, getAllProjects, getIsScanningProjects } from "../../stores/ProjectStore/selectors";
 
 const Project = () => {
-  const { allProjects, activeProject, isScanningProjects } = useProjectContext();
+  const allProjects = useSelector(getAllProjects);
+  const activeProject = useSelector(getActiveProject);
+  const isScanningProjects = useSelector(getIsScanningProjects);
   const { fetchAllNodes } = useNodesContext();
   const { fetchAllCalibrationGraphs, setWorkflowGraphElements } = useGraphContext();
   const [listedProjects, setListedProjects] = useState<ProjectDTO[]>(allProjects);

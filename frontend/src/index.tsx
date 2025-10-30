@@ -9,7 +9,6 @@ import { updateColorTheme } from "./modules/themeModule/themeHelper";
 import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeContext";
 import { createRoot } from "react-dom/client";
 import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsContext";
-import { ProjectContextProvider } from "./modules/Project/context/ProjectContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 import { GraphContextProvider } from "./modules/GraphLibrary/context/GraphContext";
 import { NodesContextProvider } from "./modules/Nodes/context/NodesContext";
@@ -34,17 +33,15 @@ const Application: React.FunctionComponent = () => {
   return (
     <Provider store={store}>
       <GlobalThemeContextProvider>
-        <ProjectContextProvider>
-          <WebSocketProvider>
-            {contextProviders.reduce(
-              (Comp, Provider) => {
-                const TempProvider = Provider as unknown as React.FC<PropsWithChildren<object>>;
-                return <TempProvider>{Comp}</TempProvider>;
-              },
-              <AppRoutes />
-            )}
-          </WebSocketProvider>
-        </ProjectContextProvider>
+        <WebSocketProvider>
+          {contextProviders.reduce(
+            (Comp, Provider) => {
+              const TempProvider = Provider as unknown as React.FC<PropsWithChildren<object>>;
+              return <TempProvider>{Comp}</TempProvider>;
+            },
+            <AppRoutes />
+          )}
+        </WebSocketProvider>
       </GlobalThemeContextProvider>
     </Provider>
   );

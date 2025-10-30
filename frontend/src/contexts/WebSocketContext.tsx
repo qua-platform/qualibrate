@@ -20,7 +20,8 @@ import {WS_EXECUTION_HISTORY, WS_GET_STATUS} from "../services/webSocketRoutes";
 import {ErrorObject} from "../modules/common/Error/ErrorStatusWrapper";
 import {Measurement} from "../modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
 import {BasicDialog} from "../common/ui-components/common/BasicDialog/BasicDialog";
-import {useProjectContext} from "../modules/Project/context/ProjectContext";
+import { useRootDispatch } from "../stores";
+import { fetchShouldRedirectUserToProjectPage } from "../stores/ProjectStore/actions";
 
 /**
  * Results from completed calibration node.
@@ -162,7 +163,7 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
   const [connectionLostAt, setConnectionLostAt] = useState<number | null>(null);
   const [connectionLostSeconds, setConnectionLostSeconds] = useState<number>(0);
   const connectionLostAtRef = useRef<number | null>(null);
-  const { refreshShouldGoToProjectPage } = useProjectContext();
+  const dispatch = useRootDispatch();
 
   const handleShowConnectionErrorDialog = useCallback(() => {
     if (localStorage.getItem("backandWorking") !== "true") {
@@ -188,10 +189,10 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
       connectionLostAtRef.current = null;
       setConnectionLostAt(null);
       setConnectionLostSeconds(0);
-      void refreshShouldGoToProjectPage();
+      dispatch(fetchShouldRedirectUserToProjectPage());
       return false;
     });
-  }, [refreshShouldGoToProjectPage]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!showConnectionErrorDialog || connectionLostAt === null) {

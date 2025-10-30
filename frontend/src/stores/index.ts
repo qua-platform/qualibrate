@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./AuthStore/AuthStore";
 import { useDispatch } from "react-redux";
+import projectsReducer from "./ProjectStore/ProjectStore";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
+    projects: projectsReducer
   }
 });
 

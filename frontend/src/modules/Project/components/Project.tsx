@@ -6,9 +6,10 @@ import styles from "./Project.module.scss";
 import cyKeys from "../../../utils/cyKeys";
 import { getColorIndex } from "../helpers";
 import { colorPalette } from "../constants";
-import { useProjectContext } from "../context/ProjectContext";
 import { ProjectDTO } from "../ProjectDTO";
 import ProjectActions from "./ProjectActions";
+import { useSelector } from "react-redux";
+import { getActiveProject } from "../../../stores/ProjectStore/selectors";
 
 interface Props {
   isActive?: boolean;
@@ -19,7 +20,7 @@ interface Props {
 }
 
 const Project = ({ isActive = false, lastModifiedAt = "", project, selectedProject, setSelectedProject }: Props) => {
-  const { activeProject } = useProjectContext();
+  const activeProject = useSelector(getActiveProject);
   const isCurrentProjectActive = activeProject?.name === project.name;
   const index = useMemo(() => getColorIndex(project.name), [project.name]);
   const projectColor = colorPalette[index];

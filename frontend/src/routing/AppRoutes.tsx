@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { HOME_URL, LOGIN_URL } from "../common/modules";
 import MainModularPage from "../mainPage/MainModularPage";
@@ -7,9 +7,17 @@ import LoaderPage from "../ui-lib/loader/LoaderPage";
 import { useSelector } from "react-redux";
 import { getIsAuthorized, getIsTriedLoginWithEmptyString } from "../stores/AuthStore/selectors";
 import { useLogin } from "../stores/AuthStore/hooks";
+import { useRootDispatch } from "../stores";
+import { fetchProjectsAndActive, fetchShouldRedirectUserToProjectPage } from "../stores/ProjectStore/actions";
 
 const useInitApp = () => {
+  const dispatch = useRootDispatch();
   useLogin();
+
+  useEffect(() => {
+    dispatch(fetchProjectsAndActive());
+    dispatch(fetchShouldRedirectUserToProjectPage());
+  }, []);
 };
 
 const ProtectedRoute = ({ children }: { children: React.JSX.Element }): React.JSX.Element => {

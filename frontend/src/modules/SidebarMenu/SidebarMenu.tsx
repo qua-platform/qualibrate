@@ -13,16 +13,18 @@ import ExpandSideMenuIcon from "../../ui-lib/Icons/ExpandSideMenuIcon";
 import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
 import ProjectFolderIcon from "../../ui-lib/Icons/ProjectFolderIcon";
 import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
-import { useProjectContext } from "../Project/context/ProjectContext";
 import { extractInitials, getColorIndex } from "../Project/helpers";
 import { colorPalette } from "../Project/constants";
+import { useSelector } from "react-redux";
+import { getActiveProject, getShouldGoToProjectPage } from "../../stores/ProjectStore/selectors";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const [minify, setMinify] = useState(true);
   const { activeTabsetName, setActiveTabsetName, openTab } = useFlexLayoutContext();
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
-  const { activeProject, shouldGoToProjectPage } = useProjectContext();
+  const activeProject = useSelector(getActiveProject);
+  const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
 
   const handleProjectClick = useCallback(() => {
     openTab(PROJECT_KEY);
