@@ -3,11 +3,18 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { HOME_URL, LOGIN_URL } from "../common/modules";
 import MainModularPage from "../mainPage/MainModularPage";
 import { Login } from "../modules/Login";
-import { useAuthContext } from "../modules/Login/context/AuthContext";
 import LoaderPage from "../ui-lib/loader/LoaderPage";
+import { useSelector } from "react-redux";
+import { getIsAuthorized, getIsTriedLoginWithEmptyString } from "../stores/AuthStore/selectors";
+import { useLogin } from "../stores/AuthStore/hooks";
+
+const useInitApp = () => {
+  useLogin();
+};
 
 const ProtectedRoute = ({ children }: { children: React.JSX.Element }): React.JSX.Element => {
-  const { isAuthorized, triedLoginWithEmptyString } = useAuthContext();
+  const isAuthorized = useSelector(getIsAuthorized);
+  const triedLoginWithEmptyString = useSelector(getIsTriedLoginWithEmptyString);
 
   if (!isAuthorized) {
     if (!triedLoginWithEmptyString) {
@@ -19,6 +26,8 @@ const ProtectedRoute = ({ children }: { children: React.JSX.Element }): React.JS
 };
 
 const AppRoutes = () => {
+  useInitApp();
+
   return (
     <>
       <Routes>

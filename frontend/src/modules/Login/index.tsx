@@ -3,12 +3,15 @@ import styles from "../Login/Login.module.scss";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 import welcomeWaves from "./welcomeWaves.png";
-import { useAuthContext } from "./context/AuthContext";
 import InputField from "../../common/ui-components/common/Input/InputField";
+import { useLogin } from "../../stores/AuthStore/hooks";
+import { useSelector } from "react-redux";
+import { getAuthError } from "../../stores/AuthStore/selectors";
 
 export const Login = () => {
   const [password, setPassword] = useState("");
-  const { login, authError } = useAuthContext();
+  const login = useLogin();
+  const authError = useSelector(getAuthError);
 
   const validate = (value: string) => {
     if (value.length < 8) {
