@@ -1,14 +1,17 @@
-from typing import Any
-
 from qualibrate import (
     NodeParameters,
     QualibrationGraph,
     QualibrationLibrary,
     QualibrationNode,
 )
+from qualibrate.parameters import RunnableParameters
+from qualibrate.q_runnnable import QRunnable
+from qualibrate.utils.type_protocols import MachineProtocol
 
 __all__ = ["QNodeType", "QGraphType", "QLibraryType"]
 
-QNodeType = QualibrationNode[NodeParameters, Any]
-QGraphType = QualibrationGraph[QNodeType]
-QLibraryType = QualibrationLibrary[QNodeType]
+
+QNodeType = QualibrationNode[NodeParameters, MachineProtocol]
+GraphElementType = QRunnable[RunnableParameters, RunnableParameters]
+QGraphType = QualibrationGraph[GraphElementType]
+QLibraryType = QualibrationLibrary[QNodeType, GraphElementType]
