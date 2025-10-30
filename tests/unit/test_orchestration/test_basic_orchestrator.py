@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 
-from qualibrate.models.node_status import NodeStatus
+from qualibrate.models.node_status import ElementRunStatus
 from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
 from qualibrate.qualibration_graph import QualibrationGraph
 
@@ -51,8 +51,8 @@ class TestBasicOrchestrator:
         )
         # Mock pending node statuses
         mock_status = {
-            "node_1": NodeStatus.pending,
-            "node_2": NodeStatus.finished,
+            "node_1": ElementRunStatus.pending,
+            "node_2": ElementRunStatus.finished,
         }
         orchestrator.targets = ["t1"]
         mocker.patch("networkx.get_node_attributes", return_value=mock_status)
@@ -74,7 +74,7 @@ class TestBasicOrchestrator:
         assert orchestrator.initial_targets is None
         assert orchestrator.targets is None
         assert orchestrator._execution_history == []
-        assert orchestrator._active_node is None
+        assert orchestrator._active_element is None
         assert orchestrator.final_outcomes == {}
         assert orchestrator._execution_queue.empty()
 
@@ -108,14 +108,16 @@ class TestBasicOrchestrator:
         )
         mock_node = MagicMock()
         mock_nx_graph.return_value.nodes = {
-            mock_node: {QualibrationGraph.STATUS_FIELD: NodeStatus.finished}
+            mock_node: {
+                QualibrationGraph.STATUS_FIELD: ElementRunStatus.finished
+            }
         }
         assert orchestrator.check_node_finished(mock_node) is True
 
     def test_get_next_node_with_empty_queue(self):
         orchestrator = BasicOrchestrator()
         orchestrator._execution_queue = Queue()  # Empty queue
-        assert orchestrator.get_next_node() is None
+        assert orchestrator.get_next_element() is None
 
     def test_get_next_node_returns_node(self, mocker):
         orchestrator = BasicOrchestrator()
@@ -136,7 +138,7 @@ class TestBasicOrchestrator:
             orchestrator, "check_node_finished", return_value=True
         )
 
-        assert orchestrator.get_next_node() == mock_node
+        assert orchestrator.get_next_element() == mock_node
 
     def test_traverse_graph_logs_info(self, mocker):
         mock_logger = mocker.patch(

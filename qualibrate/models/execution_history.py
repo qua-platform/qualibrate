@@ -10,10 +10,10 @@ from pydantic import (
     field_serializer,
 )
 
-from qualibrate.models.node_status import NodeStatus
+from qualibrate.models.node_status import ElementRunStatus
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.run_error import RunError
-from qualibrate.parameters import NodeParameters
+from qualibrate.parameters import NodeParameters, RunnableParameters
 from qualibrate.utils.type_protocols import TargetType
 
 __all__ = [
@@ -28,7 +28,7 @@ class ItemMetadata(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     name: str
-    status: NodeStatus
+    status: ElementRunStatus
     description: str | None = None
     run_start: AwareDatetime
     run_end: AwareDatetime
@@ -42,7 +42,7 @@ class ItemData(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     quam: dict[str, Any] | None = None
-    parameters: NodeParameters
+    parameters: RunnableParameters
     outcomes: dict[TargetType, Outcome] = Field(default_factory=dict)
     error: RunError | None = None
 

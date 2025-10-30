@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from qualibrate import QualibrationGraph, QualibrationNode
-from qualibrate.models.node_status import NodeStatus
+from qualibrate.models.node_status import ElementRunStatus
 from qualibrate.models.run_mode import RunModes
 from qualibrate.parameters import GraphParameters
 from qualibrate.q_runnnable import QRunnable
@@ -45,8 +45,11 @@ class TestQualibrationGraph:
     def pre_setup_graph_init(
         self, mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
     ):
-        mocked_add_node = mocker.patch(
-            "qualibrate.qualibration_graph.QualibrationGraph._add_node_by_name",
+        mocked_add_element = mocker.patch(
+            (
+                "qualibrate.qualibration_graph.QualibrationGraph."
+                "_add_element_by_name"
+            ),
             side_effect=lambda x: x,
         )
         mocked_build_base_parameters, mocked_build_full_parameters = (
@@ -55,7 +58,7 @@ class TestQualibrationGraph:
 
         return (
             pre_setup_graph_nodes,
-            mocked_add_node,
+            mocked_add_element,
             mocked_build_base_parameters,
             mocked_build_full_parameters,
         )
@@ -63,7 +66,7 @@ class TestQualibrationGraph:
     def test_init_graph_base(self, mocker, pre_setup_graph_init):
         (
             nodes,
-            mocked_add_node,
+            mocked_add_element,
             mocked_build_base_parameters,
             mocked_build_full_parameters,
         ) = pre_setup_graph_init
@@ -80,12 +83,12 @@ class TestQualibrationGraph:
             nodes=nodes,
             connectivity=connectivity,
         )
-        assert graph._nodes == nodes
+        assert graph._elements == nodes
         assert graph._connectivity == connectivity
         assert graph.name == "test_graph"
         mocked_build_base_parameters.assert_called_once()
         mocked_build_full_parameters.assert_called_once()
-        mocked_add_node.assert_has_calls(
+        mocked_add_element.assert_has_calls(
             [mocker.call("node1"), mocker.call("node2")], any_order=True
         )
         mock_nx_graph.add_edge.assert_called_once_with(
@@ -109,16 +112,16 @@ class TestQualibrationGraph:
         assert isinstance(ex.value.instance, QualibrationGraph)
         assert ex.value.instance.name == "test_graph"
 
-    def test_validate_nodes_names_mapping_no_conflicts(
+    def test_validate_elements_names_mapping_no_conflicts(
         self, pre_setup_graph_nodes
     ):
         nodes = pre_setup_graph_nodes
 
-        result = QualibrationGraph._validate_nodes_names_mapping(nodes)
+        result = QualibrationGraph._validate_elements_names_mapping(nodes)
 
         assert result == nodes
 
-    def test_validate_nodes_names_mapping_with_conflicting_name(
+    def test_validate_elements_names_mapping_with_conflicting_name(
         self, mock_logger, pre_setup_graph_nodes
     ):
         nodes = pre_setup_graph_nodes
@@ -126,7 +129,7 @@ class TestQualibrationGraph:
         nodes["new_name"] = node
         node.copy.return_value = "copied_instance"
 
-        result = QualibrationGraph._validate_nodes_names_mapping(nodes)
+        result = QualibrationGraph._validate_elements_names_mapping(nodes)
 
         assert result["new_name"] == "copied_instance"
         node.copy.assert_called_once_with("new_name")
@@ -135,15 +138,17 @@ class TestQualibrationGraph:
             "(new_name)"
         )
 
-    def test_add_node_by_name(
+    def test_add_element_by_name(
         self, mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
     ):
         node = pre_setup_graph_nodes["node1"]
         mocked_validate_names = mocker.patch.object(
-            QualibrationGraph, "_validate_nodes_names_mapping", return_value={}
+            QualibrationGraph,
+            "_validate_elements_names_mapping",
+            return_value={},
         )
         mock_get_qnode = mocker.patch.object(
-            QualibrationGraph, "_get_qnode_or_error", return_value=node
+            QualibrationGraph, "_get_element_or_error", return_value=node
         )
         graph = QualibrationGraph(
             name="test_graph",
@@ -152,13 +157,13 @@ class TestQualibrationGraph:
             connectivity=[],
         )
         mocked_add_node = mocker.patch.object(graph._graph, "add_node")
-        graph._add_node_by_name("node1")
+        graph._add_element_by_name("node1")
         mocked_validate_names.assert_called_once()
         mock_get_qnode.assert_called_once_with("node1")
         mocked_add_node.asser_called_once_with(
             node,
             retries=0,
-            **{QualibrationGraph.STATUS_FIELD: NodeStatus.pending},
+            **{QualibrationGraph.STATUS_FIELD: ElementRunStatus.pending},
         )
 
     def test_cleanup(self, mocker, mock_orchestrator, pre_setup_graph_init):
@@ -187,8 +192,8 @@ class TestQualibrationGraph:
         mock_get_node_attributes = mocker.patch(
             "qualibrate.qualibration_graph.nx.get_node_attributes",
             return_value={
-                "node1": NodeStatus.finished,
-                "node2": NodeStatus.pending,
+                "node1": ElementRunStatus.finished,
+                "node2": ElementRunStatus.pending,
             },
         )
 

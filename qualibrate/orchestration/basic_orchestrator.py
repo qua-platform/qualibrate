@@ -6,26 +6,26 @@ from typing import Any, Generic
 
 import networkx as nx
 
-from qualibrate import QualibrationGraph
 from qualibrate.models.execution_history import (
     ExecutionHistoryItem,
     ItemData,
     ItemMetadata,
 )
-from qualibrate.models.node_status import NodeStatus
+from qualibrate.models.node_status import ElementRunStatus
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.orchestration.qualibration_orchestrator import (
     QualibrationOrchestrator,
 )
-from qualibrate.qualibration_graph import NodeTypeVar
+from qualibrate.qualibration_graph import GraphElementTypeVar, QualibrationGraph
+from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.logger_m import logger
 
 __all__ = ["BasicOrchestrator"]
 
 
 class BasicOrchestrator(
-    QualibrationOrchestrator[NodeTypeVar], Generic[NodeTypeVar]
+    QualibrationOrchestrator[GraphElementTypeVar], Generic[GraphElementTypeVar]
 ):
     """
     A basic orchestrator that manages the execution of nodes in a graph.
@@ -45,7 +45,7 @@ class BasicOrchestrator(
 
         """
         super().__init__(skip_failed=skip_failed)
-        self._execution_queue: Queue[NodeTypeVar] = Queue()
+        self._execution_queue: Queue[GraphElementTypeVar] = Queue()
 
     def _is_execution_finished(self) -> bool:
         """
@@ -62,7 +62,7 @@ class BasicOrchestrator(
             return True
         return all(
             map(
-                lambda status: status != NodeStatus.pending,
+                lambda status: status != ElementRunStatus.pending,
                 nx.get_node_attributes(
                     self.nx_graph, QualibrationGraph.STATUS_FIELD
                 ).values(),
@@ -80,7 +80,7 @@ class BasicOrchestrator(
             self._execution_queue.queue.clear()
 
     @property
-    def nx_graph(self) -> "nx.DiGraph[NodeTypeVar]":
+    def nx_graph(self) -> "nx.DiGraph[GraphElementTypeVar]":
         """
         Gets the networkx representation of the graph.
 
@@ -94,7 +94,7 @@ class BasicOrchestrator(
             raise ValueError("Graph is not specified")
         return self._graph._graph
 
-    def check_node_finished(self, node: NodeTypeVar) -> bool:
+    def check_node_finished(self, node: GraphElementTypeVar) -> bool:
         """
         Checks if a node was successfully executed.
 
@@ -108,10 +108,10 @@ class BasicOrchestrator(
             return False
         return bool(
             self.nx_graph.nodes[node][QualibrationGraph.STATUS_FIELD]
-            == NodeStatus.finished
+            == ElementRunStatus.finished
         )
 
-    def get_next_node(self) -> NodeTypeVar | None:
+    def get_next_element(self) -> GraphElementTypeVar | None:
         """
         Gets the next node to execute.
 
@@ -120,15 +120,19 @@ class BasicOrchestrator(
                 if there are no more nodes to be executed
         """
         while not self._execution_queue.empty():
-            node_to_run = self._execution_queue.get()
+            element_to_run = self._execution_queue.get()
             if all(
-                map(self.check_node_finished, self.nx_graph.pred[node_to_run])
+                map(
+                    self.check_node_finished, self.nx_graph.pred[element_to_run]
+                )
             ):
-                return node_to_run
+                return element_to_run
         return None
 
     def traverse_graph(
-        self, graph: QualibrationGraph[NodeTypeVar], targets: Sequence[Any]
+        self,
+        graph: QualibrationGraph[GraphElementTypeVar],
+        targets: Sequence[Any],
     ) -> None:
         """
         Traverses the graph and orchestrates node execution.
@@ -162,35 +166,46 @@ class BasicOrchestrator(
             self._execution_queue.put(node)
 
         while not self._is_execution_finished() and not self._is_stopped:
-            node_to_run = self.get_next_node()
-            if node_to_run is None:
+            element_to_run = self.get_next_element()
+            if element_to_run is None:
                 exc = RuntimeError("No next node. Execution not finished")
                 logger.exception("", exc_info=exc)
                 raise exc
-            logger.info(f"Graph. Node to run. {node_to_run}")
-            node_to_run_parameters = getattr(nodes_parameters, node_to_run.name)
+            logger.info(f"Graph. Element to run. {element_to_run}")
+            element_to_run_parameters = getattr(
+                nodes_parameters, element_to_run.name
+            )
             run_start = datetime.now().astimezone()
             run_error: RunError | None = None
             try:
-                self._active_node = node_to_run
-                node_to_run_parameters.targets = self.targets
-                node_parameters = node_to_run_parameters.model_dump()
+                self._active_element = element_to_run
+                element_to_run_parameters.targets = self.targets
+                if isinstance(element_to_run, QualibrationNode):
+                    element_parameters = element_to_run_parameters.model_dump()
+                else:
+                    element_parameters = (
+                        element_to_run_parameters.parameters.model_dump()
+                    )
+                    element_parameters["nodes"] = (
+                        element_to_run_parameters.nodes.model_dump()
+                    )
+
                 logger.debug(
-                    f"Graph. Start running node {node_to_run} "
-                    f"with parameters {node_parameters}"
+                    f"Graph. Start running element {element_to_run} "
+                    f"with parameters {element_parameters}"
                 )
-                node_result = node_to_run.run(
-                    interactive=False, **node_parameters
+                element_results = element_to_run.run(
+                    interactive=False, **element_parameters
                 )
                 if self._parameters.skip_failed:
-                    self.targets = node_result.successful_targets
-                logger.debug(f"Node completed. Result: {node_result}")
+                    self.targets = element_results.successful_targets
+                logger.debug(f"Element completed. Result: {element_results}")
             except Exception as ex:
-                new_status = NodeStatus.error
-                nx_graph.nodes[node_to_run]["error"] = str(ex)
+                new_status = ElementRunStatus.error
+                nx_graph.nodes[element_to_run]["error"] = str(ex)
                 logger.exception(
                     (
-                        f"Failed to run node {node_to_run.name} "
+                        f"Failed to run element {element_to_run.name} "
                         f"in graph {self._graph.name}"
                     ),
                     exc_info=ex,
@@ -202,34 +217,40 @@ class BasicOrchestrator(
                 )
                 raise
             else:
-                new_status = NodeStatus.finished
+                new_status = ElementRunStatus.finished
             finally:
+                idx = (
+                    element_to_run.snapshot_idx
+                    if isinstance(element_to_run, QualibrationNode)
+                    else None
+                )
+                data = ItemData(
+                    parameters=element_to_run.parameters,
+                    outcomes=element_to_run.outcomes,
+                    error=run_error,
+                )
                 self._execution_history.append(
                     ExecutionHistoryItem(
-                        id=node_to_run.snapshot_idx,
+                        id=idx,
                         created_at=run_start,
                         metadata=ItemMetadata(
-                            name=node_to_run.name,
-                            description=node_to_run.description,
+                            name=element_to_run.name,
+                            description=element_to_run.description,
                             status=new_status,
                             run_start=run_start,
                             run_end=datetime.now().astimezone(),
                         ),
-                        data=ItemData(
-                            parameters=node_to_run.parameters,
-                            outcomes=node_to_run.outcomes,
-                            error=run_error,
-                        ),
+                        data=data,
                     )
                 )
             # Suppose that all nodes are successfully finish
-            nx_graph.nodes[node_to_run][QualibrationGraph.STATUS_FIELD] = (
+            nx_graph.nodes[element_to_run][QualibrationGraph.STATUS_FIELD] = (
                 new_status
             )
-            if new_status == NodeStatus.finished:
-                for successor in successors[node_to_run]:
+            if new_status == ElementRunStatus.finished:
+                for successor in successors[element_to_run]:
                     self._execution_queue.put(successor)
-        self._active_node = None
+        self._active_element = None
         self._fill_final_outcomes()
 
     def _fill_final_outcomes(self) -> None:

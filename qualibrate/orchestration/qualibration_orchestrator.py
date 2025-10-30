@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
-from typing import Any, Generic
+from typing import Any, Generic, cast
 
 from pydantic import create_model
 
@@ -9,15 +9,17 @@ from qualibrate.models.execution_history import (
     ExecutionHistoryItem,
 )
 from qualibrate.models.outcome import Outcome
-from qualibrate.parameters import RunnableParameters
-from qualibrate.qualibration_graph import NodeTypeVar, QualibrationGraph
+from qualibrate.parameters import NodeParameters, RunnableParameters
+from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.qualibration_graph import GraphElementTypeVar, QualibrationGraph
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.naming import get_full_class_path
+from qualibrate.utils.type_protocols import MachineProtocol
 
 __all__ = ["QualibrationOrchestrator"]
 
 
-class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
+class QualibrationOrchestrator(ABC, Generic[GraphElementTypeVar]):
     """
     Abstract base class for orchestrating the execution of nodes in a
     calibration graph.
@@ -32,7 +34,7 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
     """
 
     def __init__(self, **parameters: Any):
-        self._graph: QualibrationGraph[NodeTypeVar] | None = None
+        self._graph: QualibrationGraph[GraphElementTypeVar] | None = None
         self._is_stopped: bool = False
         self.parameters_class = create_model(
             "OrchestratorParameters",
@@ -45,11 +47,11 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
         self.initial_targets: list[Any] | None = None
         self.targets: list[Any] | None = None
         self._execution_history: list[ExecutionHistoryItem] = []
-        self._active_node: NodeTypeVar | None = None
+        self._active_element: GraphElementTypeVar | None = None
         self.final_outcomes: dict[Any, Outcome] = {}
 
     @property
-    def active_node(self) -> NodeTypeVar | None:
+    def active_element(self) -> GraphElementTypeVar | None:
         """
         Gets the currently active node.
 
@@ -57,7 +59,41 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
             Optional[QualibrationNode]: The node that is currently active, or
             None if no node is active.
         """
-        return self._active_node
+        return self._active_element
+
+    @property
+    def active_node(
+        self,
+    ) -> QualibrationNode[NodeParameters, MachineProtocol] | None:
+        """
+        Gets the currently active node.
+
+        Returns:
+            Optional[QualibrationNode]: The node that is currently active, or
+            None if no node is active.
+        """
+        if self._active_element is None:
+            return None
+
+        return (
+            self._active_element.active_node
+            if isinstance(self._active_element, QualibrationGraph)
+            else cast(
+                QualibrationNode[NodeParameters, MachineProtocol],
+                self._active_element,
+            )
+        )
+
+    @property
+    def active_element_name(self) -> str | None:
+        """
+        Gets the name of the currently active node.
+
+        Returns:
+            Optional[str]: The name of the active node, or None if no node
+            is active.
+        """
+        return elem.name if (elem := self.active_node) else None
 
     @property
     def active_node_name(self) -> str | None:
@@ -68,7 +104,7 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
             Optional[str]: The name of the active node, or None if no node
             is active.
         """
-        return self.active_node.name if self.active_node else None
+        return node.name if (node := self.active_node) else None
 
     def stop(self) -> None:
         """
@@ -92,7 +128,7 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
         self.initial_targets = None
         self.targets = None
         self._execution_history = []
-        self._active_node = None
+        self._active_element = None
         self.final_outcomes = {}
 
     def serialize(self) -> Mapping[str, Any]:
@@ -120,7 +156,9 @@ class QualibrationOrchestrator(ABC, Generic[NodeTypeVar]):
 
     @abstractmethod
     def traverse_graph(
-        self, graph: QualibrationGraph[NodeTypeVar], targets: Sequence[Any]
+        self,
+        graph: QualibrationGraph[GraphElementTypeVar],
+        targets: Sequence[Any],
     ) -> None:
         """
         Abstract method for traversing a graph.

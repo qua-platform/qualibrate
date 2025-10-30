@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Generic, Optional, cast
+from typing import Any, Generic, Optional, TypeVar, cast
 
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
@@ -13,15 +13,21 @@ from qualibrate.parameters import (
     ExecutionParameters,
     NodeParameters,
 )
-from qualibrate.qualibration_graph import NodeTypeVar, QualibrationGraph
+from qualibrate.qualibration_graph import GraphElementTypeVar, QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate.utils.logger_m import logger
+from qualibrate.utils.type_protocols import MachineProtocol
 
 __all__ = ["QualibrationLibrary"]
 
 
-class QualibrationLibrary(Generic[NodeTypeVar]):
+NodeTypeVar = TypeVar(
+    "NodeTypeVar", bound=QualibrationNode[NodeParameters, MachineProtocol]
+)
+
+
+class QualibrationLibrary(Generic[NodeTypeVar, GraphElementTypeVar]):
     """
     Manages a collection of Qualibration nodes and graphs for calibration
     purposes.
@@ -42,15 +48,17 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
             Calls `_scan()` if `library_folder` is provided.
     """
 
-    active_library: Optional["QualibrationLibrary[NodeTypeVar]"] = None
+    active_library: Optional[
+        "QualibrationLibrary[NodeTypeVar, GraphElementTypeVar]"
+    ] = None
 
     def __init__(
         self, library_folder: Path | None = None, set_active: bool = True
     ):
         self.nodes: RunnableCollection[str, NodeTypeVar] = RunnableCollection()
-        self.graphs: RunnableCollection[str, QualibrationGraph[NodeTypeVar]] = (
-            RunnableCollection()
-        )
+        self.graphs: RunnableCollection[
+            str, QualibrationGraph[GraphElementTypeVar]
+        ] = RunnableCollection()
         self._library_folder = library_folder
 
         if set_active:
@@ -77,7 +85,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
             QualibrationNode.scan_folder_for_instances(self._library_folder),
         )
         self.graphs = cast(
-            RunnableCollection[str, QualibrationGraph[NodeTypeVar]],
+            RunnableCollection[str, QualibrationGraph[GraphElementTypeVar]],
             QualibrationGraph.scan_folder_for_instances(self._library_folder),
         )
 
@@ -93,7 +101,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
     @classmethod
     def get_active_library(
         cls, library_folder: Path | None = None, create: bool = True
-    ) -> "QualibrationLibrary[NodeTypeVar]":
+    ) -> "QualibrationLibrary[NodeTypeVar, GraphElementTypeVar]":
         """
         Gets or creates the active library instance.
 
@@ -167,7 +175,7 @@ class QualibrationLibrary(Generic[NodeTypeVar]):
 
     def get_graphs(
         self,
-    ) -> RunnableCollection[str, QualibrationGraph[NodeTypeVar]]:
+    ) -> RunnableCollection[str, QualibrationGraph[GraphElementTypeVar]]:
         """
         Returns all graphs available in the library.
 

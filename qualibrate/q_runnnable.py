@@ -12,6 +12,7 @@ from typing import (
 )
 
 from pydantic import create_model
+from typing_extensions import Self
 
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
@@ -201,6 +202,10 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         Returns:
             dict[str, QRunnable]: A dictionary of runnable instances.
         """
+        pass
+
+    @abstractmethod
+    def copy(self, name: str | None = None, **node_parameters: Any) -> Self:
         pass
 
     @abstractmethod
