@@ -47,14 +47,21 @@ export const ResultsError: React.FC<{ style?: React.CSSProperties; errorObject: 
               aria-label="Toggle error traceback"
               data-testid="traceback-toggle"
             >
-              <div className={styles.errorLabel}>Error traceback:</div>
-              <div className={styles.tracebackIcon}>
                 {isTracebackExpanded ? (
-                  <ExpandMoreIcon fontSize="small" data-testid="expand-more-icon" />
+                    <>
+                        <div className={styles.errorLabel}>Error traceback:</div>
+                        <div className={styles.tracebackIcon}>
+                            <ExpandMoreIcon fontSize="small" data-testid="expand-more-icon"/>
+                        </div>
+                    </>
                 ) : (
-                  <ChevronRightIcon fontSize="small" data-testid="chevron-right-icon" />
+                    <>
+                        <div className={styles.errorLabel}>Show error traceback:</div>
+                        <div className={styles.tracebackIcon}>
+                            <ChevronRightIcon fontSize="small" data-testid="chevron-right-icon"/>
+                        </div>
+                    </>
                 )}
-              </div>
             </div>
             <Collapse in={isTracebackExpanded} timeout="auto">
               <div className={styles.errorText} data-testid="traceback-content">
