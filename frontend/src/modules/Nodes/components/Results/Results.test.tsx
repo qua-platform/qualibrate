@@ -175,7 +175,7 @@ describe("ResultsError - Collapsible Traceback", () => {
       render(<ResultsError errorObject={mockErrorWithTraceback} />);
 
       const toggleButton = screen.getByTestId("traceback-toggle");
-      const label = screen.getByText("Error traceback:");
+      const label = screen.getByText("Show error traceback:");
 
       // Click on the label (which is inside the toggle button)
       fireEvent.click(label);
