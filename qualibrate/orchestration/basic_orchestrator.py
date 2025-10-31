@@ -1,4 +1,5 @@
 import traceback
+import weakref
 from collections.abc import Sequence
 from datetime import datetime
 from queue import Queue
@@ -148,7 +149,7 @@ class BasicOrchestrator(
         logger.info(f"Traverse graph {graph.name} with targets {targets}")
         if self._is_stopped:
             return
-        self._graph = graph
+        self._graph = weakref.proxy(graph)
         if graph.full_parameters is None:
             ex = RuntimeError("Execution graph parameters not specified")
             logger.exception("", exc_info=ex)
