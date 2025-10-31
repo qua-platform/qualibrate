@@ -3,7 +3,7 @@ import weakref
 from collections.abc import Sequence
 from datetime import datetime
 from queue import Queue
-from typing import Any, Generic
+from typing import Any, Generic, cast
 
 import networkx as nx
 
@@ -230,21 +230,27 @@ class BasicOrchestrator(
                     outcomes=element_to_run.outcomes,
                     error=run_error,
                 )
-                self._execution_history.append(
-                    ExecutionHistoryItem(
-                        id=idx,
-                        created_at=run_start,
-                        metadata=ItemMetadata(
-                            name=element_to_run.name,
-                            description=element_to_run.description,
-                            status=new_status,
-                            run_start=run_start,
-                            run_end=datetime.now().astimezone(),
-                        ),
-                        data=data,
-                    )
+                subitem_history = None
+                if isinstance(element_to_run, QualibrationGraph) and (
+                    orch := element_to_run._orchestrator
+                ):
+                    subitem_history = orch.get_execution_history()
+                item_history = ExecutionHistoryItem(
+                    id=idx,
+                    created_at=run_start,
+                    metadata=ItemMetadata(
+                        name=element_to_run.name,
+                        description=element_to_run.description,
+                        status=new_status,
+                        run_start=run_start,
+                        run_end=datetime.now().astimezone(),
+                    ),
+                    data=data,
+                    elements_history=subitem_history,
                 )
-            # Suppose that all nodes are successfully finish
+                self._execution_history.append(item_history)
+            # mypy can't correctly parse after isinstance(...,QualibrationGraph)
+            element_to_run = cast(GraphElementTypeVar, element_to_run)
             nx_graph.nodes[element_to_run][QualibrationGraph.STATUS_FIELD] = (
                 new_status
             )
