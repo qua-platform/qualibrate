@@ -10,8 +10,8 @@ from qualibrate.models.execution_history import (
 )
 from qualibrate.models.outcome import Outcome
 from qualibrate.parameters import NodeParameters, RunnableParameters
-from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.qualibration_graph import GraphElementTypeVar, QualibrationGraph
+from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.naming import get_full_class_path
 from qualibrate.utils.type_protocols import MachineProtocol
