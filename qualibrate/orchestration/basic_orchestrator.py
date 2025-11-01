@@ -3,7 +3,7 @@ import weakref
 from collections.abc import Sequence
 from datetime import datetime
 from queue import Queue
-from typing import Any, Generic
+from typing import Generic
 
 import networkx as nx
 
@@ -21,6 +21,7 @@ from qualibrate.orchestration.qualibration_orchestrator import (
 from qualibrate.qualibration_graph import GraphElementTypeVar, QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.logger_m import logger
+from qualibrate.utils.type_protocols import TargetType
 
 __all__ = ["BasicOrchestrator"]
 
@@ -133,14 +134,14 @@ class BasicOrchestrator(
     def traverse_graph(
         self,
         graph: QualibrationGraph[GraphElementTypeVar],
-        targets: Sequence[Any],
+        targets: Sequence[TargetType],
     ) -> None:
         """
         Traverses the graph and orchestrates node execution.
 
         Args:
             graph (QualibrationGraph): The graph to traverse.
-            targets (Sequence[Any]): The target nodes to execute.
+            targets (Sequence[TargetType]): The target nodes to execute.
 
         Raises:
             RuntimeError:
