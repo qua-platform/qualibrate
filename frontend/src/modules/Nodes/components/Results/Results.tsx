@@ -30,6 +30,12 @@ export const ResultsError: React.FC<{ style?: React.CSSProperties; errorObject: 
           <div className={styles.errorLabel}>{errorObject.error_class} occurred:</div>
           <div className={styles.errorText}>{errorObject.message}</div>
         </div>
+        {(errorObject.details_headline || errorObject.details) && (
+          <div>
+            {errorObject.details_headline && <div className={styles.errorLabel}>{errorObject.details_headline}</div>}
+            {errorObject.details && <div className={styles.errorText}>{errorObject.details}</div>}
+          </div>
+        )}
         {hasTraceback && (
           <div>
             <div
