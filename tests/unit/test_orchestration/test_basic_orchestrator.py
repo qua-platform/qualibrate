@@ -109,7 +109,7 @@ class TestBasicOrchestrator:
         mock_node = MagicMock()
         mock_nx_graph.return_value.nodes = {
             mock_node: {
-                QualibrationGraph.STATUS_FIELD: ElementRunStatus.finished
+                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished
             }
         }
         assert orchestrator.check_node_finished(mock_node) is True

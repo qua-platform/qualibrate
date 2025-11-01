@@ -89,8 +89,12 @@ class QualibrationGraph(
         StopInspection: If the graph is instantiated in inspection mode.
     """
 
-    STATUS_FIELD = "status"
-    _node_init_args = {STATUS_FIELD: ElementRunStatus.pending, "retries": 0}
+    EDGE_TARGETS_FIELD = "targets"
+    ELEMENT_STATUS_FIELD = "status"
+    _node_init_args = {
+        ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
+        "retries": 0,
+    }
 
     def __init__(
         self,
@@ -385,7 +389,7 @@ class QualibrationGraph(
                 map(
                     lambda status: status != ElementRunStatus.pending,
                     nx.get_node_attributes(
-                        self._graph, self.STATUS_FIELD
+                        self._graph, self.ELEMENT_STATUS_FIELD
                     ).values(),
                 )
             )

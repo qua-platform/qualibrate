@@ -65,7 +65,7 @@ class BasicOrchestrator(
             map(
                 lambda status: status != ElementRunStatus.pending,
                 nx.get_node_attributes(
-                    self.nx_graph, QualibrationGraph.STATUS_FIELD
+                    self.nx_graph, QualibrationGraph.ELEMENT_STATUS_FIELD
                 ).values(),
             )
         )
@@ -108,7 +108,7 @@ class BasicOrchestrator(
         if self._graph is None:
             return False
         return bool(
-            self.nx_graph.nodes[node][QualibrationGraph.STATUS_FIELD]
+            self.nx_graph.nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD]
             == ElementRunStatus.finished
         )
 
@@ -245,9 +245,9 @@ class BasicOrchestrator(
                     )
                 )
             # Suppose that all nodes are successfully finish
-            nx_graph.nodes[element_to_run][QualibrationGraph.STATUS_FIELD] = (
-                new_status
-            )
+            nx_graph.nodes[element_to_run][
+                QualibrationGraph.ELEMENT_STATUS_FIELD
+            ] = new_status
             if new_status == ElementRunStatus.finished:
                 for successor in successors[element_to_run]:
                     self._execution_queue.put(successor)
