@@ -131,7 +131,7 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
       const updatedGraphs = updateAllGraphs(allFetchedGraphs);
       setAllGraphs(updatedGraphs);
     } else if (response.error) {
-      console.log(response.error);
+      console.error("Failed to fetch calibration graphs:", response.error);
     }
     setIsRescanningGraphs(false);
   };
@@ -141,7 +141,7 @@ export const GraphContextProvider = (props: PropsWithChildren<ReactNode>): React
     if (response.isOk) {
       setWorkflowGraphElements(response.result! as ElementDefinition[]);
     } else if (response.error) {
-      console.log(response.error);
+      console.error("Failed to fetch workflow graph:", response.error);
     }
   };
 

@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Active graph execution visualization with real-time status.
+ *
+ * Displays Cytoscape graph with blinking status dot, run progress, and stop button.
+ * Updates via WebSocket runStatus for graph name, status, duration, and node progress.
+ *
+ * @see CytoscapeGraph - Graph visualization component
+ * @see GraphStatus - Parent component
+ * @see WebSocketContext - Provides real-time runStatus updates
+ */
 import React, { useCallback } from "react";
 import styles from "./MeasurementElementGraph.module.scss";
 import CytoscapeGraph from "../../../CytoscapeGraph/CytoscapeGraph";
@@ -22,6 +32,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
     runStatus?.graph?.finished_nodes && runStatus?.graph?.total_nodes
       ? `${runStatus?.graph?.finished_nodes}/${runStatus?.graph?.total_nodes} node${runStatus?.graph?.finished_nodes > 1 ? "s" : ""} completed`
       : "-";
+
   const handleStopClick = useCallback(() => {
     SnapshotsApi.stopNodeRunning();
   }, []);

@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Graph execution status view with real-time updates.
+ *
+ * Displays running graph visualization, execution history, and node results.
+ * Coordinates state between GraphStatusContext, SnapshotsContext, and WebSocket
+ * updates. Handles node selection to fetch and display measurement snapshots.
+ *
+ * @see GraphStatusContext - Manages measurements and track-latest state
+ * @see MeasurementElementGraph - Graph visualization with run status
+ * @see MeasurementHistory - Execution history list with track-latest toggle
+ */
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphStatus.module.scss";
@@ -22,6 +33,10 @@ const GraphStatus = () => {
     return measurements?.find((measurement) => measurement.metadata?.name === measurementName)?.id;
   };
 
+  /**
+   * Ensures measurements are loaded before lookup.
+   * Returns fetched measurements or empty array if already loaded.
+   */
   const setupAllMeasurements = async () => {
     if (!allMeasurements || allMeasurements.length === 0) {
       return await fetchAllMeasurements();
@@ -29,6 +44,11 @@ const GraphStatus = () => {
     return [];
   };
 
+  /**
+   * Handles node clicks from Cytoscape graph.
+   * Fetches measurement snapshot and displays results in right panel.
+   * Disables track-latest mode when manually selecting a node.
+   */
   const handleOnCytoscapeNodeClick = async (name: string) => {
     const temp = await setupAllMeasurements();
     const measurements = temp && temp.length > 0 ? temp : (allMeasurements ?? []);
