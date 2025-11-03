@@ -70,7 +70,7 @@ export const createTestProviders = (overrides: {
   };
 
   // Helper component to set initial context values
-  function ContextSetter({ children }: { children: React.ReactNode }): React.ReactElement {
+  const ContextSetter = ({ children }: { children: React.ReactNode }) =>  {
     const { setSelectedItemName } = useSelectionContext();
     const { setSelectedNodeNameInWorkflow } = useGraphContext();
     const { setTrackLatest } = useGraphStatusContext();
@@ -97,9 +97,9 @@ export const createTestProviders = (overrides: {
     }, [setTrackLatest]);
 
     return <>{children}</>;
-  }
+  };
 
-  function TestProviders({ children }: { children: React.ReactNode }): React.ReactElement {
+  const TestProviders = ({ children }: { children: React.ReactNode }) => {
     return (
     <BrowserRouter>
       <WebSocketContext.Provider value={defaultWebSocketValue}>
@@ -118,7 +118,7 @@ export const createTestProviders = (overrides: {
       </WebSocketContext.Provider>
     </BrowserRouter>
     );
-  }
+  };
 
   return TestProviders;
 };
