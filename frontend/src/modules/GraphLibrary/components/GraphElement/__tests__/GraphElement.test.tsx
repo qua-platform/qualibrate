@@ -4,7 +4,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { GraphElement } from "../GraphElement";
 import { createTestProviders } from "@/test-utils/providers";
 import * as GraphLibraryApiModule from "../../../api/GraphLibraryApi";
-import { useFlexLayoutContext } from "../../../../../routing/flexLayout/FlexLayoutContext";
+import { useMainPageContext } from "../../../../../routing/MainPageContext";
 import { useGraphContext } from "../../../context/GraphContext";
 
 // Mock CytoscapeGraph to avoid Cytoscape dependencies
@@ -15,11 +15,11 @@ vi.mock("../../CytoscapeGraph/CytoscapeGraph", () => ({
 }));
 
 // Mock FlexLayoutContext
-vi.mock("../../../../../routing/flexLayout/FlexLayoutContext", async () => {
-  const actual = await vi.importActual("../../../../../routing/flexLayout/FlexLayoutContext");
+vi.mock("../../../../../routing/MainPageContext", async () => {
+  const actual = await vi.importActual("../../../../../routing/MainPageContext");
   return {
     ...actual,
-    useFlexLayoutContext: vi.fn(),
+    useMainPageContext: vi.fn(),
   };
 });
 
@@ -79,12 +79,12 @@ describe("GraphElement - Parameter Management", () => {
     vi.clearAllMocks();
 
     // Setup FlexLayout mock
-    (useFlexLayoutContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      openTab: vi.fn(),
-      setActiveTabsetName: vi.fn(),
-      model: {},
-      checkIsEmpty: vi.fn(() => false),
-      flexLayoutListener: vi.fn(),
+    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
+      setActivePage: vi.fn(),
+      activePage: null,
+      openedOncePages: [],
+      topBarAdditionalComponents: undefined,
+      setTopBarAdditionalComponents: vi.fn(),
     });
 
     // Setup GraphContext mock with default values
@@ -291,12 +291,12 @@ describe("GraphElement - Workflow Submission", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    (useFlexLayoutContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      openTab: vi.fn(),
-      setActiveTabsetName: vi.fn(),
-      model: {},
-      checkIsEmpty: vi.fn(() => false),
-      flexLayoutListener: vi.fn(),
+    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
+      setActivePage: vi.fn(),
+      activePage: null,
+      openedOncePages: [],
+      topBarAdditionalComponents: undefined,
+      setTopBarAdditionalComponents: vi.fn(),
     });
 
     (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -397,15 +397,14 @@ describe("GraphElement - Workflow Submission", () => {
     const mockSubmit = vi.fn().mockResolvedValue({ isOk: true });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const mockOpenTab = vi.fn();
-    const mockSetActiveTabsetName = vi.fn();
+    const mockSetActivePage = vi.fn();
 
-    (useFlexLayoutContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      openTab: mockOpenTab,
-      setActiveTabsetName: mockSetActiveTabsetName,
-      model: {},
-      checkIsEmpty: vi.fn(() => false),
-      flexLayoutListener: vi.fn(),
+    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
+      setActivePage: mockSetActivePage,
+      activePage: null,
+      openedOncePages: [],
+      topBarAdditionalComponents: undefined,
+      setTopBarAdditionalComponents: vi.fn(),
     });
 
     const Providers = createTestProviders({
@@ -439,8 +438,7 @@ describe("GraphElement - Workflow Submission", () => {
 
     // Verify tab navigation
     await waitFor(() => {
-      expect(mockOpenTab).toHaveBeenCalledWith("graph-status");
-      expect(mockSetActiveTabsetName).toHaveBeenCalledWith("graph-status");
+      expect(mockSetActivePage).toHaveBeenCalledWith("graph-status");
     });
   });
 
@@ -551,12 +549,12 @@ describe("GraphElement - UI Interactions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    (useFlexLayoutContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      openTab: vi.fn(),
-      setActiveTabsetName: vi.fn(),
-      model: {},
-      checkIsEmpty: vi.fn(() => false),
-      flexLayoutListener: vi.fn(),
+    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
+      setActivePage: vi.fn(),
+      activePage: null,
+      openedOncePages: [],
+      topBarAdditionalComponents: undefined,
+      setTopBarAdditionalComponents: vi.fn(),
     });
 
     (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -729,12 +727,17 @@ describe("GraphElement - Error Handling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    (useFlexLayoutContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      openTab: vi.fn(),
-      setActiveTabsetName: vi.fn(),
-      model: {},
-      checkIsEmpty: vi.fn(() => false),
-      flexLayoutListener: vi.fn(),
+    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
+      setActivePage: vi.fn(),
+      activePage: null,
+      openedOncePages: [],
+      topBarAdditionalComponents: undefined,
+      setTopBarAdditionalComponents: vi.fn(),
+      // setActivePage: vi.fn(),
+      // activePage: null,
+      // openedOncePages: [],
+      // topBarAdditionalComponents: undefined,
+      // setTopBarAdditionalComponents: vi.fn(),
     });
 
     (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
