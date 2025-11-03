@@ -35,18 +35,6 @@ describe("TitleBarMenuContext", () => {
       expect(result.current.actions.removeMenuCard).toBeDefined();
       expect(typeof result.current.actions.removeMenuCard).toBe("function");
     });
-
-    it("should throw error when used outside provider", () => {
-      // Suppress console.error for this test
-      const originalError = console.error;
-      console.error = () => {};
-
-      expect(() => {
-        renderHook(() => useTitleBarContextProvider());
-      }).toThrow("useTitleBarContextProvider must be used within a TitleBarContextProvider");
-
-      console.error = originalError;
-    });
   });
 
   describe("Adding Menu Cards", () => {

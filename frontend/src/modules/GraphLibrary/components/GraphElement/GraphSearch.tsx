@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Search input for filtering calibration graphs.
+ *
+ * Currently non-functional UI placeholder - search functionality not implemented.
+ */
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";

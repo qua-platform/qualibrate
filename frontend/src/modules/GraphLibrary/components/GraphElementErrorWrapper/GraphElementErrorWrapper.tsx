@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Collapsible error display for graph execution failures.
+ *
+ * Auto-expands when error appears, shows JSON-stringified error object.
+ * Used in GraphElement to display API submission errors.
+ */
 import styles from "../GraphElementErrorWrapper/GraphElementErrorWrapper.module.scss";
 import { ArrowIcon } from "../../../../ui-lib/Icons/ArrowIcon";
 import React, { useEffect } from "react";
@@ -9,6 +15,7 @@ interface IProps {
 export const GraphElementErrorWrapper: React.FC<IProps> = ({ errorObject }) => {
   const [expanded, setExpanded] = React.useState<boolean>(!!errorObject);
 
+  // Auto-expand when error appears, collapse when cleared
   useEffect(() => {
     if (errorObject) {
       setExpanded(true);

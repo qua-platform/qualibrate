@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Simple list renderer for measurement elements.
+ *
+ * @see MeasurementElement - Individual list item component
+ * @see MeasurementHistory - Parent component providing measurements array
+ */
 import React from "react";
 import styles from "./MeasurementElementList.module.scss";
 import { MeasurementElement } from "../MeasurementElement/MeasurementElement";
