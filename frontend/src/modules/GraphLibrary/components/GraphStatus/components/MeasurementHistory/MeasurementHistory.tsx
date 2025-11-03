@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Execution history panel with "track latest" auto-selection.
+ *
+ * Displays list of measurements from recent graph executions. When "track latest"
+ * is enabled, automatically selects and displays results from the most recent
+ * measurement as they arrive via WebSocket updates.
+ *
+ * @see GraphStatusContext - Provides allMeasurements and trackLatest state
+ * @see MeasurementElementList - Renders the measurement list
+ */
 import React, { useEffect, useState } from "react";
 import styles from "./MeasurementHistory.module.scss";
 import { useGraphStatusContext } from "../../context/GraphStatusContext";
@@ -22,11 +32,15 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
     setTrackLatest(!trackLatest);
   };
 
+  /**
+   * Auto-selects latest measurement when trackLatest is enabled.
+   * Fetches snapshot with diff data if trackLatestSidePanel is enabled.
+   * Only updates if latest measurement ID or name has changed.
+   */
   useEffect(() => {
     if (trackLatest) {
       if (allMeasurements) {
         const element = allMeasurements[0];
-        // if (element) {
 
         if (element && (element.id !== latestId || element.metadata?.name !== latestName)) {
           setLatestId(element.id);
@@ -41,11 +55,6 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
             } else {
               fetchOneSnapshot(element.id);
             }
-            // if (trackLatestSidePanel) {
-            //   fetchOneSnapshot(element.id, element.id - 1, true);
-            // } else {
-            //   fetchOneSnapshot(element.id);
-            // }
           } else {
             setResult({});
             setDiffData({});

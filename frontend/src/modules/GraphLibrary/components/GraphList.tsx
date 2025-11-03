@@ -1,3 +1,12 @@
+/**
+ * @fileoverview Main graph library view listing all available calibration workflows.
+ *
+ * Fetches and displays all graphs from GraphContext. Each graph is rendered as
+ * a collapsible GraphElement card with parameters and visualization.
+ *
+ * @see GraphElement - Individual graph card component
+ * @see GraphContext - Provides allGraphs data
+ */
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../GraphLibrary.module.scss";
@@ -6,6 +15,10 @@ import { NodeMap } from "../../Nodes/components/NodeElement/NodeElement";
 import { useGraphContext } from "../context/GraphContext";
 import { InputParameter } from "../../common/Parameters/Parameters";
 
+/**
+ * Calibration workflow definition with nodes and connectivity.
+ * Represents a DAG of calibration nodes to be executed in sequence.
+ */
 export interface GraphWorkflow {
   name?: string;
   title?: string;

@@ -78,7 +78,7 @@ export const GraphStatusContextProvider = (props: GraphProviderProps): React.Rea
         return response.result.items;
       }
     } else if (response.error) {
-      console.log(response.error);
+      console.error("Failed to fetch execution history:", response.error);
     }
     return [];
   };
