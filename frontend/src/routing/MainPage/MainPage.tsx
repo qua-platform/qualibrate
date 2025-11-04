@@ -1,10 +1,9 @@
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import MainLayout from "../MainLayout/MainLayout";
 import { useMainPageContext } from "../MainPageContext";
-import { useAuthContext } from "../../modules/Login/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../../common/modules";
-import { useProjectContext } from "../../modules/Project/context/ProjectContext";
 import { DATA_KEY, GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY, PROJECT_KEY } from "../ModulesRegistry";
 import Nodes from "../../modules/Nodes";
 import CalibrationGraph from "../../modules/GraphLibrary";
@@ -14,6 +13,8 @@ import Project from "../../modules/Project";
 import { classNames } from "../../utils/classnames";
 import styles from "./MainPage.module.scss";
 import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
+import { getIsAuthorized } from "../../stores/AuthStore/selectors";
+import { getActiveProject, getShouldGoToProjectPage } from "../../stores/ProjectStore/selectors";
 
 const PageWrapper = ({
   nodeKey,
@@ -32,9 +33,10 @@ const PageWrapper = ({
 };
 
 const MainPage = () => {
-  const { isAuthorized } = useAuthContext();
+  const isAuthorized = useSelector(getIsAuthorized);
   const { setActivePage, openedOncePages } = useMainPageContext();
-  const { activeProject, shouldGoToProjectPage } = useProjectContext();
+  const activeProject = useSelector(getActiveProject);
+  const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
   const navigate = useNavigate();
 
   useEffect(() => {
