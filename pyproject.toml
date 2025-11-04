@@ -4,7 +4,7 @@ version = "0.3.1"
 description = "Qubit calibration software"
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate"
-packages = [{ include = "qualibrate_composite" }]
+packages = [{ include = "qualibrate_composite" }, { include = "qualibrate_examples" }]
 readme = "README.md"
 
 [tool.poetry.dependencies]
