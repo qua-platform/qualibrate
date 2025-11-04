@@ -1,3 +1,14 @@
+/**
+ * @fileoverview Interactive graph visualization component using Cytoscape.js.
+ *
+ * Renders calibration workflow graphs with node selection, auto-layout, and
+ * real-time status updates. Synchronizes selection state across GraphContext,
+ * GraphStatusContext, and SelectionContext.
+ *
+ * @see GraphContext - Manages graph and node selection state
+ * @see GraphElement - Uses this for workflow preview
+ * @see MeasurementElementGraph - Uses this for execution status visualization
+ */
 import cytoscape, { ElementDefinition, EventObject } from "cytoscape";
 import { useEffect, useRef } from "react";
 import { CytoscapeLayout } from "./config/Cytoscape";
@@ -17,10 +28,17 @@ interface IProps {
 }
 
 export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
+  /**
+   * Maps node group names to icon file paths.
+   * Icons are stored in /assets/icons/ and named by node group.
+   */
   const getNodeIcon = (nodeName: string) => {
     return `/assets/icons/${nodeName}.svg`;
   };
 
+  /**
+   * Adds background images to Cytoscape elements for node type icons.
+   */
   const wrapCytoscapeElements = (elements: cytoscape.ElementDefinition[]) => {
     return elements.map((el) => {
       return {
@@ -88,7 +106,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
           wheelSensitivity: 0.1,
         });
       } else {
-        // update style around node if its status is changed
+        // Batch update node classes for status changes (running, completed, failed)
         cy.current.batch(() => {
           const allElements = cy.current?.elements() ?? [];
           allElements.forEach((element) => {
@@ -116,6 +134,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
 
   useEffect(() => {
     const onClickN = (e: EventObject) => {
+      // Disable "track latest" when manually selecting a node
       setTrackLatest(false);
       setSelectedNodeNameInWorkflow((e.target.data() as { id: string }).id);
       if (onNodeClick) {
@@ -130,6 +149,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
   }, [setSelectedNodeNameInWorkflow, cy.current]);
 
   useEffect(() => {
+    // Clear selection when clicking graph background
     const onClick = (e: EventObject) => {
       if (e.target === cy.current) {
         setSelectedItemName(undefined);

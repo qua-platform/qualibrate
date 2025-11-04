@@ -5,6 +5,8 @@ import { BrowserRouter } from "react-router-dom";
 import { NodesContextProvider } from "../modules/Nodes/context/NodesContext";
 import { SelectionContextProvider, useSelectionContext } from "../modules/common/context/SelectionContext";
 import { SnapshotsContextProvider } from "../modules/Snapshots/context/SnapshotsContext";
+import { GraphContextProvider, useGraphContext } from "../modules/GraphLibrary/context/GraphContext";
+import { GraphStatusContextProvider, useGraphStatusContext } from "../modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
 import type { RunStatusType, HistoryType } from "../contexts/WebSocketContext";
 
 /**
@@ -41,13 +43,21 @@ export const WebSocketContext = createContext<MockWebSocketContextValue>({
  * @example
  * const Providers = createTestProviders({
  *   webSocket: { runStatus: { is_running: true, ... } },
- *   selection: { selectedItemName: "test_cal" }
+ *   selection: { selectedItemName: "test_cal" },
+ *   graph: { selectedNodeNameInWorkflow: "node1" }
  * });
  * render(<Providers><NodeElement /></Providers>);
  */
 export const createTestProviders = (overrides: {
   webSocket?: Partial<MockWebSocketContextValue>;
-  selection?: { selectedItemName?: string | null };
+  selection?: { selectedItemName?: string | undefined | null; setSelectedItemName?: (name: string | undefined) => void };
+  graph?: {
+    selectedNodeNameInWorkflow?: string;
+    setSelectedNodeNameInWorkflow?: (name: string | undefined) => void;
+  };
+  graphStatus?: {
+    setTrackLatest?: (track: boolean) => void;
+  };
 } = {}) => {
   const defaultWebSocketValue: MockWebSocketContextValue = {
     runStatus: null,
@@ -59,34 +69,56 @@ export const createTestProviders = (overrides: {
     ...overrides.webSocket,
   };
 
-  // Helper component to set initial selection
-  const SelectionSetter: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Helper component to set initial context values
+  const ContextSetter = ({ children }: { children: React.ReactNode }) =>  {
     const { setSelectedItemName } = useSelectionContext();
+    const { setSelectedNodeNameInWorkflow } = useGraphContext();
+    const { setTrackLatest } = useGraphStatusContext();
 
     useEffect(() => {
-      if (overrides.selection?.selectedItemName) {
-        setSelectedItemName(overrides.selection.selectedItemName);
+      if (overrides.selection?.selectedItemName !== undefined) {
+        setSelectedItemName(overrides.selection.selectedItemName || undefined);
+      }
+      if (overrides.selection?.setSelectedItemName) {
+        // Allow tests to override the setter function
       }
     }, [setSelectedItemName]);
+
+    useEffect(() => {
+      if (overrides.graph?.selectedNodeNameInWorkflow !== undefined) {
+        setSelectedNodeNameInWorkflow(overrides.graph.selectedNodeNameInWorkflow);
+      }
+    }, [setSelectedNodeNameInWorkflow]);
+
+    useEffect(() => {
+      if (overrides.graphStatus?.setTrackLatest) {
+        // Context provides the function, tests can spy on it
+      }
+    }, [setTrackLatest]);
 
     return <>{children}</>;
   };
 
-  const TestProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  const TestProviders = ({ children }: { children: React.ReactNode }) => {
+    return (
     <BrowserRouter>
       <WebSocketContext.Provider value={defaultWebSocketValue}>
-        <NodesContextProvider>
-          <SelectionContextProvider>
-            <SnapshotsContextProvider>
-              <SelectionSetter>
-                {children}
-              </SelectionSetter>
-            </SnapshotsContextProvider>
-          </SelectionContextProvider>
-        </NodesContextProvider>
+        {/* @ts-expect-error - GraphContextProvider has incorrect type PropsWithChildren<ReactNode> */}
+        <GraphContextProvider>
+          <GraphStatusContextProvider>
+            <NodesContextProvider>
+              <SelectionContextProvider>
+                <SnapshotsContextProvider>
+                  <ContextSetter>{children}</ContextSetter>
+                </SnapshotsContextProvider>
+              </SelectionContextProvider>
+            </NodesContextProvider>
+          </GraphStatusContextProvider>
+        </GraphContextProvider>
       </WebSocketContext.Provider>
     </BrowserRouter>
-  );
+    );
+  };
 
   return TestProviders;
 };

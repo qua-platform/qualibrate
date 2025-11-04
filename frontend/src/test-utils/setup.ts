@@ -5,18 +5,24 @@ import { beforeAll, afterAll, afterEach, beforeEach, vi } from "vitest";
 import { server } from "./mocks/server";
 
 /**
- * Console Output Suppression
+ * Console Output Suppression Strategy
  *
- * Console output and stderr are buffered during test execution and only shown
- * if a test fails. This keeps output clean when all tests pass, but shows
- * helpful debug information when tests fail.
+ * When DEBUG_TESTS=false (default for npm test):
+ * - console.error() and console.warn() → Always shown immediately (real errors)
+ * - console.log(), console.debug(), console.info() → Buffered, shown only if test fails
+ * - stderr output → Buffered, shown only if test fails
  *
- * To see ALL console output (even for passing tests):
- * - Set environment variable: DEBUG_TESTS=true npm test
- * - Or use npm script: npm run test:unit:debug
+ * This ensures:
+ * 1. Real errors/warnings are ALWAYS visible (even when tests pass)
+ * 2. Clean output without debug noise when tests pass
+ * 3. Full diagnostic output when tests fail
+ *
+ * When DEBUG_TESTS=true (npm run test:unit:debug):
+ * - All console output shown immediately in real-time
+ * - Use this for deep debugging of test behavior
  */
 
-const DEBUG_TESTS = process.env.DEBUG_TESTS === "true";
+const DEBUG_TESTS = process.env.DEBUG_TESTS !== "false";  // Default is true
 
 // Signal to vitest.config.ts that tests are running
 (globalThis as unknown as { __vitest_tests_running__: boolean }).__vitest_tests_running__ = true;
@@ -36,21 +42,33 @@ let consoleBuffer: Array<{ type: keyof typeof originalConsole; args: unknown[] }
 let stderrBuffer: string[] = [];
 
 if (!DEBUG_TESTS) {
-  // Create buffering console methods
+  // Create buffering console methods for non-critical output
   const createBufferingConsole = (type: keyof typeof originalConsole) => {
     return (...args: unknown[]) => {
       consoleBuffer.push({ type, args });
     };
   };
 
-  // Replace console methods with buffering versions
+  // Create pass-through methods for critical output (errors/warnings)
+  const createPassThroughConsole = (type: keyof typeof originalConsole) => {
+    return (...args: unknown[]) => {
+      // Always show immediately
+      originalConsole[type](...args);
+      // Also buffer for "Test Failed" summary if test fails
+      consoleBuffer.push({ type, args });
+    };
+  };
+
+  // Replace console methods:
+  // - error/warn → pass through (always visible)
+  // - log/debug/info → buffered (shown only on test failure)
   global.console = {
     ...console,
     log: createBufferingConsole("log") as typeof console.log,
     debug: createBufferingConsole("debug") as typeof console.debug,
     info: createBufferingConsole("info") as typeof console.info,
-    warn: createBufferingConsole("warn") as typeof console.warn,
-    error: createBufferingConsole("error") as typeof console.error,
+    warn: createPassThroughConsole("warn") as typeof console.warn,
+    error: createPassThroughConsole("error") as typeof console.error,
   };
 
   // Override stderr.write to buffer ALL stderr output (including React errors)
@@ -84,10 +102,15 @@ afterEach(async (context: { task?: { result?: { state?: string; errors?: unknown
     (context?.task?.result?.errors && context.task.result.errors.length > 0);
 
   if (testFailed) {
-    // Print buffered console output
-    if (consoleBuffer.length > 0) {
+    // Print only buffered console output (log/debug/info)
+    // Don't re-print warn/error since they were already shown
+    const bufferedOnlyOutput = consoleBuffer.filter(
+      ({ type }) => type === "log" || type === "debug" || type === "info"
+    );
+
+    if (bufferedOnlyOutput.length > 0) {
       originalConsole.log("\n━━━ Console Output (Test Failed) ━━━");
-      consoleBuffer.forEach(({ type, args }) => {
+      bufferedOnlyOutput.forEach(({ type, args }) => {
         originalConsole[type](...args);
       });
     }
@@ -100,7 +123,7 @@ afterEach(async (context: { task?: { result?: { state?: string; errors?: unknown
       });
     }
 
-    if (consoleBuffer.length > 0 || stderrBuffer.length > 0) {
+    if (bufferedOnlyOutput.length > 0 || stderrBuffer.length > 0) {
       originalConsole.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
     }
   }
