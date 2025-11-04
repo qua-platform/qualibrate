@@ -4,21 +4,21 @@ import styles from "./styles/TitleBarNodeCard.module.scss";
 import { classNames } from "../../../utils/classnames";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarTooltipContent from "./TitleBarNodeTooltipContent";
-import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
+import { useMainPageContext } from "../../../routing/MainPageContext";
 import { StatusIndicator } from "./TitleBarStatusIndicator";
 import { getStatusLabelElement } from "./TitleBarGetStatusLabelElement";
 import { capitalize, formatTime, getWrapperClass } from "../helpers";
 import { DEFAULT_TOOLTIP_SX } from "../constants";
 import { useWebSocketData } from "../../../contexts/WebSocketContext";
+import { NODES_KEY } from "../../../routing/ModulesRegistry";
 
 const TitleBarNodeCard: React.FC = () => {
-  const { openTab, setActiveTabsetName } = useFlexLayoutContext();
+  const { setActivePage } = useMainPageContext();
   const { runStatus } = useWebSocketData();
 
   const handleOnClick = useCallback(() => {
-    openTab("nodes");
-    setActiveTabsetName("nodes");
-  }, [openTab, setActiveTabsetName]);
+    setActivePage(NODES_KEY);
+  }, [setActivePage]);
 
   return (
     <Tooltip title={<TitleBarTooltipContent />} placement="bottom" componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}>

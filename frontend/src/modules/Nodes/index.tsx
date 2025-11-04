@@ -7,14 +7,14 @@ import { RunningJob } from "./components/RunningJob/RunningJob";
 import { Results } from "./components/Results/Results";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
-import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
+import { useMainPageContext } from "../../routing/MainPageContext";
 import { CircularProgress } from "@mui/material";
 import { useWebSocketData } from "../../contexts/WebSocketContext";
 
 export const NodesPage = () => {
   const { runStatus } = useWebSocketData();
   const { fetchAllNodes, isRescanningNodes, results } = useNodesContext();
-  const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
+  const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useMainPageContext();
   const NodeTopBarRefreshButton = () => {
     return (
       <div className={styles.refreshButtonWrapper} data-testid="refresh-button">
@@ -51,7 +51,6 @@ export const NodesPage = () => {
             jsonObject={results ?? {}}
             showSearch={false}
             toggleSwitch={true}
-            pageName={"nodes"}
             errorObject={runStatus?.node?.run_results?.error}
           />
         </div>

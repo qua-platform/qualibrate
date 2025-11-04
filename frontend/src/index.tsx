@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, ReactNode, useEffect } from "react";
 import { ApiContextProvider } from "./contexts/ApiContext";
-import { FlexLayoutContextProvider } from "./routing/flexLayout/FlexLayoutContext";
+import { MainPageContextProvider } from "./routing/MainPageContext";
 import "./assets/styles/index.scss";
 import "./assets/styles/_base.scss";
 import AppRoutes from "./routing/AppRoutes";
@@ -21,7 +21,7 @@ const RouterProvider = process.env.USE_RELATIVE_PATHS === "true" ? HashRouter : 
 
 const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
-  FlexLayoutContextProvider,
+  MainPageContextProvider,
   AuthContextProvider,
   RouterProvider,
   GraphContextProvider,

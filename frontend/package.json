@@ -100,7 +100,6 @@
     "cytoscape-klay": "^3.1.4",
     "dotenv-webpack": "^8.0.1",
     "file-loader": "^6.2.0",
-    "flexlayout-react": "0.7.15",
     "javascript-time-ago": "2.5.9",
     "jsx-runtime": "^1.2.0",
     "mini-css-extract-plugin": "2.7.5",
