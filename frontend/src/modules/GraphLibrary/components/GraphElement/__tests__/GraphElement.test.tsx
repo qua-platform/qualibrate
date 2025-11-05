@@ -5,7 +5,11 @@ import { GraphElement } from "../GraphElement";
 import { createTestProviders } from "@/test-utils/providers";
 import * as GraphLibraryApiModule from "../../../api/GraphLibraryApi";
 import { useMainPageContext } from "../../../../../routing/MainPageContext";
-import { useGraphContext } from "../../../context/GraphContext";
+import { setAllGraphs, setSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/actions";
+import { setWorkflowGraphElements } from "@/stores/GraphStores/GraphCommon/actions";
+import { getAllGraphs, getLastRunInfo, getSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/selectors";
+import { server } from "@/test-utils/mocks/server";
+import { http, HttpResponse } from "msw";
 
 // Mock CytoscapeGraph to avoid Cytoscape dependencies
 vi.mock("../../CytoscapeGraph/CytoscapeGraph", () => ({
@@ -20,15 +24,6 @@ vi.mock("../../../../../routing/MainPageContext", async () => {
   return {
     ...actual,
     useMainPageContext: vi.fn(),
-  };
-});
-
-// Mock GraphContext partially to track API calls
-vi.mock("../../../context/GraphContext", async () => {
-  const actual = await vi.importActual("../../../context/GraphContext");
-  return {
-    ...actual,
-    useGraphContext: vi.fn(),
   };
 });
 
@@ -78,6 +73,14 @@ describe("GraphElement - Parameter Management", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    server.use(
+      http.get("/execution/get_graphs", () => {
+        return HttpResponse.json({
+          test_workflow: mockGraph
+        })
+      })
+    );
+
     // Setup FlexLayout mock
     (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
       setActivePage: vi.fn(),
@@ -86,38 +89,17 @@ describe("GraphElement - Parameter Management", () => {
       topBarAdditionalComponents: undefined,
       setTopBarAdditionalComponents: vi.fn(),
     });
-
-    // Setup GraphContext mock with default values
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: undefined,
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
   });
 
   it("should display graph parameters when selected", async () => {
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    // Update GraphContext mock to include selected workflow
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setAllGraphs({ test_workflow: mockGraph }));
 
     render(
       <Providers>
@@ -133,22 +115,14 @@ describe("GraphElement - Parameter Management", () => {
   });
 
   it("should display node parameters in ParameterList", async () => {
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setAllGraphs({ test_workflow: mockGraph }));
 
     render(
       <Providers>
@@ -164,23 +138,13 @@ describe("GraphElement - Parameter Management", () => {
   });
 
   it("should update parameter values in GraphContext", async () => {
-    const mockSetAllGraphs = vi.fn();
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: mockSetAllGraphs,
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     render(
       <Providers>
@@ -198,7 +162,8 @@ describe("GraphElement - Parameter Management", () => {
 
     // Verify setAllGraphs was called with updated parameters
     await waitFor(() => {
-      expect(mockSetAllGraphs).toHaveBeenCalled();
+      expect(getAllGraphs(mockStore.getState())?.test_workflow.parameters?.frequency)
+          .toHaveProperty('default', "6.5");
     });
   });
 
@@ -206,23 +171,13 @@ describe("GraphElement - Parameter Management", () => {
     const mockSubmit = vi.fn().mockResolvedValue({ isOk: true });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const mockSetLastRunInfo = vi.fn();
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: mockSetLastRunInfo,
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     render(
       <Providers>
@@ -291,6 +246,14 @@ describe("GraphElement - Workflow Submission", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    server.use(
+      http.get("/execution/get_graphs", () => {
+        return HttpResponse.json({
+          test_workflow: mockGraph
+        })
+      })
+    );
+
     (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
       setActivePage: vi.fn(),
       activePage: null,
@@ -298,39 +261,19 @@ describe("GraphElement - Workflow Submission", () => {
       topBarAdditionalComponents: undefined,
       setTopBarAdditionalComponents: vi.fn(),
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: undefined,
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
   });
 
   it("should submit workflow with transformed parameters", async () => {
     const mockSubmit = vi.fn().mockResolvedValue({ isOk: true });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     render(
       <Providers>
@@ -353,23 +296,13 @@ describe("GraphElement - Workflow Submission", () => {
     const mockSubmit = vi.fn().mockResolvedValue({ isOk: true });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const mockSetLastRunInfo = vi.fn();
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: mockSetLastRunInfo,
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     render(
       <Providers>
@@ -385,11 +318,9 @@ describe("GraphElement - Workflow Submission", () => {
 
     // Verify setLastRunInfo was called with active: true
     await waitFor(() => {
-      expect(mockSetLastRunInfo).toHaveBeenCalledWith(
-        expect.objectContaining({
-          active: true,
-        })
-      );
+      expect(getLastRunInfo(mockStore.getState())).toEqual({
+        active: true,
+      });
     });
   });
 
@@ -407,22 +338,13 @@ describe("GraphElement - Workflow Submission", () => {
       setTopBarAdditionalComponents: vi.fn(),
     });
 
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     render(
       <Providers>
@@ -452,22 +374,13 @@ describe("GraphElement - Workflow Submission", () => {
     });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     render(
       <Providers>
@@ -491,22 +404,10 @@ describe("GraphElement - Workflow Submission", () => {
     const mockSubmit = vi.fn().mockResolvedValue({ isOk: true });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
-    });
-
-    // GraphContext has no selectedWorkflowName
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: undefined, // No workflow selected
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
     });
 
     render(
@@ -549,6 +450,14 @@ describe("GraphElement - UI Interactions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    server.use(
+      http.get("/execution/get_graphs", () => {
+        return HttpResponse.json({
+          test_workflow: mockGraph
+        })
+      })
+    );
+
     (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
       setActivePage: vi.fn(),
       activePage: null,
@@ -556,38 +465,21 @@ describe("GraphElement - UI Interactions", () => {
       topBarAdditionalComponents: undefined,
       setTopBarAdditionalComponents: vi.fn(),
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: undefined,
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
   });
 
   it("should expand when selected", async () => {
-    const mockSetSelectedWorkflowName = vi.fn();
-    const mockFetchWorkflowGraph = vi.fn();
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue({
+        isOk: true,
+        result: mockGraph,
+      });
+    vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: undefined, // Initially not selected
       },
-    });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: mockSetSelectedWorkflowName,
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: undefined,
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: mockFetchWorkflowGraph,
     });
 
     render(
@@ -607,8 +499,8 @@ describe("GraphElement - UI Interactions", () => {
 
     // Verify selection callbacks were called
     await waitFor(() => {
-      expect(mockFetchWorkflowGraph).toHaveBeenCalledWith("test_workflow");
-      expect(mockSetSelectedWorkflowName).toHaveBeenCalledWith("test_workflow");
+      expect(mockFetch).toHaveBeenCalledWith("test_workflow");
+      expect(getSelectedWorkflowName(mockStore.getState())).toBe("test_workflow");
     });
   });
 
@@ -618,22 +510,14 @@ describe("GraphElement - UI Interactions", () => {
       { data: { id: "node2" } },
     ];
 
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: mockElements,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setWorkflowGraphElements(mockElements));
 
     render(
       <Providers>
@@ -649,19 +533,15 @@ describe("GraphElement - UI Interactions", () => {
   });
 
   it("should fetch workflow graph on selection", async () => {
-    const mockFetchWorkflowGraph = vi.fn();
-    const Providers = createTestProviders();
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue({
+        isOk: true,
+        result: mockGraph,
+      });
+    vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: undefined,
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: mockFetchWorkflowGraph,
-    });
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -675,27 +555,18 @@ describe("GraphElement - UI Interactions", () => {
 
     // Should call fetchWorkflowGraph
     await waitFor(() => {
-      expect(mockFetchWorkflowGraph).toHaveBeenCalledWith("test_workflow");
+      expect(mockFetch).toHaveBeenCalledWith("test_workflow");
     });
   });
 
   it("should highlight when selected via SelectionContext", () => {
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     const { container } = render(
       <Providers>
@@ -727,6 +598,14 @@ describe("GraphElement - Error Handling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    server.use(
+      http.get("/execution/get_graphs", () => {
+        return HttpResponse.json({
+          test_workflow: mockGraph
+        })
+      })
+    );
+
     (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
       setActivePage: vi.fn(),
       activePage: null,
@@ -738,17 +617,6 @@ describe("GraphElement - Error Handling", () => {
       // openedOncePages: [],
       // topBarAdditionalComponents: undefined,
       // setTopBarAdditionalComponents: vi.fn(),
-    });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: undefined,
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
     });
   });
 
@@ -767,22 +635,13 @@ describe("GraphElement - Error Handling", () => {
     });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     render(
       <Providers>
@@ -812,22 +671,13 @@ describe("GraphElement - Error Handling", () => {
     });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     render(
       <Providers>
@@ -860,22 +710,13 @@ describe("GraphElement - Error Handling", () => {
       });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const Providers = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: undefined,
-      setSelectedWorkflowName: vi.fn(),
-      allGraphs: { test_workflow: mockGraph },
-      setAllGraphs: vi.fn(),
-      selectedWorkflowName: "test_workflow",
-      lastRunInfo: {},
-      setLastRunInfo: vi.fn(),
-      fetchWorkflowGraph: vi.fn(),
-    });
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
 
     render(
       <Providers>

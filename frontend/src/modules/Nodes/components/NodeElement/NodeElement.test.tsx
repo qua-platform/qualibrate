@@ -68,7 +68,7 @@ describe("NodeElement - Parameter Management", () => {
   });
 
   it("should render node with title", () => {
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -80,7 +80,7 @@ describe("NodeElement - Parameter Management", () => {
   });
 
   it("should show parameters when node is selected", async () => {
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -104,7 +104,7 @@ describe("NodeElement - Parameter Management", () => {
       title: "VeryVeryLongNodeNameThatExceedsFortyCharactersDefinitely"
     };
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -137,7 +137,7 @@ describe("NodeElement - Execution", () => {
   });
 
   it("should show run button when node is selected and nothing is running", async () => {
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       webSocket: {
         runStatus: {
           is_running: false,
@@ -178,7 +178,7 @@ describe("NodeElement - Execution", () => {
       error: mockError
     });
 
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       webSocket: {
         runStatus: {
           is_running: false,
@@ -214,7 +214,7 @@ describe("NodeElement - Execution", () => {
     const mockSubmit = vi.fn().mockResolvedValue({ isOk: true });
     vi.spyOn(NodesAPI.NodesApi, "submitNodeParameters").mockImplementation(mockSubmit);
 
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       webSocket: {
         runStatus: {
           is_running: false,
@@ -250,7 +250,7 @@ describe("NodeElement - Execution", () => {
   });
 
   it("should show spinner when node is running", async () => {
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       webSocket: {
         runStatus: {
           is_running: true,
@@ -294,7 +294,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
   });
 
   it("should show status indicator for running node", () => {
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       webSocket: {
         runStatus: {
           is_running: true,
@@ -323,7 +323,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
   });
 
   it("should show green dot when node finished", () => {
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       webSocket: {
         runStatus: {
           is_running: false,
@@ -354,7 +354,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
   });
 
   it("should show red dot when node errored", () => {
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       webSocket: {
         runStatus: {
           is_running: false,
@@ -381,7 +381,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
   it("should not show status for different running node", () => {
     // Catches complex conditional logic in status display
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       webSocket: {
         runStatus: {
           is_running: true,
@@ -419,7 +419,7 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -445,7 +445,7 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -475,7 +475,7 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -503,7 +503,7 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -524,7 +524,7 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -545,7 +545,7 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>

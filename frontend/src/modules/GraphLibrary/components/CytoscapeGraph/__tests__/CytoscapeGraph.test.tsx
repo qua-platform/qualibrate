@@ -30,7 +30,7 @@ describe("CytoscapeGraph - Initialization & Rendering", () => {
 
   it("should initialize Cytoscape instance on mount", () => {
     const elements = createSimpleGraph();
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -56,7 +56,7 @@ describe("CytoscapeGraph - Initialization & Rendering", () => {
 
   it("should apply klay layout algorithm", () => {
     const elements = createSimpleGraph();
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -74,7 +74,7 @@ describe("CytoscapeGraph - Initialization & Rendering", () => {
 
   it("should set correct zoom constraints", () => {
     const elements = createSimpleGraph();
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -92,7 +92,7 @@ describe("CytoscapeGraph - Initialization & Rendering", () => {
 
   it("should wrap elements with node icons", () => {
     const elements = createSimpleGraph();
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -126,7 +126,7 @@ describe("CytoscapeGraph - Selection State Synchronization", () => {
     mockCy.getElementById.mockReturnValue(mockNode);
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       graph: {
         selectedNodeNameInWorkflow: "node1",
       },
@@ -150,7 +150,7 @@ describe("CytoscapeGraph - Selection State Synchronization", () => {
 
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       graph: {
         selectedNodeNameInWorkflow: undefined,
       },
@@ -174,7 +174,7 @@ describe("CytoscapeGraph - Selection State Synchronization", () => {
 
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders({
+    const { Providers } = createTestProviders({
       graph: {
         selectedNodeNameInWorkflow: undefined,
         setSelectedNodeNameInWorkflow: mockSetSelectedNodeName,
@@ -199,7 +199,7 @@ describe("CytoscapeGraph - Selection State Synchronization", () => {
 
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -230,7 +230,7 @@ describe("CytoscapeGraph - Event Handling & Cleanup", () => {
 
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -250,7 +250,7 @@ describe("CytoscapeGraph - Event Handling & Cleanup", () => {
 
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -275,7 +275,7 @@ describe("CytoscapeGraph - Event Handling & Cleanup", () => {
 
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     const { unmount } = render(
       <Providers>
@@ -296,7 +296,7 @@ describe("CytoscapeGraph - Event Handling & Cleanup", () => {
 
   it("should not leak Cytoscape instances", () => {
     const elements = createSimpleGraph();
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     const { unmount } = render(
       <Providers>
@@ -327,7 +327,7 @@ describe("CytoscapeGraph - Event Handling & Cleanup", () => {
 
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     render(
       <Providers>
@@ -375,7 +375,7 @@ describe("CytoscapeGraph - Status Updates", () => {
     mockCy.elements.mockReturnValue([runningNode, completedNode]);
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     const { rerender } = render(
       <Providers>
@@ -406,7 +406,7 @@ describe("CytoscapeGraph - Status Updates", () => {
     mockCy.elements.mockReturnValue([mockNode]);
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     const { rerender } = render(
       <Providers>
@@ -443,7 +443,7 @@ describe("CytoscapeGraph - Status Updates", () => {
     mockCy.elements.mockReturnValue([mockNode]);
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     const { rerender } = render(
       <Providers>
@@ -474,7 +474,7 @@ describe("CytoscapeGraph - Status Updates", () => {
     mockCy.elements.mockReturnValue([mockNode]);
     cytoscapeMock.default.mockReturnValue(mockCy);
 
-    const Providers = createTestProviders();
+    const { Providers } = createTestProviders();
 
     const { rerender } = render(
       <Providers>

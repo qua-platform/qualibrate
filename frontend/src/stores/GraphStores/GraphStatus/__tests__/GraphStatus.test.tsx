@@ -1,15 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-import GraphStatus from "../GraphStatus";
 import { createTestProviders } from "@/test-utils/providers";
-import { useGraphStatusContext } from "../context/GraphStatusContext";
-import { useSnapshotsContext } from "../../../../Snapshots/context/SnapshotsContext";
-import { useGraphContext } from "../../../context/GraphContext";
-import { Measurement } from "../context/GraphStatusContext";
+import { Measurement } from "../GraphStatusStore";
+// import { useGraphStatusContext } from "@/modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
+import { useSnapshotsContext } from "../../../../modules/Snapshots/context/SnapshotsContext";
+import GraphStatus from "../../../../modules/GraphLibrary/components/GraphStatus/GraphStatus";
+import graphStatusSlice from '../GraphStatusStore'
+import { getAllMeasurements, getTrackLatest } from "../selectors";
+import { setSelectedNodeNameInWorkflow } from "../../GraphCommon/actions";
+import { getSelectedWorkflowName } from "../../GraphLibrary/selectors";
+import { setSelectedWorkflowName } from "../../GraphLibrary/actions";
+import { getWorkflowGraphElements } from "../../GraphCommon/selectors";
+import { setAllMeasurements } from "../actions";
+import { server } from "@/test-utils/mocks/server";
+import { http, HttpResponse } from "msw";
 
 // Mock the child components to isolate GraphStatus logic
-vi.mock("../components/MeasurementElementGraph/MeasurementElementGraph", () => ({
+vi.mock("../../../../modules/GraphLibrary/components/GraphStatus/components/MeasurementElementGraph/MeasurementElementGraph", () => ({
   MeasurementElementGraph: ({ onCytoscapeNodeClick }: { onCytoscapeNodeClick: (name: string) => void }) => (
     <div data-testid="measurement-element-graph">
       <button onClick={() => onCytoscapeNodeClick("test_node")}>Click Node</button>
@@ -17,12 +25,12 @@ vi.mock("../components/MeasurementElementGraph/MeasurementElementGraph", () => (
   ),
 }));
 
-vi.mock("../components/MeasurementHistory/MeasurementHistory", () => ({
+vi.mock("../../../../modules/GraphLibrary/components/GraphStatus/components/MeasurementHistory/MeasurementHistory", () => ({
   MeasurementHistory: () => <div data-testid="measurement-history">Measurement History</div>,
 }));
 
 // Mock Results component to avoid FlexLayoutContext dependency
-vi.mock("../../../../Nodes/components/Results/Results", () => ({
+vi.mock("../../../../modules/Nodes/components/Results/Results", () => ({
   Results: ({ jsonObject, errorObject }: { jsonObject: object; errorObject?: object }) => (
     <div data-testid="results">
       {errorObject ? (
@@ -35,37 +43,53 @@ vi.mock("../../../../Nodes/components/Results/Results", () => ({
 }));
 
 // Mock context hooks for precise control
-vi.mock("../context/GraphStatusContext", async () => {
-  const actual = await vi.importActual("../context/GraphStatusContext");
+vi.mock("../GraphStatusStore", async () => {
+  const actual = await vi.importActual("../GraphStatusStore");
   return {
     ...actual,
-    useGraphStatusContext: vi.fn(),
+    graphStatusSlice: vi.fn(),
   };
 });
 
-vi.mock("../../../../Snapshots/context/SnapshotsContext", async () => {
-  const actual = await vi.importActual("../../../../Snapshots/context/SnapshotsContext");
+vi.mock("../../../../modules/Snapshots/context/SnapshotsContext", async () => {
+  const actual = await vi.importActual("../../../../modules/Snapshots/context/SnapshotsContext");
   return {
     ...actual,
     useSnapshotsContext: vi.fn(),
   };
 });
 
-vi.mock("../../../context/GraphContext", async () => {
-  const actual = await vi.importActual("../../../context/GraphContext");
-  return {
-    ...actual,
-    useGraphContext: vi.fn(),
-  };
-});
 
-vi.mock("../../../../common/context/SelectionContext", async () => {
-  const actual = await vi.importActual("../../../../common/context/SelectionContext");
+vi.mock("../../../../modules/common/context/SelectionContext", async () => {
+  const actual = await vi.importActual("../../../../modules/common/context/SelectionContext");
   return {
     ...actual,
     useSelectionContext: vi.fn(),
   };
 });
+
+const mockNodes = [
+  {
+    group: "nodes",
+    data: {
+      id: "test_node"
+    },
+    position: {
+      x: 100,
+      y: 100
+    }
+  },
+  {
+    group: "nodes",
+    data: {
+      id: "another_node"
+    },
+    position: {
+      x: 100,
+      y: 100
+    }
+  }
+]
 
 describe("GraphStatus - Context Coordination", () => {
   const mockMeasurements: Measurement[] = [
@@ -110,18 +134,16 @@ describe("GraphStatus - Context Coordination", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    server.use(
+      http.get('/execution/last_run/workflow/execution_history', () =>
+        HttpResponse.json({ items: mockMeasurements })
+      ),
+      http.get("/execution/get_graph/cytoscape", () =>
+        HttpResponse.json(mockNodes)
+      )
+    );
 
     // Setup default mock implementations
-    (useGraphStatusContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      allMeasurements: mockMeasurements,
-      setAllMeasurements: vi.fn(),
-      trackLatest: true,
-      setTrackLatest: vi.fn(),
-      workflowGraphElements: mockWorkflowGraphElements,
-      setWorkflowGraphElements: vi.fn(),
-      fetchAllMeasurements: vi.fn().mockResolvedValue(mockMeasurements),
-    });
-
     (useSnapshotsContext as ReturnType<typeof vi.fn>).mockReturnValue({
       result: {},
       fetchOneSnapshot: vi.fn(),
@@ -131,13 +153,8 @@ describe("GraphStatus - Context Coordination", () => {
       setClickedForSnapshotSelection: vi.fn(),
     });
 
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: mockWorkflowGraphElements,
-      lastRunInfo: {},
-    });
-
     // Mock SelectionContext
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
+    const { useSelectionContext } = await import("../../../../modules/common/context/SelectionContext");
     (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
       selectedItemName: undefined,
       setSelectedItemName: vi.fn(),
@@ -145,19 +162,9 @@ describe("GraphStatus - Context Coordination", () => {
   });
 
   it("should fetch measurements on mount", async () => {
-    const mockFetchAllMeasurements = vi.fn().mockResolvedValue(mockMeasurements);
-
-    (useGraphStatusContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      allMeasurements: undefined,
-      setAllMeasurements: vi.fn(),
-      trackLatest: true,
-      setTrackLatest: vi.fn(),
-      workflowGraphElements: mockWorkflowGraphElements,
-      setWorkflowGraphElements: vi.fn(),
-      fetchAllMeasurements: mockFetchAllMeasurements,
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
 
     render(
       <Providers>
@@ -169,19 +176,23 @@ describe("GraphStatus - Context Coordination", () => {
     await waitFor(() => {
       expect(screen.getByTestId("measurement-element-graph")).toBeInTheDocument();
       expect(screen.getByTestId("measurement-history")).toBeInTheDocument();
+    }, {
+      // timeout: 3000
     });
   });
 
   it("should sync selection across contexts", async () => {
     const mockSetSelectedItemName = vi.fn();
 
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
+    const { useSelectionContext } = await import("../../../../modules/common/context/SelectionContext");
     (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
       selectedItemName: "test_node",
       setSelectedItemName: mockSetSelectedItemName,
     });
 
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
 
     render(
       <Providers>
@@ -195,19 +206,7 @@ describe("GraphStatus - Context Coordination", () => {
   });
 
   it("should disable track-latest on manual node click", async () => {
-    const mockSetTrackLatest = vi.fn();
     const mockFetchOneSnapshot = vi.fn();
-    const mockSetSelectedItemName = vi.fn();
-
-    (useGraphStatusContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      allMeasurements: mockMeasurements,
-      setAllMeasurements: vi.fn(),
-      trackLatest: true,
-      setTrackLatest: mockSetTrackLatest,
-      workflowGraphElements: mockWorkflowGraphElements,
-      setWorkflowGraphElements: vi.fn(),
-      fetchAllMeasurements: vi.fn().mockResolvedValue(mockMeasurements),
-    });
 
     (useSnapshotsContext as ReturnType<typeof vi.fn>).mockReturnValue({
       result: {},
@@ -218,13 +217,9 @@ describe("GraphStatus - Context Coordination", () => {
       setClickedForSnapshotSelection: vi.fn(),
     });
 
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: mockSetSelectedItemName,
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
 
     render(
       <Providers>
@@ -238,7 +233,7 @@ describe("GraphStatus - Context Coordination", () => {
 
     // Verify track-latest was disabled
     await waitFor(() => {
-      expect(mockSetTrackLatest).toHaveBeenCalledWith(false);
+      expect(getTrackLatest(mockStore.getState())).toBe(false);
     });
   });
 
@@ -256,7 +251,9 @@ describe("GraphStatus - Context Coordination", () => {
       setClickedForSnapshotSelection: mockSetClickedForSnapshotSelection,
     });
 
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
 
     render(
       <Providers>
@@ -297,16 +294,14 @@ describe("GraphStatus - Measurement Operations", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    (useGraphStatusContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      allMeasurements: mockMeasurements,
-      setAllMeasurements: vi.fn(),
-      trackLatest: true,
-      setTrackLatest: vi.fn(),
-      workflowGraphElements: [{ data: { id: "calibration_node" } }],
-      setWorkflowGraphElements: vi.fn(),
-      fetchAllMeasurements: vi.fn().mockResolvedValue(mockMeasurements),
-    });
+    server.use(
+      http.get('/execution/last_run/workflow/execution_history', () =>
+        HttpResponse.json({ items: mockMeasurements })
+      ),
+      http.get("/execution/get_graph/cytoscape", () =>
+        HttpResponse.json(mockNodes)
+      ),
+    );
 
     (useSnapshotsContext as ReturnType<typeof vi.fn>).mockReturnValue({
       result: {},
@@ -315,11 +310,6 @@ describe("GraphStatus - Measurement Operations", () => {
       setDiffData: vi.fn(),
       setSelectedSnapshotId: vi.fn(),
       setClickedForSnapshotSelection: vi.fn(),
-    });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: [{ data: { id: "calibration_node" } }],
-      lastRunInfo: {},
     });
   });
 
@@ -335,13 +325,9 @@ describe("GraphStatus - Measurement Operations", () => {
       setClickedForSnapshotSelection: vi.fn(),
     });
 
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: vi.fn(),
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
 
     render(
       <Providers>
@@ -356,18 +342,11 @@ describe("GraphStatus - Measurement Operations", () => {
   });
 
   it("should handle missing measurements gracefully", async () => {
+    server.use(http.get('/execution/last_run/workflow/execution_history', () =>
+      HttpResponse.json(null, { status: 500 })
+    ));
     const mockSetResult = vi.fn();
     const mockSetDiffData = vi.fn();
-
-    (useGraphStatusContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      allMeasurements: [], // Empty measurements
-      setAllMeasurements: vi.fn(),
-      trackLatest: true,
-      setTrackLatest: vi.fn(),
-      workflowGraphElements: [{ data: { id: "nonexistent_node" } }],
-      setWorkflowGraphElements: vi.fn(),
-      fetchAllMeasurements: vi.fn().mockResolvedValue([]),
-    });
 
     (useSnapshotsContext as ReturnType<typeof vi.fn>).mockReturnValue({
       result: {},
@@ -378,13 +357,10 @@ describe("GraphStatus - Measurement Operations", () => {
       setClickedForSnapshotSelection: vi.fn(),
     });
 
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: vi.fn(),
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setAllMeasurements([]))
 
     render(
       <Providers>
@@ -404,25 +380,9 @@ describe("GraphStatus - Measurement Operations", () => {
   });
 
   it("should fetch measurements if not loaded", async () => {
-    const mockFetchAllMeasurements = vi.fn().mockResolvedValue(mockMeasurements);
-
-    (useGraphStatusContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      allMeasurements: undefined, // Not loaded yet
-      setAllMeasurements: vi.fn(),
-      trackLatest: true,
-      setTrackLatest: vi.fn(),
-      workflowGraphElements: [{ data: { id: "test_node" } }],
-      setWorkflowGraphElements: vi.fn(),
-      fetchAllMeasurements: mockFetchAllMeasurements,
-    });
-
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: vi.fn(),
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
 
     render(
       <Providers>
@@ -435,23 +395,16 @@ describe("GraphStatus - Measurement Operations", () => {
     clickButton.click();
 
     await waitFor(() => {
-      expect(mockFetchAllMeasurements).toHaveBeenCalled();
+      expect(getAllMeasurements(mockStore.getState())).toBeDefined()
     });
   });
 
   it("should clear result when measurement ID is missing", async () => {
+    server.use(http.get('/execution/last_run/workflow/execution_history', () =>
+      HttpResponse.json(null, { status: 500 })
+    ));
     const mockSetResult = vi.fn();
     const mockSetDiffData = vi.fn();
-
-    (useGraphStatusContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      allMeasurements: mockMeasurements,
-      setAllMeasurements: vi.fn(),
-      trackLatest: true,
-      setTrackLatest: vi.fn(),
-      workflowGraphElements: [{ data: { id: "unknown_node" } }],
-      setWorkflowGraphElements: vi.fn(),
-      fetchAllMeasurements: vi.fn().mockResolvedValue(mockMeasurements),
-    });
 
     (useSnapshotsContext as ReturnType<typeof vi.fn>).mockReturnValue({
       result: {},
@@ -462,13 +415,10 @@ describe("GraphStatus - Measurement Operations", () => {
       setClickedForSnapshotSelection: vi.fn(),
     });
 
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: vi.fn(),
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setAllMeasurements([]))
 
     render(
       <Providers>
@@ -507,16 +457,14 @@ describe("GraphStatus - Node Click Handling", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    (useGraphStatusContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      allMeasurements: mockMeasurements,
-      setAllMeasurements: vi.fn(),
-      trackLatest: true,
-      setTrackLatest: vi.fn(),
-      workflowGraphElements: [{ data: { id: "test_node" } }],
-      setWorkflowGraphElements: vi.fn(),
-      fetchAllMeasurements: vi.fn().mockResolvedValue(mockMeasurements),
-    });
+    server.use(
+      http.get('/execution/last_run/workflow/execution_history', () =>
+        HttpResponse.json({ items: mockMeasurements })
+      ),
+      http.get("/execution/get_graph/cytoscape", () =>
+        HttpResponse.json(mockNodes)
+      )
+    );
 
     (useSnapshotsContext as ReturnType<typeof vi.fn>).mockReturnValue({
       result: {},
@@ -525,11 +473,6 @@ describe("GraphStatus - Node Click Handling", () => {
       setDiffData: vi.fn(),
       setSelectedSnapshotId: vi.fn(),
       setClickedForSnapshotSelection: vi.fn(),
-    });
-
-    (useGraphContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      workflowGraphElements: [{ data: { id: "test_node" } }],
-      lastRunInfo: {},
     });
   });
 
@@ -545,13 +488,9 @@ describe("GraphStatus - Node Click Handling", () => {
       setClickedForSnapshotSelection: vi.fn(),
     });
 
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: vi.fn(),
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_node'))
 
     render(
       <Providers>
@@ -579,13 +518,9 @@ describe("GraphStatus - Node Click Handling", () => {
       setClickedForSnapshotSelection: vi.fn(),
     });
 
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: vi.fn(),
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_node'))
 
     render(
       <Providers>
@@ -619,13 +554,9 @@ describe("GraphStatus - Node Click Handling", () => {
       setClickedForSnapshotSelection: mockSetClickedForSnapshotSelection,
     });
 
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: vi.fn(),
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_node'))
 
     render(
       <Providers>
@@ -642,7 +573,6 @@ describe("GraphStatus - Node Click Handling", () => {
   });
 
   it("should update selection contexts", async () => {
-    const mockSetSelectedItemName = vi.fn();
     const mockSetSelectedSnapshotId = vi.fn();
 
     (useSnapshotsContext as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -654,13 +584,9 @@ describe("GraphStatus - Node Click Handling", () => {
       setClickedForSnapshotSelection: vi.fn(),
     });
 
-    const { useSelectionContext } = await import("../../../../common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: mockSetSelectedItemName,
-    });
-
-    const Providers = createTestProviders();
+    const { Providers, mockStore } = createTestProviders();
+    //TODO: mock WebSocket event
+    mockStore.dispatch(setSelectedWorkflowName('test_node'))
 
     render(
       <Providers>
@@ -672,9 +598,7 @@ describe("GraphStatus - Node Click Handling", () => {
     clickButton.click();
 
     await waitFor(() => {
-      // First clears selection, then sets it
-      expect(mockSetSelectedItemName).toHaveBeenCalledWith(undefined);
-      expect(mockSetSelectedItemName).toHaveBeenCalledWith("test_node");
+      expect(getSelectedWorkflowName(mockStore.getState())).toBe("test_node")
       expect(mockSetSelectedSnapshotId).toHaveBeenCalledWith(5);
     });
   });

@@ -18,10 +18,11 @@ import React, {createContext, PropsWithChildren, useCallback, useContext, useEff
 import WebSocketService from "../services/WebSocketService";
 import {WS_EXECUTION_HISTORY, WS_GET_STATUS} from "../services/webSocketRoutes";
 import {ErrorObject} from "../modules/common/Error/ErrorStatusWrapper";
-import {Measurement} from "../modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
 import {BasicDialog} from "../common/ui-components/common/BasicDialog/BasicDialog";
 import { useRootDispatch } from "../stores";
 import { fetchShouldRedirectUserToProjectPage } from "../stores/ProjectStore/actions";
+import { setAllMeasurements } from "../stores/GraphStores/GraphStatus/actions";
+import { Measurement } from "../stores/GraphStores/GraphStatus/GraphStatusStore";
 
 /**
  * Results from completed calibration node.
@@ -214,6 +215,11 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
     return minutes > 0 ? `${minutes}m ${secs.toString().padStart(2, "0")}s` : `${secs}s`;
   };
 
+  const handleSetHistory = (history: HistoryType) => {
+    setHistory(history)
+    dispatch(setAllMeasurements(history.items))
+  }
+
   // Establish WebSocket connections on mount, disconnect on unmount
   // Empty dependency array [] ensures this runs once per component lifecycle
   useEffect(() => {
@@ -228,7 +234,7 @@ export const WebSocketProvider: React.FC<PropsWithChildren> = ({ children }) => 
     );
     historyWS.current = new WebSocketService<HistoryType>(
       historyUrl,
-      setHistory,
+      handleSetHistory,
       handleHideConnectionErrorDialog,
       handleShowConnectionErrorDialog
     );

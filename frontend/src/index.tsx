@@ -10,7 +10,6 @@ import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeCon
 import { createRoot } from "react-dom/client";
 import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
-import { GraphContextProvider } from "./modules/GraphLibrary/context/GraphContext";
 import { NodesContextProvider } from "./modules/Nodes/context/NodesContext";
 import { Provider } from "react-redux";
 import store from "./stores";
@@ -23,7 +22,6 @@ const contextProviders: ProviderComponent[] = [
   ApiContextProvider,
   MainPageContextProvider,
   RouterProvider,
-  GraphContextProvider,
   NodesContextProvider,
   SnapshotsContextProvider,
 ];

@@ -2,9 +2,12 @@ import React from "react";
 import { NodeDTO, NodeMap } from "../../Nodes/components/NodeElement/NodeElement";
 import { InputParameter, Parameters, SingleParameter } from "./Parameters";
 import { Checkbox } from "@mui/material";
-import { useGraphContext } from "../../GraphLibrary/context/GraphContext";
 import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
 import InputField from "../../../common/ui-components/common/Input/InputField";
+import { getAllGraphs, getSelectedWorkflowName } from "../../../stores/GraphStores/GraphLibrary/selectors";
+import { setAllGraphs } from "../../../stores/GraphStores/GraphLibrary/actions";
+import { useSelector } from "react-redux";
+import { useRootDispatch } from "../../../stores";
 
 interface IProps {
   showParameters: boolean;
@@ -12,7 +15,10 @@ interface IProps {
 }
 
 export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfItems }) => {
-  const { allGraphs, setAllGraphs, selectedWorkflowName } = useGraphContext();
+  const dispatch = useRootDispatch();
+  const allGraphs = useSelector(getAllGraphs);
+  const selectedWorkflowName = useSelector(getSelectedWorkflowName);
+
   const updateParameter = (paramKey: string, newValue: boolean | number | string, node?: NodeDTO | GraphWorkflow) => {
     const updatedParameters = {
       ...node?.parameters,
@@ -39,7 +45,7 @@ export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfI
         [selectedWorkflowName]: updatedWorkflow,
       };
 
-      setAllGraphs(updatedCalibrationGraphs);
+      dispatch(setAllGraphs(updatedCalibrationGraphs));
     }
   };
 

@@ -2,12 +2,10 @@ import { describe, it, expect } from "vitest";
 import React, { createContext } from "react";
 import { render, screen } from "@testing-library/react";
 import { NodeElementList } from "./NodeElementList";
-import { NodesContextProvider, useNodesContext } from "../../context/NodesContext";
-import { SelectionContextProvider } from "../../../common/context/SelectionContext";
-import { SnapshotsContextProvider } from "../../../Snapshots/context/SnapshotsContext";
-import { BrowserRouter } from "react-router-dom";
+import { useNodesContext } from "../../context/NodesContext";
 import type { RunStatusType, HistoryType } from "../../../../contexts/WebSocketContext";
 import type { NodeMap } from "./NodeElement";
+import { createTestProviders } from "@/test-utils/providers";
 
 // Mock WebSocket context
 const WebSocketContext = createContext<{
@@ -40,29 +38,12 @@ const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
 
 // Test wrapper that sets up nodes via context
 const TestWrapper: React.FC<{ children: React.ReactNode; nodes?: NodeMap }> = ({ children, nodes }) => {
-  return (
-    <BrowserRouter>
-      <WebSocketContext.Provider
-        value={{
-          runStatus: null,
-          history: null,
-          sendRunStatus: () => {},
-          sendHistory: () => {},
-          subscribeToRunStatus: () => () => {},
-          subscribeToHistory: () => () => {}
-        }}
-      >
-        <NodesContextProvider>
-          <SelectionContextProvider>
-            <SnapshotsContextProvider>
-              {nodes && <NodesSetter nodes={nodes} />}
-              {children}
-            </SnapshotsContextProvider>
-          </SelectionContextProvider>
-        </NodesContextProvider>
-      </WebSocketContext.Provider>
-    </BrowserRouter>
-  );
+  const { Providers } = createTestProviders();
+
+  return <Providers>
+    {nodes && <NodesSetter nodes={nodes} />}
+    {children}
+  </Providers>
 };
 
 describe("NodeElementList", () => {

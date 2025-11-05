@@ -8,12 +8,13 @@
  * @see GraphContext - Provides allGraphs data
  */
 import React from "react";
+import { useSelector } from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../GraphLibrary.module.scss";
 import { GraphElement } from "./GraphElement/GraphElement";
 import { NodeMap } from "../../Nodes/components/NodeElement/NodeElement";
-import { useGraphContext } from "../context/GraphContext";
 import { InputParameter } from "../../common/Parameters/Parameters";
+import { getAllGraphs } from "../../../stores/GraphStores/GraphLibrary/selectors";
 
 /**
  * Calibration workflow definition with nodes and connectivity.
@@ -29,7 +30,7 @@ export interface GraphWorkflow {
 }
 
 export const GraphList: React.FC = () => {
-  const { allGraphs } = useGraphContext();
+  const allGraphs = useSelector(getAllGraphs);
   if (!allGraphs || Object.entries(allGraphs).length === 0) return <div>No calibration graphs</div>;
   return (
     <div className={styles.listWrapper}>

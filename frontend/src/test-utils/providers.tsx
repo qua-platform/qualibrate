@@ -2,12 +2,16 @@
 import React, { createContext, useEffect } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
 import { NodesContextProvider } from "../modules/Nodes/context/NodesContext";
 import { SelectionContextProvider, useSelectionContext } from "../modules/common/context/SelectionContext";
 import { SnapshotsContextProvider } from "../modules/Snapshots/context/SnapshotsContext";
-import { GraphContextProvider, useGraphContext } from "../modules/GraphLibrary/context/GraphContext";
-import { GraphStatusContextProvider, useGraphStatusContext } from "../modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
 import type { RunStatusType, HistoryType } from "../contexts/WebSocketContext";
+import { setSelectedNodeNameInWorkflow } from "../stores/GraphStores/GraphCommon/actions";
+import { rootReducer, useRootDispatch } from "../stores";
+import { setTrackLatest } from "../stores/GraphStores/GraphStatus/actions";
+import { configureStore } from "@reduxjs/toolkit";
+import { useInitApp } from "../routing/AppRoutes";
 
 /**
  * Mock WebSocket context value interface
@@ -59,6 +63,7 @@ export const createTestProviders = (overrides: {
     setTrackLatest?: (track: boolean) => void;
   };
 } = {}) => {
+  const mockStore = configureStore({ reducer: rootReducer })
   const defaultWebSocketValue: MockWebSocketContextValue = {
     runStatus: null,
     history: null,
@@ -71,10 +76,10 @@ export const createTestProviders = (overrides: {
 
   // Helper component to set initial context values
   const ContextSetter = ({ children }: { children: React.ReactNode }) =>  {
+    const dispatch = useRootDispatch();
     const { setSelectedItemName } = useSelectionContext();
-    const { setSelectedNodeNameInWorkflow } = useGraphContext();
-    const { setTrackLatest } = useGraphStatusContext();
 
+    useInitApp();
     useEffect(() => {
       if (overrides.selection?.selectedItemName !== undefined) {
         setSelectedItemName(overrides.selection.selectedItemName || undefined);
@@ -86,7 +91,7 @@ export const createTestProviders = (overrides: {
 
     useEffect(() => {
       if (overrides.graph?.selectedNodeNameInWorkflow !== undefined) {
-        setSelectedNodeNameInWorkflow(overrides.graph.selectedNodeNameInWorkflow);
+        dispatch(setSelectedNodeNameInWorkflow(overrides.graph.selectedNodeNameInWorkflow));
       }
     }, [setSelectedNodeNameInWorkflow]);
 
@@ -99,28 +104,28 @@ export const createTestProviders = (overrides: {
     return <>{children}</>;
   };
 
-  const TestProviders = ({ children }: { children: React.ReactNode }) => {
+  const Providers = ({ children }: { children: React.ReactNode }) => {
     return (
     <BrowserRouter>
-      <WebSocketContext.Provider value={defaultWebSocketValue}>
-        {/* @ts-expect-error - GraphContextProvider has incorrect type PropsWithChildren<ReactNode> */}
-        <GraphContextProvider>
-          <GraphStatusContextProvider>
-            <NodesContextProvider>
-              <SelectionContextProvider>
-                <SnapshotsContextProvider>
-                  <ContextSetter>{children}</ContextSetter>
-                </SnapshotsContextProvider>
-              </SelectionContextProvider>
-            </NodesContextProvider>
-          </GraphStatusContextProvider>
-        </GraphContextProvider>
-      </WebSocketContext.Provider>
+      <Provider store={mockStore}>
+        <WebSocketContext.Provider value={defaultWebSocketValue}>
+          <NodesContextProvider>
+            <SelectionContextProvider>
+              <SnapshotsContextProvider>
+                <ContextSetter>{children}</ContextSetter>
+              </SnapshotsContextProvider>
+            </SelectionContextProvider>
+          </NodesContextProvider>
+        </WebSocketContext.Provider>
+      </Provider>
     </BrowserRouter>
     );
   };
 
-  return TestProviders;
+  return {
+    Providers,
+    mockStore
+  };
 };
 
 /**

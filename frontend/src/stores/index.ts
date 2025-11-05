@@ -1,13 +1,17 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authReducer from "./AuthStore/AuthStore";
 import { useDispatch } from "react-redux";
 import projectsReducer from "./ProjectStore/ProjectStore";
+import { graphStore } from "./GraphStores/index";
+
+export const rootReducer = combineReducers({
+  auth: authReducer,
+  projects: projectsReducer,
+  graph: graphStore,
+})
 
 const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    projects: projectsReducer
-  }
+  reducer: rootReducer
 });
 
 export type RootDispatch = typeof store.dispatch;

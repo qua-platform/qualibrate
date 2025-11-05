@@ -8,7 +8,7 @@ import {
   SUBMIT_WORKFLOW_RUN,
 } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
-import { Measurement } from "../components/GraphStatus/context/GraphStatusContext";
+import { Measurement } from "../components/GraphStatus/GraphStatus";
 import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 
 export class GraphLibraryApi extends Api {

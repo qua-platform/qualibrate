@@ -9,27 +9,29 @@
  * @see MeasurementElementList - Renders the measurement list
  */
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import styles from "./MeasurementHistory.module.scss";
-import { useGraphStatusContext } from "../../context/GraphStatusContext";
 import { MeasurementElementList } from "../MeasurementElementList/MeasurementElementList";
-import { useSelectionContext } from "../../../../../common/context/SelectionContext";
-import { useGraphContext } from "../../../../context/GraphContext";
 import { useSnapshotsContext } from "../../../../../Snapshots/context/SnapshotsContext";
+import { useRootDispatch } from "../../../../../../stores";
+import { getAllMeasurements, getTrackLatest } from "../../../../../../stores/GraphStores/GraphStatus/selectors";
+import { setTrackLatest } from "../../../../../../stores/GraphStores/GraphStatus/actions";
+import { setSelectedNodeNameInWorkflow } from "../../../../../../stores/GraphStores/GraphCommon/actions";
 
 interface IMeasurementHistoryListProps {
   title?: string;
 }
 
 export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ title = "Execution history" }) => {
-  const { allMeasurements, trackLatest, setTrackLatest } = useGraphStatusContext();
+  const dispatch = useRootDispatch()
+  const allMeasurements = useSelector(getAllMeasurements)
+  const trackLatest = useSelector(getTrackLatest)
   const { trackLatestSidePanel, fetchOneSnapshot, setLatestSnapshotId, setResult, setDiffData } = useSnapshotsContext();
-  const { setSelectedNodeNameInWorkflow } = useGraphContext();
-  const { setSelectedItemName } = useSelectionContext();
   const [latestId, setLatestId] = useState<number | undefined>();
   const [latestName, setLatestName] = useState<string | undefined>();
 
   const handleOnClick = () => {
-    setTrackLatest(!trackLatest);
+    dispatch(setTrackLatest(!trackLatest));
   };
 
   /**
@@ -45,9 +47,8 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
         if (element && (element.id !== latestId || element.metadata?.name !== latestName)) {
           setLatestId(element.id);
           setLatestName(element.metadata?.name);
-          setSelectedItemName(element?.metadata?.name);
 
-          setSelectedNodeNameInWorkflow(allMeasurements[0]?.metadata?.name);
+          dispatch(setSelectedNodeNameInWorkflow(element?.metadata?.name));
           if (element.id) {
             setLatestSnapshotId(element.id);
             if (trackLatestSidePanel) {
