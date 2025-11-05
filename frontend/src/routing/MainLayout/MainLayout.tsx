@@ -3,7 +3,6 @@ import SidebarMenu from "../../modules/SidebarMenu/SidebarMenu";
 import styles from "./Layout.module.scss";
 import ToastComponent from "../../modules/toastModule/ToastComponent";
 import TitleBarMenu from "../../modules/TopbarMenu/TitleBarMenu";
-import { RightSidePanelContextProvider } from "../../modules/RightSidebar/context/RightSidePanelContext";
 import { RightSidePanel } from "../../modules/RightSidebar/RightSidePanel";
 
 interface Props {
@@ -18,9 +17,7 @@ const MainLayout = ({ children }: Props) => {
         <TitleBarMenu />
         <div className={styles.rightsidePanelWrapper}>
           <div className={styles.contentWrapper}>{children}</div>
-          <RightSidePanelContextProvider>
-            <RightSidePanel />
-          </RightSidePanelContextProvider>
+          <RightSidePanel />
         </div>
       </div>
       <ToastComponent />
