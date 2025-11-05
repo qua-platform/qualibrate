@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import MainLayout from "../MainLayout/MainLayout";
-import { useMainPageContext } from "../MainPageContext";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../../common/modules";
 import { DATA_KEY, GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY, PROJECT_KEY } from "../ModulesRegistry";
@@ -15,6 +14,9 @@ import styles from "./MainPage.module.scss";
 import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
 import { getIsAuthorized } from "../../stores/AuthStore/selectors";
 import { getActiveProject, getShouldGoToProjectPage } from "../../stores/ProjectStore/selectors";
+import { getActivePage, getOpenedOncePages } from "../../stores/NavigationStore/selectors";
+import { setActivePage } from "../../stores/NavigationStore/actions";
+import { useRootDispatch } from "../../stores";
 
 const PageWrapper = ({
   nodeKey,
@@ -23,7 +25,8 @@ const PageWrapper = ({
   nodeKey: ModuleKey
   children: React.ReactNode
 }) => {
-  const { activePage, openedOncePages } = useMainPageContext();
+  const activePage = useSelector(getActivePage);
+  const openedOncePages = useSelector(getOpenedOncePages);
 
   return openedOncePages.includes(nodeKey)
     ? <div className={classNames(styles.pageWrapper, activePage === nodeKey && styles.active)}>
@@ -34,7 +37,8 @@ const PageWrapper = ({
 
 const MainPage = () => {
   const isAuthorized = useSelector(getIsAuthorized);
-  const { setActivePage, openedOncePages } = useMainPageContext();
+  const dispatch = useRootDispatch();
+  const openedOncePages = useSelector(getOpenedOncePages);
   const activeProject = useSelector(getActiveProject);
   const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
   const navigate = useNavigate();
@@ -73,9 +77,9 @@ const MainPage = () => {
     if (!isAuthorized) {
       navigate(LOGIN_URL);
     } else if (!activeProject || shouldGoToProjectPage) {
-      setActivePage(PROJECT_KEY);
+      dispatch(setActivePage(PROJECT_KEY));
     } else {
-      setActivePage(NODES_KEY);
+      dispatch(setActivePage(NODES_KEY));
     }
   }, [isAuthorized, activeProject, shouldGoToProjectPage]);
 

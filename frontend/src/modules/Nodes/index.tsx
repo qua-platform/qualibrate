@@ -5,20 +5,21 @@ import { NodeElementList } from "./components/NodeElement/NodeElementList";
 import { RunningJob } from "./components/RunningJob/RunningJob";
 import { Results } from "./components/Results/Results";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
-import { useMainPageContext } from "../../routing/MainPageContext";
 import { CircularProgress } from "@mui/material";
 import { useWebSocketData } from "../../contexts/WebSocketContext";
 import { useSelector } from "react-redux";
 import { useRootDispatch } from "../../stores";
 import { fetchAllNodes } from "../../stores/NodesStore/actions";
 import { getIsRescanningNodes, getResults } from "../../stores/NodesStore/selectors";
+import { getTopBarAdditionalComponents } from "../../stores/NavigationStore/selectors";
+import { setTopBarAdditionalComponents } from "../../stores/NavigationStore/actions";
 
 export const NodesPage = () => {
   const { runStatus } = useWebSocketData();
   const dispatch = useRootDispatch();
-  const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useMainPageContext();
   const isRescanningNodes = useSelector(getIsRescanningNodes);
   const results = useSelector(getResults);
+  const topBarAdditionalComponents = useSelector(getTopBarAdditionalComponents);
 
   const NodeTopBarRefreshButton = () => {
     return (
@@ -28,7 +29,7 @@ export const NodesPage = () => {
     );
   };
   useEffect(() => {
-    setTopBarAdditionalComponents({ ...topBarAdditionalComponents, nodes: <NodeTopBarRefreshButton /> });
+    dispatch(setTopBarAdditionalComponents({ ...topBarAdditionalComponents, nodes: <NodeTopBarRefreshButton /> }));
   }, []);
 
   return (

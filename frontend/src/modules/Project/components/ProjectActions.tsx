@@ -5,11 +5,11 @@ import styles from "../Project.module.scss";
 import { ProjectDTO } from "../ProjectDTO";
 import BlueButton from "../../../ui-lib/components/Button/BlueButton";
 import cyKeys from "../../../utils/cyKeys";
-import { useMainPageContext } from "../../../routing/MainPageContext";
 import { useSnapshotsContext } from "../../Snapshots/context/SnapshotsContext";
 import { NODES_KEY } from "../../../routing/ModulesRegistry";
 import { useRootDispatch } from "../../../stores";
 import { selectActiveProject } from "../../../stores/ProjectStore/actions";
+import { setActivePage } from "../../../stores/NavigationStore/actions";
 
 interface ProjectActionsProps {
   isCurrentProject: boolean;
@@ -19,7 +19,6 @@ interface ProjectActionsProps {
 
 const ProjectActions: React.FC<ProjectActionsProps> = ({ isCurrentProject, projectName, selectedProject }) => {
   const dispatch = useRootDispatch();
-  const { setActivePage } = useMainPageContext();
   const { reset, setReset, setSelectedSnapshotId, setAllSnapshots, setJsonData, setResult, setDiffData } = useSnapshotsContext();
 
   const handleSubmit = useCallback(() => {
@@ -32,7 +31,7 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({ isCurrentProject, proje
     setDiffData(undefined);
     setReset(true);
 
-    setActivePage(NODES_KEY);
+    dispatch(setActivePage(NODES_KEY));
   }, [
     selectedProject,
     dispatch,

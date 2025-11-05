@@ -2,17 +2,18 @@ import React, { useCallback, useEffect } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphLibrary.module.scss";
 import { GraphList } from "./components/GraphList";
-import { useMainPageContext } from "../../routing/MainPageContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { CircularProgress } from "@mui/material";
 import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary/actions";
 import { getIsRescanningGraphs } from "../../stores/GraphStores/GraphLibrary/selectors";
 import { useRootDispatch } from "../../stores";
 import { useSelector } from "react-redux";
+import { getTopBarAdditionalComponents } from "../../stores/NavigationStore/selectors";
+import { setTopBarAdditionalComponents } from "../../stores/NavigationStore/actions";
 
 export const GraphLibrary = () => {
-  const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useMainPageContext();
   const dispatch = useRootDispatch();
+  const topBarAdditionalComponents = useSelector(getTopBarAdditionalComponents);
   const isRescanningGraphs = useSelector(getIsRescanningGraphs);
 
   const GraphLibraryTopBarRefreshButton = () => {
@@ -24,10 +25,10 @@ export const GraphLibrary = () => {
     );
   };
   useEffect(() => {
-    setTopBarAdditionalComponents({
+    dispatch(setTopBarAdditionalComponents({
       ...topBarAdditionalComponents,
       "graph-library": <GraphLibraryTopBarRefreshButton />,
-    });
+    }));
   }, []);
   return (
     <div className={styles.wrapper}>

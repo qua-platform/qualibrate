@@ -1,5 +1,4 @@
 import React, { PropsWithChildren, ReactNode, useEffect } from "react";
-import { MainPageContextProvider } from "./routing/MainPageContext";
 import "./assets/styles/index.scss";
 import "./assets/styles/_base.scss";
 import AppRoutes from "./routing/AppRoutes";
@@ -17,7 +16,6 @@ type ProviderComponent = React.FC<PropsWithChildren<ReactNode>>;
 const RouterProvider = process.env.USE_RELATIVE_PATHS === "true" ? HashRouter : BrowserRouter;
 
 const contextProviders: ProviderComponent[] = [
-  MainPageContextProvider,
   RouterProvider,
   SnapshotsContextProvider,
 ];

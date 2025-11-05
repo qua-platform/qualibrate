@@ -4,20 +4,21 @@ import styles from "./styles/TitleBarNodeCard.module.scss";
 import { classNames } from "../../../utils/classnames";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarTooltipContent from "./TitleBarNodeTooltipContent";
-import { useMainPageContext } from "../../../routing/MainPageContext";
 import { StatusIndicator } from "./TitleBarStatusIndicator";
 import { getStatusLabelElement } from "./TitleBarGetStatusLabelElement";
 import { capitalize, formatTime, getWrapperClass } from "../helpers";
 import { DEFAULT_TOOLTIP_SX } from "../constants";
 import { useWebSocketData } from "../../../contexts/WebSocketContext";
 import { NODES_KEY } from "../../../routing/ModulesRegistry";
+import { setActivePage } from "../../../stores/NavigationStore/actions";
+import { useRootDispatch } from "../../../stores";
 
 const TitleBarNodeCard: React.FC = () => {
-  const { setActivePage } = useMainPageContext();
+  const dispatch = useRootDispatch();
   const { runStatus } = useWebSocketData();
 
   const handleOnClick = useCallback(() => {
-    setActivePage(NODES_KEY);
+    dispatch(setActivePage(NODES_KEY));
   }, [setActivePage]);
 
   return (

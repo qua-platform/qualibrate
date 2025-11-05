@@ -12,22 +12,25 @@ import QUAlibrateLogoSmallIcon from "../../ui-lib/Icons/QualibrateLogoSmall";
 import ExpandSideMenuIcon from "../../ui-lib/Icons/ExpandSideMenuIcon";
 import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
 import ProjectFolderIcon from "../../ui-lib/Icons/ProjectFolderIcon";
-import { useMainPageContext } from "../../routing/MainPageContext";
 import { extractInitials, getColorIndex } from "../Project/helpers";
 import { colorPalette } from "../Project/constants";
 import { useSelector } from "react-redux";
 import { getActiveProject, getShouldGoToProjectPage } from "../../stores/ProjectStore/selectors";
+import { getActivePage } from "../../stores/NavigationStore/selectors";
+import { setActivePage } from "../../stores/NavigationStore/actions";
+import { useRootDispatch } from "../../stores";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const [minify, setMinify] = useState(false);
-  const { activePage, setActivePage } = useMainPageContext();
+  const dispatch = useRootDispatch();
+  const activePage = useSelector(getActivePage);
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
   const activeProject = useSelector(getActiveProject);
   const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
 
   const handleProjectClick = useCallback(() => {
-    setActivePage(PROJECT_KEY);
+    dispatch(setActivePage(PROJECT_KEY));
   }, [setActivePage]);
 
   const handleHelpClick = useCallback(() => {
@@ -53,7 +56,7 @@ const SidebarMenu: React.FunctionComponent = () => {
                   {...item}
                   key={item.keyId}
                   hideText={minify}
-                  onClick={() => setActivePage(item.keyId)}
+                  onClick={() => dispatch(setActivePage(item.keyId))}
                   isSelected={activePage === item.keyId}
                   isDisabled={!activeProject || shouldGoToProjectPage}
                   data-testid={`menu-item-${item.keyId}`}

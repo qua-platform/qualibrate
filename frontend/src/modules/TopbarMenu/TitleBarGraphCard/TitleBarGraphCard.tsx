@@ -5,20 +5,21 @@ import TitleBarNodeCard from "../TitleBarNodeCard/TitleBarNodeCard";
 import StopButtonIcon from "../../../ui-lib/Icons/StopButtonIcon";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
-import { useMainPageContext } from "../../../routing/MainPageContext";
 import { capitalize, formatTime, getStatusClass, getWrapperClass } from "../helpers";
 import { DEFAULT_TOOLTIP_SX } from "../constants";
 import { StatusIndicator } from "../TitleBarNodeCard/TitleBarStatusIndicator";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
 import { useWebSocketData } from "../../../contexts/WebSocketContext";
 import { GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY } from "../../../routing/ModulesRegistry";
+import { setActivePage } from "../../../stores/NavigationStore/actions";
+import { useRootDispatch } from "../../../stores";
 
 const TitleBarGraphCard: React.FC = () => {
   const { runStatus } = useWebSocketData();
-  const { setActivePage } = useMainPageContext();
+  const dispatch = useRootDispatch();
 
   const handleOnClick = useCallback(() => {
-    setActivePage(runStatus?.graph?.status === "pending" ? GRAPH_LIBRARY_KEY : GRAPH_STATUS_KEY);
+    dispatch(setActivePage(runStatus?.graph?.status === "pending" ? GRAPH_LIBRARY_KEY : GRAPH_STATUS_KEY));
   }, [setActivePage, runStatus?.graph?.status]);
 
   const renderElapsedTime = (time: number) => (

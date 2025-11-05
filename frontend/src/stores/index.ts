@@ -4,12 +4,14 @@ import { useDispatch } from "react-redux";
 import projectsReducer from "./ProjectStore/ProjectStore";
 import { graphStore } from "./GraphStores/index";
 import nodesReducer from "./NodesStore/NodesStore";
+import navigationReducer from "./NavigationStore/NavigationStore";
 
 export const rootReducer = combineReducers({
   auth: authReducer,
   projects: projectsReducer,
   graph: graphStore,
   nodes: nodesReducer,
+  navigation: navigationReducer
 })
 
 const store = configureStore({

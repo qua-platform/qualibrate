@@ -21,7 +21,6 @@ import { ParameterList } from "../../../common/Parameters/ParameterList";
 import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
 import { GraphLibraryApi } from "../../api/GraphLibraryApi";
 import { NodeDTO } from "../../../Nodes/components/NodeElement/NodeElement";
-import { useMainPageContext } from "../../../../routing/MainPageContext";
 import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
@@ -30,6 +29,7 @@ import { getAllGraphs, getLastRunInfo, getSelectedWorkflowName } from "../../../
 import { fetchWorkflowGraph, setAllGraphs, setLastRunInfo, setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphLibrary/actions";
 import { useRootDispatch } from "../../../../stores";
 import { getWorkflowGraphElements } from "../../../../stores/GraphStores/GraphCommon/selectors";
+import { setActivePage } from "../../../../stores/NavigationStore/actions";
 
 export interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -52,7 +52,6 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   const allGraphs = useSelector(getAllGraphs);
   const selectedWorkflowName = useSelector(getSelectedWorkflowName);
   const lastRunInfo = useSelector(getLastRunInfo);
-  const { setActivePage } = useMainPageContext();
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string, workflow?: NodeDTO | GraphWorkflow) => {
     const updatedParameters = {
@@ -142,7 +141,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
       const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
       if (response.isOk) {
         setErrorObject(undefined);  // This is a bugfix - previously it didn't clear errorObject on success
-        setActivePage(GRAPH_STATUS_KEY);
+        dispatch(setActivePage(GRAPH_STATUS_KEY));
       } else {
         setErrorObject(response.error);
       }

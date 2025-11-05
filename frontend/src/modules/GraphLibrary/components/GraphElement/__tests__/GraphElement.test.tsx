@@ -4,12 +4,12 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { GraphElement } from "../GraphElement";
 import { createTestProviders } from "@/test-utils/providers";
 import * as GraphLibraryApiModule from "../../../api/GraphLibraryApi";
-import { useMainPageContext } from "../../../../../routing/MainPageContext";
 import { setAllGraphs, setSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/actions";
 import { setWorkflowGraphElements } from "@/stores/GraphStores/GraphCommon/actions";
 import { getAllGraphs, getLastRunInfo, getSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/selectors";
 import { server } from "@/test-utils/mocks/server";
 import { http, HttpResponse } from "msw";
+import { getActivePage } from "@/stores/NavigationStore/selectors";
 
 // Mock CytoscapeGraph to avoid Cytoscape dependencies
 vi.mock("../../CytoscapeGraph/CytoscapeGraph", () => ({
@@ -17,15 +17,6 @@ vi.mock("../../CytoscapeGraph/CytoscapeGraph", () => ({
     <div data-testid="cytoscape-graph">Cytoscape Graph with {elements?.length || 0} elements</div>
   ),
 }));
-
-// Mock FlexLayoutContext
-vi.mock("../../../../../routing/MainPageContext", async () => {
-  const actual = await vi.importActual("../../../../../routing/MainPageContext");
-  return {
-    ...actual,
-    useMainPageContext: vi.fn(),
-  };
-});
 
 describe("GraphElement - Parameter Management", () => {
   const mockGraph = {
@@ -80,15 +71,6 @@ describe("GraphElement - Parameter Management", () => {
         })
       })
     );
-
-    // Setup FlexLayout mock
-    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      setActivePage: vi.fn(),
-      activePage: null,
-      openedOncePages: [],
-      topBarAdditionalComponents: undefined,
-      setTopBarAdditionalComponents: vi.fn(),
-    });
   });
 
   it("should display graph parameters when selected", async () => {
@@ -253,14 +235,6 @@ describe("GraphElement - Workflow Submission", () => {
         })
       })
     );
-
-    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      setActivePage: vi.fn(),
-      activePage: null,
-      openedOncePages: [],
-      topBarAdditionalComponents: undefined,
-      setTopBarAdditionalComponents: vi.fn(),
-    });
   });
 
   it("should submit workflow with transformed parameters", async () => {
@@ -328,16 +302,6 @@ describe("GraphElement - Workflow Submission", () => {
     const mockSubmit = vi.fn().mockResolvedValue({ isOk: true });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "submitWorkflow").mockImplementation(mockSubmit);
 
-    const mockSetActivePage = vi.fn();
-
-    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      setActivePage: mockSetActivePage,
-      activePage: null,
-      openedOncePages: [],
-      topBarAdditionalComponents: undefined,
-      setTopBarAdditionalComponents: vi.fn(),
-    });
-
     const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
@@ -360,7 +324,7 @@ describe("GraphElement - Workflow Submission", () => {
 
     // Verify tab navigation
     await waitFor(() => {
-      expect(mockSetActivePage).toHaveBeenCalledWith("graph-status");
+      expect(getActivePage(mockStore.getState())).toBe("graph-status");
     });
   });
 
@@ -457,14 +421,6 @@ describe("GraphElement - UI Interactions", () => {
         })
       })
     );
-
-    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      setActivePage: vi.fn(),
-      activePage: null,
-      openedOncePages: [],
-      topBarAdditionalComponents: undefined,
-      setTopBarAdditionalComponents: vi.fn(),
-    });
   });
 
   it("should expand when selected", async () => {
@@ -605,19 +561,6 @@ describe("GraphElement - Error Handling", () => {
         })
       })
     );
-
-    (useMainPageContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      setActivePage: vi.fn(),
-      activePage: null,
-      openedOncePages: [],
-      topBarAdditionalComponents: undefined,
-      setTopBarAdditionalComponents: vi.fn(),
-      // setActivePage: vi.fn(),
-      // activePage: null,
-      // openedOncePages: [],
-      // topBarAdditionalComponents: undefined,
-      // setTopBarAdditionalComponents: vi.fn(),
-    });
   });
 
   it("should show GraphElementErrorWrapper on API error", async () => {
