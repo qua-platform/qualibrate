@@ -18,12 +18,12 @@ from quam.examples.superconducting_qubits.generate_superconducting_quam import (
 from quam.examples.superconducting_qubits.components import Quam
 
 
-def main():
+def main() -> None:
     """Generate and save demo QUAM state."""
     # Get the package directory
     package_dir = Path(__file__).parent.parent
     state_dir = package_dir / "demo_state"
-    state_dir.mkdir(exist_ok=True)
+    state_dir.mkdir(parents=True, exist_ok=True)
 
     # Create QUAM with 3 qubits (q0, q1, q2)
     print("Creating demo QUAM state with 3 qubits...")
@@ -31,7 +31,7 @@ def main():
 
     # Save the state
     print(f"Saving state to {state_dir}...")
-    quam.save(state_dir, content_mapping={"wiring.json": "wiring"})
+    quam.save(state_dir)
 
     # Also save QUA config for reference
     qua_config_file = state_dir / "qua_config.json"
@@ -42,7 +42,6 @@ def main():
     print("Demo state created successfully!")
     print(f"\nState files:")
     print(f"  - {state_dir / 'state.json'}")
-    print(f"  - {state_dir / 'wiring.json'}")
     print(f"  - {state_dir / 'qua_config.json'}")
     print("\nTo load the state in your calibration:")
     print("  from quam.examples.superconducting_qubits.components import Quam")
