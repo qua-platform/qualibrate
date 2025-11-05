@@ -60,8 +60,6 @@ class BasicOrchestrator(
             return True
         if self._execution_queue.qsize() == 0:
             return True
-        if self.targets is None or len(self.targets) == 0:
-            return True
         return all(
             map(
                 lambda status: status != ElementRunStatus.pending,
@@ -131,6 +129,43 @@ class BasicOrchestrator(
                 return element_to_run
         return None
 
+    def _get_in_targets_for_element(
+        self, element: GraphElementTypeVar
+    ) -> Sequence[TargetType]:
+        predecessors = list(self.nx_graph.predecessors(element))
+        if len(predecessors) == 0:
+            return self.initial_targets or []
+
+        targets_lst = [
+            set(
+                self.nx_graph.edges[pred, element].get(
+                    QualibrationGraph.EDGE_TARGETS_FIELD, []
+                )
+            )
+            for pred in predecessors
+        ]
+        targets = set.intersection(*targets_lst)
+        return list(targets)
+
+    def _set_out_targets_for_element(
+        self,
+        element: GraphElementTypeVar,
+    ) -> None:
+        summary = element.run_summary
+        if summary is None:
+            raise RuntimeError(
+                f"Can't set out targets of {element} without run summary"
+            )
+        out_targets = (
+            summary.successful_targets
+            if self._parameters.skip_failed
+            else summary.initial_targets
+        )
+        for successor in self.nx_graph.successors(element):
+            self.nx_graph.edges[element, successor][
+                QualibrationGraph.EDGE_TARGETS_FIELD
+            ] = out_targets
+
     def traverse_graph(
         self,
         graph: QualibrationGraph[GraphElementTypeVar],
@@ -156,7 +191,6 @@ class BasicOrchestrator(
             logger.exception("", exc_info=ex)
             raise ex
         self.initial_targets = list(targets[:]) if targets else []
-        self.targets = self.initial_targets.copy()
         nodes_parameters = graph.full_parameters.nodes
         nx_graph = self.nx_graph
         predecessors = nx_graph.pred
@@ -181,7 +215,9 @@ class BasicOrchestrator(
             run_error: RunError | None = None
             try:
                 self._active_element = element_to_run
-                element_to_run_parameters.targets = self.targets
+                element_to_run_parameters.targets = (
+                    self._get_in_targets_for_element(element_to_run)
+                )
                 if isinstance(element_to_run, QualibrationNode):
                     element_parameters = element_to_run_parameters.model_dump()
                 else:
@@ -199,8 +235,7 @@ class BasicOrchestrator(
                 element_results = element_to_run.run(
                     interactive=False, **element_parameters
                 )
-                if self._parameters.skip_failed:
-                    self.targets = element_results.successful_targets
+                self._set_out_targets_for_element(element_to_run)
                 logger.debug(f"Element completed. Result: {element_results}")
             except Exception as ex:
                 new_status = ElementRunStatus.error
