@@ -1,5 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "..";
+import { GRAPH_LIBRARY_KEY, NODES_KEY } from "../../routing/ModulesRegistry";
 
 export const getNavigationState = (state: RootState) => state.navigation
 
@@ -13,7 +14,7 @@ export const getOpenedOncePages = createSelector(
   (navigationState) => navigationState.openedOncePages
 )
 
-export const getTopBarAdditionalComponents = createSelector(
-  getNavigationState,
-  (navigationState) => navigationState.topBarAdditionalComponents
+export const getIsRefreshButtonShown = createSelector(
+  getActivePage,
+  (activePage) => activePage && [NODES_KEY, GRAPH_LIBRARY_KEY].includes(activePage)
 )

@@ -5,7 +5,10 @@ import modulesMap, { PROJECT_KEY } from "../../routing/ModulesRegistry";
 import PageName from "../../common/ui-components/common/Page/PageName";
 import TitleBarGraphCard from "./TitleBarGraphCard/TitleBarGraphCard";
 import { useSelector } from "react-redux";
-import { getActivePage, getTopBarAdditionalComponents } from "../../stores/NavigationStore/selectors";
+import { getActivePage, getIsRefreshButtonShown } from "../../stores/NavigationStore/selectors";
+import BlueButton from "../../ui-lib/components/Button/BlueButton";
+import { useRootDispatch } from "../../stores";
+import { refreshPage } from "../../stores/NavigationStore/actions";
 
 const TopBar: React.FC = () => {
   const activePage = useSelector(getActivePage);
@@ -14,13 +17,16 @@ const TopBar: React.FC = () => {
 };
 
 const TitleBarMenu: React.FC = () => {
+  const dispatch = useRootDispatch();
   const activePage = useSelector(getActivePage);
-  const topBarAdditionalComponents = useSelector(getTopBarAdditionalComponents);
+  const IsRefreshButtonShown = useSelector(getIsRefreshButtonShown);
 
   return (
     <div className={styles.wrapper}>
       <PageName>{modulesMap[activePage ?? ""]?.menuItem?.title ?? ""}</PageName>
-      {topBarAdditionalComponents && topBarAdditionalComponents[activePage ?? ""]}
+      {IsRefreshButtonShown && <div className={styles.refreshButtonWrapper} data-testid="refresh-button">
+        <BlueButton onClick={() => dispatch(refreshPage())}>Refresh</BlueButton>
+      </div>}
       <div className={styles.menuCardsWrapper}>
         <TopBar />
       </div>

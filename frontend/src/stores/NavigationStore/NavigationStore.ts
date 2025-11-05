@@ -1,15 +1,14 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { ModuleKey } from "@/routing/ModulesRegistry";
+import { createSlice } from "@reduxjs/toolkit";
 
 export interface NavigationState {
-  activePage: null | string,
-  openedOncePages: string[],
-  topBarAdditionalComponents: { [id: string]: React.JSX.Element },
+  activePage: null | ModuleKey,
+  openedOncePages: ModuleKey[],
 }
 
 const initialState: NavigationState = {
   activePage: null,
   openedOncePages: [],
-  topBarAdditionalComponents: {},
 };
 
 export const navigationSlice = createSlice({
@@ -19,9 +18,6 @@ export const navigationSlice = createSlice({
     setActivePage: (state, action) => {
       state.activePage = action.payload;
       state.openedOncePages = [...state.openedOncePages, action.payload];
-    },
-    setTopBarAdditionalComponents: (state, action) => {
-      state.topBarAdditionalComponents = action.payload;
     },
   }
 });
