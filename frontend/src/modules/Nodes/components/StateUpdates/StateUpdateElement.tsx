@@ -1,25 +1,27 @@
 import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
-import { RunningNodeInfo, StateUpdateObject } from "../../context/NodesContext";
 import { CircularProgress } from "@mui/material";
 import { CheckMarkBeforeIcon } from "../../../../ui-lib/Icons/CheckMarkBeforeIcon";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { CheckMarkAfterIcon } from "../../../../ui-lib/Icons/CheckMarkAfterIcon";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 import { ValueRow } from "./ValueRow";
+import { setRunningNodeInfo } from "../../../../stores/NodesStore/actions";
+import { useRootDispatch } from "../../../../stores";
+import { RunningNodeInfo, StateUpdateObject } from "../../../../stores/NodesStore/NodesStore";
 
 export interface StateUpdateProps {
   stateKey: string;
   index: number;
   stateUpdateObject: StateUpdateObject;
   runningNodeInfo?: RunningNodeInfo;
-  setRunningNodeInfo?: (a: RunningNodeInfo) => void;
   updateAllButtonPressed: boolean;
 }
 
 export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
-  const { stateKey, index, stateUpdateObject, runningNodeInfo, setRunningNodeInfo, updateAllButtonPressed } = props;
+  const dispatch = useRootDispatch();
+  const { stateKey, index, stateUpdateObject, runningNodeInfo, updateAllButtonPressed } = props;
   const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
   const [customValue, setCustomValue] = useState<string | number>(JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? ""));
@@ -36,12 +38,10 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
       if (response.isOk && response.result && trackLatestSidePanel) {
         fetchOneSnapshot(Number(latestSnapshotId), Number(secondId), false, true);
       }
-      if (setRunningNodeInfo) {
-        setRunningNodeInfo({
-          ...runningNodeInfo,
-          state_updates: { ...runningNodeInfo.state_updates, [stateKey]: stateUpdate },
-        });
-      }
+      dispatch(setRunningNodeInfo({
+        ...runningNodeInfo,
+        state_updates: { ...runningNodeInfo.state_updates, [stateKey]: stateUpdate },
+      }));
       setParameterUpdated(response.result!);
       setRunningUpdate(false);
     }

@@ -3,11 +3,13 @@ import authReducer from "./AuthStore/AuthStore";
 import { useDispatch } from "react-redux";
 import projectsReducer from "./ProjectStore/ProjectStore";
 import { graphStore } from "./GraphStores/index";
+import nodesReducer from "./NodesStore/NodesStore";
 
 export const rootReducer = combineReducers({
   auth: authReducer,
   projects: projectsReducer,
   graph: graphStore,
+  nodes: nodesReducer,
 })
 
 const store = configureStore({

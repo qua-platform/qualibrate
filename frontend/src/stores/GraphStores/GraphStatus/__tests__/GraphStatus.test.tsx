@@ -152,13 +152,6 @@ describe("GraphStatus - Context Coordination", () => {
       setSelectedSnapshotId: vi.fn(),
       setClickedForSnapshotSelection: vi.fn(),
     });
-
-    // Mock SelectionContext
-    const { useSelectionContext } = await import("../../../../modules/common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: undefined,
-      setSelectedItemName: vi.fn(),
-    });
   });
 
   it("should fetch measurements on mount", async () => {
@@ -183,12 +176,6 @@ describe("GraphStatus - Context Coordination", () => {
 
   it("should sync selection across contexts", async () => {
     const mockSetSelectedItemName = vi.fn();
-
-    const { useSelectionContext } = await import("../../../../modules/common/context/SelectionContext");
-    (useSelectionContext as ReturnType<typeof vi.fn>).mockReturnValue({
-      selectedItemName: "test_node",
-      setSelectedItemName: mockSetSelectedItemName,
-    });
 
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event

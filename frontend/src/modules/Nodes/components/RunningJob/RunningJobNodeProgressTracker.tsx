@@ -3,17 +3,20 @@ import React from "react";
 import styles from "./RunningJob.module.scss";
 import LoadingBar from "../../../../ui-lib/components/Bar/LoadingBar";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
-import { useNodesContext } from "../../context/NodesContext";
 import { RunningJobStatusLabel } from "./RunningJobStatusLabel";
 import { RunningJobStatusVisuals } from "./RunningJobStatusVisuals";
+import { setIsNodeRunning } from "../../../../stores/NodesStore/actions";
+import { useRootDispatch } from "../../../../stores";
+import { useWebSocketData } from "../../../../contexts/WebSocketContext";
 
 export const RunningJobNodeProgressTracker: React.FC = () => {
-  const { setIsNodeRunning, runStatus } = useNodesContext();
+  const dispatch = useRootDispatch();
+  const { runStatus } = useWebSocketData();
 
   const handleStopClick = async () => {
     const res = await SnapshotsApi.stopNodeRunning();
     if (res.isOk && res.result) {
-      setIsNodeRunning(false);
+      dispatch(setIsNodeRunning(false));
     }
   };
 

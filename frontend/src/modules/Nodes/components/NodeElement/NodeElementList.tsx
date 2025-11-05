@@ -8,8 +8,9 @@ import React from "react";
 import { NodeElement } from "./NodeElement";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../../NodesPage.module.scss";
-import { useNodesContext } from "../../context/NodesContext";
 import LoaderPage from "../../../../ui-lib/loader/LoaderPage";
+import { useSelector } from "react-redux";
+import { getAllNodes, getIsRescanningNodes } from "../../../../stores/NodesStore/selectors";
 
 /**
  * Render list of all calibration nodes with loading state handling.
@@ -19,7 +20,8 @@ import LoaderPage from "../../../../ui-lib/loader/LoaderPage";
  * node as an interactive NodeElement.
  */
 export const NodeElementList: React.FC = () => {
-  const { allNodes, isRescanningNodes } = useNodesContext();
+  const allNodes = useSelector(getAllNodes);
+  const isRescanningNodes = useSelector(getIsRescanningNodes);
 
   if (isRescanningNodes) {
     return <LoaderPage />;

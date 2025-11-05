@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import ProjectList from "./components/ProjectList";
 import { ProjectDTO } from "./ProjectDTO";
 import InputField from "../../common/ui-components/common/Input/InputField";
-import { useNodesContext } from "../Nodes/context/NodesContext";
 import LoaderPage from "../../ui-lib/loader/LoaderPage";
 import LoadingBar from "../../ui-lib/loader/LoadingBar";
 import { NoItemsIcon } from "../../ui-lib/Icons/NoItemsIcon";
@@ -16,13 +15,13 @@ import { getActiveProject, getAllProjects, getIsScanningProjects } from "../../s
 import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary/actions";
 import { useRootDispatch } from "../../stores";
 import { setWorkflowGraphElements } from "../../stores/GraphStores/GraphCommon/actions";
+import { fetchAllNodes } from "../../stores/NodesStore/actions";
 
 const Project = () => {
   const dispatch = useRootDispatch();
   const allProjects = useSelector(getAllProjects);
   const activeProject = useSelector(getActiveProject);
   const isScanningProjects = useSelector(getIsScanningProjects);
-  const { fetchAllNodes } = useNodesContext();
   const [listedProjects, setListedProjects] = useState<ProjectDTO[]>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
@@ -33,7 +32,7 @@ const Project = () => {
   useEffect(() => {
     if (activeProject) {
       dispatch(setWorkflowGraphElements(undefined));
-      fetchAllNodes();
+      dispatch(fetchAllNodes());
       dispatch(fetchAllCalibrationGraphs());
     }
   }, [activeProject]);

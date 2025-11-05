@@ -1,24 +1,29 @@
 import React, { useEffect } from "react";
-import { useNodesContext } from "./context/NodesContext";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../Nodes/NodesPage.module.scss";
 import { NodeElementList } from "./components/NodeElement/NodeElementList";
 import { RunningJob } from "./components/RunningJob/RunningJob";
 import { Results } from "./components/Results/Results";
-import { SelectionContextProvider } from "../common/context/SelectionContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { useMainPageContext } from "../../routing/MainPageContext";
 import { CircularProgress } from "@mui/material";
 import { useWebSocketData } from "../../contexts/WebSocketContext";
+import { useSelector } from "react-redux";
+import { useRootDispatch } from "../../stores";
+import { fetchAllNodes } from "../../stores/NodesStore/actions";
+import { getIsRescanningNodes, getResults } from "../../stores/NodesStore/selectors";
 
 export const NodesPage = () => {
   const { runStatus } = useWebSocketData();
-  const { fetchAllNodes, isRescanningNodes, results } = useNodesContext();
+  const dispatch = useRootDispatch();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useMainPageContext();
+  const isRescanningNodes = useSelector(getIsRescanningNodes);
+  const results = useSelector(getResults);
+
   const NodeTopBarRefreshButton = () => {
     return (
       <div className={styles.refreshButtonWrapper} data-testid="refresh-button">
-        <BlueButton onClick={() => fetchAllNodes(true)}>Refresh</BlueButton>
+        <BlueButton onClick={() => dispatch(fetchAllNodes(true))}>Refresh</BlueButton>
       </div>
     );
   };
@@ -59,8 +64,4 @@ export const NodesPage = () => {
   );
 };
 
-export default () => (
-  <SelectionContextProvider>
-    <NodesPage />
-  </SelectionContextProvider>
-);
+export default NodesPage;

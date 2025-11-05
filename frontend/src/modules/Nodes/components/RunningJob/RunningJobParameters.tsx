@@ -1,10 +1,11 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
-import { useNodesContext } from "../../context/NodesContext";
+import { useSelector } from "react-redux";
+import { getRunningNode } from "../../../../stores/NodesStore/selectors";
 
 export const RunningJobParameters: React.FC = () => {
-  const { runningNode } = useNodesContext();
+  const runningNode = useSelector(getRunningNode)
   return (
     <div className={styles.parametersWrapper} data-testid="parameters-wrapper">
       {/*{Object.entries(runningNode?.parameters ?? {}).length > 0 && (*/}

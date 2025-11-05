@@ -2,10 +2,11 @@ import { describe, it, expect } from "vitest";
 import React, { createContext } from "react";
 import { render, screen } from "@testing-library/react";
 import { NodeElementList } from "./NodeElementList";
-import { useNodesContext } from "../../context/NodesContext";
 import type { RunStatusType, HistoryType } from "../../../../contexts/WebSocketContext";
 import type { NodeMap } from "./NodeElement";
 import { createTestProviders } from "@/test-utils/providers";
+import { setAllNodes } from "../../../../stores/NodesStore/actions";
+import { useRootDispatch } from "../../../../stores";
 
 // Mock WebSocket context
 const WebSocketContext = createContext<{
@@ -26,11 +27,11 @@ const WebSocketContext = createContext<{
 
 // Helper component to set nodes in context
 const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
-  const { setAllNodes } = useNodesContext();
+  const dispatch = useRootDispatch();
 
   // Set nodes immediately
   React.useEffect(() => {
-    setAllNodes(nodes);
+    dispatch(setAllNodes(nodes));
   }, [nodes, setAllNodes]);
 
   return null;

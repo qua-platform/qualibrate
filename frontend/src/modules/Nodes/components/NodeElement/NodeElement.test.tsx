@@ -6,6 +6,7 @@ import { createTestProviders, WebSocketContext } from "@/test-utils/providers";
 import * as NodesAPI from "../../api/NodesAPI";
 import * as WebSocketContextModule from "../../../../contexts/WebSocketContext";
 import type { NodeExecution } from "../../../../contexts/WebSocketContext";
+import { setSelectedNode } from "../../../../stores/NodesStore/actions";
 
 // Mock useWebSocketData to use our test WebSocketContext
 vi.mock("../../../../contexts/WebSocketContext", async () => {
@@ -250,7 +251,7 @@ describe("NodeElement - Execution", () => {
   });
 
   it("should show spinner when node is running", async () => {
-    const { Providers } = createTestProviders({
+    const { Providers, mockStore } = createTestProviders({
       webSocket: {
         runStatus: {
           is_running: true,
@@ -259,10 +260,9 @@ describe("NodeElement - Execution", () => {
           graph: null
         }
       },
-      selection: {
-        selectedItemName: "test_cal" // Pre-select the node
-      }
     });
+    // Pre-select the node
+    mockStore.dispatch(setSelectedNode('test_cal'));
 
     render(
       <Providers>

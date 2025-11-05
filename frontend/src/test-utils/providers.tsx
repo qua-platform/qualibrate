@@ -3,8 +3,6 @@ import React, { createContext, useEffect } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
-import { NodesContextProvider } from "../modules/Nodes/context/NodesContext";
-import { SelectionContextProvider, useSelectionContext } from "../modules/common/context/SelectionContext";
 import { SnapshotsContextProvider } from "../modules/Snapshots/context/SnapshotsContext";
 import type { RunStatusType, HistoryType } from "../contexts/WebSocketContext";
 import { setSelectedNodeNameInWorkflow } from "../stores/GraphStores/GraphCommon/actions";
@@ -77,17 +75,8 @@ export const createTestProviders = (overrides: {
   // Helper component to set initial context values
   const ContextSetter = ({ children }: { children: React.ReactNode }) =>  {
     const dispatch = useRootDispatch();
-    const { setSelectedItemName } = useSelectionContext();
 
     useInitApp();
-    useEffect(() => {
-      if (overrides.selection?.selectedItemName !== undefined) {
-        setSelectedItemName(overrides.selection.selectedItemName || undefined);
-      }
-      if (overrides.selection?.setSelectedItemName) {
-        // Allow tests to override the setter function
-      }
-    }, [setSelectedItemName]);
 
     useEffect(() => {
       if (overrides.graph?.selectedNodeNameInWorkflow !== undefined) {
@@ -109,13 +98,9 @@ export const createTestProviders = (overrides: {
     <BrowserRouter>
       <Provider store={mockStore}>
         <WebSocketContext.Provider value={defaultWebSocketValue}>
-          <NodesContextProvider>
-            <SelectionContextProvider>
-              <SnapshotsContextProvider>
-                <ContextSetter>{children}</ContextSetter>
-              </SnapshotsContextProvider>
-            </SelectionContextProvider>
-          </NodesContextProvider>
+          <SnapshotsContextProvider>
+            <ContextSetter>{children}</ContextSetter>
+          </SnapshotsContextProvider>
         </WebSocketContext.Provider>
       </Provider>
     </BrowserRouter>

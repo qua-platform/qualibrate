@@ -1,13 +1,13 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
-import { useNodesContext } from "../../context/NodesContext";
 import { StateUpdates } from "../StateUpdates/StateUpdates";
 import { RunningJobNodeProgressTracker } from "./RunningJobNodeProgressTracker";
 import { RunningJobParameters } from "./RunningJobParameters";
+import { useWebSocketData } from "../../../../contexts/WebSocketContext";
 
 export const RunningJob: React.FC = () => {
-  const { runningNodeInfo, setRunningNodeInfo, updateAllButtonPressed, setUpdateAllButtonPressed, runStatus } = useNodesContext();
+  const { runStatus } = useWebSocketData()
 
   return (
     <div className={styles.wrapper} data-testid="running-job-wrapper">
@@ -17,12 +17,7 @@ export const RunningJob: React.FC = () => {
           <RunningJobParameters />
         </div>
         <div className={styles.statesColumnWrapper} data-testid="states-column-wrapper">
-          <StateUpdates
-            runningNodeInfo={runningNodeInfo}
-            setRunningNodeInfo={setRunningNodeInfo}
-            updateAllButtonPressed={updateAllButtonPressed}
-            setUpdateAllButtonPressed={setUpdateAllButtonPressed}
-          />
+          <StateUpdates />
         </div>
       </div>
     </div>

@@ -9,7 +9,6 @@ import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeCon
 import { createRoot } from "react-dom/client";
 import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsContext";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
-import { NodesContextProvider } from "./modules/Nodes/context/NodesContext";
 import { Provider } from "react-redux";
 import store from "./stores";
 
@@ -20,7 +19,6 @@ const RouterProvider = process.env.USE_RELATIVE_PATHS === "true" ? HashRouter : 
 const contextProviders: ProviderComponent[] = [
   MainPageContextProvider,
   RouterProvider,
-  NodesContextProvider,
   SnapshotsContextProvider,
 ];
 

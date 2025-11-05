@@ -3,8 +3,9 @@ import jp from "jsonpath";
 import { defineDataType, JsonViewer, Path } from "@textea/json-viewer";
 import InputField from "../../../common/ui-components/common/Input/InputField";
 import ToggleSwitch from "../../../common/ui-components/common/ToggleSwitch/ToggleSwitch";
-import { useNodesContext } from "../../Nodes/context/NodesContext";
 import Iframe from "../../../common/ui-components/common/Iframe/Iframe";
+import { useSelector } from "react-redux";
+import { getIsNodeRunning } from "../../../stores/NodesStore/selectors";
 
 interface IJSONEditorProps {
   title: string;
@@ -15,7 +16,7 @@ interface IJSONEditorProps {
 }
 
 export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, toggleSwitch = false }: IJSONEditorProps) => {
-  const { isNodeRunning } = useNodesContext();
+  const isNodeRunning = useSelector(getIsNodeRunning);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);
   const [activeTab, setActiveTab] = useState<string>("final");
