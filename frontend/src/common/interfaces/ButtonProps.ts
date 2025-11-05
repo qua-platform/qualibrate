@@ -13,7 +13,6 @@ export type ButtonProps = {
   textColor?: string;
   onSubmitType?: "button" | "reset" | "submit";
   hideText?: boolean;
-  showPopup?: PopupTypes;
   disabled?: boolean;
   iconRotation?: number;
 } & MinifyProp;

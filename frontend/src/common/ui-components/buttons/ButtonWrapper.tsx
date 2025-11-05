@@ -1,8 +1,7 @@
-import React, { useContext } from "react";
+import React from "react";
 import actionButtonStyles from "../buttons/styles/ActionButton.module.scss";
 import plainButtonStyles from "../buttons/styles/PlainButton.module.scss";
 import styles from "../buttons/styles/ButtonWrapper.module.scss";
-import InterfaceContext from "../../../contexts/InterfaceContext";
 import { BLUE_BUTTON } from "../../../utils/colors";
 import { classNames } from "../../../utils/classnames";
 import { ButtonTypes } from "../../interfaces/ButtonTypes";
@@ -38,14 +37,9 @@ const ButtonComponent: React.FunctionComponent<ButtonProps> = ({
   textColor,
   hideText = false,
   onSubmitType = "button",
-  showPopup,
   disabled = false,
   ...restProps
 }: ButtonProps) => {
-  const {
-    actions: { openPopup },
-  } = useContext(InterfaceContext);
-
   const renderButtonContent = () => {
     const textContent = !hideText ? actionName : "";
 
@@ -69,10 +63,6 @@ const ButtonComponent: React.FunctionComponent<ButtonProps> = ({
   const handleClick = () => {
     if (disabled) {
       return;
-    }
-
-    if (showPopup) {
-      openPopup(showPopup);
     }
 
     if (onClickCallback) {
