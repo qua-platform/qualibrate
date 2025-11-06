@@ -25,8 +25,8 @@ import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphEleme
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
 import { GRAPH_STATUS_KEY } from "../../../../routing/ModulesRegistry";
-import { getAllGraphs, getLastRunInfo, getSelectedWorkflowName } from "../../../../stores/GraphStores/GraphLibrary/selectors";
-import { fetchWorkflowGraph, setAllGraphs, setLastRunInfo, setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphLibrary/actions";
+import { getAllGraphs, getSelectedWorkflowName } from "../../../../stores/GraphStores/GraphLibrary/selectors";
+import { fetchWorkflowGraph, setAllGraphs, setLastRunActive, setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphLibrary/actions";
 import { useRootDispatch } from "../../../../stores";
 import { getWorkflowGraphElements } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import { setActivePage } from "../../../../stores/NavigationStore/actions";
@@ -51,7 +51,6 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   const workflowGraphElements = useSelector(getWorkflowGraphElements);
   const allGraphs = useSelector(getAllGraphs);
   const selectedWorkflowName = useSelector(getSelectedWorkflowName);
-  const lastRunInfo = useSelector(getLastRunInfo);
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string, workflow?: NodeDTO | GraphWorkflow) => {
     const updatedParameters = {
@@ -134,10 +133,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
    */
   const handleSubmit = async () => {
     if (selectedWorkflowName) {
-      dispatch(setLastRunInfo({
-        ...lastRunInfo,
-        active: true,
-      }));
+      dispatch(setLastRunActive());
       const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
       if (response.isOk) {
         setErrorObject(undefined);  // This is a bugfix - previously it didn't clear errorObject on success

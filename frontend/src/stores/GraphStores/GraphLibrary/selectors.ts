@@ -26,6 +26,21 @@ export const getLastRunInfo = createSelector(
   (libraryState) => libraryState.lastRunInfo
 )
 
+export const getLastRunNodeName = createSelector(
+  getLastRunInfo,
+  (lastRunInfo) => lastRunInfo?.activeNodeName
+)
+
+export const getLastRunWorkflowName = createSelector(
+  getLastRunInfo,
+  (lastRunInfo) => lastRunInfo?.workflowName
+)
+
+export const getLastRunError = createSelector(
+  getLastRunInfo,
+  (lastRunInfo) => lastRunInfo?.error
+)
+
 export const getIsRescanningGraphs = createSelector(
   getGraphLibraryState,
   (libraryState) => libraryState.isRescanningGraphs

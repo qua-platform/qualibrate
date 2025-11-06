@@ -50,6 +50,12 @@ export const graphLibrarySlice = createSlice({
     setLastRunInfo: (state, action) => {
       state.lastRunInfo = action.payload;
     },
+    setLastRunActive: (state) => {
+      state.lastRunInfo = {
+        ...state.lastRunInfo,
+        active: true
+      };
+    },
     setIsRescanningGraphs: (state, action) => {
       state.isRescanningGraphs = action.payload;
     },

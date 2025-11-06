@@ -18,14 +18,18 @@ import { setTrackLatest } from "../../../../../../stores/GraphStores/GraphStatus
 import { setSelectedNodeNameInWorkflow } from "../../../../../../stores/GraphStores/GraphCommon/actions";
 import { getTrackLatestSidePanel } from "../../../../../../stores/SnapshotsStore/selectors";
 import { fetchOneSnapshot, setDiffData, setLatestSnapshotId, setResult } from "../../../../../../stores/SnapshotsStore/actions";
+import { Measurement } from "@/stores/GraphStores/GraphStatus/GraphStatusStore";
 
 interface IMeasurementHistoryListProps {
   title?: string;
 }
 
 export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ title = "Execution history" }) => {
-  const dispatch = useRootDispatch()
-  const allMeasurements = useSelector(getAllMeasurements)
+  const dispatch = useRootDispatch();
+  const allMeasurements = useSelector(
+    getAllMeasurements,
+    (prev?: Measurement[], current?: Measurement[]) => JSON.stringify(prev) === JSON.stringify(current)
+  );
   const trackLatest = useSelector(getTrackLatest)
   const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
   const [latestId, setLatestId] = useState<number | undefined>();

@@ -11,6 +11,7 @@ export const {
   setSelectedWorkflow,
   setSelectedWorkflowName,
   setLastRunInfo,
+  setLastRunActive,
   setIsRescanningGraphs,
 } = graphLibrarySlice.actions;
 

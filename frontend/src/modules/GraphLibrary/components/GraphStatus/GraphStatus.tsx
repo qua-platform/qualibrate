@@ -21,7 +21,7 @@ import { fetchAllMeasurements, setTrackLatest } from "../../../../stores/GraphSt
 import { useRootDispatch } from "../../../../stores";
 import { getSelectedNodeNameInWorkflow, getWorkflowGraphElements } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import { setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/actions";
-import { getLastRunInfo } from "../../../../stores/GraphStores/GraphLibrary/selectors";
+import { getLastRunError, getLastRunInfo, getLastRunNodeName } from "../../../../stores/GraphStores/GraphLibrary/selectors";
 import { GlobalParameterStructure } from "../../../../stores/GraphStores/GraphStatus/GraphStatusStore";
 import { getRunStatusGraphName, getRunStatusGraphTotalNodes } from "../../../../stores/WebSocketStore/selectors";
 import { getResult } from "../../../../stores/SnapshotsStore/selectors";
@@ -49,10 +49,15 @@ const GraphStatus = () => {
   const dispatch = useRootDispatch();
   const workflowGraphElements = useSelector(getWorkflowGraphElements);
   const lastRunInfo = useSelector(getLastRunInfo);
-  const allMeasurements = useSelector(getAllMeasurements);
+  const allMeasurements = useSelector(
+    getAllMeasurements,
+    (prev?: Measurement[], current?: Measurement[]) => JSON.stringify(prev) === JSON.stringify(current)
+  );
   const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
   const runStatusGraphName = useSelector(getRunStatusGraphName);
   const runStatusGraphTotalNodes = useSelector(getRunStatusGraphTotalNodes);
+  const lastRunNodeName = useSelector(getLastRunNodeName);
+  const lastRunError = useSelector(getLastRunError);
   const result = useSelector(getResult);
 
   useEffect(() => {
@@ -115,7 +120,7 @@ const GraphStatus = () => {
           jsonObject={selectedNodeNameInWorkflow && allMeasurements && allMeasurements.length > 0 && result ? result : {}}
           toggleSwitch={true}
           style={{ height: "100%", flex: "0 1 auto" }}
-          errorObject={selectedNodeNameInWorkflow === lastRunInfo?.activeNodeName ? lastRunInfo?.error : undefined}
+          errorObject={selectedNodeNameInWorkflow === lastRunNodeName ? lastRunError : undefined}
         />
         {/*<Results title={"QUAM Updates"} jsonObject={diffData} style={{ height: "35%" }} />*/}
       </div>

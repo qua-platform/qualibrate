@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { handleHideConnectionErrorDialog, handleShowConnectionErrorDialog, setConnectionLostSeconds, setHistory, setRunStatus, setShowConnectionErrorDialog } from "./actions";
+import { handleHideConnectionErrorDialog, handleSetRunStatus, handleShowConnectionErrorDialog, setConnectionLostSeconds, setHistory, setRunStatus, setShowConnectionErrorDialog } from "./actions";
 import { useRootDispatch } from "..";
 import { useSelector } from "react-redux";
 import { getConnectionLostAt, getShowConnectionErrorDialog } from "./selectors";
@@ -36,10 +36,6 @@ export const useInitWebSocket = () => {
     dispatch(setAllMeasurements(history.items))
   }
 
-  const handleSetRunStatus = (runStatus: RunStatusType) => {
-    dispatch(setRunStatus(runStatus))
-  }
-
   // Establish WebSocket connections on mount, disconnect on unmount
   // Empty dependency array [] ensures this runs once per component lifecycle
   useEffect(() => {
@@ -51,7 +47,7 @@ export const useInitWebSocket = () => {
 
     runStatusWS.current = new WebSocketService<RunStatusType>(
       runStatusUrl,
-      handleSetRunStatus,
+      (runStatus) => dispatch(handleSetRunStatus(runStatus)),
       () => dispatch(handleHideConnectionErrorDialog()),
       () => dispatch(handleShowConnectionErrorDialog())
     );

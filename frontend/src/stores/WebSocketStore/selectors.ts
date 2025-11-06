@@ -71,6 +71,36 @@ export const getRunStatusGraphStatus = createSelector(
   (runStatusGraphState) => runStatusGraphState?.status
 );
 
+export const getRunStatusGraphPercentageComplete = createSelector(
+  getRunStatusGraph,
+  (runStatusGraphState) => runStatusGraphState?.percentage_complete
+);
+
+export const getRunStatusGraphFinishedNodes = createSelector(
+  getRunStatusGraph,
+  (runStatusGraphState) => runStatusGraphState?.finished_nodes
+);
+
+export const getRunStatusGraphTimeRemaining = createSelector(
+  getRunStatusGraph,
+  (runStatusGraphState) => runStatusGraphState?.time_remaining
+);
+
+export const getRunStatusGraphRunStart = createSelector(
+  getRunStatusGraph,
+  (runStatusGraphState) => runStatusGraphState?.run_start
+);
+
+export const getRunStatusGraphRunDuration = createSelector(
+  getRunStatusGraph,
+  (runStatusGraphState) => runStatusGraphState?.run_duration
+);
+
+export const getRunStatusGraphError = createSelector(
+  getRunStatusGraph,
+  (runStatusGraphState) => runStatusGraphState?.error
+);
+
 /**
  * runStatus Node selectors
  */
