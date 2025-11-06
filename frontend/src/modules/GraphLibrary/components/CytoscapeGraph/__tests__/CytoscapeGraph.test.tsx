@@ -10,18 +10,19 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor, act } from "@testing-library/react";
 import { createTestProviders } from "@/test-utils/providers";
 import { createSimpleGraph, createGraphWithStatuses } from "@/test-utils/builders/cytoscapeElements";
-import { cytoscapeMock, createMockCytoscape, createMockCytoscapeElement } from "@/test-utils/mocks/cytoscape";
+import CytoscapeGraph from "../CytoscapeGraph";
 
-// Mock cytoscape library - MUST be done before importing component
+const { cytoscapeMock, createMockCytoscape, createMockCytoscapeElement } = await vi.hoisted(
+  async () => await import("@/test-utils/mocks/cytoscape")
+)
+
+// Mock cytoscape library
 vi.mock("cytoscape", () => cytoscapeMock);
 
 // Mock cytoscape-klay plugin
 vi.mock("cytoscape-klay", () => ({
   default: vi.fn(),
 }));
-
-// Import component AFTER mocks are set up
-const CytoscapeGraph = (await import("../CytoscapeGraph")).default;
 
 describe("CytoscapeGraph - Initialization & Rendering", () => {
   beforeEach(() => {
