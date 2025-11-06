@@ -17,14 +17,14 @@ import { Results } from "../../../Nodes/components/Results/Results";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
-import { useWebSocketData } from "../../../../contexts/WebSocketContext";
 import { getAllMeasurements } from "../../../../stores/GraphStores/GraphStatus/selectors";
 import { fetchAllMeasurements, setTrackLatest } from "../../../../stores/GraphStores/GraphStatus/actions";
 import { useRootDispatch } from "../../../../stores";
 import { getSelectedNodeNameInWorkflow, getWorkflowGraphElements } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import { setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/actions";
 import { getLastRunInfo } from "../../../../stores/GraphStores/GraphLibrary/selectors";
-import { GlobalParameterStructure } from "@/stores/GraphStores/GraphStatus/GraphStatusStore";
+import { GlobalParameterStructure } from "../../../../stores/GraphStores/GraphStatus/GraphStatusStore";
+import { getRunStatusGraphName, getRunStatusGraphTotalNodes } from "../../../../stores/WebSocketStore/selectors";
 
 export interface Measurement {
   created_at?: string;
@@ -45,13 +45,13 @@ export interface Measurement {
 }
 
 const GraphStatus = () => {
-  const { runStatus } = useWebSocketData();
-
   const dispatch = useRootDispatch();
   const workflowGraphElements = useSelector(getWorkflowGraphElements);
   const lastRunInfo = useSelector(getLastRunInfo);
   const allMeasurements = useSelector(getAllMeasurements);
   const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
+  const runStatusGraphName = useSelector(getRunStatusGraphName);
+  const runStatusGraphTotalNodes = useSelector(getRunStatusGraphTotalNodes);
   const { result, fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
 
   useEffect(() => {
@@ -101,7 +101,7 @@ const GraphStatus = () => {
         <div className={styles.graphAndHistoryWrapper}>
           {workflowGraphElements && (
             <MeasurementElementGraph
-              key={`${runStatus?.graph?.name}-${runStatus?.graph?.total_nodes}`}
+              key={`${runStatusGraphName}-${runStatusGraphTotalNodes}`}
               workflowGraphElements={workflowGraphElements}
               onCytoscapeNodeClick={handleOnCytoscapeNodeClick}
             />

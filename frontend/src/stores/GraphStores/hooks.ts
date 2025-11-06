@@ -2,15 +2,17 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useRootDispatch } from "..";
 import { getAllGraphs, getLastRunInfo, getSelectedWorkflowName } from "./GraphLibrary/selectors";
-import { useWebSocketData } from "../../contexts/WebSocketContext";
 import { fetchAllCalibrationGraphs, fetchWorkflowGraph, setLastRunInfo, setSelectedWorkflow } from "./GraphLibrary/actions";
+import { getRunStatusGraph, getRunStatusIsRunning, getRunStatusNode, getRunStatusNodeName } from "../WebSocketStore/selectors";
 
-export const initGraphs = () => {
+export const useInitGraphs = () => {
   const dispatch = useRootDispatch();
   const selectedWorkflowName = useSelector(getSelectedWorkflowName)
   const allGraphs = useSelector(getAllGraphs);
   const lastRunInfo = useSelector(getLastRunInfo);
-  const { runStatus } = useWebSocketData();
+  const runStatusNodeIsRunning = useSelector(getRunStatusIsRunning);
+  const runStatusNodeName = useSelector(getRunStatusNodeName);
+  const runStatusGraph = useSelector(getRunStatusGraph);
 
   useEffect(() => {
     if (selectedWorkflowName) {
@@ -22,19 +24,19 @@ export const initGraphs = () => {
   }, [lastRunInfo, selectedWorkflowName]);
 
   useEffect(() => {
-    if (runStatus && runStatus.graph && runStatus.node) {
+    if (runStatusNodeIsRunning && runStatusGraph && runStatusNodeName) {
       dispatch(setLastRunInfo({
         ...lastRunInfo,
-        active: runStatus.is_running,
-        workflowName: runStatus.graph.name,
-        activeNodeName: runStatus.node.name ?? "",
-        nodesCompleted: runStatus.graph.finished_nodes,
-        nodesTotal: runStatus.graph.total_nodes,
-        runDuration: runStatus.graph.run_duration,
-        error: runStatus.graph.error,
+        active: runStatusNodeIsRunning,
+        workflowName: runStatusGraph.name,
+        activeNodeName: runStatusNodeName ?? "",
+        nodesCompleted: runStatusGraph.finished_nodes,
+        nodesTotal: runStatusGraph.total_nodes,
+        runDuration: runStatusGraph.run_duration,
+        error: runStatusGraph.error,
       }));
     }
-  }, [runStatus]);
+  }, [runStatusNodeIsRunning, runStatusNodeName, runStatusGraph]);
 
   useEffect(() => {
     dispatch(fetchAllCalibrationGraphs());

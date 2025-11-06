@@ -4,6 +4,7 @@ import styles from "./Layout.module.scss";
 import ToastComponent from "../../modules/toastModule/ToastComponent";
 import TitleBarMenu from "../../modules/TopbarMenu/TitleBarMenu";
 import { RightSidePanel } from "../../modules/RightSidebar/RightSidePanel";
+import WebSocketConnectionErrorDialog from "../../modules/WebSocketConnectionErrorDialog/WebSocketConnectionErrorDialog";
 
 interface Props {
   children?: React.ReactNode;
@@ -21,6 +22,7 @@ const MainLayout = ({ children }: Props) => {
         </div>
       </div>
       <ToastComponent />
+      <WebSocketConnectionErrorDialog />
     </div>
   );
 };

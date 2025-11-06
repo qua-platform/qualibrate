@@ -7,7 +7,6 @@ import { updateColorTheme } from "./modules/themeModule/themeHelper";
 import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeContext";
 import { createRoot } from "react-dom/client";
 import { SnapshotsContextProvider } from "./modules/Snapshots/context/SnapshotsContext";
-import { WebSocketProvider } from "./contexts/WebSocketContext";
 import { Provider } from "react-redux";
 import store from "./stores";
 
@@ -25,15 +24,13 @@ const Application: React.FunctionComponent = () => {
   return (
     <Provider store={store}>
       <GlobalThemeContextProvider>
-        <WebSocketProvider>
-          {contextProviders.reduce(
-            (Comp, Provider) => {
-              const TempProvider = Provider as unknown as React.FC<PropsWithChildren<object>>;
-              return <TempProvider>{Comp}</TempProvider>;
-            },
-            <AppRoutes />
-          )}
-        </WebSocketProvider>
+        {contextProviders.reduce(
+          (Comp, Provider) => {
+            const TempProvider = Provider as unknown as React.FC<PropsWithChildren<object>>;
+            return <TempProvider>{Comp}</TempProvider>;
+          },
+          <AppRoutes />
+        )}
       </GlobalThemeContextProvider>
     </Provider>
   );

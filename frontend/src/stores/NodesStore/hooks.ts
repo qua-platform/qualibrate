@@ -3,13 +3,14 @@ import { useSelector } from "react-redux";
 import { getIsNodeRunning, getRunningNodeInfo } from "./selectors";
 import { useRootDispatch } from "..";
 import { fetchNodeResults, setIsNodeRunning, setRunningNodeInfo } from "./actions";
-import { useWebSocketData } from "../../contexts/WebSocketContext";
+import { getRunStatusIsRunning, getRunStatusType } from "../WebSocketStore/selectors";
 
 export const useInitNodes = () => {
   const dispatch = useRootDispatch();
   const isNodeRunning = useSelector(getIsNodeRunning);
   const runningNodeInfo = useSelector(getRunningNodeInfo);
-  const { runStatus } = useWebSocketData();
+  const runStatusType = useSelector(getRunStatusType);
+  const isRunStatusRunning = useSelector(getRunStatusIsRunning)
 
   useEffect(() => {
     if (!isNodeRunning) {
@@ -24,11 +25,8 @@ export const useInitNodes = () => {
   }, [isNodeRunning]);
 
   useEffect(() => {
-    if (runStatus
-      && runStatus.runnable_type === "node"
-      && isNodeRunning !== runStatus.is_running
-    ) {
-      dispatch(setIsNodeRunning(runStatus.is_running));
+    if (runStatusType === "node" && isNodeRunning !== isRunStatusRunning) {
+      dispatch(setIsNodeRunning(isRunStatusRunning));
     }
-  }, [runStatus]);
+  }, [runStatusType, isRunStatusRunning]);
 }

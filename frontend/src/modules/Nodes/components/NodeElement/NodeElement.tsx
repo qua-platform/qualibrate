@@ -39,7 +39,7 @@
  * @see WebSocketContext for real-time status updates (WebSocketContext.tsx:265-269)
  * @see Parameters for the collapsible parameter editing UI
  */
-import React from "react";
+import React, { useMemo } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 import { Checkbox, CircularProgress } from "@mui/material";
@@ -54,7 +54,6 @@ import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
 import { StatusVisuals } from "./NodeElementStatusVisuals";
 import { getNodeRowClass } from "./helpers";
 import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
-import { useWebSocketData } from "../../../../contexts/WebSocketContext";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
 import { getAllNodes, getSelectedNode, getSubmitNodeResponseError } from "../../../../stores/NodesStore/selectors";
@@ -69,6 +68,7 @@ import { setAllNodes,
   setUpdateAllButtonPressed,
 } from "../../../../stores/NodesStore/actions";
 import { ErrorWithDetails } from "../../../../stores/NodesStore/NodesStore";
+import { getRunStatusIsRunning, getRunStatusNodeName, getRunStatusNodePercentage, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore/selectors";
 
 /**
  * Calibration node definition from backend node library scan.
@@ -154,7 +154,10 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
   const allNodes = useSelector(getAllNodes);
   const selectedNode = useSelector(getSelectedNode);
   const submitNodeResponseError = useSelector(getSubmitNodeResponseError);
-  const { runStatus } = useWebSocketData();
+  const runStatusIsRunning = useSelector(getRunStatusIsRunning);
+  const runStatusNodeName = useSelector(getRunStatusNodeName);
+  const runStatusNodeStatus = useSelector(getRunStatusNodeStatus);
+  const runStatusNodePercentage = useSelector(getRunStatusNodePercentage);
 
   /**
    * Update a single parameter value in the node's parameter map.
@@ -313,10 +316,10 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         nodeName: node.name,
         selectedItemName: selectedNode ?? "",
         runStatus:
-          runStatus && runStatus.node
+          runStatusNodeName && runStatusNodeStatus
             ? {
-                name: runStatus.node.name,
-                status: runStatus.node.status,
+                name: runStatusNodeName,
+                status: runStatusNodeStatus,
               }
             : null,
       })}
@@ -350,22 +353,22 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
             FRAGILE: Complex conditional logic - difficult to reason about all cases.
             Consider extracting to shouldShowStatus() helper function.
           */}
-          {(runStatus?.node?.name === node.name || (selectedNode !== node.name && runStatus?.node?.status !== "pending")) && (
+          {(runStatusNodeName === node.name || (selectedNode !== node.name && runStatusNodeStatus !== "pending")) && (
             <StatusVisuals
-              status={runStatus?.node?.name === node.name ? runStatus?.node?.status : "pending"}
-              percentage={Math.round(runStatus?.node?.percentage_complete ?? 0)}
+              status={runStatusNodeName === node.name ? runStatusNodeStatus : "pending"}
+              percentage={Math.round(runStatusNodePercentage ?? 0)}
             />
           )}
         </div>
         {/* Show Run button only when: node is selected AND nothing is currently running */}
-        {!runStatus?.is_running && node.name === selectedNode && (
+        {!runStatusIsRunning && node.name === selectedNode && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
             <RunIcon className={styles.runButtonIcon} />
             <span className={styles.runButtonText}>Run</span>
           </BlueButton>
         )}
         {/* Show spinner when: node is selected AND something is running */}
-        {runStatus?.is_running && node.name === selectedNode && <CircularProgress size={32} />}
+        {runStatusIsRunning && node.name === selectedNode && <CircularProgress size={32} />}
       </div>
       {/* Show validation errors only for the selected node that failed submission */}
       {node.name === selectedNode && node.name === submitNodeResponseError?.nodeName && (

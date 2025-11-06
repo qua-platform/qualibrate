@@ -5,16 +5,14 @@ import { NodeElementList } from "./components/NodeElement/NodeElementList";
 import { RunningJob } from "./components/RunningJob/RunningJob";
 import { Results } from "./components/Results/Results";
 import { CircularProgress } from "@mui/material";
-import { useWebSocketData } from "../../contexts/WebSocketContext";
 import { useSelector } from "react-redux";
-import { useRootDispatch } from "../../stores";
 import { getIsRescanningNodes, getResults } from "../../stores/NodesStore/selectors";
+import { getRunResultError } from "../../stores/WebSocketStore/selectors";
 
 export const NodesPage = () => {
-  const { runStatus } = useWebSocketData();
-  const dispatch = useRootDispatch();
   const isRescanningNodes = useSelector(getIsRescanningNodes);
   const results = useSelector(getResults);
+  const runResultError = useSelector(getRunResultError);
 
   return (
     <div className={styles.wrapper} data-testid="nodes-page-wrapper">
@@ -41,7 +39,7 @@ export const NodesPage = () => {
             jsonObject={results ?? {}}
             showSearch={false}
             toggleSwitch={true}
-            errorObject={runStatus?.node?.run_results?.error}
+            errorObject={runResultError}
           />
         </div>
       </div>

@@ -5,13 +5,15 @@ import projectsReducer from "./ProjectStore/ProjectStore";
 import { graphStore } from "./GraphStores/index";
 import nodesReducer from "./NodesStore/NodesStore";
 import navigationReducer from "./NavigationStore/NavigationStore";
+import webSocketReducer from "./WebSocketStore/WebSocketStore";
 
 export const rootReducer = combineReducers({
   auth: authReducer,
   projects: projectsReducer,
   graph: graphStore,
   nodes: nodesReducer,
-  navigation: navigationReducer
+  navigation: navigationReducer,
+  webSocket: webSocketReducer
 })
 
 const store = configureStore({

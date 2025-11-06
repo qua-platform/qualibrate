@@ -8,14 +8,16 @@ import { useSelector } from "react-redux";
 import { getIsAuthorized, getIsTriedLoginWithEmptyString } from "../stores/AuthStore/selectors";
 import { useLogin } from "../stores/AuthStore/hooks";
 import { useInitNodes } from "../stores/NodesStore/hooks";
-import { initProjects } from "../stores/ProjectStore/hooks";
-import { initGraphs } from "../stores/GraphStores/hooks";
+import { useInitProjects } from "../stores/ProjectStore/hooks";
+import { useInitGraphs } from "../stores/GraphStores/hooks";
+import { useInitWebSocket } from "../stores/WebSocketStore/hooks";
 
 export const useInitApp = () => {
   useLogin();
   useInitNodes();
-  initProjects();
-  initGraphs();
+  useInitProjects();
+  useInitGraphs();
+  useInitWebSocket();
 };
 
 const ProtectedRoute = ({ children }: { children: React.JSX.Element }): React.JSX.Element => {

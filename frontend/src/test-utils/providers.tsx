@@ -1,15 +1,15 @@
 // Test utilities for React component testing
-import React, { createContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { SnapshotsContextProvider } from "../modules/Snapshots/context/SnapshotsContext";
-import type { RunStatusType, HistoryType } from "../contexts/WebSocketContext";
 import { setSelectedNodeNameInWorkflow } from "../stores/GraphStores/GraphCommon/actions";
 import { rootReducer, useRootDispatch } from "../stores";
 import { setTrackLatest } from "../stores/GraphStores/GraphStatus/actions";
 import { configureStore } from "@reduxjs/toolkit";
 import { useInitApp } from "../routing/AppRoutes";
+import { HistoryType, RunStatusType } from "../stores/WebSocketStore/WebSocketStore";
 
 /**
  * Mock WebSocket context value interface
@@ -22,19 +22,6 @@ interface MockWebSocketContextValue {
   subscribeToRunStatus: (cb: (data: RunStatusType) => void) => () => void;
   subscribeToHistory: (cb: (data: HistoryType) => void) => () => void;
 }
-
-/**
- * Mock WebSocket context for testing
- * Export it so tests can use useWebSocketData() hook
- */
-export const WebSocketContext = createContext<MockWebSocketContextValue>({
-  runStatus: null,
-  history: null,
-  sendRunStatus: () => {},
-  sendHistory: () => {},
-  subscribeToRunStatus: () => () => {},
-  subscribeToHistory: () => () => {},
-});
 
 /**
  * Create test providers with optional context overrides
@@ -62,15 +49,6 @@ export const createTestProviders = (overrides: {
   };
 } = {}) => {
   const mockStore = configureStore({ reducer: rootReducer })
-  const defaultWebSocketValue: MockWebSocketContextValue = {
-    runStatus: null,
-    history: null,
-    sendRunStatus: () => {},
-    sendHistory: () => {},
-    subscribeToRunStatus: () => () => {},
-    subscribeToHistory: () => () => {},
-    ...overrides.webSocket,
-  };
 
   // Helper component to set initial context values
   const ContextSetter = ({ children }: { children: React.ReactNode }) =>  {
@@ -97,11 +75,9 @@ export const createTestProviders = (overrides: {
     return (
     <BrowserRouter>
       <Provider store={mockStore}>
-        <WebSocketContext.Provider value={defaultWebSocketValue}>
-          <SnapshotsContextProvider>
-            <ContextSetter>{children}</ContextSetter>
-          </SnapshotsContextProvider>
-        </WebSocketContext.Provider>
+        <SnapshotsContextProvider>
+          <ContextSetter>{children}</ContextSetter>
+        </SnapshotsContextProvider>
       </Provider>
     </BrowserRouter>
     );
