@@ -68,7 +68,7 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
         }
       }
     }
-  }, [trackLatest, setTrackLatest, allMeasurements, latestId, latestName]);
+  }, [trackLatest, allMeasurements, latestId, latestName]);
 
   return (
     <div className={styles.wrapper}>

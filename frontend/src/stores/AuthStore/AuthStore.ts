@@ -28,10 +28,4 @@ export const authSlice = createSlice({
   }
 });
 
-export const {
-  setAuthorize,
-  setError,
-  setTriedLoginWithEmptyString
-} = authSlice.actions;
-
 export default authSlice.reducer;

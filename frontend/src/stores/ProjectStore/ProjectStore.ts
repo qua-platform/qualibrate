@@ -44,12 +44,4 @@ export const projectsSlice = createSlice({
   }
 });
 
-export const {
-  setAllProjects,
-  addProject,
-  setActiveProject,
-  setShouldGoToProjectPage,
-  setScanningProjects,
-} = projectsSlice.actions;
-
 export default projectsSlice.reducer;

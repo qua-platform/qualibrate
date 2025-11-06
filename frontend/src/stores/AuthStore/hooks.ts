@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useRootDispatch } from "..";
 import { AuthApi } from "../../modules/Login/api/AuthApi";
 import { OFFLINE_MODE } from "../../dev.config";
-import { setAuthorize, setError, setTriedLoginWithEmptyString } from "./AuthStore";
+import { setAuthorize, setError, setTriedLoginWithEmptyString } from "./actions";
 import { HOME_URL } from "../../common/modules";
 import { useEffect } from "react";
 
@@ -47,7 +47,7 @@ export const useLogin = () => {
           dispatch(setTriedLoginWithEmptyString());
         });
         if (checkIfThereIsCookie()) {
-          setAuthorize(true);
+          dispatch(setAuthorize(true));
           navigate(HOME_URL);
         }
       }

@@ -30,7 +30,7 @@ const initialState: SnapshotsState = {
   clickedForSnapshotSelection: false,
   jsonData: {},
   jsonDataSidePanel: {},
-  diffData: {},
+  diffData: undefined,
   result: {},
   firstId: "0",
   secondId: "0",

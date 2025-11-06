@@ -1,7 +1,15 @@
-import { setActiveProject, setAllProjects, setScanningProjects, setShouldGoToProjectPage } from "./ProjectStore";
 import { ProjectViewApi } from "../../modules/Project/api/ProjectViewAPI";
 import { ProjectDTO } from "../../modules/Project/ProjectDTO";
 import { RootDispatch } from "..";
+import { projectsSlice } from "./ProjectStore";
+
+export const {
+  setAllProjects,
+  addProject,
+  setActiveProject,
+  setShouldGoToProjectPage,
+  setScanningProjects,
+} = projectsSlice.actions;
 
 export const fetchProjectsAndActive = () => async (dispatch: RootDispatch) => {
   const [projectsRes, activeNameRes] = await Promise.all([

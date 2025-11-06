@@ -127,7 +127,7 @@ export const QuamPanel = () => {
       <PanelHeader
         trackLatest={trackLatestSidePanel}
         onToggleTrackLatest={onToggleTrackLatest}
-        onIdChange={setFirstId}
+        onIdChange={(value) => dispatch(setFirstId(value))}
         idValue={firstId}
         onConfirm={onConfirm}
         onFocus={onFocus}
@@ -138,7 +138,7 @@ export const QuamPanel = () => {
       <PanelUpdates
         previousSnapshot={trackPreviousSnapshot}
         onTogglePrevious={onToggleTrackPrevious}
-        onSecondIdChange={setSecondId}
+        onSecondIdChange={(value) => dispatch(setSecondId(value))}
         // idValue={selectedSnapshotId && selectedSnapshotId - 1 > 0 ? selectedSnapshotId - 1 : 0}
         idValue={secondId}
         onConfirm={onConfirm}

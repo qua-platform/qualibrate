@@ -30,9 +30,9 @@ const TitleBarNodeCard: React.FC = () => {
   const runStatusNodeCurrentAction = useSelector(getRunStatusNodeCurrentAction);
   const runStatusNodeTimeRemaining = useSelector(getRunStatusNodeTimeRemaining);
 
-  const handleOnClick = useCallback(() => {
+  const handleOnClick = () => {
     dispatch(setActivePage(NODES_KEY));
-  }, [setActivePage]);
+  };
 
   return (
     <Tooltip title={<TitleBarTooltipContent />} placement="bottom" componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}>

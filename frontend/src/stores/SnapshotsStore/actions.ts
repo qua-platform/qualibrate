@@ -68,16 +68,16 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, page: number) =>
         if (trackLatestSidePanel) {
           const snapshotId1 = lastElId;
           const snapshotId2 = trackPreviousSnapshot ? lastElId - 1 : Number(secondId);
-          fetchOneSnapshot(snapshotId1, snapshotId2, false, true);
+          dispatch(fetchOneSnapshot(snapshotId1, snapshotId2, false, true));
         }
       }
       if (firstTime) {
         if (items) {
           dispatch(setSelectedSnapshotId(lastElId));
-          fetchOneSnapshot(lastElId, lastElId - 1, true, true);
+          dispatch(fetchOneSnapshot(lastElId, lastElId - 1, true, true));
         } else {
           if (selectedSnapshotId) {
-            fetchOneSnapshot(selectedSnapshotId);
+            dispatch(fetchOneSnapshot(selectedSnapshotId));
             dispatch(setReset(false));
           }
         }

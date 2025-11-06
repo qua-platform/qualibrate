@@ -148,7 +148,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
     return () => {
       cy.current?.nodes().off("click", "node");
     };
-  }, [setSelectedNodeNameInWorkflow, cy.current]);
+  }, [cy.current]);
 
   useEffect(() => {
     // Clear selection when clicking graph background
@@ -162,7 +162,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
     return () => {
       cy.current?.off("click", onClick);
     };
-  }, [setSelectedNodeNameInWorkflow, cy.current]);
+  }, [cy.current]);
 
   return <div ref={divRef} className={styles.wrapper} />;
 }

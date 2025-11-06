@@ -7,7 +7,7 @@ import { ProjectViewApi } from "../api/ProjectViewAPI";
 import { useSelector } from "react-redux";
 import { getAllProjects } from "../../../stores/ProjectStore/selectors";
 import { useRootDispatch } from "../../../stores";
-import { addProject } from "../../../stores/ProjectStore/ProjectStore";
+import { addProject } from "../../../stores/ProjectStore/actions";
 
 interface Props {
   closeNewProjectForm: () => void;

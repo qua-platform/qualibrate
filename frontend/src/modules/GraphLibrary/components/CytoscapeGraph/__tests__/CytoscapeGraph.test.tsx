@@ -14,7 +14,7 @@ import CytoscapeGraph from "../CytoscapeGraph";
 
 const { cytoscapeMock, createMockCytoscape, createMockCytoscapeElement } = await vi.hoisted(
   async () => await import("@/test-utils/mocks/cytoscape")
-)
+);
 
 // Mock cytoscape library
 vi.mock("cytoscape", () => cytoscapeMock);
