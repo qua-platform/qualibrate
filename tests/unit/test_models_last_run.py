@@ -252,7 +252,7 @@ class TestLastRunSerialization:
         assert data["status"] == RunStatusEnum.FINISHED
         assert data["completed_at"] is not None
         assert data["idx"] == 42
-        assert data["run_result"] is not None
+        assert "run_result" in data
         assert "amplitude" in data["passed_parameters"]
 
     def test_serialize_error_node(self, sample_last_run_error):

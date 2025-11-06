@@ -77,8 +77,7 @@ def sample_last_run_running(aware_datetime):
 @pytest.fixture
 def sample_last_run_finished(aware_datetime, later_datetime):
     """Provide a LastRun instance with FINISHED status."""
-    # Use model_construct to bypass validation for mock run_result
-    return LastRun.model_construct(
+    return LastRun(
         status=RunStatusEnum.FINISHED,
         started_at=aware_datetime,
         completed_at=later_datetime,
@@ -86,7 +85,7 @@ def sample_last_run_finished(aware_datetime, later_datetime):
         idx=42,
         runnable_type=RunnableType.NODE,
         passed_parameters={"amplitude": 0.5},
-        run_result=Mock(success=True),
+        run_result=None,  # Must be None or a real RunSummary for validation
     )
 
 
@@ -121,7 +120,7 @@ def mock_node():
     node = Mock()
     node.name = "test_node"
     node.snapshot_idx = 42
-    node.run_summary = Mock(success=True)
+    node.run_summary = None
     node.state_updates = {}
     return node
 
@@ -136,7 +135,7 @@ def mock_workflow():
     workflow = Mock()
     workflow.name = "test_workflow"
     workflow.snapshot_idx = 100
-    workflow.run_summary = Mock(success=True)
+    workflow.run_summary = None
     return workflow
 
 
@@ -150,3 +149,47 @@ def state_with_node(mock_node):
 def state_with_workflow(mock_workflow):
     """Provide a State with a mock workflow (bypassing validation)."""
     return State.model_construct(run_item=mock_workflow)
+
+
+# Run job fixtures
+
+
+@pytest.fixture
+def mock_library(mock_workflow):
+    """Provide a mock QualibrationLibrary."""
+    library = Mock()
+    library.graphs = {"test_workflow": mock_workflow}
+    return library
+
+
+@pytest.fixture
+def sample_parameters_class():
+    """Provide a sample Pydantic model for parameter validation."""
+    from pydantic import BaseModel, Field
+
+    class TestParameters(BaseModel):
+        amplitude: float = Field(ge=0.0, le=1.0)
+        frequency: float = Field(gt=0.0)
+        num_averages: int = Field(ge=1, default=100)
+
+    return TestParameters
+
+
+@pytest.fixture
+def sample_workflow_parameters_class():
+    """Provide a sample workflow parameters class with nodes and parameters."""
+    from pydantic import BaseModel, Field
+
+    class NodeParams(BaseModel):
+        node1: dict = Field(default_factory=dict)
+        node2: dict = Field(default_factory=dict)
+
+    class WorkflowParams(BaseModel):
+        frequency: float = Field(gt=0.0)
+        amplitude: float = Field(ge=0.0, le=1.0, default=0.5)
+
+    class FullParams(BaseModel):
+        nodes: NodeParams = Field(default_factory=NodeParams)
+        parameters: WorkflowParams
+
+    return FullParams
