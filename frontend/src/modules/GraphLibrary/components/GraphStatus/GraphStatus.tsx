@@ -21,7 +21,7 @@ import { fetchAllMeasurements, setTrackLatest } from "../../../../stores/GraphSt
 import { useRootDispatch } from "../../../../stores";
 import { getSelectedNodeNameInWorkflow, getWorkflowGraphElements } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import { setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/actions";
-import { getLastRunError, getLastRunInfo, getLastRunNodeName } from "../../../../stores/GraphStores/GraphLibrary/selectors";
+import { getLastRunError, getLastRunNodeName } from "../../../../stores/GraphStores/GraphLibrary/selectors";
 import { GlobalParameterStructure } from "../../../../stores/GraphStores/GraphStatus/GraphStatusStore";
 import { getRunStatusGraphName, getRunStatusGraphTotalNodes } from "../../../../stores/WebSocketStore/selectors";
 import { getResult } from "../../../../stores/SnapshotsStore/selectors";
@@ -48,7 +48,6 @@ export interface Measurement {
 const GraphStatus = () => {
   const dispatch = useRootDispatch();
   const workflowGraphElements = useSelector(getWorkflowGraphElements);
-  const lastRunInfo = useSelector(getLastRunInfo);
   const allMeasurements = useSelector(
     getAllMeasurements,
     (prev?: Measurement[], current?: Measurement[]) => JSON.stringify(prev) === JSON.stringify(current)
@@ -61,8 +60,8 @@ const GraphStatus = () => {
   const result = useSelector(getResult);
 
   useEffect(() => {
-    dispatch(fetchAllMeasurements())
-  }, [])
+    dispatch(fetchAllMeasurements());
+  }, []);
 
   const getMeasurementId = (measurementName: string, measurements: Measurement[]) => {
     return measurements?.find((measurement) => measurement.metadata?.name === measurementName)?.id;

@@ -1,4 +1,4 @@
-import { ErrorWithDetails } from "../../modules/Nodes/context/NodesContext";
+import { ErrorWithDetails } from "../../stores/NodesStore/NodesStore";
 import { ErrorObject } from "../../modules/common/Error/ErrorStatusWrapper";
 
 export type Res<P = Record<string, never>> = {

@@ -1,7 +1,7 @@
-import React from "react"
-import { useSelector } from "react-redux"
-import { BasicDialog } from "../../common/ui-components/common/BasicDialog/BasicDialog"
-import { getConnectionLostSeconds, getShowConnectionErrorDialog } from "../../stores/WebSocketStore/selectors"
+import React from "react";
+import { useSelector } from "react-redux";
+import { BasicDialog } from "../../common/ui-components/common/BasicDialog/BasicDialog";
+import { getConnectionLostSeconds, getShowConnectionErrorDialog } from "../../stores/WebSocketStore/selectors";
 
 const WebSocketConnectionErrorDialog = () => {
   const showConnectionErrorDialog = useSelector(getShowConnectionErrorDialog);
@@ -13,7 +13,7 @@ const WebSocketConnectionErrorDialog = () => {
     return minutes > 0 ? `${minutes}m ${secs.toString().padStart(2, "0")}s` : `${secs}s`;
   };
 
-  if (!showConnectionErrorDialog) return <></>
+  if (!showConnectionErrorDialog) return <></>;
 
   return <BasicDialog
     open={showConnectionErrorDialog}
@@ -25,7 +25,7 @@ const WebSocketConnectionErrorDialog = () => {
         Retrying for {formatElapsed(connectionLostSeconds)}...
       </>
     }
-  />
-}
+  />;
+};
 
-export default WebSocketConnectionErrorDialog
+export default WebSocketConnectionErrorDialog;

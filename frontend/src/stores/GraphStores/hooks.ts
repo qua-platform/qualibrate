@@ -6,7 +6,7 @@ import { fetchAllCalibrationGraphs, fetchWorkflowGraph, setSelectedWorkflow } fr
 
 export const useInitGraphs = () => {
   const dispatch = useRootDispatch();
-  const selectedWorkflowName = useSelector(getSelectedWorkflowName)
+  const selectedWorkflowName = useSelector(getSelectedWorkflowName);
   const allGraphs = useSelector(getAllGraphs);
   const lastRunInfoWorkflowName = useSelector(getLastRunWorkflowName);
 
@@ -22,4 +22,4 @@ export const useInitGraphs = () => {
   useEffect(() => {
     dispatch(fetchAllCalibrationGraphs());
   }, []);
-}
+};

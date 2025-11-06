@@ -11,7 +11,7 @@ import {
 } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { LastRunStatusGraphResponseDTO, LastRunStatusNodeResponseDTO } from "../../TopbarMenu/constants";
-import { LogsViewerResponseDTO } from "../../RightSidebar/context/RightSidePanelContext";
+import { LogsViewerResponseDTO } from "../../../modules/RightSidebar/Logs/LogsPanel";
 
 export class NodesApi extends Api {
   constructor() {

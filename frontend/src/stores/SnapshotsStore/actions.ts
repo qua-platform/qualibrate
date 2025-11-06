@@ -82,7 +82,7 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, page: number) =>
         }
       }
     }
-  }
+  };
 
 // -----------------------------------------------------------
 // PERIODICAL FETCH ALL SNAPSHOTS

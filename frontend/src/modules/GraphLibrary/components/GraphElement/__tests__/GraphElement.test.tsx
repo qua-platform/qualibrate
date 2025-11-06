@@ -68,7 +68,7 @@ describe("GraphElement - Parameter Management", () => {
       http.get("/execution/get_graphs", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
-        })
+        });
       })
     );
   });
@@ -80,7 +80,7 @@ describe("GraphElement - Parameter Management", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
     mockStore.dispatch(setAllGraphs({ test_workflow: mockGraph }));
 
     render(
@@ -103,7 +103,7 @@ describe("GraphElement - Parameter Management", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
     mockStore.dispatch(setAllGraphs({ test_workflow: mockGraph }));
 
     render(
@@ -126,7 +126,7 @@ describe("GraphElement - Parameter Management", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -145,7 +145,7 @@ describe("GraphElement - Parameter Management", () => {
     // Verify setAllGraphs was called with updated parameters
     await waitFor(() => {
       expect(getAllGraphs(mockStore.getState())?.test_workflow.parameters?.frequency)
-          .toHaveProperty('default', "6.5");
+          .toHaveProperty("default", "6.5");
     });
   });
 
@@ -159,7 +159,7 @@ describe("GraphElement - Parameter Management", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -232,7 +232,7 @@ describe("GraphElement - Workflow Submission", () => {
       http.get("/execution/get_graphs", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
-        })
+        });
       })
     );
   });
@@ -247,7 +247,7 @@ describe("GraphElement - Workflow Submission", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -276,7 +276,7 @@ describe("GraphElement - Workflow Submission", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -308,7 +308,7 @@ describe("GraphElement - Workflow Submission", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -344,7 +344,7 @@ describe("GraphElement - Workflow Submission", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -418,7 +418,7 @@ describe("GraphElement - UI Interactions", () => {
       http.get("/execution/get_graphs", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
-        })
+        });
       })
     );
   });
@@ -472,7 +472,7 @@ describe("GraphElement - UI Interactions", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
     mockStore.dispatch(setWorkflowGraphElements(mockElements));
 
     render(
@@ -522,7 +522,7 @@ describe("GraphElement - UI Interactions", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     const { container } = render(
       <Providers>
@@ -558,7 +558,7 @@ describe("GraphElement - Error Handling", () => {
       http.get("/execution/get_graphs", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
-        })
+        });
       })
     );
   });
@@ -584,7 +584,7 @@ describe("GraphElement - Error Handling", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -620,7 +620,7 @@ describe("GraphElement - Error Handling", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -659,7 +659,7 @@ describe("GraphElement - Error Handling", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'));
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>

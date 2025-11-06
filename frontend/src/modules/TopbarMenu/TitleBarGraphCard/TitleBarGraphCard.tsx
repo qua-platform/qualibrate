@@ -35,8 +35,8 @@ const RunningNode = ({ handleStopClick }: { handleStopClick: () => void }) => {
     {timeRemaining && (
       <div className={styles.timeRemaining}>{formatTime(timeRemaining)} left</div>
     )}
-  </div>
-}
+  </div>;
+};
 
 const TitleBarGraphCard: React.FC = () => {
   const dispatch = useRootDispatch();

@@ -182,7 +182,7 @@ beforeAll(() =>
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation(query => ({
     matches: false,
@@ -194,4 +194,4 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-})
+});

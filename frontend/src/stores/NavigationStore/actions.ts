@@ -17,9 +17,9 @@ export const refreshPage = () => (dispatch: RootDispatch, getState: () => RootSt
       dispatch(fetchAllNodes(true));
       break;
     case GRAPH_LIBRARY_KEY:
-      dispatch(fetchAllCalibrationGraphs(true))
+      dispatch(fetchAllCalibrationGraphs(true));
       break;
     default:
       break;
   }
-}
+};

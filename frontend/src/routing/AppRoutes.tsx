@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { HOME_URL, LOGIN_URL } from "../common/modules";
 import MainPage from "./MainPage/MainPage";

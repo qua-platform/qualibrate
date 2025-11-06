@@ -13,7 +13,7 @@ import { StateUpdate } from "../../../../stores/NodesStore/NodesStore";
 import { getLatestSnapshotId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
 import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
 
-export const StateUpdates: React.FC<{}> = () => {
+export const StateUpdates: React.FC = () => {
   const dispatch = useRootDispatch();
   const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
   const latestSnapshotId = useSelector(getLatestSnapshotId);

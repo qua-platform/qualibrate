@@ -1,3 +1,3 @@
 import { RootState } from "..";
 
-export const getGraphState = (state: RootState) => state.graph
+export const getGraphState = (state: RootState) => state.graph;

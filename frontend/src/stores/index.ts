@@ -16,7 +16,7 @@ export const rootReducer = combineReducers({
   navigation: navigationReducer,
   webSocket: webSocketReducer,
   snapshots: SnapshotsReducer
-})
+});
 
 const store = configureStore({
   reducer: rootReducer

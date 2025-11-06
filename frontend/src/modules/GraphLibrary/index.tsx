@@ -27,4 +27,4 @@ export const GraphLibrary = () => {
   );
 };
 
-export default GraphLibrary
+export default GraphLibrary;

@@ -4,7 +4,7 @@
  * Displays the complete list of quantum calibration nodes from the node library.
  * Shows a loading spinner during node library rescanning.
  */
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 import { NodeElement } from "./NodeElement";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../../NodesPage.module.scss";

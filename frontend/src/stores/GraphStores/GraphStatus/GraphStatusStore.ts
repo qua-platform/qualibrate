@@ -45,4 +45,4 @@ const graphStatusSlice = createSlice({
   }
 });
 
-export default graphStatusSlice
+export default graphStatusSlice;

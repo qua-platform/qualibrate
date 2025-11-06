@@ -37,7 +37,7 @@ export const Parameters: React.FC<IProps> = ({
   currentItem,
   getInputElement,
 }) => {
-  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow)
+  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
   const [expanded, setExpanded] = React.useState<boolean>(selectedNodeNameInWorkflow === title || parametersExpanded);
 
   useEffect(() => {

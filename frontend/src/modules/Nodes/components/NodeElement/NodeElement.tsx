@@ -39,7 +39,7 @@
  * @see WebSocketContext for real-time status updates (WebSocketContext.tsx:265-269)
  * @see Parameters for the collapsible parameter editing UI
  */
-import React, { useMemo } from "react";
+import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 import { Checkbox, CircularProgress } from "@mui/material";

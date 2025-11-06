@@ -26,7 +26,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode; nodes?: NodeMap }> = ({
   return <Providers>
     {nodes && <NodesSetter nodes={nodes} />}
     {children}
-  </Providers>
+  </Providers>;
 };
 
 describe("NodeElementList", () => {

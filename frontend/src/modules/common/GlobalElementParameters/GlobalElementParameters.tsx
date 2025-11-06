@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../GlobalElementParameters/GlobalElementParameters.module.scss";
 import { ArrowIcon } from "../../../ui-lib/Icons/ArrowIcon";
-import { GlobalParameterStructure } from "../../GraphLibrary/components/GraphStatus/context/GraphStatusContext";
+import { GlobalParameterStructure } from "../../../stores/GraphStores/GraphStatus/GraphStatusStore";
 
 export const GlobalElementParameters: React.FC<{
   title: string;

@@ -30,7 +30,7 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
     getAllMeasurements,
     (prev?: Measurement[], current?: Measurement[]) => JSON.stringify(prev) === JSON.stringify(current)
   );
-  const trackLatest = useSelector(getTrackLatest)
+  const trackLatest = useSelector(getTrackLatest);
   const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
   const [latestId, setLatestId] = useState<number | undefined>();
   const [latestName, setLatestName] = useState<string | undefined>();

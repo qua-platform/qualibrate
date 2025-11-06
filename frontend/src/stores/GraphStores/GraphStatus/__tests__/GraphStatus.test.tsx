@@ -85,7 +85,7 @@ const mockNodes = [
       y: 100
     }
   }
-]
+];
 
 describe("GraphStatus - Context Coordination", () => {
   const mockMeasurements: Measurement[] = [
@@ -123,15 +123,10 @@ describe("GraphStatus - Context Coordination", () => {
     },
   ];
 
-  const mockWorkflowGraphElements = [
-    { data: { id: "test_node" } },
-    { data: { id: "another_node" } },
-  ];
-
   beforeEach(async () => {
     vi.clearAllMocks();
     server.use(
-      http.get('/execution/last_run/workflow/execution_history', () =>
+      http.get("/execution/last_run/workflow/execution_history", () =>
         HttpResponse.json({ items: mockMeasurements })
       ),
       http.get("/execution/get_graph/cytoscape", () =>
@@ -143,7 +138,7 @@ describe("GraphStatus - Context Coordination", () => {
   it("should fetch measurements on mount", async () => {
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -161,11 +156,9 @@ describe("GraphStatus - Context Coordination", () => {
   });
 
   it("should sync selection across contexts", async () => {
-    const mockSetSelectedItemName = vi.fn();
-
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -181,7 +174,7 @@ describe("GraphStatus - Context Coordination", () => {
   it("should disable track-latest on manual node click", async () => {
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -209,7 +202,7 @@ describe("GraphStatus - Context Coordination", () => {
 
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -253,7 +246,7 @@ describe("GraphStatus - Measurement Operations", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     server.use(
-      http.get('/execution/last_run/workflow/execution_history', () =>
+      http.get("/execution/last_run/workflow/execution_history", () =>
         HttpResponse.json({ items: mockMeasurements })
       ),
       http.get("/execution/get_graph/cytoscape", () =>
@@ -266,7 +259,7 @@ describe("GraphStatus - Measurement Operations", () => {
   it("should find measurement ID by name", async () => {
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -281,13 +274,13 @@ describe("GraphStatus - Measurement Operations", () => {
   });
 
   it("should handle missing measurements gracefully", async () => {
-    server.use(http.get('/execution/last_run/workflow/execution_history', () =>
+    server.use(http.get("/execution/last_run/workflow/execution_history", () =>
       HttpResponse.json(null, { status: 500 })
     ));
 
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -295,7 +288,7 @@ describe("GraphStatus - Measurement Operations", () => {
       </Providers>
     );
 
-    // Click on a node that doesn't exist in measurements
+    // Click on a node that doesn"t exist in measurements
     const clickButton = await screen.findByText("Click Node");
     clickButton.click();
 
@@ -309,7 +302,7 @@ describe("GraphStatus - Measurement Operations", () => {
   it("should fetch measurements if not loaded", async () => {
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -322,18 +315,18 @@ describe("GraphStatus - Measurement Operations", () => {
     clickButton.click();
 
     await waitFor(() => {
-      expect(getAllMeasurements(mockStore.getState())).toBeDefined()
+      expect(getAllMeasurements(mockStore.getState())).toBeDefined();
     });
   });
 
   it("should clear result when measurement ID is missing", async () => {
-    server.use(http.get('/execution/last_run/workflow/execution_history', () =>
+    server.use(http.get("/execution/last_run/workflow/execution_history", () =>
       HttpResponse.json(null, { status: 500 })
     ));
 
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_workflow'))
+    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
 
     render(
       <Providers>
@@ -341,7 +334,7 @@ describe("GraphStatus - Measurement Operations", () => {
       </Providers>
     );
 
-    // Click on a node that doesn't match any measurement
+    // Click on a node that doesn"t match any measurement
     const clickButton = await screen.findByText("Click Node");
     clickButton.click();
 
@@ -373,7 +366,7 @@ describe("GraphStatus - Node Click Handling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     server.use(
-      http.get('/execution/last_run/workflow/execution_history', () =>
+      http.get("/execution/last_run/workflow/execution_history", () =>
         HttpResponse.json({ items: mockMeasurements })
       ),
       http.get("/execution/get_graph/cytoscape", () =>
@@ -392,7 +385,7 @@ describe("GraphStatus - Node Click Handling", () => {
 
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_node'))
+    mockStore.dispatch(setSelectedWorkflowName("test_node"));
 
     render(
       <Providers>
@@ -427,7 +420,7 @@ describe("GraphStatus - Node Click Handling", () => {
 
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_node'))
+    mockStore.dispatch(setSelectedWorkflowName("test_node"));
 
     render(
       <Providers>
@@ -456,7 +449,7 @@ describe("GraphStatus - Node Click Handling", () => {
   it("should set clicked-for-snapshot-selection flag", async () => {
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_node'))
+    mockStore.dispatch(setSelectedWorkflowName("test_node"));
 
     render(
       <Providers>
@@ -475,7 +468,7 @@ describe("GraphStatus - Node Click Handling", () => {
   it("should update selection contexts", async () => {
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName('test_node'))
+    mockStore.dispatch(setSelectedWorkflowName("test_node"));
 
     render(
       <Providers>
@@ -487,7 +480,7 @@ describe("GraphStatus - Node Click Handling", () => {
     clickButton.click();
 
     await waitFor(() => {
-      expect(getSelectedWorkflowName(mockStore.getState())).toBe("test_node")
+      expect(getSelectedWorkflowName(mockStore.getState())).toBe("test_node");
       expect(getSelectedSnapshotId(mockStore.getState())).toBe(5);
     });
   });

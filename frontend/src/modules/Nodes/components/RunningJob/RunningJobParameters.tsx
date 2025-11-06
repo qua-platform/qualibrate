@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { getRunningNode } from "../../../../stores/NodesStore/selectors";
 
 export const RunningJobParameters: React.FC = () => {
-  const runningNode = useSelector(getRunningNode)
+  const runningNode = useSelector(getRunningNode);
   return (
     <div className={styles.parametersWrapper} data-testid="parameters-wrapper">
       {/*{Object.entries(runningNode?.parameters ?? {}).length > 0 && (*/}

@@ -7,4 +7,4 @@ export const graphStore = combineSlices(
   commonGraphSlice,
   graphLibrarySlice,
   graphStatusSlice,
-)
+);

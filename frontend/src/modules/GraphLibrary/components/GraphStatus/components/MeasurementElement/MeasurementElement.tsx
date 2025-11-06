@@ -48,9 +48,9 @@ export const formatDateTime = (dateTimeString: string) => {
 };
 
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, dataMeasurementId }) => {
-  const dispatch = useRootDispatch()
+  const dispatch = useRootDispatch();
   const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
-  const trackLatest = useSelector(getTrackLatest)
+  const trackLatest = useSelector(getTrackLatest);
 
   // Check if selected via list click or Cytoscape graph node click
   const measurementSelected =

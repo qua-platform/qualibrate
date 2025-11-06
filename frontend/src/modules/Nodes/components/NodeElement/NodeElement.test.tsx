@@ -244,13 +244,13 @@ describe("NodeElement - Execution", () => {
   it("should show spinner when node is running", async () => {
     const { Providers, mockStore } = createTestProviders();
     // Pre-select the node
-    mockStore.dispatch(setSelectedNode('test_cal'));
+    mockStore.dispatch(setSelectedNode("test_cal"));
     mockStore.dispatch(setRunStatus({
       is_running: true,
       runnable_type: "node",
       node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 50 }),
       graph: null
-    }))
+    }));
 
     render(
       <Providers>
@@ -282,7 +282,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
   });
 
   it("should show status indicator for running node", () => {
-    const { Providers, mockStore } = createTestProviders()
+    const { Providers, mockStore } = createTestProviders();
     mockStore.dispatch(setRunStatus({
       is_running: true,
       runnable_type: "node",
@@ -308,7 +308,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
   });
 
   it("should show green dot when node finished", () => {
-    const { Providers, mockStore } = createTestProviders()
+    const { Providers, mockStore } = createTestProviders();
     mockStore.dispatch(setRunStatus({
       is_running: false,
       runnable_type: "node",
@@ -336,7 +336,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
   });
 
   it("should show red dot when node errored", () => {
-    const { Providers, mockStore } = createTestProviders()
+    const { Providers, mockStore } = createTestProviders();
     mockStore.dispatch(setRunStatus({
       is_running: false,
       runnable_type: "node",
@@ -360,7 +360,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
   it("should not show status for different running node", () => {
     // Catches complex conditional logic in status display
-    const { Providers, mockStore } = createTestProviders()
+    const { Providers, mockStore } = createTestProviders();
     mockStore.dispatch(setRunStatus({
       is_running: true,
       runnable_type: "node",

@@ -9,4 +9,4 @@ export const useInitProjects = () => {
       dispatch(fetchProjectsAndActive());
       dispatch(fetchShouldRedirectUserToProjectPage());
     }, []);
-}
+};

@@ -5,7 +5,7 @@ import graphStatusSlice from "./GraphStatusStore";
 export const {
   setAllMeasurements,
   setTrackLatest,
-} = graphStatusSlice.actions
+} = graphStatusSlice.actions;
 
 export const fetchAllMeasurements = () => async (dispatch: RootDispatch) => {
   try {

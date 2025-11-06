@@ -10,7 +10,7 @@ export const useInitNodes = () => {
   const isNodeRunning = useSelector(getIsNodeRunning);
   const runningNodeInfo = useSelector(getRunningNodeInfo);
   const runStatusType = useSelector(getRunStatusType);
-  const isRunStatusRunning = useSelector(getRunStatusIsRunning)
+  const isRunStatusRunning = useSelector(getRunStatusIsRunning);
 
   useEffect(() => {
     if (!isNodeRunning) {
@@ -29,4 +29,4 @@ export const useInitNodes = () => {
       dispatch(setIsNodeRunning(isRunStatusRunning));
     }
   }, [runStatusType, isRunStatusRunning]);
-}
+};

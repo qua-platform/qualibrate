@@ -28,24 +28,24 @@ export const handleShowConnectionErrorDialog = () => (dispatch: RootDispatch, ge
 
   dispatch(setShowConnectionErrorDialog(true));
   localStorage.setItem("backandWorking", "false");
-}
+};
 
 export const handleHideConnectionErrorDialog = () => (dispatch: RootDispatch, getState: () => RootState) => {
   const showConnectionErrorDialog = getShowConnectionErrorDialog(getState());
-  if (!showConnectionErrorDialog) return
+  if (!showConnectionErrorDialog) return;
 
   localStorage.setItem("backandWorking", "true");
   dispatch(setConnectionLostAt(null));
   dispatch(setConnectionLostSeconds(0));
   dispatch(fetchShouldRedirectUserToProjectPage());
   dispatch(setShowConnectionErrorDialog(false));
-}
+};
 
 export const handleSetRunStatus = (runStatus: RunStatusType) =>
   (dispatch: RootDispatch, getState: () => RootState) => {
     const lastRunInfo = getLastRunInfo(getState());
 
-    dispatch(setRunStatus(runStatus))
+    dispatch(setRunStatus(runStatus));
     dispatch(setLastRunInfo({
       ...lastRunInfo,
       active: runStatus.is_running,
@@ -56,4 +56,4 @@ export const handleSetRunStatus = (runStatus: RunStatusType) =>
       runDuration: runStatus.graph?.run_duration,
       error: runStatus.graph?.error,
     }));
-  }
+  };

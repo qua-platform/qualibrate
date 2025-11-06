@@ -35,4 +35,4 @@ export const useInitSnapshots = () => {
     }
   }, [reset, pageNumber]);
   // -----------------------------------------------------------
-}
+};

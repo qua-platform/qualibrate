@@ -29,7 +29,7 @@ export const fetchAllNodes = (rescan?: boolean) => async (dispatch: RootDispatch
     console.error("Failed to fetch all nodes:", response.error);
   }
   dispatch(setIsRescanningNodes(false));
-}
+};
 
 function parseDateString(dateString: string): Date {
   const [datePart, timePart] = dateString.split(" ");

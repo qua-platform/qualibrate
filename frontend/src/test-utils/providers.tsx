@@ -47,7 +47,7 @@ export const createTestProviders = (overrides: {
     setTrackLatest?: (track: boolean) => void;
   };
 } = {}) => {
-  const mockStore = configureStore({ reducer: rootReducer })
+  const mockStore = configureStore({ reducer: rootReducer });
 
   // Helper component to set initial context values
   const ContextSetter = ({ children }: { children: React.ReactNode }) =>  {
