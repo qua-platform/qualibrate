@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarNodeCard.module.scss";
