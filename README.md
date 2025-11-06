@@ -31,6 +31,26 @@ QUAlibrate-Core is also automatically installed as part of QUAlibrate:
 pip install qualibrate
 ```
 
+## Testing
+
+To run the test suite:
+
+```bash
+poetry run pytest
+```
+
+For verbose output:
+
+```bash
+poetry run pytest -v
+```
+
+To run specific test modules:
+
+```bash
+poetry run pytest tests/unit/test_runnables/test_run_action/
+```
+
 ## License
 
 QUAlibrate-Core is licensed under the BSD-3 license. See the [LICENSE](https://github.com/qua-platform/qualibrate-core/blob/main/LICENSE) file for more details.
