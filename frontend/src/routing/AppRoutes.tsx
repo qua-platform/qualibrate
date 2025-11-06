@@ -11,6 +11,7 @@ import { useInitNodes } from "../stores/NodesStore/hooks";
 import { useInitProjects } from "../stores/ProjectStore/hooks";
 import { useInitGraphs } from "../stores/GraphStores/hooks";
 import { useInitWebSocket } from "../stores/WebSocketStore/hooks";
+import { useInitSnapshots } from "../stores/SnapshotsStore/hooks";
 
 export const useInitApp = () => {
   useLogin();
@@ -18,6 +19,7 @@ export const useInitApp = () => {
   useInitProjects();
   useInitGraphs();
   useInitWebSocket();
+  useInitSnapshots();
 };
 
 const ProtectedRoute = ({ children }: { children: React.JSX.Element }): React.JSX.Element => {

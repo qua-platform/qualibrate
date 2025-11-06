@@ -15,7 +15,6 @@ import {
   MeasurementElementOutcomes,
   MeasurementElementStatusInfoAndParameters,
 } from "../MeasurementElementInfoSection/MeasurementElementInfoSection";
-import { useSnapshotsContext } from "../../../../../Snapshots/context/SnapshotsContext";
 import { Tooltip } from "@mui/material";
 import { InfoIcon } from "../../../../../../ui-lib/Icons/InfoIcon";
 import { getTrackLatest } from "../../../../../../stores/GraphStores/GraphStatus/selectors";
@@ -25,6 +24,13 @@ import { useRootDispatch } from "../../../../../../stores";
 import { getSelectedNodeNameInWorkflow } from "../../../../../../stores/GraphStores/GraphCommon/selectors";
 import { setSelectedNodeNameInWorkflow } from "../../../../../../stores/GraphStores/GraphCommon/actions";
 import { Measurement } from "../../GraphStatus";
+import {
+  fetchOneSnapshot,
+  setClickedForSnapshotSelection,
+  setDiffData,
+  setResult,
+  setSelectedSnapshotId
+} from "../../../../../../stores/SnapshotsStore/actions";
 
 interface MeasurementElementProps {
   element: Measurement;
@@ -44,7 +50,6 @@ export const formatDateTime = (dateTimeString: string) => {
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, dataMeasurementId }) => {
   const dispatch = useRootDispatch()
   const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
-  const { fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
   const trackLatest = useSelector(getTrackLatest)
 
   // Check if selected via list click or Cytoscape graph node click
@@ -77,12 +82,12 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     }
     dispatch(setSelectedNodeNameInWorkflow(element.metadata?.name));
     if (element.id) {
-      setSelectedSnapshotId(element.id);
-      setClickedForSnapshotSelection(true);
-      fetchOneSnapshot(element.id);
+      dispatch(setSelectedSnapshotId(element.id));
+      dispatch(setClickedForSnapshotSelection(true));
+      dispatch(fetchOneSnapshot(element.id));
     } else {
-      setResult({});
-      setDiffData({});
+      dispatch(setResult({}));
+      dispatch(setDiffData({}));
     }
   };
   return (

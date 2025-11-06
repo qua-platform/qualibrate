@@ -6,6 +6,7 @@ import { graphStore } from "./GraphStores/index";
 import nodesReducer from "./NodesStore/NodesStore";
 import navigationReducer from "./NavigationStore/NavigationStore";
 import webSocketReducer from "./WebSocketStore/WebSocketStore";
+import SnapshotsReducer from "./SnapshotsStore/SnapshotsStore";
 
 export const rootReducer = combineReducers({
   auth: authReducer,
@@ -13,7 +14,8 @@ export const rootReducer = combineReducers({
   graph: graphStore,
   nodes: nodesReducer,
   navigation: navigationReducer,
-  webSocket: webSocketReducer
+  webSocket: webSocketReducer,
+  snapshots: SnapshotsReducer
 })
 
 const store = configureStore({

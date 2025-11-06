@@ -1,15 +1,20 @@
 import React from "react";
 import { SnapshotElement } from "../SnapshotElement/SnapshotElement";
 import styles from "./SnapshotsTimeline.module.scss";
-import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
+import { useSelector } from "react-redux";
+import { getAllSnapshots, getSelectedSnapshotId } from "../../../../stores/SnapshotsStore/selectors";
+import { fetchOneSnapshot, setClickedForSnapshotSelection, setSelectedSnapshotId } from "../../../../stores/SnapshotsStore/actions";
+import { useRootDispatch } from "../../../../stores";
 
 export const SnapshotsTimeline = () => {
-  const { allSnapshots, selectedSnapshotId, setSelectedSnapshotId, setClickedForSnapshotSelection, fetchOneSnapshot } =
-    useSnapshotsContext();
+  const dispatch = useRootDispatch();
+  const allSnapshots = useSelector(getAllSnapshots);
+  const selectedSnapshotId = useSelector(getSelectedSnapshotId);
+
   const handleOnClick = (id: number) => {
-    setSelectedSnapshotId(id);
-    setClickedForSnapshotSelection(true);
-    fetchOneSnapshot(id);
+    dispatch(setSelectedSnapshotId(id));
+    dispatch(setClickedForSnapshotSelection(true));
+    dispatch(fetchOneSnapshot(id));
   };
   return (
     allSnapshots?.length > 0 && (

@@ -16,7 +16,6 @@ import styles from "./GraphStatus.module.scss";
 import { Results } from "../../../Nodes/components/Results/Results";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
-import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 import { getAllMeasurements } from "../../../../stores/GraphStores/GraphStatus/selectors";
 import { fetchAllMeasurements, setTrackLatest } from "../../../../stores/GraphStores/GraphStatus/actions";
 import { useRootDispatch } from "../../../../stores";
@@ -25,6 +24,8 @@ import { setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/Gr
 import { getLastRunInfo } from "../../../../stores/GraphStores/GraphLibrary/selectors";
 import { GlobalParameterStructure } from "../../../../stores/GraphStores/GraphStatus/GraphStatusStore";
 import { getRunStatusGraphName, getRunStatusGraphTotalNodes } from "../../../../stores/WebSocketStore/selectors";
+import { getResult } from "../../../../stores/SnapshotsStore/selectors";
+import { fetchOneSnapshot, setClickedForSnapshotSelection, setDiffData, setResult, setSelectedSnapshotId } from "../../../../stores/SnapshotsStore/actions";
 
 export interface Measurement {
   created_at?: string;
@@ -52,7 +53,7 @@ const GraphStatus = () => {
   const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
   const runStatusGraphName = useSelector(getRunStatusGraphName);
   const runStatusGraphTotalNodes = useSelector(getRunStatusGraphTotalNodes);
-  const { result, fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
+  const result = useSelector(getResult);
 
   useEffect(() => {
     dispatch(fetchAllMeasurements())
@@ -86,12 +87,12 @@ const GraphStatus = () => {
     const measurementId = getMeasurementId(name, measurements);
     if (measurementId) {
       dispatch(setSelectedNodeNameInWorkflow(name));
-      setSelectedSnapshotId(measurementId);
-      setClickedForSnapshotSelection(true);
-      fetchOneSnapshot(measurementId, measurementId - 1, true, true);
+      dispatch(setSelectedSnapshotId(measurementId));
+      dispatch(setClickedForSnapshotSelection(true));
+      dispatch(fetchOneSnapshot(measurementId, measurementId - 1, true, true));
     } else {
-      setResult({});
-      setDiffData({});
+      dispatch(setResult({}));
+      dispatch(setDiffData({}));
     }
   };
 

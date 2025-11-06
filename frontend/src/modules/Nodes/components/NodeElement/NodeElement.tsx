@@ -53,7 +53,6 @@ import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
 import { StatusVisuals } from "./NodeElementStatusVisuals";
 import { getNodeRowClass } from "./helpers";
-import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
 import { getAllNodes, getSelectedNode, getSubmitNodeResponseError } from "../../../../stores/NodesStore/selectors";
@@ -69,6 +68,8 @@ import { setAllNodes,
 } from "../../../../stores/NodesStore/actions";
 import { ErrorWithDetails } from "../../../../stores/NodesStore/NodesStore";
 import { getRunStatusIsRunning, getRunStatusNodeName, getRunStatusNodePercentage, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore/selectors";
+import { getFirstId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
+import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
 
 /**
  * Calibration node definition from backend node library scan.
@@ -149,8 +150,10 @@ export const formatDate = (date: Date) => {
  * @see StatusVisuals for status indicator rendering (NodeElementStatusVisuals.tsx)
  */
 export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
-  const { firstId, secondId, fetchOneSnapshot, trackLatestSidePanel } = useSnapshotsContext();
   const dispatch = useRootDispatch();
+  const firstId = useSelector(getFirstId);
+  const secondId = useSelector(getSecondId);
+  const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
   const allNodes = useSelector(getAllNodes);
   const selectedNode = useSelector(getSelectedNode);
   const submitNodeResponseError = useSelector(getSubmitNodeResponseError);
@@ -296,7 +299,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
       }));
     }
     if (trackLatestSidePanel) {
-      fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
+      dispatch(fetchOneSnapshot(Number(firstId), Number(secondId), false, true));
     }
   };
 

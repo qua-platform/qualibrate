@@ -1,12 +1,16 @@
 import React from "react";
 import styles from "../Data/Data.module.scss";
-import { useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
 import PaginationWrapper from "../Pagination/PaginationWrapper";
 import { JSONEditor } from "./components/JSONEditor";
 import { SnapshotsTimeline } from "./components/SnapshotsTimeline/SnapshotsTimeline";
+import { useSelector } from "react-redux";
+import { getResult, getTotalPages } from "../../stores/SnapshotsStore/selectors";
+import { setPageNumber } from "../../stores/SnapshotsStore/actions";
 
 export const Data = () => {
-  const { totalPages, setPageNumber, result } = useSnapshotsContext();
+  const totalPages = useSelector(getTotalPages);
+  const result = useSelector(getResult);
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.explorer}>

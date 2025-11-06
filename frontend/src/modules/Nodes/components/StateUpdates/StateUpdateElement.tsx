@@ -5,11 +5,13 @@ import { CircularProgress } from "@mui/material";
 import { CheckMarkBeforeIcon } from "../../../../ui-lib/Icons/CheckMarkBeforeIcon";
 import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
 import { CheckMarkAfterIcon } from "../../../../ui-lib/Icons/CheckMarkAfterIcon";
-import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 import { ValueRow } from "./ValueRow";
 import { setRunningNodeInfo } from "../../../../stores/NodesStore/actions";
 import { useRootDispatch } from "../../../../stores";
 import { RunningNodeInfo, StateUpdateObject } from "../../../../stores/NodesStore/NodesStore";
+import { useSelector } from "react-redux";
+import { getLatestSnapshotId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
+import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
 
 export interface StateUpdateProps {
   stateKey: string;
@@ -26,7 +28,9 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
   const [customValue, setCustomValue] = useState<string | number>(JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? ""));
   const previousValue = JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? "");
-  const { secondId, fetchOneSnapshot, trackLatestSidePanel, latestSnapshotId } = useSnapshotsContext();
+  const secondId = useSelector(getSecondId);
+  const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
+  const latestSnapshotId = useSelector(getLatestSnapshotId);
 
   const handleUpdateClick = async () => {
     if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && ("val" in stateUpdateObject || "new" in stateUpdateObject)) {
@@ -36,7 +40,7 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
 
       const stateUpdate = { ...stateUpdateObject, stateUpdated: response.result! };
       if (response.isOk && response.result && trackLatestSidePanel) {
-        fetchOneSnapshot(Number(latestSnapshotId), Number(secondId), false, true);
+        dispatch(fetchOneSnapshot(Number(latestSnapshotId), Number(secondId), false, true));
       }
       dispatch(setRunningNodeInfo({
         ...runningNodeInfo,

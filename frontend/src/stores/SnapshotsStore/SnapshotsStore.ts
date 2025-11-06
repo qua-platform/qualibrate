@@ -1,0 +1,92 @@
+import { createSlice } from "@reduxjs/toolkit";
+import { SnapshotDTO } from "../../modules/Snapshots/SnapshotDTO";
+
+interface SnapshotsState {
+  trackLatestSidePanel: boolean;
+  trackPreviousSnapshot: boolean;
+  totalPages: number;
+  pageNumber: number;
+  allSnapshots: SnapshotDTO[];
+  selectedSnapshotId: number | undefined;
+  latestSnapshotId: number | undefined;
+  clickedForSnapshotSelection: boolean;
+  jsonData: object | undefined;
+  jsonDataSidePanel: object | undefined;
+  diffData: object | undefined;
+  result: object | undefined;
+  firstId: string;
+  secondId: string;
+  reset: boolean;
+}
+
+const initialState: SnapshotsState = {
+  trackLatestSidePanel: true,
+  trackPreviousSnapshot: true,
+  totalPages: 0,
+  pageNumber: 0,
+  allSnapshots: [],
+  selectedSnapshotId: undefined,
+  latestSnapshotId: undefined,
+  clickedForSnapshotSelection: false,
+  jsonData: {},
+  jsonDataSidePanel: {},
+  diffData: {},
+  result: {},
+  firstId: "0",
+  secondId: "0",
+  reset: false,
+};
+
+export const SnapshotsSlice = createSlice({
+  name: "snapshots",
+  initialState,
+  reducers: {
+    setTrackLatestSidePanel: (state, action) => {
+      state.trackLatestSidePanel = action.payload;
+    },
+    setTrackPreviousSnapshot: (state, action) => {
+      state.trackPreviousSnapshot = action.payload;
+    },
+    setPageNumber: (state, action) => {
+      state.pageNumber = action.payload;
+    },
+    setTotalPages: (state, action) => {
+      state.totalPages = action.payload;
+    },
+    setAllSnapshots: (state, action) => {
+      state.allSnapshots = action.payload;
+    },
+    setSelectedSnapshotId: (state, action) => {
+      state.selectedSnapshotId = action.payload;
+    },
+    setLatestSnapshotId: (state, action) => {
+      state.latestSnapshotId = action.payload;
+    },
+    setClickedForSnapshotSelection: (state, action) => {
+      state.clickedForSnapshotSelection = action.payload;
+    },
+    setJsonData: (state, action) => {
+      state.jsonData = action.payload;
+    },
+    setJsonDataSidePanel: (state, action) => {
+      state.jsonDataSidePanel = action.payload;
+    },
+    setDiffData: (state, action) => {
+      state.diffData = action.payload;
+    },
+    setResult: (state, action) => {
+      state.result = action.payload;
+    },
+    setFirstId: (state, action) => {
+      state.firstId = action.payload;
+    },
+    setSecondId: (state, action) => {
+      state.secondId = action.payload;
+    },
+    setReset: (state, action) => {
+      state.reset = action.payload;
+    },
+  }
+});
+
+export default SnapshotsSlice.reducer;

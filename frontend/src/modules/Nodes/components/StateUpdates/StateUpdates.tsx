@@ -5,16 +5,19 @@ import styles from "../RunningJob/RunningJob.module.scss";
 import { StateUpdateElement } from "./StateUpdateElement";
 import { Button } from "@mui/material";
 // import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
-import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 import { getRunningNodeInfo, getUpdateAllButtonPressed } from "../../../../stores/NodesStore/selectors";
 import { setUpdateAllButtonPressed } from "../../../../stores/NodesStore/actions";
 import { useSelector } from "react-redux";
 import { useRootDispatch } from "../../../../stores";
 import { StateUpdate } from "../../../../stores/NodesStore/NodesStore";
+import { getLatestSnapshotId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
+import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
 
 export const StateUpdates: React.FC<{}> = () => {
   const dispatch = useRootDispatch();
-  const { trackLatestSidePanel, fetchOneSnapshot, latestSnapshotId, secondId } = useSnapshotsContext();
+  const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
+  const latestSnapshotId = useSelector(getLatestSnapshotId);
+  const secondId = useSelector(getSecondId);
   const runningNodeInfo = useSelector(getRunningNodeInfo);
   const updateAllButtonPressed = useSelector(getUpdateAllButtonPressed);
 
@@ -31,7 +34,7 @@ export const StateUpdates: React.FC<{}> = () => {
     if (result.isOk) {
       dispatch(setUpdateAllButtonPressed(result.result!));
       if (result.result && trackLatestSidePanel) {
-        fetchOneSnapshot(Number(latestSnapshotId), Number(secondId), false, true);
+        dispatch(fetchOneSnapshot(Number(latestSnapshotId), Number(secondId), false, true));
       }
     }
   };

@@ -12,11 +12,12 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styles from "./MeasurementHistory.module.scss";
 import { MeasurementElementList } from "../MeasurementElementList/MeasurementElementList";
-import { useSnapshotsContext } from "../../../../../Snapshots/context/SnapshotsContext";
 import { useRootDispatch } from "../../../../../../stores";
 import { getAllMeasurements, getTrackLatest } from "../../../../../../stores/GraphStores/GraphStatus/selectors";
 import { setTrackLatest } from "../../../../../../stores/GraphStores/GraphStatus/actions";
 import { setSelectedNodeNameInWorkflow } from "../../../../../../stores/GraphStores/GraphCommon/actions";
+import { getTrackLatestSidePanel } from "../../../../../../stores/SnapshotsStore/selectors";
+import { fetchOneSnapshot, setDiffData, setLatestSnapshotId, setResult } from "../../../../../../stores/SnapshotsStore/actions";
 
 interface IMeasurementHistoryListProps {
   title?: string;
@@ -26,7 +27,7 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
   const dispatch = useRootDispatch()
   const allMeasurements = useSelector(getAllMeasurements)
   const trackLatest = useSelector(getTrackLatest)
-  const { trackLatestSidePanel, fetchOneSnapshot, setLatestSnapshotId, setResult, setDiffData } = useSnapshotsContext();
+  const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
   const [latestId, setLatestId] = useState<number | undefined>();
   const [latestName, setLatestName] = useState<string | undefined>();
 
@@ -50,15 +51,15 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
 
           dispatch(setSelectedNodeNameInWorkflow(element?.metadata?.name));
           if (element.id) {
-            setLatestSnapshotId(element.id);
+            dispatch(setLatestSnapshotId(element.id));
             if (trackLatestSidePanel) {
-              fetchOneSnapshot(element.id, element.id - 1, true, true);
+              dispatch(fetchOneSnapshot(element.id, element.id - 1, true, true));
             } else {
-              fetchOneSnapshot(element.id);
+              dispatch(fetchOneSnapshot(element.id));
             }
           } else {
-            setResult({});
-            setDiffData({});
+            dispatch(setResult({}));
+            dispatch(setDiffData({}));
           }
         }
       }
