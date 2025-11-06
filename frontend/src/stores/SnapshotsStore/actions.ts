@@ -15,6 +15,7 @@ export const {
   setJsonData,
   setJsonDataSidePanel,
   setDiffData,
+  clearData,
   setResult,
   setFirstId,
   setSecondId,

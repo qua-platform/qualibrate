@@ -74,6 +74,13 @@ export const SnapshotsSlice = createSlice({
     setDiffData: (state, action) => {
       state.diffData = action.payload;
     },
+    clearData: (state) => {
+      state.selectedSnapshotId = undefined;
+      state.jsonData = undefined;
+      state.result = undefined;
+      state.diffData = undefined;
+      state.reset = true;
+    },
     setResult: (state, action) => {
       state.result = action.payload;
     },

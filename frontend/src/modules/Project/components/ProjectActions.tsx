@@ -11,7 +11,7 @@ import { selectActiveProject } from "../../../stores/ProjectStore/actions";
 import { setActivePage } from "../../../stores/NavigationStore/actions";
 import { useSelector } from "react-redux";
 import { getReset } from "../../../stores/SnapshotsStore/selectors";
-import { setDiffData, setJsonData, setReset, setResult, setSelectedSnapshotId } from "../../../stores/SnapshotsStore/actions";
+import { clearData } from "../../../stores/SnapshotsStore/actions";
 
 interface ProjectActionsProps {
   isCurrentProject: boolean;
@@ -27,14 +27,10 @@ const ProjectActions: React.FC<ProjectActionsProps> = ({ isCurrentProject, proje
     if (!selectedProject) return;
 
     dispatch(selectActiveProject(selectedProject));
-    dispatch(setSelectedSnapshotId(undefined));
-    dispatch(setJsonData(undefined));
-    dispatch(setResult(undefined));
-    dispatch(setDiffData(undefined));
-    dispatch(setReset(true));
-
+    dispatch(clearData());
     dispatch(setActivePage(NODES_KEY));
   }, [ selectedProject, reset ]);
+
   return (
     <div className={styles.pageActions}>
       {selectedProject?.name === projectName && (
