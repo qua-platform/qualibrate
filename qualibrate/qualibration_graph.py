@@ -38,6 +38,10 @@ from qualibrate.q_runnnable import (
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate.utils.exceptions import StopInspection, TargetsFieldNotExist
+from qualibrate.utils.graph_building import (
+    GraphElementTypeVar,
+    GraphExportMixin,
+)
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import MachineProtocol, TargetType
@@ -49,10 +53,6 @@ if TYPE_CHECKING:
 
 __all__ = ["QGraphBaseType", "QualibrationGraph", "GraphElementTypeVar"]
 
-GraphElementTypeVar = TypeVar(
-    "GraphElementTypeVar",
-    bound=QRunnable[RunnableParameters, RunnableParameters],
-)
 GraphCreateParametersType = GraphParameters
 GraphRunParametersType = ExecutionParameters
 QGraphBaseType = QRunnable[GraphCreateParametersType, GraphRunParametersType]
@@ -60,6 +60,7 @@ QGraphBaseType = QRunnable[GraphCreateParametersType, GraphRunParametersType]
 
 class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType],
+    GraphExportMixin[GraphElementTypeVar],
     Generic[GraphElementTypeVar],
 ):
     """
@@ -700,7 +701,7 @@ class QualibrationGraph(
         cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters_class.serialize(**kwargs)
         nx_data: dict[str, Any] = dict(
-            self.nx_graph_export(node_names_only=True)
+            self.__class__.nx_graph_export(self._graph, node_names_only=True)
         )
         data.update(
             {
@@ -729,74 +730,8 @@ class QualibrationGraph(
             connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
         if cytoscape:
-            data["cytoscape"] = self.cytoscape_representation(data)
+            data["cytoscape"] = self.__class__.cytoscape_representation(data)
         return data
-
-    # TODO: move to mixin
-    def nx_graph_export(
-        self, node_names_only: bool = False
-    ) -> Mapping[str, Any]:
-        """
-        Exports the graph as a networkx adjacency list.
-
-        Args:
-            node_names_only (bool): If True, only node names are included in
-                the adjacency list. Defaults to False.
-
-        Returns:
-            Mapping[str, Any]: A dictionary representing the adjacency list of
-            the graph.
-        """
-        data = dict(nx.readwrite.adjacency_data(self._graph))
-        for key in ("multigraph", "directed", "graph"):
-            data.pop(key)
-        if node_names_only:
-            for node, adjacency in zip(
-                data["nodes"], data["adjacency"], strict=False
-            ):
-                node["id"] = node["id"].name
-                for adj in adjacency:
-                    adj["id"] = adj["id"].name
-        return data
-
-    # TODO: move to mixin
-    def cytoscape_representation(
-        self, serialized: Mapping[str, Any]
-    ) -> Sequence[Mapping[str, Any]]:
-        """
-        Returns a Cytoscape-compatible representation of the graph.
-
-        This method generates nodes and edges in a format that can be used with
-        Cytoscape for visualization purposes.
-
-        Args:
-            serialized (Mapping[str, Any]): Serialized representation of the
-                graph.
-
-        Returns:
-            Sequence[Mapping[str, Any]]: List of nodes and edges for Cytoscape
-                visualization.
-        """
-        nodes = [
-            {
-                "group": "nodes",
-                "data": {"id": node},
-                "position": {"x": 100, "y": 100},
-            }
-            for node in serialized["nodes"]
-        ]
-        edges = [
-            {
-                "group": "edges",
-                "data": {
-                    "id": f"{source}_{dest}",
-                    "source": source,
-                    "target": dest,
-                },
-            }
-            for source, dest in serialized["connectivity"]
-        ]
-        return [*nodes, *edges]
 
     def stop(self, **kwargs: Any) -> bool:
         """
