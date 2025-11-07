@@ -7,7 +7,7 @@ as part of a QualibrationNode's run lifecycle. Actions have special behavior:
 1. **Namespace Updates**: If an action returns a dict, it's added to
    node.namespace, making values available to subsequent actions.
 
-2. **Interactive Variable Injection**: In interactive mode (Jupyter/IPython),
+2. **Interactive Variable Injection**: In interactive mode (Jupyter),
    returned dict items are injected into the caller's local scope, allowing
    users to access variables without explicit assignment.
 
@@ -51,7 +51,7 @@ class Action:
 
     An Action represents a single step in a node's execution. It provides:
     - Automatic namespace management (returned dicts update node.namespace)
-    - Interactive variable injection (in Jupyter/IPython environments)
+    - Interactive variable injection (in Jupyter environments)
     - Integration with ActionManager for execution control
     - Tracking of the currently executing action
 
@@ -111,7 +111,9 @@ class Action:
             The result from the action function (typically a dict or None)
         """
         # Execute the wrapped function
+        print(f"Running action {self.name}")
         result = self.func(node, *args, **kwargs)
+        print(f"Action {self.name} finished")
 
         # If the function returned a dict, add it to the node's namespace
         # This makes the values available to subsequent actions
@@ -137,7 +139,7 @@ class Action:
         5. Protection against overwriting pre-defined variables
 
         The interactive variable injection is the "magic" that makes returned
-        dict items appear as local variables in Jupyter/IPython notebooks.
+        dict items appear as local variables in Jupyter notebooks.
 
         Args:
             node: The QualibrationNode instance executing this action

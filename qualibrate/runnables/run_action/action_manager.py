@@ -23,13 +23,10 @@ Example:
     def prepare_data(node):
         return {"data": [1, 2, 3]}
 
-    # This is registered but NOT run immediately
+    # This is registered but NOT run
     @node.run_action(skip_if=True)
     def optional_step(node):
         return {"optional": "value"}
-
-    # Can also skip by action name
-    node._action_manager.skip_actions = ["prepare_data"]
 """
 
 import inspect
@@ -106,47 +103,10 @@ class ActionManager:
 
     @property
     def skip_actions(self) -> bool | Sequence[str]:
-        """
-        Get the current skip_actions setting.
-
-        Returns:
-            bool: If True/False, indicates whether to skip all actions
-            (The sequence form is not returned, only the bool flag)
-        """
         return self._skip_actions
 
     @skip_actions.setter
     def skip_actions(self, to_skip: bool | Sequence[str]) -> None:
-        """
-        Control which actions should be skipped during execution.
-
-        This provides two modes:
-        1. Skip all actions: skip_actions = True
-        2. Skip specific actions: skip_actions = ["action1", "action2"]
-
-        This is useful for:
-        - Testing (skip expensive operations)
-        - Partial re-runs (skip already-completed steps)
-        - Conditional execution (skip actions based on parameters)
-
-        Args:
-            to_skip: Either:
-                - bool: True to skip all actions, False to run all
-                - Sequence[str]: List of specific action names to skip
-
-        Raises:
-            TypeError: If to_skip is not bool or Sequence[str]
-
-        Examples:
-            # Skip all actions
-            manager.skip_actions = True
-
-            # Skip specific actions
-            manager.skip_actions = ["expensive_computation", "slow_plot"]
-
-            # Run all actions
-            manager.skip_actions = False
-        """
         if isinstance(to_skip, bool):
             # Boolean mode: skip all (True) or none (False)
             self._skip_actions = to_skip
@@ -240,12 +200,12 @@ class ActionManager:
            - Registers but does NOT execute the action
 
         The decorated function is replaced with a wrapper that calls
-        run_action(), allowing it to be called again later if needed.
+        run_action(), in principle allowing it to be called again later if needed.
 
         Args:
             node: The QualibrationNode instance that owns this action
             func: The function to decorate (None when called with parentheses)
-            skip_if: If True, register but don't execute immediately
+            skip_if: If True, register but don't execute
 
         Returns:
             Either:

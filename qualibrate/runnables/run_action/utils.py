@@ -3,7 +3,7 @@ Frame manipulation utilities for interactive variable injection.
 
 This module contains low-level utilities that enable the "magic" of injecting
 variables from action return values into the caller's local scope in interactive
-environments (Jupyter/IPython).
+environments (Jupyter).
 
 The core challenge: When an action returns {"x": 1}, how do we make `x` appear
 as a local variable in the Jupyter cell that called the action?
@@ -16,7 +16,7 @@ This is advanced Python introspection and is inherently fragile - it depends on:
 - Specific file names ("action_manager.py", "qualibration_node.py")
 - Stack depth remaining consistent
 
-These functions are ONLY used in interactive mode; script execution skips them.
+These functions are ONLY used in interactive mode.
 """
 
 import inspect
@@ -30,7 +30,7 @@ def is_interactive() -> bool:
     """
     Detect if Python is running in interactive mode.
 
-    Interactive mode includes:
+    Interactive mode could include:
     - Jupyter notebooks
     - IPython shells
     - Python REPL (when ps1 is set)
