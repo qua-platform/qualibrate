@@ -3,7 +3,7 @@ from time import sleep
 import numpy as np
 from matplotlib import pyplot as plt
 from pydantic import Field
-from quam.components import *
+from quam.components import BasicQuam, SingleChannel
 
 from qualibrate import NodeParameters, QualibrationNode
 
@@ -18,13 +18,11 @@ class Parameters(NodeParameters):
 node = QualibrationNode(
     name="test_cal",
     parameters=Parameters(),
-    description="Test calibration that wait a few seconds, then plots random data.",
+    description=(
+        "Test calibration that wait a few seconds, then plots random data."
+    ),
 )
-machine = node.machine
-# node.mode.interactive = True
-
-
-machine = BasicQuam(
+machine = node.machine = BasicQuam(
     channels={
         "ch1": SingleChannel(
             opx_output=("con1", 1), intermediate_frequency=100e6

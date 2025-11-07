@@ -13,7 +13,7 @@ class Parameters(NodeParameters):
 node = QualibrationNode("one_more_node", parameters=Parameters())
 node.parameters = Parameters()
 
-import requests
-
-response = requests.get("https://ya.ru")
-assert response.status_code == 200
+# import requests
+#
+# response = requests.get("https://ya.ru")
+# assert response.status_code == 200
