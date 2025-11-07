@@ -17,4 +17,3 @@ import requests
 
 response = requests.get("https://ya.ru")
 assert response.status_code == 200
-
