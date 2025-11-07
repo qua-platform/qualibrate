@@ -115,7 +115,9 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             parameters.__class__.__name__,
             __doc__=parameters.__class__.__doc__,
             __base__=base,
-            __module__=parameters.__class__.__module__,
+            # module parameter is needed only for pickling; so can skip for now
+            # pydantic tries to inspect non-exising modules
+            # __module__=parameters.__class__.__module__,
             **{name: (info.annotation, info) for name, info in fields.items()},
         )
         if hasattr(parameters, "targets_name"):
