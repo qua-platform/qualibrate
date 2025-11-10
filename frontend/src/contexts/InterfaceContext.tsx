@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import { Popup } from "../common/interfaces/Popup";
 import noop from "../common/helpers";
-import { useFlexLayoutContext } from "../routing/flexLayout/FlexLayoutContext";
+import { useMainPageContext } from "../routing/MainPageContext";
 import useSwitch from "@react-hook/switch";
 
 interface InterfaceContextProps {
@@ -49,11 +49,11 @@ export function InterfaceContextProvider(props: InterfaceContextProviderProps): 
 
   const [systemInfoVisible, toggleSystemInfoVisibility] = useSwitch(false);
 
-  const { activeTabsetName, activeTab } = useFlexLayoutContext();
+  const { activePage } = useMainPageContext();
 
   const openPopup = (id: string | number) => {
     const activePopup = registeredPopups.find((p: Popup) => p.id === id);
-    if (activeTabsetName && activePopup?.frameId !== activeTabsetName) {
+    if (activePage && activePopup?.frameId !== activePage) {
       return;
     }
 
@@ -66,10 +66,10 @@ export function InterfaceContextProvider(props: InterfaceContextProviderProps): 
   useEffect(() => {
     setCurrentPopupIDs((prev) => {
       return prev?.filter((p) => {
-        return registeredPopups.find((v) => v.id === p && v.frameId === activeTabsetName);
+        return registeredPopups.find((v) => v.id === p && v.frameId === activePage);
       });
     });
-  }, [activeTabsetName, activeTab]);
+  }, [activePage]);
 
   const getPopup = (targetId: string | number) => {
     const isVisible = !!openedPopupIDs?.find((id) => id === targetId);

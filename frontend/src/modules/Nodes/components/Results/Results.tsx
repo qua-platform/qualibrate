@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { JSONEditor } from "../../../Data/components/JSONEditor";
 import styles from "./Results.module.scss";
-import { ModuleKey } from "../../../../routing/ModulesRegistry";
 import ErrorIcon from "../../../../ui-lib/Icons/ErrorIcon";
 import { ErrorObject } from "../../../common/Error/ErrorStatusWrapper";
 import { Collapse } from "@mui/material";
@@ -88,10 +87,9 @@ export const Results: React.FC<{
   jsonObject: object;
   showSearch?: boolean;
   toggleSwitch?: boolean;
-  pageName?: ModuleKey;
   errorObject: ErrorObject | null | undefined;
   style?: React.CSSProperties;
-}> = ({ title, jsonObject, showSearch = true, toggleSwitch = false, pageName, style, errorObject }) => {
+}> = ({ title, jsonObject, showSearch = true, toggleSwitch = false, style, errorObject }) => {
   if (errorObject) {
     return <ResultsError style={style} errorObject={errorObject} />;
   }
@@ -104,7 +102,6 @@ export const Results: React.FC<{
         height={"100%"}
         showSearch={showSearch}
         toggleSwitch={toggleSwitch}
-        pageName={pageName}
       />
     </div>
   );

@@ -4,13 +4,13 @@ import styles from "./GraphLibrary.module.scss";
 import { useGraphContext } from "./context/GraphContext";
 import { GraphList } from "./components/GraphList";
 import { SelectionContextProvider } from "../common/context/SelectionContext";
-import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
+import { useMainPageContext } from "../../routing/MainPageContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { CircularProgress } from "@mui/material";
 
 export const GraphLibrary = () => {
   const { fetchAllCalibrationGraphs, isRescanningGraphs } = useGraphContext();
-  const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
+  const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useMainPageContext();
   const GraphLibraryTopBarRefreshButton = () => {
     const onClickHandler = useCallback(() => fetchAllCalibrationGraphs(true), [fetchAllCalibrationGraphs]);
     return (
