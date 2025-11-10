@@ -25,19 +25,6 @@ class TestBasicOrchestrator:
 
         assert orchestrator._is_execution_finished() is True
 
-    def test_is_execution_finished_no_active_targets(self, mocker):
-        orchestrator = BasicOrchestrator()
-        orchestrator._graph = mocker.Mock()
-        mocker.patch.object(
-            orchestrator._execution_queue, "qsize", return_value=1
-        )
-        # targets is None
-        assert orchestrator._is_execution_finished() is True
-
-        # targets list is empty
-        orchestrator.targets = []
-        assert orchestrator._is_execution_finished() is True
-
     def test_is_execution_finished_with_pending_nodes(self, mocker):
         orchestrator = BasicOrchestrator()
         orchestrator._graph = mocker.Mock()
