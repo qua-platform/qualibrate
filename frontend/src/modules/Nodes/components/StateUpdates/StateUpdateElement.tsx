@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import { getLatestSnapshotId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
 import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
 
-export interface StateUpdateProps {
+interface StateUpdateProps {
   stateKey: string;
   index: number;
   stateUpdateObject: StateUpdateObject;
@@ -51,7 +51,6 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
     }
   };
   return (
-    // {!runningUpdate && !parameterUpdated && (
     <div key={`${stateKey}-wrapper`} className={styles.stateUpdateWrapper} data-testid={`state-update-wrapper-${stateKey}`}>
       <div className={styles.stateUpdateOrderNumberAndTitleWrapper}>
         <div className={styles.stateUpdateOrderNumber}>{index + 1}</div>

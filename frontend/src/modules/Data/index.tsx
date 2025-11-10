@@ -18,19 +18,7 @@ export const Data = () => {
           </div>
           <PaginationWrapper />
         </div>
-        <div className={styles.viewer}>
-          {result && <JSONEditor title={"RESULTS"} jsonDataProp={result} height={"100%"} />}
-          {/*<div*/}
-          {/*  style={{*/}
-          {/*    overflow: "auto",*/}
-          {/*    flex: 1,*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*{jsonData && !diffData && <JSONEditor title={"QUAM"} jsonDataProp={jsonData} height={"100%"} />}*/}
-          {/*{jsonData && diffData && <JSONEditor title={"QUAM"} jsonDataProp={jsonData} height={"66%"} />}*/}
-          {/*{jsonData && diffData && <JSONEditor title={"QUAM Updates"} jsonDataProp={diffData} height={"34%"} />}*/}
-          {/*</div>*/}
-        </div>
+        <div className={styles.viewer}>{result && <JSONEditor title={"RESULTS"} jsonDataProp={result} height={"100%"} />}</div>
       </div>
     </div>
   );

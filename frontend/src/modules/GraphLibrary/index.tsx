@@ -6,7 +6,7 @@ import { CircularProgress } from "@mui/material";
 import { getIsRescanningGraphs } from "../../stores/GraphStores/GraphLibrary/selectors";
 import { useSelector } from "react-redux";
 
-export const GraphLibrary = () => {
+const GraphLibrary = () => {
   const isRescanningGraphs = useSelector(getIsRescanningGraphs);
 
   return (

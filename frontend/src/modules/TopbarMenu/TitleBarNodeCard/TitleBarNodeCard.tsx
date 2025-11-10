@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import styles from "./styles/TitleBarNodeCard.module.scss";
 import { classNames } from "../../../utils/classnames";
 import Tooltip from "@mui/material/Tooltip";
-import TitleBarTooltipContent from "./TitleBarNodeTooltipContent";
+import { TitleBarTooltipContent } from "./TitleBarNodeTooltipContent";
 import { StatusIndicator } from "./TitleBarStatusIndicator";
 import { getStatusLabelElement } from "./TitleBarGetStatusLabelElement";
 import { capitalize, formatTime, getWrapperClass } from "../helpers";

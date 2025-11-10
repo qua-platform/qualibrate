@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 import { getIsRescanningNodes, getResults } from "../../stores/NodesStore/selectors";
 import { getRunResultError } from "../../stores/WebSocketStore/selectors";
 
-export const NodesPage = () => {
+const NodesPage = () => {
   const isRescanningNodes = useSelector(getIsRescanningNodes);
   const results = useSelector(getResults);
   const runResultError = useSelector(getRunResultError);
@@ -35,12 +35,7 @@ export const NodesPage = () => {
           <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results
-            jsonObject={results ?? {}}
-            showSearch={false}
-            toggleSwitch={true}
-            errorObject={runResultError}
-          />
+          <Results jsonObject={results ?? {}} showSearch={false} toggleSwitch={true} errorObject={runResultError} />
         </div>
       </div>
     </div>

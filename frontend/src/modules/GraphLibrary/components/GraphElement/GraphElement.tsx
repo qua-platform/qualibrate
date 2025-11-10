@@ -9,29 +9,29 @@
  * @see CytoscapeGraph - Embedded graph visualization
  * @see GraphContext - Manages graph selection and execution state
  */
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, {useState} from "react";
+import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
-import { classNames } from "../../../../utils/classnames";
-import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
-import { GraphWorkflow } from "../GraphList";
-import { Checkbox } from "@mui/material";
-import { ParameterList } from "../../../common/Parameters/ParameterList";
+import {classNames} from "../../../../utils/classnames";
+import {InputParameter, Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
+import {GraphWorkflow} from "../GraphList";
+import {Checkbox} from "@mui/material";
+import {ParameterList} from "../../../common/Parameters/ParameterList";
 import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
-import { GraphLibraryApi } from "../../api/GraphLibraryApi";
-import { NodeDTO } from "../../../Nodes/components/NodeElement/NodeElement";
-import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
+import {GraphLibraryApi} from "../../api/GraphLibraryApi";
+import {NodeDTO} from "../../../Nodes/components/NodeElement/NodeElement";
+import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
-import { GRAPH_STATUS_KEY } from "../../../../routing/ModulesRegistry";
-import { getAllGraphs, getSelectedWorkflowName } from "../../../../stores/GraphStores/GraphLibrary/selectors";
-import { fetchWorkflowGraph, setAllGraphs, setLastRunActive, setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphLibrary/actions";
-import { useRootDispatch } from "../../../../stores";
-import { getWorkflowGraphElements } from "../../../../stores/GraphStores/GraphCommon/selectors";
-import { setActivePage } from "../../../../stores/NavigationStore/actions";
+import {GRAPH_STATUS_KEY} from "../../../../routing/ModulesRegistry";
+import {getAllGraphs, getSelectedWorkflowName} from "../../../../stores/GraphStores/GraphLibrary/selectors";
+import {fetchWorkflowGraph, setAllGraphs, setLastRunActive, setSelectedWorkflowName} from "../../../../stores/GraphStores/GraphLibrary/actions";
+import {useRootDispatch} from "../../../../stores";
+import {getWorkflowGraphElements} from "../../../../stores/GraphStores/GraphCommon/selectors";
+import {setActivePage} from "../../../../stores/NavigationStore/actions";
 
-export interface ICalibrationGraphElementProps {
+interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
   calibrationGraph: GraphWorkflow;
 }
@@ -136,7 +136,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
       dispatch(setLastRunActive());
       const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
       if (response.isOk) {
-        setErrorObject(undefined);  // This is a bugfix - previously it didn't clear errorObject on success
+        setErrorObject(undefined); // This is a bugfix - previously it didn't clear errorObject on success
         dispatch(setActivePage(GRAPH_STATUS_KEY));
       } else {
         setErrorObject(response.error);

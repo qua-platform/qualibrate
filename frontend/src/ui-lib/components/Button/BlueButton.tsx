@@ -4,7 +4,7 @@ import { classNames } from "../../../utils/classnames";
 import styles from "./BlueButton.module.scss";
 import { DefaultButtonProps } from "./types";
 
-export type BlueButtonProps = DefaultButtonProps & {
+type BlueButtonProps = DefaultButtonProps & {
   isSecondary?: boolean;
   isBig?: boolean;
 };
@@ -18,7 +18,7 @@ const BlueButton: React.FC<BlueButtonProps> = (props) => {
         isBig && styles.big,
         isSecondary ? styles.secondary : styles.primary,
         isCircle && styles.isCircle,
-        className,
+        className
       )}
       {...restProps}
     >

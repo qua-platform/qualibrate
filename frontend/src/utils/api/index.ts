@@ -1,9 +1,8 @@
 import { API_METHODS } from "../../common/enums/Api";
 import { Res } from "../../common/interfaces/Api";
 import { FetchOptions, GETOptions, RequestEntry } from "./types";
-import { makeTemporaryDownloadLink } from "../fileHelpers";
 
-export const AUTH_HEADER = {
+const AUTH_HEADER = {
   Authorization: "Basic bWVhc3VyZW1lbnQ6ZW50YW5nbGU=",
 };
 
@@ -14,9 +13,9 @@ export const BASIC_HEADERS = {
   ...AUTH_HEADER,
 };
 
-export const API_ADDRESS = "api/v0/";
+const API_ADDRESS = "api/v0/";
 
-export type ErrorObject = {
+type ErrorObject = {
   error: string;
 };
 
@@ -59,23 +58,6 @@ export default class Api {
       .replace(/,/g, "");
 
     return `?${plainParams}${arrayQuery}`;
-  }
-
-  static async pingURL(url: string): Promise<Res> {
-    try {
-      const res = await fetch(url, {
-        method: API_METHODS.GET,
-        // headers: { ...BASIC_HEADERS },
-        // credentials: "include",
-      });
-
-      return this.getResult(res);
-    } catch (e) {
-      return {
-        isOk: false,
-        error: "" + e,
-      };
-    }
   }
 
   static async _fetch<P>(path: string, method: API_METHODS, options?: FetchOptions): Promise<Res<P>> {
@@ -149,45 +131,6 @@ export default class Api {
         error: "" + e,
       };
     }
-  }
-
-  static async downloadFile(
-    fullPath: string,
-    defaultFileName: string,
-    options: {
-      [key: string]: object | string | unknown;
-    } = {}
-  ): Promise<Res> {
-    return new Promise((resolve) => {
-      let fileName = defaultFileName;
-      fetch(fullPath, {
-        method: API_METHODS.GET,
-        headers: {
-          ...BASIC_HEADERS,
-        },
-        ...options,
-      })
-        .then((response) => {
-          try {
-            const header = response.headers.get("Content-Disposition");
-            const parts = header!.split(";");
-            fileName = parts[1].split("=")[1].replaceAll('"', "");
-          } catch (e) {
-            console.log(e);
-          }
-          if (response.ok) {
-            return response.blob();
-          } else {
-            return Promise.reject(response.statusText);
-          }
-        })
-        .then((blob) => {
-          const fileUrl = window.URL.createObjectURL(new Blob([blob]));
-          makeTemporaryDownloadLink(fileUrl, fileName);
-          resolve({ isOk: true });
-        })
-        .catch((err) => resolve({ isOk: false, error: err }));
-    });
   }
 
   private static async setupOkResponse(res: Response, message?: string) {

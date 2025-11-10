@@ -1,16 +1,7 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import {
-  ALL_NODES,
-  GET_LAST_RUN,
-  GET_LAST_RUN_STATUS,
-  GET_LOGS,
-  IS_NODE_RUNNING,
-  STOP_RUNNING,
-  SUBMIT_NODE_RUN,
-} from "../../../utils/api/apiRoutes";
+import { ALL_NODES, GET_LAST_RUN, GET_LOGS, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
-import { LastRunStatusGraphResponseDTO, LastRunStatusNodeResponseDTO } from "../../TopbarMenu/constants";
 import { LogsViewerResponseDTO } from "../../../modules/RightSidebar/Logs/LogsPanel";
 
 export class NodesApi extends Api {
@@ -44,29 +35,6 @@ export class NodesApi extends Api {
 
   static fetchLastRunInfo(): Promise<Res<unknown>> {
     return this._fetch(this.api(GET_LAST_RUN()), API_METHODS.GET, {
-      headers: BASIC_HEADERS,
-    });
-  }
-
-  static fetchLastRunStatusInfo(): Promise<
-    Res<{
-      node: LastRunStatusNodeResponseDTO;
-      graph: LastRunStatusGraphResponseDTO;
-    }>
-  > {
-    return this._fetch(this.api(GET_LAST_RUN_STATUS()), API_METHODS.GET, {
-      headers: BASIC_HEADERS,
-    });
-  }
-
-  static checkIsNodeRunning(): Promise<Res<boolean>> {
-    return this._fetch(this.api(IS_NODE_RUNNING()), API_METHODS.GET, {
-      headers: BASIC_HEADERS,
-    });
-  }
-
-  static stopRunningGraph(): Promise<Res<void>> {
-    return this._fetch(this.api(STOP_RUNNING()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
     });
   }

@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useRootDispatch } from "..";
 import { AuthApi } from "../../modules/Login/api/AuthApi";
-import { OFFLINE_MODE } from "../../dev.config";
 import { setAuthorize, setError, setTriedLoginWithEmptyString } from "./actions";
 import { HOME_URL } from "../../common/modules";
 import { useEffect } from "react";
@@ -28,11 +27,10 @@ export const useLogin = () => {
 
   const login = async (password: string) => {
     const { isOk } = await AuthApi.login(password);
-    const authIsOk = OFFLINE_MODE || isOk;
 
-    dispatch(setAuthorize(authIsOk));
-    dispatch(setError(authIsOk ? undefined : "Failed to authorize"));
-    if (authIsOk) {
+    dispatch(setAuthorize(isOk));
+    dispatch(setError(isOk ? undefined : "Failed to authorize"));
+    if (isOk) {
       navigate(HOME_URL);
     }
   };

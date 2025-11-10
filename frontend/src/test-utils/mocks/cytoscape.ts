@@ -4,9 +4,9 @@
  * Provides mock implementations of Cytoscape API methods used in CytoscapeGraph component.
  * For integration tests that need real Cytoscape, import the actual library instead.
  */
-import { vi } from "vitest";
+import {vi} from "vitest";
 
-export interface MockCytoscapeElement {
+interface MockCytoscapeElement {
   id: () => string;
   data: (key?: string) => unknown;
   classes: (classes?: string) => void;
@@ -14,7 +14,7 @@ export interface MockCytoscapeElement {
   unselect: () => void;
 }
 
-export interface MockCytoscapeCore {
+interface MockCytoscapeCore {
   nodes: ReturnType<typeof vi.fn>;
   elements: ReturnType<typeof vi.fn>;
   on: ReturnType<typeof vi.fn>;
@@ -68,7 +68,7 @@ export const createMockCytoscape = (): MockCytoscapeCore => {
  * Mock Cytoscape constructor for vi.mock().
  * Also includes use() and warnings() as properties for module-level calls.
  */
-export const mockCytoscapeConstructor = Object.assign(
+const mockCytoscapeConstructor = Object.assign(
   vi.fn(() => createMockCytoscape()),
   {
     use: vi.fn(),

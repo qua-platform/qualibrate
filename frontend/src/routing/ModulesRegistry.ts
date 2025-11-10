@@ -55,7 +55,7 @@ export type Module = {
   // onClick?: () => void;
 };
 
-export const ModulesRegistry: Array<Module> = [
+const ModulesRegistry: Array<Module> = [
   {
     keyId: NODES_KEY,
     path: "nodes",
@@ -141,11 +141,5 @@ ModulesRegistry.map((el) => {
 });
 
 export default modulesMap;
-
-// export const getSelectedTabName(key: string) => {
-//   return modulesMap[key] ?? null;
-// };
-
 export const bottomMenuItems = ModulesRegistry.filter((m) => m.menuItem && m.menuItem.atBottom);
-
 export const menuItems = ModulesRegistry.filter((m) => m.menuItem && !m.menuItem.atBottom);

@@ -30,5 +30,3 @@ export const TitleBarTooltipContent: React.FC = () => {
     </div>
   );
 };
-
-export default TitleBarTooltipContent;
