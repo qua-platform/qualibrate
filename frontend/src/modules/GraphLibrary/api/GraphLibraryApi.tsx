@@ -1,15 +1,8 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
-import {
-  ALL_GRAPHS,
-  GET_EXECUTION_HISTORY,
-  GET_LAST_RUN_WORKFLOW_STATUS,
-  GET_WORKFLOW_GRAPH,
-  SUBMIT_WORKFLOW_RUN,
-} from "../../../utils/api/apiRoutes";
+import { ALL_GRAPHS, GET_EXECUTION_HISTORY, GET_WORKFLOW_GRAPH, SUBMIT_WORKFLOW_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
 import { Measurement } from "../components/GraphStatus/context/GraphStatusContext";
-import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
 
 export class GraphLibraryApi extends Api {
   constructor() {
@@ -44,22 +37,6 @@ export class GraphLibraryApi extends Api {
 
   static fetchExecutionHistory(): Promise<Res<{ items: Measurement[] }>> {
     return this._fetch(this.api(GET_EXECUTION_HISTORY()), API_METHODS.GET, {
-      headers: BASIC_HEADERS,
-    });
-  }
-
-  static fetchLastWorkflowStatus(): Promise<
-    Res<{
-      active: boolean;
-      active_node_name: string;
-      nodes_completed: number;
-      nodes_total: number;
-      run_duration: number;
-      error: ErrorObject;
-      run_results: { parameters: { nodes: { [key: string]: string }[] } };
-    }>
-  > {
-    return this._fetch(this.api(GET_LAST_RUN_WORKFLOW_STATUS()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }

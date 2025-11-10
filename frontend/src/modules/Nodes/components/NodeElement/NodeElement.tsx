@@ -42,21 +42,21 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import { Checkbox, CircularProgress } from "@mui/material";
-import { ErrorWithDetails, useNodesContext } from "../../context/NodesContext";
-import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
-import { useSelectionContext } from "../../../common/context/SelectionContext";
-import { ErrorResponseWrapper } from "../../../common/Error/ErrorResponseWrapper";
+import {Checkbox, CircularProgress} from "@mui/material";
+import {ErrorWithDetails, useNodesContext} from "../../context/NodesContext";
+import {InputParameter, Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
+import {useSelectionContext} from "../../../common/context/SelectionContext";
+import {ErrorResponseWrapper} from "../../../common/Error/ErrorResponseWrapper";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import { NodesApi } from "../../api/NodesAPI";
-import { RunIcon } from "../../../../ui-lib/Icons/RunIcon";
+import {NodesApi} from "../../api/NodesAPI";
+import {RunIcon} from "../../../../ui-lib/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
-import { InfoIcon } from "../../../../ui-lib/Icons/InfoIcon";
-import { StatusVisuals } from "./NodeElementStatusVisuals";
-import { getNodeRowClass } from "./helpers";
-import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
-import { useWebSocketData } from "../../../../contexts/WebSocketContext";
+import {InfoIcon} from "../../../../ui-lib/Icons/InfoIcon";
+import {StatusVisuals} from "./NodeElementStatusVisuals";
+import {getNodeRowClass} from "./helpers";
+import {useSnapshotsContext} from "../../../Snapshots/context/SnapshotsContext";
+import {useWebSocketData} from "../../../../contexts/WebSocketContext";
 
 /**
  * Calibration node definition from backend node library scan.
@@ -95,7 +95,7 @@ export interface NodeMap {
  * Used to display execution timestamps in the UI. This format matches
  * the NodesContext.parseDateString() format for bidirectional conversion.
  */
-export const formatDate = (date: Date) => {
+const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");

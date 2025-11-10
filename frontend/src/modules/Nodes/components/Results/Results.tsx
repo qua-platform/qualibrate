@@ -2,9 +2,9 @@ import React from "react";
 import { JSONEditor } from "../../../Data/components/JSONEditor";
 import styles from "./Results.module.scss";
 import ErrorIcon from "../../../../ui-lib/Icons/ErrorIcon";
-import { ErrorObject } from "../../../common/Error/ErrorStatusWrapper";
+import { ErrorObject } from "../../../common/Error/ErrorStatusInterface";
 
-export const ResultsError: React.FC<{ style?: React.CSSProperties; errorObject: ErrorObject }> = ({ style, errorObject }) => {
+const ResultsError: React.FC<{ style?: React.CSSProperties; errorObject: ErrorObject }> = ({ style, errorObject }) => {
   return (
     <div className={styles.errorWrapper} style={style} data-testid="results-wrapper">
       <div className={styles.errorHeader}>

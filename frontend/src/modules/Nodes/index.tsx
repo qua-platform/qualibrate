@@ -11,7 +11,7 @@ import { useMainPageContext } from "../../routing/MainPageContext";
 import { CircularProgress } from "@mui/material";
 import { useWebSocketData } from "../../contexts/WebSocketContext";
 
-export const NodesPage = () => {
+const NodesPage = () => {
   const { runStatus } = useWebSocketData();
   const { fetchAllNodes, isRescanningNodes, results } = useNodesContext();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useMainPageContext();
@@ -47,12 +47,7 @@ export const NodesPage = () => {
           <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results
-            jsonObject={results ?? {}}
-            showSearch={false}
-            toggleSwitch={true}
-            errorObject={runStatus?.node?.run_results?.error}
-          />
+          <Results jsonObject={results ?? {}} showSearch={false} toggleSwitch={true} errorObject={runStatus?.node?.run_results?.error} />
         </div>
       </div>
     </div>

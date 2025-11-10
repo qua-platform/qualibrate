@@ -8,13 +8,13 @@
  * @see GraphStatusContext - Provides allMeasurements and trackLatest state
  * @see MeasurementElementList - Renders the measurement list
  */
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import styles from "./MeasurementHistory.module.scss";
-import { useGraphStatusContext } from "../../context/GraphStatusContext";
-import { MeasurementElementList } from "../MeasurementElementList/MeasurementElementList";
-import { useSelectionContext } from "../../../../../common/context/SelectionContext";
-import { useGraphContext } from "../../../../context/GraphContext";
-import { useSnapshotsContext } from "../../../../../Snapshots/context/SnapshotsContext";
+import {useGraphStatusContext} from "../../context/GraphStatusContext";
+import {MeasurementElementList} from "../MeasurementElementList/MeasurementElementList";
+import {useSelectionContext} from "../../../../../common/context/SelectionContext";
+import {useGraphContext} from "../../../../context/GraphContext";
+import {useSnapshotsContext} from "../../../../../Snapshots/context/SnapshotsContext";
 
 interface IMeasurementHistoryListProps {
   title?: string;
@@ -77,9 +77,7 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
       </div>
       {allMeasurements && allMeasurements?.length > 0 && (
         <div className={styles.contentContainer}>
-          {/*<div className={styles.lowerContainer}>*/}
           <MeasurementElementList listOfMeasurements={allMeasurements} />
-          {/*</div>*/}
         </div>
       )}
       {(!allMeasurements || allMeasurements?.length === 0) && (

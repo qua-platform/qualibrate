@@ -17,7 +17,7 @@
 import React, {createContext, PropsWithChildren, useCallback, useContext, useEffect, useRef, useState} from "react";
 import WebSocketService from "../services/WebSocketService";
 import {WS_EXECUTION_HISTORY, WS_GET_STATUS} from "../services/webSocketRoutes";
-import {ErrorObject} from "../modules/common/Error/ErrorStatusWrapper";
+import {ErrorObject} from "../modules/common/Error/ErrorStatusInterface";
 import {Measurement} from "../modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
 import {BasicDialog} from "../common/ui-components/common/BasicDialog/BasicDialog";
 import {useProjectContext} from "../modules/Project/context/ProjectContext";

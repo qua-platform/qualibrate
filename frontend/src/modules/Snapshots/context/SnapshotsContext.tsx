@@ -41,7 +41,7 @@ interface ISnapshotsContext {
   setReset: (val: boolean) => void;
 }
 
-export const SnapshotsContext = React.createContext<ISnapshotsContext>({
+const SnapshotsContext = React.createContext<ISnapshotsContext>({
   trackLatestSidePanel: true,
   setTrackLatestSidePanel: () => {},
   trackPreviousSnapshot: true,

@@ -16,7 +16,6 @@ const ApiContext = React.createContext<ApiContextProps>({
 export const useApiContext = () => React.useContext(ApiContext);
 
 export function ApiContextProvider({ children }: PropsWithChildren): ReactElement {
-
   const [dateRange, setDateRange] = useState({
     startDate: new Date(new Date().setDate(new Date().getDate() - 1)),
     endDate: new Date(),
@@ -33,5 +32,3 @@ export function ApiContextProvider({ children }: PropsWithChildren): ReactElemen
     </ApiContext.Provider>
   );
 }
-
-// export default ApiContext;
