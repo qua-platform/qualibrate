@@ -12,5 +12,3 @@ class Parameters(NodeParameters):
 
 node = QualibrationNode("test_node", parameters=Parameters())
 node.parameters = Parameters()
-
-# raise ValueError("msg")
