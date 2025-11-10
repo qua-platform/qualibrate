@@ -132,6 +132,22 @@ class BasicOrchestrator(
     def _get_in_targets_for_element(
         self, element: GraphElementTypeVar
     ) -> Sequence[TargetType]:
+        """
+        Retrieves the list of input targets for a given graph element.
+
+        This method determines which targets should be passed to an element
+        based on its predecessors. If the element has no predecessors,
+        the orchestrator's initial targets are used. Otherwise, it computes
+        the intersection of targets shared across all incoming edges.
+
+        Args:
+            element (GraphElementTypeVar): The graph element whose input targets
+                are being determined.
+
+        Returns:
+            Sequence[TargetType]: The list of targets that should be used
+            as inputs for the specified element.
+        """
         predecessors = list(self.nx_graph.predecessors(element))
         if len(predecessors) == 0:
             return self.initial_targets or []
@@ -151,6 +167,21 @@ class BasicOrchestrator(
         self,
         element: GraphElementTypeVar,
     ) -> None:
+        """
+        Sets the output targets for the given graph element.
+
+        After an element finishes running, this method updates the outgoing
+        edges with the appropriate set of targets. If `skip_failed` is enabled,
+        only the successful targets from the element's run summary are
+        propagated; otherwise, all initial targets are used.
+
+        Args:
+            element (GraphElementTypeVar): The graph element whose output
+                targets are being set.
+
+        Raises:
+            RuntimeError: If the element does not have a run summary.
+        """
         summary = element.run_summary
         if summary is None:
             raise RuntimeError(
