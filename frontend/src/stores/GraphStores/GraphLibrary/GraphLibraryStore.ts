@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ErrorObject } from "../../../modules/common/Error/ErrorStatusWrapper";
+import { ErrorObject } from "../../../modules/common/Error/ErrorStatusInterface";
 import { GraphWorkflow } from "../../../modules/GraphLibrary/components/GraphList";
 
 export interface LastRunInfo {
