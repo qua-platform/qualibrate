@@ -42,7 +42,7 @@ export const getRunStatusType = createSelector(
   (runStatusState) => runStatusState?.runnable_type
 );
 
-export const getRunResultError = createSelector(
+export const getRunResultNodeError = createSelector(
   getRunStatus,
   (runStatusState) => runStatusState?.node?.run_results?.error
 );

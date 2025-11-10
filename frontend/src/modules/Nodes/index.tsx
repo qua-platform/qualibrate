@@ -7,12 +7,12 @@ import { Results } from "./components/Results/Results";
 import { CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { getIsRescanningNodes, getResults } from "../../stores/NodesStore/selectors";
-import { getRunResultError } from "../../stores/WebSocketStore/selectors";
+import { getRunResultNodeError } from "../../stores/WebSocketStore/selectors";
 
 const NodesPage = () => {
   const isRescanningNodes = useSelector(getIsRescanningNodes);
   const results = useSelector(getResults);
-  const runResultError = useSelector(getRunResultError);
+  const runResultError = useSelector(getRunResultNodeError);
 
   return (
     <div className={styles.wrapper} data-testid="nodes-page-wrapper">
