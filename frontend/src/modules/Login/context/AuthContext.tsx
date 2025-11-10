@@ -2,7 +2,6 @@ import React, { PropsWithChildren, ReactNode, useCallback, useContext, useEffect
 import { useNavigate } from "react-router-dom";
 import { AuthApi } from "../api/AuthApi";
 import { HOME_URL } from "../../../common/modules";
-import { OFFLINE_MODE } from "../../../dev.config";
 
 interface IAuthContext {
   login: (password: string) => void;
@@ -48,11 +47,9 @@ export function AuthContextProvider(props: PropsWithChildren<ReactNode>): React.
     async (password: string) => {
       const { isOk } = await AuthApi.login(password);
 
-      const authIsOk = OFFLINE_MODE || isOk;
-
-      setIsAuthorized(authIsOk);
-      setAuthError(authIsOk ? undefined : "Failed to authorize");
-      if (authIsOk) {
+      setIsAuthorized(isOk);
+      setAuthError(isOk ? undefined : "Failed to authorize");
+      if (isOk) {
         navigate(HOME_URL);
       }
     },

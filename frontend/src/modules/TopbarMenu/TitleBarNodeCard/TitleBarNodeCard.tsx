@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import styles from "./styles/TitleBarNodeCard.module.scss";
 import { classNames } from "../../../utils/classnames";
 import Tooltip from "@mui/material/Tooltip";
-import TitleBarTooltipContent from "./TitleBarNodeTooltipContent";
+import { TitleBarTooltipContent } from "./TitleBarNodeTooltipContent";
 import { useMainPageContext } from "../../../routing/MainPageContext";
 import { StatusIndicator } from "./TitleBarStatusIndicator";
 import { getStatusLabelElement } from "./TitleBarGetStatusLabelElement";

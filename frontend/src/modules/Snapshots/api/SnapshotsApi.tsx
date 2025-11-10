@@ -12,7 +12,7 @@ import {
 import { API_METHODS } from "../../../common/enums/Api";
 import { SnapshotDTO } from "../SnapshotDTO";
 
-export type SnapshotLoadTypeFlag =
+type SnapshotLoadTypeFlag =
   | "Minified"
   | "Metadata"
   | "DataWithoutRefs"
@@ -21,7 +21,7 @@ export type SnapshotLoadTypeFlag =
   | "DataWithResultsWithImgs"
   | "Full";
 
-export interface SnapshotResult {
+interface SnapshotResult {
   items: SnapshotDTO[];
   per_page: number;
   page: number;
@@ -76,7 +76,6 @@ export class SnapshotsApi extends Api {
     return this._fetch(this.api(UPDATE_SNAPSHOT(snapshotId)), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       body: JSON.stringify({ data_path, value }),
-      // queryParams: { data_path, value },
     });
   }
 
@@ -90,15 +89,12 @@ export class SnapshotsApi extends Api {
     return this._fetch(this.api(UPDATE_SNAPSHOTS(snapshotId)), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       body: JSON.stringify({ items: listOfUpdates }),
-      // queryParams: { data_path, value },
     });
   }
 
   static stopNodeRunning(): Promise<Res<boolean>> {
     return this._fetch(this.api(STOP_RUNNING()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
-      // body: JSON.stringify({ data_path, value }),
-      // queryParams: { data_path, value },
     });
   }
 }

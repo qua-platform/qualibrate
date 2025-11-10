@@ -8,7 +8,7 @@ import { useMainPageContext } from "../../routing/MainPageContext";
 import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { CircularProgress } from "@mui/material";
 
-export const GraphLibrary = () => {
+const GraphLibrary = () => {
   const { fetchAllCalibrationGraphs, isRescanningGraphs } = useGraphContext();
   const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useMainPageContext();
   const GraphLibraryTopBarRefreshButton = () => {

@@ -19,8 +19,11 @@ module.exports = {
     semi: ["error", "always"],
     quotes: [2, "double", { avoidEscape: true }],
     "no-empty-function": 0,
+    "react/jsx-uses-react": "off", // za React 17+
+    "react/react-in-jsx-scope": "off", // za React 17+
     "@typescript-eslint/no-unsafe-member-access": 0,
     "@typescript-eslint/no-empty-function": 0,
+    "@typescript-eslint/no-unused-vars": ["warn", { args: "none", ignoreRestSiblings: true }],
     "css-modules/no-unused-class": [1, { camelCase: true }],
     "css-modules/no-undef-class": [1, { camelCase: true }],
     "space-before-function-paren": [

@@ -4,10 +4,10 @@ import { GraphWorkflow } from "../components/GraphList";
 import { GraphLibraryApi } from "../api/GraphLibraryApi";
 import { ElementDefinition } from "cytoscape";
 import { InputParameter } from "../../common/Parameters/Parameters";
-import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
+import { ErrorObject } from "../../common/Error/ErrorStatusInterface";
 import { useWebSocketData } from "../../../contexts/WebSocketContext";
 
-export interface LastRunInfo {
+interface LastRunInfo {
   workflowName?: string;
   active?: boolean;
   activeNodeName?: string;
@@ -19,7 +19,7 @@ export interface LastRunInfo {
   errorMessage?: string;
 }
 
-export interface GraphMap {
+interface GraphMap {
   [key: string]: GraphWorkflow;
 }
 

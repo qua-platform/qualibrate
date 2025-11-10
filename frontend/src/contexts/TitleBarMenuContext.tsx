@@ -1,11 +1,5 @@
 import React, { useContext, useState } from "react";
 
-// interface MenuCard {
-//   label: string;
-//   title: string;
-//   progressBarSection: React.JSX.Element;
-//   detailsSection: React.JSX.Element;
-// }
 export interface MenuCard {
   label: string;
   value: string;

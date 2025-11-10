@@ -3,7 +3,7 @@ import { NodeDTO, NodeMap } from "../components/NodeElement/NodeElement";
 import noop from "../../../common/helpers";
 import { NodesApi } from "../api/NodesAPI";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
-import { ErrorObject } from "../../common/Error/ErrorStatusWrapper";
+import { ErrorObject } from "../../common/Error/ErrorStatusInterface";
 import { formatDateTime } from "../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
 import { RunStatusType, useWebSocketData } from "../../../contexts/WebSocketContext";
 
@@ -87,7 +87,7 @@ const NodesContext = React.createContext<INodesContext>({
 
 export const useNodesContext = (): INodesContext => useContext<INodesContext>(NodesContext);
 
-export interface StatusResponseType {
+interface StatusResponseType {
   idx: number;
   completed_at?: string;
   status: string;
@@ -245,9 +245,10 @@ export const NodesContextProvider: React.FC<{ children?: React.ReactNode }> = ({
         }
       }
     } else {
-        if (!lastRunResponse.isOk) {  // Do nothing if isOK, since this means that there was no last run
-          console.log("Failed to fetch last run info:", lastRunResponse);
-        }
+      if (!lastRunResponse.isOk) {
+        // Do nothing if isOK, since this means that there was no last run
+        console.log("Failed to fetch last run info:", lastRunResponse);
+      }
     }
   };
 
