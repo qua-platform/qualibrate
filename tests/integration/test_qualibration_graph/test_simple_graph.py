@@ -25,7 +25,7 @@ def qualibration_lib(
         "qualibrate.qualibration_node.get_qualibrate_config",
         return_value=qualibrate_config_from_path,
     )
-    cal_path = Path(__file__).parent / "calibrations"
+    cal_path = Path(__file__).parent / "simple_calibrations"
     tmp = QualibrationLibrary(cal_path)
     yield tmp
 
