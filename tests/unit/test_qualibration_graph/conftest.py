@@ -8,8 +8,12 @@ from qualibrate import GraphParameters, QualibrationLibrary
 
 
 @fixture
-def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
+def qualibration_lib(mocker) -> Generator[QualibrationLibrary, None, None]:
     cal_path = Path(__file__).parent / "calibrations"
+    mocker.patch(
+        "qualibrate.qualibration_node.QualibrationNode._get_storage_manager"
+    )
+
     tmp = QualibrationLibrary(cal_path)
     yield tmp
 

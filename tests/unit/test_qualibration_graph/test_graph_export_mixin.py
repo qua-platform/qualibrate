@@ -19,7 +19,6 @@ class TestGraphExportMixin:
             dict(qualibration_lib.nodes.items()),
             [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
         )
-        # print(f"{g._graph = }")
         assert GraphExportMixin.nx_graph_export(
             g._graph, node_names_only=True
         ) == {
