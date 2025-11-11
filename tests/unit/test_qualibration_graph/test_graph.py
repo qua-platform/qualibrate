@@ -163,7 +163,9 @@ class TestQualibrationGraph:
         mocked_add_node.asser_called_once_with(
             node,
             retries=0,
-            **{QualibrationGraph.STATUS_FIELD: ElementRunStatus.pending},
+            **{
+                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.pending
+            },
         )
 
     def test_cleanup(self, mocker, mock_orchestrator, pre_setup_graph_init):
