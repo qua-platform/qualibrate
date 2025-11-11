@@ -200,6 +200,26 @@ class TestQualibrationNode:
             )
         mock_logger.warning.assert_called_once()
 
+    def test_set_parameters(self, mocker, mock_logger):
+        class Parameters(NodeParameters):
+            p_int: int = 1
+            p_float: float = 2.3
+            p_str: str = "abc"
+
+        mocker.patch.object(QualibrationNode, "_get_storage_manager")
+        node = QualibrationNode(name="test_node", parameters=Parameters())
+        p: type[NodeParameters] = node.parameters_class
+        assert {n: v.default for n, v in p.model_fields.items()} == {
+            "p_int": 1,
+            "p_float": 2.3,
+            "p_str": "abc",
+        }
+        updates = {"p_int": 1, "p_float": 2.3, "p_str": "abc"}
+        spy_build = mocker.spy(node, "build_parameters_class_from_instance")
+        node.set_parameters(**updates)
+        assert {n: v.default for n, v in p.model_fields.items()} == updates
+        spy_build.assert_called_once()
+
     def test__warn_if_external_and_interactive_mpl(
         self,
         mock_logger,
