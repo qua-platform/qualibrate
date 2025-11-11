@@ -1,8 +1,13 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
+from functools import wraps
 from typing import (
+    TYPE_CHECKING,
     Any,
+    Concatenate,
     Generic,
+    ParamSpec,
     TypeVar,
+    cast,
 )
 
 import networkx as nx
@@ -10,16 +15,79 @@ import networkx as nx
 from qualibrate.parameters import RunnableParameters
 from qualibrate.q_runnnable import QRunnable
 
+if TYPE_CHECKING:
+    from qualibrate.qualibration_graph import QualibrationGraph
+
 GraphElementTypeVar = TypeVar(
     "GraphElementTypeVar",
     bound=QRunnable[RunnableParameters, RunnableParameters],
 )
 
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def ensure_finalized(
+    fn: Callable[Concatenate["QualibrationGraph[Any]", P], R],
+) -> Callable[Concatenate["QualibrationGraph[Any]", P], R]:
+    """Decorator to block method calls beforw finalize()."""
+
+    @wraps(fn)
+    def wrapper(
+        self: "QualibrationGraph[Any]", *args: P.args, **kwargs: P.kwargs
+    ) -> R:
+        if not self._finalized:
+            raise RuntimeError(
+                f"Cannot call {fn.__name__}() because the graph isn't finalized"
+                " yet."
+            )
+        return fn(self, *args, **kwargs)
+
+    return cast(Callable[Concatenate["QualibrationGraph[Any]", P], R], wrapper)
+
+
+def ensure_not_finalized(
+    fn: Callable[Concatenate["QualibrationGraph[Any]", P], R],
+) -> Callable[Concatenate["QualibrationGraph[Any]", P], R]:
+    """Decorator to block method calls after finalize()."""
+
+    @wraps(fn)
+    def wrapper(
+        self: "QualibrationGraph[Any]", *args: P.args, **kwargs: P.kwargs
+    ) -> R:
+        if self._finalized:
+            raise RuntimeError(
+                f"Cannot call {fn.__name__}() because the graph is already "
+                "finalized."
+            )
+        return fn(self, *args, **kwargs)
+
+    return cast(Callable[Concatenate["QualibrationGraph[Any]", P], R], wrapper)
+
+
+def ensure_building(
+    fn: Callable[Concatenate["QualibrationGraph[Any]", P], R],
+) -> Callable[Concatenate["QualibrationGraph[Any]", P], R]:
+    """Decorator to allow method calls only during build phase."""
+
+    @wraps(fn)
+    def wrapper(
+        self: "QualibrationGraph[Any]", *args: P.args, **kwargs: P.kwargs
+    ) -> R:
+        if not getattr(self, "_building", False):
+            raise RuntimeError(
+                f"Cannot call {fn.__name__}() because the graph is not in "
+                "build mode."
+            )
+        return fn(self, *args, **kwargs)
+
+    return cast(Callable[Concatenate["QualibrationGraph[Any]", P], R], wrapper)
+
 
 class GraphExportMixin(Generic[GraphElementTypeVar]):
     @staticmethod
     def nx_graph_export(
-        graph: nx.DiGraph[GraphElementTypeVar], node_names_only: bool = False
+        graph: "nx.DiGraph[GraphElementTypeVar]", node_names_only: bool = False
     ) -> Mapping[str, Any]:
         """
         Exports the graph as a networkx adjacency list.
