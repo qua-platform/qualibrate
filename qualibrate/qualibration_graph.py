@@ -148,7 +148,7 @@ class QualibrationGraph(
             return
         self._elements = self._validate_elements_names_mapping(self._elements)
         self._validate_no_elements_from_library(self._elements)
-        self._add_nodes_and_connections()
+        self._add_nodes_and_connections_to_nx()
         self._full_parameters_class = self._build_parameters_class()
         self._full_parameters = self._full_parameters_class()
         self._finalized = True
@@ -246,7 +246,7 @@ class QualibrationGraph(
             f"(mode: {self.modes}; parameters: {self.full_parameters})"
         )
 
-    def _add_nodes_and_connections(self) -> None:
+    def _add_nodes_and_connections_to_nx(self) -> None:
         """
         Adds graph elements and their connections to the internal graph
         representation.
@@ -263,7 +263,7 @@ class QualibrationGraph(
         """
 
         for element_name in self._elements:
-            self._add_element_by_name(element_name)
+            self._add_element_to_nx_by_name(element_name)
         for v_name, x_name in self._connectivity:
             try:
                 v = self._get_element_or_error(v_name)
@@ -696,7 +696,9 @@ class QualibrationGraph(
             )
         return element
 
-    def _add_element_by_name(self, element_name: str) -> GraphElementTypeVar:
+    def _add_element_to_nx_by_name(
+        self, element_name: str
+    ) -> GraphElementTypeVar:
         """
         Adds a graph element to the graph by name, if not already present.
 

@@ -61,7 +61,7 @@ class TestQualibrationGraph:
         mocked_add_element = mocker.patch(
             (
                 "qualibrate.qualibration_graph.QualibrationGraph."
-                "_add_element_by_name"
+                "_add_element_to_nx_by_name"
             ),
             side_effect=lambda x: x,
         )
@@ -159,7 +159,7 @@ class TestQualibrationGraph:
             "(new_name)"
         )
 
-    def test_add_element_by_name(
+    def test_add_element_to_nx_by_name(
         self, mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
     ):
         node = pre_setup_graph_nodes["node1"]
@@ -178,7 +178,7 @@ class TestQualibrationGraph:
             connectivity=[],
         )
         mocked_add_node = mocker.patch.object(graph._graph, "add_node")
-        graph._add_element_by_name("node1")
+        graph._add_element_to_nx_by_name("node1")
         mocked_validate_names.assert_called_once()
         mock_get_qnode.assert_called_once_with("node1")
         mocked_add_node.asser_called_once_with(
