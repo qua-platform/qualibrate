@@ -52,7 +52,7 @@ def test_run_sequence(
     g = QualibrationGraph(
         "graph_name",
         graph_params,
-        qualibration_lib.nodes,
+        dict(qualibration_lib.nodes.items()),
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
         orchestrator=Orchestrator(),
     )
@@ -72,7 +72,7 @@ def test_run_multi_predecessors(
     g = QualibrationGraph(
         "graph_name",
         graph_params,
-        qualibration_lib.nodes,
+        dict(qualibration_lib.nodes.items()),
         [
             ("test_node", "test_cal"),
             ("test_node", "one_more_node"),
