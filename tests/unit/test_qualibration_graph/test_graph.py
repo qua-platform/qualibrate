@@ -31,7 +31,16 @@ class TestQualibrationGraph:
         return {"node1": node1, "node2": node2}
 
     @pytest.fixture
-    def pre_setup_graph_parameters_build(self, mocker):
+    def mocked__validate_no_elements_from_library(self, mocker):
+        return mocker.patch(
+            "qualibrate.qualibration_graph.QualibrationGraph"
+            "._validate_no_elements_from_library"
+        )
+
+    @pytest.fixture
+    def pre_setup_graph_parameters_build(
+        self, mocker, mocked__validate_no_elements_from_library
+    ):
         mocked_build_base_parameters = mocker.patch.object(
             QRunnable, "build_parameters_class_from_instance"
         )
@@ -39,7 +48,11 @@ class TestQualibrationGraph:
             "qualibrate.qualibration_graph.QualibrationGraph"
             "._build_parameters_class"
         )
-        return mocked_build_base_parameters, mocked_build_full_parameters
+        return (
+            mocked_build_base_parameters,
+            mocked_build_full_parameters,
+            mocked__validate_no_elements_from_library,
+        )
 
     @pytest.fixture
     def pre_setup_graph_init(
@@ -48,13 +61,15 @@ class TestQualibrationGraph:
         mocked_add_element = mocker.patch(
             (
                 "qualibrate.qualibration_graph.QualibrationGraph."
-                "_add_element_by_name"
+                "_add_element_to_nx_by_name"
             ),
             side_effect=lambda x: x,
         )
-        mocked_build_base_parameters, mocked_build_full_parameters = (
-            pre_setup_graph_parameters_build
-        )
+        (
+            mocked_build_base_parameters,
+            mocked_build_full_parameters,
+            mocked__validate_no_elements_from_library,
+        ) = pre_setup_graph_parameters_build
 
         return (
             pre_setup_graph_nodes,
@@ -63,7 +78,12 @@ class TestQualibrationGraph:
             mocked_build_full_parameters,
         )
 
-    def test_init_graph_base(self, mocker, pre_setup_graph_init):
+    def test_init_graph_base(
+        self,
+        mocker,
+        pre_setup_graph_init,
+        mocked__validate_no_elements_from_library,
+    ):
         (
             nodes,
             mocked_add_element,
@@ -88,6 +108,7 @@ class TestQualibrationGraph:
         assert graph.name == "test_graph"
         mocked_build_base_parameters.assert_called_once()
         mocked_build_full_parameters.assert_called_once()
+        mocked__validate_no_elements_from_library.assert_called_once()
         mocked_add_element.assert_has_calls(
             [mocker.call("node1"), mocker.call("node2")], any_order=True
         )
@@ -138,7 +159,7 @@ class TestQualibrationGraph:
             "(new_name)"
         )
 
-    def test_add_element_by_name(
+    def test_add_element_to_nx_by_name(
         self, mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
     ):
         node = pre_setup_graph_nodes["node1"]
@@ -157,7 +178,7 @@ class TestQualibrationGraph:
             connectivity=[],
         )
         mocked_add_node = mocker.patch.object(graph._graph, "add_node")
-        graph._add_element_by_name("node1")
+        graph._add_element_to_nx_by_name("node1")
         mocked_validate_names.assert_called_once()
         mock_get_qnode.assert_called_once_with("node1")
         mocked_add_node.asser_called_once_with(
