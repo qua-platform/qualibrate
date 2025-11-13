@@ -63,6 +63,8 @@ class ExecutionHistoryItem(BaseModel):
     metadata: ItemMetadata
     data: ItemData
 
+    elements_history: "ExecutionHistory | None" = None
+
 
 class ExecutionHistory(BaseModel):
     """Represents a graph execution history."""

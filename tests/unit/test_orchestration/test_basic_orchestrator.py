@@ -25,19 +25,6 @@ class TestBasicOrchestrator:
 
         assert orchestrator._is_execution_finished() is True
 
-    def test_is_execution_finished_no_active_targets(self, mocker):
-        orchestrator = BasicOrchestrator()
-        orchestrator._graph = mocker.Mock()
-        mocker.patch.object(
-            orchestrator._execution_queue, "qsize", return_value=1
-        )
-        # targets is None
-        assert orchestrator._is_execution_finished() is True
-
-        # targets list is empty
-        orchestrator.targets = []
-        assert orchestrator._is_execution_finished() is True
-
     def test_is_execution_finished_with_pending_nodes(self, mocker):
         orchestrator = BasicOrchestrator()
         orchestrator._graph = mocker.Mock()
@@ -103,13 +90,18 @@ class TestBasicOrchestrator:
         orchestrator = BasicOrchestrator()
         orchestrator._graph = "graph"
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            (
+                "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator"
+                ".nx_graph"
+            ),
             new_callable=PropertyMock,
         )
         mock_node = MagicMock()
         mock_nx_graph.return_value.nodes = {
             mock_node: {
-                QualibrationGraph.STATUS_FIELD: ElementRunStatus.finished
+                QualibrationGraph.ELEMENT_STATUS_FIELD: (
+                    ElementRunStatus.finished
+                )
             }
         }
         assert orchestrator.check_node_finished(mock_node) is True
@@ -128,7 +120,10 @@ class TestBasicOrchestrator:
 
         # Patch the nx_graph property and set predecessors
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            (
+                "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator"
+                ".nx_graph"
+            ),
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.pred = {mock_node: []}

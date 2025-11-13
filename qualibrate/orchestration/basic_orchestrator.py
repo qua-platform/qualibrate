@@ -3,7 +3,7 @@ import weakref
 from collections.abc import Sequence
 from datetime import datetime
 from queue import Queue
-from typing import Any, Generic
+from typing import Generic, cast
 
 import networkx as nx
 
@@ -21,6 +21,7 @@ from qualibrate.orchestration.qualibration_orchestrator import (
 from qualibrate.qualibration_graph import GraphElementTypeVar, QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.logger_m import logger
+from qualibrate.utils.type_protocols import TargetType
 
 __all__ = ["BasicOrchestrator"]
 
@@ -59,13 +60,11 @@ class BasicOrchestrator(
             return True
         if self._execution_queue.qsize() == 0:
             return True
-        if self.targets is None or len(self.targets) == 0:
-            return True
         return all(
             map(
                 lambda status: status != ElementRunStatus.pending,
                 nx.get_node_attributes(
-                    self.nx_graph, QualibrationGraph.STATUS_FIELD
+                    self.nx_graph, QualibrationGraph.ELEMENT_STATUS_FIELD
                 ).values(),
             )
         )
@@ -108,7 +107,7 @@ class BasicOrchestrator(
         if self._graph is None:
             return False
         return bool(
-            self.nx_graph.nodes[node][QualibrationGraph.STATUS_FIELD]
+            self.nx_graph.nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD]
             == ElementRunStatus.finished
         )
 
@@ -130,17 +129,85 @@ class BasicOrchestrator(
                 return element_to_run
         return None
 
+    def _get_in_targets_for_element(
+        self, element: GraphElementTypeVar
+    ) -> Sequence[TargetType]:
+        """
+        Retrieves the list of input targets for a given graph element.
+
+        This method determines which targets should be passed to an element
+        based on its predecessors. If the element has no predecessors,
+        the orchestrator's initial targets are used. Otherwise, it computes
+        the intersection of targets shared across all incoming edges.
+
+        Args:
+            element (GraphElementTypeVar): The graph element whose input targets
+                are being determined.
+
+        Returns:
+            Sequence[TargetType]: The list of targets that should be used
+            as inputs for the specified element.
+        """
+        predecessors = list(self.nx_graph.predecessors(element))
+        if len(predecessors) == 0:
+            return self.initial_targets or []
+
+        targets_lst = [
+            set(
+                self.nx_graph.edges[pred, element].get(
+                    QualibrationGraph.EDGE_TARGETS_FIELD, []
+                )
+            )
+            for pred in predecessors
+        ]
+        targets = set.intersection(*targets_lst)
+        return list(targets)
+
+    def _set_out_targets_for_element(
+        self,
+        element: GraphElementTypeVar,
+    ) -> None:
+        """
+        Sets the output targets for the given graph element.
+
+        After an element finishes running, this method updates the outgoing
+        edges with the appropriate set of targets. If `skip_failed` is enabled,
+        only the successful targets from the element's run summary are
+        propagated; otherwise, all initial targets are used.
+
+        Args:
+            element (GraphElementTypeVar): The graph element whose output
+                targets are being set.
+
+        Raises:
+            RuntimeError: If the element does not have a run summary.
+        """
+        summary = element.run_summary
+        if summary is None:
+            raise RuntimeError(
+                f"Can't set out targets of {element} without run summary"
+            )
+        out_targets = (
+            summary.successful_targets
+            if self._parameters.skip_failed
+            else summary.initial_targets
+        )
+        for successor in self.nx_graph.successors(element):
+            self.nx_graph.edges[element, successor][
+                QualibrationGraph.EDGE_TARGETS_FIELD
+            ] = out_targets
+
     def traverse_graph(
         self,
         graph: QualibrationGraph[GraphElementTypeVar],
-        targets: Sequence[Any],
+        targets: Sequence[TargetType],
     ) -> None:
         """
         Traverses the graph and orchestrates node execution.
 
         Args:
             graph (QualibrationGraph): The graph to traverse.
-            targets (Sequence[Any]): The target nodes to execute.
+            targets (Sequence[TargetType]): The target nodes to execute.
 
         Raises:
             RuntimeError:
@@ -155,7 +222,6 @@ class BasicOrchestrator(
             logger.exception("", exc_info=ex)
             raise ex
         self.initial_targets = list(targets[:]) if targets else []
-        self.targets = self.initial_targets.copy()
         nodes_parameters = graph.full_parameters.nodes
         nx_graph = self.nx_graph
         predecessors = nx_graph.pred
@@ -180,7 +246,9 @@ class BasicOrchestrator(
             run_error: RunError | None = None
             try:
                 self._active_element = element_to_run
-                element_to_run_parameters.targets = self.targets
+                element_to_run_parameters.targets = (
+                    self._get_in_targets_for_element(element_to_run)
+                )
                 if isinstance(element_to_run, QualibrationNode):
                     element_parameters = element_to_run_parameters.model_dump()
                 else:
@@ -198,8 +266,7 @@ class BasicOrchestrator(
                 element_results = element_to_run.run(
                     interactive=False, **element_parameters
                 )
-                if self._parameters.skip_failed:
-                    self.targets = element_results.successful_targets
+                self._set_out_targets_for_element(element_to_run)
                 logger.debug(f"Element completed. Result: {element_results}")
             except Exception as ex:
                 new_status = ElementRunStatus.error
@@ -230,24 +297,30 @@ class BasicOrchestrator(
                     outcomes=element_to_run.outcomes,
                     error=run_error,
                 )
-                self._execution_history.append(
-                    ExecutionHistoryItem(
-                        id=idx,
-                        created_at=run_start,
-                        metadata=ItemMetadata(
-                            name=element_to_run.name,
-                            description=element_to_run.description,
-                            status=new_status,
-                            run_start=run_start,
-                            run_end=datetime.now().astimezone(),
-                        ),
-                        data=data,
-                    )
+                subitem_history = None
+                if isinstance(element_to_run, QualibrationGraph) and (
+                    orch := element_to_run._orchestrator
+                ):
+                    subitem_history = orch.get_execution_history()
+                item_history = ExecutionHistoryItem(
+                    id=idx,
+                    created_at=run_start,
+                    metadata=ItemMetadata(
+                        name=element_to_run.name,
+                        description=element_to_run.description,
+                        status=new_status,
+                        run_start=run_start,
+                        run_end=datetime.now().astimezone(),
+                    ),
+                    data=data,
+                    elements_history=subitem_history,
                 )
-            # Suppose that all nodes are successfully finish
-            nx_graph.nodes[element_to_run][QualibrationGraph.STATUS_FIELD] = (
-                new_status
-            )
+                self._execution_history.append(item_history)
+            # mypy can't correctly parse after isinstance(...,QualibrationGraph)
+            element_to_run = cast(GraphElementTypeVar, element_to_run)
+            nx_graph.nodes[element_to_run][
+                QualibrationGraph.ELEMENT_STATUS_FIELD
+            ] = new_status
             if new_status == ElementRunStatus.finished:
                 for successor in successors[element_to_run]:
                     self._execution_queue.put(successor)

@@ -1,15 +1,15 @@
-import contextvars
 import copy
 import traceback
 from collections.abc import Mapping, Sequence
+from contextvars import Token
 from datetime import datetime
 from pathlib import Path
+from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    Optional,
-    TypeVar,
+    Literal,
     cast,
 )
 
@@ -38,6 +38,13 @@ from qualibrate.q_runnnable import (
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.runnables.runnable_collection import RunnableCollection
 from qualibrate.utils.exceptions import StopInspection, TargetsFieldNotExist
+from qualibrate.utils.graph_building import (
+    GraphElementTypeVar,
+    GraphExportMixin,
+    ensure_building,
+    ensure_finalized,
+    ensure_not_finalized,
+)
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import MachineProtocol, TargetType
@@ -46,20 +53,20 @@ if TYPE_CHECKING:
     from qualibrate.orchestration.qualibration_orchestrator import (
         QualibrationOrchestrator,
     )
+    from qualibrate.qualibration_library import QualibrationLibrary
 
 __all__ = ["QGraphBaseType", "QualibrationGraph", "GraphElementTypeVar"]
 
-GraphElementTypeVar = TypeVar(
-    "GraphElementTypeVar",
-    bound=QRunnable[RunnableParameters, RunnableParameters],
-)
 GraphCreateParametersType = GraphParameters
 GraphRunParametersType = ExecutionParameters
 QGraphBaseType = QRunnable[GraphCreateParametersType, GraphRunParametersType]
+NodeLibT = QualibrationNode[NodeParameters, MachineProtocol]
+GraphElLibT = QRunnable[RunnableParameters, RunnableParameters]
 
 
 class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType],
+    GraphExportMixin[GraphElementTypeVar],
     Generic[GraphElementTypeVar],
 ):
     """
@@ -89,46 +96,87 @@ class QualibrationGraph(
         StopInspection: If the graph is instantiated in inspection mode.
     """
 
-    STATUS_FIELD = "status"
-    _node_init_args = {STATUS_FIELD: ElementRunStatus.pending, "retries": 0}
+    EDGE_TARGETS_FIELD = "targets"
+    ELEMENT_STATUS_FIELD = "status"
+    _node_init_args = {
+        ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
+        "retries": 0,
+    }
 
     def __init__(
         self,
         name: str,
         parameters: GraphCreateParametersType,
-        nodes: Mapping[str, GraphElementTypeVar],
-        connectivity: Sequence[tuple[str, str]],
-        orchestrator: Optional[
-            "QualibrationOrchestrator[GraphElementTypeVar]"
-        ] = None,
+        nodes: Mapping[str, GraphElementTypeVar] | None = None,
+        connectivity: Sequence[tuple[str, str]] | None = None,
+        orchestrator: (
+            "QualibrationOrchestrator[GraphElementTypeVar] | None"
+        ) = None,
         description: str | None = None,
         *,
         modes: RunModes | None = None,
+        finalize: bool = True,
     ):
         if not isinstance(parameters, GraphParameters):
             raise ValueError("Graph parameters must be of type GraphParameters")
         super().__init__(name, parameters, description=description, modes=modes)
-        self._elements = self._validate_elements_names_mapping(nodes)
-        self._connectivity = connectivity
+        if finalize:
+            if nodes is None or connectivity is None:
+                raise RuntimeError(
+                    "Nodes and connectivity must be defined on graph "
+                    "instantiation."
+                )
+            self._elements = dict(nodes)
+            self._connectivity = list(connectivity)
+        else:
+            self._elements = {}
+            self._connectivity = []
         self._graph: nx.DiGraph[GraphElementTypeVar] = nx.DiGraph()
         self._orchestrator = orchestrator
         self._initial_targets: Sequence[TargetType] = []
-        self._add_nodes_and_connections()
-        self.full_parameters_class = self._build_parameters_class()
-        self.full_parameters: GraphRunParametersType = (
-            self.full_parameters_class()
-        )
+        self._full_parameters_class: type[GraphRunParametersType] | None = None
+        self._full_parameters: GraphRunParametersType | None = None
+        self._building: bool = False
+        self._finalized: bool = False
 
+        if finalize:
+            self.finalize()
+        self.run_start = datetime.now().astimezone()
+
+    def finalize(self) -> None:
+        if self._finalized:
+            return
+        self._elements = self._validate_elements_names_mapping(self._elements)
+        self._validate_no_elements_from_library(self._elements)
+        self._add_nodes_and_connections_to_nx()
+        self._full_parameters_class = self._build_parameters_class()
+        self._full_parameters = self._full_parameters_class()
+        self._finalized = True
         if self.modes.inspection:
             raise StopInspection(
                 "Graph instantiated in inspection mode", instance=self
             )
-        self.run_start = datetime.now().astimezone()
 
     @property
     def _nodes(self) -> Mapping[str, GraphElementTypeVar]:
         """Get mapping of graph elements."""
         return self._elements
+
+    @property
+    @ensure_finalized
+    def full_parameters_class(self) -> type[GraphRunParametersType]:
+        if self._full_parameters_class is None:
+            raise RuntimeError("Finalized graph has no full parameters class")
+        return self._full_parameters_class
+
+    @property
+    @ensure_finalized
+    def full_parameters(self) -> GraphRunParametersType:
+        if self._full_parameters is None:
+            raise RuntimeError(
+                "Finalized graph has no full parameters instance"
+            )
+        return self._full_parameters
 
     def __copy__(self) -> Self:
         """
@@ -153,8 +201,11 @@ class QualibrationGraph(
         new_graph.description = self.description
         new_graph.filepath = self.filepath
         new_graph.modes = self.modes.model_copy()
-        new_graph.full_parameters_class = self.full_parameters_class
-        new_graph.full_parameters = self.full_parameters.model_copy(deep=True)
+        new_graph._full_parameters_class = self.full_parameters_class
+        new_graph._full_parameters = self.full_parameters.model_copy(deep=True)
+        new_graph._finalized = self._finalized
+        new_graph._building = self._building
+
         if hasattr(self, "run_start"):
             new_graph.run_start = self.run_start
 
@@ -195,7 +246,7 @@ class QualibrationGraph(
             f"(mode: {self.modes}; parameters: {self.full_parameters})"
         )
 
-    def _add_nodes_and_connections(self) -> None:
+    def _add_nodes_and_connections_to_nx(self) -> None:
         """
         Adds graph elements and their connections to the internal graph
         representation.
@@ -212,7 +263,7 @@ class QualibrationGraph(
         """
 
         for element_name in self._elements:
-            self._add_element_by_name(element_name)
+            self._add_element_to_nx_by_name(element_name)
         for v_name, x_name in self._connectivity:
             try:
                 v = self._get_element_or_error(v_name)
@@ -232,9 +283,28 @@ class QualibrationGraph(
                 self._graph.add_edge(v, x)
 
     @staticmethod
+    def _get_library() -> "QualibrationLibrary[NodeLibT, GraphElLibT]":
+        from qualibrate.qualibration_library import QualibrationLibrary
+
+        return QualibrationLibrary.get_active_library(create=False)
+
+    @staticmethod
+    def _validate_no_elements_from_library(
+        nodes: Mapping[str, GraphElementTypeVar],
+    ) -> None:
+        library = QualibrationGraph._get_library()
+        node_ids = set(id(node) for node in nodes.values())
+        lib_node_ids = set(id(node) for node in library.nodes.values_nocopy())
+
+        if len(node_ids.intersection(lib_node_ids)) > 0:
+            raise RuntimeError(
+                "Some nodes weren't copied before adding to graph"
+            )
+
+    @staticmethod
     def _validate_elements_names_mapping(
         elements: Mapping[str, GraphElementTypeVar],
-    ) -> Mapping[str, GraphElementTypeVar]:
+    ) -> dict[str, GraphElementTypeVar]:
         """
         Validates the mapping of graph elements and ensures unique names.
 
@@ -279,7 +349,7 @@ class QualibrationGraph(
                 corresponding instances.
         """
         graphs: dict[str, QGraphBaseType] = {}
-        run_modes_token: contextvars.Token[RunModes | None] | None = None
+        run_modes_token: Token[RunModes | None] | None = None
         try:
             if run_modes_ctx.get() is not None:
                 logger.error(
@@ -385,7 +455,7 @@ class QualibrationGraph(
                 map(
                     lambda status: status != ElementRunStatus.pending,
                     nx.get_node_attributes(
-                        self._graph, self.STATUS_FIELD
+                        self._graph, self.ELEMENT_STATUS_FIELD
                     ).values(),
                 )
             )
@@ -481,7 +551,7 @@ class QualibrationGraph(
         self.cleanup()
         nodes = self._get_all_nodes_parameters(nodes)
         self._parameters = self.parameters.model_validate(passed_parameters)
-        self.full_parameters = self.full_parameters_class.model_validate(
+        self._full_parameters = self.full_parameters_class.model_validate(
             {"parameters": self.parameters, "nodes": nodes}
         )
         targets = self._initial_targets = (
@@ -553,8 +623,10 @@ class QualibrationGraph(
         logger.debug(f"Graph run summary {self.run_summary}")
         return self.run_summary
 
+    @ensure_finalized
     def run(
         self,
+        /,
         *,
         interactive: bool = False,
         nodes: Mapping[str, Any] | None = None,
@@ -624,7 +696,9 @@ class QualibrationGraph(
             )
         return element
 
-    def _add_element_by_name(self, element_name: str) -> GraphElementTypeVar:
+    def _add_element_to_nx_by_name(
+        self, element_name: str
+    ) -> GraphElementTypeVar:
         """
         Adds a graph element to the graph by name, if not already present.
 
@@ -676,7 +750,8 @@ class QualibrationGraph(
         )
         return execution_parameters_class
 
-    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
+    @ensure_finalized
+    def serialize(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """
         Serializes the graph into a dictionary format.
 
@@ -696,7 +771,7 @@ class QualibrationGraph(
         cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters_class.serialize(**kwargs)
         nx_data: dict[str, Any] = dict(
-            self.nx_graph_export(node_names_only=True)
+            self.__class__.nx_graph_export(self._graph, node_names_only=True)
         )
         data.update(
             {
@@ -725,76 +800,11 @@ class QualibrationGraph(
             connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
         if cytoscape:
-            data["cytoscape"] = self.cytoscape_representation(data)
+            data["cytoscape"] = self.__class__.cytoscape_representation(data)
         return data
 
-    # TODO: move to mixin
-    def nx_graph_export(
-        self, node_names_only: bool = False
-    ) -> Mapping[str, Any]:
-        """
-        Exports the graph as a networkx adjacency list.
-
-        Args:
-            node_names_only (bool): If True, only node names are included in
-                the adjacency list. Defaults to False.
-
-        Returns:
-            Mapping[str, Any]: A dictionary representing the adjacency list of
-            the graph.
-        """
-        data = dict(nx.readwrite.adjacency_data(self._graph))
-        for key in ("multigraph", "directed", "graph"):
-            data.pop(key)
-        if node_names_only:
-            for node, adjacency in zip(
-                data["nodes"], data["adjacency"], strict=False
-            ):
-                node["id"] = node["id"].name
-                for adj in adjacency:
-                    adj["id"] = adj["id"].name
-        return data
-
-    # TODO: move to mixin
-    def cytoscape_representation(
-        self, serialized: Mapping[str, Any]
-    ) -> Sequence[Mapping[str, Any]]:
-        """
-        Returns a Cytoscape-compatible representation of the graph.
-
-        This method generates nodes and edges in a format that can be used with
-        Cytoscape for visualization purposes.
-
-        Args:
-            serialized (Mapping[str, Any]): Serialized representation of the
-                graph.
-
-        Returns:
-            Sequence[Mapping[str, Any]]: List of nodes and edges for Cytoscape
-                visualization.
-        """
-        nodes = [
-            {
-                "group": "nodes",
-                "data": {"id": node},
-                "position": {"x": 100, "y": 100},
-            }
-            for node in serialized["nodes"]
-        ]
-        edges = [
-            {
-                "group": "edges",
-                "data": {
-                    "id": f"{source}_{dest}",
-                    "source": source,
-                    "target": dest,
-                },
-            }
-            for source, dest in serialized["connectivity"]
-        ]
-        return [*nodes, *edges]
-
-    def stop(self, **kwargs: Any) -> bool:
+    @ensure_finalized
+    def stop(self, /, **kwargs: Any) -> bool:
         """
         Stops the execution of the graph or nodes within it.
 
@@ -821,9 +831,112 @@ class QualibrationGraph(
         orchestrator.stop()
         return node_stop
 
-    def copy(self, name: str | None = None, **node_parameters: Any) -> Self:
+    @ensure_finalized
+    def copy(self, /, name: str | None = None, **node_parameters: Any) -> Self:
         new_graph = self.__copy__()
         if name is not None:
             new_graph.name = name
         # TODO: passed parameters
         return new_graph
+
+    # --- Build API ---
+    @classmethod
+    def build(
+        cls,
+        name: str,
+        *,
+        parameters: GraphCreateParametersType | None = None,
+        orchestrator: (
+            "QualibrationOrchestrator[GraphElementTypeVar] | None"
+        ) = None,
+    ) -> "QualibrationGraph[GraphElementTypeVar]":
+        """
+        Create an empty graph instance ready to be used as a context manager.
+        """
+
+        g = cls(
+            name=name,
+            parameters=parameters or GraphParameters(),
+            orchestrator=orchestrator,
+            finalize=False,  # we will finalize on __exit__
+        )
+        return g
+
+    @ensure_not_finalized
+    def __enter__(self) -> Self:
+        self._building = True
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> Literal[False]:
+        self._building = False
+        if exc_type is not None:
+            # propagate exceptions from inside the block
+            return False
+
+        # finalize on successful exit
+        self.finalize()
+        return False
+
+    @ensure_not_finalized
+    @ensure_building
+    def add_node(
+        self,
+        node: GraphElementTypeVar,
+        *,
+        lib: "QualibrationLibrary[NodeLibT, GraphElLibT] | None" = None,
+    ) -> None:
+        key = node.name
+        if key in self._elements:
+            raise ValueError(f"Node '{key}' already exists.")
+        if lib is None:
+            lib = self._get_library()
+        if node in lib.nodes.values_nocopy():
+            raise ValueError(
+                f"Node '{key}' is generic from library. "
+                f"Please create copy of it before adding it."
+            )
+        if node in self._elements.values():
+            raise ValueError(
+                f"Node '{key}' already exists. "
+                f"You need to create a copy if you want to add same."
+            )
+        self._elements[key] = node
+
+    @ensure_not_finalized
+    @ensure_building
+    def add_nodes(self, *nodes: GraphElementTypeVar) -> None:
+        for node in nodes:
+            self.add_node(node)
+
+    def _resolve_element_name(self, x: str | GraphElementTypeVar) -> str:
+        if isinstance(x, str):
+            return x
+        x_id = id(x)
+        element = next(
+            filter(lambda i: id(i[1]) == x_id, self._elements.items()), None
+        )
+        return element[0] if element else x.name
+
+    @ensure_not_finalized
+    @ensure_building
+    def connect(
+        self,
+        /,
+        src: str | GraphElementTypeVar,
+        dst: str | GraphElementTypeVar,
+    ) -> None:
+        s = self._resolve_element_name(src)
+        d = self._resolve_element_name(dst)
+        if s not in self._elements or d not in self._elements:
+            raise KeyError(
+                f"Both '{s}' and '{d}' must be added before connecting."
+            )
+        edge = (s, d)
+        if edge in self._connectivity:
+            return
+        self._connectivity.append(edge)
