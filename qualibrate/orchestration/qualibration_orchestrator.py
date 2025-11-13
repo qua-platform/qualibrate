@@ -14,7 +14,7 @@ from qualibrate.qualibration_graph import GraphElementTypeVar, QualibrationGraph
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.naming import get_full_class_path
-from qualibrate.utils.type_protocols import MachineProtocol
+from qualibrate.utils.type_protocols import MachineProtocol, TargetType
 
 __all__ = ["QualibrationOrchestrator"]
 
@@ -158,7 +158,7 @@ class QualibrationOrchestrator(ABC, Generic[GraphElementTypeVar]):
     def traverse_graph(
         self,
         graph: QualibrationGraph[GraphElementTypeVar],
-        targets: Sequence[Any],
+        targets: Sequence[TargetType],
     ) -> None:
         """
         Abstract method for traversing a graph.

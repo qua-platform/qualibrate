@@ -28,8 +28,10 @@ RunParametersType = TypeVar("RunParametersType", bound=RunnableParameters)
 def file_is_calibration_instance(file: Path, klass: str) -> bool:
     if not file.is_file() or file.suffix != ".py":
         return False
-
-    contents = file.read_text()
+    try:
+        contents = file.read_text()
+    except UnicodeDecodeError:
+        contents = file.read_text(encoding="utf-8")
     return f"{klass}(" in contents or f"{klass}[" in contents
 
 

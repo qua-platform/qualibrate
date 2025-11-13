@@ -317,6 +317,12 @@ class QualibrationNode(
         )
         return instance
 
+    def set_parameters(self, **parameters: Any) -> None:
+        self._parameters = self.parameters_class.model_validate(parameters)
+        self.parameters_class = self.build_parameters_class_from_instance(
+            self._parameters
+        )
+
     def _warn_if_external_and_interactive_mpl(self) -> None:
         """
         Checks backend configuration and issues a warning if incompatible.
