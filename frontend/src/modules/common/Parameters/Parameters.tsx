@@ -4,9 +4,10 @@ import styles from "./Parameters.module.scss";
 import { NodeDTO } from "../../Nodes/components/NodeElement/NodeElement";
 import { ArrowIcon } from "../../../ui-lib/Icons/ArrowIcon";
 import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
-import { useGraphContext } from "../../GraphLibrary/context/GraphContext";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../../../ui-lib/Icons/InfoIcon";
+import { getSelectedNodeNameInWorkflow } from "../../../stores/GraphStores/GraphCommon/selectors";
+import { useSelector } from "react-redux";
 
 interface IProps {
   parametersExpanded?: boolean;
@@ -36,7 +37,7 @@ export const Parameters: React.FC<IProps> = ({
   currentItem,
   getInputElement,
 }) => {
-  const { selectedNodeNameInWorkflow } = useGraphContext();
+  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
   const [expanded, setExpanded] = React.useState<boolean>(selectedNodeNameInWorkflow === title || parametersExpanded);
 
   useEffect(() => {

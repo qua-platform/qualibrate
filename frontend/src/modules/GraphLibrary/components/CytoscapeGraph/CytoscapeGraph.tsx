@@ -14,10 +14,12 @@ import { useEffect, useRef } from "react";
 import { CytoscapeLayout } from "./config/Cytoscape";
 
 import styles from "./CytoscapeGraph.module.scss";
-import { useGraphContext } from "../../context/GraphContext";
 import klay from "cytoscape-klay";
-import { useGraphStatusContext } from "../GraphStatus/context/GraphStatusContext";
-import { useSelectionContext } from "../../../common/context/SelectionContext";
+import { setTrackLatest } from "../../../../stores/GraphStores/GraphStatus/actions";
+import { useSelector } from "react-redux";
+import { getSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/selectors";
+import { setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/actions";
+import { useRootDispatch } from "../../../../stores";
 
 cytoscape.use(klay);
 cytoscape.warnings(false);
@@ -41,8 +43,9 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
    */
   const wrapCytoscapeElements = (elements: cytoscape.ElementDefinition[]) => {
     return elements.map((el) => {
+      const deepClone = JSON.parse(JSON.stringify(el));
       return {
-        ...el,
+        ...deepClone,
         style: {
           backgroundImage: getNodeIcon(el.group ? el.group.toString() : ""),
         },
@@ -51,9 +54,8 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
   };
 
   const cytoscapeElements = wrapCytoscapeElements(elements);
-  const { selectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } = useGraphContext();
-  const { setSelectedItemName } = useSelectionContext();
-  const { setTrackLatest } = useGraphStatusContext();
+  const dispatch = useRootDispatch();
+  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
   const cy = useRef<cytoscape.Core>();
   const divRef = useRef(null);
 
@@ -135,8 +137,8 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
   useEffect(() => {
     const onClickN = (e: EventObject) => {
       // Disable "track latest" when manually selecting a node
-      setTrackLatest(false);
-      setSelectedNodeNameInWorkflow((e.target.data() as { id: string }).id);
+      dispatch(setTrackLatest(false));
+      dispatch(setSelectedNodeNameInWorkflow((e.target.data() as { id: string }).id));
       if (onNodeClick) {
         onNodeClick((e.target.data() as { id: string }).id);
       }
@@ -146,14 +148,13 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
     return () => {
       cy.current?.nodes().off("click", "node");
     };
-  }, [setSelectedNodeNameInWorkflow, cy.current]);
+  }, [cy.current]);
 
   useEffect(() => {
     // Clear selection when clicking graph background
     const onClick = (e: EventObject) => {
       if (e.target === cy.current) {
-        setSelectedItemName(undefined);
-        setSelectedNodeNameInWorkflow(undefined);
+        dispatch(setSelectedNodeNameInWorkflow(undefined));
       }
     };
     cy.current?.on("click", onClick);
@@ -161,7 +162,7 @@ export default function CytoscapeGraph({ elements, onNodeClick }: IProps) {
     return () => {
       cy.current?.off("click", onClick);
     };
-  }, [setSelectedNodeNameInWorkflow, cy.current]);
+  }, [cy.current]);
 
   return <div ref={divRef} className={styles.wrapper} />;
 }

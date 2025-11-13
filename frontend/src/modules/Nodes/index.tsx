@@ -1,30 +1,18 @@
-import React, { useEffect } from "react";
-import { useNodesContext } from "./context/NodesContext";
+import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../Nodes/NodesPage.module.scss";
 import { NodeElementList } from "./components/NodeElement/NodeElementList";
 import { RunningJob } from "./components/RunningJob/RunningJob";
 import { Results } from "./components/Results/Results";
-import { SelectionContextProvider } from "../common/context/SelectionContext";
-import BlueButton from "../../ui-lib/components/Button/BlueButton";
-import { useMainPageContext } from "../../routing/MainPageContext";
 import { CircularProgress } from "@mui/material";
-import { useWebSocketData } from "../../contexts/WebSocketContext";
+import { useSelector } from "react-redux";
+import { getIsRescanningNodes, getResults } from "../../stores/NodesStore/selectors";
+import { getRunResultNodeError } from "../../stores/WebSocketStore/selectors";
 
 const NodesPage = () => {
-  const { runStatus } = useWebSocketData();
-  const { fetchAllNodes, isRescanningNodes, results } = useNodesContext();
-  const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useMainPageContext();
-  const NodeTopBarRefreshButton = () => {
-    return (
-      <div className={styles.refreshButtonWrapper} data-testid="refresh-button">
-        <BlueButton onClick={() => fetchAllNodes(true)}>Refresh</BlueButton>
-      </div>
-    );
-  };
-  useEffect(() => {
-    setTopBarAdditionalComponents({ ...topBarAdditionalComponents, nodes: <NodeTopBarRefreshButton /> });
-  }, []);
+  const isRescanningNodes = useSelector(getIsRescanningNodes);
+  const results = useSelector(getResults);
+  const runResultError = useSelector(getRunResultNodeError);
 
   return (
     <div className={styles.wrapper} data-testid="nodes-page-wrapper">
@@ -47,15 +35,11 @@ const NodesPage = () => {
           <div className={styles.nodeRunningJobInfoWrapper}>
             <RunningJob />
           </div>
-          <Results jsonObject={results ?? {}} showSearch={false} toggleSwitch={true} errorObject={runStatus?.node?.run_results?.error} />
+          <Results jsonObject={results ?? {}} showSearch={false} toggleSwitch={true} errorObject={runResultError} />
         </div>
       </div>
     </div>
   );
 };
 
-export default () => (
-  <SelectionContextProvider>
-    <NodesPage />
-  </SelectionContextProvider>
-);
+export default NodesPage;

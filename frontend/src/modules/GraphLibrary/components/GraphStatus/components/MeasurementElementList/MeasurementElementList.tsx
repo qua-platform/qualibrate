@@ -7,7 +7,7 @@
 import React from "react";
 import styles from "./MeasurementElementList.module.scss";
 import { MeasurementElement } from "../MeasurementElement/MeasurementElement";
-import { Measurement } from "../../context/GraphStatusContext";
+import { Measurement } from "../../GraphStatus";
 
 interface IMeasurementElementListProps {
   listOfMeasurements: Measurement[];

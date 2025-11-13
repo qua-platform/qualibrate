@@ -2,7 +2,7 @@ import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
 import { ALL_GRAPHS, GET_EXECUTION_HISTORY, GET_WORKFLOW_GRAPH, SUBMIT_WORKFLOW_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
-import { Measurement } from "../components/GraphStatus/context/GraphStatusContext";
+import { Measurement } from "../components/GraphStatus/GraphStatus";
 
 export class GraphLibraryApi extends Api {
   constructor() {

@@ -8,15 +8,16 @@ import {
   MeasurementElementStatusInfoAndParameters,
 } from "../../../GraphLibrary/components/GraphStatus/components/MeasurementElementInfoSection/MeasurementElementInfoSection";
 import { classNames } from "../../../../utils/classnames";
-import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
 import { formatDateTime } from "../../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
+import { useSelector } from "react-redux";
+import { getJsonData } from "../../../../stores/SnapshotsStore/selectors";
 
 export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; handleOnClick: () => void }> = ({
   el,
   isSelected,
   handleOnClick,
 }) => {
-  const { jsonData } = useSnapshotsContext();
+  const jsonData = useSelector(getJsonData);
   return (
     <div className={styles.wrapper}>
       <div className={styles.headerWrapper} onClick={handleOnClick}>

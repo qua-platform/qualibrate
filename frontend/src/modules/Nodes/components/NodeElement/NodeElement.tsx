@@ -43,20 +43,34 @@ import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 import {Checkbox, CircularProgress} from "@mui/material";
-import {ErrorWithDetails, useNodesContext} from "../../context/NodesContext";
 import {InputParameter, Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
-import {useSelectionContext} from "../../../common/context/SelectionContext";
 import {ErrorResponseWrapper} from "../../../common/Error/ErrorResponseWrapper";
+
 import InputField from "../../../../common/ui-components/common/Input/InputField";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import {NodesApi} from "../../api/NodesAPI";
 import {RunIcon} from "../../../../ui-lib/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
+import { useRootDispatch } from "../../../../stores";
+import { useSelector } from "react-redux";
+import { getAllNodes, getSelectedNode, getSubmitNodeResponseError } from "../../../../stores/NodesStore/selectors";
+import { setAllNodes,
+  setIsAllStatusesUpdated,
+  setIsNodeRunning,
+  setResults,
+  setRunningNode,
+  setRunningNodeInfo,
+  setSelectedNode,
+  setSubmitNodeResponseError,
+  setUpdateAllButtonPressed,
+} from "../../../../stores/NodesStore/actions";
+import { ErrorWithDetails } from "../../../../stores/NodesStore/NodesStore";
+import { getRunStatusIsRunning, getRunStatusNodeName, getRunStatusNodePercentage, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore/selectors";
+import { getFirstId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
+import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
 import {InfoIcon} from "../../../../ui-lib/Icons/InfoIcon";
 import {StatusVisuals} from "./NodeElementStatusVisuals";
 import {getNodeRowClass} from "./helpers";
-import {useSnapshotsContext} from "../../../Snapshots/context/SnapshotsContext";
-import {useWebSocketData} from "../../../../contexts/WebSocketContext";
 
 /**
  * Calibration node definition from backend node library scan.
@@ -137,21 +151,17 @@ const formatDate = (date: Date) => {
  * @see StatusVisuals for status indicator rendering (NodeElementStatusVisuals.tsx)
  */
 export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
-  const { selectedItemName, setSelectedItemName } = useSelectionContext();
-  const { firstId, secondId, fetchOneSnapshot, trackLatestSidePanel } = useSnapshotsContext();
-  const {
-    setRunningNodeInfo,
-    setSubmitNodeResponseError,
-    submitNodeResponseError,
-    setIsNodeRunning,
-    setRunningNode,
-    allNodes,
-    setAllNodes,
-    setIsAllStatusesUpdated,
-    setUpdateAllButtonPressed,
-    setResults,
-  } = useNodesContext();
-  const { runStatus } = useWebSocketData();
+  const dispatch = useRootDispatch();
+  const firstId = useSelector(getFirstId);
+  const secondId = useSelector(getSecondId);
+  const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
+  const allNodes = useSelector(getAllNodes);
+  const selectedNode = useSelector(getSelectedNode);
+  const submitNodeResponseError = useSelector(getSubmitNodeResponseError);
+  const runStatusIsRunning = useSelector(getRunStatusIsRunning);
+  const runStatusNodeName = useSelector(getRunStatusNodeName);
+  const runStatusNodeStatus = useSelector(getRunStatusNodeStatus);
+  const runStatusNodePercentage = useSelector(getRunStatusNodePercentage);
 
   /**
    * Update a single parameter value in the node's parameter map.
@@ -178,7 +188,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         default: newValue,
       },
     };
-    setAllNodes({ ...allNodes, [nodeKey]: { ...node, parameters: updatedParameters } });
+    dispatch(setAllNodes({ ...allNodes, [nodeKey]: { ...node, parameters: updatedParameters } }));
   };
 
   /**
@@ -268,29 +278,29 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
    * between node execution and snapshot state makes the flow harder to follow.
    */
   const handleClick = async () => {
-    setIsNodeRunning(true);
-    setResults({});
-    setUpdateAllButtonPressed(false);
-    setIsAllStatusesUpdated(false);
-    setRunningNode(node);
-    setSubmitNodeResponseError(undefined);
+    dispatch(setIsNodeRunning(true));
+    dispatch(setResults({}));
+    dispatch(setUpdateAllButtonPressed(false));
+    dispatch(setIsAllStatusesUpdated(false));
+    dispatch(setRunningNode(node));
+    dispatch(setSubmitNodeResponseError(undefined));
     const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
     if (result.isOk) {
-      setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" });
+      dispatch(setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" }));
     } else {
       const errorWithDetails = result.error as ErrorWithDetails;
-      setSubmitNodeResponseError({
+      dispatch(setSubmitNodeResponseError({
         nodeName: node.name,
         name: `${errorWithDetails.detail[0].type ?? "Error msg"}: `,
         msg: errorWithDetails.detail[0].msg,
-      });
-      setRunningNodeInfo({
+      }));
+      dispatch(setRunningNodeInfo({
         timestampOfRun: formatDate(new Date()),
         status: "error",
-      });
+      }));
     }
     if (trackLatestSidePanel) {
-      fetchOneSnapshot(Number(firstId), Number(secondId), false, true);
+      dispatch(fetchOneSnapshot(Number(firstId), Number(secondId), false, true));
     }
   };
 
@@ -308,18 +318,18 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
       // See helpers.ts:getNodeRowClass for styling logic
       className={getNodeRowClass({
         nodeName: node.name,
-        selectedItemName: selectedItemName ?? "",
+        selectedItemName: selectedNode ?? "",
         runStatus:
-          runStatus && runStatus.node
+          runStatusNodeName && runStatusNodeStatus
             ? {
-                name: runStatus.node.name,
-                status: runStatus.node.status,
+                name: runStatusNodeName,
+                status: runStatusNodeStatus,
               }
             : null,
       })}
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {
-        setSelectedItemName(node.name);
+        dispatch(setSelectedNode(node.name));
       }}
     >
       <div className={styles.row}>
@@ -347,25 +357,25 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
             FRAGILE: Complex conditional logic - difficult to reason about all cases.
             Consider extracting to shouldShowStatus() helper function.
           */}
-          {(runStatus?.node?.name === node.name || (selectedItemName !== node.name && runStatus?.node?.status !== "pending")) && (
+          {(runStatusNodeName === node.name || (selectedNode !== node.name && runStatusNodeStatus !== "pending")) && (
             <StatusVisuals
-              status={runStatus?.node?.name === node.name ? runStatus?.node?.status : "pending"}
-              percentage={Math.round(runStatus?.node?.percentage_complete ?? 0)}
+              status={runStatusNodeName === node.name ? runStatusNodeStatus : "pending"}
+              percentage={Math.round(runStatusNodePercentage ?? 0)}
             />
           )}
         </div>
         {/* Show Run button only when: node is selected AND nothing is currently running */}
-        {!runStatus?.is_running && node.name === selectedItemName && (
+        {!runStatusIsRunning && node.name === selectedNode && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
             <RunIcon className={styles.runButtonIcon} />
             <span className={styles.runButtonText}>Run</span>
           </BlueButton>
         )}
         {/* Show spinner when: node is selected AND something is running */}
-        {runStatus?.is_running && node.name === selectedItemName && <CircularProgress size={32} />}
+        {runStatusIsRunning && node.name === selectedNode && <CircularProgress size={32} />}
       </div>
       {/* Show validation errors only for the selected node that failed submission */}
-      {node.name === selectedItemName && node.name === submitNodeResponseError?.nodeName && (
+      {node.name === selectedNode && node.name === submitNodeResponseError?.nodeName && (
         <ErrorResponseWrapper error={submitNodeResponseError} />
       )}
       {/* Show parameters section if node has any parameters defined */}
@@ -374,7 +384,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           parametersExpanded={true}
           showTitle={true}
           key={node.name}
-          show={selectedItemName === node.name}
+          show={selectedNode === node.name}
           currentItem={node}
           getInputElement={getInputElement}
           data-testid={`parameters-${nodeKey}`}

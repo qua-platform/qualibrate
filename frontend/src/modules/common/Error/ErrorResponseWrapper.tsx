@@ -1,7 +1,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../Error/ErrorStatusWrapper.module.scss";
-import { ResponseStatusError } from "../../Nodes/context/NodesContext";
+import { ResponseStatusError } from "../../../stores/NodesStore/NodesStore";
 
 export const ErrorResponseWrapper: React.FC<{
   error: ResponseStatusError | undefined;

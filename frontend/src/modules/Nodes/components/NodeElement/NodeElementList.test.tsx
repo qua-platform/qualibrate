@@ -1,38 +1,19 @@
 import { describe, it, expect } from "vitest";
-import React, { createContext } from "react";
+import React from "react";
 import { render, screen } from "@testing-library/react";
 import { NodeElementList } from "./NodeElementList";
-import { NodesContextProvider, useNodesContext } from "../../context/NodesContext";
-import { SelectionContextProvider } from "../../../common/context/SelectionContext";
-import { SnapshotsContextProvider } from "../../../Snapshots/context/SnapshotsContext";
-import { BrowserRouter } from "react-router-dom";
-import type { RunStatusType, HistoryType } from "../../../../contexts/WebSocketContext";
 import type { NodeMap } from "./NodeElement";
-
-// Mock WebSocket context
-const WebSocketContext = createContext<{
-  runStatus: RunStatusType | null;
-  history: HistoryType | null;
-  sendRunStatus: (data: RunStatusType) => void;
-  sendHistory: (data: HistoryType) => void;
-  subscribeToRunStatus: (cb: (data: RunStatusType) => void) => () => void;
-  subscribeToHistory: (cb: (data: HistoryType) => void) => () => void;
-}>({
-  runStatus: null,
-  history: null,
-  sendRunStatus: () => {},
-  sendHistory: () => {},
-  subscribeToRunStatus: () => () => {},
-  subscribeToHistory: () => () => {}
-});
+import { createTestProviders } from "@/test-utils/providers";
+import { setAllNodes } from "../../../../stores/NodesStore/actions";
+import { useRootDispatch } from "../../../../stores";
 
 // Helper component to set nodes in context
 const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
-  const { setAllNodes } = useNodesContext();
+  const dispatch = useRootDispatch();
 
   // Set nodes immediately
   React.useEffect(() => {
-    setAllNodes(nodes);
+    dispatch(setAllNodes(nodes));
   }, [nodes, setAllNodes]);
 
   return null;
@@ -40,29 +21,12 @@ const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
 
 // Test wrapper that sets up nodes via context
 const TestWrapper: React.FC<{ children: React.ReactNode; nodes?: NodeMap }> = ({ children, nodes }) => {
-  return (
-    <BrowserRouter>
-      <WebSocketContext.Provider
-        value={{
-          runStatus: null,
-          history: null,
-          sendRunStatus: () => {},
-          sendHistory: () => {},
-          subscribeToRunStatus: () => () => {},
-          subscribeToHistory: () => () => {}
-        }}
-      >
-        <NodesContextProvider>
-          <SelectionContextProvider>
-            <SnapshotsContextProvider>
-              {nodes && <NodesSetter nodes={nodes} />}
-              {children}
-            </SnapshotsContextProvider>
-          </SelectionContextProvider>
-        </NodesContextProvider>
-      </WebSocketContext.Provider>
-    </BrowserRouter>
-  );
+  const { Providers } = createTestProviders();
+
+  return <Providers>
+    {nodes && <NodesSetter nodes={nodes} />}
+    {children}
+  </Providers>;
 };
 
 describe("NodeElementList", () => {

@@ -10,23 +10,26 @@
  * @see GraphContext - Manages graph selection and execution state
  */
 import React, {useState} from "react";
+import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
 import {classNames} from "../../../../utils/classnames";
 import {InputParameter, Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
 import {GraphWorkflow} from "../GraphList";
-import {useSelectionContext} from "../../../common/context/SelectionContext";
 import {Checkbox} from "@mui/material";
 import {ParameterList} from "../../../common/Parameters/ParameterList";
-import {useGraphContext} from "../../context/GraphContext";
 import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
 import {GraphLibraryApi} from "../../api/GraphLibraryApi";
 import {NodeDTO} from "../../../Nodes/components/NodeElement/NodeElement";
-import {useMainPageContext} from "../../../../routing/MainPageContext";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
 import {GRAPH_STATUS_KEY} from "../../../../routing/ModulesRegistry";
+import {getAllGraphs, getSelectedWorkflowName} from "../../../../stores/GraphStores/GraphLibrary/selectors";
+import {fetchWorkflowGraph, setAllGraphs, setLastRunActive, setSelectedWorkflowName} from "../../../../stores/GraphStores/GraphLibrary/actions";
+import {useRootDispatch} from "../../../../stores";
+import {getWorkflowGraphElements} from "../../../../stores/GraphStores/GraphCommon/selectors";
+import {setActivePage} from "../../../../stores/NavigationStore/actions";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -44,18 +47,10 @@ interface TransformedGraph {
 
 export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrationGraphKey, calibrationGraph }) => {
   const [errorObject, setErrorObject] = useState<unknown>(undefined);
-  const { selectedItemName, setSelectedItemName } = useSelectionContext();
-  const {
-    workflowGraphElements,
-    setSelectedWorkflowName,
-    allGraphs,
-    setAllGraphs,
-    selectedWorkflowName,
-    lastRunInfo,
-    setLastRunInfo,
-    fetchWorkflowGraph,
-  } = useGraphContext();
-  const { setActivePage } = useMainPageContext();
+  const dispatch = useRootDispatch();
+  const workflowGraphElements = useSelector(getWorkflowGraphElements);
+  const allGraphs = useSelector(getAllGraphs);
+  const selectedWorkflowName = useSelector(getSelectedWorkflowName);
 
   const updateParameter = (paramKey: string, newValue: boolean | number | string, workflow?: NodeDTO | GraphWorkflow) => {
     const updatedParameters = {
@@ -77,7 +72,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         [selectedWorkflowName]: updatedWorkflow,
       };
 
-      setAllGraphs(updatedCalibrationGraphs);
+      dispatch(setAllGraphs(updatedCalibrationGraphs));
     }
   };
   const getInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => {
@@ -138,28 +133,24 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
    */
   const handleSubmit = async () => {
     if (selectedWorkflowName) {
-      setLastRunInfo({
-        ...lastRunInfo,
-        active: true,
-      });
+      dispatch(setLastRunActive());
       const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
       if (response.isOk) {
         setErrorObject(undefined); // This is a bugfix - previously it didn't clear errorObject on success
-        setActivePage(GRAPH_STATUS_KEY);
+        dispatch(setActivePage(GRAPH_STATUS_KEY));
       } else {
         setErrorObject(response.error);
       }
     }
   };
 
-  const show = selectedItemName === calibrationGraphKey;
+  const show = selectedWorkflowName === calibrationGraphKey;
   return (
     <div
       className={classNames(styles.wrapper, show ? styles.calibrationGraphSelected : "")}
       onClick={async () => {
-        await fetchWorkflowGraph(calibrationGraphKey as string);
-        setSelectedItemName(calibrationGraphKey);
-        setSelectedWorkflowName(calibrationGraphKey);
+        await dispatch(fetchWorkflowGraph(calibrationGraphKey as string));
+        dispatch(setSelectedWorkflowName(calibrationGraphKey));
       }}
     >
       <div className={styles.upperContainer}>

@@ -3,11 +3,28 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { HOME_URL, LOGIN_URL } from "../common/modules";
 import MainPage from "./MainPage/MainPage";
 import { Login } from "../modules/Login";
-import { useAuthContext } from "../modules/Login/context/AuthContext";
 import LoaderPage from "../ui-lib/loader/LoaderPage";
+import { useSelector } from "react-redux";
+import { getIsAuthorized, getIsTriedLoginWithEmptyString } from "../stores/AuthStore/selectors";
+import { useLogin } from "../stores/AuthStore/hooks";
+import { useInitNodes } from "../stores/NodesStore/hooks";
+import { useInitProjects } from "../stores/ProjectStore/hooks";
+import { useInitGraphs } from "../stores/GraphStores/hooks";
+import { useInitWebSocket } from "../stores/WebSocketStore/hooks";
+import { useInitSnapshots } from "../stores/SnapshotsStore/hooks";
+
+export const useInitApp = () => {
+  useLogin();
+  useInitNodes();
+  useInitProjects();
+  useInitGraphs();
+  useInitWebSocket();
+  useInitSnapshots();
+};
 
 const ProtectedRoute = ({ children }: { children: React.JSX.Element }): React.JSX.Element => {
-  const { isAuthorized, triedLoginWithEmptyString } = useAuthContext();
+  const isAuthorized = useSelector(getIsAuthorized);
+  const triedLoginWithEmptyString = useSelector(getIsTriedLoginWithEmptyString);
 
   if (!isAuthorized) {
     if (!triedLoginWithEmptyString) {
@@ -19,6 +36,8 @@ const ProtectedRoute = ({ children }: { children: React.JSX.Element }): React.JS
 };
 
 const AppRoutes = () => {
+  useInitApp();
+
   return (
     <>
       <Routes>

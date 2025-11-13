@@ -1,13 +1,14 @@
 // Test utilities for React component testing
-import React, { createContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import { NodesContextProvider } from "../modules/Nodes/context/NodesContext";
-import { SelectionContextProvider, useSelectionContext } from "../modules/common/context/SelectionContext";
-import { SnapshotsContextProvider } from "../modules/Snapshots/context/SnapshotsContext";
-import { GraphContextProvider, useGraphContext } from "../modules/GraphLibrary/context/GraphContext";
-import { GraphStatusContextProvider, useGraphStatusContext } from "../modules/GraphLibrary/components/GraphStatus/context/GraphStatusContext";
-import type { RunStatusType, HistoryType } from "../contexts/WebSocketContext";
+import { Provider } from "react-redux";
+import { setSelectedNodeNameInWorkflow } from "../stores/GraphStores/GraphCommon/actions";
+import { rootReducer, useRootDispatch } from "../stores";
+import { setTrackLatest } from "../stores/GraphStores/GraphStatus/actions";
+import { configureStore } from "@reduxjs/toolkit";
+import { useInitApp } from "../routing/AppRoutes";
+import { HistoryType, RunStatusType } from "../stores/WebSocketStore/WebSocketStore";
 
 /**
  * Mock WebSocket context value interface
@@ -20,19 +21,6 @@ interface MockWebSocketContextValue {
   subscribeToRunStatus: (cb: (data: RunStatusType) => void) => () => void;
   subscribeToHistory: (cb: (data: HistoryType) => void) => () => void;
 }
-
-/**
- * Mock WebSocket context for testing
- * Export it so tests can use useWebSocketData() hook
- */
-export const WebSocketContext = createContext<MockWebSocketContextValue>({
-  runStatus: null,
-  history: null,
-  sendRunStatus: () => {},
-  sendHistory: () => {},
-  subscribeToRunStatus: () => () => {},
-  subscribeToHistory: () => () => {},
-});
 
 /**
  * Create test providers with optional context overrides
@@ -59,34 +47,17 @@ export const createTestProviders = (overrides: {
     setTrackLatest?: (track: boolean) => void;
   };
 } = {}) => {
-  const defaultWebSocketValue: MockWebSocketContextValue = {
-    runStatus: null,
-    history: null,
-    sendRunStatus: () => {},
-    sendHistory: () => {},
-    subscribeToRunStatus: () => () => {},
-    subscribeToHistory: () => () => {},
-    ...overrides.webSocket,
-  };
+  const mockStore = configureStore({ reducer: rootReducer });
 
   // Helper component to set initial context values
   const ContextSetter = ({ children }: { children: React.ReactNode }) =>  {
-    const { setSelectedItemName } = useSelectionContext();
-    const { setSelectedNodeNameInWorkflow } = useGraphContext();
-    const { setTrackLatest } = useGraphStatusContext();
+    const dispatch = useRootDispatch();
 
-    useEffect(() => {
-      if (overrides.selection?.selectedItemName !== undefined) {
-        setSelectedItemName(overrides.selection.selectedItemName || undefined);
-      }
-      if (overrides.selection?.setSelectedItemName) {
-        // Allow tests to override the setter function
-      }
-    }, [setSelectedItemName]);
+    useInitApp();
 
     useEffect(() => {
       if (overrides.graph?.selectedNodeNameInWorkflow !== undefined) {
-        setSelectedNodeNameInWorkflow(overrides.graph.selectedNodeNameInWorkflow);
+        dispatch(setSelectedNodeNameInWorkflow(overrides.graph.selectedNodeNameInWorkflow));
       }
     }, [setSelectedNodeNameInWorkflow]);
 
@@ -99,28 +70,20 @@ export const createTestProviders = (overrides: {
     return <>{children}</>;
   };
 
-  const TestProviders = ({ children }: { children: React.ReactNode }) => {
+  const Providers = ({ children }: { children: React.ReactNode }) => {
     return (
     <BrowserRouter>
-      <WebSocketContext.Provider value={defaultWebSocketValue}>
-        {/* @ts-expect-error - GraphContextProvider has incorrect type PropsWithChildren<ReactNode> */}
-        <GraphContextProvider>
-          <GraphStatusContextProvider>
-            <NodesContextProvider>
-              <SelectionContextProvider>
-                <SnapshotsContextProvider>
-                  <ContextSetter>{children}</ContextSetter>
-                </SnapshotsContextProvider>
-              </SelectionContextProvider>
-            </NodesContextProvider>
-          </GraphStatusContextProvider>
-        </GraphContextProvider>
-      </WebSocketContext.Provider>
+      <Provider store={mockStore}>
+        <ContextSetter>{children}</ContextSetter>
+      </Provider>
     </BrowserRouter>
     );
   };
 
-  return TestProviders;
+  return {
+    Providers,
+    mockStore
+  };
 };
 
 /**

@@ -2,7 +2,7 @@ import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "../../../common/interfaces/Api";
 import { ALL_NODES, GET_LAST_RUN, GET_LOGS, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../common/enums/Api";
-import { LogsViewerResponseDTO } from "../../RightSidebar/context/RightSidePanelContext";
+import { LogsViewerResponseDTO } from "../../../modules/RightSidebar/Logs/LogsPanel";
 
 export class NodesApi extends Api {
   constructor() {

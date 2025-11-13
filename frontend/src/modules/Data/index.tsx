@@ -1,12 +1,14 @@
 import React from "react";
 import styles from "../Data/Data.module.scss";
-import { useSnapshotsContext } from "../Snapshots/context/SnapshotsContext";
 import PaginationWrapper from "../Pagination/PaginationWrapper";
 import { JSONEditor } from "./components/JSONEditor";
 import { SnapshotsTimeline } from "./components/SnapshotsTimeline/SnapshotsTimeline";
+import { useSelector } from "react-redux";
+import { getResult } from "../../stores/SnapshotsStore/selectors";
 
 export const Data = () => {
-  const { totalPages, setPageNumber, result } = useSnapshotsContext();
+  const result = useSelector(getResult);
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.explorer}>
@@ -14,7 +16,7 @@ export const Data = () => {
           <div className={styles.data}>
             <SnapshotsTimeline />
           </div>
-          <PaginationWrapper numberOfPages={totalPages} setPageNumber={setPageNumber} />
+          <PaginationWrapper />
         </div>
         <div className={styles.viewer}>{result && <JSONEditor title={"RESULTS"} jsonDataProp={result} height={"100%"} />}</div>
       </div>
