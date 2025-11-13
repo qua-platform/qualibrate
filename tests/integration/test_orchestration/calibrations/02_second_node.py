@@ -16,6 +16,6 @@ node.parameters = Parameters()
 assert node.name == "second_node"
 
 node.outcomes = {
-    target: Outcome.SUCCESSFUL if i % 2 else Outcome.FAILED
-    for i, target in enumerate(node.parameters.targets)
+    target: Outcome.SUCCESSFUL if int(target[1]) % 2 == 0 else Outcome.FAILED
+    for target in node.parameters.targets
 }

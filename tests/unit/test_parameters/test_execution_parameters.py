@@ -3,9 +3,9 @@ from pydantic import Field
 
 from qualibrate.parameters import (
     ExecutionParameters,
+    GraphElementsParameters,
     GraphParameters,
     NodeParameters,
-    NodesParameters,
     RunnableParameters,
 )
 from qualibrate.utils.type_protocols import TargetType
@@ -30,7 +30,7 @@ class Graph(GraphParameters):
     str_value: str = "test"
 
 
-class NodesParams(NodesParameters):
+class NodesParams(GraphElementsParameters):
     node1: Node1 = Field(default_factory=Node1)
     node2: Node2 = Field(default_factory=Node2)
 
@@ -44,7 +44,7 @@ class TestExecutionParameters:
     def test_default_initialization(self):
         instance = ExecutionParameters()
         assert isinstance(instance.parameters, GraphParameters)
-        assert isinstance(instance.nodes, NodesParameters)
+        assert isinstance(instance.nodes, GraphElementsParameters)
 
     def test_serialize_with_additional_fields(self):
         class ExtendedExecutionParameters(ExecutionParameters):

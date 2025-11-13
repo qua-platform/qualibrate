@@ -1,9 +1,9 @@
 from enum import Enum
 
-__all__ = ["NodeStatus"]
+__all__ = ["ElementRunStatus"]
 
 
-class NodeStatus(Enum):
+class ElementRunStatus(Enum):
     pending = "pending"
     running = "running"
     finished = "finished"
