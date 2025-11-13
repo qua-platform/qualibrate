@@ -1,4 +1,4 @@
-export function classNames(...cls: Array<string | undefined | false>): string {
+export const classNames = (...cls: Array<string | undefined | false>): string => {
   return cls
     .map((v) => {
       if (typeof v === "undefined" || v === false) {
@@ -12,4 +12,4 @@ export function classNames(...cls: Array<string | undefined | false>): string {
     })
     .filter((v) => !!v)
     .join(" ");
-}
+};

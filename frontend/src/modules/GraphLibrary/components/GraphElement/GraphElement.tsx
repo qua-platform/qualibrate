@@ -9,26 +9,26 @@
  * @see CytoscapeGraph - Embedded graph visualization
  * @see GraphContext - Manages graph selection and execution state
  */
-import React, { useState } from "react";
+import React, {useState} from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
-import { classNames } from "../../../../utils/classnames";
-import { InputParameter, Parameters, SingleParameter } from "../../../common/Parameters/Parameters";
-import { GraphWorkflow } from "../GraphList";
-import { useSelectionContext } from "../../../common/context/SelectionContext";
-import { Checkbox } from "@mui/material";
-import { ParameterList } from "../../../common/Parameters/ParameterList";
-import { useGraphContext } from "../../context/GraphContext";
+import {classNames} from "../../../../utils/classnames";
+import {InputParameter, Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
+import {GraphWorkflow} from "../GraphList";
+import {useSelectionContext} from "../../../common/context/SelectionContext";
+import {Checkbox} from "@mui/material";
+import {ParameterList} from "../../../common/Parameters/ParameterList";
+import {useGraphContext} from "../../context/GraphContext";
 import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
-import { GraphLibraryApi } from "../../api/GraphLibraryApi";
-import { NodeDTO } from "../../../Nodes/components/NodeElement/NodeElement";
-import { useMainPageContext } from "../../../../routing/MainPageContext";
-import { GraphElementErrorWrapper } from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
+import {GraphLibraryApi} from "../../api/GraphLibraryApi";
+import {NodeDTO} from "../../../Nodes/components/NodeElement/NodeElement";
+import {useMainPageContext} from "../../../../routing/MainPageContext";
+import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
-import { GRAPH_STATUS_KEY } from "../../../../routing/ModulesRegistry";
+import {GRAPH_STATUS_KEY} from "../../../../routing/ModulesRegistry";
 
-export interface ICalibrationGraphElementProps {
+interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
   calibrationGraph: GraphWorkflow;
 }
@@ -144,7 +144,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
       });
       const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
       if (response.isOk) {
-        setErrorObject(undefined);  // This is a bugfix - previously it didn't clear errorObject on success
+        setErrorObject(undefined); // This is a bugfix - previously it didn't clear errorObject on success
         setActivePage(GRAPH_STATUS_KEY);
       } else {
         setErrorObject(response.error);

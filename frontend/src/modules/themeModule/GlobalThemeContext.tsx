@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useContext, useState } from "react";
+import React, { ReactNode, useCallback, useState } from "react";
 import { getColorTheme, Theme, toggleColorTheme } from "./themeHelper";
 
 export interface GlobalThemeContextState {
@@ -35,14 +35,6 @@ export function GlobalThemeContextProvider(props: GlobalThemeContextProviderProp
       {children}
     </GlobalThemeContext.Provider>
   );
-}
-
-export function useGlobalThemeContext(): GlobalThemeContextState {
-  const context = useContext(GlobalThemeContext);
-  if (!context) {
-    throw new Error("useGlobalThemeContext must be used within a GlobalThemeContextProvider");
-  }
-  return context;
 }
 
 export default GlobalThemeContext;

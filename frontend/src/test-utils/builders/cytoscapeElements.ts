@@ -4,13 +4,13 @@
  * Provides helper functions to create Cytoscape node and edge definitions
  * for use in tests.
  */
-import { ElementDefinition } from "cytoscape";
+import {ElementDefinition} from "cytoscape";
 
 /**
  * Creates a Cytoscape node element definition.
  * Note: group parameter in Cytoscape elements is the element type (nodes/edges), not the node category.
  */
-export const createCytoscapeNode = (id: string, classes?: string): ElementDefinition => ({
+const createCytoscapeNode = (id: string, classes?: string): ElementDefinition => ({
   group: "nodes",
   data: { id },
   classes,
@@ -19,7 +19,7 @@ export const createCytoscapeNode = (id: string, classes?: string): ElementDefini
 /**
  * Creates a Cytoscape edge element definition.
  */
-export const createCytoscapeEdge = (source: string, target: string): ElementDefinition => ({
+const createCytoscapeEdge = (source: string, target: string): ElementDefinition => ({
   group: "edges",
   data: {
     id: `${source}-${target}`,
