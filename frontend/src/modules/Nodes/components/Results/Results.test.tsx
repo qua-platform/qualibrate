@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { ResultsError } from "./Results";
-import type { ErrorObject } from "../../../common/Error/ErrorStatusWrapper";
+import type { ErrorObject } from "../../../common/Error/ErrorStatusInterface";
 
 describe("ResultsError - Collapsible Traceback", () => {
   const mockErrorWithTraceback: ErrorObject = {
