@@ -132,6 +132,12 @@ class QualibrationGraph(
             self._elements = {}
             self._connectivity = []
         self._graph: nx.DiGraph[GraphElementTypeVar] = nx.DiGraph()
+        if orchestrator is None:
+            from qualibrate.orchestration.basic_orchestrator import (
+                BasicOrchestrator,
+            )
+
+            orchestrator = BasicOrchestrator()
         self._orchestrator = orchestrator
         self._initial_targets: Sequence[TargetType] = []
         self._full_parameters_class: type[GraphRunParametersType] | None = None
