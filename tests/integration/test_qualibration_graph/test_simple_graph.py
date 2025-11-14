@@ -25,7 +25,7 @@ def qualibration_lib(
         "qualibrate.qualibration_node.get_qualibrate_config",
         return_value=qualibrate_config_from_path,
     )
-    cal_path = Path(__file__).parent / "calibrations"
+    cal_path = Path(__file__).parent / "simple_calibrations"
     tmp = QualibrationLibrary(cal_path)
     yield tmp
 
@@ -52,7 +52,7 @@ def test_run_sequence(
     g = QualibrationGraph(
         "graph_name",
         graph_params,
-        qualibration_lib.nodes,
+        dict(qualibration_lib.nodes.items()),
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
         orchestrator=Orchestrator(),
     )
@@ -72,7 +72,7 @@ def test_run_multi_predecessors(
     g = QualibrationGraph(
         "graph_name",
         graph_params,
-        qualibration_lib.nodes,
+        dict(qualibration_lib.nodes.items()),
         [
             ("test_node", "test_cal"),
             ("test_node", "one_more_node"),
