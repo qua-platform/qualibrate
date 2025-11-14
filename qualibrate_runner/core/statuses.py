@@ -102,11 +102,7 @@ def get_run_status(state: State) -> RunStatus:
         graph: QGraphType | None = None
     elif isinstance(state.run_item, QualibrationGraph):
         graph = state.run_item
-        node = (
-            graph._orchestrator.active_node
-            if graph._orchestrator is not None
-            else None
-        )
+        node = graph.active_node
     else:
         node = None
         graph = None
