@@ -1,8 +1,8 @@
 from qualibrate.models.node_status import ElementRunStatus
+from qualibrate.models.outcome import Outcome
 from qualibrate.parameters import (
     GraphParameters,
 )
-from qualibrate.models.outcome import Outcome
 from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
 from qualibrate.utils.graph_building import GraphExportMixin
@@ -41,8 +41,11 @@ class TestGraphExportMixin:
                 },
             ],
             # this is standard name so kept as is
-            "adjacency": [[{"id": "one_more_node", "scenario": Outcome.SUCCESSFUL}],
-                          [{"id": "test_cal", "scenario":Outcome.SUCCESSFUL}], []],
+            "adjacency": [
+                [{"id": "one_more_node", "scenario": Outcome.SUCCESSFUL}],
+                [{"id": "test_cal", "scenario": Outcome.SUCCESSFUL}],
+                [],
+            ],
         }
 
     def test_cytoscape(self):

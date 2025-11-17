@@ -10,7 +10,7 @@ from typing import (
     Any,
     Generic,
     Literal,
-    cast, Dict,
+    cast,
 )
 
 import networkx as nx
@@ -127,11 +127,13 @@ class QualibrationGraph(
                     "instantiation."
                 )
             self._elements = dict(nodes)
-            self._connectivity :Dict[tuple[str, str], Outcome]=\
-                {connectivity: Outcome.SUCCESSFUL for connectivity in connectivity}
+            self._connectivity: dict[tuple[str, str], Outcome] = {
+                connectivity: Outcome.SUCCESSFUL
+                for connectivity in connectivity
+            }
         else:
             self._elements = {}
-            self._connectivity :Dict[tuple[str, str], Outcome]= {}
+            self._connectivity: dict[tuple[str, str], Outcome] = {}
         self._graph: nx.DiGraph[GraphElementTypeVar] = nx.DiGraph()
         if orchestrator is None:
             from qualibrate.orchestration.basic_orchestrator import (
@@ -227,10 +229,14 @@ class QualibrationGraph(
         new_graph._graph = nx.DiGraph()
         new_graph._graph.add_nodes_from(new_graph._elements.values())
         for source, destination in self._connectivity.keys():
-            if source in new_graph._elements and destination in new_graph._elements:
+            if (
+                source in new_graph._elements
+                and destination in new_graph._elements
+            ):
                 new_graph._graph.add_edge(
-                    new_graph._elements[source], new_graph._elements[destination], scenario=self._connectivity
-                                     .get((source,destination))
+                    new_graph._elements[source],
+                    new_graph._elements[destination],
+                    scenario=self._connectivity.get((source, destination)),
                 )
 
         # Copy orchestrator if it exists
@@ -278,7 +284,9 @@ class QualibrationGraph(
                 destination_element = self._get_element_or_error(destination)
             except ValueError as ex:
                 issued_element_name = (
-                    ex.args[1] if len(ex.args) > 1 else f"{source} or {destination}"
+                    ex.args[1]
+                    if len(ex.args) > 1
+                    else f"{source} or {destination}"
                 )
                 raise ValueError(
                     f'Error creating QualibrationGraph "{self.name}": Could '
@@ -288,8 +296,11 @@ class QualibrationGraph(
                     f"{tuple(self._elements.keys())}"
                 ) from ex
             if not self._graph.has_edge(source_element, destination_element):
-                self._graph.add_edge(source_element, destination_element, scenario=self._connectivity
-                                     .get((source,destination)))
+                self._graph.add_edge(
+                    source_element,
+                    destination_element,
+                    scenario=self._connectivity.get((source, destination)),
+                )
 
     @staticmethod
     def _get_library() -> "QualibrationLibrary[NodeLibT, GraphElLibT]":
@@ -949,10 +960,10 @@ class QualibrationGraph(
     @ensure_not_finalized
     @ensure_building
     def connect_on_failure(
-            self,
-            /,
-            src: str | GraphElementTypeVar,
-            dst: str | GraphElementTypeVar,
+        self,
+        /,
+        src: str | GraphElementTypeVar,
+        dst: str | GraphElementTypeVar,
     ) -> None:
         self._connect(src, dst, Outcome.FAILED)
 
@@ -962,7 +973,7 @@ class QualibrationGraph(
         self,
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
-        run_scenario : Outcome,
+        run_scenario: Outcome,
     ) -> None:
         s = self._resolve_element_name(src)
         d = self._resolve_element_name(dst)
@@ -974,5 +985,3 @@ class QualibrationGraph(
         if edge in self._connectivity:
             return
         self._connectivity[edge] = run_scenario
-
-

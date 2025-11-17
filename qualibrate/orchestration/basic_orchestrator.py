@@ -182,7 +182,6 @@ class BasicOrchestrator(
         Raises:
             RuntimeError: If the element does not have a run summary.
         """
-        # need to edit here, add success out_targets and fail out_targets
         summary = element.run_summary
         if summary is None:
             raise RuntimeError(
@@ -194,16 +193,17 @@ class BasicOrchestrator(
             for successor in self.nx_graph.successors(element)
         )
         if has_failed_successor:
-            successful_out_targets = (
-                summary.successful_targets
-            )
-            failed_out_targets = (
-                summary.failed_targets
-            )
+            successful_out_targets = summary.successful_targets
+            failed_out_targets = summary.failed_targets
             for successor in self.nx_graph.successors(element):
-                self.nx_graph.edges[element,successor][QualibrationGraph.EDGE_TARGETS_FIELD] =\
-                successful_out_targets if self.nx_graph[element][successor]["scenario"] == Outcome.SUCCESSFUL\
+                self.nx_graph.edges[element, successor][
+                    QualibrationGraph.EDGE_TARGETS_FIELD
+                ] = (
+                    successful_out_targets
+                    if self.nx_graph[element][successor]["scenario"]
+                    == Outcome.SUCCESSFUL
                     else failed_out_targets
+                )
         else:
             successful_out_targets = (
                 summary.successful_targets
@@ -212,10 +212,9 @@ class BasicOrchestrator(
             )
 
             for successor in self.nx_graph.successors(element):
-                self.nx_graph.edges[element,successor][QualibrationGraph.EDGE_TARGETS_FIELD] =\
-                    successful_out_targets
-
-
+                self.nx_graph.edges[element, successor][
+                    QualibrationGraph.EDGE_TARGETS_FIELD
+                ] = successful_out_targets
 
     def traverse_graph(
         self,
@@ -345,8 +344,13 @@ class BasicOrchestrator(
                 for successor in successors[element_to_run]:
                     """ checks if we have a scenario failed node defined with no failed targets,
                     in this case we dont want to get this node into the queue"""
-                    if nx_graph.edges[element_to_run,successor]["scenario"] == Outcome.FAILED \
-                        and not nx_graph.edges[element_to_run,successor][QualibrationGraph.EDGE_TARGETS_FIELD]:
+                    if (
+                        nx_graph.edges[element_to_run, successor]["scenario"]
+                        == Outcome.FAILED
+                        and not nx_graph.edges[element_to_run, successor][
+                            QualibrationGraph.EDGE_TARGETS_FIELD
+                        ]
+                    ):
                         continue
                     self._execution_queue.put(successor)
         self._active_element = None
