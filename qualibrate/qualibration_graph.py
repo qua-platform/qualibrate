@@ -796,13 +796,14 @@ class QualibrationGraph(
         ):
             node_id = node["id"]
             nodes[node_id] = node
-            node.update(
-                {
-                    # TODO: simplify node name
-                    "name": node_id,
-                    "parameters": parameters["nodes"][node["id"]],
-                }
-            )
+            element = self._elements[node_id]
+            # TODO: simplify node name
+            additional: dict[str, Any] = {"name": node_id}
+            if isinstance(element, QualibrationGraph):
+                additional.update(element.serialize(**kwargs))
+            else:
+                additional["parameters"] = parameters["nodes"][node["id"]]
+            node.update(additional)
             connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
         if cytoscape:
