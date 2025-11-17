@@ -32,7 +32,7 @@ from qualibrate.parameters import (
 )
 from qualibrate.q_runnnable import (
     QRunnable,
-    file_is_calibration_instance,
+    file_is_calibration_graph_instance,
     run_modes_ctx,
 )
 from qualibrate.qualibration_node import QualibrationNode
@@ -359,7 +359,7 @@ class QualibrationGraph(
             run_modes_token = run_modes_ctx.set(RunModes(inspection=True))
 
             for file in sorted(path.iterdir()):
-                if not file_is_calibration_instance(file, cls.__name__):
+                if not file_is_calibration_graph_instance(file, cls.__name__):
                     continue
                 try:
                     cls.scan_graph_file(file, graphs)
@@ -865,6 +865,10 @@ class QualibrationGraph(
     @ensure_not_finalized
     def __enter__(self) -> Self:
         self._building = True
+        modes = run_modes_ctx.get() or RunModes()
+        self.__run_context_token = run_modes_ctx.set(
+            modes.model_copy(update={"inspection": False})
+        )
         return self
 
     def __exit__(
@@ -874,6 +878,7 @@ class QualibrationGraph(
         tb: TracebackType | None,
     ) -> Literal[False]:
         self._building = False
+        run_modes_ctx.reset(self.__run_context_token)
         if exc_type is not None:
             # propagate exceptions from inside the block
             return False
