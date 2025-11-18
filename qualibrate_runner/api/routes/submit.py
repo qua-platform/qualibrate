@@ -25,6 +25,37 @@ submit_router = APIRouter(prefix="/submit")
 def _recursive_clear_node_parameters(
     parameters: Mapping[str, Any],
 ) -> Mapping[str, Any]:
+    """
+    Recursively clear run parameters of submitted elements.
+    Based on qualibrate.parameters.ExecutionParameters.
+
+    Expected out structure:
+    ```python
+    {
+        "parameters": {
+            "p1": ...
+        },
+        "nodes": {
+            "subgraph1": {
+                "parameters": {
+                    "p2": ...
+                },
+                "nodes": {
+                    "subgraph_node1": {
+                        "p3": 120,
+                    },
+                    "subgraph_node2": {
+                        "p5": 100,
+                    }
+                }
+            },
+            "outer_graph_node1": {
+                "p7": 120,
+            }
+        }
+    }
+    ```
+    """
     if "nodes" in parameters and "parameters" in parameters:
         return {
             "parameters": parameters["parameters"],
