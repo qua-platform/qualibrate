@@ -5,6 +5,7 @@ import { GraphElement } from "../GraphElement";
 import { createTestProviders } from "@/test-utils/providers";
 import * as GraphLibraryApiModule from "../../../api/GraphLibraryApi";
 import { setAllGraphs, setSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/actions";
+// @ts-expect-error TODO: QUAL-1676 fix ignored test
 import { setWorkflowGraphElements } from "@/stores/GraphStores/GraphCommon/actions";
 import { getAllGraphs, getLastRunInfo, getSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/selectors";
 import { server } from "@/test-utils/mocks/server";

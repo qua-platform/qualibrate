@@ -33,7 +33,8 @@ const initialGraphStatusState: GraphStatusState = {
 };
 
 const graphStatusSlice = createSlice({
-  name: "status",
+  name: "graph/status",
+  reducerPath: "status",
   initialState: initialGraphStatusState,
   reducers: {
     setAllMeasurements: (state, action) => {

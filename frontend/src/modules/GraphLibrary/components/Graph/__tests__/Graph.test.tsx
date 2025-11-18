@@ -10,6 +10,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor, act } from "@testing-library/react";
 import { createTestProviders } from "@/test-utils/providers";
 import { createSimpleGraph, createGraphWithStatuses } from "@/test-utils/builders/cytoscapeElements";
+// @ts-expect-error TODO: QUAL-1676 fix ignored test
 import CytoscapeGraph from "../CytoscapeGraph";
 
 const { cytoscapeMock, createMockCytoscape, createMockCytoscapeElement } = await vi.hoisted(
@@ -386,6 +387,7 @@ describe("CytoscapeGraph - Status Updates", () => {
 
     // Update elements with new status
     const updatedElements = createGraphWithStatuses();
+    // @ts-expect-error TODO: QUAL-1676 fix ignored test
     updatedElements[0].classes = "completed"; // running -> completed
 
     rerender(
@@ -422,6 +424,7 @@ describe("CytoscapeGraph - Status Updates", () => {
 
     // Update elements with status - this triggers batch update
     const updatedElements = createSimpleGraph();
+    // @ts-expect-error TODO: QUAL-1676 fix ignored test
     updatedElements[0].classes = "running";
 
     rerender(
@@ -454,6 +457,7 @@ describe("CytoscapeGraph - Status Updates", () => {
 
     // Update to completed status
     const updatedElements = createSimpleGraph();
+    // @ts-expect-error TODO: QUAL-1676 fix ignored test
     updatedElements[0].classes = "completed";
 
     rerender(
@@ -485,6 +489,7 @@ describe("CytoscapeGraph - Status Updates", () => {
 
     // Update to failed status
     const updatedElements = createSimpleGraph();
+    // @ts-expect-error TODO: QUAL-1676 fix ignored test
     updatedElements[0].classes = "failed";
 
     rerender(

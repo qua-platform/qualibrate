@@ -11,7 +11,17 @@ export const getSelectedNodeNameInWorkflow = createSelector(
   (graphCommon) => graphCommon.selectedNodeNameInWorkflow
 );
 
-export const getWorkflowGraphElements = createSelector(
+export const getWorkflowGraphNodes = createSelector(
   getGraphCommonState,
-  (libraryState) => libraryState.workflowGraphElements
+  (libraryState) => libraryState.nodes
+);
+
+export const getWorkflowGraphEdges = createSelector(
+  getGraphCommonState,
+  (libraryState) => libraryState.edges
+);
+
+export const getShouldResetView = createSelector(
+  getGraphCommonState,
+  (graphCommon) => graphCommon.shouldResetView
 );

@@ -35,7 +35,8 @@ const initialGraphLibraryState: GraphLibraryState = {
 };
 
 export const graphLibrarySlice = createSlice({
-  name: "library",
+  name: "graph/library",
+  reducerPath: "library",
   initialState: initialGraphLibraryState,
   reducers: {
     setAllGraphs: (state, action) => {

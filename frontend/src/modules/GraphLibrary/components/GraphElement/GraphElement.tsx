@@ -18,7 +18,6 @@ import {InputParameter, Parameters, SingleParameter} from "../../../common/Param
 import {GraphWorkflow} from "../GraphList";
 import {Checkbox} from "@mui/material";
 import {ParameterList} from "../../../common/Parameters/ParameterList";
-import CytoscapeGraph from "../CytoscapeGraph/CytoscapeGraph";
 import {GraphLibraryApi} from "../../api/GraphLibraryApi";
 import {NodeDTO} from "../../../Nodes/components/NodeElement/NodeElement";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
@@ -26,10 +25,11 @@ import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
 import {GRAPH_STATUS_KEY} from "../../../../routing/ModulesRegistry";
 import {getAllGraphs, getSelectedWorkflowName} from "../../../../stores/GraphStores/GraphLibrary/selectors";
-import {fetchWorkflowGraph, setAllGraphs, setLastRunActive, setSelectedWorkflowName} from "../../../../stores/GraphStores/GraphLibrary/actions";
+import {setAllGraphs, setLastRunActive, setSelectedWorkflowName} from "../../../../stores/GraphStores/GraphLibrary/actions";
 import {useRootDispatch} from "../../../../stores";
-import {getWorkflowGraphElements} from "../../../../stores/GraphStores/GraphCommon/selectors";
+import { getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import {setActivePage} from "../../../../stores/NavigationStore/actions";
+import Graph from "../Graph/Graph";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -48,7 +48,7 @@ interface TransformedGraph {
 export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrationGraphKey, calibrationGraph }) => {
   const [errorObject, setErrorObject] = useState<unknown>(undefined);
   const dispatch = useRootDispatch();
-  const workflowGraphElements = useSelector(getWorkflowGraphElements);
+  const nodes = useSelector(getWorkflowGraphNodes);
   const allGraphs = useSelector(getAllGraphs);
   const selectedWorkflowName = useSelector(getSelectedWorkflowName);
 
@@ -149,7 +149,6 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     <div
       className={classNames(styles.wrapper, show ? styles.calibrationGraphSelected : "")}
       onClick={async () => {
-        await dispatch(fetchWorkflowGraph(calibrationGraphKey as string));
         dispatch(setSelectedWorkflowName(calibrationGraphKey));
       }}
     >
@@ -182,7 +181,9 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
           <ParameterList showParameters={show} mapOfItems={calibrationGraph.nodes} />
         </div>
         {show && (
-          <div className={styles.graphContainer}>{workflowGraphElements && <CytoscapeGraph elements={workflowGraphElements} />}</div>
+          <div className={styles.graphContainer}>
+            {!!nodes.length && <Graph />}
+          </div>
         )}
       </div>
     </div>

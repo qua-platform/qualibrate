@@ -11,8 +11,6 @@
 import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
 import styles from "./MeasurementElementGraph.module.scss";
-import CytoscapeGraph from "../../../CytoscapeGraph/CytoscapeGraph";
-import cytoscape from "cytoscape";
 import { CircularProgress } from "@mui/material";
 import { SnapshotsApi } from "../../../../../Snapshots/api/SnapshotsApi";
 import BlueButton from "../../../../../../ui-lib/components/Button/BlueButton";
@@ -24,13 +22,13 @@ import {
   getRunStatusGraphStatus,
   getRunStatusGraphTotalNodes,
 } from "../../../../../../stores/WebSocketStore/selectors";
+import Graph from "../../../Graph/Graph";
 
 interface IProps {
-  workflowGraphElements: cytoscape.ElementDefinition[];
-  onCytoscapeNodeClick?: (name: string) => void;
+  onNodeClick?: (name: string) => void;
 }
 
-export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElements, onCytoscapeNodeClick }) => {
+export const MeasurementElementGraph: React.FC<IProps> = ({ onNodeClick }) => {
   const runStatusGraphStatus = useSelector(getRunStatusGraphStatus);
   const runStatusGraphFinishedNodes = useSelector(getRunStatusGraphFinishedNodes);
   const runStatusGraphTotalNodes = useSelector(getRunStatusGraphTotalNodes);
@@ -77,7 +75,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ workflowGraphElement
             </div>
           </div>
           <div className={styles.lowerLowerContainer}>
-            <CytoscapeGraph elements={workflowGraphElements} onNodeClick={onCytoscapeNodeClick} />
+            <Graph onNodeClick={onNodeClick} />
           </div>
         </div>
       </div>

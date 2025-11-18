@@ -3,8 +3,6 @@ import { GraphWorkflow } from "../../../modules/GraphLibrary/components/GraphLis
 import { RootDispatch } from "../../../stores";
 import { graphLibrarySlice, GraphMap } from "./GraphLibraryStore";
 import { GraphLibraryApi } from "../../../modules/GraphLibrary/api/GraphLibraryApi";
-import { ElementDefinition } from "cytoscape";
-import { setWorkflowGraphElements } from "../GraphCommon/actions";
 
 export const {
   setAllGraphs,
@@ -71,13 +69,4 @@ export const fetchAllCalibrationGraphs = (rescan = false) => async (dispatch: Ro
     console.log(response.error);
   }
   dispatch(setIsRescanningGraphs(false));
-};
-
-export const fetchWorkflowGraph = (nodeName: string) => async (dispatch: RootDispatch) => {
-  const response = await GraphLibraryApi.fetchGraph(nodeName);
-  if (response.isOk) {
-    dispatch(setWorkflowGraphElements(response.result! as ElementDefinition[]));
-  } else if (response.error) {
-    console.log(response.error);
-  }
 };
