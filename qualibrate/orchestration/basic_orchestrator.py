@@ -189,7 +189,8 @@ class BasicOrchestrator(
             )
 
         has_on_failed_successors = any(
-            self.nx_graph.edges[element, successor]["scenario"] == Outcome.FAILED
+            self.nx_graph.edges[element, successor]["scenario"]
+            == Outcome.FAILED
             for successor in self.nx_graph.successors(element)
         )
         successful_out_targets: Sequence[TargetType]
@@ -197,8 +198,9 @@ class BasicOrchestrator(
             successful_out_targets = summary.successful_targets
             failed_out_targets = summary.failed_targets
             for successor in self.nx_graph.successors(element):
-                self.nx_graph.edges[element, successor][QualibrationGraph.EDGE_TARGETS_FIELD] =\
-                (
+                self.nx_graph.edges[element, successor][
+                    QualibrationGraph.EDGE_TARGETS_FIELD
+                ] = (
                     successful_out_targets
                     if self.nx_graph.edges[element, successor]["scenario"]
                     == Outcome.SUCCESSFUL

@@ -354,7 +354,10 @@ class TestBasicOrchestrator:
         orchestrator._set_out_targets_for_element(mock_node)
 
         # Successful edge should get successful targets
-        assert success_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q1", "q2"]
+        assert success_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == [
+            "q1",
+            "q2",
+        ]
 
         # Failed edge should get failed targets
         assert failure_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q3"]
@@ -418,8 +421,14 @@ class TestBasicOrchestrator:
         orchestrator._set_out_targets_for_element(mock_node)
 
         # Both successors should get successful targets
-        assert succ1_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q1", "q2"]
-        assert succ2_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q1", "q2"]
+        assert succ1_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == [
+            "q1",
+            "q2",
+        ]
+        assert succ2_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == [
+            "q1",
+            "q2",
+        ]
 
     def test_traverse_graph_with_success_and_failure_paths(self, mocker):
         """
