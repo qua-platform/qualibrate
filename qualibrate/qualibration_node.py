@@ -881,6 +881,16 @@ class QualibrationNode(
         action = self._action_manager.current_action
         return action.name if action else None
 
+    def cleanup(self) -> None:
+        super().cleanup()
+        self._fraction_complete = 0.0
+        self.results = {}
+        self.machine = None
+        self.storage_manager = None
+        self._action_manager = ActionManager()
+        self.namespace = {}
+        self._post_init()
+
 
 if __name__ == "__main__":
     from pathlib import Path

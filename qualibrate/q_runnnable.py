@@ -100,6 +100,8 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
 
         Sets `run_summary` to None.
         """
+        self._state_updates.clear()
+        self.outcomes.clear()
         self.run_summary = None
 
     @property

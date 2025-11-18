@@ -447,6 +447,7 @@ class QualibrationGraph(
 
         graphs[graph.name] = graph
 
+    @ensure_finalized
     def cleanup(self) -> None:
         """
         Cleans up the graph and resets nodes to their initial states.
@@ -459,8 +460,12 @@ class QualibrationGraph(
             self._graph,
             {node: self._node_init_args.copy() for node in self._graph.nodes},
         )
-        if self._orchestrator:
-            self._orchestrator.cleanup()
+        for element in self._elements.values():
+            element.cleanup()
+        nx.remove_edge_attributes(
+            self._graph, self.__class__.EDGE_TARGETS_FIELD
+        )
+        self._orchestrator.cleanup()
 
     def completed_count(self) -> int:
         """
