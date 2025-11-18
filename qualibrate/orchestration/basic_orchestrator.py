@@ -188,20 +188,19 @@ class BasicOrchestrator(
                 f"Can't set out targets of {element} without run summary"
             )
 
-        has_failed_successor = any(
-            self.nx_graph[element][successor]["scenario"] == Outcome.FAILED
+        has_on_failed_successors = any(
+            self.nx_graph.edges[element, successor]["scenario"] == Outcome.FAILED
             for successor in self.nx_graph.successors(element)
         )
         successful_out_targets: Sequence[TargetType]
-        if has_failed_successor:
+        if has_on_failed_successors:
             successful_out_targets = summary.successful_targets
             failed_out_targets = summary.failed_targets
             for successor in self.nx_graph.successors(element):
-                self.nx_graph.edges[element, successor][
-                    QualibrationGraph.EDGE_TARGETS_FIELD
-                ] = (
+                self.nx_graph.edges[element, successor][QualibrationGraph.EDGE_TARGETS_FIELD] =\
+                (
                     successful_out_targets
-                    if self.nx_graph[element][successor]["scenario"]
+                    if self.nx_graph.edges[element, successor]["scenario"]
                     == Outcome.SUCCESSFUL
                     else failed_out_targets
                 )
@@ -343,11 +342,9 @@ class BasicOrchestrator(
             ] = new_status
             if new_status == ElementRunStatus.finished:
                 for successor in successors[element_to_run]:
-                    """
-                     checks if we have a scenario failed node defined with
-                     no failed targets,
-                     in this case we dont want to get this node into the queue
-                    """
+                    #  checks if we have a scenario failed node defined with
+                    #  no failed targets,
+                    #  in this case we dont want to get this node into the queue
                     if (
                         nx_graph.edges[element_to_run, successor]["scenario"]
                         == Outcome.FAILED

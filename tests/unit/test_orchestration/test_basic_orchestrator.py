@@ -257,7 +257,10 @@ class TestBasicOrchestrator:
         mock_nx_graph.return_value.__getitem__.return_value = {
             mock_successor: {"scenario": Outcome.SUCCESSFUL}
         }
-        mock_nx_graph.return_value.edges = {(mock_node, mock_successor): {}}
+
+        mock_edges = MagicMock()
+        mock_edges.__getitem__.return_value = {"scenario": Outcome.SUCCESSFUL}
+        mock_nx_graph.return_value.edges = mock_edges
 
         orchestrator._graph = MagicMock()
 
@@ -275,6 +278,7 @@ class TestBasicOrchestrator:
 
         mock_node = MagicMock()
         mock_successor = MagicMock()
+        mock_edges = MagicMock()
 
         # Mock run summary
         mock_summary = MagicMock(spec=NodeRunSummary)
@@ -290,7 +294,9 @@ class TestBasicOrchestrator:
         mock_nx_graph.return_value.__getitem__.return_value = {
             mock_successor: {"scenario": Outcome.SUCCESSFUL}
         }
-        mock_nx_graph.return_value.edges = {(mock_node, mock_successor): {}}
+
+        mock_edges.__getitem__.return_value = {"scenario": Outcome.SUCCESSFUL}
+        mock_nx_graph.return_value.edges = mock_edges
 
         orchestrator._graph = MagicMock()
 
@@ -325,33 +331,33 @@ class TestBasicOrchestrator:
             mock_failure_successor,
         ]
 
-        # Setup scenario attributes
-        def getitem_side_effect(node):
-            if node == mock_node:
-                return {
-                    mock_success_successor: {"scenario": Outcome.SUCCESSFUL},
-                    mock_failure_successor: {"scenario": Outcome.FAILED},
-                }
-            raise KeyError(node)
+        # Fix: Mock edges to support edges[element, successor]["scenario"]
+        mock_edges = MagicMock()
 
-        mock_nx_graph.return_value.__getitem__.side_effect = getitem_side_effect
-        mock_nx_graph.return_value.edges = {
-            (mock_node, mock_success_successor): {},
-            (mock_node, mock_failure_successor): {},
-        }
+        # Create actual dict objects that can be modified
+        success_edge_data = {"scenario": Outcome.SUCCESSFUL}
+        failure_edge_data = {"scenario": Outcome.FAILED}
+
+        def edges_getitem(key):
+            element, successor = key
+            if successor == mock_success_successor:
+                return success_edge_data
+            elif successor == mock_failure_successor:
+                return failure_edge_data
+            raise KeyError(key)
+
+        mock_edges.__getitem__.side_effect = edges_getitem
+        mock_nx_graph.return_value.edges = mock_edges
 
         orchestrator._graph = MagicMock()
 
         orchestrator._set_out_targets_for_element(mock_node)
 
         # Successful edge should get successful targets
-        assert mock_nx_graph.return_value.edges[
-            (mock_node, mock_success_successor)
-        ][QualibrationGraph.EDGE_TARGETS_FIELD] == ["q1", "q2"]
+        assert success_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q1", "q2"]
 
-        assert mock_nx_graph.return_value.edges[
-            (mock_node, mock_failure_successor)
-        ][QualibrationGraph.EDGE_TARGETS_FIELD] == ["q3"]
+        # Failed edge should get failed targets
+        assert failure_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q3"]
 
     def test_set_out_targets_raises_error_without_run_summary(self, mocker):
         """Test that _set_out_targets raises error
@@ -388,26 +394,32 @@ class TestBasicOrchestrator:
             mock_succ1,
             mock_succ2,
         ]
-        mock_nx_graph.return_value.__getitem__.return_value = {
-            mock_succ1: {"scenario": Outcome.SUCCESSFUL},
-            mock_succ2: {"scenario": Outcome.SUCCESSFUL},
-        }
-        mock_nx_graph.return_value.edges = {
-            (mock_node, mock_succ1): {},
-            (mock_node, mock_succ2): {},
-        }
+
+        # Fix: Mock edges to support edges[element, successor]["scenario"]
+        mock_edges = MagicMock()
+
+        # Create actual dict objects that can be modified
+        succ1_edge_data = {"scenario": Outcome.SUCCESSFUL}
+        succ2_edge_data = {"scenario": Outcome.SUCCESSFUL}
+
+        def edges_getitem(key):
+            element, successor = key
+            if successor == mock_succ1:
+                return succ1_edge_data
+            elif successor == mock_succ2:
+                return succ2_edge_data
+            raise KeyError(key)
+
+        mock_edges.__getitem__.side_effect = edges_getitem
+        mock_nx_graph.return_value.edges = mock_edges
 
         orchestrator._graph = MagicMock()
 
         orchestrator._set_out_targets_for_element(mock_node)
 
         # Both successors should get successful targets
-        assert mock_nx_graph.return_value.edges[(mock_node, mock_succ1)][
-            QualibrationGraph.EDGE_TARGETS_FIELD
-        ] == ["q1", "q2"]
-        assert mock_nx_graph.return_value.edges[(mock_node, mock_succ2)][
-            QualibrationGraph.EDGE_TARGETS_FIELD
-        ] == ["q1", "q2"]
+        assert succ1_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q1", "q2"]
+        assert succ2_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q1", "q2"]
 
     def test_traverse_graph_with_success_and_failure_paths(self, mocker):
         """

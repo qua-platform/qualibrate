@@ -237,7 +237,7 @@ class QualibrationGraph(
                 new_graph._graph.add_edge(
                     new_graph._elements[source],
                     new_graph._elements[destination],
-                    scenario=self._connectivity.get((source, destination)),
+                    scenario=self._connectivity[(source, destination)],
                 )
 
         # Copy orchestrator if it exists
@@ -301,7 +301,7 @@ class QualibrationGraph(
                 self._graph.add_edge(
                     source_element,
                     destination_element,
-                    scenario=self._connectivity.get((source, destination)),
+                    scenario=self._connectivity[(source, destination)],
                 )
 
     @staticmethod
