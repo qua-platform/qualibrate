@@ -30,6 +30,7 @@ import {useRootDispatch} from "../../../../stores";
 import { getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import {setActivePage} from "../../../../stores/NavigationStore/actions";
 import Graph from "../Graph/Graph";
+import { setTrackLatest } from "../../../../stores/GraphStores/GraphStatus/actions";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -138,19 +139,22 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
       if (response.isOk) {
         setErrorObject(undefined); // This is a bugfix - previously it didn't clear errorObject on success
         dispatch(setActivePage(GRAPH_STATUS_KEY));
+        dispatch(setTrackLatest(true));
       } else {
         setErrorObject(response.error);
       }
     }
   };
 
+  const handleSelect = () => {
+    dispatch(setSelectedWorkflowName(calibrationGraphKey));
+  };
+
   const show = selectedWorkflowName === calibrationGraphKey;
   return (
     <div
       className={classNames(styles.wrapper, show ? styles.calibrationGraphSelected : "")}
-      onClick={async () => {
-        dispatch(setSelectedWorkflowName(calibrationGraphKey));
-      }}
+      onClick={handleSelect}
     >
       <div className={styles.upperContainer}>
         <div className={styles.leftContainer}>
