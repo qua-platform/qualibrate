@@ -165,7 +165,8 @@ class TestBasicOrchestrator:
             orchestrator.traverse_graph(mock_graph, [])
 
     def test_get_in_targets_no_predecessors(self, mocker):
-        """Test that _get_in_targets returns initial targets for nodes without predecessors"""
+        """Test that _get_in_targets returns
+        initial targets for nodes without predecessors"""
         orchestrator = BasicOrchestrator()
         orchestrator.initial_targets = ["q1", "q2", "q3"]
 
@@ -179,7 +180,8 @@ class TestBasicOrchestrator:
         assert result == ["q1", "q2", "q3"]
 
     def test_get_in_targets_with_single_predecessor(self, mocker):
-        """Test that _get_in_targets gets targets from edge with single predecessor"""
+        """Test that _get_in_targets gets targets
+        from edge with single predecessor"""
         orchestrator = BasicOrchestrator()
 
         mock_node = MagicMock()
@@ -203,7 +205,8 @@ class TestBasicOrchestrator:
     def test_get_in_targets_intersection_with_multiple_predecessors(
         self, mocker
     ):
-        """Test that _get_in_targets computes intersection of targets from multiple predecessors"""
+        """Test that _get_in_targets computes intersection of targets
+        from multiple predecessors"""
         orchestrator = BasicOrchestrator()
 
         mock_node = MagicMock()
@@ -233,7 +236,8 @@ class TestBasicOrchestrator:
         assert set(result) == {"q2", "q3"}
 
     def test_set_out_targets_all_successful_skip_failed_disabled(self, mocker):
-        """Test _set_out_targets with all successful targets when skip_failed is False"""
+        """Test _set_out_targets with all successful targets
+        when skip_failed is False"""
         orchestrator = BasicOrchestrator(skip_failed=False)
 
         mock_node = MagicMock()
@@ -265,7 +269,8 @@ class TestBasicOrchestrator:
         ] == ["q1", "q2", "q3"]
 
     def test_set_out_targets_all_successful_skip_failed_enabled(self, mocker):
-        """Test _set_out_targets with successful targets when skip_failed is True"""
+        """Test _set_out_targets with successful targets
+        when skip_failed is True"""
         orchestrator = BasicOrchestrator(skip_failed=True)
 
         mock_node = MagicMock()
@@ -311,7 +316,8 @@ class TestBasicOrchestrator:
         mock_node.run_summary = mock_summary
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.orchestration."
+            "basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.successors.return_value = [
@@ -348,7 +354,8 @@ class TestBasicOrchestrator:
         ][QualibrationGraph.EDGE_TARGETS_FIELD] == ["q3"]
 
     def test_set_out_targets_raises_error_without_run_summary(self, mocker):
-        """Test that _set_out_targets raises error if node has no run summary"""
+        """Test that _set_out_targets raises error
+        if node has no run summary"""
         orchestrator = BasicOrchestrator()
 
         mock_node = MagicMock()
@@ -373,7 +380,8 @@ class TestBasicOrchestrator:
         mock_node.run_summary = mock_summary
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.orchestration.basic_orchestrator."
+            "BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.successors.return_value = [
@@ -403,7 +411,8 @@ class TestBasicOrchestrator:
 
     def test_traverse_graph_with_success_and_failure_paths(self, mocker):
         """
-        Integration test: Verify traverse_graph routes successful and failed targets correctly.
+        Integration test: Verify traverse_graph routes successful
+         and failed targets correctly.
 
         Graph structure:
             node1 (root)

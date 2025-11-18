@@ -192,6 +192,7 @@ class BasicOrchestrator(
             self.nx_graph[element][successor]["scenario"] == Outcome.FAILED
             for successor in self.nx_graph.successors(element)
         )
+        successful_out_targets: Sequence[TargetType]
         if has_failed_successor:
             successful_out_targets = summary.successful_targets
             failed_out_targets = summary.failed_targets
@@ -342,8 +343,11 @@ class BasicOrchestrator(
             ] = new_status
             if new_status == ElementRunStatus.finished:
                 for successor in successors[element_to_run]:
-                    """ checks if we have a scenario failed node defined with no failed targets,
-                    in this case we dont want to get this node into the queue"""
+                    """
+                     checks if we have a scenario failed node defined with
+                     no failed targets,
+                     in this case we dont want to get this node into the queue
+                    """
                     if (
                         nx_graph.edges[element_to_run, successor]["scenario"]
                         == Outcome.FAILED

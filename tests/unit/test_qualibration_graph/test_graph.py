@@ -428,16 +428,18 @@ class TestQualibrationGraph:
         """Test that connect() raises KeyError if source node not added"""
         nodes = pre_setup_graph_nodes
 
-        with pytest.raises(
-            KeyError, match="Both 'node1' and 'node2' must be added"
-        ):
-            with QualibrationGraph.build(
+        with (
+            pytest.raises(
+                KeyError, match="Both 'node1' and 'node2' must be added"
+            ),
+            QualibrationGraph.build(
                 name="test_graph",
                 parameters=GraphParameters(),
-            ) as graph:
-                # Only add node2, not node1
-                graph.add_node(nodes["node2"])
-                graph.connect("node1", "node2")
+            ) as graph,
+        ):
+            # Only add node2, not node1
+            graph.add_node(nodes["node2"])
+            graph.connect("node1", "node2")
 
     def test_connect_raises_error_if_destination_not_added(
         self, pre_setup_graph_nodes, mock_library
@@ -445,19 +447,22 @@ class TestQualibrationGraph:
         """Test that connect() raises KeyError if destination node not added"""
         nodes = pre_setup_graph_nodes
 
-        with pytest.raises(
-            KeyError, match="Both 'node1' and 'node2' must be added"
-        ):
-            with QualibrationGraph.build(
+        with (
+            pytest.raises(
+                KeyError, match="Both 'node1' and 'node2' must be added"
+            ),
+            QualibrationGraph.build(
                 name="test_graph",
                 parameters=GraphParameters(),
-            ) as graph:
-                # Only add node1, not node2
-                graph.add_node(nodes["node1"])
-                graph.connect("node1", "node2")
+            ) as graph,
+        ):
+            # Only add node1, not node2
+            graph.add_node(nodes["node1"])
+            graph.connect("node1", "node2")
 
     def test_connect_idempotent(self, pre_setup_graph_init, mock_library):
-        """Test that calling connect() multiple times on same edge is idempotent"""
+        """Test that calling connect() multiple
+        times on same edge is idempotent"""
         (nodes, _, _, _) = pre_setup_graph_init
 
         with QualibrationGraph.build(
@@ -558,7 +563,8 @@ class TestQualibrationGraph:
     def test_connect_on_failure_enforces_building_state(
         self, pre_setup_graph_init, mock_library
     ):
-        """Test that connect_on_failure() requires graph to be in building state"""
+        """Test that connect_on_failure() requires
+        graph to be in building state"""
         (nodes, _, _, _) = pre_setup_graph_init
 
         # Create finalized graph

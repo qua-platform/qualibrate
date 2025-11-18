@@ -120,6 +120,7 @@ class QualibrationGraph(
         if not isinstance(parameters, GraphParameters):
             raise ValueError("Graph parameters must be of type GraphParameters")
         super().__init__(name, parameters, description=description, modes=modes)
+        self._connectivity: dict[tuple[str, str], Outcome]
         if finalize:
             if nodes is None or connectivity is None:
                 raise RuntimeError(
@@ -127,13 +128,13 @@ class QualibrationGraph(
                     "instantiation."
                 )
             self._elements = dict(nodes)
-            self._connectivity: dict[tuple[str, str], Outcome] = {
+            self._connectivity = {
                 connectivity: Outcome.SUCCESSFUL
                 for connectivity in connectivity
             }
         else:
             self._elements = {}
-            self._connectivity: dict[tuple[str, str], Outcome] = {}
+            self._connectivity = {}
         self._graph: nx.DiGraph[GraphElementTypeVar] = nx.DiGraph()
         if orchestrator is None:
             from qualibrate.orchestration.basic_orchestrator import (
@@ -228,7 +229,7 @@ class QualibrationGraph(
         # Copy graph structure
         new_graph._graph = nx.DiGraph()
         new_graph._graph.add_nodes_from(new_graph._elements.values())
-        for source, destination in self._connectivity.keys():
+        for source, destination in self._connectivity:
             if (
                 source in new_graph._elements
                 and destination in new_graph._elements
@@ -278,7 +279,7 @@ class QualibrationGraph(
 
         for element_name in self._elements:
             self._add_element_to_nx_by_name(element_name)
-        for source, destination in self._connectivity.keys():
+        for source, destination in self._connectivity:
             try:
                 source_element = self._get_element_or_error(source)
                 destination_element = self._get_element_or_error(destination)
@@ -290,8 +291,9 @@ class QualibrationGraph(
                 )
                 raise ValueError(
                     f'Error creating QualibrationGraph "{self.name}": Could '
-                    f"not add connection ({source}, {destination}) because element "
-                    f'with name "{issued_element_name}" has not been '
+                    f"not add connection ({source}, {destination})"
+                    f" because element with name "
+                    f' "{issued_element_name}" has not been '
                     "registered. Available element names: "
                     f"{tuple(self._elements.keys())}"
                 ) from ex
