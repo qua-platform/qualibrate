@@ -489,21 +489,13 @@ class QualibrationGraph(
 
     @property
     def active_element(self) -> GraphElementTypeVar | None:
-        return (
-            self._orchestrator.active_element
-            if self._orchestrator is not None
-            else None
-        )
+        return self._orchestrator.active_element
 
     @property
     def active_node(
         self,
     ) -> QualibrationNode[NodeParameters, MachineProtocol] | None:
-        return (
-            self._orchestrator.active_node
-            if self._orchestrator is not None
-            else None
-        )
+        return self._orchestrator.active_node
 
     @property
     def active_node_name(self) -> str | None:
