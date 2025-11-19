@@ -24,21 +24,26 @@ export const layoutAndSetNodesAndEdges = ({ nodes, edges }: { nodes: Node[], edg
       },
     );
 
+const defaultPosition = {
+  x: 100,
+  y: 100,
+};
+
 export const fetchWorkflowGraph = (nodeName: string) => async (dispatch: RootDispatch) => {
   const response = await GraphLibraryApi.fetchGraph(nodeName);
   if (response.isOk) {
     const nodes = (response.result || [])
-      .filter(item => item.group === "nodes")
+      .filter(item => item.group === "nodes" && !!item.data.id)
       .map(node => ({
-        id: node.data.id!,
-        position: node.position!,
+        id: node.data.id,
+        position: node.position || defaultPosition,
         data: {}
       }));
 
     const edges = (response.result || [])
       .filter(item => item.group === "edges")
       .map(edge => ({
-        id: edge.data.id!,
+        id: edge.data.id || "",
         source: edge.data.source,
         target: edge.data.target,
         data: {}

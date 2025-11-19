@@ -3,10 +3,12 @@ import { Edge, MarkerType, Node } from "@xyflow/react";
 import ELK from "elkjs/lib/elk.bundled.js";
 
 const elk = new ELK();
+const spacingBetweenLayers = "100";
+const spacingBetweenNodes = "80";
 const layoutOptions = {
   "elk.algorithm": "layered",
-  "elk.layered.spacing.nodeNodeBetweenLayers": "100",
-  "elk.spacing.nodeNode": "80",
+  "elk.layered.spacing.nodeNodeBetweenLayers": spacingBetweenLayers,
+  "elk.spacing.nodeNode": spacingBetweenNodes,
   "elk.direction": "RIGHT",
   "elk.layered.wrapping.strategy": "SINGLE_EDGE"
 };
