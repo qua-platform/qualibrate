@@ -43,7 +43,6 @@ def test_serialize(
         "nodes": {
             "test_node": {
                 "status": ElementRunStatus.pending,
-                "retries": 0,
                 "id": "test_node",
                 "name": "test_node",
                 "parameters": {
@@ -69,7 +68,6 @@ def test_serialize(
             },
             "one_more_node": {
                 "status": ElementRunStatus.pending,
-                "retries": 0,
                 "id": "one_more_node",
                 "name": "one_more_node",
                 "parameters": {
@@ -89,7 +87,6 @@ def test_serialize(
             },
             "test_cal": {
                 "status": ElementRunStatus.pending,
-                "retries": 0,
                 "id": "test_cal",
                 "name": "test_cal",
                 "parameters": {

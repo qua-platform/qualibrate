@@ -100,7 +100,6 @@ class QualibrationGraph(
     ELEMENT_STATUS_FIELD = "status"
     _node_init_args = {
         ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
-        "retries": 0,
     }
 
     def __init__(
