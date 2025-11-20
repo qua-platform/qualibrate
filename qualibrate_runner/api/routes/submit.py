@@ -36,7 +36,7 @@ def submit_node_run(
         input_parameters = input_parameters["parameters"]
     if state.is_running:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Already running",
         )
     validate_input_parameters(
@@ -55,7 +55,7 @@ def submit_workflow_run(
 ) -> str:
     if state.is_running:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Already running",
         )
     input_parameters = {

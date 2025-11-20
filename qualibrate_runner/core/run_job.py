@@ -59,7 +59,7 @@ def validate_input_parameters(
         return parameters_class.model_validate(passed_parameters)
     except ValidationError as ex:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=ex.errors()
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=ex.errors()
         ) from ex
 
 

@@ -98,13 +98,13 @@ def state_updated(
         or state.last_run.status != RunStatusEnum.FINISHED
     ):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Node not executed or finished unsuccessful.",
         )
     state_updates = state.last_run.state_updates
     if key not in state_updates:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Unknown state update key.",
         )
     state_updates[key].updated = True
