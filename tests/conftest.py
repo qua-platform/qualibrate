@@ -6,6 +6,7 @@ including mock objects, sample data, and test utilities.
 """
 
 from datetime import datetime, timezone
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
@@ -193,3 +194,29 @@ def sample_workflow_parameters_class():
         parameters: WorkflowParams
 
     return FullParams
+
+
+@pytest.fixture(scope="function")
+def test_library():
+    """
+    Provide a QualibrationLibrary instance loaded with test nodes.
+
+    This fixture creates a library pointing to tests/fixtures/test_nodes,
+    which properly sets filepath and other metadata on the test nodes
+    during the scan process.
+
+    Scope is explicitly set to "function" to ensure each test gets fresh
+    node instances, maintaining test independence.
+    """
+    from qualibrate import QualibrationLibrary
+
+    # Get path to test_nodes directory
+    test_nodes_path = Path(__file__).parent / "fixtures" / "test_nodes"
+
+    # Create library with set_active=False to avoid interfering with
+    # other tests
+    library = QualibrationLibrary(
+        library_folder=test_nodes_path, set_active=False
+    )
+
+    return library
