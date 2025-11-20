@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
+import { ReactFlowProvider } from "@xyflow/react";
 import { setSelectedNodeNameInWorkflow } from "../stores/GraphStores/GraphCommon/actions";
 import { rootReducer, useRootDispatch } from "../stores";
 import { setTrackLatest } from "../stores/GraphStores/GraphStatus/actions";
@@ -74,7 +75,9 @@ export const createTestProviders = (overrides: {
     return (
     <BrowserRouter>
       <Provider store={mockStore}>
-        <ContextSetter>{children}</ContextSetter>
+        <ReactFlowProvider>
+          <ContextSetter>{children}</ContextSetter>
+        </ReactFlowProvider>
       </Provider>
     </BrowserRouter>
     );
