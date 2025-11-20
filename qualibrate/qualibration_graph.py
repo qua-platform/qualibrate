@@ -564,29 +564,6 @@ class QualibrationGraph(
             for name in cast(GraphElementsParameters, nodes_class).model_fields
         }
 
-    def _orchestrator_or_error(
-        self,
-    ) -> "QualibrationOrchestrator[GraphElementTypeVar]":
-        """
-        Retrieves the orchestrator for the graph or raises an error if missing.
-
-        This method returns the orchestrator associated with the graph.
-        If no orchestrator is specified, it raises an error indicating
-        that an orchestrator is required for execution.
-
-        Returns:
-            QualibrationOrchestrator: The orchestrator used to manage graph
-                execution.
-
-        Raises:
-            ValueError: If no orchestrator is specified for the graph.
-        """
-        if self._orchestrator is None:
-            ex = ValueError("Orchestrator not specified")
-            logger.exception("", exc_info=ex)
-            raise ex
-        return self._orchestrator
-
     def _run(
         self, *, nodes: Mapping[str, Any], **passed_parameters: Any
     ) -> None:
@@ -602,7 +579,7 @@ class QualibrationGraph(
                 elements.
             **passed_parameters (Any): Parameters passed for graph execution.
         """
-        orchestrator = self._orchestrator_or_error()
+        orchestrator = self._orchestrator
         self.cleanup()
         nodes = self._get_all_nodes_parameters(nodes)
         self._parameters = self.parameters.model_validate(passed_parameters)
@@ -653,7 +630,7 @@ class QualibrationGraph(
             GraphRunSummary: A summary object containing details about the
                 graph run.
         """
-        self.outcomes = self._orchestrator_or_error().final_outcomes
+        self.outcomes = self._orchestrator.final_outcomes
         self.run_summary = GraphRunSummary(
             name=self.name,
             description=self.description,

@@ -44,7 +44,7 @@ def test_run_sequence(qualibration_lib: QualibrationLibrary):
 
     assert run_results.successful_targets == ["s_s"]
     assert sorted(run_results.failed_targets) == sorted(["s_f", "f_s", "f_f"])
-    exec_history = g._orchestrator_or_error().get_execution_history()
+    exec_history = g._orchestrator.get_execution_history()
     assert len(exec_history.items) == 3
     assert [item.id for item in exec_history.items] == [None, None, 1]
     assert [h.elements_history is not None for h in exec_history.items] == [
@@ -99,7 +99,7 @@ def test_context_manager_creation(qualibration_lib: QualibrationLibrary):
     run_results = external_g.run(qubits=["s_s", "s_f", "f_s", "f_f"])
     assert run_results.successful_targets == ["s_s"]
     assert sorted(run_results.failed_targets) == sorted(["s_f", "f_s", "f_f"])
-    exec_history = external_g._orchestrator_or_error().get_execution_history()
+    exec_history = external_g._orchestrator.get_execution_history()
     hi = exec_history.items
     assert len(hi) == 2
     assert all(
