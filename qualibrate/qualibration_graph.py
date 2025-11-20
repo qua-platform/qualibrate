@@ -1,8 +1,10 @@
 import copy
 import traceback
-from collections.abc import Mapping, Sequence
+from collections import defaultdict
+from collections.abc import Callable, Generator, Mapping, Sequence
 from contextvars import Token
 from datetime import datetime
+from inspect import isgeneratorfunction
 from pathlib import Path
 from types import TracebackType
 from typing import (
@@ -14,7 +16,7 @@ from typing import (
 )
 
 import networkx as nx
-from pydantic import create_model
+from pydantic import BaseModel, create_model
 from typing_extensions import Self
 
 from qualibrate.models.node_status import ElementRunStatus
@@ -64,6 +66,24 @@ NodeLibT = QualibrationNode[NodeParameters, MachineProtocol]
 GraphElLibT = QRunnable[RunnableParameters, RunnableParameters]
 
 
+class LoopCondition(BaseModel, Generic[GraphElementTypeVar]):
+    on_failure: bool = False
+    on_function: Callable[[GraphElementTypeVar, TargetType], bool] | None = None
+    on_generator: (
+        Callable[
+            [],
+            Generator[
+                bool, tuple[GraphElementTypeVar, TargetType] | None, None
+            ],
+        ]
+        | None
+    ) = None
+    max_iterations: int | None = None
+    """
+    Common amount for all loop types (on failure, on function, on generator)
+    """
+
+
 class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType],
     GraphExportMixin[GraphElementTypeVar],
@@ -98,6 +118,7 @@ class QualibrationGraph(
 
     EDGE_TARGETS_FIELD = "targets"
     ELEMENT_STATUS_FIELD = "status"
+    LOOP_TARGETS_FIELD = "loop_targets"
     _node_init_args = {
         ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
     }
@@ -135,6 +156,9 @@ class QualibrationGraph(
             self._elements = {}
             self._connectivity = {}
         self._graph: nx.DiGraph[GraphElementTypeVar] = nx.DiGraph()
+        self._loop_conditions: dict[str, LoopCondition[GraphElementTypeVar]] = (
+            defaultdict(LoopCondition)
+        )
         if orchestrator is None:
             from qualibrate.orchestration.basic_orchestrator import (
                 BasicOrchestrator,
@@ -224,6 +248,7 @@ class QualibrationGraph(
             name: element.copy(name) for name, element in self._elements.items()
         }
         new_graph._connectivity = copy.deepcopy(self._connectivity)
+        new_graph._loop_conditions = copy.deepcopy(self._loop_conditions)
 
         # Copy graph structure
         new_graph._graph = nx.DiGraph()
@@ -278,6 +303,18 @@ class QualibrationGraph(
 
         for element_name in self._elements:
             self._add_element_to_nx_by_name(element_name)
+        # for element_name, conditions in self._loop_conditions.items():
+        #     element = self._elements[element_name]
+        #     element_attrs = self._graph.nodes[element]
+        #     if conditions.max_iterations:
+        #         element_attrs[self.__class__.LOOP_ELEMENT_MAX_ITERATIONS] = (
+        #             conditions.max_iterations
+        #         )
+        #     if conditions.on_function:
+        #         element_attrs[self.__class__.LOOP_ELEMENT_ON_CONDITION] = (
+        #             conditions.on_function
+        #         )
+
         for source, destination in self._connectivity:
             try:
                 source_element = self._get_element_or_error(source)
@@ -984,3 +1021,53 @@ class QualibrationGraph(
         if edge in self._connectivity:
             return
         self._connectivity[edge] = run_scenario
+
+    def _get_validated_element_name(
+        self, element: str | GraphElementTypeVar
+    ) -> str:
+        element_name = element if isinstance(element, str) else element.name
+        if element_name not in self._elements:
+            raise KeyError(f"Element with name '{element}' not found.")
+        return element_name
+
+    @ensure_not_finalized
+    @ensure_building
+    def loop(
+        self,
+        /,
+        element: str | GraphElementTypeVar,
+        on: (
+            Callable[
+                [],
+                Generator[
+                    bool, tuple[GraphElementTypeVar, TargetType] | None, None
+                ],
+            ]
+            | Callable[[GraphElementTypeVar, TargetType], bool]
+            | None
+        ) = None,
+        max_iterations: int | None = None,
+    ) -> None:
+        if on is None and max_iterations is None:
+            raise ValueError(
+                "Either 'on' or 'max_iterations' must be specified (or both)."
+            )
+        element_name = self._get_validated_element_name(element)
+        conditions = self._loop_conditions
+        if max_iterations is not None:
+            conditions[element_name].max_iterations = max_iterations
+        if on is not None:
+            if isgeneratorfunction(on):
+                conditions[element_name].on_generator = on
+            else:
+                conditions[element_name].on_function = cast(
+                    Callable[[GraphElementTypeVar, TargetType], bool], on
+                )
+
+    def loop_on_failure(
+        self, element: str | GraphElementTypeVar, max_iterations: int
+    ) -> None:
+        element_name = self._get_validated_element_name(element)
+        conditions = self._loop_conditions[element_name]
+        conditions.max_iterations = max_iterations
+        conditions.on_failure = True
