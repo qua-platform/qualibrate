@@ -135,7 +135,7 @@ def run_node(
 
     try:
         # Execute the node in interactive mode with provided parameters
-        # interactive=True enables variable injection for Jupyter (not sure why this is needed here)
+        # interactive=True enables that the user approves changes to variables in the frontend after execution
         node.run(interactive=True, **passed_input_parameters)
     except Exception as ex:
         # Capture error details for state tracking
