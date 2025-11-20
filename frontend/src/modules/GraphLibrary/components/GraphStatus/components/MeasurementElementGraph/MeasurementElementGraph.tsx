@@ -47,7 +47,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ onNodeClick }) => {
   }, []);
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} data-testid="measurement-element-graph">
       <div className={styles.calibrationTitle}>
         <span
           className={classNames(
