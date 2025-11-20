@@ -41,7 +41,7 @@ from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import (
     QRunnable,
-    file_is_calibration_instance,
+    file_is_calibration_node_instance,
     run_modes_ctx,
 )
 from qualibrate.runnables.run_action.action import ActionCallableType
@@ -785,7 +785,7 @@ class QualibrationNode(
         run_modes_token = run_modes_ctx.set(RunModes(inspection=True))
         try:
             for file in sorted(path.iterdir()):
-                if not file_is_calibration_instance(file, cls.__name__):
+                if not file_is_calibration_node_instance(file, cls.__name__):
                     continue
                 try:
                     cls.scan_node_file(file, nodes)

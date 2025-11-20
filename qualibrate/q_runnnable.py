@@ -25,14 +25,31 @@ CreateParametersType = TypeVar("CreateParametersType", bound=RunnableParameters)
 RunParametersType = TypeVar("RunParametersType", bound=RunnableParameters)
 
 
-def file_is_calibration_instance(file: Path, klass: str) -> bool:
+def _read_calibration_file(file: Path) -> str:
+    try:
+        return file.read_text()
+    except UnicodeDecodeError:
+        return file.read_text(encoding="utf-8")
+
+
+def file_is_calibration_node_instance(
+    file: Path, klass: str = "QualibrationNode"
+) -> bool:
     if not file.is_file() or file.suffix != ".py":
         return False
-    try:
-        contents = file.read_text()
-    except UnicodeDecodeError:
-        contents = file.read_text(encoding="utf-8")
+    contents = _read_calibration_file(file)
     return f"{klass}(" in contents or f"{klass}[" in contents
+
+
+def file_is_calibration_graph_instance(file: Path, klass: str) -> bool:
+    if not file.is_file() or file.suffix != ".py":
+        return False
+    contents = _read_calibration_file(file)
+    return (
+        f"{klass}(" in contents
+        or f"{klass}[" in contents
+        or f"{klass}.build(" in contents
+    )
 
 
 run_modes_ctx: ContextVar[RunModes | None] = ContextVar(

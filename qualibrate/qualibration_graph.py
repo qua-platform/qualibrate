@@ -32,7 +32,7 @@ from qualibrate.parameters import (
 )
 from qualibrate.q_runnnable import (
     QRunnable,
-    file_is_calibration_instance,
+    file_is_calibration_graph_instance,
     run_modes_ctx,
 )
 from qualibrate.qualibration_node import QualibrationNode
@@ -120,6 +120,7 @@ class QualibrationGraph(
         if not isinstance(parameters, GraphParameters):
             raise ValueError("Graph parameters must be of type GraphParameters")
         super().__init__(name, parameters, description=description, modes=modes)
+        self._connectivity: dict[tuple[str, str], Outcome]
         if finalize:
             if nodes is None or connectivity is None:
                 raise RuntimeError(
@@ -127,11 +128,20 @@ class QualibrationGraph(
                     "instantiation."
                 )
             self._elements = dict(nodes)
-            self._connectivity = list(connectivity)
+            self._connectivity = {
+                connectivity: Outcome.SUCCESSFUL
+                for connectivity in connectivity
+            }
         else:
             self._elements = {}
-            self._connectivity = []
+            self._connectivity = {}
         self._graph: nx.DiGraph[GraphElementTypeVar] = nx.DiGraph()
+        if orchestrator is None:
+            from qualibrate.orchestration.basic_orchestrator import (
+                BasicOrchestrator,
+            )
+
+            orchestrator = BasicOrchestrator()
         self._orchestrator = orchestrator
         self._initial_targets: Sequence[TargetType] = []
         self._full_parameters_class: type[GraphRunParametersType] | None = None
@@ -219,10 +229,15 @@ class QualibrationGraph(
         # Copy graph structure
         new_graph._graph = nx.DiGraph()
         new_graph._graph.add_nodes_from(new_graph._elements.values())
-        for v_name, x_name in self._connectivity:
-            if v_name in new_graph._elements and x_name in new_graph._elements:
+        for source, destination in self._connectivity:
+            if (
+                source in new_graph._elements
+                and destination in new_graph._elements
+            ):
                 new_graph._graph.add_edge(
-                    new_graph._elements[v_name], new_graph._elements[x_name]
+                    new_graph._elements[source],
+                    new_graph._elements[destination],
+                    scenario=self._connectivity[(source, destination)],
                 )
 
         # Copy orchestrator if it exists
@@ -264,23 +279,30 @@ class QualibrationGraph(
 
         for element_name in self._elements:
             self._add_element_to_nx_by_name(element_name)
-        for v_name, x_name in self._connectivity:
+        for source, destination in self._connectivity:
             try:
-                v = self._get_element_or_error(v_name)
-                x = self._get_element_or_error(x_name)
+                source_element = self._get_element_or_error(source)
+                destination_element = self._get_element_or_error(destination)
             except ValueError as ex:
                 issued_element_name = (
-                    ex.args[1] if len(ex.args) > 1 else f"{v_name} or {x_name}"
+                    ex.args[1]
+                    if len(ex.args) > 1
+                    else f"{source} or {destination}"
                 )
                 raise ValueError(
                     f'Error creating QualibrationGraph "{self.name}": Could '
-                    f"not add connection ({v_name}, {x_name}) because element "
-                    f'with name "{issued_element_name}" has not been '
+                    f"not add connection ({source}, {destination})"
+                    f" because element with name "
+                    f' "{issued_element_name}" has not been '
                     "registered. Available element names: "
                     f"{tuple(self._elements.keys())}"
                 ) from ex
-            if not self._graph.has_edge(v, x):
-                self._graph.add_edge(v, x)
+            if not self._graph.has_edge(source_element, destination_element):
+                self._graph.add_edge(
+                    source_element,
+                    destination_element,
+                    scenario=self._connectivity[(source, destination)],
+                )
 
     @staticmethod
     def _get_library() -> "QualibrationLibrary[NodeLibT, GraphElLibT]":
@@ -359,7 +381,7 @@ class QualibrationGraph(
             run_modes_token = run_modes_ctx.set(RunModes(inspection=True))
 
             for file in sorted(path.iterdir()):
-                if not file_is_calibration_instance(file, cls.__name__):
+                if not file_is_calibration_graph_instance(file, cls.__name__):
                     continue
                 try:
                     cls.scan_graph_file(file, graphs)
@@ -790,13 +812,14 @@ class QualibrationGraph(
         ):
             node_id = node["id"]
             nodes[node_id] = node
-            node.update(
-                {
-                    # TODO: simplify node name
-                    "name": node_id,
-                    "parameters": parameters["nodes"][node["id"]],
-                }
-            )
+            element = self._elements[node_id]
+            # TODO: simplify node name
+            additional: dict[str, Any] = {"name": node_id}
+            if isinstance(element, QualibrationGraph):
+                additional.update(element.serialize(**kwargs))
+            else:
+                additional["parameters"] = parameters["nodes"][node["id"]]
+            node.update(additional)
             connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
         if cytoscape:
@@ -865,6 +888,10 @@ class QualibrationGraph(
     @ensure_not_finalized
     def __enter__(self) -> Self:
         self._building = True
+        modes = run_modes_ctx.get() or RunModes()
+        self.__run_context_token = run_modes_ctx.set(
+            modes.model_copy(update={"inspection": False})
+        )
         return self
 
     def __exit__(
@@ -874,6 +901,7 @@ class QualibrationGraph(
         tb: TracebackType | None,
     ) -> Literal[False]:
         self._building = False
+        run_modes_ctx.reset(self.__run_context_token)
         if exc_type is not None:
             # propagate exceptions from inside the block
             return False
@@ -930,6 +958,26 @@ class QualibrationGraph(
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
     ) -> None:
+        self._connect(src, dst, Outcome.SUCCESSFUL)
+
+    @ensure_not_finalized
+    @ensure_building
+    def connect_on_failure(
+        self,
+        /,
+        src: str | GraphElementTypeVar,
+        dst: str | GraphElementTypeVar,
+    ) -> None:
+        self._connect(src, dst, Outcome.FAILED)
+
+    @ensure_not_finalized
+    @ensure_building
+    def _connect(
+        self,
+        src: str | GraphElementTypeVar,
+        dst: str | GraphElementTypeVar,
+        run_scenario: Outcome,
+    ) -> None:
         s = self._resolve_element_name(src)
         d = self._resolve_element_name(dst)
         if s not in self._elements or d not in self._elements:
@@ -939,4 +987,4 @@ class QualibrationGraph(
         edge = (s, d)
         if edge in self._connectivity:
             return
-        self._connectivity.append(edge)
+        self._connectivity[edge] = run_scenario

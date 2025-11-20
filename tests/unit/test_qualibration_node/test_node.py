@@ -469,13 +469,13 @@ class TestQualibrationNode:
         assert node._action_manager.skip_actions is True
         job.halt.assert_called_once()
 
-    def test_scan_folder_for_instances(self, mocker, mock_run_modes_ctx):
+    def test_scan_folder_for_node_instances(self, mocker, mock_run_modes_ctx):
         mock_run_modes_ctx.get.return_value = None
         # Mock path.iterdir()
         mock_path = MagicMock()
         mock_path.iterdir.return_value = [Path("node1.py"), Path("node2.py")]
         mocker.patch(
-            "qualibrate.qualibration_node.file_is_calibration_instance",
+            "qualibrate.qualibration_node.file_is_calibration_node_instance",
             return_value=True,
         )
         mock_scan_node_file = mocker.patch.object(
