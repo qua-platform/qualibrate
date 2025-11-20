@@ -564,8 +564,27 @@ class QualibrationGraph(
             for name in cast(GraphElementsParameters, nodes_class).model_fields
         }
 
+    def _mark_nodes_as_skipped(
+        self, start_from: GraphElementTypeVar | str
+    ) -> None:
+        start_node = (
+            self._elements[start_from]
+            if isinstance(start_from, str)
+            else start_from
+        )
+        bfs_tree = nx.bfs_tree(self._graph, start_node)
+        difference = set(self._graph.nodes).difference(set(bfs_tree.nodes))
+        for node in difference:
+            self._graph.nodes[node][self.__class__.ELEMENT_STATUS_FIELD] = (
+                ElementRunStatus.skipped
+            )
+
     def _run(
-        self, *, nodes: Mapping[str, Any], **passed_parameters: Any
+        self,
+        *,
+        start_from: GraphElementTypeVar | str | None = None,
+        nodes: Mapping[str, Any],
+        **passed_parameters: Any,
     ) -> None:
         """
         Runs the graph by traversing nodes using the orchestrator.
@@ -607,6 +626,8 @@ class QualibrationGraph(
                         f'node.parameters.targets_name = "targets_name"'
                     )
                     raise TargetsFieldNotExist(msg) from ex
+        if start_from is not None:
+            self._mark_nodes_as_skipped(start_from)
         orchestrator.traverse_graph(self, targets)
 
     def _post_run(
@@ -660,6 +681,7 @@ class QualibrationGraph(
         self,
         /,
         *,
+        start_from: GraphElementTypeVar | str | None = None,
         interactive: bool = False,
         nodes: Mapping[str, Any] | None = None,
         **passed_parameters: Any,
@@ -671,6 +693,8 @@ class QualibrationGraph(
         following the specified connectivity and using the provided parameters.
 
         Args:
+            start_from (GraphElementTypeVar | str | None): Start traverse from
+                specific node.
             interactive (bool): just for same api with Node.run.
             nodes (Mapping[str, Any] | None): The parameters for runnable
                 elements.
@@ -692,7 +716,7 @@ class QualibrationGraph(
         if nodes is None:
             nodes = {}
         try:
-            self._run(nodes=nodes, **passed_parameters)
+            self._run(start_from=start_from, nodes=nodes, **passed_parameters)
         except Exception as ex:
             run_error = RunError(
                 error_class=ex.__class__.__name__,
