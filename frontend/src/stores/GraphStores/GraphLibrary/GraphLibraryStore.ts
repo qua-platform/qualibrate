@@ -21,7 +21,6 @@ export interface GraphMap {
 interface GraphLibraryState {
   allGraphs?: GraphMap;
   selectedWorkflow?: GraphWorkflow;
-  selectedWorkflowName?: string;
   lastRunInfo?: LastRunInfo;
   isRescanningGraphs: boolean;
 }
@@ -29,7 +28,6 @@ interface GraphLibraryState {
 const initialGraphLibraryState: GraphLibraryState = {
   allGraphs: undefined,
   selectedWorkflow: undefined,
-  selectedWorkflowName: undefined,
   lastRunInfo: undefined,
   isRescanningGraphs: false,
 };
@@ -44,9 +42,6 @@ export const graphLibrarySlice = createSlice({
     },
     setSelectedWorkflow: (state, action) => {
       state.selectedWorkflow = action.payload;
-    },
-    setSelectedWorkflowName: (state, action) => {
-      state.selectedWorkflowName = action.payload;
     },
     setLastRunInfo: (state, action) => {
       state.lastRunInfo = action.payload;

@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useRootDispatch } from "..";
-import { getAllGraphs, getLastRunWorkflowName, getSelectedWorkflowName } from "./GraphLibrary/selectors";
+import { getAllGraphs, getLastRunWorkflowName } from "./GraphLibrary/selectors";
 import { fetchAllCalibrationGraphs, setSelectedWorkflow } from "./GraphLibrary/actions";
 import { fetchWorkflowGraph } from "./GraphCommon/actions";
+import { getSelectedWorkflowName } from "./GraphCommon/selectors";
 
 export const useInitGraphs = () => {
   const dispatch = useRootDispatch();

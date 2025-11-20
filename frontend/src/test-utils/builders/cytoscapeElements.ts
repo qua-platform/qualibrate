@@ -4,15 +4,16 @@
  * Provides helper functions to create Cytoscape node and edge definitions
  * for use in tests.
  */
+import { NodeData } from "@/stores/GraphStores/GraphCommon/GraphCommonStore";
 import { Edge, Node } from "@xyflow/react";
 
 /**
  * Creates a graph node element definition.
  */
-const createNode = (id: string, classes?: string): Node => ({
+const createNode = (id: string, subgraph?: { nodes: Node<NodeData>[], edges: Edge[] }): Node<NodeData> => ({
   id,
   data: {
-    classes
+    subgraph
   },
   position: { x: 100, y: 100 }
 });
@@ -34,10 +35,35 @@ export const createGraphOfOneNode = () => ({
 /**
  * Creates a simple graph with connected nodes.
  */
-export const createSimpleGraph = (): { nodes: Node[], edges: Edge[] } => ({
+export const createSimpleGraph = (prefix: string = ""): { nodes: Node[], edges: Edge[] } => ({
+  nodes: [
+    createNode(`${prefix}_node1`),
+    createNode(`${prefix}_node2`),
+    createNode(`${prefix}_node3`),
+  ],
+  edges: [
+    createEdge(`${prefix}_node1`, `${prefix}_node2`),
+    createEdge(`${prefix}_node2`, `${prefix}_node3`),
+  ]
+});
+
+/**
+ * Creates a simple graph with connected nodes and nodes that contains nested graphs.
+ */
+export const createSimpleNestedGraph = (): { nodes: Node[], edges: Edge[] } => ({
   nodes: [
     createNode("node1"),
-    createNode("node2"),
+    createNode("node2", {
+      nodes: [
+        createNode("subgraph1_node1", createSimpleGraph("subgraph2")),
+        createNode("subgraph1_node2"),
+        createNode("subgraph1_node3", createSimpleGraph("subgraph3")),
+      ],
+      edges: [
+        createEdge("subgraph1_node1", "subgraph1_node2"),
+        createEdge("subgraph1_node2", "subgraph1_node3"),
+      ]
+    }),
     createNode("node3"),
   ],
   edges: [
@@ -85,8 +111,8 @@ export const createBigGraph = (): { nodes: Node[], edges: Edge[] } => {
  * Creates a graph with nodes in various status classes.
  */
 export const createGraphWithStatuses = () => [
-  createNode("running_node", "running"),
-  createNode("completed_node", "completed"),
-  createNode("failed_node", "failed"),
-  createNode("pending_node", ""),
+  createNode("running_node"),
+  createNode("completed_node"),
+  createNode("failed_node"),
+  createNode("pending_node"),
 ];

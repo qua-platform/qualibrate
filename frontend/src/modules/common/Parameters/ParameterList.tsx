@@ -4,10 +4,11 @@ import { InputParameter, Parameters, SingleParameter } from "./Parameters";
 import { Checkbox } from "@mui/material";
 import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
 import InputField from "../../../common/ui-components/common/Input/InputField";
-import { getAllGraphs, getSelectedWorkflowName } from "../../../stores/GraphStores/GraphLibrary/selectors";
+import { getAllGraphs } from "../../../stores/GraphStores/GraphLibrary/selectors";
 import { setAllGraphs } from "../../../stores/GraphStores/GraphLibrary/actions";
 import { useSelector } from "react-redux";
 import { useRootDispatch } from "../../../stores";
+import { getSelectedWorkflowName } from "../../../stores/GraphStores/GraphCommon/selectors";
 
 interface IProps {
   showParameters: boolean;

@@ -16,11 +16,6 @@ export const getSelectedWorkflow = createSelector(
   (libraryState) => libraryState.selectedWorkflow
 );
 
-export const getSelectedWorkflowName = createSelector(
-  getGraphLibraryState,
-  (libraryState) => libraryState.selectedWorkflowName
-);
-
 export const getLastRunInfo = createSelector(
   getGraphLibraryState,
   (libraryState) => libraryState.lastRunInfo

@@ -4,13 +4,14 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { GraphElement } from "../GraphElement";
 import { createTestProviders } from "@/test-utils/providers";
 import * as GraphLibraryApiModule from "../../../api/GraphLibraryApi";
-import { setAllGraphs, setSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/actions";
+import { setAllGraphs } from "@/stores/GraphStores/GraphLibrary/actions";
 // @ts-expect-error TODO: QUAL-1676 fix ignored test
-import { setWorkflowGraphElements } from "@/stores/GraphStores/GraphCommon/actions";
-import { getAllGraphs, getLastRunInfo, getSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/selectors";
+import { setSelectedWorkflowName, setWorkflowGraphElements } from "@/stores/GraphStores/GraphCommon/actions";
+import { getAllGraphs, getLastRunInfo } from "@/stores/GraphStores/GraphLibrary/selectors";
 import { server } from "@/test-utils/mocks/server";
 import { http, HttpResponse } from "msw";
 import { getActivePage } from "@/stores/NavigationStore/selectors";
+import { getSelectedWorkflowName } from "@/stores/GraphStores/GraphCommon/selectors";
 
 // Mock CytoscapeGraph to avoid Cytoscape dependencies
 vi.mock("../../CytoscapeGraph/CytoscapeGraph", () => ({

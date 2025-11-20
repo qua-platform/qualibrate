@@ -43,7 +43,8 @@
 }
 
 .rightContainer {
-  align-content: center;
+  display: flex;
+  place-content: center space-between;
   text-align: right;
   flex-grow: 1;
   padding-right: 10px;
