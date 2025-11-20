@@ -28,7 +28,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { classNames } from "../../../../utils/classnames";
-import { getSelectedNodeNameInWorkflow, getShouldResetView, getWorkflowGraphEdges, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
+import { getShouldResetView, getWorkflowGraphEdges, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import { setEdges, setNodes, setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/actions";
 import { setTrackLatest } from "../../../../stores/GraphStores/GraphStatus/actions";
 import { useRootDispatch } from "../../../../stores";
@@ -60,8 +60,6 @@ const Graph = ({ onNodeClick }: IProps) => {
   const dispatch = useRootDispatch();
   const { fitView } = useReactFlow();
 
-  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
-
   useLayoutEffect(() => {
     fitView({
       padding: .5,
@@ -85,10 +83,6 @@ const Graph = ({ onNodeClick }: IProps) => {
     handleSelectNode(node.id);
     onNodeClick && onNodeClick(node.id);
   };
-
-  useEffect(() => {
-    handleSelectNode(selectedNodeNameInWorkflow);
-  }, [selectedNodeNameInWorkflow]);
 
   const handleBackgroundClick = (evt: React.MouseEvent) => {
     // Clear selection when clicking graph background
