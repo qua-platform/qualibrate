@@ -22,18 +22,68 @@ from qualibrate_runner.core.types import QGraphType, QNodeType
 submit_router = APIRouter(prefix="/submit")
 
 
+def _recursive_clear_node_parameters(
+    parameters: Mapping[str, Any],
+) -> Mapping[str, Any]:
+    """
+    Recursively clear run parameters of submitted elements.
+    Based on qualibrate.parameters.ExecutionParameters.
+
+    Expected out structure:
+    ```python
+    {
+        "parameters": {
+            "p1": ...
+        },
+        "nodes": {
+            "subgraph1": {
+                "parameters": {
+                    "p2": ...
+                },
+                "nodes": {
+                    "subgraph_node1": {
+                        "p3": 120,
+                    },
+                    "subgraph_node2": {
+                        "p5": 100,
+                    }
+                }
+            },
+            "outer_graph_node1": {
+                "p7": 120,
+            }
+        }
+    }
+    ```
+    """
+    if "nodes" in parameters and "parameters" in parameters:
+        return {
+            "parameters": parameters["parameters"],
+            "nodes": {
+                name: _recursive_clear_node_parameters(params)
+                for name, params in parameters["nodes"].items()
+            },
+        }
+    if "parameters" in parameters:
+        return dict(parameters["parameters"])
+    return parameters
+
+
+def clear_input_parameters(
+    input_parameters: Mapping[str, Any],
+) -> Mapping[str, Any]:
+    return _recursive_clear_node_parameters(input_parameters)
+
+
 @submit_router.post("/node")
 def submit_node_run(
-    input_parameters: Mapping[str, Any],
+    input_parameters: Annotated[
+        Mapping[str, Any], Depends(clear_input_parameters)
+    ],
     state: Annotated[State, Depends(get_state)],
     node: Annotated[QNodeType, Depends(get_qnode_copy)],
     background_tasks: BackgroundTasks,
 ) -> str:
-    # TODO:
-    #  this should unify graph submit node params and node submit params
-    #  It's needed to correct validation models
-    if "parameters" in input_parameters:
-        input_parameters = input_parameters["parameters"]
     if state.is_running:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -48,7 +98,9 @@ def submit_node_run(
 
 @submit_router.post("/workflow")
 def submit_workflow_run(
-    input_parameters: Mapping[str, Any],
+    input_parameters: Annotated[
+        Mapping[str, Any], Depends(clear_input_parameters)
+    ],
     state: Annotated[State, Depends(get_state)],
     graph: Annotated[QGraphType, Depends(get_qgraph)],
     background_tasks: BackgroundTasks,
@@ -58,13 +110,6 @@ def submit_workflow_run(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Already running",
         )
-    input_parameters = {
-        "parameters": input_parameters.get("parameters", {}),
-        "nodes": {
-            name: params.get("parameters", {})
-            for name, params in input_parameters.get("nodes", {}).items()
-        },
-    }
     validate_input_parameters(graph.full_parameters_class, input_parameters)
     background_tasks.add_task(run_workflow, graph, input_parameters, state)
     return f"Workflow job {graph.name} is submitted"
