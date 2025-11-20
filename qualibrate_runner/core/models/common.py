@@ -34,11 +34,9 @@ class RunError(BaseModel):
 
     error_class: str = Field(..., description="The class of the error.")
     message: str = Field(..., description="The error message.")
-
-    # details_headline: str = Field(..., description="The headline of the details.")
-    # details: str = Field(..., description="The details of the error.")
-
     traceback: list[str] = Field(..., description="The traceback of the error.")
+    details_headline: str | None = Field(None, description="The headline of the details.")
+    details: str | None = Field(None, description="The details of the error.")
 
 
 class StateUpdate(BaseModel):

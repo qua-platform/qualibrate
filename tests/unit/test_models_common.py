@@ -116,6 +116,76 @@ Third line with more context"""
 
         assert len(error.traceback) == 20
 
+    def test_create_with_optional_detail_fields(self, sample_traceback):
+        """Test creating RunError with optional detail fields."""
+        error = RunError(
+            error_class="ValueError",
+            message="Invalid configuration",
+            traceback=sample_traceback,
+            details_headline="Configuration Error",
+            details="The 'frequency' parameter must be greater than zero.",
+        )
+
+        assert error.error_class == "ValueError"
+        assert error.details_headline == "Configuration Error"
+        assert (
+            error.details
+            == "The 'frequency' parameter must be greater than zero."
+        )
+
+    def test_create_without_optional_detail_fields(self, sample_traceback):
+        """Test that optional detail fields default to None."""
+        error = RunError(
+            error_class="ValueError",
+            message="Test error",
+            traceback=sample_traceback,
+        )
+
+        assert error.details_headline is None
+        assert error.details is None
+
+    def test_serialization_with_optional_fields(self, sample_traceback):
+        """Test serialization includes optional fields when present."""
+        error = RunError(
+            error_class="RuntimeError",
+            message="Something failed",
+            traceback=sample_traceback,
+            details_headline="Execution Error",
+            details="Check the logs for more information",
+        )
+
+        serialized = error.model_dump()
+        assert "details_headline" in serialized
+        assert serialized["details_headline"] == "Execution Error"
+        assert "details" in serialized
+        assert serialized["details"] == "Check the logs for more information"
+
+    def test_deserialization_with_optional_fields(self, sample_traceback):
+        """Test deserialization with optional fields."""
+        data = {
+            "error_class": "ValueError",
+            "message": "Test error",
+            "traceback": sample_traceback,
+            "details_headline": "Test Headline",
+            "details": "Test Details",
+        }
+
+        error = RunError(**data)
+        assert error.details_headline == "Test Headline"
+        assert error.details == "Test Details"
+
+    def test_deserialization_without_optional_fields(self, sample_traceback):
+        """Test deserialization without optional fields."""
+        data = {
+            "error_class": "ValueError",
+            "message": "Test error",
+            "traceback": sample_traceback,
+        }
+
+        error = RunError(**data)
+        assert error.details_headline is None
+        assert error.details is None
+
 
 class TestStateUpdate:
     """Tests for the StateUpdate model."""
