@@ -23,7 +23,8 @@ import {
   NodeProps,
   Background,
   NodeChange,
-  EdgeChange
+  EdgeChange,
+  MarkerType
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { classNames } from "../../../../utils/classnames";
@@ -55,8 +56,25 @@ const DefaultNode = (props: NodeProps<NodeWithData>) => {
     </div>
   );
 };
+
 const nodeTypes = {
   [DEFAULT_NODE_TYPE]: DefaultNode,
+};
+
+const backgroundColor = "#2b2c32";
+const edgeColor = "#40464d";
+const edgeOptions = {
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    width: 60,
+    height: 8,
+    color: edgeColor
+  },
+  style: {
+    strokeWidth: 2,
+    stroke: edgeColor,
+  },
+  selectable: false
 };
 
 const Graph = ({ onNodeClick }: IProps) => {
@@ -126,9 +144,10 @@ const Graph = ({ onNodeClick }: IProps) => {
       onEdgesChange={onEdgesChange}
       onNodeClick={handleNodeClick}
       minZoom={0.1}
+      defaultEdgeOptions={edgeOptions}
       fitView
     >
-      <Background color={"#2b2c32"} bgColor={"#2b2c32"} />
+      <Background color={backgroundColor} bgColor={backgroundColor} />
     </ReactFlow>
   </div>;
 };

@@ -24,7 +24,7 @@ interface GraphState {
     nodes: NodeWithData[]
     edges: EdgeWithData[]
   }
-  // graph that is currently shown in UI with applied layout and selected subgeaph
+  // graph that is currently shown in UI with applied layout and selected subgraph
   nodes: NodeWithData[]
   edges: EdgeWithData[]
   shouldResetView: boolean
