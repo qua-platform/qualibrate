@@ -2,21 +2,26 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { createTestProviders } from "@/test-utils/providers";
+import { createSimpleGraph } from "@/test-utils/builders/reactflowElements";
 import { Measurement } from "../GraphStatusStore";
 import GraphStatus from "../../../../modules/GraphLibrary/components/GraphStatus/GraphStatus";
 import { getAllMeasurements, getTrackLatest } from "../selectors";
 import { getSelectedWorkflowName } from "../../GraphCommon/selectors";
 import { setSelectedWorkflowName } from "../../GraphCommon/actions";
+import { setNodes, setEdges } from "../../GraphCommon/actions";
+import { setActivePage } from "@/stores/NavigationStore/actions";
 import { server } from "@/test-utils/mocks/server";
 import { http, HttpResponse } from "msw";
 import { getClickedForSnapshotSelection, getDiffData, getResult, getSelectedSnapshotId } from "@/stores/SnapshotsStore/selectors";
 import { SnapshotsApi } from "@/modules/Snapshots/api/SnapshotsApi";
 
+const GRAPH_STATUS_KEY = "graph-status";
+
 // Mock the child components to isolate GraphStatus logic
 vi.mock("../../../../modules/GraphLibrary/components/GraphStatus/components/MeasurementElementGraph/MeasurementElementGraph", () => ({
-  MeasurementElementGraph: ({ onCytoscapeNodeClick }: { onCytoscapeNodeClick: (name: string) => void }) => (
+  MeasurementElementGraph: ({ onNodeClick }: { onNodeClick?: (name: string) => void }) => (
     <div data-testid="measurement-element-graph">
-      <button onClick={() => onCytoscapeNodeClick("test_node")}>Click Node</button>
+      <button onClick={() => onNodeClick?.("test_node")}>Click Node</button>
     </div>
   ),
 }));
@@ -136,9 +141,13 @@ describe("GraphStatus - Context Coordination", () => {
   });
 
   it("should fetch measurements on mount", async () => {
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -156,9 +165,13 @@ describe("GraphStatus - Context Coordination", () => {
   });
 
   it("should sync selection across contexts", async () => {
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -172,9 +185,13 @@ describe("GraphStatus - Context Coordination", () => {
   });
 
   it("should disable track-latest on manual node click", async () => {
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -200,9 +217,13 @@ describe("GraphStatus - Context Coordination", () => {
     vi.spyOn(SnapshotsApi, "fetchSnapshotResult").mockImplementation(mockFetchSnapshotResult);
     vi.spyOn(SnapshotsApi, "fetchSnapshotUpdate").mockImplementation(mockFetchSnapshotUpdate);
 
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -257,9 +278,13 @@ describe("GraphStatus - Measurement Operations", () => {
   });
 
   it("should find measurement ID by name", async () => {
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -278,9 +303,13 @@ describe("GraphStatus - Measurement Operations", () => {
       HttpResponse.json(null, { status: 500 })
     ));
 
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -300,9 +329,13 @@ describe("GraphStatus - Measurement Operations", () => {
   });
 
   it("should fetch measurements if not loaded", async () => {
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -324,9 +357,13 @@ describe("GraphStatus - Measurement Operations", () => {
       HttpResponse.json(null, { status: 500 })
     ));
 
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -383,9 +420,13 @@ describe("GraphStatus - Node Click Handling", () => {
     vi.spyOn(SnapshotsApi, "fetchSnapshotResult").mockImplementation(mockFetchSnapshotResult);
     vi.spyOn(SnapshotsApi, "fetchSnapshotUpdate").mockImplementation(mockFetchSnapshotUpdate);
 
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_node"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -418,9 +459,13 @@ describe("GraphStatus - Node Click Handling", () => {
     vi.spyOn(SnapshotsApi, "fetchSnapshotResult").mockImplementation(mockFetchSnapshotResult);
     vi.spyOn(SnapshotsApi, "fetchSnapshotUpdate").mockImplementation(mockFetchSnapshotUpdate);
 
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_node"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -447,9 +492,13 @@ describe("GraphStatus - Node Click Handling", () => {
   });
 
   it("should set clicked-for-snapshot-selection flag", async () => {
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_node"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>
@@ -466,9 +515,13 @@ describe("GraphStatus - Node Click Handling", () => {
   });
 
   it("should update selection contexts", async () => {
+    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_node"));
+    mockStore.dispatch(setNodes(nodes));
+    mockStore.dispatch(setEdges(edges));
+    mockStore.dispatch(setActivePage(GRAPH_STATUS_KEY));
 
     render(
       <Providers>

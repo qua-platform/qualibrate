@@ -85,7 +85,6 @@ const Graph = ({ onNodeClick }: IProps) => {
   const dispatch = useRootDispatch();
   const { fitView } = useReactFlow();
 
-
   useLayoutEffect(() => {
     fitView({
       padding: .5,
@@ -113,10 +112,6 @@ const Graph = ({ onNodeClick }: IProps) => {
       onNodeClick && onNodeClick(node.id);
     }
   };
-
-  useEffect(() => {
-    handleSelectNode(selectedNodeNameInWorkflow);
-  }, [selectedNodeNameInWorkflow]);
 
   const handleBackgroundClick = (evt: React.MouseEvent) => {
     // Clear selection when clicking graph background

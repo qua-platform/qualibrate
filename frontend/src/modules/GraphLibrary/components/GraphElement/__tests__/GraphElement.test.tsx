@@ -18,6 +18,7 @@ vi.mock("../../Graph/Graph", () => ({
   default: () => (
     <div data-testid="react-flow-graph">ReactFlow Graph</div>
   ),
+  DEFAULT_NODE_TYPE: "DefaultNode",
 }));
 
 describe("GraphElement - Parameter Management", () => {
@@ -71,6 +72,13 @@ describe("GraphElement - Parameter Management", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
         });
+      }),
+      http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
+        return HttpResponse.json([
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ]);
       })
     );
   });
@@ -235,6 +243,13 @@ describe("GraphElement - Workflow Submission", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
         });
+      }),
+      http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
+        return HttpResponse.json([
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ]);
       })
     );
   });
@@ -421,6 +436,13 @@ describe("GraphElement - UI Interactions", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
         });
+      }),
+      http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
+        return HttpResponse.json([
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ]);
       })
     );
   });
@@ -430,7 +452,11 @@ describe("GraphElement - UI Interactions", () => {
       .fn()
       .mockResolvedValue({
         isOk: true,
-        result: mockGraph,
+        result: [
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ],
       });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
@@ -498,7 +524,11 @@ describe("GraphElement - UI Interactions", () => {
       .fn()
       .mockResolvedValue({
         isOk: true,
-        result: mockGraph,
+        result: [
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ],
       });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
@@ -564,6 +594,13 @@ describe("GraphElement - Error Handling", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
         });
+      }),
+      http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
+        return HttpResponse.json([
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ]);
       })
     );
   });
