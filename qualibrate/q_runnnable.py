@@ -12,6 +12,7 @@ from typing import (
 )
 
 from pydantic import create_model
+from typing_extensions import Self
 
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
@@ -24,12 +25,31 @@ CreateParametersType = TypeVar("CreateParametersType", bound=RunnableParameters)
 RunParametersType = TypeVar("RunParametersType", bound=RunnableParameters)
 
 
-def file_is_calibration_instance(file: Path, klass: str) -> bool:
+def _read_calibration_file(file: Path) -> str:
+    try:
+        return file.read_text()
+    except UnicodeDecodeError:
+        return file.read_text(encoding="utf-8")
+
+
+def file_is_calibration_node_instance(
+    file: Path, klass: str = "QualibrationNode"
+) -> bool:
     if not file.is_file() or file.suffix != ".py":
         return False
-
-    contents = file.read_text()
+    contents = _read_calibration_file(file)
     return f"{klass}(" in contents or f"{klass}[" in contents
+
+
+def file_is_calibration_graph_instance(file: Path, klass: str) -> bool:
+    if not file.is_file() or file.suffix != ".py":
+        return False
+    contents = _read_calibration_file(file)
+    return (
+        f"{klass}(" in contents
+        or f"{klass}[" in contents
+        or f"{klass}.build(" in contents
+    )
 
 
 run_modes_ctx: ContextVar[RunModes | None] = ContextVar(
@@ -114,7 +134,9 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             parameters.__class__.__name__,
             __doc__=parameters.__class__.__doc__,
             __base__=base,
-            __module__=parameters.__class__.__module__,
+            # module parameter is needed only for pickling; so can skip for now
+            # pydantic tries to inspect non-exising modules
+            # __module__=parameters.__class__.__module__,
             **{name: (info.annotation, info) for name, info in fields.items()},
         )
         if hasattr(parameters, "targets_name"):
@@ -201,6 +223,10 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         Returns:
             dict[str, QRunnable]: A dictionary of runnable instances.
         """
+        pass
+
+    @abstractmethod
+    def copy(self, name: str | None = None, **node_parameters: Any) -> Self:
         pass
 
     @abstractmethod

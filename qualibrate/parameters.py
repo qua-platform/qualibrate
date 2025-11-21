@@ -6,7 +6,12 @@ from typing import (
     cast,
 )
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    model_validator,
+)
 
 from qualibrate.utils.exceptions import TargetsFieldNotExist
 from qualibrate.utils.logger_m import logger
@@ -23,6 +28,7 @@ else:
 
 __all__ = [
     "ExecutionParameters",
+    "GraphElementsParameters",
     "GraphParameters",
     "NodeParameters",
     "NodesParameters",
@@ -126,13 +132,14 @@ class NodeParameters(RunnableParameters, TargetParameter):
     def serialize(
         cls, exclude_targets: bool = False, **kwargs: Any
     ) -> Mapping[str, Any]:
-        return cls.serialize_targets(
-            super().serialize(),
-            exclude_targets,
-        )
+        return cls.serialize_targets(super().serialize(), exclude_targets)
 
 
-class NodesParameters(RunnableParameters):
+class GraphElementsParameters(RunnableParameters):
+    pass
+
+
+class NodesParameters(GraphElementsParameters):
     pass
 
 
@@ -152,7 +159,9 @@ class OrchestratorParameters(RunnableParameters):
 
 class ExecutionParameters(RunnableParameters):
     parameters: GraphParameters = Field(default_factory=GraphParameters)
-    nodes: NodesParameters = Field(default_factory=NodesParameters)
+    nodes: GraphElementsParameters = Field(
+        default_factory=GraphElementsParameters
+    )
 
     @classmethod
     def serialize(cls, **kwargs: Any) -> Mapping[str, Any]:
@@ -191,3 +200,15 @@ class ExecutionParameters(RunnableParameters):
         }
 
         return updated_serialized
+
+    @property
+    def targets_name(self) -> str | None:
+        return self.parameters.targets_name
+
+    @property
+    def targets(self) -> list[TargetType] | None:
+        return self.parameters.targets
+
+    @targets.setter
+    def targets(self, new_targets: Sequence[TargetType]) -> None:
+        self.parameters.targets = new_targets

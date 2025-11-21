@@ -9,7 +9,7 @@ from qualibrate.models.execution_history import (
     ItemData,
     ItemMetadata,
 )
-from qualibrate.models.node_status import NodeStatus
+from qualibrate.models.node_status import ElementRunStatus
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
@@ -83,7 +83,7 @@ def test_run_sequence_no_error(
             created_at=item.metadata.run_start,
             metadata=ItemMetadata(
                 name=item.metadata.name,
-                status=NodeStatus.finished,
+                status=ElementRunStatus.finished,
                 run_start=item.metadata.run_start,
                 run_end=item.metadata.run_end,
                 description=None,
@@ -125,7 +125,7 @@ def test_run_sequence_with_error(
         metadata=ItemMetadata(
             name="first_node",
             description=None,
-            status=NodeStatus.finished,
+            status=ElementRunStatus.finished,
             run_start=execution_history[0].metadata.run_start,
             run_end=execution_history[0].metadata.run_end,
         ),
@@ -146,7 +146,7 @@ def test_run_sequence_with_error(
         metadata=ItemMetadata(
             name="forth_node",
             description="Description.",
-            status=NodeStatus.error,
+            status=ElementRunStatus.error,
             run_start=execution_history[1].metadata.run_start,
             run_end=execution_history[1].metadata.run_end,
         ),

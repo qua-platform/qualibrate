@@ -41,7 +41,7 @@ from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.parameters import NodeParameters
 from qualibrate.q_runnnable import (
     QRunnable,
-    file_is_calibration_instance,
+    file_is_calibration_node_instance,
     run_modes_ctx,
 )
 from qualibrate.runnables.run_action.action import ActionCallableType
@@ -76,17 +76,18 @@ __all__ = [
     "QualibrationNode",
     "NodeCreateParametersType",
     "NodeRunParametersType",
+    "NodeMachineType",
 ]
 
 NodeCreateParametersType = NodeParameters
 NodeRunParametersType = NodeParameters
 ParametersType = TypeVar("ParametersType", bound=NodeParameters)
-MachineType = TypeVar("MachineType", bound=MachineProtocol)
+NodeMachineType = TypeVar("NodeMachineType", bound=MachineProtocol)
 
 
 class QualibrationNode(
     QRunnable[ParametersType, ParametersType],
-    Generic[ParametersType, MachineType],
+    Generic[ParametersType, NodeMachineType],
 ):
     """
     Represents a qualibration node (that can be run independently or as part
@@ -141,7 +142,7 @@ class QualibrationNode(
         # class is used just for passing reference to the running instance
         self._fraction_complete = 0.0
         self.results: dict[Any, Any] = {}
-        self.machine: MachineType | None = None
+        self.machine: NodeMachineType | None = None
         self.storage_manager: StorageManager[Self] | None = None
 
         # Initialize the ActionManager to handle run_action logic.
@@ -316,6 +317,12 @@ class QualibrationNode(
         )
         return instance
 
+    def set_parameters(self, **parameters: Any) -> None:
+        self._parameters = self.parameters_class.model_validate(parameters)
+        self.parameters_class = self.build_parameters_class_from_instance(
+            self._parameters
+        )
+
     def _warn_if_external_and_interactive_mpl(self) -> None:
         """
         Checks backend configuration and issues a warning if incompatible.
@@ -475,13 +482,13 @@ class QualibrationNode(
     @InstanceOrClassMethod
     def load_from_id(
         caller: Union[
-            "QualibrationNode[ParametersType, MachineType]",
-            type["QualibrationNode[ParametersType, MachineType]"],
+            "QualibrationNode[ParametersType, NodeMachineType]",
+            type["QualibrationNode[ParametersType, NodeMachineType]"],
         ],
         node_id: int,
         base_path: Path | None = None,
         custom_loaders: Sequence[type[BaseLoader]] | None = None,
-    ) -> Optional["QualibrationNode[ParametersType, MachineType]"]:
+    ) -> Optional["QualibrationNode[ParametersType, NodeMachineType]"]:
         """
         Class or instance method to load a node by its identifier.
 
@@ -499,7 +506,7 @@ class QualibrationNode(
             A `QualibrationNode` instance with the loaded data, or None if
             loading fails.
         """
-        instance: QualibrationNode[ParametersType, MachineType] = (
+        instance: QualibrationNode[ParametersType, NodeMachineType] = (
             caller(name=f"loaded_from_id_{node_id}")
             if isinstance(caller, type)
             else caller
@@ -778,7 +785,7 @@ class QualibrationNode(
         run_modes_token = run_modes_ctx.set(RunModes(inspection=True))
         try:
             for file in sorted(path.iterdir()):
-                if not file_is_calibration_instance(file, cls.__name__):
+                if not file_is_calibration_node_instance(file, cls.__name__):
                     continue
                 try:
                     cls.scan_node_file(file, nodes)
@@ -825,7 +832,7 @@ class QualibrationNode(
     @classmethod
     def add_node(
         cls,
-        node: "QualibrationNode[ParametersType, MachineType]",
+        node: "QualibrationNode[ParametersType, NodeMachineType]",
         nodes: dict[str, QRunnable[ParametersType, ParametersType]],
     ) -> None:
         """

@@ -6,7 +6,8 @@ import networkx as nx
 import pytest
 
 from qualibrate import QualibrationGraph, QualibrationNode
-from qualibrate.models.node_status import NodeStatus
+from qualibrate.models.node_status import ElementRunStatus
+from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
 from qualibrate.parameters import GraphParameters
 from qualibrate.q_runnnable import QRunnable
@@ -17,6 +18,18 @@ class TestQualibrationGraph:
     @pytest.fixture
     def mock_logger(self, mocker):
         return mocker.patch("qualibrate.qualibration_graph.logger")
+
+    @pytest.fixture
+    def mock_library(self, mocker):
+        """Mock the QualibrationLibrary to avoid initialization issues"""
+        mock_lib = mocker.MagicMock()
+        mock_lib.nodes.values_nocopy.return_value = {}  # Empty library
+        mocker.patch.object(
+            QualibrationGraph,
+            "_get_library",
+            return_value=mock_lib,
+        )
+        return mock_lib
 
     @pytest.fixture
     def mock_orchestrator(self, mocker):
@@ -33,7 +46,16 @@ class TestQualibrationGraph:
         return {"node1": node1, "node2": node2}
 
     @pytest.fixture
-    def pre_setup_graph_parameters_build(self, mocker):
+    def mocked__validate_no_elements_from_library(self, mocker):
+        return mocker.patch(
+            "qualibrate.qualibration_graph.QualibrationGraph"
+            "._validate_no_elements_from_library"
+        )
+
+    @pytest.fixture
+    def pre_setup_graph_parameters_build(
+        self, mocker, mocked__validate_no_elements_from_library
+    ):
         mocked_build_base_parameters = mocker.patch.object(
             QRunnable, "build_parameters_class_from_instance"
         )
@@ -41,7 +63,11 @@ class TestQualibrationGraph:
             "qualibrate.qualibration_graph.QualibrationGraph"
             "._build_parameters_class"
         )
-        return mocked_build_base_parameters, mocked_build_full_parameters
+        return (
+            mocked_build_base_parameters,
+            mocked_build_full_parameters,
+            mocked__validate_no_elements_from_library,
+        )
 
     @pytest.fixture
     def pre_setup_graph_init(
@@ -49,11 +75,13 @@ class TestQualibrationGraph:
     ):
         mocked_add_nodes_and_connections = mocker.patch(
             "qualibrate.qualibration_graph.QualibrationGraph."
-            "_add_nodes_and_connections",
+            "_add_nodes_and_connections_to_nx",
         )
-        mocked_build_base_parameters, mocked_build_full_parameters = (
-            pre_setup_graph_parameters_build
-        )
+        (
+            mocked_build_base_parameters,
+            mocked_build_full_parameters,
+            mocked__validate_no_elements_from_library,
+        ) = pre_setup_graph_parameters_build
 
         return (
             pre_setup_graph_nodes,
@@ -62,7 +90,12 @@ class TestQualibrationGraph:
             mocked_build_full_parameters,
         )
 
-    def test_init_graph_base(self, mocker, pre_setup_graph_init):
+    def test_init_graph_base(
+        self,
+        mocker,
+        pre_setup_graph_init,
+        mocked__validate_no_elements_from_library,
+    ):
         (
             nodes,
             mocked_validate_nodes_and_connections,
@@ -82,11 +115,16 @@ class TestQualibrationGraph:
             nodes=nodes,
             connectivity=connectivity,
         )
-        assert graph._nodes == nodes
-        assert graph._connectivity == connectivity
+        assert graph._elements == nodes
+        assert list(graph._connectivity.keys()) == connectivity
+        assert all(
+            outcome == Outcome.SUCCESSFUL
+            for outcome in graph._connectivity.values()
+        )
         assert graph.name == "test_graph"
         mocked_build_base_parameters.assert_called_once()
         mocked_build_full_parameters.assert_called_once()
+        mocked__validate_no_elements_from_library.assert_called_once()
         mocked_validate_nodes_and_connections.assert_called_once()
 
     def test__add_nodes_and_connections(
@@ -99,11 +137,12 @@ class TestQualibrationGraph:
             nodes[node_name] = node
 
         mocked_add_node_by_name = mocker.patch(
-            "qualibrate.qualibration_graph.QualibrationGraph._add_node_by_name",
+            "qualibrate.qualibration_graph.QualibrationGraph"
+            "._add_element_to_nx_by_name",
         )
         mocked_get_qnode_or_error = mocker.patch(
             "qualibrate.qualibration_graph.QualibrationGraph"
-            "._get_qnode_or_error"
+            "._get_element_or_error"
         )
         mocked_validate_graph_acyclic = mocker.patch(
             "qualibrate.qualibration_graph.QualibrationGraph."
@@ -150,16 +189,16 @@ class TestQualibrationGraph:
         assert isinstance(ex.value.instance, QualibrationGraph)
         assert ex.value.instance.name == "test_graph"
 
-    def test_validate_nodes_names_mapping_no_conflicts(
+    def test_validate_elements_names_mapping_no_conflicts(
         self, pre_setup_graph_nodes
     ):
         nodes = pre_setup_graph_nodes
 
-        result = QualibrationGraph._validate_nodes_names_mapping(nodes)
+        result = QualibrationGraph._validate_elements_names_mapping(nodes)
 
         assert result == nodes
 
-    def test_validate_nodes_names_mapping_with_conflicting_name(
+    def test_validate_elements_names_mapping_with_conflicting_name(
         self, mock_logger, pre_setup_graph_nodes
     ):
         nodes = pre_setup_graph_nodes
@@ -167,7 +206,7 @@ class TestQualibrationGraph:
         nodes["new_name"] = node
         node.copy.return_value = "copied_instance"
 
-        result = QualibrationGraph._validate_nodes_names_mapping(nodes)
+        result = QualibrationGraph._validate_elements_names_mapping(nodes)
 
         assert result["new_name"] == "copied_instance"
         node.copy.assert_called_once_with("new_name")
@@ -176,15 +215,17 @@ class TestQualibrationGraph:
             "(new_name)"
         )
 
-    def test_add_node_by_name(
+    def test_add_element_to_nx_by_name(
         self, mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
     ):
         node = pre_setup_graph_nodes["node1"]
         mocked_validate_names = mocker.patch.object(
-            QualibrationGraph, "_validate_nodes_names_mapping", return_value={}
+            QualibrationGraph,
+            "_validate_elements_names_mapping",
+            return_value={},
         )
         mock_get_qnode = mocker.patch.object(
-            QualibrationGraph, "_get_qnode_or_error", return_value=node
+            QualibrationGraph, "_get_element_or_error", return_value=node
         )
         graph = QualibrationGraph(
             name="test_graph",
@@ -193,13 +234,15 @@ class TestQualibrationGraph:
             connectivity=[],
         )
         mocked_add_node = mocker.patch.object(graph._graph, "add_node")
-        graph._add_node_by_name("node1")
+        graph._add_element_to_nx_by_name("node1")
         mocked_validate_names.assert_called_once()
         mock_get_qnode.assert_called_once_with("node1")
         mocked_add_node.asser_called_once_with(
             node,
             retries=0,
-            **{QualibrationGraph.STATUS_FIELD: NodeStatus.pending},
+            **{
+                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.pending
+            },
         )
 
     def test_cleanup(self, mocker, mock_orchestrator, pre_setup_graph_init):
@@ -228,8 +271,8 @@ class TestQualibrationGraph:
         mock_get_node_attributes = mocker.patch(
             "qualibrate.qualibration_graph.nx.get_node_attributes",
             return_value={
-                "node1": NodeStatus.finished,
-                "node2": NodeStatus.pending,
+                "node1": ElementRunStatus.finished,
+                "node2": ElementRunStatus.pending,
             },
         )
 
@@ -347,6 +390,233 @@ class TestQualibrationGraph:
 
         orchestrator.stop.assert_called_once()
         assert result is True
+
+    def test_connect_adds_edge_with_successful_outcome(
+        self, pre_setup_graph_init, mock_library
+    ):
+        """Test that connect() adds edge with SUCCESSFUL outcome"""
+        (nodes, _, _, _) = pre_setup_graph_init
+
+        with QualibrationGraph.build(
+            name="test_graph",
+            parameters=GraphParameters(),
+        ) as graph:
+            graph.add_nodes(nodes["node1"], nodes["node2"])
+            graph.connect("node1", "node2")
+
+        # Check connectivity was added with SUCCESSFUL outcome
+        assert ("node1", "node2") in graph._connectivity
+        assert graph._connectivity[("node1", "node2")] == Outcome.SUCCESSFUL
+
+    def test_connect_on_failure_adds_edge_with_failed_outcome(
+        self, pre_setup_graph_init, mock_library
+    ):
+        """Test that connect_on_failure() adds edge with FAILED outcome"""
+        (nodes, _, _, _) = pre_setup_graph_init
+
+        with QualibrationGraph.build(
+            name="test_graph",
+            parameters=GraphParameters(),
+        ) as graph:
+            graph.add_nodes(nodes["node1"], nodes["node2"])
+            graph.connect_on_failure("node1", "node2")
+
+        # Check connectivity was added with FAILED outcome
+        assert ("node1", "node2") in graph._connectivity
+        assert graph._connectivity[("node1", "node2")] == Outcome.FAILED
+
+    def test_connect_with_node_objects(
+        self, pre_setup_graph_init, mock_library
+    ):
+        """Test that connect() works with node objects (not just strings)"""
+        (nodes, _, _, _) = pre_setup_graph_init
+        node1 = nodes["node1"]
+        node2 = nodes["node2"]
+
+        with QualibrationGraph.build(
+            name="test_graph",
+            parameters=MagicMock(spec=GraphParameters),
+        ) as graph:
+            graph.add_nodes(node1, node2)
+            graph.connect(node1, node2)
+
+        assert ("node1", "node2") in graph._connectivity
+        assert graph._connectivity[("node1", "node2")] == Outcome.SUCCESSFUL
+
+    def test_connect_on_failure_with_node_objects(
+        self, pre_setup_graph_init, mock_library
+    ):
+        """Test that connect_on_failure() works with node objects"""
+        (nodes, _, _, _) = pre_setup_graph_init
+        node1 = nodes["node1"]
+        node2 = nodes["node2"]
+
+        with QualibrationGraph.build(
+            name="test_graph",
+            parameters=GraphParameters(),
+        ) as graph:
+            graph.add_nodes(node1, node2)
+            graph.connect_on_failure(node1, node2)
+
+        assert ("node1", "node2") in graph._connectivity
+        assert graph._connectivity[("node1", "node2")] == Outcome.FAILED
+
+    def test_connect_raises_error_if_source_not_added(
+        self, pre_setup_graph_nodes, mock_library
+    ):
+        """Test that connect() raises KeyError if source node not added"""
+        nodes = pre_setup_graph_nodes
+
+        with (
+            pytest.raises(
+                KeyError, match="Both 'node1' and 'node2' must be added"
+            ),
+            QualibrationGraph.build(
+                name="test_graph",
+                parameters=GraphParameters(),
+            ) as graph,
+        ):
+            # Only add node2, not node1
+            graph.add_node(nodes["node2"])
+            graph.connect("node1", "node2")
+
+    def test_connect_raises_error_if_destination_not_added(
+        self, pre_setup_graph_nodes, mock_library
+    ):
+        """Test that connect() raises KeyError if destination node not added"""
+        nodes = pre_setup_graph_nodes
+
+        with (
+            pytest.raises(
+                KeyError, match="Both 'node1' and 'node2' must be added"
+            ),
+            QualibrationGraph.build(
+                name="test_graph",
+                parameters=GraphParameters(),
+            ) as graph,
+        ):
+            # Only add node1, not node2
+            graph.add_node(nodes["node1"])
+            graph.connect("node1", "node2")
+
+    def test_connect_idempotent(self, pre_setup_graph_init, mock_library):
+        """Test that calling connect() multiple
+        times on same edge is idempotent"""
+        (nodes, _, _, _) = pre_setup_graph_init
+
+        with QualibrationGraph.build(
+            name="test_graph",
+            parameters=GraphParameters(),
+        ) as graph:
+            graph.add_nodes(nodes["node1"], nodes["node2"])
+            graph.connect("node1", "node2")
+            graph.connect("node1", "node2")  # Call again
+
+        # Should still only have one edge
+        assert len(graph._connectivity) == 1
+        assert graph._connectivity[("node1", "node2")] == Outcome.SUCCESSFUL
+
+    def test_mixed_connect_and_connect_on_failure(
+        self, pre_setup_graph_init, mock_library
+    ):
+        """Test using both connect() and connect_on_failure() in same graph"""
+        (nodes, _, _, _) = pre_setup_graph_init
+        node1 = nodes["node1"]
+        node2 = nodes["node2"]
+
+        # Create a third node for this test
+        node3 = MagicMock(QualibrationNode)
+        node3.name = "node3"
+
+        with QualibrationGraph.build(
+            name="test_graph",
+            parameters=GraphParameters(),
+        ) as graph:
+            graph.add_nodes(node1, node2, node3)
+            graph.connect("node1", "node2")  # Success path
+            graph.connect_on_failure("node1", "node3")  # Failure path
+
+        # Check both edges exist with correct outcomes
+        assert len(graph._connectivity) == 2
+        assert graph._connectivity[("node1", "node2")] == Outcome.SUCCESSFUL
+        assert graph._connectivity[("node1", "node3")] == Outcome.FAILED
+
+    def test_build_context_manager_finalization(
+        self, pre_setup_graph_init, mock_library
+    ):
+        """Test that build() context manager properly finalizes graph"""
+        (nodes, _, _, _) = pre_setup_graph_init
+
+        # Before entering context, graph should not be finalized
+        graph = QualibrationGraph.build(
+            name="test_graph",
+            parameters=GraphParameters(),
+        )
+        assert graph._finalized is False
+
+        # After exiting context, graph should be finalized
+        with graph:
+            graph.add_nodes(nodes["node1"], nodes["node2"])
+            graph.connect("node1", "node2")
+
+        assert graph._finalized is True
+
+    def test_build_sets_building_flag(self, pre_setup_graph_init, mock_library):
+        """Test that _building flag is set correctly during build"""
+        (nodes, _, _, _) = pre_setup_graph_init
+
+        graph = QualibrationGraph.build(
+            name="test_graph",
+            parameters=GraphParameters(),
+        )
+
+        # Before entering context
+        assert graph._building is False
+
+        with graph:
+            # Inside context
+            assert graph._building is True
+            graph.add_nodes(nodes["node1"], nodes["node2"])
+
+        # After exiting context
+        assert graph._building is False
+
+    def test_connect_enforces_building_state(
+        self, pre_setup_graph_init, mock_library
+    ):
+        """Test that connect() requires graph to be in building state"""
+        (nodes, _, _, _) = pre_setup_graph_init
+
+        # Create finalized graph
+        graph = QualibrationGraph(
+            name="test_graph",
+            parameters=GraphParameters(),
+            nodes=nodes,
+            connectivity=[],
+        )
+
+        # Should not be able to connect after finalization
+        with pytest.raises(RuntimeError):
+            graph.connect("node1", "node2")
+
+    def test_connect_on_failure_enforces_building_state(
+        self, pre_setup_graph_init, mock_library
+    ):
+        """Test that connect_on_failure() requires
+        graph to be in building state"""
+        (nodes, _, _, _) = pre_setup_graph_init
+
+        # Create finalized graph
+        graph = QualibrationGraph(
+            name="test_graph",
+            parameters=GraphParameters(),
+            nodes=nodes,
+            connectivity=[],
+        )
+
+        # Should not be able to connect after finalization
+        with pytest.raises(RuntimeError):
+            graph.connect_on_failure("node1", "node2")
 
     def test__validate_graph_acyclic_with_cycle(
         self, mock_orchestrator, pre_setup_graph_init

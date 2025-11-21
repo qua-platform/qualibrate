@@ -1,34 +1,15 @@
-from collections.abc import Generator, Sequence
-from pathlib import Path
+from collections.abc import Sequence
 from typing import Any
 
-import pytest
-from pydantic import Field
-
+from qualibrate.models.node_status import ElementRunStatus
 from qualibrate.orchestration.qualibration_orchestrator import (
     QualibrationOrchestrator,
 )
 from qualibrate.parameters import (
     GraphParameters,
 )
-from qualibrate.qualibration_graph import NodeStatus, QualibrationGraph
+from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
-
-
-@pytest.fixture
-def qualibration_lib() -> Generator[QualibrationLibrary, None, None]:
-    cal_path = Path(__file__).parent / "calibrations"
-    tmp = QualibrationLibrary(cal_path)
-    yield tmp
-
-
-@pytest.fixture
-def graph_params() -> GraphParameters:
-    class GP(GraphParameters):
-        qubits: list[str] = Field(default_factory=list)
-        retries: int = 2
-
-    return GP(retries=1)
 
 
 class Orchestrator(QualibrationOrchestrator):
@@ -38,33 +19,13 @@ class Orchestrator(QualibrationOrchestrator):
         pass
 
 
-def test_export(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
-    g = QualibrationGraph(
-        "name",
-        graph_params,
-        dict(qualibration_lib.nodes.items_nocopy()),
-        [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
-    )
-    assert g.nx_graph_export(node_names_only=True) == {
-        "nodes": [
-            {"status": NodeStatus.pending, "retries": 0, "id": "test_node"},
-            {"status": NodeStatus.pending, "retries": 0, "id": "one_more_node"},
-            {"status": NodeStatus.pending, "retries": 0, "id": "test_cal"},
-        ],
-        # this is standard name so kept as is (not changed to
-        "adjacency": [[{"id": "one_more_node"}], [{"id": "test_cal"}], []],
-    }
-
-
 def test_serialize(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
     g = QualibrationGraph(
         "name",
         graph_params,
-        dict(qualibration_lib.nodes.items_nocopy()),
+        dict(qualibration_lib.nodes.items()),
         [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
         orchestrator=Orchestrator(),
         description="some description",
@@ -74,14 +35,14 @@ def test_serialize(
         "description": "some description",
         "orchestrator": {
             "__class__": (
-                "tests.unit.test_qualibration_graph.test_graph_export"
+                "tests.unit.test_qualibration_graph.test_graph_serialize"
                 ".Orchestrator"
             ),
             "parameters": {},
         },
         "nodes": {
             "test_node": {
-                "status": NodeStatus.pending,
+                "status": ElementRunStatus.pending,
                 "retries": 0,
                 "id": "test_node",
                 "name": "test_node",
@@ -107,7 +68,7 @@ def test_serialize(
                 },
             },
             "one_more_node": {
-                "status": NodeStatus.pending,
+                "status": ElementRunStatus.pending,
                 "retries": 0,
                 "id": "one_more_node",
                 "name": "one_more_node",
@@ -127,7 +88,7 @@ def test_serialize(
                 },
             },
             "test_cal": {
-                "status": NodeStatus.pending,
+                "status": ElementRunStatus.pending,
                 "retries": 0,
                 "id": "test_cal",
                 "name": "test_cal",
@@ -166,49 +127,3 @@ def test_serialize(
             },
         },
     }
-
-
-def test_cytoscape(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
-    g = QualibrationGraph(
-        "name",
-        graph_params,
-        dict(qualibration_lib.nodes.items_nocopy()),
-        [("test_node", "one_more_node"), ("one_more_node", "test_cal")],
-        orchestrator=Orchestrator(),
-    )
-
-    assert g.cytoscape_representation(g.serialize()) == [
-        {
-            "group": "nodes",
-            "data": {"id": "test_node"},
-            "position": {"x": 100, "y": 100},
-        },
-        {
-            "group": "nodes",
-            "data": {"id": "one_more_node"},
-            "position": {"x": 100, "y": 100},
-        },
-        {
-            "group": "nodes",
-            "data": {"id": "test_cal"},
-            "position": {"x": 100, "y": 100},
-        },
-        {
-            "group": "edges",
-            "data": {
-                "id": "test_node_one_more_node",
-                "source": "test_node",
-                "target": "one_more_node",
-            },
-        },
-        {
-            "group": "edges",
-            "data": {
-                "id": "one_more_node_test_cal",
-                "source": "one_more_node",
-                "target": "test_cal",
-            },
-        },
-    ]
