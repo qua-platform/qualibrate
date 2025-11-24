@@ -81,12 +81,10 @@ export const setSubgraph = () => (dispatch: RootDispatch, getState: () => RootSt
     return;
   }
 
-  let graph = workflowElements;
-
-  for (const key of subgraphBreadcrumbs) {
-    const node = graph.nodes.find(node => node.id === key);
-    if (node && node.data.subgraph) graph = node.data.subgraph;
-  }
+  const graph = subgraphBreadcrumbs.reduce((currentGraph, key) => {
+    const node = currentGraph.nodes.find(n => n.id === key);
+    return node?.data.subgraph ?? currentGraph;
+  }, workflowElements);
 
   dispatch(layoutAndSetNodesAndEdges(graph));
 };

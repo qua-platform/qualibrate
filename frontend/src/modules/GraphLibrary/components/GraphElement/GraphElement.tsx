@@ -168,12 +168,14 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
           </div>
         </div>
         &nbsp; &nbsp; &nbsp; &nbsp;
-        <div className={styles.rightContainer}>
-          {show && <SubgraphBreadcrumbs />}
-          {calibrationGraph?.description && (
-            <div>{calibrationGraph?.description}</div>
-          )}
-        </div>
+        {(show || calibrationGraph?.description) &&
+          <div className={styles.rightContainer}>
+            {show && <SubgraphBreadcrumbs />}
+            {calibrationGraph?.description && (
+              <div>{calibrationGraph?.description}</div>
+            )}
+          </div>
+        }
       </div>
       <div className={styles.bottomContainer}>
         <div className={styles.parametersContainer}>
