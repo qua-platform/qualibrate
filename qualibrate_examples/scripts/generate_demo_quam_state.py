@@ -31,19 +31,12 @@ def main():
 
     # Save the state
     print(f"Saving state to {state_dir}...")
-    quam.save(state_dir, content_mapping={"wiring.json": "wiring"})
-
-    # Also save QUA config for reference
-    qua_config_file = state_dir / "qua_config.json"
-    qua_config = quam.generate_config()
-    with qua_config_file.open("w") as f:
-        json.dump(qua_config, f, indent=4)
+    quam.save(state_dir, content_mapping={"wiring": "wiring.json"})
 
     print("Demo state created successfully!")
     print(f"\nState files:")
     print(f"  - {state_dir / 'state.json'}")
     print(f"  - {state_dir / 'wiring.json'}")
-    print(f"  - {state_dir / 'qua_config.json'}")
     print("\nTo load the state in your calibration:")
     print("  from quam.examples.superconducting_qubits.components import Quam")
     print(f"  state = Quam.load('{state_dir}')")

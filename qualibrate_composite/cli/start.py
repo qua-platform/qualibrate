@@ -30,7 +30,6 @@ def _setup_demo_on_first_run(config_path: Path) -> None:
         return
 
     demo_calibrations_dest = qualibrate_path / "demo_calibrations"
-    demo_state_dest = qualibrate_path / "demo_quam_state"
     demo_project_config_path = (
         projects_path / "demo_project" / "config.toml"
     )
@@ -41,7 +40,6 @@ def _setup_demo_on_first_run(config_path: Path) -> None:
 
         examples_path = Path(qualibrate_examples.__file__).parent
         calibrations_src = examples_path / "calibrations"
-        demo_state_src = examples_path / "quam_state"
 
         # Copy demo calibrations if they don't already exist
         if not demo_calibrations_dest.exists():
@@ -53,24 +51,32 @@ def _setup_demo_on_first_run(config_path: Path) -> None:
                     f"Warning: Demo calibrations not found at {calibrations_src}"
                 )
 
-        # Copy demo state files if they don't already exist
-        if not demo_state_dest.exists():
-            if demo_state_src.exists():
-                shutil.copytree(demo_state_src, demo_state_dest)
-                click.echo(f"Copied demo state to {demo_state_dest}")
-            else:
-                click.echo(f"Warning: Demo state not found at {demo_state_src}")
-
         # Create or update demo_project config with calibration_library override
         demo_project_config_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Write the demo_project config with overrides
         demo_config_content = f"""[qualibrate.calibration_library]
 folder = "{demo_calibrations_dest}"
-
+"""
+        try:
+            import quam
+            demo_state_dest = qualibrate_path / "demo_quam_state"
+            demo_state_src = examples_path / "demo_quam_state"
+            # Copy demo state files if they don't already exist
+            if not demo_state_dest.exists():
+                if demo_state_src.exists():
+                    shutil.copytree(demo_state_src, demo_state_dest)
+                    click.echo(f"Copied demo state to {demo_state_dest}")
+                else:
+                    click.echo(f"Warning: Demo state not found at {demo_state_src}")
+            
+            demo_config_content += f"""
 [quam]
 state_path = "{demo_state_dest}"
 """
+        except ImportError:
+            click.echo("Warning: quam package not found. Skipping demo quam state setup.")
+
         demo_project_config_path.write_text(demo_config_content)
         click.echo(f"Created demo project config at {demo_project_config_path}")
 
