@@ -775,43 +775,58 @@ class QualibrationGraph(
 
     @ensure_finalized
     def serialize(self, /, **kwargs: Any) -> Mapping[str, Any]:
-        data = self.__serialize_data(**kwargs)
-        data['flow'] = self.__serialize_flow()
-        return data
+        return self.__serialize_data(**kwargs)
 
-
-    def __serialize_flow(self, counter=None):
-        flow_dict = defaultdict(list)
+    def serialize_cytoscape(self, counter=None):
         if counter is None:
-            counter = {"id" : 0}
-        nx_data: dict[str, Any] = dict(
-            self.__class__.nx_graph_export(self._graph, node_names_only=True)
-        )
-        for node, adjacency in zip(
-            nx_data.pop("nodes"), nx_data.pop("adjacency"), strict=False
-        ):
-            subgraph_data = {}
+            counter = {"id": 0}
+
+        flow_dict = defaultdict(list)
+
+        nx_data = dict(self.__class__.nx_graph_export(self._graph, node_names_only=True))
+
+        nodes_raw = nx_data.get("nodes")
+        adj_raw = nx_data.get("adjacency")
+
+        nx_data.pop("nodes", None)
+        nx_data.pop("adjacency", None)
+
+
+        name_identifier_dict = {}
+        for node in nodes_raw:
             node_name = node["id"]
+            counter["id"] += 1
+            name_identifier_dict[node_name] = counter["id"]
+
+
+        for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
+            node_name = node["id"]
+            node_id = name_identifier_dict[node_name]
+
             element = self._elements[node_name]
+            subgraph_data = {}
+
             if isinstance(element, QualibrationGraph):
-                subgraph_data = {"subgraph": element.__serialize_flow(counter = counter)}
-            counter['id'] += 1
+                subgraph_data["subgraph"] = element.serialize_flow(counter=counter)
 
             flow_dict["nodes"].append({
-                "id": counter['id'],
-                "data": {"label": node_name, **subgraph_data}
+                "id": node_id,
+                "data": {"label": node_name, **subgraph_data},
             })
+
             for adj in adjacency:
+                target_name = adj["id"]
+
                 flow_dict["edges"].append({
-                    "id": f'{node_name} -> {adj["id"]}',
-                    "source": node_name,
-                    "target": adj["id"],
-                    "data": {"condition": adj.get("condition", Outcome.SUCCESSFUL)}
+                    "id": f"{node_id}->{name_identifier_dict[target_name]}",
+                    "source": node_id,
+                    "target": name_identifier_dict[target_name],
+                    "data": {
+                        "condition": adj.get("condition", Outcome.SUCCESSFUL),
+                    },
                 })
-            # Convert defaultdict → normal dict for serialization
-        return  {k: v for k, v in flow_dict.items()}
 
-
+        return dict(flow_dict)
 
 
     def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
