@@ -33,7 +33,7 @@ def get_graphs(
     cytoscape: bool = False,
 ) -> Mapping[str, Any]:
     return {
-        graph_name: graph.serialize(cytoscape=cytoscape)
+        graph_name: graph.serialize(cytoscape=cytoscape,)
         for graph_name, graph in graphs.items_nocopy()
     }
 
@@ -56,5 +56,5 @@ def get_graph(
 @get_runnables_router.get("/get_graph/cytoscape")
 def get_graph_cytoscape(
     graph: Annotated[QGraphType, Depends(get_qgraph)],
-) -> Sequence[Mapping[str, Any]]:
-    return graph.cytoscape_representation(graph.serialize())
+) -> Mapping[str, Any]:
+    return graph.serialize_cytoscape()
