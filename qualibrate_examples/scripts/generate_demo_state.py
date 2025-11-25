@@ -7,7 +7,7 @@ can be loaded and used in QUAlibrate calibration examples.
 Usage:
     python -m qualibrate_examples.scripts.generate_demo_state
 
-The state will be saved to: qualibrate_examples/demo_state/
+The state will be saved to: qualibrate_examples/demo_quam_state/
 """
 from pathlib import Path
 import json
@@ -22,7 +22,7 @@ def main():
     """Generate and save demo QUAM state."""
     # Get the package directory
     package_dir = Path(__file__).parent.parent
-    state_dir = package_dir / "demo_state"
+    state_dir = package_dir / "demo_quam_state"
     state_dir.mkdir(exist_ok=True)
 
     # Create QUAM with 3 qubits (q0, q1, q2)

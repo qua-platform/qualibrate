@@ -22,10 +22,17 @@ def _setup_demo_on_first_run(config_path: Path) -> None:
         config_path: Path to the config file (used to determine qualibrate_path)
     """
     qualibrate_path = config_path.parent
+    projects_path = qualibrate_path / "projects"
+
+    # Check if there are any existing projects
+    if projects_path.exists() and any(projects_path.iterdir()):
+        click.echo("Existing projects found. Skipping demo project setup.")
+        return
+
     demo_calibrations_dest = qualibrate_path / "demo_calibrations"
     demo_state_dest = qualibrate_path / "demo_quam_state"
     demo_project_config_path = (
-        qualibrate_path / "projects" / "demo_project" / "config.toml"
+        projects_path / "demo_project" / "config.toml"
     )
 
     try:
