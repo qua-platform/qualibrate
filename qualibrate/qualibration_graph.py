@@ -777,6 +777,7 @@ class QualibrationGraph(
     def serialize(self, /, **kwargs: Any) -> Mapping[str, Any]:
         return self.__serialize_data(**kwargs)
 
+    @ensure_finalized
     def serialize_cytoscape(self, counter=None):
         if counter is None:
             counter = {"id": 0}
