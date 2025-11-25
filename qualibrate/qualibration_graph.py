@@ -822,7 +822,7 @@ class QualibrationGraph(
                     "source": node_id,
                     "target": name_identifier_dict[target_name],
                     "data": {
-                        "condition": adj.get("condition", Outcome.SUCCESSFUL),
+                        "condition": True if adj.get("condition", Outcome.SUCCESSFUL) == Outcome.SUCCESSFUL else False,
                     },
                 })
 
