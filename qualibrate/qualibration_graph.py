@@ -1,5 +1,6 @@
 import copy
 import traceback
+from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from contextvars import Token
 from datetime import datetime
@@ -774,6 +775,46 @@ class QualibrationGraph(
 
     @ensure_finalized
     def serialize(self, /, **kwargs: Any) -> Mapping[str, Any]:
+        data = self.__serialize_data(**kwargs)
+        data['flow'] = self.__serialize_flow()
+        return data
+
+
+    def __serialize_flow(self, counter=None):
+        flow_dict = defaultdict(list)
+        if counter is None:
+            counter = {"id" : 0}
+        nx_data: dict[str, Any] = dict(
+            self.__class__.nx_graph_export(self._graph, node_names_only=True)
+        )
+        for node, adjacency in zip(
+            nx_data.pop("nodes"), nx_data.pop("adjacency"), strict=False
+        ):
+            subgraph_data = {}
+            node_name = node["id"]
+            element = self._elements[node_name]
+            if isinstance(element, QualibrationGraph):
+                subgraph_data = {"subgraph": element.__serialize_flow(counter = counter)}
+            counter['id'] += 1
+
+            flow_dict["nodes"].append({
+                "id": counter['id'],
+                "data": {"label": node_name, **subgraph_data}
+            })
+            for adj in adjacency:
+                flow_dict["edges"].append({
+                    "id": f'{node_name} -> {adj["id"]}',
+                    "source": node_name,
+                    "target": adj["id"],
+                    "data": {"condition": adj.get("condition", Outcome.SUCCESSFUL)}
+                })
+            # Convert defaultdict → normal dict for serialization
+        return  {k: v for k, v in flow_dict.items()}
+
+
+
+
+    def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """
         Serializes the graph into a dictionary format.
 
@@ -816,7 +857,7 @@ class QualibrationGraph(
             # TODO: simplify node name
             additional: dict[str, Any] = {"name": node_id}
             if isinstance(element, QualibrationGraph):
-                additional.update(element.serialize(**kwargs))
+                additional.update(element.__serialize_data(**kwargs))
             else:
                 additional["parameters"] = parameters["nodes"][node["id"]]
             node.update(additional)

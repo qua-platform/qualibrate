@@ -12,6 +12,7 @@ from typing import (
 
 import networkx as nx
 
+from qualibrate.models.outcome import Outcome
 from qualibrate.parameters import RunnableParameters
 from qualibrate.q_runnnable import QRunnable
 
@@ -113,6 +114,45 @@ class GraphExportMixin(Generic[GraphElementTypeVar]):
                     adj["id"] = adj["id"].name
         return data
 
+    @staticmethod
+    def flow_representation(
+            serialized: Mapping[str, Any],
+            edges: Mapping[tuple[int,str], Any],
+            is_element_graph: Mapping[str, bool],
+    ):
+        """edges[node_name] : adjecencies"""
+        nodes = []
+        edges_to_return = []
+        for node in serialized["nodes"]:
+            subgraph_data = {}
+            if is_element_graph[node]:
+                subgraph_data = {"subgraph": GraphExportMixin.flow_representation(
+                    serialized["nodes"][node], edges, is_element_graph
+                )}
+
+            nodes.append({
+                "id": node,
+                "data": {"label": node, **subgraph_data}
+            })
+
+            for destination in edges[node]:
+                edges_to_return.append({
+                    "id": f"{node}->{destination['id']}",
+                    "source": node,
+                    "destination": destination["id"],
+                    "data": {"condition": True if destination["scenario"] == Outcome.SUCCESSFUL else False},
+                })
+        return {"nodes": nodes, "edges": edges_to_return}
+        # edges = []
+        # for source, destination in serialized["edges"]:
+        #     edges.append({
+        #         "id": f'{source}->{destination}',
+        #         "source": source,
+        #         "destination": destination,
+        #         "data": {
+        #             "condition": edges[source]["scenario"],
+        #         }
+        #     })
     @staticmethod
     def cytoscape_representation(
         serialized: Mapping[str, Any],
