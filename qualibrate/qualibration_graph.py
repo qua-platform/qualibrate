@@ -807,7 +807,7 @@ class QualibrationGraph(
             subgraph_data = {}
 
             if isinstance(element, QualibrationGraph):
-                subgraph_data["subgraph"] = element.serialize_flow(counter=counter)
+                subgraph_data["subgraph"] = element.serialize_cytoscape(counter=counter)
 
             flow_dict["nodes"].append({
                 "id": node_id,
