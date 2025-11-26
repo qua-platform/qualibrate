@@ -7,7 +7,7 @@ class Parameters(NodeParameters):
     qubits: list[str] = Field(default_factory=list)
 
     str_value: str = "test"
-    float_value: float = 1.0
+    float_value: float = 1
 
 
 node = QualibrationNode("one_more_node", parameters=Parameters())
