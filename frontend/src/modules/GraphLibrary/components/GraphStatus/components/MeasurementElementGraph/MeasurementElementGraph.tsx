@@ -76,7 +76,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ onNodeClick }) => {
             </div>
           </div>
           <div className={styles.lowerLowerContainer}>
-            <SubgraphBreadcrumbs />
+            <SubgraphBreadcrumbs className={styles.subgraphBreadcrumbs} />
             <Graph onNodeClick={onNodeClick} />
           </div>
         </div>
