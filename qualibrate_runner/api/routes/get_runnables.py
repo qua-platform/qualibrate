@@ -1,4 +1,4 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
@@ -30,10 +30,12 @@ def get_nodes(
 @get_runnables_router.get("/get_graphs")
 def get_graphs(
     graphs: Annotated[RunnableCollection[str, QNodeType], Depends(get_qgraphs)],
-    cytoscape: bool = False
+    cytoscape: bool = False,
 ) -> Mapping[str, Any]:
     return {
-        graph_name: graph.serialize(cytoscape=cytoscape,)
+        graph_name: graph.serialize(
+            cytoscape=cytoscape,
+        )
         for graph_name, graph in graphs.items_nocopy()
     }
 
