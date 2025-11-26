@@ -157,9 +157,9 @@ describe("Graph - ReactFlow Integration Tests", () => {
 
     // Verify all nodes render
     await waitFor(() => {
-      expect(screen.getByText("root")).toBeInTheDocument();
-      expect(screen.getByText("a1")).toBeInTheDocument();
-      expect(screen.getByText("merge")).toBeInTheDocument();
+      expect(screen.getByText("Root")).toBeInTheDocument();
+      expect(screen.getByText("A1")).toBeInTheDocument();
+      expect(screen.getByText("Merge")).toBeInTheDocument();
     });
 
     // Verify correct number of edges in store
