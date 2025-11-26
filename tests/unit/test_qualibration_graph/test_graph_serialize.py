@@ -133,7 +133,7 @@ def test_serialize_with_nested_graphs(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
     g = qualibration_lib.graphs["workflow_top"]
-    assert g.serialize_cytoscape() == {
+    assert g.serialize_graph_representation() == {
         "nodes": [
             {
                 "id": 1,
@@ -172,7 +172,7 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
     g = qualibration_lib.graphs["workflow_top_connect_on_failure"]
-    assert g.serialize_cytoscape() == {
+    assert g.serialize_graph_representation() == {
         "nodes": [
             {
                 "id": 1,

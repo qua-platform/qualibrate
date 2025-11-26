@@ -1,7 +1,7 @@
 import copy
 import traceback
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Generator, Mapping, Sequence
 from contextvars import Token
 from datetime import datetime
 from pathlib import Path
@@ -777,9 +777,34 @@ class QualibrationGraph(
     def serialize(self, /, **kwargs: Any) -> Mapping[str, Any]:
         return self.__serialize_data(**kwargs)
 
+    @staticmethod
+    def _id_generator(start: int = 1) -> Generator[int]:
+        """Generates unique id numbers for nodes in order to
+        serialize nested graphs."""
+        current = start
+        while True:
+            yield current
+            current += 1
+
+    def __create_node_identifier(
+        self,
+        nodes_raw: list[dict[str, Any]],
+        id_gen: Generator[int, None, None],
+    ) -> dict[str, int]:
+        """
+        Assign a unique integer ID
+        to each node in nodes_raw using the provided generator.
+        """
+        return {node["id"]: next(id_gen) for node in nodes_raw}
+
     @ensure_finalized
-    def serialize_cytoscape(self, identifier: int = 0) -> Mapping[str, Any]:
+    def serialize_graph_representation(
+        self, id_gen: Generator[int, None, None] | None = None
+    ) -> Mapping[str, Any]:
         flow_dict = defaultdict(list)
+
+        if id_gen is None:
+            id_gen = self._id_generator(1)
 
         nx_data = dict(
             self.__class__.nx_graph_export(self._graph, node_names_only=True)
@@ -788,11 +813,7 @@ class QualibrationGraph(
         nodes_raw = nx_data.pop("nodes")
         adj_raw = nx_data.pop("adjacency")
 
-        name_identifier_dict = {}
-        for node in nodes_raw:
-            node_name = node["id"]
-            identifier += 1
-            name_identifier_dict[node_name] = identifier
+        name_identifier_dict = self.__create_node_identifier(nodes_raw, id_gen)
 
         for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
             node_name = node["id"]
@@ -802,8 +823,8 @@ class QualibrationGraph(
             subgraph_data = {}
 
             if isinstance(element, QualibrationGraph):
-                subgraph_data["subgraph"] = element.serialize_cytoscape(
-                    identifier=identifier
+                subgraph_data["subgraph"] = (
+                    element.serialize_graph_representation(id_gen)
                 )
 
             flow_dict["nodes"].append(
