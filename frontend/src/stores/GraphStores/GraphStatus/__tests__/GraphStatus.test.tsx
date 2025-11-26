@@ -69,28 +69,21 @@ vi.mock("../../../../modules/common/context/SelectionContext", async () => {
   };
 });
 
-const mockNodes = [
-  {
-    group: "nodes",
-    data: {
-      id: "test_node"
+const mockNodes = {
+  nodes: [
+    {
+      id: "test_node",
+      data: { label: "test_node" },
+      position: { x: 100, y: 100 }
     },
-    position: {
-      x: 100,
-      y: 100
-    }
-  },
-  {
-    group: "nodes",
-    data: {
-      id: "another_node"
+    {
+      id: "another_node",
+      data: { label: "another_node" },
+      position: { x: 100, y: 100 }
     },
-    position: {
-      x: 100,
-      y: 100
-    }
-  }
-];
+  ],
+  edges: []
+};
 
 describe("GraphStatus - Context Coordination", () => {
   const mockMeasurements: Measurement[] = [

@@ -32,9 +32,9 @@ describe("ReactFlow Element Builders", () => {
     it("should create nodes with labels", () => {
       const { nodes } = createSimpleGraph();
 
-      expect(nodes[0].data.label).toBe("Node 1");
-      expect(nodes[1].data.label).toBe("Node 2");
-      expect(nodes[2].data.label).toBe("Node 3");
+      expect(nodes[0].data.label).toBe("node1");
+      expect(nodes[1].data.label).toBe("node2");
+      expect(nodes[2].data.label).toBe("node3");
     });
 
     it("should create edges with correct source and target", () => {

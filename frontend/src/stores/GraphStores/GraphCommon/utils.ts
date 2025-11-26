@@ -1,5 +1,6 @@
+import { FetchGraphResponse } from "@/modules/GraphLibrary/api/GraphLibraryApi";
 import { DEFAULT_NODE_TYPE } from "../../../modules/GraphLibrary/components/Graph/Graph";
-import { Edge, Node } from "@xyflow/react";
+import { Node } from "@xyflow/react";
 import ELK from "elkjs/lib/elk.bundled.js";
 
 const elk = new ELK();
@@ -13,12 +14,13 @@ const layoutOptions = {
   "elk.layered.wrapping.strategy": "SINGLE_EDGE"
 };
 
-export const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+export const getLayoutedElements = ({ nodes, edges }: FetchGraphResponse) => {
   const graph = {
     id: "root",
     layoutOptions,
     children: nodes.map((node) => ({
       ...node,
+      id: String(node.id),
       targetPosition: "left",
       sourcePosition: "right",
 
@@ -28,8 +30,11 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
     })),
     edges: edges.map(edge => ({
       ...edge,
-      sources: [ edge.source ],
-      targets: [ edge.target ],
+      id: String(edge.id),
+      source: String(edge.source),
+      target: String(edge.target),
+      sources: [ String(edge.source) ],
+      targets: [ String(edge.target) ],
     })),
   };
 

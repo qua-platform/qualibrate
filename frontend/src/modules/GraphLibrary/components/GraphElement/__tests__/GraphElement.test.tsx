@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import React from "react";
+import React, { act } from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { GraphElement } from "../GraphElement";
 import { createTestProviders } from "@/test-utils/providers";
@@ -20,6 +20,29 @@ vi.mock("../../Graph/Graph", () => ({
   ),
   DEFAULT_NODE_TYPE: "DefaultNode",
 }));
+
+const mockCytoscapeResponce = {
+  nodes: [
+    {
+      id: "node1",
+      data: { label: "node1" },
+      position: { x: 0, y: 0 }
+    },
+    {
+      id: "node2",
+      data: { label: "node2" },
+      position: { x: 100, y: 0 }
+    }
+  ],
+  "edges": [
+    {
+      source: "node1",
+      target: "node2",
+      id: "edge1",
+      data: { condition: true },
+    }
+  ],
+};
 
 describe("GraphElement - Parameter Management", () => {
   const mockGraph = {
@@ -74,11 +97,7 @@ describe("GraphElement - Parameter Management", () => {
         });
       }),
       http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
-        return HttpResponse.json([
-          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
-          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
-          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
-        ]);
+        return HttpResponse.json(mockCytoscapeResponce);
       })
     );
   });
@@ -245,11 +264,7 @@ describe("GraphElement - Workflow Submission", () => {
         });
       }),
       http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
-        return HttpResponse.json([
-          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
-          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
-          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
-        ]);
+        return HttpResponse.json(mockCytoscapeResponce);
       })
     );
   });
@@ -438,11 +453,7 @@ describe("GraphElement - UI Interactions", () => {
         });
       }),
       http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
-        return HttpResponse.json([
-          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
-          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
-          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
-        ]);
+        return HttpResponse.json(mockCytoscapeResponce);
       })
     );
   });
@@ -452,11 +463,7 @@ describe("GraphElement - UI Interactions", () => {
       .fn()
       .mockResolvedValue({
         isOk: true,
-        result: [
-          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
-          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
-          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
-        ],
+        result: mockCytoscapeResponce,
       });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
@@ -524,11 +531,7 @@ describe("GraphElement - UI Interactions", () => {
       .fn()
       .mockResolvedValue({
         isOk: true,
-        result: [
-          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
-          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
-          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
-        ],
+        result: mockCytoscapeResponce,
       });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
@@ -557,7 +560,7 @@ describe("GraphElement - UI Interactions", () => {
       },
     });
     //TODO: mock WebSocket event
-    mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    act(() => mockStore.dispatch(setSelectedWorkflowName("test_workflow")));
 
     const { container } = render(
       <Providers>
@@ -596,11 +599,7 @@ describe("GraphElement - Error Handling", () => {
         });
       }),
       http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
-        return HttpResponse.json([
-          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
-          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
-          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
-        ]);
+        return HttpResponse.json(mockCytoscapeResponce);
       })
     );
   });
