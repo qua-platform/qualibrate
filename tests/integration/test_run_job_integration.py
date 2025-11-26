@@ -277,3 +277,194 @@ class TestParametricBehavior:
 
         # Namespace from successful run should still be present
         assert successful_run_keys.issubset(set(node.namespace.keys()))
+
+
+class TestErrorMessaging:
+    """Integration tests for improved error messaging"""
+
+    def test_error_details_for_action_failure(self, test_library, fresh_state):
+        """Test error details when error occurs in action (inside library error)."""
+        node = test_library.nodes["node_with_actions"]
+
+        # Trigger error from inside XarrayDataFetcher
+        params = {"trigger_deep_error": True}
+
+        with pytest.raises(KeyError):
+            run_node(node, params, fresh_state)
+
+        # Verify error was captured
+        assert fresh_state.last_run.status == RunStatusEnum.ERROR
+        assert fresh_state.last_run.error is not None
+        error = fresh_state.last_run.error
+
+        # Test CURRENT state
+        assert error.details_headline is not None
+        assert error.details is not None
+        assert len(error.traceback) > 0
+        assert "execute_qua_program" in error.details_headline
+
+        assert "execute_qua_program" in error.details
+        assert "Completed actions" in error.details
+        assert "prepare_data" in error.details
+        assert "process_data" in error.details
+
+        # 4. Details should contain simplified traceback (simple format, no code blocks)
+        assert "Traceback:" in error.details
+        # Should NOT contain framework files in simplified version
+        assert "action_manager.py" not in error.details
+        assert "action.py" not in error.details
+
+        # 5. Details should contain source snippet (simple format, no code blocks)
+        assert "Source Code:" in error.details
+
+        # 6. Full traceback should be preserved
+        assert len(error.traceback) > 5  # Should have many frames
+        # Full traceback SHOULD contain framework files
+        traceback_str = "".join(error.traceback)
+        assert (
+            "action_manager.py" in traceback_str
+            or "action.py" in traceback_str
+        )
+
+    def test_error_details_for_body_failure(self, test_library, fresh_state):
+        """Test error details when error occurs in node body (not in action)."""
+        node = test_library.nodes["node_raises_in_body"]
+
+        # Trigger error in node body
+        params = {
+            "should_fail": True,
+            "error_message": "Test error from body",
+            "error_type": "ValueError",
+        }
+
+        with pytest.raises(ValueError, match="Test error from body"):
+            run_node(node, params, fresh_state)
+
+        # Verify error was captured
+        assert fresh_state.last_run.status == RunStatusEnum.ERROR
+        assert fresh_state.last_run.error is not None
+        error = fresh_state.last_run.error
+
+        # 1. Headline should indicate body error (no action)
+        assert "body" in error.details_headline or "initialization" in error.details_headline
+
+        # 2. Details should NOT contain action execution summary
+        # (since no actions were used)
+        assert "Completed actions" not in error.details or "prepare_data" not in error.details
+
+        # 3. Details should contain source snippet from node file (simple format)
+        assert "Source Code:" in error.details
+
+        # 4. Details should contain simplified traceback (simple format)
+        assert "Traceback:" in error.details
+        # Body errors should not have action framework in simplified version
+        assert "action_manager.py" not in error.details
+
+    def test_error_details_with_action_history(
+        self, test_library, fresh_state
+    ):
+        """Test error details include completed and skipped actions."""
+        node = test_library.nodes["node_with_actions"]
+
+        # Trigger error with some actions completed and some skipped
+        params = {
+            "update_state": False,  # This action will be skipped
+            "trigger_error": True,  # This will cause the error
+        }
+
+        with pytest.raises(ValueError):
+            run_node(node, params, fresh_state)
+
+        # Verify error was captured
+        assert fresh_state.last_run.status == RunStatusEnum.ERROR
+        error = fresh_state.last_run.error
+
+        # 1. Should show completed actions before the error
+        assert "Completed actions" in error.details
+        assert "prepare_data" in error.details
+        assert "process_data" in error.details
+
+        # 2. Should show skipped actions
+        assert "Skipped actions" in error.details
+        assert "update_machine_state" in error.details
+
+        # 3. Should show which action failed (simple format)
+        assert "process_data_with_error" in error.details
+
+    def test_error_details_for_action_with_subroutine(
+        self, test_library, fresh_state
+    ):
+        """Test error in subroutine called by action shows full call chain."""
+        node = test_library.nodes["node_with_subroutine"]
+
+        # Trigger error in helper_function (subroutine)
+        params = {"trigger_subroutine_error": True}
+
+        with pytest.raises(IndexError):
+            run_node(node, params, fresh_state)
+
+        # Verify error was captured
+        assert fresh_state.last_run.status == RunStatusEnum.ERROR
+        error = fresh_state.last_run.error
+
+        # 1. Headline should mention the action (not the subroutine)
+        assert "process_with_subroutine" in error.details_headline
+
+        # 2. Simplified traceback should show BOTH the action AND the subroutine (simple format)
+        assert "Traceback:" in error.details
+        # Should include the action function
+        assert "process_with_subroutine" in error.details
+        # Should include the subroutine
+        assert "helper_function" in error.details
+
+        # 3. Source snippet should show the subroutine (where error occurred, simple format)
+        assert "Source Code:" in error.details
+        # The error occurs at: result = data[num_points]
+        # So the snippet should show this line
+
+        # 4. Simplified traceback should NOT include framework code
+        assert "action_manager.py" not in error.details
+
+        # 5. Full traceback should be preserved with all frames
+        assert len(error.traceback) > 5
+
+    def test_error_headline_for_action(self, test_library, fresh_state):
+        """Test headline format for action errors."""
+        node = test_library.nodes["node_with_actions"]
+
+        params = {
+            "trigger_error": True,
+            "error_message": "Custom error message for testing",
+        }
+
+        with pytest.raises(ValueError):
+            run_node(node, params, fresh_state)
+
+        error = fresh_state.last_run.error
+        headline = error.details_headline
+        assert "process_data_with_error" in headline
+
+        # Should indicate it's in an action
+        assert "action" in headline
+
+    def test_error_headline_for_body(self, test_library, fresh_state):
+        """Test headline format for body/initialization errors."""
+        node = test_library.nodes["node_raises_in_body"]
+
+        params = {
+            "should_fail": True,
+            "error_message": "Body error message",
+            "error_type": "RuntimeError",
+        }
+
+        with pytest.raises(RuntimeError):
+            run_node(node, params, fresh_state)
+
+        error = fresh_state.last_run.error
+        headline = error.details_headline
+
+        # Should indicate location (body or initialization)
+        assert "body" in headline or "initialization" in headline
+
+        # Should NOT mention an action name (since it's not in an action)
+        assert "action" not in headline or "initialization" in headline
