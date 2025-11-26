@@ -32,7 +32,7 @@ export const ResultsError: React.FC<{ style?: React.CSSProperties; errorObject: 
         {(errorObject.details_headline || errorObject.details) && (
           <div>
             {errorObject.details_headline && <div className={styles.errorLabel}>{errorObject.details_headline}</div>}
-            {errorObject.details && <div className={styles.errorText}>{errorObject.details}</div>}
+            {errorObject.details && <div className={styles.errorText} style={{ whiteSpace: "pre-wrap" }}>{errorObject.details}</div>}
           </div>
         )}
         {hasTraceback && (

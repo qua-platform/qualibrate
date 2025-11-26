@@ -1,6 +1,6 @@
 import { Node, Edge, MarkerType } from "@xyflow/react";
 
-export const DEFAULT_NODE_TYPE = "default";
+export const DEFAULT_NODE_TYPE = "DefaultNode";
 
 /**
  * Creates a simple 3-node linear graph for basic testing.

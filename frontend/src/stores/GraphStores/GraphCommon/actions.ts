@@ -3,6 +3,7 @@ import { RootDispatch, RootState } from "../../";
 import { commonGraphSlice } from "./GraphCommonStore";
 import { getLayoutedElements } from "./utils";
 import { getSubgraphBreadcrumbs, getUnformattedWorkflowElements } from "./selectors";
+// import {createSimpleNestedGraph} from "../../../test-utils/builders/cytoscapeElements";
 
 export const {
   setSelectedWorkflowName,
@@ -16,17 +17,14 @@ export const {
   setSubgraphBack,
 } = commonGraphSlice.actions;
 
-export const layoutAndSetNodesAndEdges = (data: FetchGraphResponse) =>
-  (dispatch: RootDispatch) =>
-    getLayoutedElements(data).then(
-      (res) => {
-        if (res) {
-          dispatch(setNodes(res.nodes));
-          dispatch(setEdges(res.edges));
-          dispatch(setShouldResetView(true));
-        }
-      },
-    );
+export const layoutAndSetNodesAndEdges = (data: FetchGraphResponse) => (dispatch: RootDispatch) =>
+  getLayoutedElements(data).then((res) => {
+    if (res) {
+      dispatch(setNodes(res.nodes));
+      dispatch(setEdges(res.edges));
+      dispatch(setShouldResetView(true));
+    }
+  });
 
 export const fetchWorkflowGraph = (nodeName: string) => async (dispatch: RootDispatch, getState: () => RootState) => {
   const response = await GraphLibraryApi.fetchGraph(nodeName);
@@ -60,7 +58,7 @@ export const setSubgraph = () => (dispatch: RootDispatch, getState: () => RootSt
   }
 
   const graph = subgraphBreadcrumbs.reduce((currentGraph, key) => {
-    const node = currentGraph.nodes.find(n => n.data.label === key);
+    const node = currentGraph.nodes.find((n) => n.data.label === key);
     return node?.data.subgraph ?? currentGraph;
   }, workflowElements);
 

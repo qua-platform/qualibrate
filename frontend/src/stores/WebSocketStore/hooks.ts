@@ -1,5 +1,11 @@
 import { useEffect, useRef } from "react";
-import { handleHideConnectionErrorDialog, handleSetRunStatus, handleShowConnectionErrorDialog, setConnectionLostSeconds, setHistory } from "./actions";
+import {
+  handleHideConnectionErrorDialog,
+  handleSetRunStatus,
+  handleShowConnectionErrorDialog,
+  setConnectionLostSeconds,
+  setHistory,
+} from "./actions";
 import { useRootDispatch } from "..";
 import { useSelector } from "react-redux";
 import { getConnectionLostAt, getShowConnectionErrorDialog } from "./selectors";
@@ -33,7 +39,7 @@ export const useInitWebSocket = () => {
 
   const handleSetHistory = (history: HistoryType) => {
     dispatch(setHistory(history));
-    dispatch(setAllMeasurements(history.items));
+    dispatch(setAllMeasurements(history?.items));
   };
 
   // Establish WebSocket connections on mount, disconnect on unmount
