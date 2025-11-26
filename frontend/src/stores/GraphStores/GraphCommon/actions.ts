@@ -33,14 +33,14 @@ export const fetchWorkflowGraph = (nodeName: string) => async (dispatch: RootDis
 
     dispatch(setUnformattedWorkflowElements(response.result));
     // Uncomment to use mocks
-    // dispatch(setUnformattedWorkflowElements(createSimpleNestedGraph()));
+    // dispatch(setUnformattedWorkflowElements(MOCK_WORKFLOW_ELEMENTS));
 
     if (subgraphBreadcrumbs.length) {
       dispatch(setSubgraph());
     } else {
       dispatch(layoutAndSetNodesAndEdges(response.result));
       // Uncomment to use mocks
-      // dispatch(layoutAndSetNodesAndEdges(createSimpleNestedGraph()));
+      // dispatch(layoutAndSetNodesAndEdges(MOCK_WORKFLOW_ELEMENTS));
     }
   } else if (response.error) {
     console.log(response.error);

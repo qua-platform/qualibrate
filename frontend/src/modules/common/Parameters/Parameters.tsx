@@ -19,10 +19,15 @@ interface IProps {
 }
 
 export interface SingleParameter {
-  default?: string | boolean | number;
+  id?: string;
+  name?: string;
+  parameters?: InputParameter;
+  default?: string | boolean | number | string[];
+  items?: { type: string };
   title: string;
   type: string;
-  description?: string;
+  is_targets: boolean;
+  description?: string | null;
 }
 
 export interface InputParameter {

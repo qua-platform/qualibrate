@@ -5,12 +5,12 @@
  * Shows a loading spinner during node library rescanning.
  */
 import React from "react";
-import { NodeElement } from "./NodeElement";
+import {NodeDTO, NodeElement} from "./NodeElement";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../../NodesPage.module.scss";
 import LoaderPage from "../../../../ui-lib/loader/LoaderPage";
-import { useSelector } from "react-redux";
-import { getAllNodes, getIsRescanningNodes } from "../../../../stores/NodesStore/selectors";
+import {useSelector} from "react-redux";
+import {getAllNodes, getIsRescanningNodes} from "../../../../stores/NodesStore/selectors";
 
 /**
  * Render list of all calibration nodes with loading state handling.
@@ -31,7 +31,7 @@ export const NodeElementList: React.FC = () => {
     allNodes && (
       <div className={styles.listWrapper} data-testid="node-list-wrapper">
         {Object.entries(allNodes).map(([key, node]) => {
-          return <NodeElement key={key} nodeKey={key} node={node} data-testid={`node-element-${key}`} />;
+          return <NodeElement key={key} nodeKey={key} node={node as NodeDTO} data-testid={`node-element-${key}`} />;
         })}
       </div>
     )

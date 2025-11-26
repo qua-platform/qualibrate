@@ -4,15 +4,16 @@ import styles from "./SubgraphBreadcrumbs.module.scss";
 import { useRootDispatch } from "../../../../../stores";
 import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../../../../../stores/GraphStores/GraphCommon/selectors";
 import { goBackInGraph } from "../../../../../stores/GraphStores/GraphCommon/actions";
+import { classNames } from "../../../../../utils/classnames";
 
-const SubgraphBreadcrumbs = () => {
+const SubgraphBreadcrumbs = ({ className }: { className?: string }) => {
   const dispatch = useRootDispatch();
   const subgraphBreadcrumbs = useSelector(getSubgraphBreadcrumbs);
   const selectedWorkflowName = useSelector(getSelectedWorkflowName);
 
   const handleSelectWorkflow = (index: number) => dispatch(goBackInGraph(index));
 
-  return <div className={styles.breadcrumbsContainer}>
+  return <div className={classNames(styles.breadcrumbsContainer, className)}>
     {subgraphBreadcrumbs.length !== 0 &&
       <button
         key={"reset"}

@@ -21,9 +21,12 @@ import { getAllGraphs } from "../../../stores/GraphStores/GraphLibrary/selectors
  * Represents a DAG of calibration nodes to be executed in sequence.
  */
 export interface GraphWorkflow {
+  id?: string;
   name?: string;
   title?: string;
-  description: string;
+  status?: string;
+  orchestrator?: unknown;
+  description?: string | null;
   parameters?: InputParameter;
   nodes?: NodeMap;
   connectivity?: string[][];
@@ -34,8 +37,8 @@ export const GraphList: React.FC = () => {
   if (!allGraphs || Object.entries(allGraphs).length === 0) return <div>No calibration graphs</div>;
   return (
     <div className={styles.listWrapper}>
-      {Object.entries(allGraphs ?? {}).map(([key, graph]) => {
-        return <GraphElement key={key} calibrationGraphKey={key} calibrationGraph={graph} />;
+      {Object.keys(allGraphs ?? {}).map((key) => {
+        return <GraphElement key={key} calibrationGraphKey={key} />;
       })}
     </div>
   );

@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ErrorObject } from "../../../modules/common/Error/ErrorStatusInterface";
 import { GraphWorkflow } from "../../../modules/GraphLibrary/components/GraphList";
 
@@ -20,16 +20,16 @@ export interface GraphMap {
 
 interface GraphLibraryState {
   allGraphs?: GraphMap;
-  selectedWorkflow?: GraphWorkflow;
   lastRunInfo?: LastRunInfo;
   isRescanningGraphs: boolean;
+  errorObject: unknown;
 }
 
 const initialGraphLibraryState: GraphLibraryState = {
   allGraphs: undefined,
-  selectedWorkflow: undefined,
   lastRunInfo: undefined,
   isRescanningGraphs: false,
+  errorObject: undefined,
 };
 
 export const graphLibrarySlice = createSlice({
@@ -40,20 +40,44 @@ export const graphLibrarySlice = createSlice({
     setAllGraphs: (state, action) => {
       state.allGraphs = action.payload;
     },
-    setSelectedWorkflow: (state, action) => {
-      state.selectedWorkflow = action.payload;
-    },
     setLastRunInfo: (state, action) => {
       state.lastRunInfo = action.payload;
     },
     setLastRunActive: (state) => {
       state.lastRunInfo = {
         ...state.lastRunInfo,
-        active: true
+        active: true,
       };
     },
     setIsRescanningGraphs: (state, action) => {
       state.isRescanningGraphs = action.payload;
     },
-  }
+    setNodeParameter: (state, action: PayloadAction<{
+      paramKey: string
+      newValue: boolean | number | string
+      nodeId?: string
+      selectedWorkflowName?: string
+      subgraphBreadcrumbs: string[]
+    }>) => {
+      const { paramKey, newValue, nodeId, subgraphBreadcrumbs, selectedWorkflowName } = action.payload;
+      const { allGraphs } = state;
+
+      if (!allGraphs || !selectedWorkflowName) return state;
+
+      let graph = subgraphBreadcrumbs.reduce((currentGraph, key) => {
+        const node = currentGraph.nodes?.[key];
+        return node ?? currentGraph;
+      }, allGraphs[selectedWorkflowName]);
+
+      if (graph.nodes && nodeId) {
+        graph = graph.nodes[nodeId];
+      }
+
+      if (graph.parameters)
+        graph.parameters[paramKey].default = newValue;
+    },
+    setErrorObject: (state, action) => {
+      state.errorObject = action.payload;
+    }
+  },
 });

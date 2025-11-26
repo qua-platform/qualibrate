@@ -71,6 +71,7 @@ import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
 import {InfoIcon} from "../../../../ui-lib/Icons/InfoIcon";
 import {StatusVisuals} from "./NodeElementStatusVisuals";
 import {getNodeRowClass} from "./helpers";
+import {GraphWorkflow} from "@/modules/GraphLibrary/components/GraphList";
 
 /**
  * Calibration node definition from backend node library scan.
@@ -86,6 +87,7 @@ import {getNodeRowClass} from "./helpers";
  * @property nodes - Child nodes for graph workflows (currently unused in NodeElement)
  */
 export interface NodeDTO {
+  id?: string;
   name: string;
   title?: string;
   description: string;
@@ -100,7 +102,7 @@ export interface NodeDTO {
  * of the node library. Used to render the complete list of available calibrations.
  */
 export interface NodeMap {
-  [key: string]: NodeDTO;
+  [key: string]: NodeDTO | GraphWorkflow;
 }
 
 /**
@@ -247,7 +249,7 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         acc[key] = parameter.default ?? null;
         return acc;
       },
-      {} as { [key: string]: boolean | number | string | null }
+      {} as { [key: string]: boolean | number | string | null | string[] }
     );
   };
 

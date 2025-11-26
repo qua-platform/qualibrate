@@ -1,15 +1,21 @@
 import { InputParameter } from "../../../modules/common/Parameters/Parameters";
 import { GraphWorkflow } from "../../../modules/GraphLibrary/components/GraphList";
-import { RootDispatch } from "../../../stores";
+import { RootDispatch, RootState } from "../../../stores";
 import { graphLibrarySlice, GraphMap } from "./GraphLibraryStore";
 import { GraphLibraryApi } from "../../../modules/GraphLibrary/api/GraphLibraryApi";
+import { getSelectedWorkflowName } from "../GraphCommon/selectors";
+import { getAllGraphs } from "./selectors";
+import { setActivePage } from "../../../stores/NavigationStore/actions";
+import { GRAPH_STATUS_KEY } from "../../../routing/ModulesRegistry";
+import { setTrackLatest } from "../GraphStatus/actions";
 
 export const {
   setAllGraphs,
-  setSelectedWorkflow,
   setLastRunInfo,
   setLastRunActive,
   setIsRescanningGraphs,
+  setNodeParameter,
+  setErrorObject,
 } = graphLibrarySlice.actions;
 
 const updateObject = (obj: GraphWorkflow): GraphWorkflow => {
@@ -67,5 +73,93 @@ export const fetchAllCalibrationGraphs = (rescan = false) => async (dispatch: Ro
   } else if (response.error) {
     console.log(response.error);
   }
+  // Uncomment to use mocks
+  // dispatch(setAllGraphs(MOCK_ALL_GRAPHS));
   dispatch(setIsRescanningGraphs(false));
+};
+
+
+/**
+ * Transformed graph structure for API submission.
+ * Flattens parameter defaults from InputParameter format to simple key-value pairs.
+ */
+export interface TransformedNode {
+  parameters: {
+    [key: string]: string | number | boolean | undefined;
+  };
+  nodes?: TransformedNodeMap;
+}
+
+export interface TransformedNodeMap {
+  [key: string]: TransformedNode;
+}
+
+export interface TransformedGraph {
+  parameters: {
+    [key: string]: string | number | boolean | undefined;
+  };
+  nodes: TransformedNodeMap;
+}
+
+/**
+ * Submits workflow for execution and opens graph-status panel.
+ * Sets `lastRunInfo.active` to trigger UI updates via GraphContext.
+ */
+
+export const submitWorkflow = () => async (dispatch: RootDispatch, getState: () => RootState) => {
+  const state = getState();
+  const allGraphs = getAllGraphs(state);
+  const selectedWorkflowName = getSelectedWorkflowName(state);
+
+  const transformParameters = (params?: InputParameter) => {
+    let transformedParams = {};
+    if (!params) return transformedParams;
+
+    for (const key in params) {
+      transformedParams = { ...transformedParams, [key]: params[key].default };
+    }
+    return transformedParams;
+  };
+
+  const transformGraph = (graph: GraphWorkflow): TransformedGraph => {
+    const transformed: TransformedGraph = {
+      parameters: transformParameters(graph.parameters),
+      nodes: {},
+    };
+
+    for (const nodeKey in graph.nodes) {
+      const node = graph.nodes[nodeKey];
+      const isNodeAGraph = "nodes" in node;
+      if (isNodeAGraph) {
+        const graph = node as GraphWorkflow;
+        transformed.nodes[nodeKey] = transformGraph(graph);
+        continue;
+      }
+
+      transformed.nodes[nodeKey] = {
+        parameters: transformParameters(node.parameters),
+      };
+    }
+
+    return transformed;
+  };
+
+  const transformDataForSubmit = () => {
+    const input = allGraphs?.[selectedWorkflowName ?? ""];
+    if (!input) return;
+
+    return transformGraph(input);
+  };
+
+  if (selectedWorkflowName) {
+    dispatch(setLastRunActive());
+    const response = await GraphLibraryApi.submitWorkflow(selectedWorkflowName, transformDataForSubmit());
+    if (response.isOk) {
+      dispatch(setErrorObject(undefined)); // This is a bugfix - previously it didn't clear errorObject on success
+      dispatch(setActivePage(GRAPH_STATUS_KEY));
+      dispatch(setTrackLatest(true));
+    } else {
+      dispatch(setErrorObject(response.error));
+    }
+  }
 };
