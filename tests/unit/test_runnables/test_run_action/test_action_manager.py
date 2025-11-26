@@ -279,9 +279,7 @@ class TestRunAction:
         manager.run_action("action2", mock_node)
         manager.actions["action2"].execute_run_action.assert_called_once()
 
-    def test_run_action_with_args_kwargs(
-        self, manager, mock_node, mock_action
-    ):
+    def test_run_action_with_args_kwargs(self, manager, mock_node, mock_action):
         """Test that run_action passes args and kwargs to action."""
         manager.actions["test_action"] = mock_action
 

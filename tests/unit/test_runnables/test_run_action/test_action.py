@@ -86,9 +86,7 @@ class TestRunAndUpdateNamespace:
 
         assert result == {"result": "success", "value": 42}
 
-    def test_updates_namespace_with_dict_return(
-        self, mock_manager, mock_node
-    ):
+    def test_updates_namespace_with_dict_return(self, mock_manager, mock_node):
         """Test that dict returns update node.namespace."""
 
         def test_func(node):
