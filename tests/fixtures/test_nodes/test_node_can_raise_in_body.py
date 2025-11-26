@@ -14,6 +14,7 @@ from qualibrate import NodeParameters, QualibrationNode
 
 class Parameters(NodeParameters):
     """Parameters for simple test"""
+
     amplitude: float = Field(default=0.5, ge=0.0, le=1.0)
     frequency: float = Field(default=5.0e9, gt=0.0)
     num_points: int = Field(default=10, ge=1)
@@ -48,11 +49,13 @@ if node.parameters.should_fail:
         raise ValueError(error_msg)
 
 # This code only runs if we didn't fail above
-data = [node.parameters.amplitude * i for i in range(node.parameters.num_points)]
+data = [
+    node.parameters.amplitude * i for i in range(node.parameters.num_points)
+]
 node.results = {
     "data": data,
     "length": len(data),
     "amplitude": node.parameters.amplitude,
     "frequency": node.parameters.frequency,
-    "error_raised": False
+    "error_raised": False,
 }

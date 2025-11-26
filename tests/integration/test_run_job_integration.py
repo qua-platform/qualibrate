@@ -202,8 +202,7 @@ class TestStateTracking:
         assert fresh_state.last_run.started_at is not None
         assert fresh_state.last_run.completed_at is not None
         assert (
-            fresh_state.last_run.completed_at
-            >= fresh_state.last_run.started_at
+            fresh_state.last_run.completed_at >= fresh_state.last_run.started_at
         )
 
     def test_state_lifecycle_with_error(self, test_library, fresh_state):
@@ -322,8 +321,7 @@ class TestErrorMessaging:
         # Full traceback SHOULD contain framework files
         traceback_str = "".join(error.traceback)
         assert (
-            "action_manager.py" in traceback_str
-            or "action.py" in traceback_str
+            "action_manager.py" in traceback_str or "action.py" in traceback_str
         )
 
     def test_error_details_for_body_failure(self, test_library, fresh_state):
@@ -346,11 +344,17 @@ class TestErrorMessaging:
         error = fresh_state.last_run.error
 
         # 1. Headline should indicate body error (no action)
-        assert "body" in error.details_headline or "initialization" in error.details_headline
+        assert (
+            "body" in error.details_headline
+            or "initialization" in error.details_headline
+        )
 
         # 2. Details should NOT contain action execution summary
         # (since no actions were used)
-        assert "Completed actions" not in error.details or "prepare_data" not in error.details
+        assert (
+            "Completed actions" not in error.details
+            or "prepare_data" not in error.details
+        )
 
         # 3. Details should contain source snippet from node file (simple format)
         assert "Source Code:" in error.details
@@ -360,9 +364,7 @@ class TestErrorMessaging:
         # Body errors should not have action framework in simplified version
         assert "action_manager.py" not in error.details
 
-    def test_error_details_with_action_history(
-        self, test_library, fresh_state
-    ):
+    def test_error_details_with_action_history(self, test_library, fresh_state):
         """Test error details include completed and skipped actions."""
         node = test_library.nodes["node_with_actions"]
 

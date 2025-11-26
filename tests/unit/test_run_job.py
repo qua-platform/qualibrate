@@ -41,7 +41,9 @@ class TestValidateInputParameters:
         assert result.frequency == 5.0e9
         assert result.num_averages == 100  # Default value
 
-    def test_invalid_parameter_raises_http_exception(self, sample_parameters_class):
+    def test_invalid_parameter_raises_http_exception(
+        self, sample_parameters_class
+    ):
         """Test that invalid parameters raise HTTPException with 422 status."""
         params = {"amplitude": 1.5, "frequency": 5.0e9}  # amplitude > 1.0
 
@@ -51,7 +53,9 @@ class TestValidateInputParameters:
         assert exc_info.value.status_code == 422
         assert exc_info.value.detail is not None
 
-    def test_missing_required_field_raises_http_exception(self, sample_parameters_class):
+    def test_missing_required_field_raises_http_exception(
+        self, sample_parameters_class
+    ):
         """Test that missing required field raises HTTPException."""
         params = {"amplitude": 0.5}  # Missing required 'frequency'
 
@@ -94,7 +98,9 @@ class TestGetActiveLibraryOrError:
     @patch("qualibrate_runner.core.run_job.QualibrationLibrary")
     def test_raises_exception_when_no_library(self, mock_lib_class):
         """Test that function raises exception when no library exists."""
-        mock_lib_class.get_active_library.side_effect = RuntimeError("No active library")
+        mock_lib_class.get_active_library.side_effect = RuntimeError(
+            "No active library"
+        )
 
         with pytest.raises(RuntimeError, match="No active library"):
             get_active_library_or_error()
@@ -158,7 +164,9 @@ class TestRunNodeHappyPath:
         # run_result should be None since run_summary is None
         assert fresh_state.last_run.run_result is None
 
-    def test_captures_state_updates(self, mock_node, fresh_state, sample_state_update):
+    def test_captures_state_updates(
+        self, mock_node, fresh_state, sample_state_update
+    ):
         """Test that state_updates are captured from node."""
         from qualibrate_runner.core.models.common import StateUpdate
 
@@ -177,7 +185,9 @@ class TestRunNodeHappyPath:
         run_node(mock_node, {}, fresh_state)
 
         assert fresh_state.last_run.completed_at is not None
-        assert (fresh_state.last_run.completed_at > fresh_state.last_run.started_at)
+        assert (
+            fresh_state.last_run.completed_at > fresh_state.last_run.started_at
+        )
 
 
 class TestRunNodeErrorPath:
@@ -204,7 +214,10 @@ class TestRunNodeErrorPath:
 
         assert len(fresh_state.last_run.error.traceback) > 0
         # Traceback should be a list of strings
-        assert all(isinstance(line, str) for line in fresh_state.last_run.error.traceback)
+        assert all(
+            isinstance(line, str)
+            for line in fresh_state.last_run.error.traceback
+        )
 
     def test_re_raises_original_exception(self, mock_node, fresh_state):
         """Test that the original exception is re-raised."""
@@ -244,7 +257,9 @@ class TestRunWorkflowHappyPath:
     """Tests for run_workflow function - happy path scenarios."""
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_retrieves_fresh_workflow_from_library(self, mock_get_library, mock_library, mock_workflow, fresh_state):
+    def test_retrieves_fresh_workflow_from_library(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that workflow is retrieved fresh from library."""
         mock_get_library.return_value = mock_library
 
@@ -263,14 +278,18 @@ class TestRunWorkflowHappyPath:
 
         mock_library.graphs["test_workflow"] = fresh_workflow
 
-        run_workflow(mock_workflow, {"parameters": {"frequency": 5.0e9}}, fresh_state)
+        run_workflow(
+            mock_workflow, {"parameters": {"frequency": 5.0e9}}, fresh_state
+        )
 
         # Should retrieve fresh workflow from library
         mock_get_library.assert_called_once()
         fresh_workflow.run.assert_called_once()
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_creates_last_run_with_graph_type(self, mock_get_library, mock_library, mock_workflow, fresh_state):
+    def test_creates_last_run_with_graph_type(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that LastRun is created with GRAPH runnable_type."""
         mock_get_library.return_value = mock_library
 
@@ -292,11 +311,12 @@ class TestRunWorkflowHappyPath:
 
         run_workflow(mock_workflow, {}, fresh_state)
 
-        assert (last_run_during_execution.runnable_type == RunnableType.GRAPH)
+        assert last_run_during_execution.runnable_type == RunnableType.GRAPH
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_validates_parameters_with_full_parameters_class(self, mock_get_library, mock_library, mock_workflow,
-                                                             fresh_state):
+    def test_validates_parameters_with_full_parameters_class(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that parameters are validated using full_parameters_class."""
         mock_get_library.return_value = mock_library
 
@@ -312,17 +332,23 @@ class TestRunWorkflowHappyPath:
         run_workflow(mock_workflow, input_params, fresh_state)
 
         # Should call full_parameters_class with input parameters
-        mock_workflow.full_parameters_class.assert_called_once_with(**input_params)
+        mock_workflow.full_parameters_class.assert_called_once_with(
+            **input_params
+        )
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_splits_parameters_into_nodes_and_params(self, mock_get_library, mock_library, mock_workflow, fresh_state):
+    def test_splits_parameters_into_nodes_and_params(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that parameters are split into nodes and parameters."""
         mock_get_library.return_value = mock_library
 
         # Setup workflow
         mock_workflow.run = Mock(return_value=None)
         mock_params = Mock()
-        mock_params.nodes.model_dump.return_value = {"node1": {"amplitude": 0.5}}
+        mock_params.nodes.model_dump.return_value = {
+            "node1": {"amplitude": 0.5}
+        }
         mock_params.parameters.model_dump.return_value = {"frequency": 5.0e9}
         mock_workflow.full_parameters_class.return_value = mock_params
 
@@ -334,10 +360,14 @@ class TestRunWorkflowHappyPath:
         run_workflow(mock_workflow, input_params, fresh_state)
 
         # Should call workflow.run with separated params
-        mock_workflow.run.assert_called_once_with(nodes={"node1": {"amplitude": 0.5}}, frequency=5.0e9)
+        mock_workflow.run.assert_called_once_with(
+            nodes={"node1": {"amplitude": 0.5}}, frequency=5.0e9
+        )
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_updates_state_with_finished_status(self, mock_get_library, mock_library, mock_workflow, fresh_state):
+    def test_updates_state_with_finished_status(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that final state has FINISHED status on success."""
         mock_get_library.return_value = mock_library
 
@@ -354,7 +384,9 @@ class TestRunWorkflowHappyPath:
         assert fresh_state.last_run.error is None
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_captures_workflow_snapshot_idx(self, mock_get_library, mock_library, mock_workflow, fresh_state):
+    def test_captures_workflow_snapshot_idx(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that snapshot_idx is captured from workflow."""
         mock_get_library.return_value = mock_library
 
@@ -375,7 +407,9 @@ class TestRunWorkflowErrorPath:
     """Tests for run_workflow function - error scenarios."""
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_library_not_found_raises_exception(self, mock_get_library, mock_workflow, fresh_state):
+    def test_library_not_found_raises_exception(
+        self, mock_get_library, mock_workflow, fresh_state
+    ):
         """Test that missing library raises exception."""
         mock_get_library.side_effect = RuntimeError("No active library")
 
@@ -385,7 +419,9 @@ class TestRunWorkflowErrorPath:
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_workflow_not_in_library_raises_exception(self, mock_get_library, mock_library, mock_workflow, fresh_state):
+    def test_workflow_not_in_library_raises_exception(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that missing workflow in library raises exception."""
         mock_get_library.return_value = mock_library
         mock_library.graphs = {}  # Empty, no workflows
@@ -396,15 +432,25 @@ class TestRunWorkflowErrorPath:
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_parameter_validation_errors_raise_exception(self, mock_get_library, mock_library, mock_workflow,
-                                                         fresh_state):
+    def test_parameter_validation_errors_raise_exception(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that parameter validation errors are raised."""
         mock_get_library.return_value = mock_library
 
         # Setup workflow to raise validation error
-        mock_workflow.full_parameters_class.side_effect = ValidationError.from_exception_data(
-            "test",
-            [{"type": "missing", "loc": ("frequency",), "msg": "Field required", "input": {}}],
+        mock_workflow.full_parameters_class.side_effect = (
+            ValidationError.from_exception_data(
+                "test",
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("frequency",),
+                        "msg": "Field required",
+                        "input": {},
+                    }
+                ],
+            )
         )
 
         with pytest.raises(ValidationError):
@@ -413,7 +459,9 @@ class TestRunWorkflowErrorPath:
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_runtime_errors_captured_and_reraised(self, mock_get_library, mock_library, mock_workflow, fresh_state):
+    def test_runtime_errors_captured_and_reraised(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that runtime errors during workflow.run are captured."""
         mock_get_library.return_value = mock_library
 
@@ -431,7 +479,9 @@ class TestRunWorkflowErrorPath:
         assert fresh_state.last_run.error.error_class == "RuntimeError"
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_state_updated_even_on_error(self, mock_get_library, mock_library, mock_workflow, fresh_state):
+    def test_state_updated_even_on_error(
+        self, mock_get_library, mock_library, mock_workflow, fresh_state
+    ):
         """Test that state is updated in finally block even on error."""
         mock_get_library.return_value = mock_library
 

@@ -43,9 +43,7 @@ class TestIsRunningProperty:
         state = State(last_run=sample_last_run_error)
         assert state.is_running is False
 
-    def test_is_running_changes_with_status(
-        self, aware_datetime, mock_node
-    ):
+    def test_is_running_changes_with_status(self, aware_datetime, mock_node):
         """Test is_running property changes as status changes."""
         state = State()
 
@@ -113,7 +111,9 @@ class TestClearMethod:
         )
 
         # Should raise RuntimeError
-        with pytest.raises(RuntimeError, match="Can't clear while item is running"):
+        with pytest.raises(
+            RuntimeError, match="Can't clear while item is running"
+        ):
             state.clear()
 
         # State should be unchanged
@@ -124,9 +124,7 @@ class TestClearMethod:
 class TestStateLifecycle:
     """Tests for the typical State lifecycle during execution."""
 
-    def test_full_execution_lifecycle_success(
-        self, aware_datetime, mock_node
-    ):
+    def test_full_execution_lifecycle_success(self, aware_datetime, mock_node):
         """Test state through full successful execution lifecycle."""
         state = State()
 
@@ -204,9 +202,7 @@ class TestStateLifecycle:
         assert state.last_run is None
         assert state.run_item is None
 
-    def test_multiple_sequential_executions(
-        self, aware_datetime, mock_node
-    ):
+    def test_multiple_sequential_executions(self, aware_datetime, mock_node):
         """Test state through multiple sequential executions."""
         state = State()
 
@@ -262,6 +258,7 @@ class TestStateArbitraryTypes:
         Note: When using model_construct, Pydantic bypasses validation
         which allows storing any object type.
         """
+
         # Create a simple custom object
         class CustomRunnable:
             def __init__(self):

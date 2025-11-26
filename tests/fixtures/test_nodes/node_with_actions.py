@@ -57,8 +57,7 @@ node = QualibrationNode(
 def prepare_data(node):
     """Generate measurement data based on parameters."""
     data = [
-        node.parameters.amplitude * i
-        for i in range(node.parameters.num_points)
+        node.parameters.amplitude * i for i in range(node.parameters.num_points)
     ]
     return {
         "data": data,
@@ -95,12 +94,16 @@ def execute_qua_program(node):
     dfs = np.arange(-span // 2, +span // 2, step)
     sweep_axes = {
         "qubit": xr.DataArray(["q1", "q2"]),
-        "detuning": xr.DataArray(dfs, attrs={"long_name": "readout frequency", "units": "Hz"}),
+        "detuning": xr.DataArray(
+            dfs, attrs={"long_name": "readout frequency", "units": "Hz"}
+        ),
     }
     data_fetcher = XarrayDataFetcher(mock_job, sweep_axes)
     for dataset in data_fetcher:
         progress_counter(
-            data_fetcher["nonexistent_key"],  # This will raise KeyError from inside XarrayDataFetcher
+            data_fetcher[
+                "nonexistent_key"
+            ],  # This will raise KeyError from inside XarrayDataFetcher
             node.parameters.num_shots,
             start_time=data_fetcher.t_start,
         )

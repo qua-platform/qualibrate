@@ -139,9 +139,7 @@ class TestLastRunCreation:
 class TestLastRunDuration:
     """Tests for the run_duration computed field."""
 
-    def test_duration_for_completed_run(
-        self, aware_datetime, later_datetime
-    ):
+    def test_duration_for_completed_run(self, aware_datetime, later_datetime):
         """Test run_duration calculation for completed run."""
         # later_datetime is 5.5 seconds after aware_datetime
         last_run = LastRun(
@@ -294,7 +292,9 @@ class TestLastRunStatusTransitions:
             last_run = LastRun(
                 status=status,
                 started_at=aware_datetime,
-                completed_at=aware_datetime if status != RunStatusEnum.RUNNING else None,
+                completed_at=aware_datetime
+                if status != RunStatusEnum.RUNNING
+                else None,
                 name="test_node",
                 idx=-1,
                 runnable_type=RunnableType.NODE,

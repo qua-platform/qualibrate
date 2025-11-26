@@ -104,7 +104,7 @@ Third line with more context"""
     def test_long_traceback(self):
         """Test RunError with a long traceback (many frames)."""
         long_traceback = [
-            f'  File "/path/frame_{i}.py", line {i*10}, in func_{i}\n'
+            f'  File "/path/frame_{i}.py", line {i * 10}, in func_{i}\n'
             for i in range(20)
         ]
 
@@ -386,7 +386,9 @@ class TestStateUpdate:
 
     def test_very_long_key(self):
         """Test StateUpdate with very long nested key path."""
-        long_key = "system.rack_1.chassis_2.module_3.channel_4.qubit_5.subsystem_6"
+        long_key = (
+            "system.rack_1.chassis_2.module_3.channel_4.qubit_5.subsystem_6"
+        )
 
         update = StateUpdate(
             key=long_key, attr="parameter", old=0, new=1, updated=True
