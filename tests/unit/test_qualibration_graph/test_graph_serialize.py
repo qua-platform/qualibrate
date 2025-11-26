@@ -1,9 +1,7 @@
-from collections import defaultdict
 from collections.abc import Sequence
 from typing import Any
 
 from qualibrate.models.node_status import ElementRunStatus
-from qualibrate.models.outcome import Outcome
 from qualibrate.orchestration.qualibration_orchestrator import (
     QualibrationOrchestrator,
 )
@@ -130,115 +128,80 @@ def test_serialize_with_no_nested_graphs(
         },
     }
 
+
 def test_serialize_with_nested_graphs(
-        qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
+    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
     g = qualibration_lib.graphs["workflow_top"]
     assert g.serialize_cytoscape() == {
-    "nodes": [
-      {
-        "id": 1,
-        "data": {
-          "label": "subg",
-          "subgraph": {
-            "nodes": [
-              {
-                "id": 3,
+        "nodes": [
+            {
+                "id": 1,
                 "data": {
-                  "label": "test_cal"
-                }
-              },
-              {
-                "id": 4,
-                "data": {
-                  "label": "one_more_node"
-                }
-              }
-            ],
-            "edges": [
-              {
-                "id": "3->4",
-                "source": 3,
-                "target": 4,
-                "data": {
-                  "condition": True
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "id": 2,
-        "data": {
-          "label": "test_cal"
-        }
-      }
-    ],
-    "edges": [
-      {
-        "id": "1->2",
-        "source": 1,
-        "target": 2,
-        "data": {
-          "condition": True
-        }
-      }
-    ]
-  }
+                    "label": "subg",
+                    "subgraph": {
+                        "nodes": [
+                            {"id": 3, "data": {"label": "test_cal"}},
+                            {"id": 4, "data": {"label": "one_more_node"}},
+                        ],
+                        "edges": [
+                            {
+                                "id": "3->4",
+                                "source": 3,
+                                "target": 4,
+                                "data": {"condition": True},
+                            }
+                        ],
+                    },
+                },
+            },
+            {"id": 2, "data": {"label": "test_cal"}},
+        ],
+        "edges": [
+            {
+                "id": "1->2",
+                "source": 1,
+                "target": 2,
+                "data": {"condition": True},
+            }
+        ],
+    }
+
+
 def test_serialize_with_nested_graphs_and_connect_on_failure(
-        qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-    ):
+    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
+):
     g = qualibration_lib.graphs["workflow_top_connect_on_failure"]
     assert g.serialize_cytoscape() == {
-    "nodes": [
-      {
-        "id": 1,
-        "data": {
-          "label": "subg",
-          "subgraph": {
-            "nodes": [
-              {
-                "id": 3,
+        "nodes": [
+            {
+                "id": 1,
                 "data": {
-                  "label": "test_cal"
-                }
-              },
-              {
-                "id": 4,
-                "data": {
-                  "label": "one_more_node"
-                }
-              }
-            ],
-            "edges": [
-              {
-                "id": "3->4",
-                "source": 3,
-                "target": 4,
-                "data": {
-                  "condition": False
-                }
-              }
-            ]
-          }
-        }
-      },
-      {
-        "id": 2,
-        "data": {
-          "label": "test_cal"
-        }
-      }
-    ],
-    "edges": [
-      {
-        "id": "1->2",
-        "source": 1,
-        "target": 2,
-        "data": {
-          "condition": True
-        }
-      }
-    ]
-  }
+                    "label": "subg",
+                    "subgraph": {
+                        "nodes": [
+                            {"id": 3, "data": {"label": "test_cal"}},
+                            {"id": 4, "data": {"label": "one_more_node"}},
+                        ],
+                        "edges": [
+                            {
+                                "id": "3->4",
+                                "source": 3,
+                                "target": 4,
+                                "data": {"condition": False},
+                            }
+                        ],
+                    },
+                },
+            },
+            {"id": 2, "data": {"label": "test_cal"}},
+        ],
+        "edges": [
+            {
+                "id": "1->2",
+                "source": 1,
+                "target": 2,
+                "data": {"condition": True},
+            }
+        ],
+    }

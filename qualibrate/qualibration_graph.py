@@ -778,10 +778,12 @@ class QualibrationGraph(
         return self.__serialize_data(**kwargs)
 
     @ensure_finalized
-    def serialize_cytoscape(self, identifier=0):
+    def serialize_cytoscape(self, identifier: int = 0) -> Mapping[str, Any]:
         flow_dict = defaultdict(list)
 
-        nx_data = dict(self.__class__.nx_graph_export(self._graph, node_names_only=True))
+        nx_data = dict(
+            self.__class__.nx_graph_export(self._graph, node_names_only=True)
+        )
 
         nodes_raw = nx_data.pop("nodes")
         adj_raw = nx_data.pop("adjacency")
@@ -789,9 +791,8 @@ class QualibrationGraph(
         name_identifier_dict = {}
         for node in nodes_raw:
             node_name = node["id"]
-            identifier+=1
+            identifier += 1
             name_identifier_dict[node_name] = identifier
-
 
         for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
             node_name = node["id"]
@@ -801,27 +802,33 @@ class QualibrationGraph(
             subgraph_data = {}
 
             if isinstance(element, QualibrationGraph):
-                subgraph_data["subgraph"] = element.serialize_cytoscape(identifier=identifier)
+                subgraph_data["subgraph"] = element.serialize_cytoscape(
+                    identifier=identifier
+                )
 
-            flow_dict["nodes"].append({
-                "id": node_id,
-                "data": {"label": node_name, **subgraph_data},
-            })
+            flow_dict["nodes"].append(
+                {
+                    "id": node_id,
+                    "data": {"label": node_name, **subgraph_data},
+                }
+            )
 
             for adj in adjacency:
                 target_name = adj["id"]
 
-                flow_dict["edges"].append({
-                    "id": f"{node_id}->{name_identifier_dict[target_name]}",
-                    "source": node_id,
-                    "target": name_identifier_dict[target_name],
-                    "data": {
-                        "condition": True if adj.get("scenario", Outcome.SUCCESSFUL) == Outcome.SUCCESSFUL else False,
-                    },
-                })
+                flow_dict["edges"].append(
+                    {
+                        "id": f"{node_id}->{name_identifier_dict[target_name]}",
+                        "source": node_id,
+                        "target": name_identifier_dict[target_name],
+                        "data": {
+                            "condition": adj.get("scenario", Outcome.SUCCESSFUL)
+                            == Outcome.SUCCESSFUL,
+                        },
+                    }
+                )
 
         return dict(flow_dict)
-
 
     def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """
