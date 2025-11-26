@@ -1,6 +1,6 @@
 import traceback
 import weakref
-from collections.abc import Generator, Sequence
+from collections.abc import Generator, Iterable, Sequence
 from datetime import datetime
 from queue import Queue
 from typing import Generic, cast
@@ -112,7 +112,7 @@ class BasicOrchestrator(
         """
         return bool(
             self.nx_graph.nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD]
-            == ElementRunStatus.finished
+            in (ElementRunStatus.skipped, ElementRunStatus.finished)
         )
 
     def get_next_element(self) -> GraphElementTypeVar | None:
@@ -160,8 +160,16 @@ class BasicOrchestrator(
             )
         )
 
-        predecessors = list(nx_graph.predecessors(element))
-        if len(predecessors) == 0:
+        predecessors = nx_graph.predecessors(element)
+        if all(
+            (
+                nx_graph.nodes[predecessor][
+                    QualibrationGraph.ELEMENT_STATUS_FIELD
+                ]
+                == ElementRunStatus.skipped
+            )
+            for predecessor in predecessors
+        ):
             initial = set(self.initial_targets or [])
             return list(initial.union(loop_targets))
 
@@ -171,7 +179,9 @@ class BasicOrchestrator(
                     QualibrationGraph.EDGE_TARGETS_FIELD, []
                 )
             )
-            for pred in predecessors
+            for pred in list(nx_graph.predecessors(element))
+            if nx_graph.nodes[pred][QualibrationGraph.ELEMENT_STATUS_FIELD]
+            != ElementRunStatus.skipped
         ]
         targets = set.intersection(*targets_lst).union(loop_targets)
         return list(targets)
@@ -446,12 +456,8 @@ class BasicOrchestrator(
             raise ex
         self.initial_targets = list(targets[:]) if targets else []
         nx_graph = self.nx_graph
-        predecessors = nx_graph.pred
         successors = nx_graph.succ
-        nodes_without_predecessors = filter(
-            lambda n: len(predecessors[n]) == 0, predecessors.keys()
-        )
-        for node in nodes_without_predecessors:
+        for node in _start_nodes(nx_graph):
             self._execution_queue.put(node)
 
         while not self._is_execution_finished() and not self._is_stopped:
@@ -463,11 +469,21 @@ class BasicOrchestrator(
             logger.info(f"Graph. Element to run. {element_to_run}")
             self._run_element_loop_if_defined(element_to_run)
 
-            status = self.nx_graph.nodes[element_to_run][
+            status = nx_graph.nodes[element_to_run][
                 QualibrationGraph.ELEMENT_STATUS_FIELD
             ]
             if status == ElementRunStatus.finished:
                 for successor in successors[element_to_run]:
+                    # skip diamond cases
+                    # Example. Edges: 1 -> 2, 1 -> 3, 2 -> 4, 3 -> 4
+                    # Start from 2. 4 skipped because 3 is skipped
+                    if (
+                        nx_graph.nodes[successor][
+                            QualibrationGraph.ELEMENT_STATUS_FIELD
+                        ]
+                        == ElementRunStatus.skipped
+                    ):
+                        continue
                     #  checks if we have a scenario failed node defined with
                     #  no failed targets, in this case we don't want to get this
                     #  node into the queue
@@ -512,3 +528,35 @@ class BasicOrchestrator(
             self.final_outcomes[target] = (
                 Outcome.SUCCESSFUL if successful else Outcome.FAILED
             )
+
+
+def _current_and_predecessors_statuses(
+    graph: "nx.DiGraph[GraphElementTypeVar]",
+    node: GraphElementTypeVar,
+) -> bool:
+    predecessors = graph.pred
+    nodes = graph.nodes
+    return bool(
+        nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD]
+        == ElementRunStatus.pending
+    ) and (
+        sum(
+            (
+                nodes[predecessor][QualibrationGraph.ELEMENT_STATUS_FIELD]
+                == ElementRunStatus.pending
+            )
+            for predecessor in predecessors[node]
+        )
+        == 0
+    )
+
+
+def _start_nodes(
+    graph: "nx.DiGraph[GraphElementTypeVar]",
+) -> Iterable[GraphElementTypeVar]:
+    """Return nodes which have no predecessors with pending status"""
+    predecessors = graph.pred
+    return filter(
+        lambda n: _current_and_predecessors_statuses(graph, n),
+        predecessors.keys(),
+    )
