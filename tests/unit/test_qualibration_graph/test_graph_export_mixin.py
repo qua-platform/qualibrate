@@ -26,17 +26,14 @@ class TestGraphExportMixin:
             "nodes": [
                 {
                     "status": ElementRunStatus.pending,
-                    "retries": 0,
                     "id": "test_node",
                 },
                 {
                     "status": ElementRunStatus.pending,
-                    "retries": 0,
                     "id": "one_more_node",
                 },
                 {
                     "status": ElementRunStatus.pending,
-                    "retries": 0,
                     "id": "test_cal",
                 },
             ],
@@ -57,21 +54,18 @@ class TestGraphExportMixin:
             "nodes": {
                 "test_node": {
                     "status": "pending",
-                    "retries": 0,
                     "id": "test_node",
                     "name": "test_node",
                     "parameters": {},
                 },
                 "one_more_node": {
                     "status": "pending",
-                    "retries": 0,
                     "id": "one_more_node",
                     "name": "one_more_node",
                     "parameters": {},
                 },
                 "test_cal": {
                     "status": "pending",
-                    "retries": 0,
                     "id": "test_cal",
                     "name": "test_cal",
                     "parameters": {},

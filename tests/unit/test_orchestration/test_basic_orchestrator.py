@@ -84,11 +84,15 @@ class TestBasicOrchestrator:
 
         assert orchestrator.nx_graph == mock_graph._graph
 
-    def test_check_node_finished_without_graph(self):
+    def test_q_graph_specified(self):
         orchestrator = BasicOrchestrator()
-        orchestrator._graph = None
-        mock_node = MagicMock()
-        assert orchestrator.check_node_finished(mock_node) is False
+        orchestrator._graph = "graph"
+        assert orchestrator.q_graph == "graph"
+
+    def test_q_graph_not_specified(self):
+        orchestrator = BasicOrchestrator()
+        with pytest.raises(ValueError, match="Graph is not specified"):
+            _ = orchestrator.q_graph
 
     def test_check_node_finished_with_finished_node(self, mocker):
         orchestrator = BasicOrchestrator()
@@ -177,7 +181,7 @@ class TestBasicOrchestrator:
 
         result = orchestrator._get_in_targets_for_element(mock_node)
 
-        assert result == ["q1", "q2", "q3"]
+        assert sorted(result) == ["q1", "q2", "q3"]
 
     def test_get_in_targets_with_single_predecessor(self, mocker):
         """Test that _get_in_targets gets targets
@@ -234,6 +238,8 @@ class TestBasicOrchestrator:
 
         # Should be intersection: q2 and q3
         assert set(result) == {"q2", "q3"}
+
+    # TODO: get in targets with loop conditions
 
     def test_set_out_targets_all_successful_skip_failed_disabled(self, mocker):
         """Test _set_out_targets with all successful targets
@@ -430,6 +436,8 @@ class TestBasicOrchestrator:
             "q2",
         ]
 
+    # TODO: test loop related logic
+
     def test_traverse_graph_with_success_and_failure_paths(self, mocker):
         """
         Integration test: Verify traverse_graph routes successful
@@ -494,6 +502,7 @@ class TestBasicOrchestrator:
         # Create mock graph
         mock_graph = MagicMock(spec=QualibrationGraph)
         mock_graph.name = "test_graph"
+        mock_graph._loop_conditions = {}
 
         # Setup graph parameters
         mock_params = MagicMock()
@@ -556,7 +565,7 @@ class TestBasicOrchestrator:
         orchestrator.traverse_graph(mock_graph, ["q1", "q2", "q3"])
 
         # Verify node1 received all initial targets
-        assert received_targets["node1"] == ["q1", "q2", "q3"]
+        assert set(received_targets["node1"]) == {"q1", "q2", "q3"}
 
         # Verify node2_success received only successful targets
         assert set(received_targets["node2_success"]) == {"q1", "q2"}
@@ -634,6 +643,7 @@ class TestBasicOrchestrator:
         # Create mock graph
         mock_graph = MagicMock(spec=QualibrationGraph)
         mock_graph.name = "test_graph"
+        mock_graph._loop_conditions = {}
 
         # Setup parameters
         mock_params = MagicMock()
