@@ -553,31 +553,27 @@ class QualibrationGraph(
             for name in cast(GraphElementsParameters, nodes_class).model_fields
         }
 
-    def _orchestrator_or_error(
-        self,
-    ) -> "QualibrationOrchestrator[GraphElementTypeVar]":
-        """
-        Retrieves the orchestrator for the graph or raises an error if missing.
-
-        This method returns the orchestrator associated with the graph.
-        If no orchestrator is specified, it raises an error indicating
-        that an orchestrator is required for execution.
-
-        Returns:
-            QualibrationOrchestrator: The orchestrator used to manage graph
-                execution.
-
-        Raises:
-            ValueError: If no orchestrator is specified for the graph.
-        """
-        if self._orchestrator is None:
-            ex = ValueError("Orchestrator not specified")
-            logger.exception("", exc_info=ex)
-            raise ex
-        return self._orchestrator
+    def _mark_nodes_as_skipped(
+        self, start_from: GraphElementTypeVar | str
+    ) -> None:
+        start_node = (
+            self._elements[start_from]
+            if isinstance(start_from, str)
+            else start_from
+        )
+        bfs_tree = nx.bfs_tree(self._graph, start_node)
+        difference = set(self._graph.nodes).difference(set(bfs_tree.nodes))
+        for node in difference:
+            self._graph.nodes[node][self.__class__.ELEMENT_STATUS_FIELD] = (
+                ElementRunStatus.skipped
+            )
 
     def _run(
-        self, *, nodes: Mapping[str, Any], **passed_parameters: Any
+        self,
+        *,
+        start_from: GraphElementTypeVar | str | None = None,
+        nodes: Mapping[str, Any],
+        **passed_parameters: Any,
     ) -> None:
         """
         Runs the graph by traversing nodes using the orchestrator.
@@ -591,7 +587,7 @@ class QualibrationGraph(
                 elements.
             **passed_parameters (Any): Parameters passed for graph execution.
         """
-        orchestrator = self._orchestrator_or_error()
+        orchestrator = self._orchestrator
         self.cleanup()
         nodes = self._get_all_nodes_parameters(nodes)
         self._parameters = self.parameters.model_validate(passed_parameters)
@@ -619,6 +615,8 @@ class QualibrationGraph(
                         f'node.parameters.targets_name = "targets_name"'
                     )
                     raise TargetsFieldNotExist(msg) from ex
+        if start_from is not None:
+            self._mark_nodes_as_skipped(start_from)
         orchestrator.traverse_graph(self, targets)
 
     def _post_run(
@@ -642,7 +640,7 @@ class QualibrationGraph(
             GraphRunSummary: A summary object containing details about the
                 graph run.
         """
-        self.outcomes = self._orchestrator_or_error().final_outcomes
+        self.outcomes = self._orchestrator.final_outcomes
         self.run_summary = GraphRunSummary(
             name=self.name,
             description=self.description,
@@ -672,6 +670,7 @@ class QualibrationGraph(
         self,
         /,
         *,
+        start_from: GraphElementTypeVar | str | None = None,
         interactive: bool = False,
         nodes: Mapping[str, Any] | None = None,
         **passed_parameters: Any,
@@ -683,6 +682,8 @@ class QualibrationGraph(
         following the specified connectivity and using the provided parameters.
 
         Args:
+            start_from (GraphElementTypeVar | str | None): Start traverse from
+                specific node.
             interactive (bool): just for same api with Node.run.
             nodes (Mapping[str, Any] | None): The parameters for runnable
                 elements.
@@ -704,7 +705,7 @@ class QualibrationGraph(
         if nodes is None:
             nodes = {}
         try:
-            self._run(nodes=nodes, **passed_parameters)
+            self._run(start_from=start_from, nodes=nodes, **passed_parameters)
         except Exception as ex:
             run_error = RunError(
                 error_class=ex.__class__.__name__,
