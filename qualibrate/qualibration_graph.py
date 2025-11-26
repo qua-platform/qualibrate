@@ -778,26 +778,19 @@ class QualibrationGraph(
         return self.__serialize_data(**kwargs)
 
     @ensure_finalized
-    def serialize_cytoscape(self, counter=None):
-        if counter is None:
-            counter = {"id": 0}
-
+    def serialize_cytoscape(self, identifier=0):
         flow_dict = defaultdict(list)
 
         nx_data = dict(self.__class__.nx_graph_export(self._graph, node_names_only=True))
 
-        nodes_raw = nx_data.get("nodes")
-        adj_raw = nx_data.get("adjacency")
-
-        nx_data.pop("nodes", None)
-        nx_data.pop("adjacency", None)
-
+        nodes_raw = nx_data.pop("nodes")
+        adj_raw = nx_data.pop("adjacency")
 
         name_identifier_dict = {}
         for node in nodes_raw:
             node_name = node["id"]
-            counter["id"] += 1
-            name_identifier_dict[node_name] = counter["id"]
+            identifier+=1
+            name_identifier_dict[node_name] = identifier
 
 
         for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
@@ -808,7 +801,7 @@ class QualibrationGraph(
             subgraph_data = {}
 
             if isinstance(element, QualibrationGraph):
-                subgraph_data["subgraph"] = element.serialize_cytoscape(counter=counter)
+                subgraph_data["subgraph"] = element.serialize_cytoscape(identifier=identifier)
 
             flow_dict["nodes"].append({
                 "id": node_id,
@@ -823,7 +816,7 @@ class QualibrationGraph(
                     "source": node_id,
                     "target": name_identifier_dict[target_name],
                     "data": {
-                        "condition": True if adj.get("condition", Outcome.SUCCESSFUL) == Outcome.SUCCESSFUL else False,
+                        "condition": True if adj.get("scenario", Outcome.SUCCESSFUL) == Outcome.SUCCESSFUL else False,
                     },
                 })
 
