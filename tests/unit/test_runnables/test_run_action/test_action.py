@@ -227,15 +227,6 @@ class TestExecuteRunActionNonInteractive:
         assert len(current_action_during_execution) == 1
         assert current_action_during_execution[0] is action
 
-    def test_clears_current_action_after_execution(
-        self, simple_action_function, mock_manager, mock_node, non_interactive_mode
-    ):
-        """Test that current_action is cleared after execution."""
-        action = Action(simple_action_function, mock_manager)
-        action.execute_run_action(mock_node)
-
-        assert mock_manager.current_action is None
-
     def test_clears_action_label_before_execution(
         self, simple_action_function, mock_manager, mock_node, non_interactive_mode
     ):
@@ -403,8 +394,8 @@ class TestActionIntegration:
 
         # Execute first action
         action_obj1.execute_run_action(mock_node)
-        assert mock_manager.current_action is None
+        assert mock_manager.current_action is action_obj1
 
         # Execute second action
         action_obj2.execute_run_action(mock_node)
-        assert mock_manager.current_action is None
+        assert mock_manager.current_action is action_obj2

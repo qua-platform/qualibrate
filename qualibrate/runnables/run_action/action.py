@@ -160,46 +160,46 @@ class Action:
         # Clear action label (used for UI status display)
         node.action_label = None
 
-        # Execute the action and update the node's namespace
-        result = self._run_and_update_namespace(node, *args, **kwargs)
+        try:
+            # Execute the action and update the node's namespace
+            result = self._run_and_update_namespace(node, *args, **kwargs)
 
-        # Clear action label and current action tracking
-        node.action_label = None
-        self.manager.current_action = None
+            # If not in interactive mode or no dict returned, we're done
+            if not is_interactive() or not isinstance(result, Mapping):
+                return result
 
-        # If not in interactive mode or no dict returned, we're done
-        if not is_interactive() or not isinstance(result, Mapping):
-            return result
+            # === Interactive Mode: Variable Injection ===
+            # This is where the "magic" happens - we inject the returned variables
+            # into the caller's local scope (when running single nodes, not workflows)
 
-        # === Interactive Mode: Variable Injection ===
-        # This is where the "magic" happens - we inject the returned variables
-        # into the caller's local scope (when running single nodes, not workflows)
+            # Get the call stack to find the correct frame to update
+            stack = inspect.stack()
+            frame_to_update = get_frame_to_update_from_action(stack)
 
-        # Get the call stack to find the correct frame to update
-        stack = inspect.stack()
-        frame_to_update = get_frame_to_update_from_action(stack)
+            if frame_to_update is None:
+                # Couldn't determine the correct frame, skip injection
+                return result
 
-        if frame_to_update is None:
-            # Couldn't determine the correct frame, skip injection
-            return result
-
-        # Check which variables would overwrite pre-existing names
-        # predefined_names captured when ActionManager was created
-        already_defined = set(result.keys()).intersection(
-            self.manager.predefined_names
-        )
-
-        # Warn about variables that won't be injected (already exist)
-        if already_defined:
-            logger.warning(
-                f"Variables {tuple(already_defined)} after run action "
-                f"{self.func.__name__} won't be set (already defined)."
+            # Check which variables would overwrite pre-existing names
+            # predefined_names captured when ActionManager was created
+            already_defined = set(result.keys()).intersection(
+                self.manager.predefined_names
             )
 
-        # Inject only new variables (not already defined) into the caller's scope
-        # This makes them available as local variables in the interactive session
-        frame_to_update.f_locals.update(
-            {k: v for k, v in result.items() if k not in already_defined}
-        )
+            # Warn about variables that won't be injected (already exist)
+            if already_defined:
+                logger.warning(
+                    f"Variables {tuple(already_defined)} after run action "
+                    f"{self.func.__name__} won't be set (already defined)."
+                )
 
-        return result
+            # Inject only new variables (not already defined) into the caller's scope
+            # This makes them available as local variables in the interactive session
+            frame_to_update.f_locals.update(
+                {k: v for k, v in result.items() if k not in already_defined}
+            )
+
+            return result
+        except Exception as e:
+            self.manager.failed_action = self.name  # Track which action failed
+            raise e

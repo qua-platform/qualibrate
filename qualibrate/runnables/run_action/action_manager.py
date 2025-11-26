@@ -101,6 +101,11 @@ class ActionManager:
         frame_for_names = get_frame_for_keeping_names_from_manager(stack)
         self.predefined_names = get_defined_in_frame_names(frame_for_names)
 
+        # Action execution history (for error reporting)
+        self.completed_actions: list[str] = []  # Actions that finished successfully
+        self.skipped_actions: list[str] = []    # Actions that were skipped
+        self.failed_action: str | None = None   # Action that raised an error (if any)
+
     @property
     def skip_actions(self) -> bool | Sequence[str]:
         return self._skip_actions
@@ -171,10 +176,16 @@ class ActionManager:
             or action_name in self._skip_actions_names  # Skip this specific action
         ):
             logger.info(f"Skipping action {action_name} of node {node}")
+            self.skipped_actions.append(action_name)  # Track skipped action
             return None
 
         # Execute the action
-        return action.execute_run_action(node, *args, **kwargs)
+        result = action.execute_run_action(node, *args, **kwargs)
+
+        # Track successful completion
+        self.completed_actions.append(action_name)
+
+        return result
 
     def register_action(
         self,
@@ -250,6 +261,7 @@ class ActionManager:
             # If skip_if is True, return wrapper WITHOUT executing it
             # This allows conditional registration without execution
             if skip_if:
+                node._action_manager.skipped_actions.append(action_name)
                 return wrapper
 
             # Execute the action immediately (the unusual behavior!)
