@@ -23,6 +23,7 @@ import {
   getRunStatusGraphTotalNodes,
 } from "../../../../../../stores/WebSocketStore/selectors";
 import Graph from "../../../Graph/Graph";
+import SubgraphBreadcrumbs from "../../../GraphElement/components/SubgraphBreadcrumbs";
 
 interface IProps {
   onNodeClick?: (name: string) => void;
@@ -75,6 +76,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ onNodeClick }) => {
             </div>
           </div>
           <div className={styles.lowerLowerContainer}>
+            <SubgraphBreadcrumbs />
             <Graph onNodeClick={onNodeClick} />
           </div>
         </div>

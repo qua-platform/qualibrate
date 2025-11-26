@@ -114,7 +114,7 @@ describe("GraphElement - Parameter Management", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -137,7 +137,7 @@ describe("GraphElement - Parameter Management", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -159,7 +159,7 @@ describe("GraphElement - Parameter Management", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -192,7 +192,7 @@ describe("GraphElement - Parameter Management", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -283,7 +283,7 @@ describe("GraphElement - Workflow Submission", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -312,7 +312,7 @@ describe("GraphElement - Workflow Submission", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -344,7 +344,7 @@ describe("GraphElement - Workflow Submission", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -380,7 +380,7 @@ describe("GraphElement - Workflow Submission", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -408,7 +408,7 @@ describe("GraphElement - Workflow Submission", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -475,7 +475,7 @@ describe("GraphElement - UI Interactions", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -516,7 +516,7 @@ describe("GraphElement - UI Interactions", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -539,7 +539,7 @@ describe("GraphElement - UI Interactions", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -564,7 +564,7 @@ describe("GraphElement - UI Interactions", () => {
 
     const { container } = render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -629,7 +629,7 @@ describe("GraphElement - Error Handling", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -665,7 +665,7 @@ describe("GraphElement - Error Handling", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 
@@ -704,7 +704,7 @@ describe("GraphElement - Error Handling", () => {
 
     render(
       <Providers>
-        <GraphElement calibrationGraphKey="test_workflow" calibrationGraph={mockGraph} />
+        <GraphElement calibrationGraphKey="test_workflow"  />
       </Providers>
     );
 

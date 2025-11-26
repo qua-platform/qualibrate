@@ -105,6 +105,7 @@ const Graph = ({ onNodeClick }: IProps) => {
   const handleNodeClick = (_: React.MouseEvent, node: NodeWithData) => {
     if (!!node.data.subgraph && selectedNodeNameInWorkflow === node.data.label) {
       dispatch(goForwardInGraph(node.data.label));
+      handleSelectNode(undefined);
     } else {
       // Disable "track latest" when manually selecting a node
       dispatch(setTrackLatest(false));

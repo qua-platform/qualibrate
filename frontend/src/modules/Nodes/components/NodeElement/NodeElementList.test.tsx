@@ -85,7 +85,8 @@ describe("NodeElementList", () => {
           param1: {
             default: "value1",
             title: "Parameter 1",
-            type: "string"
+            type: "string",
+            is_targets: false
           }
         }
       }

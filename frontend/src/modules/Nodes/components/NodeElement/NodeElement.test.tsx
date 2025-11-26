@@ -40,17 +40,20 @@ describe("NodeElement - Parameter Management", () => {
       resonator: {
         default: "q1.resonator",
         title: "Resonator",
-        type: "string"
+        type: "string",
+        is_targets: false
       },
       sampling_points: {
         default: 100,
         title: "Sampling Points",
-        type: "number"
+        type: "number",
+        is_targets: false
       },
       enable_fitting: {
         default: true,
         title: "Enable Fitting",
-        type: "boolean"
+        type: "boolean",
+        is_targets: false
       }
     }
   };
@@ -119,7 +122,8 @@ describe("NodeElement - Execution", () => {
       resonator: {
         default: "q1.resonator",
         title: "Resonator",
-        type: "string"
+        type: "string",
+        is_targets: false
       }
     }
   };

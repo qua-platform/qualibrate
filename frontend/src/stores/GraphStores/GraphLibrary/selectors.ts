@@ -1,5 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { getGraphState } from "../selectors";
+import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../GraphCommon/selectors";
 
 export const getGraphLibraryState = createSelector(
   getGraphState,
@@ -12,8 +13,14 @@ export const getAllGraphs = createSelector(
 );
 
 export const getSelectedWorkflow = createSelector(
-  getGraphLibraryState,
-  (libraryState) => libraryState.selectedWorkflow
+  getAllGraphs,
+  getSelectedWorkflowName,
+  getSubgraphBreadcrumbs,
+  (allGraphs = {}, selectedWorkflowName = "", subgraphBreadcrumbs) =>
+    subgraphBreadcrumbs.reduce((currentGraph, key) => {
+      const node = currentGraph.nodes?.[key];
+      return node ?? currentGraph;
+    }, allGraphs[selectedWorkflowName])
 );
 
 export const getLastRunInfo = createSelector(
@@ -39,4 +46,9 @@ export const getLastRunError = createSelector(
 export const getIsRescanningGraphs = createSelector(
   getGraphLibraryState,
   (libraryState) => libraryState.isRescanningGraphs
+);
+
+export const getErrorObject = createSelector(
+  getGraphLibraryState,
+  (libraryState) => libraryState.errorObject
 );

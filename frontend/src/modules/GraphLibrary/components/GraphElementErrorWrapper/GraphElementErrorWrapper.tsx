@@ -7,12 +7,11 @@
 import styles from "../GraphElementErrorWrapper/GraphElementErrorWrapper.module.scss";
 import { ArrowIcon } from "../../../../ui-lib/Icons/ArrowIcon";
 import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { getErrorObject } from "../../../../stores/GraphStores/GraphLibrary/selectors";
 
-interface IProps {
-  errorObject?: unknown;
-}
-
-export const GraphElementErrorWrapper: React.FC<IProps> = ({ errorObject }) => {
+export const GraphElementErrorWrapper: React.FC = () => {
+  const errorObject = useSelector(getErrorObject);
   const [expanded, setExpanded] = React.useState<boolean>(!!errorObject);
 
   // Auto-expand when error appears, collapse when cleared
