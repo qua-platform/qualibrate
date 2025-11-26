@@ -21,7 +21,7 @@ vi.mock("../../Graph/Graph", () => ({
   DEFAULT_NODE_TYPE: "DefaultNode",
 }));
 
-const mockCytoscapeResponce = {
+const mockWorkflowElementsResponce = {
   nodes: [
     {
       id: "node1",
@@ -97,7 +97,7 @@ describe("GraphElement - Parameter Management", () => {
         });
       }),
       http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
-        return HttpResponse.json(mockCytoscapeResponce);
+        return HttpResponse.json(mockWorkflowElementsResponce);
       })
     );
   });
@@ -264,7 +264,7 @@ describe("GraphElement - Workflow Submission", () => {
         });
       }),
       http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
-        return HttpResponse.json(mockCytoscapeResponce);
+        return HttpResponse.json(mockWorkflowElementsResponce);
       })
     );
   });
@@ -453,7 +453,7 @@ describe("GraphElement - UI Interactions", () => {
         });
       }),
       http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
-        return HttpResponse.json(mockCytoscapeResponce);
+        return HttpResponse.json(mockWorkflowElementsResponce);
       })
     );
   });
@@ -463,7 +463,7 @@ describe("GraphElement - UI Interactions", () => {
       .fn()
       .mockResolvedValue({
         isOk: true,
-        result: mockCytoscapeResponce,
+        result: mockWorkflowElementsResponce,
       });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
@@ -531,7 +531,7 @@ describe("GraphElement - UI Interactions", () => {
       .fn()
       .mockResolvedValue({
         isOk: true,
-        result: mockCytoscapeResponce,
+        result: mockWorkflowElementsResponce,
       });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
@@ -599,7 +599,7 @@ describe("GraphElement - Error Handling", () => {
         });
       }),
       http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
-        return HttpResponse.json(mockCytoscapeResponce);
+        return HttpResponse.json(mockWorkflowElementsResponce);
       })
     );
   });
