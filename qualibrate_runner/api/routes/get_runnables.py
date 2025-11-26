@@ -30,7 +30,7 @@ def get_nodes(
 @get_runnables_router.get("/get_graphs")
 def get_graphs(
     graphs: Annotated[RunnableCollection[str, QNodeType], Depends(get_qgraphs)],
-    cytoscape: bool = False,
+    cytoscape: bool = False
 ) -> Mapping[str, Any]:
     return {
         graph_name: graph.serialize(cytoscape=cytoscape,)
