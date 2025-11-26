@@ -5,7 +5,7 @@ import { API_METHODS } from "../../../common/enums/Api";
 import { Measurement } from "../components/GraphStatus/GraphStatus";
 
 type NodeDTO = {
-  id: string
+  id: number
   data: {
     label: string
     subgraph?: FetchGraphResponse
@@ -17,7 +17,7 @@ type NodeDTO = {
 }
 
 type EdgeDTO = {
-  id: number
+  id: string
   source: number
   target: number
   data: {
