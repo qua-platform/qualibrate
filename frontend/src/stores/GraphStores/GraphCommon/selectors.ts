@@ -6,9 +6,25 @@ export const getGraphCommonState = createSelector(
   (graphState) => graphState.common
 );
 
+export const getSelectedWorkflowName = createSelector(
+  getGraphCommonState,
+  (graphCommon) => graphCommon.selectedWorkflowName
+);
+
 export const getSelectedNodeNameInWorkflow = createSelector(
   getGraphCommonState,
   (graphCommon) => graphCommon.selectedNodeNameInWorkflow
+);
+
+export const getUnformattedWorkflowElements = createSelector(
+  getGraphCommonState,
+  (graphCommon) => graphCommon.unformattedWorkflowElements
+);
+
+export const getSubgraphBreadcrumbs = createSelector(
+  getGraphCommonState,
+  getSelectedWorkflowName,
+  (graphCommon, selectedWorkflowName) => graphCommon.subgraphBreadcrumbs[selectedWorkflowName || ""] || []
 );
 
 export const getWorkflowGraphNodes = createSelector(

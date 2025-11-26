@@ -4,12 +4,14 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { GraphElement } from "../GraphElement";
 import { createTestProviders } from "@/test-utils/providers";
 import * as GraphLibraryApiModule from "../../../api/GraphLibraryApi";
-import { setAllGraphs, setSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/actions";
+import { setSelectedWorkflowName } from "@/stores/GraphStores/GraphCommon/actions";
+import { setAllGraphs } from "@/stores/GraphStores/GraphLibrary/actions";
 import { setNodes, setEdges } from "@/stores/GraphStores/GraphCommon/actions";
-import { getAllGraphs, getLastRunInfo, getSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/selectors";
+import { getAllGraphs, getLastRunInfo } from "@/stores/GraphStores/GraphLibrary/selectors";
 import { server } from "@/test-utils/mocks/server";
 import { http, HttpResponse } from "msw";
 import { getActivePage } from "@/stores/NavigationStore/selectors";
+import { getSelectedWorkflowName } from "@/stores/GraphStores/GraphCommon/selectors";
 
 // Mock Graph component to avoid ReactFlow dependencies
 vi.mock("../../Graph/Graph", () => ({

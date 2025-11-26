@@ -17,22 +17,23 @@ import {
   applyEdgeChanges,
   Handle,
   Position,
-  Node,
   useReactFlow,
   ReactFlowProvider,
   ConnectionLineType,
   NodeProps,
   Background,
   NodeChange,
-  EdgeChange
+  EdgeChange,
+  MarkerType
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { classNames } from "../../../../utils/classnames";
-import { getShouldResetView, getWorkflowGraphEdges, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
-import { setEdges, setNodes, setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/actions";
+import { getSelectedNodeNameInWorkflow, getShouldResetView, getWorkflowGraphEdges, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
+import { goForwardInGraph, setEdges, setNodes, setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/actions";
 import { setTrackLatest } from "../../../../stores/GraphStores/GraphStatus/actions";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
+import { NodeWithData } from "../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
 
 interface IProps {
   onNodeClick?: (name: string) => void;
@@ -40,23 +41,47 @@ interface IProps {
 
 export const DEFAULT_NODE_TYPE = "DefaultNode";
 
-const DefaultNode = (props: NodeProps) => {
+const DefaultNode = (props: NodeProps<NodeWithData>) => {
   return (
-    <div className={classNames(styles.defaultNode, props.selected && styles.selected)}>
+    <div
+      className={classNames(
+        styles.defaultNode,
+        props.selected && styles.selected,
+        !!props.data.subgraph && styles.subgraph,
+      )}
+    >
       <label className={styles.defaultNodeLabel}>{props.id}</label>
       <Handle className={styles.defaultNodeHandle} type="target" position={Position.Left} />
       <Handle className={styles.defaultNodeHandle} type="source" position={Position.Right} />
     </div>
   );
 };
+
 const nodeTypes = {
   [DEFAULT_NODE_TYPE]: DefaultNode,
+};
+
+const backgroundColor = "#2b2c32";
+const edgeColor = "#40464d";
+const edgeOptions = {
+  markerEnd: {
+    type: MarkerType.ArrowClosed,
+    width: 60,
+    height: 8,
+    color: edgeColor
+  },
+  style: {
+    strokeWidth: 2,
+    stroke: edgeColor,
+  },
+  selectable: false
 };
 
 const Graph = ({ onNodeClick }: IProps) => {
   const nodes = useSelector(getWorkflowGraphNodes);
   const edges = useSelector(getWorkflowGraphEdges);
   const shouldResetView = useSelector(getShouldResetView);
+  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
   const dispatch = useRootDispatch();
   const { fitView } = useReactFlow();
 
@@ -77,11 +102,15 @@ const Graph = ({ onNodeClick }: IProps) => {
     dispatch(setSelectedNodeNameInWorkflow(id));
   };
 
-  const handleNodeClick = (_: React.MouseEvent, node: Node) => {
-    // Disable "track latest" when manually selecting a node
-    dispatch(setTrackLatest(false));
-    handleSelectNode(node.id);
-    onNodeClick && onNodeClick(node.id);
+  const handleNodeClick = (_: React.MouseEvent, node: NodeWithData) => {
+    if (!!node.data.subgraph && selectedNodeNameInWorkflow === node.id) {
+      dispatch(goForwardInGraph(node.id));
+    } else {
+      // Disable "track latest" when manually selecting a node
+      dispatch(setTrackLatest(false));
+      handleSelectNode(node.id);
+      onNodeClick && onNodeClick(node.id);
+    }
   };
 
   const handleBackgroundClick = (evt: React.MouseEvent) => {
@@ -110,9 +139,10 @@ const Graph = ({ onNodeClick }: IProps) => {
       onEdgesChange={onEdgesChange}
       onNodeClick={handleNodeClick}
       minZoom={0.1}
+      defaultEdgeOptions={edgeOptions}
       fitView
     >
-      <Background color={"#2b2c32"} bgColor={"#2b2c32"} />
+      <Background color={backgroundColor} bgColor={backgroundColor} />
     </ReactFlow>
   </div>;
 };

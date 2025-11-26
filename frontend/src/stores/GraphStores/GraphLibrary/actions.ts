@@ -7,7 +7,6 @@ import { GraphLibraryApi } from "../../../modules/GraphLibrary/api/GraphLibraryA
 export const {
   setAllGraphs,
   setSelectedWorkflow,
-  setSelectedWorkflowName,
   setLastRunInfo,
   setLastRunActive,
   setIsRescanningGraphs,

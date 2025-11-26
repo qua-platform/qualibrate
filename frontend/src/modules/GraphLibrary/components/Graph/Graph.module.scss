@@ -6,19 +6,24 @@
 }
 
 .defaultNode {
-  width: 50px;
-  height: 50px;
-  outline: 2px solid #000;
+  width: 40px;
+  height: 40px;
+  outline: 2px solid #40464d;
   border-radius: 50%;
-  background: url("/assets/icons/nodes.svg") center no-repeat, #FFF;
   position: relative;
   cursor: pointer;
+  background-color: #161b22;
+  transition: all 0.2s;
+
+  &:hover {
+    outline-color: #58a6ff;
+  }
 
   .defaultNodeLabel {
     color: #A8A6A6;
     font-weight: 400;
     position: absolute;
-    top: -25px;
+    bottom: -25px;
     left: 50%;
     transform: translateX(-50%);
   }
@@ -30,9 +35,13 @@
   }
 
   &.selected {
-    background-color: #3b93dc;
+    outline-color: #58a6ff;
     border-width: 1px;
     font-weight: 1;
     color: #FFF;
+  }
+
+  &.subgraph {
+    background: url("/assets/icons/nodes.svg") center no-repeat, #161b22;
   }
 }

@@ -1,5 +1,5 @@
 import { DEFAULT_NODE_TYPE } from "../../../modules/GraphLibrary/components/Graph/Graph";
-import { Edge, MarkerType, Node } from "@xyflow/react";
+import { Edge, Node } from "@xyflow/react";
 import ELK from "elkjs/lib/elk.bundled.js";
 
 const elk = new ELK();
@@ -43,18 +43,7 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
         position: { x: node.x, y: node.y },
       })) as Node[] || [],
 
-      edges: layoutedGraph.edges?.map((edge) => ({
-        ...edge,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 60,
-          height: 8,
-        },
-        style: {
-          strokeWidth: 5,
-        },
-        selectable: false
-      })),
+      edges: layoutedGraph.edges
     }))
     .catch(console.error);
 };

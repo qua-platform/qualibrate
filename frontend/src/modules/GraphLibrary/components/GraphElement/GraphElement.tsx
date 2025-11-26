@@ -24,13 +24,15 @@ import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElement
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import InputField from "../../../../common/ui-components/common/Input/InputField";
 import {GRAPH_STATUS_KEY} from "../../../../routing/ModulesRegistry";
-import {getAllGraphs, getSelectedWorkflowName} from "../../../../stores/GraphStores/GraphLibrary/selectors";
-import {setAllGraphs, setLastRunActive, setSelectedWorkflowName} from "../../../../stores/GraphStores/GraphLibrary/actions";
+import {getAllGraphs} from "../../../../stores/GraphStores/GraphLibrary/selectors";
+import {setAllGraphs, setLastRunActive} from "../../../../stores/GraphStores/GraphLibrary/actions";
 import {useRootDispatch} from "../../../../stores";
-import { getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
+import { getSelectedWorkflowName, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import {setActivePage} from "../../../../stores/NavigationStore/actions";
 import Graph from "../Graph/Graph";
 import { setTrackLatest } from "../../../../stores/GraphStores/GraphStatus/actions";
+import { setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphCommon/actions";
+import SubgraphBreadcrumbs from "./components/SubgraphBreadcrumbs";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -166,11 +168,14 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
           </div>
         </div>
         &nbsp; &nbsp; &nbsp; &nbsp;
-        {calibrationGraph?.description && (
+        {(show || calibrationGraph?.description) &&
           <div className={styles.rightContainer}>
-            <div>{calibrationGraph?.description}</div>
+            {show && <SubgraphBreadcrumbs />}
+            {calibrationGraph?.description && (
+              <div>{calibrationGraph?.description}</div>
+            )}
           </div>
-        )}
+        }
       </div>
       <div className={styles.bottomContainer}>
         <div className={styles.parametersContainer}>
