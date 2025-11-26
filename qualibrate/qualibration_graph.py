@@ -303,17 +303,6 @@ class QualibrationGraph(
 
         for element_name in self._elements:
             self._add_element_to_nx_by_name(element_name)
-        # for element_name, conditions in self._loop_conditions.items():
-        #     element = self._elements[element_name]
-        #     element_attrs = self._graph.nodes[element]
-        #     if conditions.max_iterations:
-        #         element_attrs[self.__class__.LOOP_ELEMENT_MAX_ITERATIONS] = (
-        #             conditions.max_iterations
-        #         )
-        #     if conditions.on_function:
-        #         element_attrs[self.__class__.LOOP_ELEMENT_ON_CONDITION] = (
-        #             conditions.on_function
-        #         )
 
         for source, destination in self._connectivity:
             try:
