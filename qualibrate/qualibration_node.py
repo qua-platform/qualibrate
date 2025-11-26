@@ -673,6 +673,8 @@ class QualibrationNode(
             or None if source cannot be read
         """
         try:
+            if not self.filepath:
+                return None
             # Find the LAST frame in the node file (deepest point where error occurred)
             # Note: This is different from simplify_traceback - we want the actual error location
             all_frames = traceback.extract_tb(tb)
@@ -691,6 +693,8 @@ class QualibrationNode(
             # (could be in a subroutine, action function, or body code)
             error_frame = all_frames[node_frame_indices[-1]]
             error_lineno = error_frame.lineno
+            if not error_lineno:
+                return None
 
             # Read the source file
             with open(self.filepath, "r") as f:
