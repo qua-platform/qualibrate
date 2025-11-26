@@ -140,9 +140,13 @@ def run_node(
     except Exception as ex:
         # Capture error details for state tracking
         run_status = RunStatusEnum.ERROR
+        run_summary = getattr(node, "run_summary", None)
+        run_summary_error = getattr(run_summary, "error", None) if run_summary else None  # Very safe way to access error
         run_error = RunError(
             error_class=ex.__class__.__name__,
             message=str(ex),
+            details_headline=getattr(run_summary_error, 'details_headline', None) if run_summary_error else None,
+            details=getattr(run_summary_error, 'details', None) if run_summary_error else None,
             traceback=traceback.format_tb(ex.__traceback__),
         )
         # Re-raise to allow caller to handle the error
