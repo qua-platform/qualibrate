@@ -124,8 +124,8 @@ def simplify_traceback(
     ]
 
     if not node_frame_indices:
-        # Node file not in traceback (error during framework code before node execution)
-        # Keep the full traceback
+        # Node file not in traceback (error during framework code
+        # before node execution). Keep the full traceback
         return traceback.format_list(all_frames)
 
     # Find ALL frames in action framework code
@@ -154,7 +154,8 @@ def simplify_traceback(
             # This captures the action function + all nested calls
             start_idx = node_frames_after_framework[0]
         else:
-            # Fallback: use first node frame (shouldn't happen in normal execution)
+            # Fallback: use first node frame
+            # (shouldn't happen in normal execution)
             start_idx = node_frame_indices[0]
 
     # Extract relevant frames from start point onwards
@@ -675,8 +676,10 @@ class QualibrationNode(
         try:
             if not self.filepath:
                 return None
-            # Find the LAST frame in the node file (deepest point where error occurred)
-            # Note: This is different from simplify_traceback - we want the actual error location
+            # Find the LAST frame in the node file
+            # (deepest point where error occurred)
+            # Note: This is different from simplify_traceback
+            # - we want the actual error location
             all_frames = traceback.extract_tb(tb)
             node_filepath_str = str(self.filepath)
 
@@ -689,7 +692,8 @@ class QualibrationNode(
             if not node_frame_indices:
                 return None
 
-            # Get the LAST occurrence - this is where the error actually occurred
+            # Get the LAST occurrence
+            # - this is where the error actually occurred
             # (could be in a subroutine, action function, or body code)
             error_frame = all_frames[node_frame_indices[-1]]
             error_lineno = error_frame.lineno
@@ -697,20 +701,22 @@ class QualibrationNode(
                 return None
 
             # Read the source file
-            with open(self.filepath, "r") as f:
+            with open(self.filepath) as f:
                 lines = f.readlines()
 
             # Extract 2 lines before and 2 lines after (5 lines total)
-            start_line = max(0, error_lineno - 3)  # -3 because lineno is 1-indexed
+            # -3 because lineno is 1-indexed
+            start_line = max(0, error_lineno - 3)
             end_line = min(len(lines), error_lineno + 2)
 
             snippet_lines = []
             for i in range(start_line, end_line):
                 line_num = i + 1
                 line_text = lines[i].rstrip()
-                marker = (
-                    "  # <- Error occurred here" if line_num == error_lineno else ""
-                )
+                if line_num == error_lineno:
+                    marker = "  # <- Error occurred here"
+                else:
+                    marker = ""
                 snippet_lines.append(f"{line_num:4d}: {line_text}{marker}")
 
             return "\n".join(snippet_lines)
@@ -752,7 +758,8 @@ class QualibrationNode(
         self, ex: Exception, simplified_tb: list[str]
     ) -> str:
         """
-        Generate detailed error context including action history, source snippet, and simplified traceback.
+        Generate detailed error context including action history,
+        source snippet, and simplified traceback.
 
         Returns a simple markdown string with:
         - Failed action name (if applicable)
@@ -762,7 +769,8 @@ class QualibrationNode(
         - List of skipped actions
         - Error type and message
 
-        Uses simple markdown compatible with React renderers (no nested code blocks or emojis).
+        Uses simple markdown compatible with React renderers
+        (no nested code blocks or emojis).
 
         Args:
             ex: The exception that was raised
@@ -772,9 +780,6 @@ class QualibrationNode(
             Formatted details string (simple markdown)
         """
         lines = []
-
-        # Error location
-        failed_action = self._action_manager.failed_action
 
         # Source code snippet (only from node file)
         source_snippet = self._extract_source_snippet(ex.__traceback__)
@@ -888,12 +893,14 @@ class QualibrationNode(
             # Generate simplified traceback for error details (user-friendly)
             simplified_tb = simplify_traceback(ex.__traceback__, self.filepath)
 
-            run_error = RunError(  # This particular RunError is propagated to the frontend
+            # This particular RunError is propagated to the frontend
+            run_error = RunError(
                 error_class=ex.__class__.__name__,
                 message=str(ex),
                 details_headline=self._generate_error_headline(ex),
                 details=self._generate_error_details(ex, simplified_tb),
-                traceback=traceback.format_tb(ex.__traceback__),  # Keep FULL traceback
+                # Keep FULL traceback
+                traceback=traceback.format_tb(ex.__traceback__),
             )
             logger.exception(f"Failed to run node {self.name}", exc_info=ex)
             raise

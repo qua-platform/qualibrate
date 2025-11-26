@@ -11,8 +11,9 @@ as a local variable in the Jupyter cell that called the action?
 Solution: Use Python's inspect.stack() to walk the call stack, identify the
 correct frame (the caller's frame), and directly modify frame.f_locals.
 
-This is advanced Python introspection and is inherently fragile - it depends on:
-- Specific function names in the stack ("wrapper", "run_action", "register_action")
+This is advanced Python introspection and is inherently fragile
+- it depends on:
+- Specific function names ("wrapper", "run_action", "register_action")
 - Specific file names ("action_manager.py", "qualibration_node.py")
 - Stack depth remaining consistent
 
@@ -203,7 +204,8 @@ def _registered_without_args(stack: list[inspect.FrameInfo]) -> bool | None:
         [0] _registered_without_args
         [1] wrapper (action_manager.py)
         [2] execute_run_action
-        [3] register_action (action_manager.py)  <- KEY: still in register_action
+        [3] register_action (action_manager.py)
+            <- KEY: still in register_action
         ...
 
     Call stack for WITH args (@node.run_action(...)):

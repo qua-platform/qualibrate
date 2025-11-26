@@ -3,6 +3,7 @@ Tests for Action class (non-interactive mode only).
 """
 
 from unittest.mock import Mock, patch
+
 import pytest
 
 from qualibrate.runnables.run_action.action import Action
@@ -211,7 +212,11 @@ class TestExecuteRunActionNonInteractive:
         return node
 
     def test_sets_current_action_during_execution(
-        self, simple_action_function, mock_manager, mock_node, non_interactive_mode
+        self,
+        simple_action_function,
+        mock_manager,
+        mock_node,
+        non_interactive_mode,
     ):
         """Test that current_action is set during execution."""
         current_action_during_execution = []
@@ -228,7 +233,11 @@ class TestExecuteRunActionNonInteractive:
         assert current_action_during_execution[0] is action
 
     def test_clears_action_label_before_execution(
-        self, simple_action_function, mock_manager, mock_node, non_interactive_mode
+        self,
+        simple_action_function,
+        mock_manager,
+        mock_node,
+        non_interactive_mode,
     ):
         """Test that action_label is cleared before execution."""
         mock_node.action_label = "previous_label"
@@ -255,7 +264,11 @@ class TestExecuteRunActionNonInteractive:
         assert result == {"computed": True}
 
     def test_returns_action_result(
-        self, simple_action_function, mock_manager, mock_node, non_interactive_mode
+        self,
+        simple_action_function,
+        mock_manager,
+        mock_node,
+        non_interactive_mode,
     ):
         """Test that execute_run_action returns the action's result."""
         action = Action(simple_action_function, mock_manager)
@@ -264,7 +277,11 @@ class TestExecuteRunActionNonInteractive:
         assert result == {"result": "success", "value": 42}
 
     def test_does_not_inject_variables_in_non_interactive_mode(
-        self, simple_action_function, mock_manager, mock_node, non_interactive_mode
+        self,
+        simple_action_function,
+        mock_manager,
+        mock_node,
+        non_interactive_mode,
     ):
         """Test that variable injection is skipped in non-interactive mode."""
         # In non-interactive mode, is_interactive() returns False
@@ -284,7 +301,11 @@ class TestExecuteRunActionNonInteractive:
         assert mock_node.namespace == {"result": "success", "value": 42}
 
     def test_handles_action_with_no_return(
-        self, action_with_no_return, mock_manager, mock_node, non_interactive_mode
+        self,
+        action_with_no_return,
+        mock_manager,
+        mock_node,
+        non_interactive_mode,
     ):
         """Test action that returns None."""
         action = Action(action_with_no_return, mock_manager)
@@ -295,7 +316,11 @@ class TestExecuteRunActionNonInteractive:
         assert mock_node.namespace == {}
 
     def test_handles_action_with_non_dict_return(
-        self, action_with_non_dict_return, mock_manager, mock_node, non_interactive_mode
+        self,
+        action_with_non_dict_return,
+        mock_manager,
+        mock_node,
+        non_interactive_mode,
     ):
         """Test action that returns a non-dict value."""
         action = Action(action_with_non_dict_return, mock_manager)

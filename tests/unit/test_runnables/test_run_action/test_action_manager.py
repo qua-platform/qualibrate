@@ -15,50 +15,62 @@ class TestActionManagerInit:
 
     def test_init_creates_empty_actions_dict(self):
         """Test that __init__ creates an empty actions dict."""
-        with patch("qualibrate.runnables.run_action.action_manager.inspect.stack"):
-            with patch(
+        with (
+            patch(
+                "qualibrate.runnables.run_action.action_manager.inspect.stack"
+            ),
+            patch(
                 "qualibrate.runnables.run_action.action_manager"
                 ".get_frame_for_keeping_names_from_manager"
-            ):
-                with patch(
-                    "qualibrate.runnables.run_action.action_manager"
-                    ".get_defined_in_frame_names",
-                    return_value=set(),
-                ):
-                    manager = ActionManager()
+            ),
+            patch(
+                "qualibrate.runnables.run_action.action_manager"
+                ".get_defined_in_frame_names",
+                return_value=set(),
+            ),
+        ):
+            manager = ActionManager()
 
         assert manager.actions == {}
         assert isinstance(manager.actions, dict)
 
     def test_init_sets_current_action_to_none(self):
         """Test that current_action is initially None."""
-        with patch("qualibrate.runnables.run_action.action_manager.inspect.stack"):
-            with patch(
+        with (
+            patch(
+                "qualibrate.runnables.run_action.action_manager.inspect.stack"
+            ),
+            patch(
                 "qualibrate.runnables.run_action.action_manager"
                 ".get_frame_for_keeping_names_from_manager"
-            ):
-                with patch(
-                    "qualibrate.runnables.run_action.action_manager"
-                    ".get_defined_in_frame_names",
-                    return_value=set(),
-                ):
-                    manager = ActionManager()
+            ),
+            patch(
+                "qualibrate.runnables.run_action.action_manager"
+                ".get_defined_in_frame_names",
+                return_value=set(),
+            ),
+        ):
+            manager = ActionManager()
 
         assert manager.current_action is None
 
     def test_init_sets_skip_actions_to_false(self):
         """Test that skip_actions defaults to False."""
-        with patch("qualibrate.runnables.run_action.action_manager.inspect.stack"):
-            with patch(
+        with (
+            patch(
+                "qualibrate.runnables.run_action.action_manager.inspect.stack"
+            ),
+            patch(
                 "qualibrate.runnables.run_action.action_manager"
                 ".get_frame_for_keeping_names_from_manager"
-            ):
-                with patch(
-                    "qualibrate.runnables.run_action.action_manager"
-                    ".get_defined_in_frame_names",
-                    return_value=set(),
-                ):
-                    manager = ActionManager()
+            ),
+            patch(
+                "qualibrate.runnables.run_action.action_manager"
+                ".get_defined_in_frame_names",
+                return_value=set(),
+            ),
+        ):
+            manager = ActionManager()
 
         assert manager.skip_actions is False
         assert manager._skip_actions is False
@@ -67,17 +79,21 @@ class TestActionManagerInit:
         """Test that predefined_names are captured from frame."""
         test_names = {"x", "y", "print", "len"}
 
-        with patch("qualibrate.runnables.run_action.action_manager.inspect.stack"):
-            with patch(
+        with (
+            patch(
+                "qualibrate.runnables.run_action.action_manager.inspect.stack"
+            ),
+            patch(
                 "qualibrate.runnables.run_action.action_manager"
                 ".get_frame_for_keeping_names_from_manager"
-            ):
-                with patch(
-                    "qualibrate.runnables.run_action.action_manager"
-                    ".get_defined_in_frame_names",
-                    return_value=test_names,
-                ):
-                    manager = ActionManager()
+            ),
+            patch(
+                "qualibrate.runnables.run_action.action_manager"
+                ".get_defined_in_frame_names",
+                return_value=test_names,
+            ),
+        ):
+            manager = ActionManager()
 
         assert manager.predefined_names == test_names
         assert "x" in manager.predefined_names
@@ -90,17 +106,21 @@ class TestSkipActionsProperty:
     @pytest.fixture
     def manager(self):
         """Provide an ActionManager instance."""
-        with patch("qualibrate.runnables.run_action.action_manager.inspect.stack"):
-            with patch(
+        with (
+            patch(
+                "qualibrate.runnables.run_action.action_manager.inspect.stack"
+            ),
+            patch(
                 "qualibrate.runnables.run_action.action_manager"
                 ".get_frame_for_keeping_names_from_manager"
-            ):
-                with patch(
-                    "qualibrate.runnables.run_action.action_manager"
-                    ".get_defined_in_frame_names",
-                    return_value=set(),
-                ):
-                    return ActionManager()
+            ),
+            patch(
+                "qualibrate.runnables.run_action.action_manager"
+                ".get_defined_in_frame_names",
+                return_value=set(),
+            ),
+        ):
+            return ActionManager()
 
     def test_set_skip_actions_true(self, manager):
         """Test setting skip_actions to True (skip all)."""
@@ -174,17 +194,21 @@ class TestRunAction:
     @pytest.fixture
     def manager(self):
         """Provide an ActionManager instance."""
-        with patch("qualibrate.runnables.run_action.action_manager.inspect.stack"):
-            with patch(
+        with (
+            patch(
+                "qualibrate.runnables.run_action.action_manager.inspect.stack"
+            ),
+            patch(
                 "qualibrate.runnables.run_action.action_manager"
                 ".get_frame_for_keeping_names_from_manager"
-            ):
-                with patch(
-                    "qualibrate.runnables.run_action.action_manager"
-                    ".get_defined_in_frame_names",
-                    return_value=set(),
-                ):
-                    return ActionManager()
+            ),
+            patch(
+                "qualibrate.runnables.run_action.action_manager"
+                ".get_defined_in_frame_names",
+                return_value=set(),
+            ),
+        ):
+            return ActionManager()
 
     @pytest.fixture
     def mock_node(self):
@@ -252,7 +276,7 @@ class TestRunAction:
         mock_action.execute_run_action.assert_not_called()
 
         # action2 should run
-        result2 = manager.run_action("action2", mock_node)
+        manager.run_action("action2", mock_node)
         manager.actions["action2"].execute_run_action.assert_called_once()
 
     def test_run_action_with_args_kwargs(
@@ -285,17 +309,21 @@ class TestRegisterAction:
     @pytest.fixture
     def manager(self):
         """Provide an ActionManager instance."""
-        with patch("qualibrate.runnables.run_action.action_manager.inspect.stack"):
-            with patch(
+        with (
+            patch(
+                "qualibrate.runnables.run_action.action_manager.inspect.stack"
+            ),
+            patch(
                 "qualibrate.runnables.run_action.action_manager"
                 ".get_frame_for_keeping_names_from_manager"
-            ):
-                with patch(
-                    "qualibrate.runnables.run_action.action_manager"
-                    ".get_defined_in_frame_names",
-                    return_value=set(),
-                ):
-                    return ActionManager()
+            ),
+            patch(
+                "qualibrate.runnables.run_action.action_manager"
+                ".get_defined_in_frame_names",
+                return_value=set(),
+            ),
+        ):
+            return ActionManager()
 
     @pytest.fixture
     def mock_node(self):

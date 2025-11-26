@@ -7,9 +7,10 @@ as part of a QualibrationNode's run lifecycle. Actions have special behavior:
 1. **Namespace Updates**: If an action returns a dict, it's added to
    node.namespace, making values available to subsequent actions.
 
-2. **Interactive Variable Injection**: In interactive mode (running single nodes, not workflows),
-   returned dict items are injected into the caller's local scope, allowing
-   users to access variables without explicit assignment.
+2. **Interactive Variable Injection**: In interactive mode
+   (running single nodes, not workflows), returned dict items are
+   injected into the caller's local scope, allowing users to access
+   variables without explicit assignment.
 
 Example:
     @node.run_action
@@ -129,7 +130,8 @@ class Action:
         **kwargs: Any,
     ) -> ActionReturnType | None:
         """
-        Execute the action with full lifecycle management and variable injection.
+        Execute the action with full lifecycle management and variable
+        injection.
 
         This is the main entry point for action execution. It handles:
         1. Tracking the current action in the manager
@@ -169,8 +171,9 @@ class Action:
                 return result
 
             # === Interactive Mode: Variable Injection ===
-            # This is where the "magic" happens - we inject the returned variables
-            # into the caller's local scope (when running single nodes, not workflows)
+            # This is where the "magic" happens - we inject the returned
+            # variables into the caller's local scope
+            # (when running single nodes, not workflows)
 
             # Get the call stack to find the correct frame to update
             stack = inspect.stack()
@@ -193,8 +196,9 @@ class Action:
                     f"{self.func.__name__} won't be set (already defined)."
                 )
 
-            # Inject only new variables (not already defined) into the caller's scope
-            # This makes them available as local variables in the interactive session
+            # Inject only new variables (not already defined) into the
+            # caller's scope. This makes them available as local variables
+            # in the interactive session
             frame_to_update.f_locals.update(
                 {k: v for k, v in result.items() if k not in already_defined}
             )

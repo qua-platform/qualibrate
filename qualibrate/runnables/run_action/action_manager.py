@@ -102,9 +102,12 @@ class ActionManager:
         self.predefined_names = get_defined_in_frame_names(frame_for_names)
 
         # Action execution history (for error reporting)
-        self.completed_actions: list[str] = []  # Actions that finished successfully
-        self.skipped_actions: list[str] = []    # Actions that were skipped
-        self.failed_action: str | None = None   # Action that raised an error (if any)
+        # Actions that finished successfully
+        self.completed_actions: list[str] = []
+        # Actions that were skipped
+        self.skipped_actions: list[str] = []
+        # Action that raised an error (if any)
+        self.failed_action: str | None = None
 
     @property
     def skip_actions(self) -> bool | Sequence[str]:
@@ -172,8 +175,10 @@ class ActionManager:
 
         # Check if this action should be skipped
         if self._skip_actions and (
-            len(self._skip_actions_names) == 0  # Skip all actions
-            or action_name in self._skip_actions_names  # Skip this specific action
+            # Skip all actions
+            len(self._skip_actions_names) == 0
+            # Skip this specific action
+            or action_name in self._skip_actions_names
         ):
             logger.info(f"Skipping action {action_name} of node {node}")
             self.skipped_actions.append(action_name)  # Track skipped action
@@ -211,7 +216,8 @@ class ActionManager:
            - Registers but does NOT execute the action
 
         The decorated function is replaced with a wrapper that calls
-        run_action(), in principle allowing it to be called again later if needed.
+        run_action(), in principle allowing it to be called again later
+        if needed.
 
         Args:
             node: The QualibrationNode instance that owns this action
