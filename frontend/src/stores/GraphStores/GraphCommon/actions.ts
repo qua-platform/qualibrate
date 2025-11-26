@@ -4,6 +4,7 @@ import { commonGraphSlice } from "./GraphCommonStore";
 import { Edge, Node } from "@xyflow/react";
 import { getLayoutedElements } from "./utils";
 import { getSubgraphBreadcrumbs, getUnformattedWorkflowElements } from "./selectors";
+// import {createSimpleNestedGraph} from "../../../test-utils/builders/cytoscapeElements";
 
 export const {
   setSelectedWorkflowName,
@@ -17,17 +18,16 @@ export const {
   setSubgraphBack,
 } = commonGraphSlice.actions;
 
-export const layoutAndSetNodesAndEdges = ({ nodes, edges }: { nodes: Node[], edges: Edge[] }) =>
+export const layoutAndSetNodesAndEdges =
+  ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) =>
   (dispatch: RootDispatch) =>
-    getLayoutedElements(nodes, edges).then(
-      (res) => {
-        if (res) {
-          dispatch(setNodes(res.nodes));
-          dispatch(setEdges(res.edges));
-          dispatch(setShouldResetView(true));
-        }
-      },
-    );
+    getLayoutedElements(nodes, edges).then((res) => {
+      if (res) {
+        dispatch(setNodes(res.nodes));
+        dispatch(setEdges(res.edges));
+        dispatch(setShouldResetView(true));
+      }
+    });
 
 const defaultPosition = {
   x: 100,
@@ -39,20 +39,20 @@ export const fetchWorkflowGraph = (nodeName: string) => async (dispatch: RootDis
   if (response.isOk) {
     const subgraphBreadcrumbs = getSubgraphBreadcrumbs(getState());
     const nodes = (response.result || [])
-      .filter(item => item.group === "nodes" && !!item.data.id)
-      .map(node => ({
+      .filter((item) => item.group === "nodes" && !!item.data.id)
+      .map((node) => ({
         id: node.data.id,
         position: node.position || defaultPosition,
-        data: {}
+        data: {},
       }));
 
     const edges = (response.result || [])
-      .filter(item => item.group === "edges")
-      .map(edge => ({
+      .filter((item) => item.group === "edges")
+      .map((edge) => ({
         id: edge.data.id || "",
         source: edge.data.source,
         target: edge.data.target,
-        data: {}
+        data: {},
       }));
 
     dispatch(setUnformattedWorkflowElements({ nodes, edges }));
@@ -82,7 +82,7 @@ export const setSubgraph = () => (dispatch: RootDispatch, getState: () => RootSt
   }
 
   const graph = subgraphBreadcrumbs.reduce((currentGraph, key) => {
-    const node = currentGraph.nodes.find(n => n.id === key);
+    const node = currentGraph.nodes.find((n) => n.id === key);
     return node?.data.subgraph ?? currentGraph;
   }, workflowElements);
 
