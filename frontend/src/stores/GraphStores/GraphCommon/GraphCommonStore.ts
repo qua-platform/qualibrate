@@ -1,3 +1,4 @@
+import { FetchGraphResponse } from "@/modules/GraphLibrary/api/GraphLibraryApi";
 import { createSlice } from "@reduxjs/toolkit";
 import { Edge, Node } from "@xyflow/react";
 
@@ -6,7 +7,7 @@ export type EdgeData = {
 }
 
 export type NodeData = {
-  label?: string
+  label: string
   subgraph?: {
     nodes: NodeWithData[],
     edges: EdgeWithData[]
@@ -20,10 +21,7 @@ interface GraphState {
   selectedWorkflowName?: string;
   selectedNodeNameInWorkflow?: string
   // workflow graph returned from backend as is
-  unformattedWorkflowElements?: {
-    nodes: NodeWithData[]
-    edges: EdgeWithData[]
-  }
+  unformattedWorkflowElements?: FetchGraphResponse
   // graph that is currently shown in UI with applied layout and selected subgraph
   nodes: NodeWithData[]
   edges: EdgeWithData[]
@@ -55,7 +53,7 @@ export const commonGraphSlice = createSlice({
       state.selectedNodeNameInWorkflow = action.payload;
       state.nodes = state.nodes.map(node => ({
         ...node,
-        selected: action.payload === node.id
+        selected: action.payload === node.data.label
       }));
     },
     resetWorkflowGraphElements: (state) => {

@@ -13,6 +13,7 @@ import {Edge, Node} from "@xyflow/react";
 const createNode = (id: string, subgraph?: { nodes: Node<NodeData>[]; edges: Edge[] }): Node<NodeData> => ({
   id,
   data: {
+    label: id,
     subgraph,
   },
   position: { x: 100, y: 100 },
@@ -35,7 +36,7 @@ export const createGraphOfOneNode = () => ({
 /**
  * Creates a simple graph with connected nodes.
  */
-export const createSimpleGraph = (prefix: string = ""): { nodes: Node[]; edges: Edge[] } => ({
+export const createSimpleGraph = (prefix: string = ""): { nodes: Node<NodeData>[], edges: Edge[] } => ({
   nodes: [createNode(`${prefix}_node1`), createNode(`${prefix}_node2`), createNode(`${prefix}_node3`)],
   edges: [createEdge(`${prefix}_node1`, `${prefix}_node2`), createEdge(`${prefix}_node2`, `${prefix}_node3`)],
 });

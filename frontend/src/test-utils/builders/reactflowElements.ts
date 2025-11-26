@@ -12,19 +12,19 @@ export const createSimpleGraph = (): { nodes: Node[]; edges: Edge[] } => ({
       id: "node1",
       type: DEFAULT_NODE_TYPE,
       position: { x: 0, y: 0 },
-      data: { label: "Node 1" },
+      data: { label: "node1" },
     },
     {
       id: "node2",
       type: DEFAULT_NODE_TYPE,
       position: { x: 150, y: 0 },
-      data: { label: "Node 2" },
+      data: { label: "node2" },
     },
     {
       id: "node3",
       type: DEFAULT_NODE_TYPE,
       position: { x: 300, y: 0 },
-      data: { label: "Node 3" },
+      data: { label: "node3" },
     },
   ],
   edges: [
@@ -99,8 +99,8 @@ export const createGraphWithSelection = (
   return {
     nodes: nodes.map((node) => ({
       ...node,
-      selected: node.id === selectedId,
-      className: node.id === selectedId ? "selected" : undefined,
+      selected: node.data.label === selectedId,
+      className: node.data.label === selectedId ? "selected" : undefined,
     })),
     edges,
   };

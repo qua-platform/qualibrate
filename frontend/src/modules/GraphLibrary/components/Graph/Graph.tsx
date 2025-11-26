@@ -54,7 +54,7 @@ export const DEFAULT_NODE_TYPE = "DefaultNode";
 const DefaultNode = (props: NodeProps<NodeWithData>) => {
   return (
     <div className={classNames(styles.defaultNode, props.selected && styles.selected, !!props.data.subgraph && styles.subgraph)}>
-      <label className={styles.defaultNodeLabel}>{props.id}</label>
+      <label className={styles.defaultNodeLabel}>{props.data.label}</label>
       <Handle className={styles.defaultNodeHandle} type="target" position={Position.Left} />
       <Handle className={styles.defaultNodeHandle} type="source" position={Position.Right} />
     </div>
@@ -107,13 +107,13 @@ const Graph = ({ onNodeClick }: IProps) => {
   };
 
   const handleNodeClick = (_: React.MouseEvent, node: NodeWithData) => {
-    if (!!node.data.subgraph && selectedNodeNameInWorkflow === node.id) {
-      dispatch(goForwardInGraph(node.id));
+    if (!!node.data.subgraph && selectedNodeNameInWorkflow === node.data.label) {
+      dispatch(goForwardInGraph(node.data.label));
     } else {
       // Disable "track latest" when manually selecting a node
       dispatch(setTrackLatest(false));
-      handleSelectNode(node.id);
-      onNodeClick && onNodeClick(node.id);
+      handleSelectNode(node.data.label);
+      onNodeClick && node.data.label && onNodeClick(node.data.label);
     }
   };
 

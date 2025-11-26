@@ -1,7 +1,6 @@
-import { GraphLibraryApi } from "../../../modules/GraphLibrary/api/GraphLibraryApi";
+import { FetchGraphResponse, GraphLibraryApi } from "../../../modules/GraphLibrary/api/GraphLibraryApi";
 import { RootDispatch, RootState } from "../../";
 import { commonGraphSlice } from "./GraphCommonStore";
-import { Edge, Node } from "@xyflow/react";
 import { getLayoutedElements } from "./utils";
 import { getSubgraphBreadcrumbs, getUnformattedWorkflowElements } from "./selectors";
 // import {createSimpleNestedGraph} from "../../../test-utils/builders/cytoscapeElements";
@@ -18,51 +17,28 @@ export const {
   setSubgraphBack,
 } = commonGraphSlice.actions;
 
-export const layoutAndSetNodesAndEdges =
-  ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) =>
-  (dispatch: RootDispatch) =>
-    getLayoutedElements(nodes, edges).then((res) => {
-      if (res) {
-        dispatch(setNodes(res.nodes));
-        dispatch(setEdges(res.edges));
-        dispatch(setShouldResetView(true));
-      }
-    });
-
-const defaultPosition = {
-  x: 100,
-  y: 100,
-};
+export const layoutAndSetNodesAndEdges = (data: FetchGraphResponse) => (dispatch: RootDispatch) =>
+  getLayoutedElements(data).then((res) => {
+    if (res) {
+      dispatch(setNodes(res.nodes));
+      dispatch(setEdges(res.edges));
+      dispatch(setShouldResetView(true));
+    }
+  });
 
 export const fetchWorkflowGraph = (nodeName: string) => async (dispatch: RootDispatch, getState: () => RootState) => {
   const response = await GraphLibraryApi.fetchGraph(nodeName);
-  if (response.isOk) {
+  if (response.isOk && response.result) {
     const subgraphBreadcrumbs = getSubgraphBreadcrumbs(getState());
-    const nodes = (response.result || [])
-      .filter((item) => item.group === "nodes" && !!item.data.id)
-      .map((node) => ({
-        id: node.data.id,
-        position: node.position || defaultPosition,
-        data: {},
-      }));
 
-    const edges = (response.result || [])
-      .filter((item) => item.group === "edges")
-      .map((edge) => ({
-        id: edge.data.id || "",
-        source: edge.data.source,
-        target: edge.data.target,
-        data: {},
-      }));
-
-    dispatch(setUnformattedWorkflowElements({ nodes, edges }));
+    dispatch(setUnformattedWorkflowElements(response.result));
     // Uncomment to use mocks
     // dispatch(setUnformattedWorkflowElements(createSimpleNestedGraph()));
 
     if (subgraphBreadcrumbs.length) {
       dispatch(setSubgraph());
     } else {
-      dispatch(layoutAndSetNodesAndEdges({ nodes, edges }));
+      dispatch(layoutAndSetNodesAndEdges(response.result));
       // Uncomment to use mocks
       // dispatch(layoutAndSetNodesAndEdges(createSimpleNestedGraph()));
     }
@@ -82,7 +58,7 @@ export const setSubgraph = () => (dispatch: RootDispatch, getState: () => RootSt
   }
 
   const graph = subgraphBreadcrumbs.reduce((currentGraph, key) => {
-    const node = currentGraph.nodes.find((n) => n.id === key);
+    const node = currentGraph.nodes.find((n) => n.data.label === key);
     return node?.data.subgraph ?? currentGraph;
   }, workflowElements);
 
