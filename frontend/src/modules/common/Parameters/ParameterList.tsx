@@ -1,6 +1,6 @@
 import React from "react";
-import { NodeMap } from "../../Nodes/components/NodeElement/NodeElement";
-import { Parameters } from "./Parameters";
+import { NodeDTO, NodeMap } from "../../Nodes/components/NodeElement/NodeElement";
+import { Parameters, SingleParameter } from "./Parameters";
 import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
 import ParameterSelector from "./InputElement";
 
@@ -11,6 +11,9 @@ interface IProps {
 }
 
 export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfItems }) => {
+  const renderInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) =>
+    <ParameterSelector parameterKey={key} parameter={parameter} node={node} />;
+
   return (
     <>
       {Object.entries(mapOfItems ?? {}).map(([key, parameter]) => {
@@ -21,7 +24,7 @@ export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfI
             showTitle={true}
             title={parameter.name}
             currentItem={parameter}
-            getInputElement={(key, parameter, node) => <ParameterSelector parameterKey={key} parameter={parameter} node={node} />}
+            getInputElement={renderInputElement}
           />
         );
       })}

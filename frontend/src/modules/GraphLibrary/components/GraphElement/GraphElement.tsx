@@ -14,7 +14,7 @@ import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
 import {classNames} from "../../../../utils/classnames";
-import {Parameters} from "../../../common/Parameters/Parameters";
+import {Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
 import {ParameterList} from "../../../common/Parameters/ParameterList";
 import Graph from "../Graph/Graph";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
@@ -42,6 +42,9 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   const handleSelect = () => {
     dispatch(setSelectedWorkflowName(calibrationGraphKey));
   };
+
+  const renderInputElement = (key: string, parameter: SingleParameter) =>
+    <ParameterSelector parameterKey={key} parameter={parameter} />;
 
   const show = selectedWorkflowName === calibrationGraphKey;
   return (
@@ -76,7 +79,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
             show={show}
             showTitle={true}
             currentItem={selectedWorkflow}
-            getInputElement={(key, parameter) => <ParameterSelector parameterKey={key} parameter={parameter} />}
+            getInputElement={renderInputElement}
           />
           {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} />}
         </div>
