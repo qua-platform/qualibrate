@@ -94,4 +94,11 @@ export const handlers = [
       total: 0
     });
   }),
+
+  // Redirect endpoint (called during app initialization)
+  http.get("/api/redirect", () => {
+    return HttpResponse.json({
+      page: "home"
+    });
+  }),
 ];

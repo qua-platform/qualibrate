@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import { getActiveProject, getAllProjects, getIsScanningProjects } from "../../stores/ProjectStore/selectors";
 import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary/actions";
 import { useRootDispatch } from "../../stores";
-import { setWorkflowGraphElements } from "../../stores/GraphStores/GraphCommon/actions";
+import { resetWorkflowGraphElements } from "../../stores/GraphStores/GraphCommon/actions";
 import { fetchAllNodes } from "../../stores/NodesStore/actions";
 
 const Project = () => {
@@ -31,7 +31,7 @@ const Project = () => {
 
   useEffect(() => {
     if (activeProject) {
-      dispatch(setWorkflowGraphElements(undefined));
+      dispatch(resetWorkflowGraphElements());
       dispatch(fetchAllNodes());
       dispatch(fetchAllCalibrationGraphs());
     }

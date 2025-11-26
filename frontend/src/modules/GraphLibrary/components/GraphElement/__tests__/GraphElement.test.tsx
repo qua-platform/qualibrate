@@ -5,17 +5,18 @@ import { GraphElement } from "../GraphElement";
 import { createTestProviders } from "@/test-utils/providers";
 import * as GraphLibraryApiModule from "../../../api/GraphLibraryApi";
 import { setAllGraphs, setSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/actions";
-import { setWorkflowGraphElements } from "@/stores/GraphStores/GraphCommon/actions";
+import { setNodes, setEdges } from "@/stores/GraphStores/GraphCommon/actions";
 import { getAllGraphs, getLastRunInfo, getSelectedWorkflowName } from "@/stores/GraphStores/GraphLibrary/selectors";
 import { server } from "@/test-utils/mocks/server";
 import { http, HttpResponse } from "msw";
 import { getActivePage } from "@/stores/NavigationStore/selectors";
 
-// Mock CytoscapeGraph to avoid Cytoscape dependencies
-vi.mock("../../CytoscapeGraph/CytoscapeGraph", () => ({
-  default: ({ elements }: { elements: unknown[] }) => (
-    <div data-testid="cytoscape-graph">Cytoscape Graph with {elements?.length || 0} elements</div>
+// Mock Graph component to avoid ReactFlow dependencies
+vi.mock("../../Graph/Graph", () => ({
+  default: () => (
+    <div data-testid="react-flow-graph">ReactFlow Graph</div>
   ),
+  DEFAULT_NODE_TYPE: "DefaultNode",
 }));
 
 describe("GraphElement - Parameter Management", () => {
@@ -69,6 +70,13 @@ describe("GraphElement - Parameter Management", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
         });
+      }),
+      http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
+        return HttpResponse.json([
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ]);
       })
     );
   });
@@ -233,6 +241,13 @@ describe("GraphElement - Workflow Submission", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
         });
+      }),
+      http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
+        return HttpResponse.json([
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ]);
       })
     );
   });
@@ -419,6 +434,13 @@ describe("GraphElement - UI Interactions", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
         });
+      }),
+      http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
+        return HttpResponse.json([
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ]);
       })
     );
   });
@@ -428,7 +450,11 @@ describe("GraphElement - UI Interactions", () => {
       .fn()
       .mockResolvedValue({
         isOk: true,
-        result: mockGraph,
+        result: [
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ],
       });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
@@ -460,10 +486,13 @@ describe("GraphElement - UI Interactions", () => {
     });
   });
 
-  it("should show Cytoscape preview when expanded", async () => {
-    const mockElements = [
-      { data: { id: "node1" } },
-      { data: { id: "node2" } },
+  it("should show ReactFlow preview when expanded", async () => {
+    const mockNodes = [
+      { id: "node1", position: { x: 0, y: 0 }, data: { label: "Node 1" } },
+      { id: "node2", position: { x: 100, y: 0 }, data: { label: "Node 2" } },
+    ];
+    const mockEdges = [
+      { id: "edge1", source: "node1", target: "node2" },
     ];
 
     const { Providers, mockStore } = createTestProviders({
@@ -473,7 +502,8 @@ describe("GraphElement - UI Interactions", () => {
     });
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
-    mockStore.dispatch(setWorkflowGraphElements(mockElements));
+    mockStore.dispatch(setNodes(mockNodes));
+    mockStore.dispatch(setEdges(mockEdges));
 
     render(
       <Providers>
@@ -481,10 +511,9 @@ describe("GraphElement - UI Interactions", () => {
       </Providers>
     );
 
-    // Cytoscape graph should be visible
+    // Graph should be visible
     await waitFor(() => {
-      expect(screen.getByTestId("cytoscape-graph")).toBeInTheDocument();
-      expect(screen.getByText(/Cytoscape Graph with 2 elements/i)).toBeInTheDocument();
+      expect(screen.getByTestId("react-flow-graph")).toBeInTheDocument();
     });
   });
 
@@ -493,7 +522,11 @@ describe("GraphElement - UI Interactions", () => {
       .fn()
       .mockResolvedValue({
         isOk: true,
-        result: mockGraph,
+        result: [
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ],
       });
     vi.spyOn(GraphLibraryApiModule.GraphLibraryApi, "fetchGraph").mockImplementation(mockFetch);
 
@@ -559,6 +592,13 @@ describe("GraphElement - Error Handling", () => {
         return HttpResponse.json({
           test_workflow: mockGraph
         });
+      }),
+      http.get("*/api/v0/execution/get_graph/cytoscape*", () => {
+        return HttpResponse.json([
+          { group: "nodes", data: { id: "node1" }, position: { x: 0, y: 0 } },
+          { group: "nodes", data: { id: "node2" }, position: { x: 100, y: 0 } },
+          { group: "edges", data: { id: "edge1", source: "node1", target: "node2" } },
+        ]);
       })
     );
   });

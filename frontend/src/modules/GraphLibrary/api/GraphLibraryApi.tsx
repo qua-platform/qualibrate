@@ -4,6 +4,26 @@ import { ALL_GRAPHS, GET_EXECUTION_HISTORY, GET_WORKFLOW_GRAPH, SUBMIT_WORKFLOW_
 import { API_METHODS } from "../../../common/enums/Api";
 import { Measurement } from "../components/GraphStatus/GraphStatus";
 
+export type FetchGraphResponse = {
+  group: "nodes"
+  data: { id: string }
+  position: {
+    x: number
+    y: number
+  }
+} | {
+  group: "edges"
+  data: {
+    id: string
+    source: string
+    target: string
+  }
+  position: {
+    x: number
+    y: number
+  }
+}
+
 export class GraphLibraryApi extends Api {
   constructor() {
     super();
@@ -20,7 +40,7 @@ export class GraphLibraryApi extends Api {
     });
   }
 
-  static fetchGraph(name: string): Promise<Res<void>> {
+  static fetchGraph(name: string): Promise<Res<FetchGraphResponse[]>> {
     return this._fetch(this.api(GET_WORKFLOW_GRAPH()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
       queryParams: { name },
