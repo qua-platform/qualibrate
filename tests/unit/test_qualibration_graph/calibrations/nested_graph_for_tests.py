@@ -45,4 +45,3 @@ with topg_ as topg:
 
     topg.connect(src=subg, dst=node1)
 
-# print(topg_.serialize())
