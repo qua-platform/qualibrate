@@ -59,4 +59,4 @@ def get_graph(
 def get_graph_cytoscape(
     graph: Annotated[QGraphType, Depends(get_qgraph)],
 ) -> Mapping[str, Any]:
-    return graph.serialize_cytoscape()
+    return graph.serialize_graph_representation()
