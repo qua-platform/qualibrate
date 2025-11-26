@@ -20,7 +20,9 @@ jobs:
           python-version: "3.10"
 
       - name: Install python deps
-        run: poetry install --with dev --no-root
+        run: |
+          rm poetry.lock
+          poetry install --with dev --no-root
 
       - name: Check python package typing
         run: poetry run poe type
