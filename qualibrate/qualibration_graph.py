@@ -1145,7 +1145,7 @@ class QualibrationGraph(
                     Callable[[GraphElementTypeVar, TargetType], bool], on
                 )
 
-    def loop_on_failure(
+    def __loop_on_failure(
         self, element: str | GraphElementTypeVar, max_iterations: int
     ) -> None:
         element_name = self._get_validated_element_name(element)
