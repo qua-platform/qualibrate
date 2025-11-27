@@ -1,6 +1,7 @@
 import {createSelector} from "@reduxjs/toolkit";
 import {getGraphState} from "../selectors";
 import {MarkerType} from "@xyflow/react";
+import { LOOPING_EDGE_TYPE } from "../../../modules/GraphLibrary/components/Graph/components";
 
 export const getGraphCommonState = createSelector(getGraphState, (graphState) => graphState.common);
 
@@ -23,6 +24,7 @@ export const getWorkflowGraphEdges = createSelector(getGraphCommonState, (librar
 export const getShouldResetView = createSelector(getGraphCommonState, (graphCommon) => graphCommon.shouldResetView);
 
 const DEFAULT_COLOR = "#40464d";
+const LIGHT_GREAY = "#70767d";
 const GREEN = "#4caf50";
 const RED = "#f44336";
 
@@ -30,10 +32,14 @@ export const getWorkflowGraphEdgesColored = createSelector(getWorkflowGraphEdges
     edges.map((edge) => {
         let color = DEFAULT_COLOR;
 
-        if (edge.data?.condition === true) {
-            color = GREEN;
-        } else if (edge.data?.condition === false) {
-            color = RED;
+        if (edge.type === LOOPING_EDGE_TYPE) {
+            color = LIGHT_GREAY;
+        } else {
+            if (edge.data?.condition === true) {
+                color = GREEN;
+            } else if (edge.data?.condition === false) {
+                color = RED;
+            }
         }
 
         return {

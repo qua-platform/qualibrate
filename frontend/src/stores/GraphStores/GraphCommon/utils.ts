@@ -1,5 +1,5 @@
-import { FetchGraphResponse } from "@/modules/GraphLibrary/api/GraphLibraryApi";
-import { DEFAULT_NODE_TYPE } from "../../../modules/GraphLibrary/components/Graph/Graph";
+import { EdgeDTO, FetchGraphResponse } from "@/modules/GraphLibrary/api/GraphLibraryApi";
+import { DEFAULT_NODE_TYPE, LOOPING_EDGE_TYPE } from "../../../modules/GraphLibrary/components/Graph/components";
 import { Node } from "@xyflow/react";
 import ELK from "elkjs/lib/elk.bundled.js";
 
@@ -14,27 +14,49 @@ const layoutOptions = {
   "elk.layered.wrapping.strategy": "SINGLE_EDGE"
 };
 
-export const getLayoutedElements = ({ nodes, edges }: FetchGraphResponse) => {
-  const graph = {
-    id: "root",
-    layoutOptions,
-    children: nodes.map((node) => ({
+
+export const getLayoutedElements = ({ nodes = [], edges = [] }: FetchGraphResponse) => {
+  const loopingEdges: EdgeDTO[] = [];
+
+  const children = nodes.map((node) => {
+    const isLoopingNode = node.loop;
+    if (isLoopingNode) {
+      loopingEdges.push({
+        id: `${node.id}`,
+        source: node.id,
+        target: node.id,
+        data: {
+          loop: {
+            condition: node.data.condition,
+            maxIterations: node.data.max_iterations,
+          }
+        },
+        position: { x: 100, y: 100 },
+      });
+    }
+    return {
       ...node,
       id: String(node.id),
       targetPosition: "left",
       sourcePosition: "right",
-
       // Hardcode a width and height for elk to use when layouting.
-      width: 50,
+      width: 70,
       height: 70,
-    })),
-    edges: edges.map(edge => ({
+    };
+  });
+
+  const graph = {
+    id: "root",
+    layoutOptions,
+    children,
+    edges: [...edges, ...loopingEdges].map(edge => ({
       ...edge,
       id: String(edge.id),
       source: String(edge.source),
       target: String(edge.target),
       sources: [ String(edge.source) ],
       targets: [ String(edge.target) ],
+      type: "loop" in edge.data ? LOOPING_EDGE_TYPE : undefined,
     })),
   };
 

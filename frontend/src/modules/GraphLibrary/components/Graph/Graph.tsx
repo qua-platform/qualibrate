@@ -17,17 +17,12 @@ import {
   Background,
   ConnectionLineType,
   EdgeChange,
-  Handle,
-  MarkerType,
   NodeChange,
-  NodeProps,
-  Position,
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import {classNames} from "../../../../utils/classnames";
 import {
   getSelectedNodeNameInWorkflow,
   getShouldResetView,
@@ -44,42 +39,13 @@ import {setTrackLatest} from "../../../../stores/GraphStores/GraphStatus/actions
 import {useRootDispatch} from "../../../../stores";
 import {useSelector} from "react-redux";
 import {NodeWithData} from "../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
+import componentTypes, { edgeOptions } from "./components";
 
 interface IProps {
   onNodeClick?: (name: string) => void;
 }
 
-export const DEFAULT_NODE_TYPE = "DefaultNode";
-
-const DefaultNode = (props: NodeProps<NodeWithData>) => {
-  return (
-    <div className={classNames(styles.defaultNode, props.selected && styles.selected, !!props.data.subgraph && styles.subgraph)}>
-      <label className={styles.defaultNodeLabel}>{props.data.label}</label>
-      <Handle className={styles.defaultNodeHandle} type="target" position={Position.Left} />
-      <Handle className={styles.defaultNodeHandle} type="source" position={Position.Right} />
-    </div>
-  );
-};
-
-const nodeTypes = {
-  [DEFAULT_NODE_TYPE]: DefaultNode,
-};
-
 const backgroundColor = "#2b2c32";
-const edgeColor = "#40464d";
-const edgeOptions = {
-  markerEnd: {
-    type: MarkerType.ArrowClosed,
-    width: 60,
-    height: 8,
-    color: edgeColor,
-  },
-  style: {
-    strokeWidth: 2,
-    stroke: edgeColor,
-  },
-  selectable: false,
-};
 
 const Graph = ({ onNodeClick }: IProps) => {
   const nodes = useSelector(getWorkflowGraphNodes);
@@ -144,7 +110,7 @@ const Graph = ({ onNodeClick }: IProps) => {
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        nodeTypes={nodeTypes}
+        {...componentTypes}
         connectionLineType={ConnectionLineType.SmoothStep}
         onPaneClick={handleBackgroundClick}
         onNodesChange={onNodesChange}
