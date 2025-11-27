@@ -49,9 +49,6 @@ with QualibrationGraph.build(
     # For this example, we use a simple T1 measurement as a placeholder.
     failure_handler_node = library.nodes["06_demo_t1"]
     failure_handler_node.name = "failure_handler"
-    failure_handler_node.set_parameters(
-        name="cooldown_wait"
-    )  # Give it a descriptive name
     graph.add_node(failure_handler_node)
 
     # Use connect_on_failure to specify that if 'rabi_with_retries' fails
