@@ -553,14 +553,16 @@ describe("GraphElement - UI Interactions", () => {
     });
   });
 
-  it("should highlight when selected via SelectionContext", () => {
+  it("should highlight when selected via SelectionContext", async () => {
     const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
       },
     });
     //TODO: mock WebSocket event
-    act(() => mockStore.dispatch(setSelectedWorkflowName("test_workflow")));
+    act(() => {
+      mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
+    });
 
     const { container } = render(
       <Providers>
@@ -569,8 +571,10 @@ describe("GraphElement - UI Interactions", () => {
     );
 
     // Check for calibrationGraphSelected class (CSS modules will hash the name)
-    const wrapper = container.querySelector('[class*="calibrationGraphSelected"]');
-    expect(wrapper).toBeInTheDocument();
+    await waitFor(() => {
+      const wrapper = container.querySelector('[class*="calibrationGraphSelected"]');
+      expect(wrapper).toBeInTheDocument();
+    });
   });
 });
 
