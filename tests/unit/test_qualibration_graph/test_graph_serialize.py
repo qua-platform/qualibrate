@@ -19,7 +19,7 @@ class Orchestrator(QualibrationOrchestrator):
         pass
 
 
-def test_serialize(
+def test_serialize_with_no_nested_graphs(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
     g = QualibrationGraph(
@@ -43,7 +43,6 @@ def test_serialize(
         "nodes": {
             "test_node": {
                 "status": ElementRunStatus.pending,
-                "retries": 0,
                 "id": "test_node",
                 "name": "test_node",
                 "parameters": {
@@ -69,7 +68,6 @@ def test_serialize(
             },
             "one_more_node": {
                 "status": ElementRunStatus.pending,
-                "retries": 0,
                 "id": "one_more_node",
                 "name": "one_more_node",
                 "parameters": {
@@ -89,7 +87,6 @@ def test_serialize(
             },
             "test_cal": {
                 "status": ElementRunStatus.pending,
-                "retries": 0,
                 "id": "test_cal",
                 "name": "test_cal",
                 "parameters": {
@@ -126,4 +123,82 @@ def test_serialize(
                 "type": "array",
             },
         },
+    }
+
+
+def test_serialize_with_nested_graphs(
+    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
+):
+    g = qualibration_lib.graphs["workflow_top"]
+    assert g.serialize_graph_representation() == {
+        "nodes": [
+            {
+                "id": 1,
+                "data": {
+                    "label": "subg",
+                    "subgraph": {
+                        "nodes": [
+                            {"id": 3, "data": {"label": "test_cal"}},
+                            {"id": 4, "data": {"label": "one_more_node"}},
+                        ],
+                        "edges": [
+                            {
+                                "id": "3->4",
+                                "source": 3,
+                                "target": 4,
+                                "data": {"condition": True},
+                            }
+                        ],
+                    },
+                },
+            },
+            {"id": 2, "data": {"label": "test_cal"}},
+        ],
+        "edges": [
+            {
+                "id": "1->2",
+                "source": 1,
+                "target": 2,
+                "data": {"condition": True},
+            }
+        ],
+    }
+
+
+def test_serialize_with_nested_graphs_and_connect_on_failure(
+    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
+):
+    g = qualibration_lib.graphs["workflow_top_connect_on_failure"]
+    assert g.serialize_graph_representation() == {
+        "nodes": [
+            {
+                "id": 1,
+                "data": {
+                    "label": "subg",
+                    "subgraph": {
+                        "nodes": [
+                            {"id": 3, "data": {"label": "test_cal"}},
+                            {"id": 4, "data": {"label": "one_more_node"}},
+                        ],
+                        "edges": [
+                            {
+                                "id": "3->4",
+                                "source": 3,
+                                "target": 4,
+                                "data": {"condition": False},
+                            }
+                        ],
+                    },
+                },
+            },
+            {"id": 2, "data": {"label": "test_cal"}},
+        ],
+        "edges": [
+            {
+                "id": "1->2",
+                "source": 1,
+                "target": 2,
+                "data": {"condition": True},
+            }
+        ],
     }

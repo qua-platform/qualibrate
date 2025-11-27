@@ -20,3 +20,7 @@ class StopInspection(Exception):
 
 class TargetsFieldNotExist(AttributeError):
     pass
+
+
+class CyclicGraphError(RuntimeError):
+    pass
