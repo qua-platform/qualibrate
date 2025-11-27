@@ -60,8 +60,8 @@ export type GraphItem = {
   percentage_complete: number;
   run_duration: number;
   time_remaining: number;
-  error?: ErrorObject;
   status: "pending" | "running" | "finished" | "failed";
+  run_results?: RunResults
 };
 
 /**
