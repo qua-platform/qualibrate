@@ -22,6 +22,7 @@ websockets = "^15.0.1"
 mypy = "^1.18.2"
 ruff = "^0.13.1"
 poethepoet = "^0.37.0"
+qualibrate-core = {git = "https://github.com/qua-platform/qualibrate-core.git"}
 
 #[tool.poetry.group.qm-dev.dependencies]
 #qualibrate-config = {path = "../qualibrate-config", develop = true}
