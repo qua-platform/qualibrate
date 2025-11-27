@@ -716,3 +716,127 @@ class TestBasicOrchestrator:
             ]
             == ElementRunStatus.pending
         )
+
+    def test_traverse_graph_success_path_with_no_targets_is_skipped(self):
+        """
+        If a node finishes with no successful targets, the success edge should
+        not enqueue its successor, while the failure edge should still run.
+
+        Graph structure:
+            node1 (all targets fail)
+              ├─[SUCCESS]─> node2_success (should NOT run)
+              └─[FAILED]──> node3_failure (should run with failed targets)
+        """
+        orchestrator = BasicOrchestrator(skip_failed=False)
+
+        # Create mock nodes
+        node1 = MagicMock(spec=QualibrationNode)
+        node1.name = "node1"
+        node2_success = MagicMock(spec=QualibrationNode)
+        node2_success.name = "node2_success"
+        node3_failure = MagicMock(spec=QualibrationNode)
+        node3_failure.name = "node3_failure"
+
+        # node1: all targets fail
+        node1_summary = MagicMock(spec=NodeRunSummary)
+        node1_summary.successful_targets = []
+        node1_summary.failed_targets = ["q1"]
+        node1_summary.initial_targets = ["q1"]
+        node1.run_summary = node1_summary
+        node1.snapshot_idx = None
+        node1.parameters = MagicMock(spec=RunnableParameters)
+        node1.outcomes = {}
+        node1.description = None
+
+        # node2_success: should not run; keep attributes but no run_summary
+        node2_success.run_summary = None
+        node2_success.snapshot_idx = None
+        node2_success.parameters = MagicMock(spec=RunnableParameters)
+        node2_success.outcomes = {}
+        node2_success.description = None
+
+        # node3_failure
+        node3_summary = MagicMock(spec=NodeRunSummary)
+        node3_summary.successful_targets = []
+        node3_summary.failed_targets = ["q1"]
+        node3_summary.initial_targets = ["q1"]
+        node3_failure.run_summary = node3_summary
+        node3_failure.snapshot_idx = None
+        node3_failure.parameters = MagicMock(spec=RunnableParameters)
+        node3_failure.outcomes = {}
+        node3_failure.description = None
+
+        # Create mock graph
+        mock_graph = MagicMock(spec=QualibrationGraph)
+        mock_graph.name = "test_graph"
+        mock_graph._loop_conditions = {}
+
+        # Setup parameters
+        mock_params = MagicMock()
+        node1_params = MagicMock()
+        node1_params.targets = None
+        node1_params.model_dump.return_value = {}
+        node2_params = MagicMock()
+        node2_params.targets = None
+        node2_params.model_dump.return_value = {}
+        node3_params = MagicMock()
+        node3_params.targets = None
+        node3_params.model_dump.return_value = {}
+
+        mock_params.node1 = node1_params
+        mock_params.node2_success = node2_params
+        mock_params.node3_failure = node3_params
+        mock_graph.full_parameters.nodes = mock_params
+
+        # Create NetworkX graph
+        import networkx as nx
+
+        nx_graph = nx.DiGraph()
+
+        nx_graph.add_node(node1, status=ElementRunStatus.pending, retries=0)
+        nx_graph.add_node(
+            node2_success, status=ElementRunStatus.pending, retries=0
+        )
+        nx_graph.add_node(
+            node3_failure, status=ElementRunStatus.pending, retries=0
+        )
+
+        nx_graph.add_edge(node1, node2_success, scenario=Outcome.SUCCESSFUL)
+        nx_graph.add_edge(node1, node3_failure, scenario=Outcome.FAILED)
+
+        mock_graph._graph = nx_graph
+
+        execution_order = []
+
+        def node1_run(interactive=False, **kwargs):
+            execution_order.append("node1")
+            return node1_summary
+
+        def node2_run(interactive=False, **kwargs):
+            execution_order.append("node2_success")
+            return node3_summary  # Should not be called
+
+        def node3_run(interactive=False, **kwargs):
+            execution_order.append("node3_failure")
+            return node3_summary
+
+        node1.run = node1_run
+        node2_success.run = node2_run
+        node3_failure.run = node3_run
+
+        orchestrator.traverse_graph(mock_graph, ["q1"])
+
+        # Only node1 and node3_failure should have run
+        assert execution_order == ["node1", "node3_failure"]
+        assert (
+            nx_graph.nodes[node2_success][
+                QualibrationGraph.ELEMENT_STATUS_FIELD
+            ]
+            == ElementRunStatus.pending
+        )
+        assert (
+            nx_graph.nodes[node3_failure][
+                QualibrationGraph.ELEMENT_STATUS_FIELD
+            ]
+            == ElementRunStatus.finished
+        )

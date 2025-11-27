@@ -484,15 +484,10 @@ class BasicOrchestrator(
                         == ElementRunStatus.skipped
                     ):
                         continue
-                    #  checks if we have a scenario failed node defined with
-                    #  no failed targets, in this case we don't want to get this
-                    #  node into the queue
-                    if (
-                        nx_graph.edges[element_to_run, successor]["scenario"]
-                        == Outcome.FAILED
-                        and not nx_graph.edges[element_to_run, successor][
-                            QualibrationGraph.EDGE_TARGETS_FIELD
-                        ]
+                    # Skip successors if there are no targets to run, regardless
+                    # of whether the edge represents success or failure.
+                    if not nx_graph.edges[element_to_run, successor].get(
+                        QualibrationGraph.EDGE_TARGETS_FIELD, []
                     ):
                         continue
                     self._execution_queue.put(successor)
