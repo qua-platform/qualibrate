@@ -1,10 +1,12 @@
 """
 Simple test node without any actions.
 
-This node provides basic functionality for testing node execution without the complexity of the action system.
+This node provides basic functionality for testing node execution without
+the complexity of the action system.
 
-It can raise an exception in the main body, and can test error handling in the orchestration layer when the error
-occurs in the node's main body, before any actions are executed.
+It can raise an exception in the main body, and can test error handling in
+the orchestration layer when the error occurs in the node's main body,
+before any actions are executed.
 """
 
 from pydantic import Field

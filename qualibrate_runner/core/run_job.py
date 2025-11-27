@@ -136,7 +136,8 @@ def run_node(
 
     try:
         # Execute the node in interactive mode with provided parameters
-        # interactive=True enables that the user approves changes to variables in the frontend after execution
+        # interactive=True enables that the user approves changes to
+        # variables in the frontend after execution
         node.run(interactive=True, **passed_input_parameters)
     except Exception as ex:
         # Capture error details for state tracking
@@ -192,9 +193,9 @@ def run_workflow(
     """
     Execute a calibration workflow (DAG of QualibrationNodes).
 
-    This function orchestrates the execution of a workflow (also called a graph),
-    which is a directed acyclic graph (DAG) of interconnected QualibrationNodes.
-    The workflow execution follows these steps:
+    This function orchestrates the execution of a workflow (also called a
+    graph), which is a directed acyclic graph (DAG) of interconnected
+    QualibrationNodes. The workflow execution follows these steps:
     1. Initialize state with RUNNING status
     2. Get a fresh copy of the workflow from the active library
     3. Validate and structure the input parameters

@@ -47,7 +47,10 @@ class Parameters(NodeParameters):
     )
     trigger_deep_error: bool = Field(
         default=False,
-        description="Whether to run the action that raises an error inside XarrayDataFetcher",
+        description=(
+            "Whether to run the action that raises an error inside "
+            "XarrayDataFetcher"
+        ),
     )
 
 
@@ -104,7 +107,7 @@ def execute_qua_program(node: Any) -> dict[str, Any]:
         ),
     }
     data_fetcher = XarrayDataFetcher(mock_job, sweep_axes)
-    for dataset in data_fetcher:
+    for _dataset in data_fetcher:
         progress_counter(
             data_fetcher[
                 "nonexistent_key"
@@ -114,7 +117,7 @@ def execute_qua_program(node: Any) -> dict[str, Any]:
         )
     node.log(mock_job.execution_report())
 
-    return {"ds_raw": dataset}
+    return {"ds_raw": _dataset}
 
 
 @node.run_action(skip_if=not node.parameters.update_state)  # type: ignore[misc]

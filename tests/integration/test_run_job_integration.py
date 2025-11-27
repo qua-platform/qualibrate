@@ -310,7 +310,7 @@ class TestErrorMessaging:
     def test_error_details_for_action_failure(
         self, test_library: Any, fresh_state: Any
     ) -> None:
-        """Test error details when error occurs in action (inside library error)."""
+        """Test error details when error occurs in action."""
         node = test_library.nodes["node_with_actions"]
 
         # Trigger error from inside XarrayDataFetcher
@@ -335,13 +335,13 @@ class TestErrorMessaging:
         assert "prepare_data" in error.details
         assert "process_data" in error.details
 
-        # 4. Details should contain simplified traceback (simple format, no code blocks)
+        # 4. Details should contain simplified traceback
         assert "Traceback:" in error.details
         # Should NOT contain framework files in simplified version
         assert "action_manager.py" not in error.details
         assert "action.py" not in error.details
 
-        # 5. Details should contain source snippet (simple format, no code blocks)
+        # 5. Details should contain source snippet
         assert "Source Code:" in error.details
 
         # 6. Full traceback should be preserved
@@ -386,10 +386,10 @@ class TestErrorMessaging:
             or "prepare_data" not in error.details
         )
 
-        # 3. Details should contain source snippet from node file (simple format)
+        # 3. Details should contain source snippet from node file
         assert "Source Code:" in error.details
 
-        # 4. Details should contain simplified traceback (simple format)
+        # 4. Details should contain simplified traceback
         assert "Traceback:" in error.details
         # Body errors should not have action framework in simplified version
         assert "action_manager.py" not in error.details
@@ -444,14 +444,16 @@ class TestErrorMessaging:
         # 1. Headline should mention the action (not the subroutine)
         assert "process_with_subroutine" in error.details_headline
 
-        # 2. Simplified traceback should show BOTH the action AND the subroutine (simple format)
+        # 2. Simplified traceback should show BOTH the action AND the
+        # subroutine
         assert "Traceback:" in error.details
         # Should include the action function
         assert "process_with_subroutine" in error.details
         # Should include the subroutine
         assert "helper_function" in error.details
 
-        # 3. Source snippet should show the subroutine (where error occurred, simple format)
+        # 3. Source snippet should show the subroutine (where error
+        # occurred)
         assert "Source Code:" in error.details
         # The error occurs at: result = data[num_points]
         # So the snippet should show this line

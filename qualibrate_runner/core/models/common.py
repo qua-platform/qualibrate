@@ -45,7 +45,8 @@ class StateUpdate(BaseModel):
     """
     Record of a single change to quantum machine state (QuAM).
 
-    During calibration execution, nodes may update the quantum machine state with:
+    During calibration execution, nodes may update the quantum machine
+    state with:
     - Audit trails (what changed and when)
     - Rollback capability (knowing old values)
     - Display in UI (showing calibration effects)

@@ -44,7 +44,7 @@ def helper_function(amplitude: float, num_points: int) -> list[float]:
 
     # This line will raise if we access out of bounds
     # We use this to trigger an error in the subroutine
-    result = data[num_points]  # IndexError: list index out of range
+    _ = data[num_points]  # IndexError: list index out of range
 
     return data
 
