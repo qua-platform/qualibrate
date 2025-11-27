@@ -1,8 +1,10 @@
 import copy
 import traceback
-from collections.abc import Mapping, Sequence
+from collections import defaultdict
+from collections.abc import Callable, Generator, Mapping, Sequence
 from contextvars import Token
 from datetime import datetime
+from inspect import isgeneratorfunction
 from pathlib import Path
 from types import TracebackType
 from typing import (
@@ -14,7 +16,7 @@ from typing import (
 )
 
 import networkx as nx
-from pydantic import create_model
+from pydantic import BaseModel, create_model
 from typing_extensions import Self
 
 from qualibrate.models.node_status import ElementRunStatus
@@ -68,6 +70,24 @@ NodeLibT = QualibrationNode[NodeParameters, MachineProtocol]
 GraphElLibT = QRunnable[RunnableParameters, RunnableParameters]
 
 
+class LoopCondition(BaseModel, Generic[GraphElementTypeVar]):
+    on_failure: bool = False
+    on_function: Callable[[GraphElementTypeVar, TargetType], bool] | None = None
+    on_generator: (
+        Callable[
+            [],
+            Generator[
+                bool, tuple[GraphElementTypeVar, TargetType] | None, None
+            ],
+        ]
+        | None
+    ) = None
+    max_iterations: int | None = None
+    """
+    Common amount for all loop types (on failure, on function, on generator)
+    """
+
+
 class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType],
     GraphExportMixin[GraphElementTypeVar],
@@ -102,9 +122,9 @@ class QualibrationGraph(
 
     EDGE_TARGETS_FIELD = "targets"
     ELEMENT_STATUS_FIELD = "status"
+    LOOP_TARGETS_FIELD = "loop_targets"
     _node_init_args = {
         ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
-        "retries": 0,
     }
 
     def __init__(
@@ -140,6 +160,9 @@ class QualibrationGraph(
             self._elements = {}
             self._connectivity = {}
         self._graph: nx.DiGraph[GraphElementTypeVar] = nx.DiGraph()
+        self._loop_conditions: dict[str, LoopCondition[GraphElementTypeVar]] = (
+            defaultdict(LoopCondition)
+        )
         if orchestrator is None:
             from qualibrate.orchestration.basic_orchestrator import (
                 BasicOrchestrator,
@@ -229,6 +252,7 @@ class QualibrationGraph(
             name: element.copy(name) for name, element in self._elements.items()
         }
         new_graph._connectivity = copy.deepcopy(self._connectivity)
+        new_graph._loop_conditions = copy.deepcopy(self._loop_conditions)
 
         # Copy graph structure
         new_graph._graph = nx.DiGraph()
@@ -300,6 +324,7 @@ class QualibrationGraph(
 
         for element_name in self._elements:
             self._add_element_to_nx_by_name(element_name)
+
         for source, destination in self._connectivity:
             try:
                 source_element = self._get_element_or_error(source)
@@ -469,6 +494,7 @@ class QualibrationGraph(
 
         graphs[graph.name] = graph
 
+    @ensure_finalized
     def cleanup(self) -> None:
         """
         Cleans up the graph and resets nodes to their initial states.
@@ -481,8 +507,12 @@ class QualibrationGraph(
             self._graph,
             {node: self._node_init_args.copy() for node in self._graph.nodes},
         )
-        if self._orchestrator:
-            self._orchestrator.cleanup()
+        for element in self._elements.values():
+            element.cleanup()
+        nx.remove_edge_attributes(
+            self._graph, self.__class__.EDGE_TARGETS_FIELD
+        )
+        self._orchestrator.cleanup()
 
     def completed_count(self) -> int:
         """
@@ -507,21 +537,13 @@ class QualibrationGraph(
 
     @property
     def active_element(self) -> GraphElementTypeVar | None:
-        return (
-            self._orchestrator.active_element
-            if self._orchestrator is not None
-            else None
-        )
+        return self._orchestrator.active_element
 
     @property
     def active_node(
         self,
     ) -> QualibrationNode[NodeParameters, MachineProtocol] | None:
-        return (
-            self._orchestrator.active_node
-            if self._orchestrator is not None
-            else None
-        )
+        return self._orchestrator.active_node
 
     @property
     def active_node_name(self) -> str | None:
@@ -553,31 +575,27 @@ class QualibrationGraph(
             for name in cast(GraphElementsParameters, nodes_class).model_fields
         }
 
-    def _orchestrator_or_error(
-        self,
-    ) -> "QualibrationOrchestrator[GraphElementTypeVar]":
-        """
-        Retrieves the orchestrator for the graph or raises an error if missing.
-
-        This method returns the orchestrator associated with the graph.
-        If no orchestrator is specified, it raises an error indicating
-        that an orchestrator is required for execution.
-
-        Returns:
-            QualibrationOrchestrator: The orchestrator used to manage graph
-                execution.
-
-        Raises:
-            ValueError: If no orchestrator is specified for the graph.
-        """
-        if self._orchestrator is None:
-            ex = ValueError("Orchestrator not specified")
-            logger.exception("", exc_info=ex)
-            raise ex
-        return self._orchestrator
+    def _mark_nodes_as_skipped(
+        self, start_from: GraphElementTypeVar | str
+    ) -> None:
+        start_node = (
+            self._elements[start_from]
+            if isinstance(start_from, str)
+            else start_from
+        )
+        bfs_tree = nx.bfs_tree(self._graph, start_node)
+        difference = set(self._graph.nodes).difference(set(bfs_tree.nodes))
+        for node in difference:
+            self._graph.nodes[node][self.__class__.ELEMENT_STATUS_FIELD] = (
+                ElementRunStatus.skipped
+            )
 
     def _run(
-        self, *, nodes: Mapping[str, Any], **passed_parameters: Any
+        self,
+        *,
+        start_from: GraphElementTypeVar | str | None = None,
+        nodes: Mapping[str, Any],
+        **passed_parameters: Any,
     ) -> None:
         """
         Runs the graph by traversing nodes using the orchestrator.
@@ -591,7 +609,7 @@ class QualibrationGraph(
                 elements.
             **passed_parameters (Any): Parameters passed for graph execution.
         """
-        orchestrator = self._orchestrator_or_error()
+        orchestrator = self._orchestrator
         self.cleanup()
         nodes = self._get_all_nodes_parameters(nodes)
         self._parameters = self.parameters.model_validate(passed_parameters)
@@ -619,6 +637,8 @@ class QualibrationGraph(
                         f'node.parameters.targets_name = "targets_name"'
                     )
                     raise TargetsFieldNotExist(msg) from ex
+        if start_from is not None:
+            self._mark_nodes_as_skipped(start_from)
         orchestrator.traverse_graph(self, targets)
 
     def _post_run(
@@ -642,7 +662,7 @@ class QualibrationGraph(
             GraphRunSummary: A summary object containing details about the
                 graph run.
         """
-        self.outcomes = self._orchestrator_or_error().final_outcomes
+        self.outcomes = self._orchestrator.final_outcomes
         self.run_summary = GraphRunSummary(
             name=self.name,
             description=self.description,
@@ -672,6 +692,7 @@ class QualibrationGraph(
         self,
         /,
         *,
+        start_from: GraphElementTypeVar | str | None = None,
         interactive: bool = False,
         nodes: Mapping[str, Any] | None = None,
         **passed_parameters: Any,
@@ -683,6 +704,8 @@ class QualibrationGraph(
         following the specified connectivity and using the provided parameters.
 
         Args:
+            start_from (GraphElementTypeVar | str | None): Start traverse from
+                specific node.
             interactive (bool): just for same api with Node.run.
             nodes (Mapping[str, Any] | None): The parameters for runnable
                 elements.
@@ -704,7 +727,7 @@ class QualibrationGraph(
         if nodes is None:
             nodes = {}
         try:
-            self._run(nodes=nodes, **passed_parameters)
+            self._run(start_from=start_from, nodes=nodes, **passed_parameters)
         except Exception as ex:
             run_error = RunError(
                 error_class=ex.__class__.__name__,
@@ -796,6 +819,75 @@ class QualibrationGraph(
 
     @ensure_finalized
     def serialize(self, /, **kwargs: Any) -> Mapping[str, Any]:
+        return self.__serialize_data(**kwargs)
+
+    @ensure_finalized
+    def serialize_graph_representation(self) -> Mapping[str, Any]:
+        identifier = 1
+
+        def __serialize_graph_represantation_inner(
+            graph_self: "QualibrationGraph[Any]",
+        ) -> Mapping[str, Any]:
+            flow_dict = defaultdict(list)
+            nonlocal identifier
+            nx_data = dict(
+                graph_self.__class__.nx_graph_export(
+                    graph_self._graph, node_names_only=True
+                )
+            )
+
+            nodes_raw = nx_data.pop("nodes")
+            adj_raw = nx_data.pop("adjacency")
+
+            name_identifier_dict = {}
+            for node in nodes_raw:
+                node_id = identifier
+                identifier += 1
+                node_name = node["id"]
+                name_identifier_dict[node_name] = node_id
+
+            for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
+                node_name = node["id"]
+                node_id = name_identifier_dict[node_name]
+
+                element = graph_self._elements[node_name]
+                subgraph_data = {}
+
+                if isinstance(element, QualibrationGraph):
+                    subgraph_data["subgraph"] = (
+                        __serialize_graph_represantation_inner(element)
+                    )
+
+                flow_dict["nodes"].append(
+                    {
+                        "id": node_id,
+                        "data": {"label": node_name, **subgraph_data},
+                    }
+                )
+
+                for adj in adjacency:
+                    target_name = adj["id"]
+
+                    flow_dict["edges"].append(
+                        {
+                            "id": f"{node_id}->"
+                            f"{name_identifier_dict[target_name]}",
+                            "source": node_id,
+                            "target": name_identifier_dict[target_name],
+                            "data": {
+                                "condition": adj.get(
+                                    "scenario", Outcome.SUCCESSFUL
+                                )
+                                == Outcome.SUCCESSFUL,
+                            },
+                        }
+                    )
+
+            return dict(flow_dict)
+
+        return __serialize_graph_represantation_inner(self)
+
+    def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """
         Serializes the graph into a dictionary format.
 
@@ -838,7 +930,7 @@ class QualibrationGraph(
             # TODO: simplify node name
             additional: dict[str, Any] = {"name": node_id}
             if isinstance(element, QualibrationGraph):
-                additional.update(element.serialize(**kwargs))
+                additional.update(element.__serialize_data(**kwargs))
             else:
                 additional["parameters"] = parameters["nodes"][node["id"]]
             node.update(additional)
@@ -1010,3 +1102,53 @@ class QualibrationGraph(
         if edge in self._connectivity:
             return
         self._connectivity[edge] = run_scenario
+
+    def _get_validated_element_name(
+        self, element: str | GraphElementTypeVar
+    ) -> str:
+        element_name = element if isinstance(element, str) else element.name
+        if element_name not in self._elements:
+            raise KeyError(f"Element with name '{element}' not found.")
+        return element_name
+
+    @ensure_not_finalized
+    @ensure_building
+    def loop(
+        self,
+        /,
+        element: str | GraphElementTypeVar,
+        on: (
+            Callable[
+                [],
+                Generator[
+                    bool, tuple[GraphElementTypeVar, TargetType] | None, None
+                ],
+            ]
+            | Callable[[GraphElementTypeVar, TargetType], bool]
+            | None
+        ) = None,
+        max_iterations: int | None = None,
+    ) -> None:
+        if on is None and max_iterations is None:
+            raise ValueError(
+                "Either 'on' or 'max_iterations' must be specified (or both)."
+            )
+        element_name = self._get_validated_element_name(element)
+        conditions = self._loop_conditions
+        if max_iterations is not None:
+            conditions[element_name].max_iterations = max_iterations
+        if on is not None:
+            if isgeneratorfunction(on):
+                conditions[element_name].on_generator = on
+            else:
+                conditions[element_name].on_function = cast(
+                    Callable[[GraphElementTypeVar, TargetType], bool], on
+                )
+
+    def loop_on_failure(
+        self, element: str | GraphElementTypeVar, max_iterations: int
+    ) -> None:
+        element_name = self._get_validated_element_name(element)
+        conditions = self._loop_conditions[element_name]
+        conditions.max_iterations = max_iterations
+        conditions.on_failure = True
