@@ -47,7 +47,7 @@ warn_return_any = true
 plugins = ['pydantic.mypy']
 
 [[tool.mypy.overrides]]
-module = ["jsonpatch", "jsonpointer"]
+module = ["jsonpatch", "jsonpointer", "qualibration_libs.*", "qualang_tools.*"]
 ignore_missing_imports = true
 
 [tool.ruff]

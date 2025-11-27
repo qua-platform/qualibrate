@@ -14,14 +14,10 @@ from unittest.mock import Mock
 import numpy as np
 import xarray as xr
 from pydantic import Field
-from qualang_tools.results import (  # type: ignore[import-untyped]
-    progress_counter,
-)
-from qualang_tools.units import unit  # type: ignore[import-untyped]
+from qualang_tools.results import progress_counter
+from qualang_tools.units import unit
 from qualibrate import NodeParameters, QualibrationNode
-from qualibration_libs.data import (  # type: ignore[import-untyped]
-    XarrayDataFetcher,
-)
+from qualibration_libs.data import XarrayDataFetcher
 
 
 class Parameters(NodeParameters):
