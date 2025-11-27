@@ -724,7 +724,7 @@ class TestBasicOrchestrator:
 
         Graph structure:
             node1 (all targets fail)
-              ├─[SUCCESS]─> node2_success (should NOT run - no successful targets)
+              ├─[SUCCESS]─> node2_success (should NOT run)
               └─[FAILED]──> node3_failure (should run with failed targets)
         """
         orchestrator = BasicOrchestrator(skip_failed=False)
@@ -748,7 +748,7 @@ class TestBasicOrchestrator:
         node1.outcomes = {}
         node1.description = None
 
-        # node2_success: should not run; keep attributes but no run_summary needed
+        # node2_success: should not run; keep attributes but no run_summary
         node2_success.run_summary = None
         node2_success.snapshot_idx = None
         node2_success.parameters = MagicMock(spec=RunnableParameters)
