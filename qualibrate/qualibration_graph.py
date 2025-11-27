@@ -1161,9 +1161,10 @@ class QualibrationGraph(
                     Callable[[GraphElementTypeVar, TargetType], bool], on
                 )
 
-    def loop_on_failure(
+    def _loop_on_failure(
         self, element: str | GraphElementTypeVar, max_iterations: int
     ) -> None:
+        """protected for internal use"""
         element_name = self._get_validated_element_name(element)
         conditions = self._loop_conditions[element_name]
         conditions.max_iterations = max_iterations
