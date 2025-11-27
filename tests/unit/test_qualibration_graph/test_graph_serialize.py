@@ -134,12 +134,21 @@ def test_serialize_with_nested_graphs(
         "nodes": [
             {
                 "id": 1,
+                "loop": False,
                 "data": {
                     "label": "subg",
                     "subgraph": {
                         "nodes": [
-                            {"id": 3, "data": {"label": "test_cal"}},
-                            {"id": 4, "data": {"label": "one_more_node"}},
+                            {
+                                "id": 3,
+                                "loop": False,
+                                "data": {"label": "test_cal"},
+                            },
+                            {
+                                "id": 4,
+                                "loop": False,
+                                "data": {"label": "one_more_node"},
+                            },
                         ],
                         "edges": [
                             {
@@ -152,7 +161,7 @@ def test_serialize_with_nested_graphs(
                     },
                 },
             },
-            {"id": 2, "data": {"label": "test_cal"}},
+            {"id": 2, "loop": False, "data": {"label": "test_cal"}},
         ],
         "edges": [
             {
@@ -173,12 +182,21 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
         "nodes": [
             {
                 "id": 1,
+                "loop": False,
                 "data": {
                     "label": "subg",
                     "subgraph": {
                         "nodes": [
-                            {"id": 3, "data": {"label": "test_cal"}},
-                            {"id": 4, "data": {"label": "one_more_node"}},
+                            {
+                                "id": 3,
+                                "loop": False,
+                                "data": {"label": "test_cal"},
+                            },
+                            {
+                                "id": 4,
+                                "loop": False,
+                                "data": {"label": "one_more_node"},
+                            },
                         ],
                         "edges": [
                             {
@@ -191,7 +209,7 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
                     },
                 },
             },
-            {"id": 2, "data": {"label": "test_cal"}},
+            {"id": 2, "loop": False, "data": {"label": "test_cal"}},
         ],
         "edges": [
             {
