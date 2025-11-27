@@ -39,7 +39,11 @@ from qualibrate.q_runnnable import (
 )
 from qualibrate.qualibration_node import QualibrationNode
 from qualibrate.runnables.runnable_collection import RunnableCollection
-from qualibrate.utils.exceptions import StopInspection, TargetsFieldNotExist
+from qualibrate.utils.exceptions import (
+    CyclicGraphError,
+    StopInspection,
+    TargetsFieldNotExist,
+)
 from qualibrate.utils.graph_building import (
     GraphElementTypeVar,
     GraphExportMixin,
@@ -279,6 +283,23 @@ class QualibrationGraph(
 
         return new_graph
 
+    def _validate_graph_acyclic(self) -> None:
+        """Check if directed nodes graph contains cycles.
+
+        Raises:
+            CyclicGraphError: There is a cycle in graph
+        """
+        try:
+            cycle = nx.find_cycle(self._graph, orientation="original")
+        except nx.NetworkXNoCycle:
+            return
+        node_names = tuple(
+            [cycle[0][0].name, *[edge[1].name for edge in cycle]]
+        )
+        raise CyclicGraphError(
+            f"Detected cycle in graph {self.name}: {node_names}",
+        )
+
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}: {self.name} "
@@ -328,6 +349,7 @@ class QualibrationGraph(
                     destination_element,
                     scenario=self._connectivity[(source, destination)],
                 )
+        self._validate_graph_acyclic()
 
     @staticmethod
     def _get_library() -> "QualibrationLibrary[NodeLibT, GraphElLibT]":
@@ -797,6 +819,75 @@ class QualibrationGraph(
 
     @ensure_finalized
     def serialize(self, /, **kwargs: Any) -> Mapping[str, Any]:
+        return self.__serialize_data(**kwargs)
+
+    @ensure_finalized
+    def serialize_graph_representation(self) -> Mapping[str, Any]:
+        identifier = 1
+
+        def __serialize_graph_represantation_inner(
+            graph_self: "QualibrationGraph[Any]",
+        ) -> Mapping[str, Any]:
+            flow_dict = defaultdict(list)
+            nonlocal identifier
+            nx_data = dict(
+                graph_self.__class__.nx_graph_export(
+                    graph_self._graph, node_names_only=True
+                )
+            )
+
+            nodes_raw = nx_data.pop("nodes")
+            adj_raw = nx_data.pop("adjacency")
+
+            name_identifier_dict = {}
+            for node in nodes_raw:
+                node_id = identifier
+                identifier += 1
+                node_name = node["id"]
+                name_identifier_dict[node_name] = node_id
+
+            for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
+                node_name = node["id"]
+                node_id = name_identifier_dict[node_name]
+
+                element = graph_self._elements[node_name]
+                subgraph_data = {}
+
+                if isinstance(element, QualibrationGraph):
+                    subgraph_data["subgraph"] = (
+                        __serialize_graph_represantation_inner(element)
+                    )
+
+                flow_dict["nodes"].append(
+                    {
+                        "id": node_id,
+                        "data": {"label": node_name, **subgraph_data},
+                    }
+                )
+
+                for adj in adjacency:
+                    target_name = adj["id"]
+
+                    flow_dict["edges"].append(
+                        {
+                            "id": f"{node_id}->"
+                            f"{name_identifier_dict[target_name]}",
+                            "source": node_id,
+                            "target": name_identifier_dict[target_name],
+                            "data": {
+                                "condition": adj.get(
+                                    "scenario", Outcome.SUCCESSFUL
+                                )
+                                == Outcome.SUCCESSFUL,
+                            },
+                        }
+                    )
+
+            return dict(flow_dict)
+
+        return __serialize_graph_represantation_inner(self)
+
+    def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """
         Serializes the graph into a dictionary format.
 
@@ -839,7 +930,7 @@ class QualibrationGraph(
             # TODO: simplify node name
             additional: dict[str, Any] = {"name": node_id}
             if isinstance(element, QualibrationGraph):
-                additional.update(element.serialize(**kwargs))
+                additional.update(element.__serialize_data(**kwargs))
             else:
                 additional["parameters"] = parameters["nodes"][node["id"]]
             node.update(additional)
