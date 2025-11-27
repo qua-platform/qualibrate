@@ -7,17 +7,13 @@ workflows, including status, timing, results, and errors.
 
 from __future__ import annotations
 
-
 from datetime import datetime, timedelta, timezone
+from typing import Any
 from unittest.mock import Mock
 
-import pytest
-from freezegun import freeze_time
-
-from qualibrate_runner.core.models.common import RunError, StateUpdate
+from qualibrate_runner.core.models.common import StateUpdate
 from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
-from typing import Any
 
 
 class TestLastRunCreation:
@@ -166,7 +162,7 @@ class TestLastRunDuration:
         )
 
         # Should be 5.5 seconds
-        assert last_run.run_duration == 5.5
+        assert last_run.run_duration == 5.5  # type: ignore[comparison-overlap]
 
     def test_duration_for_running_execution(self) -> None:
         """Test run_duration for still-running execution (live duration)."""
@@ -183,7 +179,7 @@ class TestLastRunDuration:
         )
 
         # Duration should be positive and small (less than 1 second)
-        assert 0 < last_run.run_duration < 1.0
+        assert 0 < last_run.run_duration < 1.0  # type: ignore[operator]
 
     def test_duration_for_very_short_run(self, aware_datetime: Any) -> None:
         """Test duration for very short execution (milliseconds)."""
@@ -199,7 +195,7 @@ class TestLastRunDuration:
             passed_parameters={},
         )
 
-        assert last_run.run_duration == 0.15
+        assert last_run.run_duration == 0.15  # type: ignore[comparison-overlap]
 
     def test_duration_for_long_run(self, aware_datetime: Any) -> None:
         """Test duration for long execution (minutes)."""
@@ -216,7 +212,7 @@ class TestLastRunDuration:
             passed_parameters={},
         )
 
-        assert last_run.run_duration == 330.0
+        assert last_run.run_duration == 330.0  # type: ignore[comparison-overlap]
 
     def test_duration_recalculated_on_access(self) -> None:
         """Test that duration is recalculated each time for running jobs."""
@@ -236,14 +232,14 @@ class TestLastRunDuration:
 
         # First access
         duration1 = last_run.run_duration
-        assert duration1 > 0
+        assert duration1 > 0  # type: ignore[operator]
 
         # Wait a bit
         time.sleep(0.1)
 
         # Second access should show increased duration
         duration2 = last_run.run_duration
-        assert duration2 > duration1
+        assert duration2 > duration1  # type: ignore[operator]
 
 
 class TestLastRunSerialization:

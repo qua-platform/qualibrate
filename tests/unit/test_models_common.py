@@ -7,10 +7,7 @@ during calibration execution.
 
 from __future__ import annotations
 
-
 from typing import Any
-
-import pytest
 
 from qualibrate_runner.core.models.common import RunError, StateUpdate
 

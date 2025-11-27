@@ -4,15 +4,13 @@ Tests for run_job.py orchestration layer (non-interactive mode only).
 
 from __future__ import annotations
 
-
 from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
 from fastapi import HTTPException
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import ValidationError
 
-from qualibrate_runner.config.models import State
 from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
 from qualibrate_runner.core.run_job import (
     get_active_library_or_error,
@@ -33,9 +31,9 @@ class TestValidateInputParameters:
 
         result = validate_input_parameters(sample_parameters_class, params)
 
-        assert result.amplitude == 0.5
-        assert result.frequency == 5.0e9
-        assert result.num_averages == 100
+        assert result.amplitude == 0.5  # type: ignore[attr-defined]
+        assert result.frequency == 5.0e9  # type: ignore[attr-defined]
+        assert result.num_averages == 100  # type: ignore[attr-defined]
 
     def test_valid_parameters_with_defaults(
         self, sample_parameters_class: Any
@@ -45,9 +43,9 @@ class TestValidateInputParameters:
 
         result = validate_input_parameters(sample_parameters_class, params)
 
-        assert result.amplitude == 0.5
-        assert result.frequency == 5.0e9
-        assert result.num_averages == 100  # Default value
+        assert result.amplitude == 0.5  # type: ignore[attr-defined]
+        assert result.frequency == 5.0e9  # type: ignore[attr-defined]
+        assert result.num_averages == 100  # type: ignore[attr-defined]  # Default value
 
     def test_invalid_parameter_raises_http_exception(
         self, sample_parameters_class: Any
@@ -85,9 +83,9 @@ class TestValidateInputParameters:
 
         result = validate_input_parameters(sample_parameters_class, params)
 
-        assert result.amplitude == 0.5
-        assert result.frequency == 5.0e9
-        assert result.num_averages == 50
+        assert result.amplitude == 0.5  # type: ignore[attr-defined]
+        assert result.frequency == 5.0e9  # type: ignore[attr-defined]
+        assert result.num_averages == 50  # type: ignore[attr-defined]
 
 
 class TestGetActiveLibraryOrError:
@@ -149,6 +147,7 @@ class TestRunNodeHappyPath:
         run_node(mock_node, {}, fresh_state)
 
         # During execution, status should have been RUNNING
+        assert last_run_during_execution is not None
         assert last_run_during_execution.status == RunStatusEnum.RUNNING
         assert last_run_during_execution.name == "test_node"
 
@@ -190,7 +189,6 @@ class TestRunNodeHappyPath:
         self, mock_node: Any, fresh_state: Any, sample_state_update: Any
     ) -> None:
         """Test that state_updates are captured from node."""
-        from qualibrate_runner.core.models.common import StateUpdate
 
         mock_node.run = Mock(return_value=None)
         state_updates = {"qubit_0_frequency": sample_state_update}
@@ -351,6 +349,7 @@ class TestRunWorkflowHappyPath:
 
         run_workflow(mock_workflow, {}, fresh_state)
 
+        assert last_run_during_execution is not None
         assert last_run_during_execution.runnable_type == RunnableType.GRAPH
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
@@ -510,7 +509,6 @@ class TestRunWorkflowErrorPath:
                     {
                         "type": "missing",
                         "loc": ("frequency",),
-                        "msg": "Field required",
                         "input": {},
                     }
                 ],

@@ -10,14 +10,18 @@ This node tests:
 
 from typing import Any
 from unittest.mock import Mock
+
 import numpy as np
 import xarray as xr
 from pydantic import Field
-
-from qualibrate import NodeParameters, QualibrationNode
+from qualang_tools.results import (  # type: ignore[import-untyped]
+    progress_counter,
+)
 from qualang_tools.units import unit  # type: ignore[import-untyped]
-from qualang_tools.results import progress_counter  # type: ignore[import-untyped]
-from qualibration_libs.data import XarrayDataFetcher  # type: ignore[import-untyped]
+from qualibrate import NodeParameters, QualibrationNode
+from qualibration_libs.data import (  # type: ignore[import-untyped]
+    XarrayDataFetcher,
+)
 
 
 class Parameters(NodeParameters):

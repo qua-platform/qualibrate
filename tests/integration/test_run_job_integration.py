@@ -13,12 +13,12 @@ initialization including filepath setting.
 
 from __future__ import annotations
 
+from typing import Any
 
 import pytest
 
 from qualibrate_runner.config.models import RunStatusEnum
 from qualibrate_runner.core.run_job import run_node
-from typing import Any
 
 
 class TestSimpleNodeExecution:

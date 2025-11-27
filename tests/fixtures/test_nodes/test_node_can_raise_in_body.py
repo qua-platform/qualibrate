@@ -8,7 +8,6 @@ occurs in the node's main body, before any actions are executed.
 """
 
 from pydantic import Field
-
 from qualibrate import NodeParameters, QualibrationNode
 
 

@@ -7,13 +7,13 @@ the single source of truth for the runner's execution state.
 
 from __future__ import annotations
 
+from typing import Any
 
 import pytest
 
 from qualibrate_runner.config.models import State
 from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
-from typing import Any
 
 
 class TestStateCreation:
@@ -296,8 +296,9 @@ class TestStateArbitraryTypes:
                 self.name = "custom"
 
         custom_obj = CustomRunnable()
-        state = State.model_construct(run_item=custom_obj)
+        state = State.model_construct(run_item=custom_obj)  # type: ignore[arg-type]
 
+        assert state.run_item is not None
         assert state.run_item.name == "custom"
 
 
