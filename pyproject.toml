@@ -23,6 +23,7 @@ quam = "^0.4.2"
 mypy = "^1.18.2"
 ruff = "^0.13.1"
 poethepoet = "^0.37.0"
+qualibrate-core = {git = "https://github.com/qua-platform/qualibrate-core.git"}
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.2"
