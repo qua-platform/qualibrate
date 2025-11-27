@@ -2,7 +2,7 @@
   width: 100%;
   height: 100%;
 
-  --xy-attribution-background-color: #FFF !important;
+  --xy-attribution-background-color: var(--selected-node) !important;
 }
 
 .defaultNode {

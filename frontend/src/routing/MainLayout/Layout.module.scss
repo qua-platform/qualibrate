@@ -18,6 +18,8 @@
 .rightsidePanelWrapper {
   height: calc(100% - 90px);
   display: flex;
+  flex-grow: 1;
+  position: relative;
 }
 
 .contentWrapper {
