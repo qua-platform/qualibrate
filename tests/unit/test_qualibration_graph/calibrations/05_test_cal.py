@@ -1,10 +1,11 @@
-from pydantic import Field
-
-from qualibrate import QualibrationNode, NodeParameters
-from quam.components import *
-import numpy as np
 from time import sleep
+
+import numpy as np
 from matplotlib import pyplot as plt
+from pydantic import Field
+from quam.components import *
+
+from qualibrate import NodeParameters, QualibrationNode
 
 
 class Parameters(NodeParameters):
