@@ -27,9 +27,12 @@ def _rabi_oscillation(
     amplitude: np.ndarray, period: float, phase: float, offset: float, decay: float
 ) -> np.ndarray:
     """Damped sinusoidal for Rabi oscillations."""
-    return 0.5 * (1 + np.cos(2 * np.pi * amplitude / period + phase)) * np.exp(
-        -amplitude / decay
-    ) + offset
+    return (
+        0.5
+        * (1 + np.cos(2 * np.pi * amplitude / period + phase))
+        * np.exp(-amplitude / decay)
+        + offset
+    )
 
 
 def _generate_rabi_data(
