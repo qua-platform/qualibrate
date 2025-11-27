@@ -8,15 +8,16 @@ This node tests:
 - Conditional action execution via skip_if
 """
 
+from typing import Any
 from unittest.mock import Mock
 import numpy as np
 import xarray as xr
 from pydantic import Field
 
 from qualibrate import NodeParameters, QualibrationNode
-from qualang_tools.units import unit
-from qualang_tools.results import progress_counter
-from qualibration_libs.data import XarrayDataFetcher
+from qualang_tools.units import unit  # type: ignore[import-untyped]
+from qualang_tools.results import progress_counter  # type: ignore[import-untyped]
+from qualibration_libs.data import XarrayDataFetcher  # type: ignore[import-untyped]
 
 
 class Parameters(NodeParameters):
@@ -47,14 +48,14 @@ class Parameters(NodeParameters):
 
 
 # Create the node
-node = QualibrationNode(
+node: QualibrationNode[Parameters, Parameters] = QualibrationNode(  # type: ignore[type-var]
     name="node_with_actions",
     parameters=Parameters(),
 )
 
 
 @node.run_action
-def prepare_data(node):
+def prepare_data(node: Any) -> dict[str, Any]:
     """Generate measurement data based on parameters."""
     data = [
         node.parameters.amplitude * i for i in range(node.parameters.num_points)
@@ -67,7 +68,7 @@ def prepare_data(node):
 
 
 @node.run_action
-def process_data(node):
+def process_data(node: Any) -> dict[str, Any]:
     """Process the prepared data."""
     # Access data from previous action via namespace
     raw_data = node.namespace["data"]
@@ -82,8 +83,8 @@ def process_data(node):
     }
 
 
-@node.run_action(skip_if=not node.parameters.trigger_deep_error)
-def execute_qua_program(node):
+@node.run_action(skip_if=not node.parameters.trigger_deep_error)  # type: ignore[misc]
+def execute_qua_program(node: Any) -> dict[str, Any]:
     mock_job = Mock()
     mock_job.result_handles.keys.return_value = []
 
@@ -112,8 +113,8 @@ def execute_qua_program(node):
     return {"ds_raw": dataset}
 
 
-@node.run_action(skip_if=not node.parameters.update_state)
-def update_machine_state(node):
+@node.run_action(skip_if=not node.parameters.update_state)  # type: ignore[misc]
+def update_machine_state(node: Any) -> dict[str, Any]:
     """Update quantum machine state (if enabled)."""
     # This action only runs if update_state is True
     state_updated = False
@@ -129,15 +130,15 @@ def update_machine_state(node):
     }
 
 
-@node.run_action(skip_if=not node.parameters.trigger_error)
-def process_data_with_error(node):
+@node.run_action(skip_if=not node.parameters.trigger_error)  # type: ignore[misc]
+def process_data_with_error(node: Any) -> dict[str, Any]:
     """Process data - this action raises an error when executed."""
     # This action always fails when it runs
     raise ValueError(node.parameters.error_message)
 
 
 @node.run_action
-def finalize_results(node):
+def finalize_results(node: Any) -> dict[str, Any]:
     """Collect all results into final summary."""
     # Gather all data from namespace
     summary = {

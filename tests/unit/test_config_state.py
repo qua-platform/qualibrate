@@ -5,24 +5,28 @@ State tracks the current and last executed calibration job, serving as
 the single source of truth for the runner's execution state.
 """
 
+from __future__ import annotations
+
+
 import pytest
 
 from qualibrate_runner.config.models import State
 from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
+from typing import Any
 
 
 class TestStateCreation:
     """Tests for creating State instances."""
 
-    def test_create_fresh_state(self):
+    def test_create_fresh_state(self) -> None:
         """Test creating a fresh State with no execution history."""
         state = State()
 
         assert state.last_run is None
         assert state.run_item is None
 
-    def test_create_with_last_run(self, sample_last_run_running):
+    def test_create_with_last_run(self, sample_last_run_running: Any) -> None:
         """Test creating State with a LastRun."""
         state = State(last_run=sample_last_run_running)
         assert state.last_run is not None
@@ -33,17 +37,21 @@ class TestStateCreation:
 class TestIsRunningProperty:
     """Tests for the is_running property."""
 
-    def test_not_running_when_finished(self, sample_last_run_finished):
+    def test_not_running_when_finished(
+        self, sample_last_run_finished: Any
+    ) -> None:
         """Test is_running is False when status is FINISHED."""
         state = State(last_run=sample_last_run_finished)
         assert state.is_running is False
 
-    def test_not_running_when_error(self, sample_last_run_error):
+    def test_not_running_when_error(self, sample_last_run_error: Any) -> None:
         """Test is_running is False when status is ERROR."""
         state = State(last_run=sample_last_run_error)
         assert state.is_running is False
 
-    def test_is_running_changes_with_status(self, aware_datetime, mock_node):
+    def test_is_running_changes_with_status(
+        self, aware_datetime: Any, mock_node: Any
+    ) -> None:
         """Test is_running property changes as status changes."""
         state = State()
 
@@ -57,6 +65,7 @@ class TestIsRunningProperty:
             name="test_node",
             idx=-1,
             runnable_type=RunnableType.NODE,
+            passed_parameters={},
         )
         state.run_item = mock_node
 
@@ -70,6 +79,7 @@ class TestIsRunningProperty:
             name="test_node",
             idx=42,
             runnable_type=RunnableType.NODE,
+            passed_parameters={},
         )
 
         assert state.is_running is False
@@ -78,10 +88,14 @@ class TestIsRunningProperty:
 class TestClearMethod:
     """Tests for the clear() method."""
 
-    def test_clear_finished_state(self, sample_last_run_finished, mock_node):
+    def test_clear_finished_state(
+        self, sample_last_run_finished: Any, mock_node: Any
+    ) -> None:
         """Test clearing state after finished execution."""
         state = State.model_construct(
-            last_run=sample_last_run_finished, run_item=mock_node
+            last_run=sample_last_run_finished,
+            run_item=mock_node,
+            passed_parameters={},
         )
 
         # Should succeed (not running)
@@ -90,10 +104,14 @@ class TestClearMethod:
         assert state.last_run is None
         assert state.run_item is None
 
-    def test_clear_error_state(self, sample_last_run_error, mock_node):
+    def test_clear_error_state(
+        self, sample_last_run_error: Any, mock_node: Any
+    ) -> None:
         """Test clearing state after error."""
         state = State.model_construct(
-            last_run=sample_last_run_error, run_item=mock_node
+            last_run=sample_last_run_error,
+            run_item=mock_node,
+            passed_parameters={},
         )
 
         # Should succeed (not running)
@@ -103,11 +121,13 @@ class TestClearMethod:
         assert state.run_item is None
 
     def test_clear_while_running_raises_error(
-        self, sample_last_run_running, mock_node
-    ):
+        self, sample_last_run_running: Any, mock_node: Any
+    ) -> None:
         """Test that clearing while running raises RuntimeError."""
         state = State.model_construct(
-            last_run=sample_last_run_running, run_item=mock_node
+            last_run=sample_last_run_running,
+            run_item=mock_node,
+            passed_parameters={},
         )
 
         # Should raise RuntimeError
@@ -124,7 +144,9 @@ class TestClearMethod:
 class TestStateLifecycle:
     """Tests for the typical State lifecycle during execution."""
 
-    def test_full_execution_lifecycle_success(self, aware_datetime, mock_node):
+    def test_full_execution_lifecycle_success(
+        self, aware_datetime: Any, mock_node: Any
+    ) -> None:
         """Test state through full successful execution lifecycle."""
         state = State()
 
@@ -140,6 +162,7 @@ class TestStateLifecycle:
             name="test_node",
             idx=-1,
             runnable_type=RunnableType.NODE,
+            passed_parameters={},
         )
         state.run_item = mock_node
 
@@ -153,6 +176,7 @@ class TestStateLifecycle:
             name="test_node",
             idx=42,
             runnable_type=RunnableType.NODE,
+            passed_parameters={},
         )
 
         assert state.is_running is False
@@ -165,8 +189,8 @@ class TestStateLifecycle:
         assert state.run_item is None
 
     def test_full_execution_lifecycle_error(
-        self, aware_datetime, mock_node, sample_run_error
-    ):
+        self, aware_datetime: Any, mock_node: Any, sample_run_error: Any
+    ) -> None:
         """Test state through full error execution lifecycle."""
         state = State()
 
@@ -177,6 +201,7 @@ class TestStateLifecycle:
             name="test_node",
             idx=-1,
             runnable_type=RunnableType.NODE,
+            passed_parameters={},
         )
         state.run_item = mock_node
 
@@ -191,6 +216,7 @@ class TestStateLifecycle:
             idx=-1,
             runnable_type=RunnableType.NODE,
             error=sample_run_error,
+            passed_parameters={},
         )
 
         assert state.is_running is False
@@ -202,7 +228,9 @@ class TestStateLifecycle:
         assert state.last_run is None
         assert state.run_item is None
 
-    def test_multiple_sequential_executions(self, aware_datetime, mock_node):
+    def test_multiple_sequential_executions(
+        self, aware_datetime: Any, mock_node: Any
+    ) -> None:
         """Test state through multiple sequential executions."""
         state = State()
 
@@ -213,6 +241,7 @@ class TestStateLifecycle:
             name="node_1",
             idx=-1,
             runnable_type=RunnableType.NODE,
+            passed_parameters={},
         )
         state.run_item = mock_node
         assert state.is_running is True
@@ -224,6 +253,7 @@ class TestStateLifecycle:
             name="node_1",
             idx=1,
             runnable_type=RunnableType.NODE,
+            passed_parameters={},
         )
         assert state.is_running is False
 
@@ -234,6 +264,7 @@ class TestStateLifecycle:
             name="node_2",
             idx=-1,
             runnable_type=RunnableType.NODE,
+            passed_parameters={},
         )
         assert state.is_running is True
         assert state.last_run.name == "node_2"
@@ -242,17 +273,17 @@ class TestStateLifecycle:
 class TestStateArbitraryTypes:
     """Tests for arbitrary type support (run_item)."""
 
-    def test_store_node_object(self, state_with_node):
+    def test_store_node_object(self, state_with_node: Any) -> None:
         """Test storing a QualibrationNode object in run_item."""
         assert state_with_node.run_item.name == "test_node"
         assert state_with_node.run_item.snapshot_idx == 42
 
-    def test_store_workflow_object(self, state_with_workflow):
+    def test_store_workflow_object(self, state_with_workflow: Any) -> None:
         """Test storing a workflow (QGraph) object in run_item."""
         assert state_with_workflow.run_item.name == "test_workflow"
         assert state_with_workflow.run_item.snapshot_idx == 100
 
-    def test_run_item_can_be_any_object(self):
+    def test_run_item_can_be_any_object(self) -> None:
         """Test that run_item can store any object (arbitrary_types_allowed).
 
         Note: When using model_construct, Pydantic bypasses validation
@@ -261,7 +292,7 @@ class TestStateArbitraryTypes:
 
         # Create a simple custom object
         class CustomRunnable:
-            def __init__(self):
+            def __init__(self) -> None:
                 self.name = "custom"
 
         custom_obj = CustomRunnable()
@@ -273,7 +304,9 @@ class TestStateArbitraryTypes:
 class TestStateEdgeCases:
     """Tests for edge cases and special scenarios."""
 
-    def test_set_last_run_to_none_explicitly(self, sample_last_run_finished):
+    def test_set_last_run_to_none_explicitly(
+        self, sample_last_run_finished: Any
+    ) -> None:
         """Test explicitly setting last_run to None."""
         state = State(last_run=sample_last_run_finished)
         assert state.last_run is not None
@@ -282,7 +315,9 @@ class TestStateEdgeCases:
         assert state.last_run is None
         assert state.is_running is False
 
-    def test_set_run_item_to_none_explicitly(self, state_with_node):
+    def test_set_run_item_to_none_explicitly(
+        self, state_with_node: Any
+    ) -> None:
         """Test explicitly setting run_item to None."""
         assert state_with_node.run_item is not None
 
@@ -290,8 +325,8 @@ class TestStateEdgeCases:
         assert state_with_node.run_item is None
 
     def test_replace_last_run_while_not_running(
-        self, sample_last_run_finished, sample_last_run_error
-    ):
+        self, sample_last_run_finished: Any, sample_last_run_error: Any
+    ) -> None:
         """Test replacing last_run when not running."""
         state = State(last_run=sample_last_run_finished)
 
@@ -300,7 +335,7 @@ class TestStateEdgeCases:
 
         assert state.last_run.status == RunStatusEnum.ERROR
 
-    def test_state_with_none_values(self):
+    def test_state_with_none_values(self) -> None:
         """Test State initialized with explicit None values."""
         state = State(last_run=None, run_item=None)
 
@@ -308,7 +343,7 @@ class TestStateEdgeCases:
         assert state.run_item is None
         assert state.is_running is False
 
-    def test_is_running_check_is_safe_with_none(self):
+    def test_is_running_check_is_safe_with_none(self) -> None:
         """Test that is_running safely handles None last_run."""
         state = State()
 

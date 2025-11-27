@@ -5,6 +5,11 @@ These models are used to capture error information and state changes
 during calibration execution.
 """
 
+from __future__ import annotations
+
+
+from typing import Any
+
 import pytest
 
 from qualibrate_runner.core.models.common import RunError, StateUpdate
@@ -13,7 +18,7 @@ from qualibrate_runner.core.models.common import RunError, StateUpdate
 class TestRunError:
     """Tests for the RunError model."""
 
-    def test_create_with_all_fields(self, sample_traceback):
+    def test_create_with_all_fields(self, sample_traceback: Any) -> None:
         """Test creating RunError with all required fields."""
         error = RunError(
             error_class="ValueError",
@@ -26,7 +31,7 @@ class TestRunError:
         assert error.traceback == sample_traceback
         assert len(error.traceback) == 2
 
-    def test_create_from_exception(self):
+    def test_create_from_exception(self) -> None:
         """Test creating RunError from a real exception."""
         import traceback as tb
 
@@ -44,7 +49,7 @@ class TestRunError:
         assert len(error.traceback) > 0
         assert any("raise ValueError" in line for line in error.traceback)
 
-    def test_serialization(self, sample_run_error):
+    def test_serialization(self, sample_run_error: Any) -> None:
         """Test that RunError can be serialized to dict."""
         data = sample_run_error.model_dump()
 
@@ -53,7 +58,7 @@ class TestRunError:
         assert isinstance(data["traceback"], list)
         assert len(data["traceback"]) == 2
 
-    def test_deserialization(self, sample_traceback):
+    def test_deserialization(self, sample_traceback: Any) -> None:
         """Test that RunError can be deserialized from dict."""
         data = {
             "error_class": "RuntimeError",
@@ -67,7 +72,7 @@ class TestRunError:
         assert error.message == "Something went wrong"
         assert error.traceback == sample_traceback
 
-    def test_different_error_classes(self):
+    def test_different_error_classes(self) -> None:
         """Test RunError with various exception types."""
         error_types = [
             "ValueError",
@@ -86,7 +91,7 @@ class TestRunError:
             )
             assert error.error_class == error_type
 
-    def test_multiline_error_message(self):
+    def test_multiline_error_message(self) -> None:
         """Test RunError with multiline error message."""
         multiline_message = """First line of error
 Second line with details
@@ -101,7 +106,7 @@ Third line with more context"""
         assert error.message == multiline_message
         assert "\n" in error.message
 
-    def test_long_traceback(self):
+    def test_long_traceback(self) -> None:
         """Test RunError with a long traceback (many frames)."""
         long_traceback = [
             f'  File "/path/frame_{i}.py", line {i * 10}, in func_{i}\n'
@@ -116,7 +121,9 @@ Third line with more context"""
 
         assert len(error.traceback) == 20
 
-    def test_create_with_optional_detail_fields(self, sample_traceback):
+    def test_create_with_optional_detail_fields(
+        self, sample_traceback: Any
+    ) -> None:
         """Test creating RunError with optional detail fields."""
         error = RunError(
             error_class="ValueError",
@@ -133,7 +140,9 @@ Third line with more context"""
             == "The 'frequency' parameter must be greater than zero."
         )
 
-    def test_create_without_optional_detail_fields(self, sample_traceback):
+    def test_create_without_optional_detail_fields(
+        self, sample_traceback: Any
+    ) -> None:
         """Test that optional detail fields default to None."""
         error = RunError(
             error_class="ValueError",
@@ -144,7 +153,9 @@ Third line with more context"""
         assert error.details_headline is None
         assert error.details is None
 
-    def test_serialization_with_optional_fields(self, sample_traceback):
+    def test_serialization_with_optional_fields(
+        self, sample_traceback: Any
+    ) -> None:
         """Test serialization includes optional fields when present."""
         error = RunError(
             error_class="RuntimeError",
@@ -160,7 +171,9 @@ Third line with more context"""
         assert "details" in serialized
         assert serialized["details"] == "Check the logs for more information"
 
-    def test_deserialization_with_optional_fields(self, sample_traceback):
+    def test_deserialization_with_optional_fields(
+        self, sample_traceback: Any
+    ) -> None:
         """Test deserialization with optional fields."""
         data = {
             "error_class": "ValueError",
@@ -174,7 +187,9 @@ Third line with more context"""
         assert error.details_headline == "Test Headline"
         assert error.details == "Test Details"
 
-    def test_deserialization_without_optional_fields(self, sample_traceback):
+    def test_deserialization_without_optional_fields(
+        self, sample_traceback: Any
+    ) -> None:
         """Test deserialization without optional fields."""
         data = {
             "error_class": "ValueError",
@@ -190,7 +205,7 @@ Third line with more context"""
 class TestStateUpdate:
     """Tests for the StateUpdate model."""
 
-    def test_create_with_all_fields(self):
+    def test_create_with_all_fields(self) -> None:
         """Test creating StateUpdate with all fields."""
         update = StateUpdate(
             key="qubit_0",
@@ -206,7 +221,7 @@ class TestStateUpdate:
         assert update.new == 5.1e9
         assert update.updated is True
 
-    def test_create_with_default_updated_false(self):
+    def test_create_with_default_updated_false(self) -> None:
         """Test that updated defaults to False."""
         update = StateUpdate(
             key="qubit_1",
@@ -217,7 +232,7 @@ class TestStateUpdate:
 
         assert update.updated is False
 
-    def test_string_attribute(self):
+    def test_string_attribute(self) -> None:
         """Test StateUpdate with string attribute name."""
         update = StateUpdate(
             key="resonator_0",
@@ -230,7 +245,7 @@ class TestStateUpdate:
         assert update.attr == "wiring"
         assert isinstance(update.attr, str)
 
-    def test_integer_attribute_for_list_index(self):
+    def test_integer_attribute_for_list_index(self) -> None:
         """Test StateUpdate with integer attribute (list index)."""
         update = StateUpdate(
             key="calibration_array",
@@ -243,7 +258,7 @@ class TestStateUpdate:
         assert update.attr == 3
         assert isinstance(update.attr, int)
 
-    def test_various_value_types(self):
+    def test_various_value_types(self) -> None:
         """Test StateUpdate with different value types."""
         # Float values
         update_float = StateUpdate(
@@ -290,7 +305,7 @@ class TestStateUpdate:
         )
         assert isinstance(update_dict.old, dict)
 
-    def test_nested_key_path(self):
+    def test_nested_key_path(self) -> None:
         """Test StateUpdate with nested key path (dot notation)."""
         update = StateUpdate(
             key="qubit_0.readout.resonator",
@@ -303,7 +318,7 @@ class TestStateUpdate:
         assert update.key == "qubit_0.readout.resonator"
         assert "." in update.key
 
-    def test_serialization(self, sample_state_update):
+    def test_serialization(self, sample_state_update: Any) -> None:
         """Test that StateUpdate can be serialized to dict."""
         data = sample_state_update.model_dump()
 
@@ -313,7 +328,7 @@ class TestStateUpdate:
         assert data["new"] == 5.1e9
         assert data["updated"] is True
 
-    def test_deserialization(self):
+    def test_deserialization(self) -> None:
         """Test that StateUpdate can be deserialized from dict."""
         data = {
             "key": "qubit_2",
@@ -331,7 +346,7 @@ class TestStateUpdate:
         assert update.new == 55e-6
         assert update.updated is True
 
-    def test_no_change_update(self):
+    def test_no_change_update(self) -> None:
         """Test StateUpdate where old and new values are the same."""
         update = StateUpdate(
             key="qubit_0",
@@ -345,7 +360,7 @@ class TestStateUpdate:
         assert update.old == update.new
         assert update.updated is False
 
-    def test_update_to_none(self):
+    def test_update_to_none(self) -> None:
         """Test StateUpdate where new value is None (clearing a value)."""
         update = StateUpdate(
             key="qubit_0",
@@ -358,7 +373,7 @@ class TestStateUpdate:
         assert update.old == 0.05
         assert update.new is None
 
-    def test_update_from_none(self):
+    def test_update_from_none(self) -> None:
         """Test StateUpdate where old value is None (setting initial value)."""
         update = StateUpdate(
             key="qubit_0",
@@ -371,7 +386,7 @@ class TestStateUpdate:
         assert update.old is None
         assert update.new == 0.1
 
-    def test_complex_number_values(self):
+    def test_complex_number_values(self) -> None:
         """Test StateUpdate with complex number values."""
         update = StateUpdate(
             key="mixer_0",
@@ -384,7 +399,7 @@ class TestStateUpdate:
         assert isinstance(update.old, complex)
         assert isinstance(update.new, complex)
 
-    def test_very_long_key(self):
+    def test_very_long_key(self) -> None:
         """Test StateUpdate with very long nested key path."""
         long_key = (
             "system.rack_1.chassis_2.module_3.channel_4.qubit_5.subsystem_6"

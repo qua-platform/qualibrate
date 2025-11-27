@@ -5,8 +5,11 @@ This module provides common fixtures used across unit and integration tests,
 including mock objects, sample data, and test utilities.
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Iterator
 from unittest.mock import Mock
 
 import pytest
@@ -18,19 +21,19 @@ from qualibrate_runner.core.models.last_run import LastRun
 
 
 @pytest.fixture
-def aware_datetime():
+def aware_datetime() -> datetime:
     """Provide a timezone-aware datetime for testing."""
     return datetime(2024, 1, 15, 10, 30, 0, tzinfo=timezone.utc)
 
 
 @pytest.fixture
-def later_datetime():
+def later_datetime() -> datetime:
     """Provide a later timezone-aware datetime for testing durations."""
     return datetime(2024, 1, 15, 10, 30, 5, 500000, tzinfo=timezone.utc)
 
 
 @pytest.fixture
-def sample_traceback():
+def sample_traceback() -> list[str]:
     """Provide a sample traceback as list of strings."""
     return [
         '  File "/path/to/node.py", line 42, in run\n'
@@ -41,7 +44,7 @@ def sample_traceback():
 
 
 @pytest.fixture
-def sample_run_error(sample_traceback):
+def sample_run_error(sample_traceback: Any) -> RunError:
     """Provide a sample RunError instance."""
     return RunError(
         error_class="ValueError",
@@ -51,7 +54,7 @@ def sample_run_error(sample_traceback):
 
 
 @pytest.fixture
-def sample_state_update():
+def sample_state_update() -> StateUpdate:
     """Provide a sample StateUpdate instance."""
     return StateUpdate(
         key="qubit_0",
@@ -63,7 +66,7 @@ def sample_state_update():
 
 
 @pytest.fixture
-def sample_last_run_running(aware_datetime):
+def sample_last_run_running(aware_datetime: Any) -> LastRun:
     """Provide a LastRun instance with RUNNING status."""
     return LastRun(
         status=RunStatusEnum.RUNNING,
@@ -76,7 +79,9 @@ def sample_last_run_running(aware_datetime):
 
 
 @pytest.fixture
-def sample_last_run_finished(aware_datetime, later_datetime):
+def sample_last_run_finished(
+    aware_datetime: Any, later_datetime: Any
+) -> LastRun:
     """Provide a LastRun instance with FINISHED status."""
     return LastRun(
         status=RunStatusEnum.FINISHED,
@@ -91,7 +96,9 @@ def sample_last_run_finished(aware_datetime, later_datetime):
 
 
 @pytest.fixture
-def sample_last_run_error(aware_datetime, later_datetime, sample_run_error):
+def sample_last_run_error(
+    aware_datetime: Any, later_datetime: Any, sample_run_error: Any
+) -> LastRun:
     """Provide a LastRun instance with ERROR status."""
     return LastRun(
         status=RunStatusEnum.ERROR,
@@ -106,13 +113,13 @@ def sample_last_run_error(aware_datetime, later_datetime, sample_run_error):
 
 
 @pytest.fixture
-def fresh_state():
+def fresh_state() -> State:
     """Provide a fresh State instance with no execution history."""
     return State()
 
 
 @pytest.fixture
-def mock_node():
+def mock_node() -> Mock:
     """Provide a mock QualibrationNode.
 
     Note: This cannot be used directly with State() due to Pydantic
@@ -127,7 +134,7 @@ def mock_node():
 
 
 @pytest.fixture
-def mock_workflow():
+def mock_workflow() -> Mock:
     """Provide a mock workflow (QGraph).
 
     Note: This cannot be used directly with State() due to Pydantic
@@ -141,13 +148,13 @@ def mock_workflow():
 
 
 @pytest.fixture
-def state_with_node(mock_node):
+def state_with_node(mock_node: Any) -> State:
     """Provide a State with a mock node (bypassing validation)."""
     return State.model_construct(run_item=mock_node)
 
 
 @pytest.fixture
-def state_with_workflow(mock_workflow):
+def state_with_workflow(mock_workflow: Any) -> State:
     """Provide a State with a mock workflow (bypassing validation)."""
     return State.model_construct(run_item=mock_workflow)
 
@@ -156,7 +163,7 @@ def state_with_workflow(mock_workflow):
 
 
 @pytest.fixture
-def mock_library(mock_workflow):
+def mock_library(mock_workflow: Any) -> Mock:
     """Provide a mock QualibrationLibrary."""
     library = Mock()
     library.graphs = {"test_workflow": mock_workflow}
@@ -164,7 +171,7 @@ def mock_library(mock_workflow):
 
 
 @pytest.fixture
-def sample_parameters_class():
+def sample_parameters_class() -> type[Any]:
     """Provide a sample Pydantic model for parameter validation."""
     from pydantic import BaseModel, Field
 
@@ -177,13 +184,13 @@ def sample_parameters_class():
 
 
 @pytest.fixture
-def sample_workflow_parameters_class():
+def sample_workflow_parameters_class() -> type[Any]:
     """Provide a sample workflow parameters class with nodes and parameters."""
     from pydantic import BaseModel, Field
 
     class NodeParams(BaseModel):
-        node1: dict = Field(default_factory=dict)
-        node2: dict = Field(default_factory=dict)
+        node1: dict[str, Any] = Field(default_factory=dict)
+        node2: dict[str, Any] = Field(default_factory=dict)
 
     class WorkflowParams(BaseModel):
         frequency: float = Field(gt=0.0)
@@ -197,7 +204,7 @@ def sample_workflow_parameters_class():
 
 
 @pytest.fixture(scope="function")
-def test_library():
+def test_library() -> Any:
     """
     Provide a QualibrationLibrary instance loaded with test nodes.
 
@@ -215,7 +222,7 @@ def test_library():
 
     # Create library with set_active=False to avoid interfering with
     # other tests
-    library = QualibrationLibrary(
+    library: Any = QualibrationLibrary(
         library_folder=test_nodes_path, set_active=False
     )
 

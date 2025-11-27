@@ -11,16 +11,22 @@ Test nodes are loaded through QualibrationLibrary to ensure proper
 initialization including filepath setting.
 """
 
+from __future__ import annotations
+
+
 import pytest
 
 from qualibrate_runner.config.models import RunStatusEnum
 from qualibrate_runner.core.run_job import run_node
+from typing import Any
 
 
 class TestSimpleNodeExecution:
     """Integration tests for simple nodes without action system."""
 
-    def test_simple_node_success(self, test_library, fresh_state):
+    def test_simple_node_success(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test successful execution of simple node."""
         node = test_library.nodes["node_raises_in_body"]
 
@@ -38,8 +44,8 @@ class TestSimpleNodeExecution:
         assert node.results["error_raised"] is False
 
     def test_simple_node_with_different_parameters(
-        self, test_library, fresh_state
-    ):
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test simple node with runtime parameter override."""
         node = test_library.nodes["node_raises_in_body"]
 
@@ -51,7 +57,9 @@ class TestSimpleNodeExecution:
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
         assert fresh_state.last_run.passed_parameters == params
 
-    def test_simple_node_error_in_body(self, test_library, fresh_state):
+    def test_simple_node_error_in_body(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test error capture when node body raises exception."""
         node = test_library.nodes["node_raises_in_body"]
 
@@ -75,7 +83,9 @@ class TestSimpleNodeExecution:
 class TestNodeWithActionsExecution:
     """Integration tests for nodes with action system."""
 
-    def test_all_actions_execute(self, test_library, fresh_state):
+    def test_all_actions_execute(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test full execution with all default actions."""
         node = test_library.nodes["node_with_actions"]
 
@@ -92,7 +102,9 @@ class TestNodeWithActionsExecution:
         assert "state_updated" in node.namespace  # update_state defaults True
         assert "summary" in node.namespace
 
-    def test_conditional_action_skip(self, test_library, fresh_state):
+    def test_conditional_action_skip(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test conditional action skipping via parameters."""
         node = test_library.nodes["node_with_actions"]
 
@@ -110,7 +122,9 @@ class TestNodeWithActionsExecution:
         # Verify conditional action was skipped
         assert "state_updated" not in node.namespace
 
-    def test_action_raises_error(self, test_library, fresh_state):
+    def test_action_raises_error(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test error capture when action raises exception."""
         node = test_library.nodes["node_with_actions"]
 
@@ -128,7 +142,9 @@ class TestNodeWithActionsExecution:
         assert fresh_state.last_run.error is not None
         assert "ValueError" in fresh_state.last_run.error.error_class
 
-    def test_error_from_external_library(self, test_library, fresh_state):
+    def test_error_from_external_library(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test error propagation from external library code."""
         node = test_library.nodes["node_with_actions"]
 
@@ -148,8 +164,8 @@ class TestNamespaceAccumulation:
     """Integration tests for namespace data flow across actions."""
 
     def test_namespace_accumulates_across_actions(
-        self, test_library, fresh_state
-    ):
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test that namespace accumulates data from all actions."""
         node = test_library.nodes["node_with_actions"]
 
@@ -167,7 +183,9 @@ class TestNamespaceAccumulation:
         # From finalize_results
         assert "summary" in node.namespace
 
-    def test_later_actions_use_earlier_data(self, test_library, fresh_state):
+    def test_later_actions_use_earlier_data(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test that actions can access data from previous actions."""
         node = test_library.nodes["node_with_actions"]
 
@@ -186,7 +204,9 @@ class TestNamespaceAccumulation:
 class TestStateTracking:
     """Integration tests for state lifecycle management."""
 
-    def test_state_lifecycle_success(self, test_library, fresh_state):
+    def test_state_lifecycle_success(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test state transitions during successful execution."""
         node = test_library.nodes["node_with_actions"]
 
@@ -205,7 +225,9 @@ class TestStateTracking:
             fresh_state.last_run.completed_at >= fresh_state.last_run.started_at
         )
 
-    def test_state_lifecycle_with_error(self, test_library, fresh_state):
+    def test_state_lifecycle_with_error(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test state updates when execution fails."""
         node = test_library.nodes["node_with_actions"]
 
@@ -221,7 +243,9 @@ class TestStateTracking:
         assert fresh_state.last_run.error is not None
         assert fresh_state.last_run.completed_at is not None
 
-    def test_passed_parameters_captured(self, test_library, fresh_state):
+    def test_passed_parameters_captured(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test that passed parameters are captured in state."""
         node = test_library.nodes["node_with_actions"]
 
@@ -240,7 +264,9 @@ class TestStateTracking:
 class TestParametricBehavior:
     """Integration tests for parametric node behavior."""
 
-    def test_namespace_persists_across_runs(self, test_library, fresh_state):
+    def test_namespace_persists_across_runs(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test that namespace accumulates across multiple runs"""
         node = test_library.nodes["node_with_actions"]
 
@@ -259,8 +285,8 @@ class TestParametricBehavior:
         assert "state_updated" in node.namespace
 
     def test_error_execution_preserves_namespace(
-        self, test_library, fresh_state
-    ):
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test that namespace is preserved even when execution fails."""
         node = test_library.nodes["node_with_actions"]
 
@@ -281,7 +307,9 @@ class TestParametricBehavior:
 class TestErrorMessaging:
     """Integration tests for improved error messaging"""
 
-    def test_error_details_for_action_failure(self, test_library, fresh_state):
+    def test_error_details_for_action_failure(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test error details when error occurs in action (inside library error)."""
         node = test_library.nodes["node_with_actions"]
 
@@ -324,7 +352,9 @@ class TestErrorMessaging:
             "action_manager.py" in traceback_str or "action.py" in traceback_str
         )
 
-    def test_error_details_for_body_failure(self, test_library, fresh_state):
+    def test_error_details_for_body_failure(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test error details when error occurs in node body (not in action)."""
         node = test_library.nodes["node_raises_in_body"]
 
@@ -364,7 +394,9 @@ class TestErrorMessaging:
         # Body errors should not have action framework in simplified version
         assert "action_manager.py" not in error.details
 
-    def test_error_details_with_action_history(self, test_library, fresh_state):
+    def test_error_details_with_action_history(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test error details include completed and skipped actions."""
         node = test_library.nodes["node_with_actions"]
 
@@ -394,8 +426,8 @@ class TestErrorMessaging:
         assert "process_data_with_error" in error.details
 
     def test_error_details_for_action_with_subroutine(
-        self, test_library, fresh_state
-    ):
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test error in subroutine called by action shows full call chain."""
         node = test_library.nodes["node_with_subroutine"]
 
@@ -430,7 +462,9 @@ class TestErrorMessaging:
         # 5. Full traceback should be preserved with all frames
         assert len(error.traceback) > 5
 
-    def test_error_headline_for_action(self, test_library, fresh_state):
+    def test_error_headline_for_action(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test headline format for action errors."""
         node = test_library.nodes["node_with_actions"]
 
@@ -449,7 +483,9 @@ class TestErrorMessaging:
         # Should indicate it's in an action
         assert "action" in headline
 
-    def test_error_headline_for_body(self, test_library, fresh_state):
+    def test_error_headline_for_body(
+        self, test_library: Any, fresh_state: Any
+    ) -> None:
         """Test headline format for body/initialization errors."""
         node = test_library.nodes["node_raises_in_body"]
 

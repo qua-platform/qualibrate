@@ -5,6 +5,8 @@ This node tests error handling when the error occurs in a subroutine
 that is called from an action, ensuring the full call chain is captured.
 """
 
+from typing import Any
+
 from pydantic import Field
 
 from qualibrate import NodeParameters, QualibrationNode
@@ -26,7 +28,7 @@ class Parameters(NodeParameters):
 
 
 # Create the node
-node = QualibrationNode(
+node: QualibrationNode[Parameters, Parameters] = QualibrationNode(  # type: ignore[type-var]
     name="node_with_subroutine",
     parameters=Parameters(),
 )
@@ -59,7 +61,7 @@ def another_helper(value: float, message: str) -> float:
 
 
 @node.run_action
-def prepare_data(node):
+def prepare_data(node: Any) -> dict[str, Any]:
     """Generate measurement data based on parameters."""
     # Simple data generation without errors
     data = [
@@ -68,8 +70,8 @@ def prepare_data(node):
     return {"data": data, "data_length": len(data)}
 
 
-@node.run_action(skip_if=not node.parameters.trigger_subroutine_error)
-def process_with_subroutine(node):
+@node.run_action(skip_if=not node.parameters.trigger_subroutine_error)  # type: ignore[misc]
+def process_with_subroutine(node: Any) -> dict[str, Any]:
     """Process data using a helper function.
 
     This action calls helper_function, which will raise an IndexError
@@ -83,7 +85,7 @@ def process_with_subroutine(node):
 
 
 @node.run_action
-def finalize(node):
+def finalize(node: Any) -> dict[str, str]:
     """Finalize results."""
     return {"status": "completed"}
 
