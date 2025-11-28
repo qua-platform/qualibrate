@@ -18,7 +18,7 @@ const Application: React.FunctionComponent = () => {
       <GlobalThemeContextProvider>
         <RouterProvider>
           <AppRoutes />
-        </RouterProvider>;
+        </RouterProvider>
       </GlobalThemeContextProvider>
     </Provider>
   );
