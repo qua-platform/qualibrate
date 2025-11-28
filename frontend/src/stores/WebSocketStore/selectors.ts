@@ -98,7 +98,7 @@ export const getRunStatusGraphRunDuration = createSelector(
 
 export const getRunStatusGraphError = createSelector(
   getRunStatusGraph,
-  (runStatusGraphState) => runStatusGraphState?.error
+  (runStatusGraphState) => runStatusGraphState?.run_results?.error
 );
 
 /**

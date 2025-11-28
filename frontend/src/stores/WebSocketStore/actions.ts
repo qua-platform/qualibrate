@@ -54,6 +54,6 @@ export const handleSetRunStatus = (runStatus: RunStatusType) =>
       nodesCompleted: runStatus.graph?.finished_nodes,
       nodesTotal: runStatus.graph?.total_nodes,
       runDuration: runStatus.graph?.run_duration,
-      error: runStatus.graph?.error,
+      error: runStatus.graph?.run_results?.error || undefined,
     }));
   };
