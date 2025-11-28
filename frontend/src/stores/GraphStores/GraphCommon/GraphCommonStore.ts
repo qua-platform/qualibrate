@@ -4,6 +4,10 @@ import { Edge, Node } from "@xyflow/react";
 
 export type EdgeData = {
   condition?: boolean
+  loop?: {
+    condition?: boolean
+    maxIterations: number
+  }
 }
 
 export type NodeData = {

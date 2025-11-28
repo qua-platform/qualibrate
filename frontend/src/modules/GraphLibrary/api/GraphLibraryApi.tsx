@@ -6,9 +6,12 @@ import { Measurement } from "../components/GraphStatus/GraphStatus";
 
 type NodeDTO = {
   id: number
+  loop: boolean
   data: {
     label: string
+    condition?: boolean
     subgraph?: FetchGraphResponse
+    max_iterations?: number,
   }
   position: {
     x: number
@@ -16,12 +19,13 @@ type NodeDTO = {
   }
 }
 
-type EdgeDTO = {
+export type EdgeDTO = {
   id: string
   source: number
   target: number
   data: {
-    condition: boolean
+    condition?: boolean
+    [key: string]: unknown
   }
   position: {
     x: number
