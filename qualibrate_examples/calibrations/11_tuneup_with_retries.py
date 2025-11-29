@@ -2,7 +2,7 @@
 11 - Tune-up with retries
 
 This example demonstrates:
-- `loop_on_failure`: How to automatically retry a failing calibration node.
+- `loop`: How to automatically retry a calibration node.
 - `connect_on_failure`: How to define a fallback path for error handling.
 """
 from qualibrate import GraphParameters, QualibrationGraph, QualibrationLibrary
@@ -28,8 +28,8 @@ with QualibrationGraph.build(
     rabi_node.name = "rabi_with_retries"
     graph.add_node(rabi_node)
 
-    # Use loop_on_failure to retry the node up to 3 times if it fails.
-    graph.loop_on_failure(rabi_node, max_iterations=3)
+    # Use loop to retry the node up to 3 times.
+    graph.loop(rabi_node, max_iterations=3)
 
     # 2. Refined Rabi experiment (success path)
     # This node will only run if the initial Rabi experiment succeeds.

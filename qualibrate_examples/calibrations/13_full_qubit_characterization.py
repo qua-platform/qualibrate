@@ -40,8 +40,8 @@ with QualibrationGraph.build(
         rabi_node = library.nodes["02_demo_rabi"]
         gate_subgraph.add_node(rabi_node)
 
-        # If Rabi fails, retry up to 2 times
-        gate_subgraph.loop_on_failure(rabi_node, max_iterations=2)
+        # Retry the Rabi node 2 times.
+        gate_subgraph.loop(rabi_node, max_iterations=2)
 
         # Follow up with a refined Rabi for better accuracy
         refined_rabi_node = library.nodes["04_demo_rabi_refined"]
