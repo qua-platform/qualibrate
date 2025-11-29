@@ -2834,14 +2834,14 @@ two-qubit-rb = ["cirq (==1.2.0) ; python_version >= \"3.10\"", "tqdm (>=4.67.1,<
 
 [[package]]
 name = "qualibrate-config"
-version = "0.1.7"
+version = "0.1.8"
 description = "Configuration for Qualibrate"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main", "dev"]
 files = [
-    {file = "qualibrate_config-0.1.7-py3-none-any.whl", hash = "sha256:788d86c8c93680c3188b03c74b817c3e8798be5e0454daabb18d7428cfeb4fb6"},
-    {file = "qualibrate_config-0.1.7.tar.gz", hash = "sha256:82f8f46ad3526ee4e9b39f9dc57a0430461f6a17cfdedef59b4bdf431da59faf"},
+    {file = "qualibrate_config-0.1.8-py3-none-any.whl", hash = "sha256:58969295ada9253540e18208387acad9097a4883051dd8ed72887e89b4f6d37f"},
+    {file = "qualibrate_config-0.1.8.tar.gz", hash = "sha256:7deccb0d160a0f1863ca43c87c5712d7a7e40a4c89fa03a8ed06d2ff552a1176"},
 ]
 
 [package.dependencies]
@@ -2854,7 +2854,7 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.4.1"
+version = "0.5.0"
 description = ""
 optional = false
 python-versions = "^3.10,<3.13"
@@ -3781,4 +3781,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.13"
-content-hash = "d1ee5f96eb50753afff949c09bbd8613fcba9d708016146985aaa5cb74fca098"
+content-hash = "f403f28c62219e2e8f2726ab85b1061c00624c648ca2cd9a36bfa545095d652e"
