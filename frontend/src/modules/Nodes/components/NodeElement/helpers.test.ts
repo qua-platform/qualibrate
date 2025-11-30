@@ -7,7 +7,7 @@ describe("getNodeRowClass", () => {
   it("should highlight running node with animation", () => {
     const result = getNodeRowClass({
       nodeName: "test_cal",
-      selectedItemName: "other_node",
+      isSelected: "other_node",
       runStatus: { name: "test_cal", status: "running" }
     });
 
@@ -19,7 +19,7 @@ describe("getNodeRowClass", () => {
   it("should show error state for failed node", () => {
     const result = getNodeRowClass({
       nodeName: "test_cal",
-      selectedItemName: "test_cal",
+      isSelected: "test_cal",
       runStatus: { name: "test_cal", status: "error" }
     });
 
@@ -30,7 +30,7 @@ describe("getNodeRowClass", () => {
   it("should show finished state with success styling", () => {
     const result = getNodeRowClass({
       nodeName: "test_cal",
-      selectedItemName: "test_cal",
+      isSelected: "test_cal",
       runStatus: { name: "test_cal", status: "finished" }
     });
 
@@ -41,7 +41,7 @@ describe("getNodeRowClass", () => {
   it("should show pending state for selected node without execution", () => {
     const result = getNodeRowClass({
       nodeName: "test_cal",
-      selectedItemName: "test_cal",
+      isSelected: "test_cal",
       runStatus: null
     });
 
@@ -52,7 +52,7 @@ describe("getNodeRowClass", () => {
   it("should return only base class when not selected and no status", () => {
     const result = getNodeRowClass({
       nodeName: "test_cal",
-      selectedItemName: "other_node",
+      isSelected: "other_node",
       runStatus: null
     });
 
@@ -63,7 +63,7 @@ describe("getNodeRowClass", () => {
     // Even if selected, running status takes priority
     const result = getNodeRowClass({
       nodeName: "test_cal",
-      selectedItemName: "test_cal",
+      isSelected: "test_cal",
       runStatus: { name: "test_cal", status: "running" }
     });
 
@@ -74,7 +74,7 @@ describe("getNodeRowClass", () => {
   it("should handle undefined status in runStatus", () => {
     const result = getNodeRowClass({
       nodeName: "test_cal",
-      selectedItemName: "test_cal",
+      isSelected: "test_cal",
       runStatus: { name: "test_cal", status: undefined }
     });
 
@@ -85,7 +85,7 @@ describe("getNodeRowClass", () => {
   it("should return base class when runStatus is for different node", () => {
     const result = getNodeRowClass({
       nodeName: "test_cal",
-      selectedItemName: "test_cal",
+      isSelected: "test_cal",
       runStatus: { name: "other_node", status: "running" }
     });
 

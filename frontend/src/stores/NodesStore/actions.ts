@@ -1,17 +1,22 @@
 import { NodesApi } from "../../modules/Nodes/api/NodesAPI";
 import { RootDispatch, RootState } from "..";
-import { nodesSlice, StateUpdate, StatusResponseType } from "./NodesStore";
-import { NodeMap } from "../../modules/Nodes/components/NodeElement/NodeElement";
+import { ErrorWithDetails, nodesSlice, StateUpdate, StatusResponseType } from "./NodesStore";
+import { NodeDTO, NodeMap } from "../../modules/Nodes/components/NodeElement/NodeElement";
 import { SnapshotsApi } from "../../modules/Snapshots/api/SnapshotsApi";
 import { getRunningNode, getRunningNodeInfo } from "./selectors";
 import { formatDateTime } from "../../modules/GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
+import { InputParameter } from "@/modules/common/Parameters/Parameters";
+import { getFirstId, getSecondId, getTrackLatestSidePanel } from "../SnapshotsStore/selectors";
+import { fetchOneSnapshot } from "../SnapshotsStore/actions";
 
 export const {
   setSelectedNode,
   setSubmitNodeResponseError,
+  runNode,
   setRunningNode,
   setRunningNodeInfo,
   setAllNodes,
+  setNodeParameter,
   setIsNodeRunning,
   setResults,
   setIsAllStatusesUpdated,
@@ -157,3 +162,89 @@ export const fetchNodeResults = () => async (dispatch: RootDispatch, getState: (
       }
   }
 };
+
+/**
+ * Format Date object to "YYYY/MM/DD HH:mm:ss" string for display.
+ *
+ * Used to display execution timestamps in the UI. This format matches
+ * the NodesContext.parseDateString() format for bidirectional conversion.
+ */
+const formatDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+};
+
+/**
+ * Extract parameter values from parameter definitions for API submission.
+ *
+ * Transforms parameter metadata objects into a simple key-value map containing
+ * only the default values needed for backend execution.
+ *
+ * @param parameters - Full parameter definitions with type, title, description
+ * @returns Simplified map of parameter names to values for API payload
+ */
+const transformInputParameters = (parameters: InputParameter) => {
+  return Object.entries(parameters).reduce(
+    (acc, [key, parameter]) => {
+      acc[key] = parameter.default ?? null;
+      return acc;
+    },
+    {} as { [key: string]: boolean | number | string | null | string[] }
+  );
+};
+
+
+/**
+ * Submit node execution request to backend and update execution state.
+ *
+ * Handles the complete flow of starting a calibration run:
+ * 1. Reset execution state and clear previous results
+ * 2. Submit parameters to backend API
+ * 3. Update UI state based on success/failure
+ * 4. Trigger snapshot refresh if tracking latest results
+ *
+ * After successful submission, WebSocket updates will drive further state changes
+ * (progress updates, completion status, etc.) via NodesContext.
+ *
+ * @remarks
+ * **FRAGILE: Error Handling**:
+ * Assumes error format matches ErrorWithDetails structure with detail[0].
+ * If backend returns different error format, will throw accessing undefined properties.
+ * No try-catch wrapping the API call - network errors will crash the component.
+ *
+ * **State Synchronization**:
+ * Sets initial status to "running" optimistically before WebSocket confirms.
+ * WebSocket updates (via NodesContext useEffect) will override this with actual status.
+ *
+ * **Side Effect: Snapshot Fetching**:
+ * Conditionally fetches snapshot if trackLatestSidePanel is enabled. This coupling
+ * between node execution and snapshot state makes the flow harder to follow.
+ */
+export const handleRunNode = (node: NodeDTO) => async (dispatch: RootDispatch, getState: () => RootState) => {
+    dispatch(runNode(node));
+
+    const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
+    if (result.isOk) {
+      dispatch(setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" }));
+    } else {
+      const errorWithDetails = result.error as ErrorWithDetails;
+      dispatch(setSubmitNodeResponseError({
+        nodeName: node.name,
+        name: `${errorWithDetails.detail[0].type ?? "Error msg"}: `,
+        msg: errorWithDetails.detail[0].msg,
+      }));
+      dispatch(setRunningNodeInfo({
+        timestampOfRun: formatDate(new Date()),
+        status: "error",
+      }));
+    }
+    if (getTrackLatestSidePanel(getState())) {
+      dispatch(fetchOneSnapshot(Number(getFirstId(getState())), Number(getSecondId(getState())), false, true));
+    }
+  };

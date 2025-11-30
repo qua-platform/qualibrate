@@ -1,4 +1,4 @@
-import { createSelector } from "@reduxjs/toolkit";
+import { createSelector, createSelectorCreator, lruMemoize, weakMapMemoize } from "@reduxjs/toolkit";
 import { RootState } from "..";
 
 export const getNodesState = (state: RootState) => state.nodes;
@@ -8,9 +8,10 @@ export const getSubmitNodeResponseError = createSelector(
   (state) => state.submitNodeResponseError
 );
 
-export const getSelectedNode = createSelector(
+export const getIsNodeSelected = createSelector(
   getNodesState,
-  (state) => state.selectedNode
+  (state, nodeKey: string) => nodeKey,
+  (state, nodeKey) => state.selectedNode === nodeKey
 );
 
 export const getRunningNode = createSelector(
@@ -27,6 +28,17 @@ export const getAllNodes = createSelector(
   getNodesState,
   (state) => state.allNodes
 );
+
+export const getNode = createSelector(
+  getAllNodes,
+  (_, nodeKey: string) => nodeKey,
+  (allNodes, key) => allNodes[key],
+);
+
+export const getNodesKeys = createSelector(
+  getAllNodes,
+  (allNodes) => Object.keys(allNodes || {}),
+)
 
 export const getIsNodeRunning = createSelector(
   getNodesState,

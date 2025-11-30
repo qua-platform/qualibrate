@@ -20,12 +20,12 @@ import Graph from "../Graph/Graph";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import {getSelectedWorkflow} from "../../../../stores/GraphStores/GraphLibrary/selectors";
-import {submitWorkflow} from "../../../../stores/GraphStores/GraphLibrary/actions";
+import {setGraphNodeParameter, submitWorkflow} from "../../../../stores/GraphStores/GraphLibrary/actions";
 import {useRootDispatch} from "../../../../stores";
 import { getSelectedWorkflowName, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import { setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphCommon/actions";
 import SubgraphBreadcrumbs from "./components/SubgraphBreadcrumbs";
-import ParameterSelector from "../../../common/Parameters/InputElement";
+import ParameterSelector from "../../../common/Parameters/ParameterSelector";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -43,8 +43,11 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     dispatch(setSelectedWorkflowName(calibrationGraphKey));
   };
 
+  const onNodeParameterChange = (parameterKey: string, newValue: string | number | boolean, nodeId?: string | undefined) =>
+    dispatch(setGraphNodeParameter(parameterKey, newValue, nodeId));
+
   const renderInputElement = (key: string, parameter: SingleParameter) =>
-    <ParameterSelector parameterKey={key} parameter={parameter} />;
+    <ParameterSelector parameterKey={key} parameter={parameter} onChange={onNodeParameterChange} />;
 
   const show = selectedWorkflowName === calibrationGraphKey;
   return (

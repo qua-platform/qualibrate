@@ -4,34 +4,38 @@ import { NodeDTO } from "../../Nodes/components/NodeElement/NodeElement";
 import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
 import InputField from "../../../common/ui-components/common/Input/InputField";
 import { SingleParameter } from "./Parameters";
-import { useRootDispatch } from "../../../stores";
-import { setNodeParameter } from "../../../stores/GraphStores/GraphLibrary/actions";
-import { useSelector } from "react-redux";
-import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../../../stores/GraphStores/GraphCommon/selectors";
 
 const ParameterSelector = ({
   parameterKey,
   parameter,
-  node
+  node,
+  onChange,
 }: {
   parameterKey: string
   parameter: SingleParameter
   node?: NodeDTO | GraphWorkflow
+  onChange: (paramKey: string, newValue: string | number | boolean, nodeId?: string | undefined) => void
 }) => {
-  const dispatch = useRootDispatch();
-  const subgraphBreadcrumbs = useSelector(getSubgraphBreadcrumbs);
-  const selectedWorkflowName = useSelector(getSelectedWorkflowName);
-
   const handleChange = (newValue: string | number | boolean) => {
-    dispatch(setNodeParameter({
-      paramKey: parameterKey,
-      newValue,
-      nodeId: node?.name,
-      subgraphBreadcrumbs,
-      selectedWorkflowName,
-    }));
+    onChange(parameterKey, newValue, node?.name);
   };
 
+  /**
+   * Render appropriate input component based on parameter type.
+   *
+   * Creates type-specific input elements for parameter editing. Currently
+   * supports boolean (Checkbox) and all other types (InputField with string coercion).
+   *
+   * @remarks
+   * **FRAGILE: Limited Type Support**:
+   * Only boolean has dedicated UI - all other types (number, string, etc.) use
+   * generic InputField with string coercion. Number validation happens at submission
+   * time on backend, not during input. Consider adding number input with validation.
+   *
+   * **IMPROVEMENT NEEDED: Type Validation**:
+   * No client-side validation for parameter types. Users can enter invalid values
+   * (e.g., text in number field) and only discover errors after submission.
+   */
   switch (parameter.type) {
     case "boolean":
       return (

@@ -19,17 +19,15 @@ import styles from "./NodeElement.module.scss";
  * @returns Space-separated CSS class names for styling
  */
 export const getNodeRowClass = ({
-  nodeName,
-  selectedItemName,
+  isSelected,
+  isLastRun,
   runStatus,
 }: {
-  nodeName: string;
-  selectedItemName: string;
-  runStatus: { name?: string; status?: string } | null;
+  isSelected: boolean;
+  isLastRun: boolean;
+  runStatus?:  string;
 }): string => {
-  const isSelected = selectedItemName === nodeName;
-  const isLastRun = runStatus?.name === nodeName;
-  const nodeStatus = isLastRun ? runStatus?.status : "pending";
+  const nodeStatus = (isLastRun && runStatus) ? runStatus : "pending";
 
   // Visual priority: finished > error > running > pending
   if (isLastRun && nodeStatus === "finished") {
