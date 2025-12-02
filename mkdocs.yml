@@ -48,6 +48,7 @@ nav:
   - calibration_nodes.md
   - calibration_library.md
   - calibration_graphs.md
+  - advanced_calibration_graphs.md
   - web_app.md
   - projects.md
   - configuration.md

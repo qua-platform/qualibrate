@@ -8,7 +8,7 @@ QUAlibrate is a comprehensive platform that enables users to create, manage, and
 
 ### Key Features
 - **Calibration Nodes**: Reusable calibration scripts transformed into `QualibrationNode` instances that can be executed independently or as part of a larger workflow.
-- **Calibration Graphs**: Directed acyclic graphs (`QualibrationGraph`) that link multiple calibration nodes to form adaptive calibration routines based on prior results.
+- **Calibration Graphs**: Directed acyclic graphs (`QualibrationGraph`) that link multiple calibration nodes to form adaptive calibration routines based on prior results, with advanced features like looping, failure handling, and nested subgraphs.
 - **Web Interface**: A user-friendly web app that enables you to execute calibration nodes and graphs with live updates and visualization, simplifying your workflow.
 - **Scalable System**: Designed for scalability, QUAlibrate can handle both small- and large-scale QPU systems, allowing for seamless integration with multiple qubits and complex calibration tasks.
 - **Quantum Abstract Machine (QUAM)**: A digital representation of your quantum system, ensuring reproducibility and transparency in your calibration processes.
@@ -31,6 +31,8 @@ The Calibration Library is a repository of all calibration nodes and graphs, org
 
 ### [Calibration Graphs](calibration_graphs.md)
 Calibration graphs (`QualibrationGraph`) combine multiple calibration nodes into a directed acyclic graph (DAG) to represent complete calibration routines. Each graph represents a workflow that adapts based on the results of previous nodes, creating an efficient and automated calibration process.
+
+For advanced features like looping, failure handling, and nested subgraphs, see [Advanced Calibration Graphs](advanced_calibration_graphs.md).
 
 ### [Web App](web_app.md)
 QUAlibrate's web interface allows users to run calibration nodes and graphs intuitively. With live updates, parameter adjustments, and graphical results, the web app makes calibration processes more accessible to users without deep programming expertise.
