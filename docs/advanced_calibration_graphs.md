@@ -21,7 +21,7 @@ class TuneupParameters(GraphParameters):
     qubits: list[str] = ["q1"]
 
 # Build the graph using the context manager
-with QualibrationGraph.build("my_calibration_graph", parameters=TuneupParameters()) as graph:
+with QualibrationGraph.build("my_tuneup_graph", parameters=TuneupParameters()) as graph:
     # Get nodes from the library (automatically copied)
     rabi_node = library.nodes["02_demo_rabi"]
     graph.add_node(rabi_node)
@@ -44,8 +44,6 @@ The context manager handles the graph lifecycle automatically:
 2. **Finalization**: When exiting the `with` block, the graph is automatically finalized. This validates the graph structure, ensures all nodes are properly copied from the library, and builds the internal execution graph.
 3. **Execution**: After the context manager exits, the graph is ready to run.
 
-!!! note "Advantages of the Context Manager" - **Clear lifecycle**: Building and execution phases are visually separated - **Automatic finalization**: No need to manually call finalization methods - **Error safety**: Prevents accidental graph modification after finalization - **Library safety**: Ensures nodes from the library are always copied, never directly modified
-
 ## Graph Composition and Nested Subgraphs
 
 Complex calibration workflows can be organized hierarchically by nesting graphs within graphs. A `QualibrationGraph` can be added as a node in another graph, creating a parent-child relationship.
@@ -61,23 +59,18 @@ class TuneupParameters(GraphParameters):
     qubits: list[str] = ["q1"]
 
 # Build the main graph
-with QualibrationGraph.build(
-    "full_calibration",
-    parameters=TuneupParameters(),
-) as graph:
+with QualibrationGraph.build("full_calibration", parameters=TuneupParameters()) as graph:
     # Add an initial node
     rabi_node = library.nodes["02_demo_rabi"]
     graph.add_node(rabi_node)
 
     # Create a nested subgraph for coherence measurements
-    with QualibrationGraph.build(
-        "coherence_characterization",
-        parameters=TuneupParameters(),
-    ) as subgraph:
+    with QualibrationGraph.build("coherence_characterization", parameters=TuneupParameters()) as subgraph:
         # Add nodes to the subgraph
         ramsey_node = library.nodes["05_demo_ramsey"]
-        t1_node = library.nodes["06_demo_t1"]
         subgraph.add_node(ramsey_node)
+
+        t1_node = library.nodes["06_demo_t1"]
         subgraph.add_node(t1_node)
 
         # Connect nodes within the subgraph
@@ -127,10 +120,7 @@ with QualibrationGraph.build(
     graph.connect(rabi_node, ramsey_node)
 ```
 
-The node will execute repeatedly until either:
-
-- It succeeds on all targets, or
-- The maximum number of iterations is reached
+The node will execute exactly `max_iterations` times, regardless of success or failure outcomes
 
 ### Conditional Loops
 
@@ -183,7 +173,8 @@ The function should return:
 - `False` if calibration for this target is complete
 
 !!! note "Per-Target Looping"
-Condition functions are called separately for each target. This enables per-target adaptive logic where some qubits may continue iterating while others are finished.
+
+    Condition functions are called separately for each target. This enables per-target adaptive logic where some qubits may continue iterating while others are finished.
 
 ### Combining Conditions and Max Iterations
 
