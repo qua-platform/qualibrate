@@ -74,7 +74,10 @@ Similar to a `QualibrationNode`, a `QualibrationGraph` should be defined in a de
 
 ### Example: Creating a `QualibrationGraph`
 
-In this example, we will create a graph composed of three `QualibrationNode`s: `"qubit_spec" → "rabi" → "ramsey"`. We assume that these nodes already exist in the calibration library folder. The arrow indicates that each subsequent node can only be executed if the previous node had a successful outcome for that target.
+In this example, we will create a graph composed of three `QualibrationNode`s: qubit spectroscopy → Rabi → Ramsey. The arrow indicates that each subsequent node can only be executed if the previous node had a successful outcome for that target.
+
+!!! note "Demo Calibration Nodes"
+    This example uses demo calibration nodes that are automatically installed with QUAlibrate. These nodes (`01_demo_qubit_spectroscopy`, `02_demo_rabi`, `05_demo_ramsey`) are available in the calibration library and can be used for testing and learning purposes.
 
 ### Importing `qualibrate`
 
@@ -114,9 +117,9 @@ with QualibrationGraph.build(
     parameters=Parameters(),
 ) as graph:
     # Get nodes from the library (automatically copied)
-    qubit_spec = library.nodes["qubit_spec"]
-    rabi = library.nodes["rabi"]
-    ramsey = library.nodes["ramsey"]
+    qubit_spec = library.nodes["01_demo_qubit_spectroscopy"]
+    rabi = library.nodes["02_demo_rabi"]
+    ramsey = library.nodes["05_demo_ramsey"]
 
     # Add nodes to the graph
     graph.add_node(qubit_spec)
@@ -166,10 +169,10 @@ with QualibrationGraph.build(
     "workflow1",  # Unique graph name
     parameters=Parameters(),  # Instantiate graph parameters
 ) as graph:
-    # Get nodes from the library (automatically copied)
-    qubit_spec = library.nodes["qubit_spec"]
-    rabi = library.nodes["rabi"]
-    ramsey = library.nodes["ramsey"]
+    # Get demo nodes from the library (automatically copied)
+    qubit_spec = library.nodes["01_demo_qubit_spectroscopy"]
+    rabi = library.nodes["02_demo_rabi"]
+    ramsey = library.nodes["05_demo_ramsey"]
 
     # Add nodes to the graph
     graph.add_node(qubit_spec)
