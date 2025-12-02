@@ -21,19 +21,14 @@ class TuneupParameters(GraphParameters):
     qubits: list[str] = ["q1"]
 
 # Build the graph using the context manager
-with QualibrationGraph.build(
-    "my_calibration_graph",
-    parameters=TuneupParameters(),
-) as graph:
+with QualibrationGraph.build("my_calibration_graph", parameters=TuneupParameters()) as graph:
     # Get nodes from the library (automatically copied)
     rabi_node = library.nodes["02_demo_rabi"]
-    ramsey_node = library.nodes["05_demo_ramsey"]
-
-    # Add nodes to the graph
     graph.add_node(rabi_node)
+
+    ramsey_node = library.nodes["05_demo_ramsey"]
     graph.add_node(ramsey_node)
 
-    # Connect nodes
     graph.connect(rabi_node, ramsey_node)
 
 # Graph is now finalized and ready to run
@@ -49,11 +44,7 @@ The context manager handles the graph lifecycle automatically:
 2. **Finalization**: When exiting the `with` block, the graph is automatically finalized. This validates the graph structure, ensures all nodes are properly copied from the library, and builds the internal execution graph.
 3. **Execution**: After the context manager exits, the graph is ready to run.
 
-!!! note "Advantages of the Context Manager"
-    - **Clear lifecycle**: Building and execution phases are visually separated
-    - **Automatic finalization**: No need to manually call finalization methods
-    - **Error safety**: Prevents accidental graph modification after finalization
-    - **Library safety**: Ensures nodes from the library are always copied, never directly modified
+!!! note "Advantages of the Context Manager" - **Clear lifecycle**: Building and execution phases are visually separated - **Automatic finalization**: No need to manually call finalization methods - **Error safety**: Prevents accidental graph modification after finalization - **Library safety**: Ensures nodes from the library are always copied, never directly modified
 
 ## Graph Composition and Nested Subgraphs
 
@@ -137,6 +128,7 @@ with QualibrationGraph.build(
 ```
 
 The node will execute repeatedly until either:
+
 - It succeeds on all targets, or
 - The maximum number of iterations is reached
 
@@ -181,19 +173,22 @@ with QualibrationGraph.build(
 ### Condition Function Signature
 
 Condition functions must accept two parameters:
+
 - `node: QualibrationNode` - The node instance, allowing access to `node.results`
 - `target: str` - The specific target (e.g., qubit) being evaluated
 
 The function should return:
+
 - `True` if the target should be calibrated again in another iteration
 - `False` if calibration for this target is complete
 
 !!! note "Per-Target Looping"
-    Condition functions are called separately for each target. This enables per-target adaptive logic where some qubits may continue iterating while others are finished.
+Condition functions are called separately for each target. This enables per-target adaptive logic where some qubits may continue iterating while others are finished.
 
 ### Combining Conditions and Max Iterations
 
 When both a condition function and `max_iterations` are specified, the loop continues while:
+
 - The condition function returns `True` for any target, AND
 - The iteration count has not reached `max_iterations`
 
@@ -232,10 +227,12 @@ with QualibrationGraph.build(
 ### How Failure Handling Works
 
 When a node completes execution:
+
 - **Success outcome**: Targets that succeeded follow edges created with `connect()`
 - **Failure outcome**: Targets that failed follow edges created with `connect_on_failure()`
 
 This allows you to:
+
 - Define recovery procedures for failed calibrations
 - Route failed targets to diagnostic nodes
 - Implement fallback calibration strategies
@@ -330,6 +327,7 @@ if __name__ == "__main__":
 ```
 
 This example demonstrates:
+
 - **Context manager usage** for clean graph construction
 - **Nested subgraphs** for logical organization (gate optimization, coherence characterization)
 - **Looping** with retries on the Rabi node
@@ -362,6 +360,7 @@ This example demonstrates:
 ### Combining Features
 
 Advanced features can be combined to create sophisticated workflows:
+
 - **Loops + Failure handling**: Retry a node, then route persistent failures to a recovery path
 - **Subgraphs + Failure handling**: Handle failures at the subgraph level for coarse-grained recovery
 - **Subgraphs + Loops**: Apply retry logic to entire groups of calibrations
