@@ -325,38 +325,6 @@ This example demonstrates:
 - **Failure handling** that routes gate optimization failures directly to final assessment
 - **Parallel execution** of T1 and Ramsey (no connection between them)
 
-## Best Practices
-
-### When to Use Nested Subgraphs
-
-- **Logical grouping**: Related calibration steps that form a conceptual unit
-- **Reusability**: Subgraphs can be shared across multiple parent graphs
-- **Parallel execution**: Group nodes that should run in parallel within a subgraph
-- **Clarity**: Complex workflows are easier to understand when broken into smaller pieces
-
-### When to Use Looping
-
-- **Transient failures**: Environmental noise may cause occasional calibration failures
-- **Adaptive calibration**: Iteratively refine calibration based on measurement results
-- **Convergence**: Repeat until a measurement reaches a target precision or value
-- **Conditional logic**: Per-target decisions based on calibration outcomes
-
-### When to Use Failure Handling
-
-- **Robust workflows**: Ensure the calibration routine continues despite individual failures
-- **Diagnostics**: Route failures to diagnostic nodes that investigate the cause
-- **Fallback strategies**: Define alternative calibration approaches when primary methods fail
-- **Recovery procedures**: Reset or reconfigure qubits after calibration failures
-
-### Combining Features
-
-Advanced features can be combined to create sophisticated workflows:
-
-- **Loops + Failure handling**: Retry a node, then route persistent failures to a recovery path
-- **Subgraphs + Failure handling**: Handle failures at the subgraph level for coarse-grained recovery
-- **Subgraphs + Loops**: Apply retry logic to entire groups of calibrations
-- **Conditional loops + Failure handling**: Implement adaptive logic with explicit failure paths
-
 ## Migration from Legacy API
 
 If you have existing graphs created without the context manager, migrating is straightforward:
