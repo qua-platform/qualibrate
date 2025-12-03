@@ -1,7 +1,5 @@
-from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
-from qualibrate.parameters import GraphParameters
-from qualibrate.qualibration_graph import QualibrationGraph
-from qualibrate.qualibration_library import QualibrationLibrary
+from qualibrate import GraphParameters, QualibrationGraph, QualibrationLibrary
+
 USED_NODE = "test_node"
 library = QualibrationLibrary.get_active_library()
 
@@ -21,6 +19,4 @@ g = QualibrationGraph(
     parameters=Parameters(qubits=[]),
     nodes=nodes,
     connectivity=[("node1", "node2")],
-    orchestrator=BasicOrchestrator(skip_failed=True),
 )
-# g.run()

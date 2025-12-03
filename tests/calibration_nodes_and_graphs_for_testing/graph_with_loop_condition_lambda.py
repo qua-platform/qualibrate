@@ -10,6 +10,6 @@ with QualibrationGraph.build(
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node2"))
     graph.loop(
         "node",
-        max_iterations=10,
+        on=lambda node, target: node.results[target]["fidelity"] < 0.95,
     )
     graph.connect("node", "node2")

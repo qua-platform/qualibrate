@@ -1,13 +1,14 @@
-from unittest.mock import patch
 from pathlib import Path
+from unittest.mock import patch
+
 from qualibrate.qualibration_library import QualibrationLibrary
+
 
 def load_local_qualibration_library(config):
     """
     Creates a QualibrationLibrary with get_qualibrate_config and
     get_qualibrate_config_path patched to your desired values.
     """
-    from qualibrate import qualibration_node
 
     ctx1 = patch("qualibrate.qualibration_node.get_qualibrate_config_path")
     ctx2 = patch(
@@ -20,7 +21,10 @@ def load_local_qualibration_library(config):
         def __enter__(self):
             self._first_enter_result = ctx1.__enter__()
             self._second_enter_result = ctx2.__enter__()
-            cal_path = Path(__file__).parent / "calibration_nodes_and_graphs_for_testing"
+            cal_path = (
+                Path(__file__).parent
+                / "calibration_nodes_and_graphs_for_testing"
+            )
             self.lib = QualibrationLibrary(cal_path)
             return self.lib
 
