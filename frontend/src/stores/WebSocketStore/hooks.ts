@@ -22,6 +22,17 @@ export const useInitWebSocket = () => {
   const runStatusWS = useRef<WebSocketService<RunStatusType> | null>(null);
   const historyWS = useRef<WebSocketService<HistoryType> | null>(null);
 
+  const flattenHistory = (history: HistoryType) => {
+    if (!history?.items) return [];
+
+    return history.items.flatMap((item) => {
+      if (item.elements_history?.items) {
+        return [...item.elements_history.items].reverse();
+      }
+      return [item];
+    });
+  };
+
   useEffect(() => {
     if (!showConnectionErrorDialog || connectionLostAt === null) {
       return;
@@ -39,7 +50,7 @@ export const useInitWebSocket = () => {
 
   const handleSetHistory = (history: HistoryType) => {
     dispatch(setHistory(history));
-    dispatch(setAllMeasurements(history?.items));
+    dispatch(setAllMeasurements(flattenHistory(history)));
   };
 
   // Establish WebSocket connections on mount, disconnect on unmount
