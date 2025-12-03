@@ -20,7 +20,11 @@ import {getAllNodes, getIsRescanningNodes} from "../../../../stores/NodesStore/s
  * node as an interactive NodeElement.
  */
 export const NodeElementList: React.FC = () => {
-  const allNodes = useSelector(getAllNodes, { equalityFn: (prev, curr) => Object.keys(prev || {}).join() === Object.keys(curr || {}).join()});
+  const allNodes = useSelector(
+    getAllNodes,
+    // make sure that list rerenders only is map keys have changed
+    { equalityFn: (prev, curr) => Object.keys(prev || {}).join() === Object.keys(curr || {}).join() }
+  );
   const isRescanningNodes = useSelector(getIsRescanningNodes);
 
   if (isRescanningNodes) {

@@ -3,10 +3,12 @@ import { render } from "@testing-library/react";
 import { StatusVisuals } from "./NodeElementStatusVisuals";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
+import { createTestProviders } from "@/test-utils/providers";
 
 describe("StatusVisuals", () => {
   it("should show progress spinner for running status", () => {
-    const { container } = render(<StatusVisuals status="running" percentage={45} />);
+    const { Providers } = createTestProviders();
+    const { container } = render(<Providers><StatusVisuals status="running" /></Providers>);
 
     // CircularLoaderProgress component should be rendered
     // It's a custom component, so we verify the structure exists
@@ -15,7 +17,8 @@ describe("StatusVisuals", () => {
   });
 
   it("should show green dot for finished status", () => {
-    const { container } = render(<StatusVisuals status="finished" percentage={100} />);
+    const { Providers } = createTestProviders();
+    const { container } = render(<Providers><StatusVisuals status="finished" /></Providers>);
 
     // Check for div with the hashed class names from CSS modules
     const dot = container.firstChild as HTMLElement;
@@ -28,7 +31,8 @@ describe("StatusVisuals", () => {
   });
 
   it("should show red dot for error status", () => {
-    const { container } = render(<StatusVisuals status="error" percentage={0} />);
+    const { Providers } = createTestProviders();
+    const { container } = render(<Providers><StatusVisuals status="error" /></Providers>);
 
     const dot = container.firstChild as HTMLElement;
     expect(dot).toBeInTheDocument();
@@ -40,7 +44,8 @@ describe("StatusVisuals", () => {
   });
 
   it("should show grey dot for pending status (default)", () => {
-    const { container } = render(<StatusVisuals percentage={0} />);
+    const { Providers } = createTestProviders();
+    const { container } = render(<Providers><StatusVisuals /></Providers>);
 
     const dot = container.firstChild as HTMLElement;
     expect(dot).toBeInTheDocument();
@@ -52,7 +57,8 @@ describe("StatusVisuals", () => {
   });
 
   it("should default to pending when status is undefined", () => {
-    const { container } = render(<StatusVisuals status={undefined} percentage={0} />);
+    const { Providers } = createTestProviders();
+    const { container } = render(<Providers><StatusVisuals status={undefined} /></Providers>);
 
     const dot = container.firstChild as HTMLElement;
     expect(dot).toBeInTheDocument();
@@ -60,7 +66,8 @@ describe("StatusVisuals", () => {
   });
 
   it("should handle unknown status as pending", () => {
-    const { container } = render(<StatusVisuals status="unknown-status" percentage={0} />);
+    const { Providers } = createTestProviders();
+    const { container } = render(<Providers><StatusVisuals status="unknown-status" /></Providers>);
 
     // Any status that doesn't match running/finished/error should show grey dot
     const dot = container.firstChild as HTMLElement;
@@ -69,7 +76,8 @@ describe("StatusVisuals", () => {
   });
 
   it("should pass percentage to running status spinner", () => {
-    const { container } = render(<StatusVisuals status="running" percentage={75} />);
+    const { Providers } = createTestProviders();
+    const { container } = render(<Providers><StatusVisuals status="running" /></Providers>);
 
     const progressElement = container.firstChild;
     expect(progressElement).toBeInTheDocument();

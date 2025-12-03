@@ -9,7 +9,7 @@
  * @see CytoscapeGraph - Embedded graph visualization
  * @see GraphContext - Manages graph selection and execution state
  */
-import React from "react";
+import React, { useState } from "react";
 import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
@@ -36,6 +36,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   const nodes = useSelector(getWorkflowGraphNodes);
   const selectedWorkflow = useSelector(getSelectedWorkflow);
   const selectedWorkflowName = useSelector(getSelectedWorkflowName);
+  const [errors, setErrors] = useState(new Set());
 
   const handleSubmit = () => dispatch(submitWorkflow());
 
@@ -43,8 +44,21 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     dispatch(setSelectedWorkflowName(calibrationGraphKey));
   };
 
-  const onNodeParameterChange = (parameterKey: string, newValue: string | number | boolean, nodeId?: string | undefined) =>
+  const handleSetError = (key: string, isValid: boolean) => {
+    const newSet = new Set(errors);
+
+    if (isValid)
+      newSet.delete(key);
+    else
+      newSet.add(key);
+
+    setErrors(newSet);
+  };
+
+  const onNodeParameterChange = (parameterKey: string, newValue: string | number | boolean, isValid: boolean, nodeId?: string | undefined) => {
+    handleSetError(parameterKey, isValid);
     dispatch(setGraphNodeParameter(parameterKey, newValue, nodeId));
+  };
 
   const renderInputElement = (key: string, parameter: SingleParameter) =>
     <ParameterSelector parameterKey={key} parameter={parameter} onChange={onNodeParameterChange} />;
@@ -59,7 +73,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         <div className={styles.leftContainer}>
           <div>{calibrationGraphKey}</div>
           <div className={styles.runButtonWrapper}>
-            <BlueButton disabled={!show} onClick={handleSubmit}>
+            <BlueButton disabled={!show || errors.size !== 0} onClick={handleSubmit}>
               Run
             </BlueButton>
           </div>
@@ -84,7 +98,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
             currentItem={selectedWorkflow}
             getInputElement={renderInputElement}
           />
-          {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} />}
+          {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} onChange={onNodeParameterChange} />}
         </div>
         {show && (
           <div className={styles.graphContainer}>

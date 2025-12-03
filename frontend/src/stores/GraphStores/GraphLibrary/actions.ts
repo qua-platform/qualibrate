@@ -169,5 +169,5 @@ export const setGraphNodeParameter = (paramKey: string, newValue: boolean | numb
     const subgraphBreadcrumbs = getSubgraphBreadcrumbs(getState());
     const selectedWorkflowName = getSelectedWorkflowName(getState());
 
-    dispatch(setNodeParameter({ paramKey, newValue, nodeId, subgraphBreadcrumbs, selectedWorkflowName}))
-  }
+    dispatch(setNodeParameter({ paramKey, newValue, nodeId, subgraphBreadcrumbs, selectedWorkflowName}));
+  };

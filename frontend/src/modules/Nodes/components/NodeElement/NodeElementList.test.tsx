@@ -6,6 +6,8 @@ import type { NodeMap } from "./NodeElement";
 import { createTestProviders } from "@/test-utils/providers";
 import { setAllNodes } from "../../../../stores/NodesStore/actions";
 import { useRootDispatch } from "../../../../stores";
+import { ParameterTypes } from "@/modules/common/Parameters/Parameters";
+import { setSelectedWorkflowName } from "@/stores/GraphStores/GraphCommon/actions";
 
 // Helper component to set nodes in context
 const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
@@ -85,7 +87,7 @@ describe("NodeElementList", () => {
           param1: {
             default: "value1",
             title: "Parameter 1",
-            type: "string",
+            type: "string" as ParameterTypes,
             is_targets: false
           }
         }

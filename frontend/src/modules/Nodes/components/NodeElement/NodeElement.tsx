@@ -37,7 +37,7 @@
  * @see WebSocketContext for real-time status updates (WebSocketContext.tsx:265-269)
  * @see Parameters for the collapsible parameter editing UI
  */
-import React from "react";
+import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 import {CircularProgress} from "@mui/material";
@@ -131,7 +131,18 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
   const runStatusIsRunning = useSelector(getRunStatusIsRunning);
   const isLastRunNode = useSelector(state => getIsLastRunNode(state, nodeKey));
   const runStatusNodeStatus = useSelector(getRunStatusNodeStatus);
+  const [errors, setErrors] = useState(new Set());
 
+  const handleSetError = (key: string, isValid: boolean) => {
+    const newSet = new Set(errors);
+
+    if (isValid)
+      newSet.delete(key);
+    else
+      newSet.add(key);
+
+    setErrors(newSet);
+  };
   /**
    * Update a single parameter value in the node's parameter map.
    *
@@ -139,7 +150,8 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
    * (title, type, description). Triggers a full NodesContext state update,
    * causing re-render of all consumers.
    */
-  const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
+  const updateParameter = (paramKey: string, newValue: boolean | number | string, isValid: boolean) => {
+    handleSetError(paramKey, isValid);
     dispatch(setNodeParameter({ nodeKey, paramKey, newValue }));
   };
 
@@ -199,8 +211,8 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
             <StatusVisuals status={isLastRunNode ? runStatusNodeStatus : "pending"} />
           )}
         </div>
-        {/* Show Run button only when: node is selected AND nothing is currently running */}
-        {!runStatusIsRunning && isNodeSelected && (
+        {/* Show Run button only when: node is selected AND nothing is currently running AND parameter inputs have no errors */}
+        {!runStatusIsRunning && isNodeSelected && errors.size === 0 && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
             <RunIcon className={styles.runButtonIcon} />
             <span className={styles.runButtonText}>Run</span>

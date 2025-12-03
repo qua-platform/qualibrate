@@ -25,7 +25,7 @@ export const getNodeRowClass = ({
 }: {
   isSelected: boolean;
   isLastRun: boolean;
-  runStatus?:  string;
+  runStatus?: string;
 }): string => {
   const nodeStatus = (isLastRun && runStatus) ? runStatus : "pending";
 

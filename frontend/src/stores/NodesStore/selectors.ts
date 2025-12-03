@@ -1,4 +1,4 @@
-import { createSelector, createSelectorCreator, lruMemoize, weakMapMemoize } from "@reduxjs/toolkit";
+import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "..";
 
 export const getNodesState = (state: RootState) => state.nodes;
@@ -34,11 +34,6 @@ export const getNode = createSelector(
   (_, nodeKey: string) => nodeKey,
   (allNodes, key) => allNodes[key],
 );
-
-export const getNodesKeys = createSelector(
-  getAllNodes,
-  (allNodes) => Object.keys(allNodes || {}),
-)
 
 export const getIsNodeRunning = createSelector(
   getNodesState,

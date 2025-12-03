@@ -170,6 +170,7 @@ describe("GraphElement - Parameter Management", () => {
 
     const frequencyInput = screen.getByDisplayValue("5");
     fireEvent.change(frequencyInput, { target: { value: "6.5" } });
+    fireEvent.blur(frequencyInput);
 
     // Verify setAllGraphs was called with updated parameters
     await waitFor(() => {

@@ -3,21 +3,15 @@ import { NodeDTO, NodeMap } from "../../Nodes/components/NodeElement/NodeElement
 import { Parameters, SingleParameter } from "./Parameters";
 import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
 import ParameterSelector from "./ParameterSelector";
-import { useRootDispatch } from "../../../stores";
-import { setGraphNodeParameter } from "../../../stores/GraphStores/GraphLibrary/actions";
 
 interface IProps {
   showParameters: boolean;
   mapOfItems?: NodeMap | GraphWorkflow;
   title?: string;
+  onChange: (parameterKey: string, newValue: string | number | boolean, isValid: boolean, nodeId?: string | undefined) => void
 }
 
-export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfItems }) => {
-  const dispatch = useRootDispatch();
-
-  const onChange = (parameterKey: string, newValue: string | number | boolean, nodeId?: string | undefined) =>
-    dispatch(setGraphNodeParameter(parameterKey, newValue, nodeId));
-
+export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfItems, onChange }) => {
   const renderInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) =>
     <ParameterSelector parameterKey={key} parameter={parameter} node={node} onChange={onChange} />;
 

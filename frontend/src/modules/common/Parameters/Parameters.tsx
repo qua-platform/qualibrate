@@ -18,6 +18,7 @@ interface IProps {
   getInputElement: (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => React.JSX.Element;
 }
 
+export type ParameterTypes = "boolean" | "number" | "integer" | "array" | "string";
 export interface SingleParameter {
   id?: string;
   name?: string;
@@ -25,7 +26,7 @@ export interface SingleParameter {
   default?: string | boolean | number | string[];
   items?: { type: string };
   title: string;
-  type: string;
+  type: ParameterTypes;
   is_targets: boolean;
   description?: string | null;
 }

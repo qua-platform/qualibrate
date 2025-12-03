@@ -7,6 +7,7 @@ import * as NodesAPI from "../../api/NodesAPI";
 import { setSelectedNode } from "../../../../stores/NodesStore/actions";
 import { NodeExecution } from "../../../../stores/WebSocketStore/WebSocketStore";
 import { setRunStatus } from "@/stores/WebSocketStore/actions";
+import { ParameterTypes } from "@/modules/common/Parameters/Parameters";
 
 // Helper to create mock NodeExecution objects
 const createMockNodeExecution = (overrides: Partial<NodeExecution> = {}): NodeExecution => ({
@@ -40,19 +41,19 @@ describe("NodeElement - Parameter Management", () => {
       resonator: {
         default: "q1.resonator",
         title: "Resonator",
-        type: "string",
+        type: "string" as ParameterTypes,
         is_targets: false
       },
       sampling_points: {
         default: 100,
         title: "Sampling Points",
-        type: "number",
+        type: "number" as ParameterTypes,
         is_targets: false
       },
       enable_fitting: {
         default: true,
         title: "Enable Fitting",
-        type: "boolean",
+        type: "boolean" as ParameterTypes,
         is_targets: false
       }
     }
@@ -63,11 +64,11 @@ describe("NodeElement - Parameter Management", () => {
   });
 
   it("should render node with title", () => {
-    const { Providers } = createTestProviders();
+    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -75,11 +76,11 @@ describe("NodeElement - Parameter Management", () => {
   });
 
   it("should show parameters when node is selected", async () => {
-    const { Providers } = createTestProviders();
+    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -99,11 +100,11 @@ describe("NodeElement - Parameter Management", () => {
       title: "VeryVeryLongNodeNameThatExceedsFortyCharactersDefinitely"
     };
 
-    const { Providers } = createTestProviders();
+    const { Providers } = createTestProviders({ allNodes: { long_node: longNameNode } });
 
     render(
       <Providers>
-        <NodeElement nodeKey="long_node" node={longNameNode} />
+        <NodeElement nodeKey="long_node" />
       </Providers>
     );
 
@@ -122,7 +123,7 @@ describe("NodeElement - Execution", () => {
       resonator: {
         default: "q1.resonator",
         title: "Resonator",
-        type: "string",
+        type: "string" as ParameterTypes,
         is_targets: false
       }
     }
@@ -141,12 +142,13 @@ describe("NodeElement - Execution", () => {
           node: null,
           graph: null
         }
-      }
+      },
+      allNodes: { test_cal: mockNode }
     });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -182,12 +184,13 @@ describe("NodeElement - Execution", () => {
           node: null,
           graph: null
         }
-      }
+      },
+      allNodes: { test_cal: mockNode }
     });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -218,12 +221,13 @@ describe("NodeElement - Execution", () => {
           node: null,
           graph: null
         }
-      }
+      },
+      allNodes: { test_cal: mockNode }
     });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -246,7 +250,7 @@ describe("NodeElement - Execution", () => {
   });
 
   it("should show spinner when node is running", async () => {
-    const { Providers, mockStore } = createTestProviders();
+    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
     // Pre-select the node
     mockStore.dispatch(setSelectedNode("test_cal"));
     mockStore.dispatch(setRunStatus({
@@ -258,7 +262,7 @@ describe("NodeElement - Execution", () => {
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -286,7 +290,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
   });
 
   it("should show status indicator for running node", () => {
-    const { Providers, mockStore } = createTestProviders();
+    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
     mockStore.dispatch(setRunStatus({
       is_running: true,
       runnable_type: "node",
@@ -296,7 +300,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -312,7 +316,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
   });
 
   it("should show green dot when node finished", () => {
-    const { Providers, mockStore } = createTestProviders();
+    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
     mockStore.dispatch(setRunStatus({
       is_running: false,
       runnable_type: "node",
@@ -322,7 +326,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
     const { container } = render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -340,7 +344,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
   });
 
   it("should show red dot when node errored", () => {
-    const { Providers, mockStore } = createTestProviders();
+    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
     mockStore.dispatch(setRunStatus({
       is_running: false,
       runnable_type: "node",
@@ -350,7 +354,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
     const { container } = render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -364,7 +368,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
   it("should not show status for different running node", () => {
     // Catches complex conditional logic in status display
-    const { Providers, mockStore } = createTestProviders();
+    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
     mockStore.dispatch(setRunStatus({
       is_running: true,
       runnable_type: "node",
@@ -374,7 +378,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -399,11 +403,11 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const { Providers } = createTestProviders();
+    const { Providers } = createTestProviders({ allNodes: { long_node: longNameNode } });
 
     render(
       <Providers>
-        <NodeElement nodeKey="long_node" node={longNameNode} />
+        <NodeElement nodeKey="long_node" />
       </Providers>
     );
 
@@ -425,11 +429,11 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const { Providers } = createTestProviders();
+    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -455,11 +459,11 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const { Providers } = createTestProviders();
+    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
@@ -483,16 +487,16 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const { Providers } = createTestProviders();
+    const { Providers } = createTestProviders({ allNodes: { resonator_spectroscopy: nodeWithTitle } });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test1" node={nodeWithTitle} />
+        <NodeElement nodeKey="resonator_spectroscopy" />
       </Providers>
     );
 
     // Should display the title, not the name
-    const titleElement = screen.getByTestId("title-or-name-test1");
+    const titleElement = screen.getByTestId("title-or-name-resonator_spectroscopy");
     expect(titleElement).toHaveTextContent("Resonator Spectroscopy");
     expect(titleElement).not.toHaveTextContent("resonator_spectroscopy");
   });
@@ -504,16 +508,16 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const { Providers } = createTestProviders();
+    const { Providers } = createTestProviders({ allNodes: { resonator_spectroscopy: nodeWithoutTitle } });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test2" node={nodeWithoutTitle} />
+        <NodeElement nodeKey="resonator_spectroscopy" />
       </Providers>
     );
 
     // Should display the name since title is not provided
-    const titleElement = screen.getByTestId("title-or-name-test2");
+    const titleElement = screen.getByTestId("title-or-name-resonator_spectroscopy");
     expect(titleElement).toHaveTextContent("resonator_spectroscopy");
   });
 
@@ -525,11 +529,11 @@ describe("NodeElement - UI Interactions", () => {
       parameters: {}
     };
 
-    const { Providers } = createTestProviders();
+    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
 
     render(
       <Providers>
-        <NodeElement nodeKey="test_cal" node={mockNode} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
