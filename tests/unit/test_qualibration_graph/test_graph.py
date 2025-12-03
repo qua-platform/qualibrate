@@ -665,3 +665,22 @@ class TestQualibrationGraph:
             orchestrator=mock_orchestrator,
         )
         graph._validate_graph_acyclic()
+
+    def test_connect_then_connect_on_failure_same_edge_overwrites(
+            self, pre_setup_graph_init, mock_library
+    ):
+        """Test that calling connect() then connect_on_failure()
+        on the same edge overwrites to FAILED scenario"""
+        (nodes, _, _, _) = pre_setup_graph_init
+
+        with QualibrationGraph.build(
+                name="test_graph",
+                parameters=GraphParameters(),
+        ) as graph:
+            graph.add_nodes(nodes["node1"], nodes["node2"])
+            graph.connect_on_failure("node1", "node2")  # Then: FAILED
+            graph.connect("node1", "node2")  # First: SUCCESS
+
+        # Should only have one edge with FAILED outcome (last write wins)
+        assert len(graph._connectivity) == 1
+        assert graph._connectivity[("node1", "node2")] == Outcome.FAILED
