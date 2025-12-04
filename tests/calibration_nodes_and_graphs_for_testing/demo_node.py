@@ -10,5 +10,10 @@ class Parameters(NodeParameters):
     float_value: float = 1.0
 
 
-node = QualibrationNode("test_node2", parameters=Parameters())
+node = QualibrationNode("test_node", parameters=Parameters())
 node.parameters = Parameters()
+
+
+@node.run_action()
+def node_runs_indication(node: QualibrationNode):
+    node.log("node is running")
