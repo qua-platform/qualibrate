@@ -89,13 +89,11 @@ class RootLocalStorage(RootBase):
     ) -> Any:
         _, data = self.search_snapshots_data(
             search_filter=search_filter,
-            pages_filter=PageFilter(page=1, per_page=1),
+            pages_filter=PageFilter(page=1, per_page=10000),
             data_path=data_path,
             descending=descending,
             filter_no_change=False,
         )
-        if len(data) == 1:
-            return data[0]
         return data
 
     def search_snapshots_data(
