@@ -14,9 +14,9 @@ with QualibrationGraph.build(
     name="graph_with_one_nested_graph",
     parameters=Parameters(qubits_1=["q1"]),
 ) as graph:
-    # create first node
+    # Create first node
     graph.add_node(library.nodes.get_nocopy("test_node").copy(name="node_1"))
-    # create first subgraph
+    # Create first subgraph
     with QualibrationGraph.build(
         name="subg",
         parameters=Parameters(qubits_1="q2"),

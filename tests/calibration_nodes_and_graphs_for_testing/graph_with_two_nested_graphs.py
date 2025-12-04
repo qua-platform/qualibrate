@@ -14,11 +14,11 @@ with QualibrationGraph.build(
     name="graph_with_two_nested_graphs",
     parameters=Parameters(qubits_1=["q1"]),
 ) as graph:
-    # create first node
+    # Create first node
 
     graph.add_node(library.nodes.get_nocopy("test_node").copy(name="node_1"))
 
-    # create first subgraph
+    # Create first subgraph
 
     with QualibrationGraph.build(
         name="subg",
@@ -29,7 +29,7 @@ with QualibrationGraph.build(
         subg.connect(src="node_2", dst="node_3")
     graph.add_node(subg)
 
-    # second subgraph
+    # Create second subgraph
 
     with QualibrationGraph.build(
         name="subg2",
@@ -43,7 +43,7 @@ with QualibrationGraph.build(
         )
         subg2.connect(src="node_4", dst="node_5")
 
-    # doing connections
+    # Connecting elements
     graph.add_node(subg2)
     graph.connect(src="node_1", dst=subg)
     graph.connect(src=subg, dst=subg2)
