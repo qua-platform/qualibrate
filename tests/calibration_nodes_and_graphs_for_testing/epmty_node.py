@@ -15,5 +15,5 @@ node.parameters = Parameters()
 
 
 @node.run_action()
-def something(node: QualibrationNode):
+def node_runs_indication(node: QualibrationNode):
     node.log("node is running")
