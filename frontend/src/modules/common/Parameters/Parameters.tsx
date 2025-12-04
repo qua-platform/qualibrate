@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { classNames } from "../../../utils/classnames";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Parameters.module.scss";
 import { NodeDTO } from "../../Nodes/components/NodeElement/NodeElement";
 import { ArrowIcon } from "../../../ui-lib/Icons/ArrowIcon";

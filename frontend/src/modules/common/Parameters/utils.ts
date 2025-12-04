@@ -1,42 +1,36 @@
 import { SingleParameter } from "./Parameters";
 
 export const validate = (parameter: SingleParameter, value: unknown) => {
-  let result: {
-    isValid: boolean,
-    error: undefined | string
-  } = {
-    isValid: true,
-    error: undefined
-  };
-
-  if (!value) {
-    result = {
+  if (value === undefined) {
+    return {
       isValid: false,
-      error: "Must be not empty"
+      error: "Must be not empty",
     };
   }
 
+  const num = Number(value);
+
   switch (parameter.type) {
     case "number":
-      if (isNaN(Number(value))) {
-        result = {
+      if (isNaN(num)) {
+        return {
           isValid: false,
           error: "Must be a number"
         };
       }
-      break;
+      return { isValid: true, error: undefined };
+
     case "integer":
-      if (isNaN(Number(value)) || !Number.isInteger(Number(value))) {
-        result = {
+      if (isNaN(num) || !Number.isInteger(num)) {
+        return {
           isValid: false,
           error: "Must be an integer"
         };
       }
-      break;
+      return { isValid: true, error: undefined };
+
     case "array":
     default:
-      break;
+      return { isValid: true, error: undefined };
   }
-
-  return result;
 };

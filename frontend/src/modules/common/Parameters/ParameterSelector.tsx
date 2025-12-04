@@ -5,6 +5,7 @@ import { GraphWorkflow } from "../../GraphLibrary/components/GraphList";
 import InputField from "../../../common/ui-components/common/Input/InputField";
 import { SingleParameter } from "./Parameters";
 import { validate } from "./utils";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Parameters.module.scss";
 import { classNames } from "../../../utils/classnames";
 
@@ -29,6 +30,11 @@ const ParameterSelector = ({
     setError(error);
   }, [inputValue]);
 
+  const handleChangeBooelan = useCallback(() => {
+    setInputValue(!inputValue);
+    handleBlur();
+  }, [handleBlur]);
+
   /**
    * Render appropriate input component based on parameter type.
    *
@@ -46,8 +52,8 @@ const ParameterSelector = ({
       case "boolean":
         return (
           <Checkbox
-            checked={parameter.default as boolean}
-            onClick={() => setInputValue(!parameter.default)}
+            checked={inputValue as boolean}
+            onClick={handleChangeBooelan}
             inputProps={{ "aria-label": "controlled" }}
           />
         );
