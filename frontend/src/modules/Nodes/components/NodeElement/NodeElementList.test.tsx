@@ -7,7 +7,6 @@ import { createTestProviders } from "@/test-utils/providers";
 import { setAllNodes } from "../../../../stores/NodesStore/actions";
 import { useRootDispatch } from "../../../../stores";
 import { ParameterTypes } from "@/modules/common/Parameters/Parameters";
-import { setSelectedWorkflowName } from "@/stores/GraphStores/GraphCommon/actions";
 
 // Helper component to set nodes in context
 const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
@@ -63,10 +62,11 @@ describe("NodeElementList", () => {
   });
 
   it("should render empty list when nodes object is empty", () => {
+    const { Providers } = createTestProviders({ allNodes: {} });
     const { container } = render(
-      <TestWrapper nodes={{}}>
+      <Providers>
         <NodeElementList />
-      </TestWrapper>
+      </Providers>
     );
 
     // List wrapper should still be rendered
