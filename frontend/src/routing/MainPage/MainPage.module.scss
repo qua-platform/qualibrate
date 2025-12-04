@@ -1,0 +1,15 @@
+.pageWrapper {
+  display: none;
+  height: 100%;
+
+  &.active {
+    display: block;
+  }
+}
+
+.emptyPlaceholder {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -1,4 +1,4 @@
-import { GlobalParameterStructure } from "../GraphLibrary/components/GraphStatus/context/GraphStatusContext";
+import { GlobalParameterStructure } from "../../stores/GraphStores/GraphStatus/GraphStatusStore";
 
 export interface SnapshotDTO {
   created_at: string;

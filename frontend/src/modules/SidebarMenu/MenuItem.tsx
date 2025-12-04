@@ -2,9 +2,10 @@ import React from "react";
 import Tooltip from "@mui/material/Tooltip";
 import { Module } from "../../routing/ModulesRegistry";
 import styles from "./styles/MenuItem.module.scss";
-import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
 import { MENU_TEXT_COLOR } from "../../utils/colors";
 import { classNames } from "../../utils/classnames";
+import { setActivePage } from "../../stores/NavigationStore/actions";
+import { useRootDispatch } from "../../stores";
 
 const MenuItem: React.FC<
   Module & {
@@ -14,7 +15,7 @@ const MenuItem: React.FC<
     isDisabled?: boolean;
   }
 > = ({ menuItem, keyId, hideText, onClick, isSelected = false, isDisabled = false }) => {
-  const { openTab } = useFlexLayoutContext();
+  const dispatch = useRootDispatch();
   if (!menuItem) {
     return null;
   }
@@ -24,7 +25,7 @@ const MenuItem: React.FC<
 
   const handleClick = () => {
     if (!atBottom) {
-      openTab(keyId);
+      dispatch(setActivePage(keyId));
     }
     onClick?.();
   };

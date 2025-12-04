@@ -1,48 +1,105 @@
-import React from "react";
+/**
+ * @fileoverview Graph execution status view with real-time updates.
+ *
+ * Displays running graph visualization, execution history, and node results.
+ * Coordinates state between GraphStatusContext, SnapshotsContext, and WebSocket
+ * updates. Handles node selection to fetch and display measurement snapshots.
+ *
+ * @see GraphStatusContext - Manages measurements and track-latest state
+ * @see MeasurementElementGraph - Graph visualization with run status
+ * @see MeasurementHistory - Execution history list with track-latest toggle
+ */
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphStatus.module.scss";
-import { GraphStatusContextProvider, Measurement, useGraphStatusContext } from "./context/GraphStatusContext";
 import { Results } from "../../../Nodes/components/Results/Results";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
-import { SelectionContextProvider, useSelectionContext } from "../../../common/context/SelectionContext";
-import { useGraphContext } from "../../context/GraphContext";
-import { useSnapshotsContext } from "../../../Snapshots/context/SnapshotsContext";
-import { useWebSocketData } from "../../../../contexts/WebSocketContext";
+import { getAllMeasurements } from "../../../../stores/GraphStores/GraphStatus/selectors";
+import { fetchAllMeasurements, setTrackLatest } from "../../../../stores/GraphStores/GraphStatus/actions";
+import { useRootDispatch } from "../../../../stores";
+import { getSelectedNodeNameInWorkflow, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
+import { setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/actions";
+import { getLastRunError, getLastRunNodeName } from "../../../../stores/GraphStores/GraphLibrary/selectors";
+import { GlobalParameterStructure } from "../../../../stores/GraphStores/GraphStatus/GraphStatusStore";
+import { getRunStatusGraphName, getRunStatusGraphTotalNodes } from "../../../../stores/WebSocketStore/selectors";
+import { getResult } from "../../../../stores/SnapshotsStore/selectors";
+import { fetchOneSnapshot, setClickedForSnapshotSelection, setDiffData, setResult, setSelectedSnapshotId } from "../../../../stores/SnapshotsStore/actions";
+import { getActivePage } from "../../../../stores/NavigationStore/selectors";
+import { GRAPH_STATUS_KEY } from "../../../../routing/ModulesRegistry";
+
+export interface Measurement {
+  created_at?: string;
+  id?: number;
+  data?: {
+    outcomes: object;
+    parameters: GlobalParameterStructure;
+    error: object | null;
+  };
+  metadata?: {
+    run_duration?: number;
+    name?: string;
+    description?: string;
+    run_end?: string;
+    run_start?: string;
+    status?: string;
+  };
+}
 
 const GraphStatus = () => {
-  const { runStatus } = useWebSocketData();
+  const dispatch = useRootDispatch();
+  const nodes = useSelector(getWorkflowGraphNodes);
+  const activePage = useSelector(getActivePage);
+  const allMeasurements = useSelector(
+    getAllMeasurements,
+    (prev?: Measurement[], current?: Measurement[]) => JSON.stringify(prev) === JSON.stringify(current)
+  );
+  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
+  const runStatusGraphName = useSelector(getRunStatusGraphName);
+  const runStatusGraphTotalNodes = useSelector(getRunStatusGraphTotalNodes);
+  const lastRunNodeName = useSelector(getLastRunNodeName);
+  const lastRunError = useSelector(getLastRunError);
+  const result = useSelector(getResult);
 
-  const { selectedItemName, setSelectedItemName } = useSelectionContext();
-  const { workflowGraphElements, lastRunInfo } = useGraphContext();
-  const { allMeasurements, fetchAllMeasurements, setTrackLatest } = useGraphStatusContext();
-  const { result, fetchOneSnapshot, setResult, setDiffData, setSelectedSnapshotId, setClickedForSnapshotSelection } = useSnapshotsContext();
+  useEffect(() => {
+    dispatch(fetchAllMeasurements());
+  }, []);
 
   const getMeasurementId = (measurementName: string, measurements: Measurement[]) => {
     return measurements?.find((measurement) => measurement.metadata?.name === measurementName)?.id;
   };
 
+  /**
+   * Ensures measurements are loaded before lookup.
+   * Returns fetched measurements or empty array if already loaded.
+   */
   const setupAllMeasurements = async () => {
     if (!allMeasurements || allMeasurements.length === 0) {
-      return await fetchAllMeasurements();
+      return await dispatch(fetchAllMeasurements());
     }
     return [];
   };
 
-  const handleOnCytoscapeNodeClick = async (name: string) => {
+  /**
+   * Handles node clicks from Cytoscape graph.
+   * Fetches measurement snapshot and displays results in right panel.
+   * Disables track-latest mode when manually selecting a node.
+   */
+  const handleOnGraphNodeClick = async (name: string) => {
     const temp = await setupAllMeasurements();
     const measurements = temp && temp.length > 0 ? temp : (allMeasurements ?? []);
-    setTrackLatest(false);
-    setSelectedItemName(undefined);
+    dispatch(setTrackLatest(false));
+    dispatch(setSelectedNodeNameInWorkflow(undefined));
     const measurementId = getMeasurementId(name, measurements);
     if (measurementId) {
-      setSelectedItemName(name);
-      setSelectedSnapshotId(measurementId);
-      setClickedForSnapshotSelection(true);
-      fetchOneSnapshot(measurementId, measurementId - 1, true, true);
+      dispatch(setSelectedNodeNameInWorkflow(name));
+      dispatch(setSelectedSnapshotId(measurementId));
+      dispatch(setClickedForSnapshotSelection(true));
+      dispatch(fetchOneSnapshot(measurementId, measurementId - 1, true, true));
     } else {
-      setResult({});
-      setDiffData({});
+      dispatch(setResult({}));
+      dispatch(setDiffData({}));
     }
   };
 
@@ -50,11 +107,10 @@ const GraphStatus = () => {
     <div className={styles.wrapper}>
       <div className={styles.leftContainer}>
         <div className={styles.graphAndHistoryWrapper}>
-          {workflowGraphElements && (
+          {!!nodes.length && activePage === GRAPH_STATUS_KEY && (
             <MeasurementElementGraph
-              key={`${runStatus?.graph?.name}-${runStatus?.graph?.total_nodes}`}
-              workflowGraphElements={workflowGraphElements}
-              onCytoscapeNodeClick={handleOnCytoscapeNodeClick}
+              key={`${runStatusGraphName}-${runStatusGraphTotalNodes}`}
+              onNodeClick={handleOnGraphNodeClick}
             />
           )}
           <MeasurementHistory />
@@ -62,11 +118,10 @@ const GraphStatus = () => {
       </div>
       <div className={styles.rightContainer}>
         <Results
-          jsonObject={selectedItemName && allMeasurements && allMeasurements.length > 0 && result ? result : {}}
+          jsonObject={selectedNodeNameInWorkflow && allMeasurements && allMeasurements.length > 0 && result ? result : {}}
           toggleSwitch={true}
-          pageName={"graph-status"}
           style={{ height: "100%", flex: "0 1 auto" }}
-          errorObject={selectedItemName === lastRunInfo?.activeNodeName ? lastRunInfo?.error : undefined}
+          errorObject={selectedNodeNameInWorkflow === lastRunNodeName ? lastRunError : undefined}
         />
         {/*<Results title={"QUAM Updates"} jsonObject={diffData} style={{ height: "35%" }} />*/}
       </div>
@@ -74,10 +129,4 @@ const GraphStatus = () => {
   );
 };
 
-export default () => (
-  <GraphStatusContextProvider>
-    <SelectionContextProvider>
-      <GraphStatus />
-    </SelectionContextProvider>
-  </GraphStatusContextProvider>
-);
+export default GraphStatus;

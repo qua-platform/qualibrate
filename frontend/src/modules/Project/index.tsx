@@ -2,22 +2,26 @@ import { IconType } from "../../common/interfaces/InputProps";
 import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
 import React, { useCallback, useEffect, useState } from "react";
 import ProjectList from "./components/ProjectList";
-import { useProjectContext } from "./context/ProjectContext";
 import { ProjectDTO } from "./ProjectDTO";
 import InputField from "../../common/ui-components/common/Input/InputField";
-import { useNodesContext } from "../Nodes/context/NodesContext";
 import LoaderPage from "../../ui-lib/loader/LoaderPage";
-import { useGraphContext } from "../GraphLibrary/context/GraphContext";
 import LoadingBar from "../../ui-lib/loader/LoadingBar";
 import { NoItemsIcon } from "../../ui-lib/Icons/NoItemsIcon";
 import ProjectTitleBar from "../TopbarMenu/ProjectTitleBar";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
+import { useSelector } from "react-redux";
+import { getActiveProject, getAllProjects, getIsScanningProjects } from "../../stores/ProjectStore/selectors";
+import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary/actions";
+import { useRootDispatch } from "../../stores";
+import { resetWorkflowGraphElements } from "../../stores/GraphStores/GraphCommon/actions";
+import { fetchAllNodes } from "../../stores/NodesStore/actions";
 
 const Project = () => {
-  const { allProjects, activeProject, isScanningProjects } = useProjectContext();
-  const { fetchAllNodes } = useNodesContext();
-  const { fetchAllCalibrationGraphs, setWorkflowGraphElements } = useGraphContext();
+  const dispatch = useRootDispatch();
+  const allProjects = useSelector(getAllProjects);
+  const activeProject = useSelector(getActiveProject);
+  const isScanningProjects = useSelector(getIsScanningProjects);
   const [listedProjects, setListedProjects] = useState<ProjectDTO[]>(allProjects);
   const [selectedProject, setSelectedProject] = useState<ProjectDTO | undefined>(undefined);
 
@@ -27,9 +31,9 @@ const Project = () => {
 
   useEffect(() => {
     if (activeProject) {
-      setWorkflowGraphElements(undefined);
-      fetchAllNodes();
-      fetchAllCalibrationGraphs();
+      dispatch(resetWorkflowGraphElements());
+      dispatch(fetchAllNodes());
+      dispatch(fetchAllCalibrationGraphs());
     }
   }, [activeProject]);
 

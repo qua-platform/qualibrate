@@ -1,25 +1,57 @@
 import React, { useCallback } from "react";
+import { useSelector } from "react-redux";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarGraphCard.module.scss";
 import TitleBarNodeCard from "../TitleBarNodeCard/TitleBarNodeCard";
 import StopButtonIcon from "../../../ui-lib/Icons/StopButtonIcon";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
-import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
 import { capitalize, formatTime, getStatusClass, getWrapperClass } from "../helpers";
 import { DEFAULT_TOOLTIP_SX } from "../constants";
 import { StatusIndicator } from "../TitleBarNodeCard/TitleBarStatusIndicator";
 import { SnapshotsApi } from "../../Snapshots/api/SnapshotsApi";
-import { useWebSocketData } from "../../../contexts/WebSocketContext";
+import { GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY } from "../../../routing/ModulesRegistry";
+import { setActivePage } from "../../../stores/NavigationStore/actions";
+import { useRootDispatch } from "../../../stores";
+import {
+  getRunStatusGraphFinishedNodes,
+  getRunStatusGraphPercentageComplete,
+  getRunStatusGraphRunDuration,
+  getRunStatusGraphName,
+  getRunStatusGraphStatus,
+  getRunStatusGraphTotalNodes,
+  getRunStatusNodeRunDuration,
+  getRunStatusNodeStatus,
+  getRunStatusGraphTimeRemaining
+} from "../../../stores/WebSocketStore/selectors";
+
+const RunningNode = ({ handleStopClick }: { handleStopClick: () => void }) => {
+  const timeRemaining = useSelector(getRunStatusGraphTimeRemaining);
+
+  return <div className={styles.stopAndTimeWrapper}>
+    <div className={styles.stopButton} onClick={handleStopClick}>
+      <StopButtonIcon />
+    </div>
+    {timeRemaining && (
+      <div className={styles.timeRemaining}>{formatTime(timeRemaining)} left</div>
+    )}
+  </div>;
+};
 
 const TitleBarGraphCard: React.FC = () => {
-  const { runStatus } = useWebSocketData();
-  const { openTab, setActiveTabsetName } = useFlexLayoutContext();
+  const dispatch = useRootDispatch();
+  const runStatusNodeStatus = useSelector(getRunStatusNodeStatus);
+  const runStatusNodeRunDuration = useSelector(getRunStatusNodeRunDuration);
+  const runStatusGraphName = useSelector(getRunStatusGraphName);
+  const runStatusGraphStatus = useSelector(getRunStatusGraphStatus);
+  const percentageComplete = useSelector(getRunStatusGraphPercentageComplete);
+  const finishedNodes = useSelector(getRunStatusGraphFinishedNodes);
+  const runDuration = useSelector(getRunStatusGraphRunDuration);
+  const runStatusGraphTotalNodes = useSelector(getRunStatusGraphTotalNodes);
 
   const handleOnClick = useCallback(() => {
-    openTab(runStatus?.graph?.status === "pending" ? "graph-library" : "graph-status");
-    setActiveTabsetName(runStatus?.graph?.status === "pending" ? "graph-library" : "graph-status");
-  }, [openTab, setActiveTabsetName, runStatus?.graph?.status]);
+    dispatch(setActivePage(runStatusGraphStatus === "pending" ? GRAPH_LIBRARY_KEY : GRAPH_STATUS_KEY));
+  }, [setActivePage, runStatusGraphStatus]);
 
   const renderElapsedTime = (time: number) => (
     <div className={styles.stopAndTimeWrapper}>
@@ -35,14 +67,14 @@ const TitleBarGraphCard: React.FC = () => {
   };
 
   return (
-    <div className={`${styles.graphCardWrapper} ${getWrapperClass(runStatus?.graph?.status ?? "pending", styles)}`}>
-      <div className={runStatus?.graph?.status === "pending" ? styles.defaultGraphCardContent : styles.graphCardContent}>
+    <div className={`${styles.graphCardWrapper} ${getWrapperClass(runStatusGraphStatus ?? "pending", styles)}`}>
+      <div className={runStatusGraphStatus === "pending" ? styles.defaultGraphCardContent : styles.graphCardContent}>
         <Tooltip title={<TitleBarGraphTooltipContent />} placement="bottom" componentsProps={{ tooltip: { sx: DEFAULT_TOOLTIP_SX } }}>
           <div onClick={handleOnClick} className={styles.hoverRegion}>
             <div className={styles.indicatorWrapper}>
               {StatusIndicator(
-                capitalize(runStatus?.graph?.status ?? "pending"),
-                runStatus?.graph?.percentage_complete ?? 0,
+                capitalize(runStatusGraphStatus ?? "pending"),
+                percentageComplete ?? 0,
                 {
                   Running: { width: 48, height: 48 },
                   Finished: { width: 48, height: 48 },
@@ -53,7 +85,7 @@ const TitleBarGraphCard: React.FC = () => {
               )}
             </div>
             <div className={styles.textWrapper}>
-              {!runStatus?.graph?.status ? (
+              {!runStatusGraphStatus ? (
                 <>
                   <div className={styles.graphTitleDefault}>No graph is running</div>
                   <div className={styles.graphStatusRow}>
@@ -62,14 +94,14 @@ const TitleBarGraphCard: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <div className={styles.graphTitle}>Graph: {runStatus?.graph?.name || "No graph is running"}</div>
+                  <div className={styles.graphTitle}>Graph: {runStatusGraphName || "No graph is running"}</div>
                   <div className={styles.graphStatusRow}>
-                    <div className={`${styles.statusText} ${getStatusClass(runStatus?.graph?.status ?? "pending", styles)}`}>
-                      {runStatus?.graph?.status}
+                    <div className={`${styles.statusText} ${getStatusClass(runStatusGraphStatus ?? "pending", styles)}`}>
+                      {runStatusGraphStatus}
                     </div>
-                    {runStatus?.graph?.status !== "finished" && (
+                    {runStatusGraphStatus !== "finished" && (
                       <div className={styles.nodeCount}>
-                        {runStatus?.graph?.finished_nodes}/{runStatus?.graph?.total_nodes} nodes finished
+                        {finishedNodes}/{runStatusGraphTotalNodes} nodes finished
                       </div>
                     )}
                   </div>
@@ -79,30 +111,21 @@ const TitleBarGraphCard: React.FC = () => {
           </div>
         </Tooltip>
         <TitleBarNodeCard />
-        {runStatus?.graph?.status === "running" && (
-          <div className={styles.stopAndTimeWrapper}>
-            <div className={styles.stopButton} onClick={handleStopClick}>
-              <StopButtonIcon />
-            </div>
-            {runStatus?.graph?.time_remaining && (
-              <div className={styles.timeRemaining}>{formatTime(runStatus?.graph?.time_remaining)} left</div>
-            )}
-          </div>
-        )}
-        {["finished", "error"].includes(runStatus?.graph?.status ?? "pending") &&
-          runStatus?.graph?.run_duration &&
-          runStatus?.graph?.run_duration > 0 &&
-          renderElapsedTime(runStatus?.graph?.run_duration)}
-        {runStatus?.graph?.status === "pending" && runStatus?.node?.status === "running" && (
+        {runStatusGraphStatus === "running" && <RunningNode handleStopClick={handleStopClick} />}
+        {["finished", "error"].includes(runStatusGraphStatus ?? "pending") &&
+          runDuration &&
+          runDuration > 0 &&
+          renderElapsedTime(runDuration)}
+        {runStatusGraphStatus === "pending" && runStatusNodeStatus === "running" && (
           <div className={styles.nodeStopButton} onClick={handleStopClick}>
             <StopButtonIcon />
           </div>
         )}
-        {runStatus?.graph?.status === "pending" &&
-          ["finished", "error"].includes(runStatus?.node?.status ?? "pending") &&
-          runStatus?.node?.run_duration &&
-          runStatus?.node?.run_duration > 0 &&
-          renderElapsedTime(runStatus?.node?.run_duration)}
+        {runStatusGraphStatus === "pending" &&
+          ["finished", "error"].includes(runStatusNodeStatus ?? "pending") &&
+          runStatusNodeRunDuration &&
+          runStatusNodeRunDuration > 0 &&
+          renderElapsedTime(runStatusNodeRunDuration)}
       </div>
     </div>
   );

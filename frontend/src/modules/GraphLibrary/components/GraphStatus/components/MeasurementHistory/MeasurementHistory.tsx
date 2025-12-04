@@ -1,59 +1,74 @@
-import React, { useEffect, useState } from "react";
+/**
+ * @fileoverview Execution history panel with "track latest" auto-selection.
+ *
+ * Displays list of measurements from recent graph executions. When "track latest"
+ * is enabled, automatically selects and displays results from the most recent
+ * measurement as they arrive via WebSocket updates.
+ *
+ * @see GraphStatusContext - Provides allMeasurements and trackLatest state
+ * @see MeasurementElementList - Renders the measurement list
+ */
+import React, {useEffect, useState} from "react";
+import {useSelector} from "react-redux";
 import styles from "./MeasurementHistory.module.scss";
-import { useGraphStatusContext } from "../../context/GraphStatusContext";
-import { MeasurementElementList } from "../MeasurementElementList/MeasurementElementList";
-import { useSelectionContext } from "../../../../../common/context/SelectionContext";
-import { useGraphContext } from "../../../../context/GraphContext";
-import { useSnapshotsContext } from "../../../../../Snapshots/context/SnapshotsContext";
+import {MeasurementElementList} from "../MeasurementElementList/MeasurementElementList";
+import {useRootDispatch} from "../../../../../../stores";
+import {getAllMeasurements, getTrackLatest} from "../../../../../../stores/GraphStores/GraphStatus/selectors";
+import {setTrackLatest} from "../../../../../../stores/GraphStores/GraphStatus/actions";
+import {setSelectedNodeNameInWorkflow} from "../../../../../../stores/GraphStores/GraphCommon/actions";
+import {getTrackLatestSidePanel} from "../../../../../../stores/SnapshotsStore/selectors";
+import {fetchOneSnapshot, setDiffData, setLatestSnapshotId, setResult} from "../../../../../../stores/SnapshotsStore/actions";
+import {Measurement} from "../../../../../../stores/GraphStores/GraphStatus/GraphStatusStore";
 
 interface IMeasurementHistoryListProps {
   title?: string;
 }
 
 export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ title = "Execution history" }) => {
-  const { allMeasurements, trackLatest, setTrackLatest } = useGraphStatusContext();
-  const { trackLatestSidePanel, fetchOneSnapshot, setLatestSnapshotId, setResult, setDiffData } = useSnapshotsContext();
-  const { setSelectedNodeNameInWorkflow } = useGraphContext();
-  const { setSelectedItemName } = useSelectionContext();
+  const dispatch = useRootDispatch();
+  const allMeasurements = useSelector(
+    getAllMeasurements,
+    (prev?: Measurement[], current?: Measurement[]) => JSON.stringify(prev) === JSON.stringify(current)
+  );
+  const trackLatest = useSelector(getTrackLatest);
+  const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
   const [latestId, setLatestId] = useState<number | undefined>();
   const [latestName, setLatestName] = useState<string | undefined>();
 
   const handleOnClick = () => {
-    setTrackLatest(!trackLatest);
+    dispatch(setTrackLatest(!trackLatest));
   };
 
+  /**
+   * Auto-selects latest measurement when trackLatest is enabled.
+   * Fetches snapshot with diff data if trackLatestSidePanel is enabled.
+   * Only updates if latest measurement ID or name has changed.
+   */
   useEffect(() => {
     if (trackLatest) {
       if (allMeasurements) {
         const element = allMeasurements[0];
-        // if (element) {
 
         if (element && (element.id !== latestId || element.metadata?.name !== latestName)) {
           setLatestId(element.id);
           setLatestName(element.metadata?.name);
-          setSelectedItemName(element?.metadata?.name);
 
-          setSelectedNodeNameInWorkflow(allMeasurements[0]?.metadata?.name);
+          dispatch(setSelectedNodeNameInWorkflow(element?.metadata?.name));
           if (element.id) {
-            setLatestSnapshotId(element.id);
+            dispatch(setLatestSnapshotId(element.id));
             if (trackLatestSidePanel) {
-              fetchOneSnapshot(element.id, element.id - 1, true, true);
+              dispatch(fetchOneSnapshot(element.id, element.id - 1, true, true));
             } else {
-              fetchOneSnapshot(element.id);
+              dispatch(fetchOneSnapshot(element.id));
             }
-            // if (trackLatestSidePanel) {
-            //   fetchOneSnapshot(element.id, element.id - 1, true);
-            // } else {
-            //   fetchOneSnapshot(element.id);
-            // }
           } else {
-            setResult({});
-            setDiffData({});
+            dispatch(setResult({}));
+            dispatch(setDiffData({}));
           }
         }
       }
     }
-  }, [trackLatest, setTrackLatest, allMeasurements, latestId, latestName]);
+  }, [trackLatest, allMeasurements, latestId, latestName]);
 
   return (
     <div className={styles.wrapper}>
@@ -68,9 +83,7 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
       </div>
       {allMeasurements && allMeasurements?.length > 0 && (
         <div className={styles.contentContainer}>
-          {/*<div className={styles.lowerContainer}>*/}
           <MeasurementElementList listOfMeasurements={allMeasurements} />
-          {/*</div>*/}
         </div>
       )}
       {(!allMeasurements || allMeasurements?.length === 0) && (

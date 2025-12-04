@@ -1,0 +1,28 @@
+.breadcrumbsContainer {
+  display: flex;
+
+  .breadcrumbsButton {
+    color: #7d8590;
+    transition: all 0.2s;
+    padding: 6px 10px;
+    border-radius: 6px;
+
+    &:disabled {
+      cursor: default;
+      color: #c9d1d9;
+      font-weight: 600;
+    }
+
+    &:hover:not(:disabled) {
+      cursor: pointer;
+      background: #1c2128;
+      color: #58a6ff;
+    }
+  }
+
+  .breadcrumbsSeparator {
+    color: #7d8590;
+    font-size: 14px;
+    margin: auto 8px;
+  }
+}

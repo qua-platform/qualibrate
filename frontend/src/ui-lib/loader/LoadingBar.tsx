@@ -1,5 +1,3 @@
-import ButtonComponent from "../../common/ui-components/buttons/ButtonWrapper";
-import { ButtonTypes } from "../../common/interfaces/ButtonTypes";
 import React from "react";
 import { WorkflowPlaceHolderIcon } from "../Icons/WorkflowPlaceholderIcon";
 import { classNames } from "../../utils/classnames";
@@ -16,7 +14,7 @@ interface Props {
   callback?: () => void;
 }
 
-const LoadingBar = ({ text = DEFAULT_LOADING_PHRASE, icon = <WorkflowPlaceHolderIcon />, className, actionButton, callback }: Props) => {
+const LoadingBar = ({ text = DEFAULT_LOADING_PHRASE, icon = <WorkflowPlaceHolderIcon />, className, actionButton }: Props) => {
   const formatError = (error: string | { detail: string }) => {
     if (typeof error === "string") {
       return error.split("\\n").map((item, idx) => {
@@ -31,13 +29,12 @@ const LoadingBar = ({ text = DEFAULT_LOADING_PHRASE, icon = <WorkflowPlaceHolder
       return <span key={(error as { detail: string }).detail}>{(error as { detail: string }).detail}</span>;
     }
   };
-  const retryButton = callback && <ButtonComponent actionName="Retry" type={ButtonTypes.ACTION} onClickCallback={callback} />;
 
   return (
     <div className={classNames(className)} style={{ whiteSpace: "pre-wrap" }}>
       {icon}
       <div className={styles.text}>{formatError(text)}</div>
-      {actionButton || retryButton}
+      {actionButton}
     </div>
   );
 };

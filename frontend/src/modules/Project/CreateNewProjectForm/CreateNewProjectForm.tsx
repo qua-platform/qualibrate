@@ -3,8 +3,11 @@ import React, { useCallback, useState } from "react";
 import styles from "./CreateNewProjectForm.module.scss";
 import ProjectFormField from "../../../common/ui-components/common/Input/ProjectFormField";
 import { useProjectFormValidation } from "../../../ui-lib/hooks/useProjectFormValidation";
-import { useProjectContext } from "../context/ProjectContext";
 import { ProjectViewApi } from "../api/ProjectViewAPI";
+import { useSelector } from "react-redux";
+import { getAllProjects } from "../../../stores/ProjectStore/selectors";
+import { useRootDispatch } from "../../../stores";
+import { addProject } from "../../../stores/ProjectStore/actions";
 
 interface Props {
   closeNewProjectForm: () => void;
@@ -34,7 +37,8 @@ const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { validatePath, validateProjectName } = useProjectFormValidation();
-  const { allProjects, setAllProjects } = useProjectContext();
+  const allProjects = useSelector(getAllProjects);
+  const dispatch = useRootDispatch();
 
   const validateField = useCallback(
     (field: keyof NewProjectFormData, value: string) => {
@@ -95,7 +99,7 @@ const CreateNewProjectForm: React.FC<Props> = ({ closeNewProjectForm }) => {
         if (isOk) {
           console.log("Project created successfully:", result);
           if (result) {
-            setAllProjects([result, ...allProjects]);
+            dispatch(addProject(result));
           }
           handleCloseNewProjectForm();
         } else {

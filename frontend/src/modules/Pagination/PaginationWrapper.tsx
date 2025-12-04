@@ -1,21 +1,23 @@
 import Pagination from "@mui/material/Pagination";
 import styles from "./PaginationWrapper.module.scss";
 import React from "react";
+import { useRootDispatch } from "../../stores";
+import { setPageNumber } from "../../stores/SnapshotsStore/actions";
+import { getTotalPages } from "../../stores/SnapshotsStore/selectors";
+import { useSelector } from "react-redux";
 
 type PaginationWrapperProps = {
-  numberOfPages: number;
   defaultPage?: number;
   siblingCount?: number;
   boundaryCount?: number;
-  setPageNumber: (pageNumber: number) => void;
 };
 const PaginationWrapper = ({
-  numberOfPages,
   defaultPage = 1,
   siblingCount = 0,
   boundaryCount = 2,
-  setPageNumber,
 }: PaginationWrapperProps) => {
+  const dispatch = useRootDispatch();
+  const numberOfPages = useSelector(getTotalPages);
   return (
     <div className={styles.wrapper}>
       <Pagination
@@ -31,7 +33,7 @@ const PaginationWrapper = ({
         siblingCount={siblingCount}
         boundaryCount={boundaryCount}
         onChange={(event: React.ChangeEvent<unknown>, page: number) => {
-          setPageNumber(page);
+          dispatch(setPageNumber(page));
         }}
       />
     </div>

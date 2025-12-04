@@ -8,33 +8,33 @@ export const LIGHT = "light";
 // import "prism-color-variables/variables.css";
 export type Theme = "dark" | "light";
 
-export function updateColorTheme(): void {
+export const updateColorTheme = () => {
   const theme = getColorTheme();
   const arrayOfVariableKeys = Object.keys(colors);
   const arrayOfVariableValues = Object.values(colors);
   arrayOfVariableKeys.forEach((cssVariableKey, index) => {
     document.documentElement.style.setProperty(cssVariableKey, arrayOfVariableValues[index][theme]);
   });
-}
+};
 
-export function toggleColorTheme(): Theme {
+export const toggleColorTheme = (): Theme => {
   const cur = getColorTheme();
   return setColorTheme(cur === LIGHT ? DARK : LIGHT);
-}
+};
 
-export function setColorTheme(theme: Theme): Theme {
+const setColorTheme = (theme: Theme): Theme => {
   localStorage.setItem("colorTheme", theme);
   updateColorTheme();
   return theme;
-}
+};
 
-export function getColorTheme(): Theme {
+export const getColorTheme = (): Theme => {
   const color = localStorage.getItem("colorTheme") || "";
   if (![DARK, LIGHT].includes(color)) {
     return DARK;
   }
   return <Theme>color;
-}
+};
 
 type ThemedColor = { dark: string; light: string };
 export type Colors = {
@@ -167,7 +167,3 @@ const colors: Colors = {
     light: "rgba(33, 33, 37, 0.1)",
   },
 };
-
-// export const colorAliases = {
-//   BACKGROUND_COLOR: "var(--background-color)",
-// };

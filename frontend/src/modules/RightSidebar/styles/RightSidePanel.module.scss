@@ -37,8 +37,9 @@
 
 .sliderPanelWrapperLogger {
   right: 40px;
-  position: fixed;
-  height: 95vh;
+  position: absolute;
+  height: 100%;
+  box-sizing: border-box;
   padding-bottom: 5px;
   width: 500px;
   background-color: #323339;
@@ -53,8 +54,9 @@
 
 .sliderPanelWrapper {
   right: 40px;
-  position: fixed;
-  height: 95vh;
+  position: absolute;
+  height: 100%;
+  box-sizing: border-box;
   padding-bottom: 5px;
   width: 500px;
   background-color: #323339;

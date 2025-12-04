@@ -1,30 +1,14 @@
-import React, { useCallback, useEffect } from "react";
+import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphLibrary.module.scss";
-import { useGraphContext } from "./context/GraphContext";
 import { GraphList } from "./components/GraphList";
-import { SelectionContextProvider } from "../common/context/SelectionContext";
-import { useFlexLayoutContext } from "../../routing/flexLayout/FlexLayoutContext";
-import BlueButton from "../../ui-lib/components/Button/BlueButton";
 import { CircularProgress } from "@mui/material";
+import { getIsRescanningGraphs } from "../../stores/GraphStores/GraphLibrary/selectors";
+import { useSelector } from "react-redux";
 
-export const GraphLibrary = () => {
-  const { fetchAllCalibrationGraphs, isRescanningGraphs } = useGraphContext();
-  const { topBarAdditionalComponents, setTopBarAdditionalComponents } = useFlexLayoutContext();
-  const GraphLibraryTopBarRefreshButton = () => {
-    const onClickHandler = useCallback(() => fetchAllCalibrationGraphs(true), [fetchAllCalibrationGraphs]);
-    return (
-      <div className={styles.buttonWrapper}>
-        <BlueButton onClick={onClickHandler}>Refresh</BlueButton>
-      </div>
-    );
-  };
-  useEffect(() => {
-    setTopBarAdditionalComponents({
-      ...topBarAdditionalComponents,
-      "graph-library": <GraphLibraryTopBarRefreshButton />,
-    });
-  }, []);
+const GraphLibrary = () => {
+  const isRescanningGraphs = useSelector(getIsRescanningGraphs);
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.nodesContainer}>
@@ -43,8 +27,4 @@ export const GraphLibrary = () => {
   );
 };
 
-export default () => (
-  <SelectionContextProvider>
-    <GraphLibrary />
-  </SelectionContextProvider>
-);
+export default GraphLibrary;

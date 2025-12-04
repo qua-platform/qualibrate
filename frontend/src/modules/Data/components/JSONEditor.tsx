@@ -3,10 +3,9 @@ import jp from "jsonpath";
 import { defineDataType, JsonViewer, Path } from "@textea/json-viewer";
 import InputField from "../../../common/ui-components/common/Input/InputField";
 import ToggleSwitch from "../../../common/ui-components/common/ToggleSwitch/ToggleSwitch";
-import { useNodesContext } from "../../Nodes/context/NodesContext";
 import Iframe from "../../../common/ui-components/common/Iframe/Iframe";
-import { useFlexLayoutContext } from "../../../routing/flexLayout/FlexLayoutContext";
-import { ModuleKey } from "../../../routing/ModulesRegistry";
+import { useSelector } from "react-redux";
+import { getIsNodeRunning } from "../../../stores/NodesStore/selectors";
 
 interface IJSONEditorProps {
   title: string;
@@ -14,15 +13,13 @@ interface IJSONEditorProps {
   height: string;
   showSearch?: boolean;
   toggleSwitch?: boolean;
-  pageName?: ModuleKey;
 }
 
-export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, toggleSwitch = false, pageName }: IJSONEditorProps) => {
-  const { isNodeRunning } = useNodesContext();
+export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, toggleSwitch = false }: IJSONEditorProps) => {
+  const isNodeRunning = useSelector(getIsNodeRunning);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [jsonData, setJsonData] = useState(jsonDataProp);
   const [activeTab, setActiveTab] = useState<string>("final");
-  const { selectedPageName } = useFlexLayoutContext();
 
   useEffect(() => {
     setJsonData(jsonDataProp);
@@ -163,7 +160,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
         </div>
         {toggleSwitch && (
           <div style={{ width: "100%", height: "100%", display: activeTab === "live" ? "block" : "none" }}>
-            {selectedPageName === pageName && <Iframe targetUrl={iframeURL.href} />}
+            <Iframe targetUrl={iframeURL.href} />
           </div>
         )}
       </>

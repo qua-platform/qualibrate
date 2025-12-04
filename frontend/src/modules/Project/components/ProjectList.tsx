@@ -4,7 +4,8 @@ import React, { useMemo } from "react";
 import { ProjectDTO } from "../ProjectDTO";
 import LoadingBar from "../../../ui-lib/loader/LoadingBar";
 import { NoItemsIcon } from "../../../ui-lib/Icons/NoItemsIcon";
-import { useProjectContext } from "../context/ProjectContext";
+import { useSelector } from "react-redux";
+import { getIsScanningProjects } from "../../../stores/ProjectStore/selectors";
 
 interface Props {
   projects: ProjectDTO[];
@@ -13,7 +14,7 @@ interface Props {
 }
 
 const ProjectList = ({ projects, selectedProject, setSelectedProject }: Props) => {
-  const { isScanningProjects } = useProjectContext();
+  const isScanningProjects = useSelector(getIsScanningProjects);
 
   const sortedProjects = useMemo(() => {
     return [...projects].sort((a, b) => new Date(b.last_modified_at).getTime() - new Date(a.last_modified_at).getTime());
