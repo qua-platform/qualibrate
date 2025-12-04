@@ -22,5 +22,5 @@ with QualibrationGraph.build(
         graph.connect(src=f"node_{i - 1}", dst=f"node_{i}")
 
 if __name__ == "__main__":
-    a = graph.run()
-    print(a)
+    result = graph.run()
+    print(result)

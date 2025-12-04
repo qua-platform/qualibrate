@@ -14,9 +14,13 @@ nodes = {
     "node3": library.nodes.get_nocopy(USED_NODE).copy(name="node3"),
 }
 
-g = QualibrationGraph(
+graph = QualibrationGraph(
     name="graph_with_old_building_method",
     parameters=Parameters(qubits=[]),
     nodes=nodes,
     connectivity=[("node1", "node2")],
 )
+
+if __name__ == "__main__":
+    result = graph.run()
+    print(result)

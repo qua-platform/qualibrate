@@ -18,3 +18,7 @@ with QualibrationGraph.build(
         on=check_fidelity,
     )
     graph.connect("node", "node2")
+
+if __name__ == "__main__":
+    result = graph.run()
+    print(result)

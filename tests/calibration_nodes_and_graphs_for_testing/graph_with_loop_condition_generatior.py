@@ -20,3 +20,7 @@ with QualibrationGraph.build(
         max_iterations=10,
     )
     graph.connect("node", "node2")
+
+if __name__ == "__main__":
+    result = graph.run()
+    print(result)

@@ -47,3 +47,7 @@ with QualibrationGraph.build(
     graph.add_node(subg2)
     graph.connect(src="node_1", dst=subg)
     graph.connect(src=subg, dst=subg2)
+
+if __name__ == "__main__":
+    result = graph.run()
+    print(result)
