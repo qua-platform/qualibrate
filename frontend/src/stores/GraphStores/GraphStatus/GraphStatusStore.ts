@@ -20,6 +20,9 @@ export interface Measurement {
     run_start?: string;
     status?: string;
   };
+  elements_history?: {
+    items: Measurement[];
+  };
 }
 
 interface GraphStatusState {
@@ -43,7 +46,7 @@ const graphStatusSlice = createSlice({
     setTrackLatest: (state, action) => {
       state.trackLatest = action.payload;
     },
-  }
+  },
 });
 
 export default graphStatusSlice;
