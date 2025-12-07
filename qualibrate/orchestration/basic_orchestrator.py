@@ -211,8 +211,9 @@ class BasicOrchestrator(
                 f"Can't set out targets of {element} without run summary"
             )
 
+        # self.nx_graph.edges[element, successor]["operational_condition"] is of type OperationalCondition
         has_on_failed_successors = any(
-            self.nx_graph.edges[element, successor]["scenario"]
+            self.nx_graph.edges[element, successor]["operational_condition"].on_scenario
             == Outcome.FAILED
             for successor in self.nx_graph.successors(element)
         )
@@ -225,7 +226,7 @@ class BasicOrchestrator(
                     QualibrationGraph.EDGE_TARGETS_FIELD
                 ] = (
                     successful_out_targets
-                    if self.nx_graph.edges[element, successor]["scenario"]
+                    if self.nx_graph.edges[element, successor]["operational_condition"].on_scenario
                     == Outcome.SUCCESSFUL
                     else failed_out_targets
                 )
@@ -285,7 +286,7 @@ class BasicOrchestrator(
                 yield False
                 return
             if (
-                conditions.on_failure
+                conditions.on_scenario == Outcome.FAILED
                 and nx_graph.nodes[element_to_run][
                     QualibrationGraph.ELEMENT_STATUS_FIELD
                 ]

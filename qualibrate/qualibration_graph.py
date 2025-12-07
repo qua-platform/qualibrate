@@ -21,6 +21,7 @@ from typing_extensions import Self
 
 from qualibrate.models.node_status import ElementRunStatus
 from qualibrate.models.outcome import Outcome
+from qualibrate.models.operationalCondition import OperationalCondition
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.models.run_summary.graph import GraphRunSummary
@@ -70,23 +71,24 @@ NodeLibT = QualibrationNode[NodeParameters, MachineProtocol]
 GraphElLibT = QRunnable[RunnableParameters, RunnableParameters]
 
 
-class LoopCondition(BaseModel, Generic[GraphElementTypeVar]):
-    on_failure: bool = False
-    on_function: Callable[[GraphElementTypeVar, TargetType], bool] | None = None
-    on_generator: (
-        Callable[
-            [],
-            Generator[
-                bool, tuple[GraphElementTypeVar, TargetType] | None, None
-            ],
-        ]
-        | None
-    ) = None
+# class LoopCondition(BaseModel, Generic[GraphElementTypeVar]):
+#     on_failure: bool = False
+#     on_function: Callable[[GraphElementTypeVar, TargetType], bool] | None = None
+#     on_generator: (
+#         Callable[
+#             [],
+#             Generator[
+#                 bool, tuple[GraphElementTypeVar, TargetType] | None, None
+#             ],
+#         ]
+#         | None
+#     ) = None
+#     max_iterations: int | None = None
+#     """
+#     Common amount for all loop types (on failure, on function, on generator)
+#     """
+class LoopCondition(OperationalCondition[GraphElementTypeVar]):
     max_iterations: int | None = None
-    """
-    Common amount for all loop types (on failure, on function, on generator)
-    """
-
 
 class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType],
@@ -144,7 +146,7 @@ class QualibrationGraph(
         if not isinstance(parameters, GraphParameters):
             raise ValueError("Graph parameters must be of type GraphParameters")
         super().__init__(name, parameters, description=description, modes=modes)
-        self._connectivity: dict[tuple[str, str], Outcome]
+        self._connectivity: dict[tuple[str, str], OperationalCondition[GraphElementTypeVar]]
         if finalize:
             if nodes is None or connectivity is None:
                 raise RuntimeError(
@@ -153,8 +155,9 @@ class QualibrationGraph(
                 )
             self._elements = dict(nodes)
             self._connectivity = {
-                connectivity: Outcome.SUCCESSFUL
-                for connectivity in connectivity
+                # connectivity: Outcome.SUCCESSFUL
+                connectivity: OperationalCondition[GraphElementTypeVar](on_scenario=Outcome.SUCCESSFUL)
+            for connectivity in connectivity
             }
         else:
             self._elements = {}
@@ -265,7 +268,7 @@ class QualibrationGraph(
                 new_graph._graph.add_edge(
                     new_graph._elements[source],
                     new_graph._elements[destination],
-                    scenario=self._connectivity[(source, destination)],
+                    operational_condition=copy.deepcopy(self._connectivity[(source, destination)]),
                 )
 
         # Copy orchestrator if it exists
@@ -347,7 +350,7 @@ class QualibrationGraph(
                 self._graph.add_edge(
                     source_element,
                     destination_element,
-                    scenario=self._connectivity[(source, destination)],
+                    operational_condition=self._connectivity[(source, destination)],
                 )
         self._validate_graph_acyclic()
 
@@ -1088,7 +1091,7 @@ class QualibrationGraph(
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
     ) -> None:
-        self._connect(src, dst, Outcome.SUCCESSFUL)
+        self._connect(src, dst)
 
     @ensure_not_finalized
     @ensure_building
@@ -1097,8 +1100,30 @@ class QualibrationGraph(
         /,
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
+        element: str | GraphElementTypeVar,
+        on: (
+                Callable[
+                    [],
+                    Generator[
+                        bool, tuple[GraphElementTypeVar, TargetType] | None, None
+                    ],
+                ]
+                | Callable[[GraphElementTypeVar, TargetType], bool]
+                | None
+        ) = None,
+
     ) -> None:
-        self._connect(src, dst, Outcome.FAILED)
+
+        on_function, on_generator = None, None
+        if on is not None:
+            if isgeneratorfunction(on):
+                on_generator = on
+            else:
+                on_function = cast(
+                    Callable[[GraphElementTypeVar, TargetType], bool], on
+                )
+        operational_condition = OperationalCondition(on_function = on_function, on_generator = on_generator, on_scenario=Outcome.FAILED)
+        self._connect(src, dst, operational_condition)
 
     @ensure_not_finalized
     @ensure_building
@@ -1106,7 +1131,8 @@ class QualibrationGraph(
         self,
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
-        run_scenario: Outcome,
+        # run_scenario: Outcome,
+        operational_condition: OperationalCondition[GraphElementTypeVar] = None,
     ) -> None:
         s = self._resolve_element_name(src)
         d = self._resolve_element_name(dst)
@@ -1115,9 +1141,11 @@ class QualibrationGraph(
                 f"Both '{s}' and '{d}' must be added before connecting."
             )
         edge = (s, d)
-        if edge in self._connectivity:
-            return
-        self._connectivity[edge] = run_scenario
+        self._connectivity[edge] = operational_condition if operational_condition else OperationalCondition(on_scenario=Outcome.SUCCESSFUL)
+
+        # if edge in self._connectivity:
+        #     return
+        # self._connectivity[edge] = run_scenario
 
     def _get_validated_element_name(
         self, element: str | GraphElementTypeVar
@@ -1168,4 +1196,4 @@ class QualibrationGraph(
         element_name = self._get_validated_element_name(element)
         conditions = self._loop_conditions[element_name]
         conditions.max_iterations = max_iterations
-        conditions.on_failure = True
+        conditions.on_scenario = Outcome.FAILED
