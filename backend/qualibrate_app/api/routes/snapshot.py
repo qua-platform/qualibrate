@@ -226,19 +226,28 @@ def search_recursive(
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
     target_key: Annotated[
         str,
-        Query(description="The key name to search for (e.g., 'amplitude', 'frequency', 'length'). Searches the entire JSON structure at any depth."),
+        Query(
+            description=(
+                "The key name to search for (e.g., 'amplitude', "
+                "'frequency', 'length'). Searches the entire JSON "
+                "structure at any depth."
+            )
+        ),
     ],
 ) -> Sequence[MachineSearchResults] | None:
     """
-    Search for a key name anywhere in the snapshot structure without knowing the full path.
+    Search for a key name anywhere in the snapshot structure without knowing
+    the full path.
 
-    Use this when you know the parameter name (e.g., 'amplitude', 'frequency') but don't know
-    where it appears in the nested JSON structure. The search recursively traverses all levels
-    and returns every location where the key is found.
+    Use this when you know the parameter name (e.g., 'amplitude',
+    'frequency') but don't know where it appears in the nested JSON
+    structure. The search recursively traverses all levels and returns every
+    location where the key is found.
 
     **Use cases:**
     - Find all occurrences of a parameter name across the entire structure
-    - Discover how many times a parameter appears (e.g., amplitude in x180, x90, gates)
+    - Discover how many times a parameter appears (e.g., amplitude in x180,
+      x90, gates)
     - Explore unfamiliar snapshot structures without knowing exact paths
 
     ### Example: Find all "amplitude" parameters
@@ -249,13 +258,32 @@ def search_recursive(
     **Response (abbreviated):**
     ```json
     [
-      {"key": ["qubits", "q6_10", "xy", "operations", "x180_DragCosine", "amplitude"], "value": 0.475},
-      {"key": ["qubits", "q6_10", "xy", "operations", "x90_DragCosine", "amplitude"], "value": 0.237},
-      {"key": ["qubits", "q6_10", "xy", "operations", "-x90_DragCosine", "amplitude"], "value": "#../x90_DragCosine/amplitude"}
+      {
+          "key": [
+              "qubits", "q6_10", "xy", "operations",
+              "x180_DragCosine", "amplitude"
+          ],
+          "value": 0.475
+      },
+      {
+          "key": [
+              "qubits", "q6_10", "xy", "operations",
+              "x90_DragCosine", "amplitude"
+          ],
+          "value": 0.237
+      },
+      {
+          "key": [
+              "qubits", "q6_10", "xy", "operations",
+              "-x90_DragCosine", "amplitude"
+          ],
+          "value": "#../x90_DragCosine/amplitude"
+      }
       // ... and 325 more results
     ]
     ```
 
-    Returns: All 328 occurrences of the "amplitude" key throughout the entire snapshot structure.
+    Returns: All 328 occurrences of the "amplitude" key throughout the
+    entire snapshot structure.
     """
     return snapshot.search_recursive(target_key, load=True)
