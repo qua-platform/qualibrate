@@ -144,6 +144,57 @@ The path to the directory where the active machine state should be stored.
 
 The path to the directory where the logs should be stored to.
 
-**Default**: `QUALIBRATE_PATH / "logs"`  
+**Default**: `QUALIBRATE_PATH / "logs"`
 **Config entry**: `qualibrate.log_folder`
+
+## Environment Variable Override
+
+You can override the default configuration file path by setting the `QUALIBRATE_CONFIG_FILE` environment variable. This is useful when you want to use multiple configurations or keep your config in a non-standard location.
+
+### Usage
+
+Set the `QUALIBRATE_CONFIG_FILE` environment variable to the path of your config file:
+
+**Linux/macOS - Bash/Zsh:**
+```bash
+export QUALIBRATE_CONFIG_FILE=/path/to/your/config.toml
+qualibrate config
+```
+
+**Windows - Command Prompt (cmd.exe):**
+```cmd
+set QUALIBRATE_CONFIG_FILE=C:\path\to\your\config.toml
+qualibrate config
+```
+
+To set this permanently, use:
+```cmd
+setx QUALIBRATE_CONFIG_FILE C:\path\to\your\config.toml
+```
+
+**Windows - PowerShell:**
+```powershell
+$env:QUALIBRATE_CONFIG_FILE = "C:\path\to\your\config.toml"
+qualibrate config
+```
+
+To set this permanently in PowerShell, use:
+```powershell
+[Environment]::SetEnvironmentVariable("QUALIBRATE_CONFIG_FILE", "C:\path\to\your\config.toml", "User")
+```
+
+### Priority
+
+When loading the configuration:
+1. If `QUALIBRATE_CONFIG_FILE` environment variable is set, it is used
+2. Otherwise, the default location `~/.qualibrate/config.toml` is used
+
+The environment variable takes precedence over the default path.
+
+### Use Cases
+
+- **Multiple configurations**: Maintain separate configs for different projects or environments
+- **Custom locations**: Store config files in a custom directory outside `~/.qualibrate`
+- **Docker/CI environments**: Set the path dynamically in containerized or automated setups
+- **Team workflows**: Share a common config location for team members
 
