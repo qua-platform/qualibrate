@@ -16,10 +16,6 @@
     "moduleResolution": "bundler",
     /* Base directory to resolve non-absolute module names */
     "baseUrl": "./",
-    /* Maps imports to locations - e.g. ~models will go to ./src/models */
-    "paths": {
-      "@/*": ["./src/*"]
-    },
     /* List of folders to include type definitions from */
     //    "typeRoots": ["node_modules/@types"],
     /* allow import React instead of import * as React */

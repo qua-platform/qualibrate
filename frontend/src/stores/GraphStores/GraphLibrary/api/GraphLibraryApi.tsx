@@ -1,5 +1,5 @@
 import Api, { BASIC_HEADERS } from "../../../../utils/api";
-import { Res } from "@/utils/api/types";
+import { Res } from "../../../../utils/api/types";
 import { ALL_GRAPHS, GET_EXECUTION_HISTORY, GET_WORKFLOW_GRAPH, SUBMIT_WORKFLOW_RUN } from "../../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../../utils/api/types";
 import { Measurement } from "../../../../modules/GraphStatus";

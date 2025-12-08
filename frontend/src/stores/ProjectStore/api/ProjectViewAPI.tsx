@@ -1,5 +1,5 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
-import { Res } from "@/utils/api/types";
+import { Res } from "../../../utils/api/types";
 import { ACTIVE_PROJECT, ALL_PROJECTS, CREATE_PROJECT, SHOULD_REDIRECT_USER_TO_SPECIFIC_PAGE } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../utils/api/types";
 

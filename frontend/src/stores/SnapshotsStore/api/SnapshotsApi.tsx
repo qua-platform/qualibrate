@@ -1,5 +1,5 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
-import { Res } from "@/utils/api/types";
+import { Res } from "../../../utils/api/types";
 import {
   ALL_SNAPSHOTS,
   ONE_SNAPSHOT,
@@ -10,7 +10,7 @@ import {
   UPDATE_SNAPSHOTS,
 } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../utils/api/types";
-import { GlobalParameterStructure } from "@/stores/GraphStores/GraphStatus";
+import { GlobalParameterStructure } from "../../GraphStores/GraphStatus";
 
 type SnapshotLoadTypeFlag =
   | "Minified"

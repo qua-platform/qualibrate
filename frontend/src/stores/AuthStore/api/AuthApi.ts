@@ -1,6 +1,6 @@
 import { LOGIN } from "./AuthApiRoutes";
 import Api, { BASIC_HEADERS } from "../../../utils/api";
-import { Res } from "@/utils/api/types";
+import { Res } from "../../../utils/api/types";
 import { API_METHODS } from "../../../utils/api/types";
 
 export class AuthApi extends Api {

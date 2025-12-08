@@ -1,5 +1,5 @@
 import Api, { BASIC_HEADERS } from "../../../utils/api";
-import { Res } from "@/utils/api/types";
+import { Res } from "../../../utils/api/types";
 import { ALL_NODES, GET_LAST_RUN, GET_LOGS, SUBMIT_NODE_RUN } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../utils/api/types";
 
