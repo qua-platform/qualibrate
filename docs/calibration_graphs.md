@@ -6,6 +6,9 @@ Tuning up a qubit or multiple qubits in a quantum processing unit (QPU) involves
 
 In QUAlibrate, a `QualibrationGraph` is used to represent these calibration routines. The nodes in the DAG are `QualibrationNode` instances, and the edges between nodes determine the execution order: a destination node can only be executed once its origin node has successfully completed.
 
+!!! tip "Advanced Features"
+This guide covers the basics of creating and running calibration graphs. For advanced features including looping, failure handling, and nested subgraphs, see [Advanced Calibration Graphs](advanced_calibration_graphs.md).
+
 ## Graph Execution Using Targets and an Orchestrator
 
 To execute a calibration graph, two key elements are required: the `targets` and the orchestrator. Targets specify what is being calibrated, while the orchestrator manages the execution sequence.
@@ -50,7 +53,7 @@ class Parameters(NodeParameters):
 ///
 
 !!! Note "Targets Type"
-    Currently, each target is expected to be of type `str`. Therefore, the `targets` parameter type should be `Optional[List[str]]` with a default value of `None`. In the future, support for additional types will be added.
+Currently, each target is expected to be of type `str`. Therefore, the `targets` parameter type should be `Optional[List[str]]` with a default value of `None`. In the future, support for additional types will be added.
 
 #### Adding Node Outcome per Target
 
@@ -71,7 +74,10 @@ Similar to a `QualibrationNode`, a `QualibrationGraph` should be defined in a de
 
 ### Example: Creating a `QualibrationGraph`
 
-In this example, we will create a graph composed of three `QualibrationNode`s: `"qubit_spec" → "rabi" → "ramsey"`. We assume that these nodes already exist in the calibration library folder. The arrow indicates that each subsequent node can only be executed if the previous node had a successful outcome for that target.
+In this example, we will create a graph composed of three `QualibrationNode`s: qubit spectroscopy → Rabi → Ramsey. The arrow indicates that each subsequent node can only be executed if the previous node had a successful outcome for that target.
+
+!!! note "Demo Calibration Nodes"
+This example uses demo calibration nodes that are automatically installed with QUAlibrate in the project `"demo_project"`. These nodes (`01_demo_qubit_spectroscopy`, `02_demo_rabi`, `05_demo_ramsey`) are available in the calibration library and can be used for testing and learning purposes.
 
 ### Importing `qualibrate`
 
@@ -80,7 +86,6 @@ The first step is to import the relevant classes from `qualibrate`:
 ```python
 from typing import List, Optional
 from qualibrate import QualibrationLibrary, QualibrationGraph, GraphParameters
-from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
 ```
 
 ### Loading the Calibration Library
@@ -104,29 +109,38 @@ class Parameters(GraphParameters):
 
 ### Constructing the `QualibrationGraph`
 
-Now we are ready to create the `QualibrationGraph`:
+Now we are ready to create the `QualibrationGraph` using the context manager API:
 
 ```python
-graph = QualibrationGraph(
-    name="workflow1",
+with QualibrationGraph.build(
+    "workflow1",
     parameters=Parameters(),
-    nodes={
-        "qubit_spec": library.nodes["qubit_spec"],
-        "rabi": library.nodes["rabi"],
-        "ramsey": library.nodes["ramsey"],
-    },
-    connectivity=[("qubit_spec", "rabi"), ("rabi", "ramsey")],
-    orchestrator=BasicOrchestrator(skip_failed=True),
-)
+) as graph:
+    # Get nodes from the library (automatically copied)
+    qubit_spec = library.nodes["01_demo_qubit_spectroscopy"]
+    rabi = library.nodes["02_demo_rabi"]
+    ramsey = library.nodes["05_demo_ramsey"]
+
+    # Add nodes to the graph
+    graph.add_node(qubit_spec)
+    graph.add_node(rabi)
+    graph.add_node(ramsey)
+
+    # Connect nodes to define execution order
+    graph.connect(qubit_spec, rabi)
+    graph.connect(rabi, ramsey)
 ```
 
-Here is an explanation of each property:
+Here is an explanation of each part:
 
-- `name`: Unique name for the `QualibrationGraph`, used by the `QualibrationLibrary` to index the graph.
-- `parameters`: An instance of the previously defined `Parameters` class.
-- `nodes`: A dictionary containing `QualibrationNode` instances, retrieved from the library. The keys are used when defining the connectivity.
-- `connectivity`: Defines the edges between nodes. Each element is a tuple of the form `("source_node", "target_node")`.
-- `orchestrator`: The `QualibrationOrchestrator` used to execute the graph. In this case, the `BasicOrchestrator` is used with the argument `skip_failed=True`.
+- `QualibrationGraph.build()`: Creates a graph in building mode using a context manager
+- `name`: Unique name for the `QualibrationGraph`, used by the `QualibrationLibrary` to index the graph
+- `parameters`: An instance of the previously defined `Parameters` class
+- `library.nodes["..."]`: Retrieves nodes from the library (automatically creating copies)
+- `graph.add_node()`: Adds a node to the graph
+- `graph.connect()`: Defines edges between nodes, where the destination node executes after the source node succeeds
+
+When the `with` block exits, the graph is automatically finalized and validated.
 
 ### Running the QualibrationGraph
 
@@ -143,7 +157,6 @@ Combining all the elements from the previous sections, the final script containi
 ```python
 from typing import List, Optional
 from qualibrate import QualibrationLibrary, QualibrationGraph, GraphParameters
-from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
 
 library = QualibrationLibrary.get_active_library()
 
@@ -151,23 +164,28 @@ library = QualibrationLibrary.get_active_library()
 class Parameters(GraphParameters):
     qubits: Optional[List[str]] = None
 
-# Create the QualibrationGraph
-graph = QualibrationGraph(
-    name="workflow1",  # Unique graph name
+# Create the QualibrationGraph using the context manager
+with QualibrationGraph.build(
+    "workflow1",  # Unique graph name
     parameters=Parameters(),  # Instantiate graph parameters
-    nodes={  # Specify nodes used in the graph
-        "qubit_spec": library.nodes["qubit_spec"],
-        "rabi": library.nodes["rabi"],
-        "ramsey": library.nodes["ramsey"],
-    },
-    # Specify directed relationships between graph nodes
-    connectivity=[("qubit_spec", "rabi"), ("rabi", "ramsey")],
-    # Specify orchestrator used to run the graph
-    orchestrator=BasicOrchestrator(skip_failed=True),
-)
+) as graph:
+    # Get demo nodes from the library (automatically copied)
+    qubit_spec = library.nodes["01_demo_qubit_spectroscopy"]
+    rabi = library.nodes["02_demo_rabi"]
+    ramsey = library.nodes["05_demo_ramsey"]
+
+    # Add nodes to the graph
+    graph.add_node(qubit_spec)
+    graph.add_node(rabi)
+    graph.add_node(ramsey)
+
+    # Connect nodes to define execution order
+    graph.connect(qubit_spec, rabi)
+    graph.connect(rabi, ramsey)
 
 # Run the calibration graph for qubits q1, q2, and q3
-graph.run(qubits=["q1", "q2", "q3"])
+if __name__ == "__main__":
+    graph.run(qubits=["q1", "q2", "q3"])
 ```
 
 This script can be executed from any IDE or terminal. Additionally, it can also be run from the [QUAlibrate Web App](web_app.md), provided it is saved in the `qualibrate_runner.calibration_library_folder` path specified in the [configuration file](configuration.md).
@@ -185,7 +203,6 @@ The choices that a `QualibrationOrchestrator` makes include
 There is no single right answer to this question, and therefore different subclasses of `QualibrationOrchestrator` are created that implement different graph traversal algorithm.
 Currently, QUAlibrate has the `BasicOrchestrator` that implements a straightforward graph traversal.
 Additional orchestrators will be added to QUAlibrate in the future, and users can also implement custom graph traversal algorithms by subclassing the `QualibrationOrchestrator`.
-
 
 ### BasicOrchestrator
 
