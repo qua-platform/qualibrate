@@ -1,5 +1,5 @@
-import { API_METHODS } from "../../common/enums/Api";
-import { Res } from "../../common/interfaces/Api";
+import { API_METHODS } from "./types";
+import { Res } from "./types";
 import { FetchOptions, GETOptions, RequestEntry } from "./types";
 
 const AUTH_HEADER = {

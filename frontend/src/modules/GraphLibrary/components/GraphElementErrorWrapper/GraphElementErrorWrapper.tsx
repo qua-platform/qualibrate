@@ -5,7 +5,7 @@
  * Used in GraphElement to display API submission errors.
  */
 import styles from "../GraphElementErrorWrapper/GraphElementErrorWrapper.module.scss";
-import { ArrowIcon } from "../../../../ui-lib/Icons/ArrowIcon";
+import { ArrowIcon } from "../../../../components/Icons/ArrowIcon";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getErrorObject } from "../../../../stores/GraphStores/GraphLibrary/selectors";

@@ -1,13 +1,13 @@
-import { IconType } from "../../common/interfaces/InputProps";
-import { SearchIcon } from "../../ui-lib/Icons/SearchIcon";
+import { IconType } from "../../components/Input/InputField";
+import { SearchIcon } from "../../components/Icons/SearchIcon";
 import React, { useCallback, useEffect, useState } from "react";
-import ProjectList from "./components/ProjectList";
+import ProjectList from "./components/ProjectList/ProjectList";
 import { ProjectDTO } from "./ProjectDTO";
-import InputField from "../../common/ui-components/common/Input/InputField";
-import LoaderPage from "../../ui-lib/loader/LoaderPage";
-import LoadingBar from "../../ui-lib/loader/LoadingBar";
-import { NoItemsIcon } from "../../ui-lib/Icons/NoItemsIcon";
-import ProjectTitleBar from "../TopbarMenu/ProjectTitleBar";
+import InputField from "../../components/Input/InputField";
+import LoaderPage from "../../components/Loader/LoaderPage";
+import LoadingBar from "../../components/Loader/LoadingBar";
+import { NoItemsIcon } from "../../components/Icons/NoItemsIcon";
+import ProjectTitleBar from "./components/ProjectTitleBar/ProjectTitleBar";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 import { useSelector } from "react-redux";

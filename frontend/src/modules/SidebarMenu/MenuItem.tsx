@@ -1,6 +1,6 @@
 import React from "react";
 import Tooltip from "@mui/material/Tooltip";
-import { Module } from "../../routing/ModulesRegistry";
+import { Module } from "../AppRoutes/ModulesRegistry";
 import styles from "./styles/MenuItem.module.scss";
 import { MENU_TEXT_COLOR } from "../../utils/colors";
 import { classNames } from "../../utils/classnames";

@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styles from "../Login/Login.module.scss";
-import BlueButton from "../../ui-lib/components/Button/BlueButton";
-import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
+import BlueButton from "../../components/Button/BlueButton";
+import QUAlibrateLogoIcon from "../../components/Icons/QUAlibrateLogoIcon";
 import welcomeWaves from "./welcomeWaves.png";
-import InputField from "../../common/ui-components/common/Input/InputField";
+import InputField from "../../components/Input/InputField";
 import { useLogin } from "../../stores/AuthStore/hooks";
 import { useSelector } from "react-redux";
 import { getAuthError } from "../../stores/AuthStore/selectors";

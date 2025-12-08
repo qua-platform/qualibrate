@@ -2,8 +2,8 @@ import React from "react";
 import { useSelector } from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
-import LoadingBar from "../../../../ui-lib/components/Bar/LoadingBar";
-import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
+import LoadingBar from "../../../../components/LoadingBar/LoadingBar";
+import { SnapshotsApi } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
 import { RunningJobStatusLabel } from "./RunningJobStatusLabel";
 import { RunningJobStatusVisuals } from "./RunningJobStatusVisuals";
 import { setIsNodeRunning } from "../../../../stores/NodesStore/actions";

@@ -1,0 +1,55 @@
+import React from "react";
+import { Checkbox } from "@mui/material";
+import { NodeDTO } from "../../modules/Nodes/components/NodeElement/NodeElement";
+import { GraphWorkflow } from "../../modules/GraphLibrary/components/GraphList";
+import InputField from "../Input/InputField";
+import { SingleParameter } from "./Parameters";
+import { useRootDispatch } from "../../stores";
+import { setNodeParameter } from "../../stores/GraphStores/GraphLibrary/actions";
+import { useSelector } from "react-redux";
+import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../../stores/GraphStores/GraphCommon/selectors";
+
+const ParameterSelector = ({
+  parameterKey,
+  parameter,
+  node
+}: {
+  parameterKey: string
+  parameter: SingleParameter
+  node?: NodeDTO | GraphWorkflow
+}) => {
+  const dispatch = useRootDispatch();
+  const subgraphBreadcrumbs = useSelector(getSubgraphBreadcrumbs);
+  const selectedWorkflowName = useSelector(getSelectedWorkflowName);
+
+  const handleChange = (newValue: string | number | boolean) => {
+    dispatch(setNodeParameter({
+      paramKey: parameterKey,
+      newValue,
+      nodeId: node?.name,
+      subgraphBreadcrumbs,
+      selectedWorkflowName,
+    }));
+  };
+
+  switch (parameter.type) {
+    case "boolean":
+      return (
+        <Checkbox
+          checked={parameter.default as boolean}
+          onClick={() => handleChange(!parameter.default)}
+          inputProps={{ "aria-label": "controlled" }}
+        />
+      );
+    default:
+      return (
+        <InputField
+          placeholder={parameterKey}
+          value={parameter.default ? parameter.default.toString() : ""}
+          onChange={handleChange}
+        />
+      );
+  }
+};
+
+export default ParameterSelector;

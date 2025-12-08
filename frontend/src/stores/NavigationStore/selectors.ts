@@ -1,6 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "..";
-import { GRAPH_LIBRARY_KEY, NODES_KEY } from "../../routing/ModulesRegistry";
+import { GRAPH_LIBRARY_KEY, NODES_KEY } from "../../modules/AppRoutes/ModulesRegistry";
 
 export const getNavigationState = (state: RootState) => state.navigation;
 

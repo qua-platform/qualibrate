@@ -1,4 +1,4 @@
-import { FetchGraphResponse } from "@/modules/GraphLibrary/api/GraphLibraryApi";
+import { FetchGraphResponse } from "@/stores/GraphStores/GraphLibrary/api/GraphLibraryApi";
 
 export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
   nodes: [

@@ -1,4 +1,4 @@
-import { FetchGraphResponse, GraphLibraryApi } from "../../../modules/GraphLibrary/api/GraphLibraryApi";
+import { FetchGraphResponse, GraphLibraryApi } from "../GraphLibrary/api/GraphLibraryApi";
 import { RootDispatch, RootState } from "../../";
 import { commonGraphSlice } from "./GraphCommonStore";
 import { getLayoutedElements } from "./utils";

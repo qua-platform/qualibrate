@@ -1,10 +1,10 @@
-import { NodesApi } from "../../modules/Nodes/api/NodesAPI";
+import { NodesApi } from "./api/NodesAPI";
 import { RootDispatch, RootState } from "..";
 import { nodesSlice, StateUpdate, StatusResponseType } from "./NodesStore";
 import { NodeMap } from "../../modules/Nodes/components/NodeElement/NodeElement";
-import { SnapshotsApi } from "../../modules/Snapshots/api/SnapshotsApi";
+import { SnapshotsApi } from "../SnapshotsStore/api/SnapshotsApi";
 import { getRunningNode, getRunningNodeInfo } from "./selectors";
-import { formatDateTime } from "../../modules/GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
+import { formatDateTime } from "../../utils/formatDateTime";
 
 export const {
   setSelectedNode,

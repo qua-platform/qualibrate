@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"; // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./styles/QuamPanel.module.scss";
-import { JSONEditor } from "../../Data/components/JSONEditor";
+import { JSONEditor } from "../../../components/JSONEditor/JSONEditor";
 import { PanelHeader } from "./components/PanelHeader/PanelHeader";
 import { PanelUpdates } from "./components/PanelUpdates/PanelUpdates";
 import { useSelector } from "react-redux";

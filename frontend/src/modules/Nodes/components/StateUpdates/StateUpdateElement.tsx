@@ -2,9 +2,9 @@ import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
 import { CircularProgress } from "@mui/material";
-import { CheckMarkBeforeIcon } from "../../../../ui-lib/Icons/CheckMarkBeforeIcon";
-import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
-import { CheckMarkAfterIcon } from "../../../../ui-lib/Icons/CheckMarkAfterIcon";
+import { CheckMarkBeforeIcon } from "../../../../components/Icons/CheckMarkBeforeIcon";
+import { SnapshotsApi } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
+import { CheckMarkAfterIcon } from "../../../../components/Icons/CheckMarkAfterIcon";
 import { ValueRow } from "./ValueRow";
 import { setRunningNodeInfo } from "../../../../stores/NodesStore/actions";
 import { useRootDispatch } from "../../../../stores";

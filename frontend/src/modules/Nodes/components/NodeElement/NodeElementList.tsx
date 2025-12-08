@@ -8,7 +8,7 @@ import React from "react";
 import {NodeDTO, NodeElement} from "./NodeElement";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../../NodesPage.module.scss";
-import LoaderPage from "../../../../ui-lib/loader/LoaderPage";
+import LoaderPage from "../../../../components/Loader/LoaderPage";
 import {useSelector} from "react-redux";
 import {getAllNodes, getIsRescanningNodes} from "../../../../stores/NodesStore/selectors";
 

@@ -1,12 +1,12 @@
-import { InputParameter } from "../../../modules/common/Parameters/Parameters";
+import { InputParameter } from "../../../components/Parameters/Parameters";
 import { GraphWorkflow } from "../../../modules/GraphLibrary/components/GraphList";
 import { RootDispatch, RootState } from "../../../stores";
 import { graphLibrarySlice, GraphMap } from "./GraphLibraryStore";
-import { GraphLibraryApi } from "../../../modules/GraphLibrary/api/GraphLibraryApi";
+import { GraphLibraryApi } from "./api/GraphLibraryApi";
 import { getSelectedWorkflowName } from "../GraphCommon/selectors";
 import { getAllGraphs } from "./selectors";
 import { setActivePage } from "../../../stores/NavigationStore/actions";
-import { GRAPH_STATUS_KEY } from "../../../routing/ModulesRegistry";
+import { GRAPH_STATUS_KEY } from "../../../modules/AppRoutes/ModulesRegistry";
 import { setTrackLatest } from "../GraphStatus/actions";
 
 export const {

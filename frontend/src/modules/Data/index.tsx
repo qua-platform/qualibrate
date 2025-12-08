@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../Data/Data.module.scss";
-import PaginationWrapper from "../Pagination/PaginationWrapper";
-import { JSONEditor } from "./components/JSONEditor";
+import PaginationWrapper from "./components/Pagination/PaginationWrapper";
+import { JSONEditor } from "../../components/JSONEditor/JSONEditor";
 import { SnapshotsTimeline } from "./components/SnapshotsTimeline/SnapshotsTimeline";
 import { useSelector } from "react-redux";
 import { getResult } from "../../stores/SnapshotsStore/selectors";

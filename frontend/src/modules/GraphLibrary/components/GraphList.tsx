@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import styles from "../GraphLibrary.module.scss";
 import { GraphElement } from "./GraphElement/GraphElement";
 import { NodeMap } from "../../Nodes/components/NodeElement/NodeElement";
-import { InputParameter } from "../../common/Parameters/Parameters";
+import { InputParameter } from "../../../components/Parameters/Parameters";
 import { getAllGraphs } from "../../../stores/GraphStores/GraphLibrary/selectors";
 
 /**

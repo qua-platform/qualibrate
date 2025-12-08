@@ -43,13 +43,13 @@ import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 import {Checkbox, CircularProgress} from "@mui/material";
-import {InputParameter, Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
-import {ErrorResponseWrapper} from "../../../common/Error/ErrorResponseWrapper";
+import {InputParameter, Parameters, SingleParameter} from "../../../../components/Parameters/Parameters";
+import {ErrorResponseWrapper} from "../../../../components/Error/ErrorResponseWrapper";
 
-import InputField from "../../../../common/ui-components/common/Input/InputField";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import {NodesApi} from "../../api/NodesAPI";
-import {RunIcon} from "../../../../ui-lib/Icons/RunIcon";
+import InputField from "../../../../components/Input/InputField";
+import BlueButton from "../../../../components/Button/BlueButton";
+import {NodesApi} from "../../../../stores/NodesStore/api/NodesAPI";
+import {RunIcon} from "../../../../components/Icons/RunIcon";
 import Tooltip from "@mui/material/Tooltip";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
@@ -68,7 +68,7 @@ import { ErrorWithDetails } from "../../../../stores/NodesStore/NodesStore";
 import { getRunStatusIsRunning, getRunStatusNodeName, getRunStatusNodePercentage, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore/selectors";
 import { getFirstId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
 import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
-import {InfoIcon} from "../../../../ui-lib/Icons/InfoIcon";
+import {InfoIcon} from "../../../../components/Icons/InfoIcon";
 import {StatusVisuals} from "./NodeElementStatusVisuals";
 import {getNodeRowClass} from "./helpers";
 import {GraphWorkflow} from "@/modules/GraphLibrary/components/GraphList";

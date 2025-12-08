@@ -3,7 +3,7 @@ import React from "react";
 import styles from "../Nodes/NodesPage.module.scss";
 import { NodeElementList } from "./components/NodeElement/NodeElementList";
 import { RunningJob } from "./components/RunningJob/RunningJob";
-import { Results } from "./components/Results/Results";
+import { Results } from "../../components/Results/Results";
 import { CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { getIsRescanningNodes, getResults } from "../../stores/NodesStore/selectors";

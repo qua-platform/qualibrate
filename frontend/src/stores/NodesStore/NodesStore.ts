@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ErrorObject } from "../../modules/common/Error/ErrorStatusInterface";
+import { ErrorObject } from "../../components/Error/ErrorStatusInterface";
 import { NodeDTO, NodeMap } from "../../modules/Nodes/components/NodeElement/NodeElement";
 
 export interface StateUpdateObject {

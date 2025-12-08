@@ -1,5 +1,5 @@
 import React from "react";
-import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
+import { SnapshotsApi } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
 import { StateUpdateElement } from "./StateUpdateElement";

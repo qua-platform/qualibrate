@@ -26,7 +26,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
-    setupFiles: ['./src/test-utils/setup.ts'],
+    setupFiles: ['./tests/unit/utils/setup.ts'],
     globals: true,
     css: true,
     // Silent output - only show summary unless there are failures
@@ -39,7 +39,7 @@ export default defineConfig({
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
       '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-      '**/tests/**', // Exclude the tests/ directory (Playwright E2E tests)
+      '**/tests/e2e**', // Exclude the tests/e2e directory (Playwright E2E tests)
     ],
   },
   resolve: {

@@ -1,4 +1,4 @@
-import { GRAPH_LIBRARY_KEY, NODES_KEY } from "../../routing/ModulesRegistry";
+import { GRAPH_LIBRARY_KEY, NODES_KEY } from "../../modules/AppRoutes/ModulesRegistry";
 import { RootDispatch, RootState } from "..";
 import { fetchAllCalibrationGraphs } from "../GraphStores/GraphLibrary/actions";
 import { fetchAllNodes } from "../NodesStore/actions";

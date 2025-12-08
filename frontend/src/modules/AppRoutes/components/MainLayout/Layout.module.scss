@@ -1,0 +1,30 @@
+@use "../../../../styles/variables.scss";
+
+.sidebarWrapper {
+  display: flex;
+  height: 100vh;
+  background-color: var(--background-color);
+  color: var(--font);
+}
+
+.titlebarWrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-left: 3px;
+}
+
+.rightsidePanelWrapper {
+  height: calc(100% - 90px);
+  display: flex;
+  flex-grow: 1;
+  position: relative;
+}
+
+.contentWrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}

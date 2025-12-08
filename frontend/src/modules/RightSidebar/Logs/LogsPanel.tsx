@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./styles/LogsPanel.module.scss";
-import { formatDateTime } from "../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
-import { NodesApi } from "../../../modules/Nodes/api/NodesAPI";
+import { formatDateTime } from "../../../utils/formatDateTime";
+import { NodesApi } from "../../../stores/NodesStore/api/NodesAPI";
 
 export interface LogsViewerResponseDTO {
   asctime: string;

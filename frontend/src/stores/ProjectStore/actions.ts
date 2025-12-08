@@ -1,4 +1,4 @@
-import { ProjectViewApi } from "../../modules/Project/api/ProjectViewAPI";
+import { ProjectViewApi } from "./api/ProjectViewAPI";
 import { ProjectDTO } from "../../modules/Project/ProjectDTO";
 import { RootDispatch } from "..";
 import { projectsSlice } from "./ProjectStore";
