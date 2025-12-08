@@ -44,7 +44,7 @@ import React from "react";
 import styles from "./NodeElement.module.scss";
 import {Checkbox, CircularProgress} from "@mui/material";
 
-import {InputParameter, Parameters, SingleParameter, ErrorResponseWrapper, InputField, BlueButton, RunIcon, InfoIcon} from "../../../../components"
+import {InputParameter, Parameters, SingleParameter, ErrorResponseWrapper, InputField, BlueButton, RunIcon, InfoIcon} from "../../../../components";
 import Tooltip from "@mui/material/Tooltip";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
