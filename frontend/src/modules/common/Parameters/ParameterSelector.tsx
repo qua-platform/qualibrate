@@ -55,6 +55,7 @@ const ParameterSelector = ({
             checked={inputValue as boolean}
             onClick={handleChangeBooelan}
             inputProps={{ "aria-label": "controlled" }}
+            data-testid={`input-field-${parameterKey}`}
           />
         );
       default:
@@ -66,6 +67,7 @@ const ParameterSelector = ({
             onBlur={handleBlur}
             className={styles.input}
             type={["number", "integer"].includes(parameter.type) ? "number" : "string"}
+            data-testid={`input-field-${parameterKey}`}
           />
         );
     }
