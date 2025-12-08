@@ -1,9 +1,5 @@
 import React from "react";
-import CircularLoaderPercentage from "../../../../components/Icons/CircularLoaderPercentage";
-import CheckmarkIcon from "../../../../components/Icons/CheckmarkIcon";
-import ErrorIcon from "../../../../components/Icons/ErrorIcon";
-import NoGraphRunningIcon from "../../../../components/Icons/NoGraphRunningIcon";
-import NoNodeRunningIcon from "../../../../components/Icons/NoNodeRunningIcon";
+import {CircularLoaderPercentage, CheckmarkIcon, ErrorIcon, NoGraphRunningIcon, NoNodeRunningIcon } from "../../../../components";
 
 type SizeMap = {
   Running?: { width: number; height: number };

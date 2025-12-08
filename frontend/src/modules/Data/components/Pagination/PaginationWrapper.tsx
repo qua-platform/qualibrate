@@ -2,8 +2,7 @@ import Pagination from "@mui/material/Pagination";
 import styles from "./PaginationWrapper.module.scss";
 import React from "react";
 import { useRootDispatch } from "../../../../stores";
-import { setPageNumber } from "../../../../stores/SnapshotsStore/actions";
-import { getTotalPages } from "../../../../stores/SnapshotsStore/selectors";
+import { setPageNumber, getTotalPages } from "../../../../stores/SnapshotsStore";
 import { useSelector } from "react-redux";
 
 type PaginationWrapperProps = {

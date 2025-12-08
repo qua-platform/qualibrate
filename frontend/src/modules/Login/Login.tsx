@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styles from "../Login/Login.module.scss";
-import BlueButton from "../../components/Button/BlueButton";
-import QUAlibrateLogoIcon from "../../components/Icons/QUAlibrateLogoIcon";
+import { BlueButton, QUAlibrateLogoIcon, InputField } from "../../components";
 import welcomeWaves from "./welcomeWaves.png";
-import InputField from "../../components/Input/InputField";
-import { useLogin } from "../../stores/AuthStore/hooks";
+import { useLogin } from "../../stores/AuthStore";
 import { useSelector } from "react-redux";
-import { getAuthError } from "../../stores/AuthStore/selectors";
+import { getAuthError } from "../../stores/AuthStore";
 
 export const Login = () => {
   const [password, setPassword] = useState("");

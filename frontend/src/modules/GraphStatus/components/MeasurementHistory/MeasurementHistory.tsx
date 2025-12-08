@@ -13,12 +13,9 @@ import {useSelector} from "react-redux";
 import styles from "./MeasurementHistory.module.scss";
 import {MeasurementElementList} from "../MeasurementElementList/MeasurementElementList";
 import {useRootDispatch} from "../../../../stores";
-import {getAllMeasurements, getTrackLatest} from "../../../../stores/GraphStores/GraphStatus/selectors";
-import {setTrackLatest} from "../../../../stores/GraphStores/GraphStatus/actions";
-import {setSelectedNodeNameInWorkflow} from "../../../../stores/GraphStores/GraphCommon/actions";
-import {getTrackLatestSidePanel} from "../../../../stores/SnapshotsStore/selectors";
-import {fetchOneSnapshot, setDiffData, setLatestSnapshotId, setResult} from "../../../../stores/SnapshotsStore/actions";
-import {Measurement} from "../../../../stores/GraphStores/GraphStatus/GraphStatusStore";
+import {getAllMeasurements, getTrackLatest, setTrackLatest, Measurement} from "../../../../stores/GraphStores/GraphStatus";
+import {setSelectedNodeNameInWorkflow} from "../../../../stores/GraphStores/GraphCommon";
+import {getTrackLatestSidePanel, fetchOneSnapshot, setDiffData, setLatestSnapshotId, setResult} from "../../../../stores/SnapshotsStore";
 
 interface IMeasurementHistoryListProps {
   title?: string;

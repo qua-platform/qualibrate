@@ -10,7 +10,7 @@ import {
   UPDATE_SNAPSHOTS,
 } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../utils/api/types";
-import { GlobalParameterStructure } from "@/stores/GraphStores/GraphStatus/GraphStatusStore";
+import { GlobalParameterStructure } from "@/stores/GraphStores/GraphStatus";
 
 type SnapshotLoadTypeFlag =
   | "Minified"

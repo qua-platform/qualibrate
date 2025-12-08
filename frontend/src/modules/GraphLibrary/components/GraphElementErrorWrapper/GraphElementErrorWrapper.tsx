@@ -5,10 +5,10 @@
  * Used in GraphElement to display API submission errors.
  */
 import styles from "../GraphElementErrorWrapper/GraphElementErrorWrapper.module.scss";
-import { ArrowIcon } from "../../../../components/Icons/ArrowIcon";
+import { ArrowIcon } from "../../../../components";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getErrorObject } from "../../../../stores/GraphStores/GraphLibrary/selectors";
+import { getErrorObject } from "../../../../stores/GraphStores/GraphLibrary";
 
 export const GraphElementErrorWrapper: React.FC = () => {
   const errorObject = useSelector(getErrorObject);

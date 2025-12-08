@@ -1,7 +1,7 @@
 import React from "react";
-import { NodeDTO, NodeMap } from "../../modules/Nodes/components/NodeElement/NodeElement";
+import { NodeDTO, NodeMap } from "../../modules/Nodes";
 import { Parameters, SingleParameter } from "./Parameters";
-import { GraphWorkflow } from "../../modules/GraphLibrary/components/GraphList";
+import { GraphWorkflow } from "../../modules/GraphLibrary";
 import ParameterSelector from "./InputElement";
 
 interface IProps {

@@ -7,7 +7,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import CircularLoaderProgress from "../../../../components/Icons/CircularLoaderProgress";
+import { CircularLoaderProgress } from "../../../../components";
 
 /**
  * Render status indicator based on calibration execution state.

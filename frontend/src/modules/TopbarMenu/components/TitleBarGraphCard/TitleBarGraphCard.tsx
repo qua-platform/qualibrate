@@ -3,15 +3,15 @@ import { useSelector } from "react-redux";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarGraphCard.module.scss";
 import TitleBarNodeCard from "../TitleBarNodeCard/TitleBarNodeCard";
-import StopButtonIcon from "../../../../components/Icons/StopButtonIcon";
+import { StopButtonIcon } from "../../../../components";
 import Tooltip from "@mui/material/Tooltip";
 import TitleBarGraphTooltipContent from "./TitleBarGraphTooltipContent";
 import { capitalize, formatTime, getStatusClass, getWrapperClass } from "../../helpers";
 import { DEFAULT_TOOLTIP_SX } from "../../constants";
 import { StatusIndicator } from "../../components/TitleBarStatusIndicator/TitleBarStatusIndicator";
-import { SnapshotsApi } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
-import { GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY } from "../../../AppRoutes/ModulesRegistry";
-import { setActivePage } from "../../../../stores/NavigationStore/actions";
+import { SnapshotsApi } from "../../../../stores/SnapshotsStore";
+import { GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY } from "../../../AppRoutes";
+import { setActivePage } from "../../../../stores/NavigationStore";
 import { useRootDispatch } from "../../../../stores";
 import {
   getRunStatusGraphFinishedNodes,
@@ -23,7 +23,7 @@ import {
   getRunStatusNodeRunDuration,
   getRunStatusNodeStatus,
   getRunStatusGraphTimeRemaining
-} from "../../../../stores/WebSocketStore/selectors";
+} from "../../../../stores/WebSocketStore";
 
 const RunningNode = ({ handleStopClick }: { handleStopClick: () => void }) => {
   const timeRemaining = useSelector(getRunStatusGraphTimeRemaining);

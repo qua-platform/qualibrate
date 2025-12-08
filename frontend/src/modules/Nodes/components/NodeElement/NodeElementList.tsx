@@ -8,9 +8,9 @@ import React from "react";
 import {NodeDTO, NodeElement} from "./NodeElement";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../../NodesPage.module.scss";
-import LoaderPage from "../../../../components/Loader/LoaderPage";
+import {LoaderPage} from "../../../../components";
 import {useSelector} from "react-redux";
-import {getAllNodes, getIsRescanningNodes} from "../../../../stores/NodesStore/selectors";
+import {getAllNodes, getIsRescanningNodes} from "../../../../stores/NodesStore";
 
 /**
  * Render list of all calibration nodes with loading state handling.

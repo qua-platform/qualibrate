@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "./styles/index.scss";
 import "./styles/_base.scss";
-import AppRoutes from "./modules/AppRoutes/AppRoutes";
+import { AppRoutes } from "./modules/AppRoutes";
 import { BrowserRouter, HashRouter } from "react-router-dom";
 import { updateColorTheme } from "./modules/themeModule/themeHelper";
 import { GlobalThemeContextProvider } from "./modules/themeModule/GlobalThemeContext";

@@ -1,13 +1,13 @@
-import { InputParameter } from "../../../components/Parameters/Parameters";
-import { GraphWorkflow } from "../../../modules/GraphLibrary/components/GraphList";
+import { InputParameter } from "../../../components";
+import { GraphWorkflow } from "../../../modules/GraphLibrary";
 import { RootDispatch, RootState } from "../../../stores";
 import { graphLibrarySlice, GraphMap } from "./GraphLibraryStore";
 import { GraphLibraryApi } from "./api/GraphLibraryApi";
-import { getSelectedWorkflowName } from "../GraphCommon/selectors";
+import { getSelectedWorkflowName } from "../GraphCommon";
 import { getAllGraphs } from "./selectors";
-import { setActivePage } from "../../../stores/NavigationStore/actions";
-import { GRAPH_STATUS_KEY } from "../../../modules/AppRoutes/ModulesRegistry";
-import { setTrackLatest } from "../GraphStatus/actions";
+import { setActivePage } from "../../../stores/NavigationStore";
+import { GRAPH_STATUS_KEY } from "../../../modules/AppRoutes";
+import { setTrackLatest } from "../GraphStatus";
 
 export const {
   setAllGraphs,

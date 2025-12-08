@@ -1,4 +1,4 @@
-import { FetchGraphResponse, GraphLibraryApi } from "../GraphLibrary/api/GraphLibraryApi";
+import { FetchGraphResponse, GraphLibraryApi } from "../GraphLibrary";
 import { RootDispatch, RootState } from "../../";
 import { commonGraphSlice } from "./GraphCommonStore";
 import { getLayoutedElements } from "./utils";
@@ -17,7 +17,7 @@ export const {
   setSubgraphBack,
 } = commonGraphSlice.actions;
 
-export const layoutAndSetNodesAndEdges = (data: FetchGraphResponse) => (dispatch: RootDispatch) =>
+const layoutAndSetNodesAndEdges = (data: FetchGraphResponse) => (dispatch: RootDispatch) =>
   getLayoutedElements(data).then((res) => {
     if (res) {
       dispatch(setNodes(res.nodes));
@@ -47,7 +47,7 @@ export const fetchWorkflowGraph = (nodeName: string) => async (dispatch: RootDis
   }
 };
 
-export const setSubgraph = () => (dispatch: RootDispatch, getState: () => RootState) => {
+const setSubgraph = () => (dispatch: RootDispatch, getState: () => RootState) => {
   const state = getState();
   const subgraphBreadcrumbs = getSubgraphBreadcrumbs(state);
   const workflowElements = getUnformattedWorkflowElements(state);

@@ -28,17 +28,15 @@ import {
   getShouldResetView,
   getWorkflowGraphEdgesColored,
   getWorkflowGraphNodes,
-} from "../../stores/GraphStores/GraphCommon/selectors";
-import {
   goForwardInGraph,
   setEdges,
   setNodes,
-  setSelectedNodeNameInWorkflow
-} from "../../stores/GraphStores/GraphCommon/actions";
-import {setTrackLatest} from "../../stores/GraphStores/GraphStatus/actions";
+  setSelectedNodeNameInWorkflow,
+  NodeWithData
+} from "../../stores/GraphStores/GraphCommon";
+import {setTrackLatest} from "../../stores/GraphStores/GraphStatus";
 import {useRootDispatch} from "../../stores";
 import {useSelector} from "react-redux";
-import {NodeWithData} from "../../stores/GraphStores/GraphCommon/GraphCommonStore";
 import componentTypes, { edgeOptions } from "./components";
 
 interface IProps {

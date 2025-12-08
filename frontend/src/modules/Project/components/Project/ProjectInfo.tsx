@@ -1,9 +1,9 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
-import ProjectFolderIcon from "../../../../components/Icons/ProjectFolderIcon";
+import { ProjectFolderIcon } from "../../../../components";
 import { extractInitials } from "../../helpers";
-import { formatDate } from "../../../TopbarMenu/helpers";
+import { formatDate } from "../../../TopbarMenu";
 
 interface Props {
   date?: Date;

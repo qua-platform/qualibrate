@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { classNames } from "../../utils/classnames";
 import styles from "./Parameters.module.scss";
-import { NodeDTO } from "../../modules/Nodes/components/NodeElement/NodeElement";
+import { NodeDTO } from "../../modules/Nodes";
 import { ArrowIcon } from "../Icons/ArrowIcon";
-import { GraphWorkflow } from "../../modules/GraphLibrary/components/GraphList";
+import { GraphWorkflow } from "../../modules/GraphLibrary";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../Icons/InfoIcon";
-import { getSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphCommon/selectors";
+import { getSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphCommon";
 import { useSelector } from "react-redux";
 
 interface IProps {

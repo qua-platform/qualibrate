@@ -1,7 +1,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
-import CircularLoaderProgress from "../../../../components/Icons/CircularLoaderProgress";
+import { CircularLoaderProgress } from "../../../../components";
 
 export const RunningJobStatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ status = "pending", percentage }) => {
   if (status === "running") {

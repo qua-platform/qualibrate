@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react"; // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./ProjectTitleBar.module.scss";
-import NewProjectButtonIcon from "../../../../components/Icons/NewProjectButtonIcon";
+import { NewProjectButtonIcon } from "../../../../components";
 import CreateNewProjectForm from "../CreateNewProjectForm/CreateNewProjectForm";
 
 const ProjectTitleBar: React.FC = () => {

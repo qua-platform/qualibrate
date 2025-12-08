@@ -8,7 +8,7 @@ import {
   getRunStatusGraphRunStart,
   getRunStatusGraphStatus,
   getRunStatusGraphTotalNodes,
-} from "../../../../stores/WebSocketStore/selectors";
+} from "../../../../stores/WebSocketStore";
 
 const TitleBarGraphTooltipContent: React.FC = () => {
   const runStart = useSelector(getRunStatusGraphRunStart);

@@ -12,9 +12,9 @@ import { useSelector } from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../GraphLibrary.module.scss";
 import { GraphElement } from "./GraphElement/GraphElement";
-import { NodeMap } from "../../Nodes/components/NodeElement/NodeElement";
-import { InputParameter } from "../../../components/Parameters/Parameters";
-import { getAllGraphs } from "../../../stores/GraphStores/GraphLibrary/selectors";
+import { NodeMap } from "../../Nodes";
+import { InputParameter } from "../../../components";
+import { getAllGraphs } from "../../../stores/GraphStores/GraphLibrary";
 
 /**
  * Calibration workflow definition with nodes and connectivity.

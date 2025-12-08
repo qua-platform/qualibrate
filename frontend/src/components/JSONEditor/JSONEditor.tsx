@@ -5,7 +5,7 @@ import InputField from "../Input/InputField";
 import JSONSwitch from "./JSONSwitch/JSONSwitch";
 import Iframe from "../Iframe/Iframe";
 import { useSelector } from "react-redux";
-import { getIsNodeRunning } from "../../stores/NodesStore/selectors";
+import { getIsNodeRunning } from "../../stores/NodesStore";
 
 interface IJSONEditorProps {
   title: string;

@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import styles from "./styles/TitleBarTooltipContent.module.scss";
 import { capitalize, formatDate, formatTime } from "../../helpers";
-import { getRunStatusNode } from "../../../../stores/WebSocketStore/selectors";
+import { getRunStatusNode } from "../../../../stores/WebSocketStore";
 
 export const TitleBarTooltipContent: React.FC = () => {
   const runStatusNode = useSelector(getRunStatusNode);

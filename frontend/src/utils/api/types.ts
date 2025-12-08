@@ -1,5 +1,5 @@
-import { ErrorObject } from "@/components/Error/ErrorStatusInterface";
-import { ErrorWithDetails } from "@/stores/NodesStore/NodesStore";
+import { ErrorObject } from "../../components";
+import { ErrorWithDetails } from "../../stores/NodesStore";
 
 export type GETOptions = {
   [key: string]: unknown | string | URLSearchParams | string[][] | Record<string, string> | undefined;

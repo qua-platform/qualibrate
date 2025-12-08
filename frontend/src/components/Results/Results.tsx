@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { JSONEditor } from "../JSONEditor/JSONEditor";
 import styles from "./Results.module.scss";
 import ErrorIcon from "../Icons/ErrorIcon";
-import { ErrorObject } from "@/components/Error/ErrorStatusInterface";
+import { ErrorObject } from "../Error/ErrorStatusInterface";
 import { Collapse } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";

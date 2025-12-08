@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { BasicDialog } from "../BasicDialog/BasicDialog";
-import { getConnectionLostSeconds, getShowConnectionErrorDialog } from "../../stores/WebSocketStore/selectors";
+import { getConnectionLostSeconds, getShowConnectionErrorDialog } from "../../stores/WebSocketStore";
 
 const WebSocketConnectionErrorDialog = () => {
   const showConnectionErrorDialog = useSelector(getShowConnectionErrorDialog);

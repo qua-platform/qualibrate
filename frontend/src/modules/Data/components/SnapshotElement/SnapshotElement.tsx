@@ -1,16 +1,12 @@
 import React from "react";
-import { SnapshotDTO } from "@/stores/SnapshotsStore/api/SnapshotsApi";
+import { SnapshotDTO, getJsonData } from "../../../../stores/SnapshotsStore";
 import styles from "../SnapshotElement/SnapshotElement.module.scss";
 // eslint-disable-next-line css-modules/no-unused-class
 import additionalStyles from "../../../GraphStatus/components/MeasurementElement/MeasurementElement.module.scss";
-import {
-  MeasurementElementOutcomes,
-  MeasurementElementStatusInfoAndParameters,
-} from "../../../../components/MeasurementElementInfoSection/MeasurementElementInfoSection";
+import { MeasurementElementOutcomes, MeasurementElementStatusInfoAndParameters } from "../../../../components";
 import { classNames } from "../../../../utils/classnames";
 import { formatDateTime } from "../../../../utils/formatDateTime";
 import { useSelector } from "react-redux";
-import { getJsonData } from "../../../../stores/SnapshotsStore/selectors";
 
 // TODO: probably merge with src/modules/GraphStatus/components/MeasurementElement/MeasurementElement.tsx
 // and move to src/components

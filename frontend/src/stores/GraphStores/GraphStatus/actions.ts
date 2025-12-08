@@ -1,4 +1,4 @@
-import { GraphLibraryApi } from "../GraphLibrary/api/GraphLibraryApi";
+import { GraphLibraryApi } from "../GraphLibrary";
 import { RootDispatch } from "../../../stores";
 import graphStatusSlice from "./GraphStatusStore";
 

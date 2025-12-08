@@ -4,18 +4,17 @@ import MainLayout from "../MainLayout/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../../../../utils/api/apiRoutes";
 import { DATA_KEY, GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY, PROJECT_KEY } from "../../ModulesRegistry";
-import Nodes from "../../../Nodes";
-import CalibrationGraph from "../../../GraphLibrary";
-import GraphStatus from "../../../GraphStatus/GraphStatus";
+import { Nodes } from "../../../Nodes";
+import { GraphLibrary } from "../../../GraphLibrary";
+import { GraphStatus } from "../../../GraphStatus";
 import { Data } from "../../../Data";
-import Project from "../../../Project";
+import { Project } from "../../../Project";
 import { classNames } from "../../../../utils/classnames";
 import styles from "./MainPage.module.scss";
-import QUAlibrateLogoIcon from "../../../../components/Icons/QUAlibrateLogoIcon";
-import { getIsAuthorized } from "../../../../stores/AuthStore/selectors";
-import { getActiveProject, getShouldGoToProjectPage } from "../../../../stores/ProjectStore/selectors";
-import { getActivePage, getOpenedOncePages } from "../../../../stores/NavigationStore/selectors";
-import { setActivePage } from "../../../../stores/NavigationStore/actions";
+import { QUAlibrateLogoIcon } from "../../../../components";
+import { getIsAuthorized } from "../../../../stores/AuthStore";
+import { getActiveProject, getShouldGoToProjectPage } from "../../../../stores/ProjectStore";
+import { getActivePage, getOpenedOncePages, setActivePage } from "../../../../stores/NavigationStore";
 import { useRootDispatch } from "../../../../stores";
 
 const PageWrapper = ({
@@ -89,7 +88,7 @@ const MainPage = () => {
         <Nodes />
       </PageWrapper>
       <PageWrapper nodeKey={GRAPH_LIBRARY_KEY}>
-        <CalibrationGraph />
+        <GraphLibrary />
       </PageWrapper>
       <PageWrapper nodeKey={GRAPH_STATUS_KEY}>
         <GraphStatus />

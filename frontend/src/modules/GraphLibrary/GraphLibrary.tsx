@@ -3,7 +3,7 @@ import React from "react";
 import styles from "./GraphLibrary.module.scss";
 import { GraphList } from "./components/GraphList";
 import { CircularProgress } from "@mui/material";
-import { getIsRescanningGraphs } from "../../stores/GraphStores/GraphLibrary/selectors";
+import { getIsRescanningGraphs } from "../../stores/GraphStores/GraphLibrary";
 import { useSelector } from "react-redux";
 
 const GraphLibrary = () => {

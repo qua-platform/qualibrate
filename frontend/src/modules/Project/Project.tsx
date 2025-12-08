@@ -1,21 +1,15 @@
-import { IconType } from "../../components/Input/InputField";
-import { SearchIcon } from "../../components/Icons/SearchIcon";
 import React, { useCallback, useEffect, useState } from "react";
 import ProjectList from "./components/ProjectList/ProjectList";
-import { ProjectDTO } from "./ProjectDTO";
-import InputField from "../../components/Input/InputField";
-import LoaderPage from "../../components/Loader/LoaderPage";
-import LoadingBar from "../../components/Loader/LoadingBar";
-import { NoItemsIcon } from "../../components/Icons/NoItemsIcon";
+import { ProjectDTO, getActiveProject, getAllProjects, getIsScanningProjects } from "../../stores/ProjectStore";
+import { IconType, SearchIcon, InputField, LoaderPage, LoadingBar, NoItemsIcon } from "../../components";
 import ProjectTitleBar from "./components/ProjectTitleBar/ProjectTitleBar";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
 import { useSelector } from "react-redux";
-import { getActiveProject, getAllProjects, getIsScanningProjects } from "../../stores/ProjectStore/selectors";
-import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary/actions";
+import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary";
 import { useRootDispatch } from "../../stores";
-import { resetWorkflowGraphElements } from "../../stores/GraphStores/GraphCommon/actions";
-import { fetchAllNodes } from "../../stores/NodesStore/actions";
+import { resetWorkflowGraphElements } from "../../stores/GraphStores/GraphCommon";
+import { fetchAllNodes } from "../../stores/NodesStore";
 
 const Project = () => {
   const dispatch = useRootDispatch();

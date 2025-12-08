@@ -3,15 +3,15 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { HOME_URL, LOGIN_URL } from "../../utils/api/apiRoutes";
 import MainPage from "./components/MainPage/MainPage";
 import { Login } from "../Login";
-import LoaderPage from "../../components/Loader/LoaderPage";
+import { LoaderPage } from "../../components";
 import { useSelector } from "react-redux";
-import { getIsAuthorized, getIsTriedLoginWithEmptyString } from "../../stores/AuthStore/selectors";
-import { useLogin } from "../../stores/AuthStore/hooks";
-import { useInitNodes } from "../../stores/NodesStore/hooks";
-import { useInitProjects } from "../../stores/ProjectStore/hooks";
-import { useInitGraphs } from "../../stores/GraphStores/hooks";
-import { useInitWebSocket } from "../../stores/WebSocketStore/hooks";
-import { useInitSnapshots } from "../../stores/SnapshotsStore/hooks";
+import { getIsAuthorized, getIsTriedLoginWithEmptyString } from "../../stores/AuthStore";
+import { useLogin } from "../../stores/AuthStore";
+import { useInitNodes } from "../../stores/NodesStore";
+import { useInitProjects } from "../../stores/ProjectStore";
+import { useInitGraphs } from "../../stores/GraphStores";
+import { useInitWebSocket } from "../../stores/WebSocketStore";
+import { useInitSnapshots } from "../../stores/SnapshotsStore";
 
 export const useInitApp = () => {
   useLogin();

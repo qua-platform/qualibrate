@@ -2,9 +2,25 @@ import Api, { BASIC_HEADERS } from "../../../utils/api";
 import { Res } from "@/utils/api/types";
 import { ACTIVE_PROJECT, ALL_PROJECTS, CREATE_PROJECT, SHOULD_REDIRECT_USER_TO_SPECIFIC_PAGE } from "../../../utils/api/apiRoutes";
 import { API_METHODS } from "../../../utils/api/types";
-import { ProjectDTO } from "../../../modules/Project/ProjectDTO";
-import { NewProjectFormData } from "../../../modules/Project/components/CreateNewProjectForm/CreateNewProjectForm";
-import { ProjectApiDTO } from "../../../modules/Project/ProjectApiDTO";
+
+export interface NewProjectFormData {
+  projectName: string;
+  dataPath?: string;
+  quamPath?: string;
+  calibrationPath?: string;
+}
+
+interface ProjectApiDTO {
+  page: string | null;
+}
+
+export interface ProjectDTO {
+  name: string;
+  nodes_number: number;
+  created_at: string;
+  updates: object;
+  last_modified_at: string;
+}
 
 export class ProjectViewApi extends Api {
   constructor() {

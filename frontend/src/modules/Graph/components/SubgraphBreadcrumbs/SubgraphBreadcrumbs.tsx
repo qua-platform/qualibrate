@@ -1,10 +1,9 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import styles from "./SubgraphBreadcrumbs.module.scss";
-import { useRootDispatch } from "../../../../../stores";
-import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../../../../../stores/GraphStores/GraphCommon/selectors";
-import { goBackInGraph } from "../../../../../stores/GraphStores/GraphCommon/actions";
-import { classNames } from "../../../../../utils/classnames";
+import { useRootDispatch } from "../../../../stores";
+import { getSelectedWorkflowName, getSubgraphBreadcrumbs, goBackInGraph } from "../../../../stores/GraphStores/GraphCommon";
+import { classNames } from "../../../../utils/classnames";
 
 const SubgraphBreadcrumbs = ({ className }: { className?: string }) => {
   const dispatch = useRootDispatch();

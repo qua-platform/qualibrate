@@ -1,10 +1,9 @@
 import React from "react";
-import SidebarMenu from "../../../SidebarMenu/SidebarMenu";
+import { SidebarMenu } from "../../../SidebarMenu";
 import styles from "./Layout.module.scss";
-import Toast from "../../../../components/Toast/Toast";
-import TitleBarMenu from "../../../TopbarMenu/TitleBarMenu";
-import { RightSidePanel } from "../../../RightSidebar/RightSidePanel";
-import WebSocketConnectionErrorDialog from "../../../../components/WebSocketConnectionErrorDialog/WebSocketConnectionErrorDialog";
+import { Toast, WebSocketConnectionErrorDialog } from "../../../../components";
+import { TitleBarMenu } from "../../../TopbarMenu";
+import { RightSidePanel } from "../../../RightSidebar";
 
 interface Props {
   children?: React.ReactNode;

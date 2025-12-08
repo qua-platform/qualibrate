@@ -1,7 +1,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./PanelHeader.module.scss";
-import { ToggleSwitch } from "../../../../../components/ToggleSwitch/ToggleSwitch";
+import { ToggleSwitch } from "../../../../../components";
 import { IdInputField } from "../IdInputField/IdInputField";
 
 type PanelHeaderProps = {

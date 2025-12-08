@@ -1,14 +1,14 @@
 import React from "react";
-import styles from "./LoadingBar.module.scss";
+import styles from "./CircularLoadingBar.module.scss";
 
-interface LoadingBarProps {
+interface CircularLoadingBarProps {
   percentage: number;
   trackColor?: string;
   progressColor?: string;
   height?: number;
 }
 
-const LoadingBar: React.FC<LoadingBarProps> = ({
+const CircularLoadingBar: React.FC<CircularLoadingBarProps> = ({
   percentage,
   trackColor = "#4E5058",
   progressColor,
@@ -48,4 +48,4 @@ const LoadingBar: React.FC<LoadingBarProps> = ({
   );
 };
 
-export default LoadingBar;
+export default CircularLoadingBar;

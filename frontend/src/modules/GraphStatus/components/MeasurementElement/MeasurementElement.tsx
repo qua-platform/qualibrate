@@ -15,15 +15,13 @@ import { formatDateTime } from "../../../../utils/formatDateTime";
 import {
   MeasurementElementOutcomes,
   MeasurementElementStatusInfoAndParameters,
-} from "../../../../components/MeasurementElementInfoSection/MeasurementElementInfoSection";
+  InfoIcon
+} from "../../../../components";
 import { Tooltip } from "@mui/material";
-import { InfoIcon } from "../../../../components/Icons/InfoIcon";
-import { getTrackLatest } from "../../../../stores/GraphStores/GraphStatus/selectors";
+import { getTrackLatest, setTrackLatest } from "../../../../stores/GraphStores/GraphStatus";
 import { useSelector } from "react-redux";
-import { setTrackLatest } from "../../../../stores/GraphStores/GraphStatus/actions";
 import { useRootDispatch } from "../../../../stores";
-import { getSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/selectors";
-import { setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon/actions";
+import { getSelectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon";
 import { Measurement } from "../../GraphStatus";
 import {
   fetchOneSnapshot,
@@ -31,7 +29,7 @@ import {
   setDiffData,
   setResult,
   setSelectedSnapshotId
-} from "../../../../stores/SnapshotsStore/actions";
+} from "../../../../stores/SnapshotsStore";
 
 interface MeasurementElementProps {
   element: Measurement;

@@ -1,17 +1,14 @@
 import React, { useCallback } from "react";
-import ProjectCheckIcon from "../../../../components/Icons/ProjectCheckIcon";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
-import { ProjectDTO } from "../../ProjectDTO";
-import BlueButton from "../../../../components/Button/BlueButton";
+import { ProjectDTO, selectActiveProject } from "../../../../stores/ProjectStore";
+import { BlueButton, ProjectCheckIcon } from "../../../../components";
 import cyKeys from "../../../../utils/cyKeys";
-import { NODES_KEY } from "../../../AppRoutes/ModulesRegistry";
+import { NODES_KEY } from "../../../AppRoutes";
 import { useRootDispatch } from "../../../../stores";
-import { selectActiveProject } from "../../../../stores/ProjectStore/actions";
-import { setActivePage } from "../../../../stores/NavigationStore/actions";
+import { setActivePage } from "../../../../stores/NavigationStore";
 import { useSelector } from "react-redux";
-import { getReset } from "../../../../stores/SnapshotsStore/selectors";
-import { clearData } from "../../../../stores/SnapshotsStore/actions";
+import { getReset, clearData } from "../../../../stores/SnapshotsStore";
 
 interface ProjectActionsProps {
   isCurrentProject: boolean;

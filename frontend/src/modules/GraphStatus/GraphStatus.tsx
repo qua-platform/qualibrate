@@ -13,21 +13,17 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphStatus.module.scss";
-import { Results } from "../../components/Results/Results";
+import { Results } from "../../components";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
-import { getAllMeasurements } from "../../stores/GraphStores/GraphStatus/selectors";
-import { fetchAllMeasurements, setTrackLatest } from "../../stores/GraphStores/GraphStatus/actions";
+import { getAllMeasurements, fetchAllMeasurements, setTrackLatest, GlobalParameterStructure } from "../../stores/GraphStores/GraphStatus";
 import { useRootDispatch } from "../../stores";
-import { getSelectedNodeNameInWorkflow, getWorkflowGraphNodes } from "../../stores/GraphStores/GraphCommon/selectors";
-import { setSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphCommon/actions";
-import { getLastRunError, getLastRunNodeName } from "../../stores/GraphStores/GraphLibrary/selectors";
-import { GlobalParameterStructure } from "../../stores/GraphStores/GraphStatus/GraphStatusStore";
-import { getRunStatusGraphName, getRunStatusGraphTotalNodes } from "../../stores/WebSocketStore/selectors";
-import { getResult } from "../../stores/SnapshotsStore/selectors";
-import { fetchOneSnapshot, setClickedForSnapshotSelection, setDiffData, setResult, setSelectedSnapshotId } from "../../stores/SnapshotsStore/actions";
-import { getActivePage } from "../../stores/NavigationStore/selectors";
-import { GRAPH_STATUS_KEY } from "../AppRoutes/ModulesRegistry";
+import { getSelectedNodeNameInWorkflow, getWorkflowGraphNodes, setSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphCommon";
+import { getLastRunError, getLastRunNodeName } from "../../stores/GraphStores/GraphLibrary";
+import { getRunStatusGraphName, getRunStatusGraphTotalNodes } from "../../stores/WebSocketStore";
+import { getResult, fetchOneSnapshot, setClickedForSnapshotSelection, setDiffData, setResult, setSelectedSnapshotId } from "../../stores/SnapshotsStore";
+import { getActivePage } from "../../stores/NavigationStore";
+import { GRAPH_STATUS_KEY } from "../AppRoutes";
 
 export interface Measurement {
   created_at?: string;

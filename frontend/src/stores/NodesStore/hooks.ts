@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { getIsNodeRunning, getRunningNodeInfo } from "./selectors";
 import { useRootDispatch } from "..";
 import { fetchNodeResults, setIsNodeRunning, setRunningNodeInfo } from "./actions";
-import { getRunStatusIsRunning, getRunStatusType } from "../WebSocketStore/selectors";
+import { getRunStatusIsRunning, getRunStatusType } from "../WebSocketStore";
 
 export const useInitNodes = () => {
   const dispatch = useRootDispatch();

@@ -6,10 +6,9 @@ import styles from "./Project.module.scss";
 import cyKeys from "../../../../utils/cyKeys";
 import { getColorIndex } from "../../helpers";
 import { colorPalette } from "../../constants";
-import { ProjectDTO } from "../../ProjectDTO";
+import { ProjectDTO, getActiveProject } from "../../../../stores/ProjectStore";
 import ProjectActions from "./ProjectActions";
 import { useSelector } from "react-redux";
-import { getActiveProject } from "../../../../stores/ProjectStore/selectors";
 
 interface Props {
   isActive?: boolean;

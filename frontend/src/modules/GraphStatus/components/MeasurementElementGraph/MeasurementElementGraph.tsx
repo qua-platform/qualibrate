@@ -12,8 +12,8 @@ import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
 import styles from "./MeasurementElementGraph.module.scss";
 import { CircularProgress } from "@mui/material";
-import { SnapshotsApi } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
-import BlueButton from "../../../../components/Button/BlueButton";
+import { SnapshotsApi } from "../../../../stores/SnapshotsStore";
+import { BlueButton } from "../../../../components";
 import { classNames } from "../../../../utils/classnames";
 import {
   getRunStatusGraphFinishedNodes,
@@ -21,9 +21,9 @@ import {
   getRunStatusGraphRunDuration,
   getRunStatusGraphStatus,
   getRunStatusGraphTotalNodes,
-} from "../../../../stores/WebSocketStore/selectors";
-import Graph from "../../../Graph/Graph";
-import SubgraphBreadcrumbs from "../../../GraphLibrary/components/GraphElement/components/SubgraphBreadcrumbs";
+} from "../../../../stores/WebSocketStore";
+import { Graph } from "../../../Graph";
+import { SubgraphBreadcrumbs } from "../../../Graph";
 
 interface IProps {
   onNodeClick?: (name: string) => void;

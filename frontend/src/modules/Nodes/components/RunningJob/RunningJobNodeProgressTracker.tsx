@@ -2,13 +2,13 @@ import React from "react";
 import { useSelector } from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
-import LoadingBar from "../../../../components/LoadingBar/LoadingBar";
-import { SnapshotsApi } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
+import { CircularLoadingBar } from "../../../../components";
+import { SnapshotsApi } from "../../../../stores/SnapshotsStore";
 import { RunningJobStatusLabel } from "./RunningJobStatusLabel";
 import { RunningJobStatusVisuals } from "./RunningJobStatusVisuals";
-import { setIsNodeRunning } from "../../../../stores/NodesStore/actions";
+import { setIsNodeRunning } from "../../../../stores/NodesStore";
 import { useRootDispatch } from "../../../../stores";
-import { getRunStatusNodeName, getRunStatusNodePercentage, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore/selectors";
+import { getRunStatusNodeName, getRunStatusNodePercentage, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
 
 export const RunningJobNodeProgressTracker: React.FC = () => {
   const dispatch = useRootDispatch();
@@ -41,7 +41,7 @@ export const RunningJobNodeProgressTracker: React.FC = () => {
         </div>
       </div>
       <div className={`${styles.loadingBarWrapper} ${styles[`bar_${runNodeStatus}`]}`}>
-        <LoadingBar percentage={Math.round(runNodePercentage ?? 0)} />
+        <CircularLoadingBar percentage={Math.round(runNodePercentage ?? 0)} />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import { BaseEdge, BezierEdge, EdgeLabelRenderer, EdgeProps, MarkerType } from "@xyflow/react";
-import { EdgeWithData } from "../../../stores/GraphStores/GraphCommon/GraphCommonStore";
+import { EdgeWithData } from "../../../stores/GraphStores/GraphCommon";
 import styles from "./styles.module.scss";
 
 const edgeColor = "#70767d";

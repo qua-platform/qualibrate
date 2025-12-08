@@ -9,8 +9,8 @@ import { StatusIndicator } from "../TitleBarStatusIndicator/TitleBarStatusIndica
 import { getStatusLabelElement } from "./TitleBarGetStatusLabelElement";
 import { capitalize, formatTime, getWrapperClass } from "../../helpers";
 import { DEFAULT_TOOLTIP_SX } from "../../constants";
-import { NODES_KEY } from "../../../AppRoutes/ModulesRegistry";
-import { setActivePage } from "../../../../stores/NavigationStore/actions";
+import { NODES_KEY } from "../../../AppRoutes";
+import { setActivePage } from "../../../../stores/NavigationStore";
 import { useRootDispatch } from "../../../../stores";
 import {
   getRunStatusNodeCurrentAction,
@@ -19,7 +19,7 @@ import {
   getRunStatusNodePercentage,
   getRunStatusNodeStatus,
   getRunStatusNodeTimeRemaining
-} from "../../../../stores/WebSocketStore/selectors";
+} from "../../../../stores/WebSocketStore";
 
 const TitleBarNodeCard: React.FC = () => {
   const dispatch = useRootDispatch();

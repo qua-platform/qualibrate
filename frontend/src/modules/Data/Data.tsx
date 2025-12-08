@@ -1,10 +1,10 @@
 import React from "react";
 import styles from "../Data/Data.module.scss";
 import PaginationWrapper from "./components/Pagination/PaginationWrapper";
-import { JSONEditor } from "../../components/JSONEditor/JSONEditor";
+import { JSONEditor } from "../../components";
 import { SnapshotsTimeline } from "./components/SnapshotsTimeline/SnapshotsTimeline";
 import { useSelector } from "react-redux";
-import { getResult } from "../../stores/SnapshotsStore/selectors";
+import { getResult } from "../../stores/SnapshotsStore";
 
 export const Data = () => {
   const result = useSelector(getResult);

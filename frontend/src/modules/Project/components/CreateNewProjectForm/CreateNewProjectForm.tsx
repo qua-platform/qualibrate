@@ -1,23 +1,14 @@
 import React, { useCallback, useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./CreateNewProjectForm.module.scss";
-import ProjectFormField from "../../../../components/Input/ProjectFormField";
+import { ProjectFormField } from "../../../../components";
 import { useProjectFormValidation } from "./useProjectFormValidation";
-import { ProjectViewApi } from "../../../../stores/ProjectStore/api/ProjectViewAPI";
+import { NewProjectFormData, ProjectViewApi, getAllProjects, addProject } from "../../../../stores/ProjectStore";
 import { useSelector } from "react-redux";
-import { getAllProjects } from "../../../../stores/ProjectStore/selectors";
 import { useRootDispatch } from "../../../../stores";
-import { addProject } from "../../../../stores/ProjectStore/actions";
 
 interface Props {
   closeNewProjectForm: () => void;
-}
-
-export interface NewProjectFormData {
-  projectName: string;
-  dataPath?: string;
-  quamPath?: string;
-  calibrationPath?: string;
 }
 
 interface FormErrors {

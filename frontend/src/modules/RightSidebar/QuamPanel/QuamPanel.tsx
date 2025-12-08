@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"; // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./styles/QuamPanel.module.scss";
-import { JSONEditor } from "../../../components/JSONEditor/JSONEditor";
+import { JSONEditor } from "../../../components";
 import { PanelHeader } from "./components/PanelHeader/PanelHeader";
 import { PanelUpdates } from "./components/PanelUpdates/PanelUpdates";
 import { useSelector } from "react-redux";
@@ -14,16 +14,14 @@ import {
   getSecondId,
   getSelectedSnapshotId,
   getTrackLatestSidePanel,
-  getTrackPreviousSnapshot
-} from "../../../stores/SnapshotsStore/selectors";
-import {
+  getTrackPreviousSnapshot,
   fetchOneSnapshot,
   setClickedForSnapshotSelection,
   setFirstId,
   setSecondId,
   setTrackLatestSidePanel,
   setTrackPreviousSnapshot
-} from "../../../stores/SnapshotsStore/actions";
+} from "../../../stores/SnapshotsStore";
 
 export const QuamPanel = () => {
   // const [trackLatestSidePanel, setTrackLatestSidePanel] = useState(true);

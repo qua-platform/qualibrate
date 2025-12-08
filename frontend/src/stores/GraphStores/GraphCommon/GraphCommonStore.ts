@@ -1,4 +1,4 @@
-import { FetchGraphResponse } from "@/stores/GraphStores/GraphLibrary/api/GraphLibraryApi";
+import { FetchGraphResponse } from "@/stores/GraphStores/GraphLibrary";
 import { createSlice } from "@reduxjs/toolkit";
 import { Edge, Node } from "@xyflow/react";
 

@@ -43,18 +43,17 @@ import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 import {Checkbox, CircularProgress} from "@mui/material";
-import {InputParameter, Parameters, SingleParameter} from "../../../../components/Parameters/Parameters";
-import {ErrorResponseWrapper} from "../../../../components/Error/ErrorResponseWrapper";
 
-import InputField from "../../../../components/Input/InputField";
-import BlueButton from "../../../../components/Button/BlueButton";
-import {NodesApi} from "../../../../stores/NodesStore/api/NodesAPI";
-import {RunIcon} from "../../../../components/Icons/RunIcon";
+import {InputParameter, Parameters, SingleParameter, ErrorResponseWrapper, InputField, BlueButton, RunIcon, InfoIcon} from "../../../../components"
 import Tooltip from "@mui/material/Tooltip";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
-import { getAllNodes, getSelectedNode, getSubmitNodeResponseError } from "../../../../stores/NodesStore/selectors";
-import { setAllNodes,
+import {
+  NodesApi,
+  getAllNodes,
+  getSelectedNode,
+  getSubmitNodeResponseError,
+  setAllNodes,
   setIsAllStatusesUpdated,
   setIsNodeRunning,
   setResults,
@@ -63,15 +62,13 @@ import { setAllNodes,
   setSelectedNode,
   setSubmitNodeResponseError,
   setUpdateAllButtonPressed,
-} from "../../../../stores/NodesStore/actions";
-import { ErrorWithDetails } from "../../../../stores/NodesStore/NodesStore";
-import { getRunStatusIsRunning, getRunStatusNodeName, getRunStatusNodePercentage, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore/selectors";
-import { getFirstId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
-import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
-import {InfoIcon} from "../../../../components/Icons/InfoIcon";
+  ErrorWithDetails
+} from "../../../../stores/NodesStore";
+import { getRunStatusIsRunning, getRunStatusNodeName, getRunStatusNodePercentage, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
+import { getFirstId, getSecondId, getTrackLatestSidePanel, fetchOneSnapshot } from "../../../../stores/SnapshotsStore";
 import {StatusVisuals} from "./NodeElementStatusVisuals";
 import {getNodeRowClass} from "./helpers";
-import {GraphWorkflow} from "@/modules/GraphLibrary/components/GraphList";
+import {GraphWorkflow} from "../../../../modules/GraphLibrary";
 
 /**
  * Calibration node definition from backend node library scan.

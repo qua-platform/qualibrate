@@ -1,17 +1,11 @@
-import DataIcon from "../../components/Icons/DataIcon";
-import { IconProps } from "../../components/Icons/IconProps";
+import { DataIcon, IconProps, ProjectIcon, NodeLibraryIcon, GraphLibraryIcon, GraphStatusIcon, HelpIcon } from "../../components";
 import React from "react";
 import cyKeys from "../../utils/cyKeys";
-import Project from "../Project";
-import ProjectIcon from "../../components/Icons/ProjectIcon";
-import NodeLibraryIcon from "../../components/Icons/NodeLibraryIcon";
-import Nodes from "../Nodes";
-import CalibrationGraph from "../GraphLibrary";
-import GraphLibraryIcon from "../../components/Icons/GraphLibraryIcon";
-import GraphStatusIcon from "../../components/Icons/GraphStatusIcon";
-import GraphStatus from "../GraphStatus/GraphStatus";
+import { Project } from "../Project";
+import { Nodes } from "../Nodes";
+import { GraphLibrary } from "../GraphLibrary";
+import { GraphStatus } from "../GraphStatus";
 import { Data } from "../Data";
-import { HelpIcon } from "../../components/Icons/HelpIcon";
 
 export const DATA_KEY: ModuleKey = "data";
 export const NODES_KEY: ModuleKey = "nodes";
@@ -70,7 +64,7 @@ const ModulesRegistry: Array<Module> = [
   {
     keyId: GRAPH_LIBRARY_KEY,
     path: "GRAPH_LIBRARY",
-    Component: CalibrationGraph,
+    Component: GraphLibrary,
     menuItem: {
       sideBarTitle: "Graph Library",
       title: "Run calibration graph",

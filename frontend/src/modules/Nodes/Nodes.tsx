@@ -6,8 +6,8 @@ import { RunningJob } from "./components/RunningJob/RunningJob";
 import { Results } from "../../components/Results/Results";
 import { CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
-import { getIsRescanningNodes, getResults } from "../../stores/NodesStore/selectors";
-import { getRunResultNodeError } from "../../stores/WebSocketStore/selectors";
+import { getIsRescanningNodes, getResults } from "../../stores/NodesStore";
+import { getRunResultNodeError } from "../../stores/WebSocketStore";
 
 const NodesPage = () => {
   const isRescanningNodes = useSelector(getIsRescanningNodes);

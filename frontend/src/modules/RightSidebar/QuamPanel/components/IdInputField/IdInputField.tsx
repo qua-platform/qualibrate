@@ -1,5 +1,5 @@
 import React from "react";
-import InputField from "../../../../../components/Input/InputField";
+import { InputField } from "../../../../../components";
 
 type IdInputFieldProps = {
   onChange: (value: string) => void;

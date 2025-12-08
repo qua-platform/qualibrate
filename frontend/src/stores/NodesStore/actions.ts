@@ -1,8 +1,8 @@
 import { NodesApi } from "./api/NodesAPI";
 import { RootDispatch, RootState } from "..";
 import { nodesSlice, StateUpdate, StatusResponseType } from "./NodesStore";
-import { NodeMap } from "../../modules/Nodes/components/NodeElement/NodeElement";
-import { SnapshotsApi } from "../SnapshotsStore/api/SnapshotsApi";
+import { NodeMap } from "../../modules/Nodes";
+import { SnapshotsApi } from "../SnapshotsStore";
 import { getRunningNode, getRunningNodeInfo } from "./selectors";
 import { formatDateTime } from "../../utils/formatDateTime";
 

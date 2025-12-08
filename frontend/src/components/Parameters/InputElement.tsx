@@ -1,13 +1,13 @@
 import React from "react";
 import { Checkbox } from "@mui/material";
-import { NodeDTO } from "../../modules/Nodes/components/NodeElement/NodeElement";
-import { GraphWorkflow } from "../../modules/GraphLibrary/components/GraphList";
+import { NodeDTO } from "../../modules/Nodes";
+import { GraphWorkflow } from "../../modules/GraphLibrary";
 import InputField from "../Input/InputField";
 import { SingleParameter } from "./Parameters";
 import { useRootDispatch } from "../../stores";
-import { setNodeParameter } from "../../stores/GraphStores/GraphLibrary/actions";
+import { setNodeParameter } from "../../stores/GraphStores/GraphLibrary";
 import { useSelector } from "react-redux";
-import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../../stores/GraphStores/GraphCommon/selectors";
+import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../../stores/GraphStores/GraphCommon";
 
 const ParameterSelector = ({
   parameterKey,

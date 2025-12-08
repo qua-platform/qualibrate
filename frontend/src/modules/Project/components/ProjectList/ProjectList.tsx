@@ -1,11 +1,9 @@
 import Project from "../Project/Project"; // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./ProjectList.module.scss";
 import React, { useMemo } from "react";
-import { ProjectDTO } from "../../ProjectDTO";
-import LoadingBar from "../../../../components/Loader/LoadingBar";
-import { NoItemsIcon } from "../../../../components/Icons/NoItemsIcon";
+import { ProjectDTO, getIsScanningProjects } from "../../../../stores/ProjectStore";
+import { LoadingBar, NoItemsIcon } from "../../../../components";
 import { useSelector } from "react-redux";
-import { getIsScanningProjects } from "../../../../stores/ProjectStore/selectors";
 
 interface Props {
   projects: ProjectDTO[];
