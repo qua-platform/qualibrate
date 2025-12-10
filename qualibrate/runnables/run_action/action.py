@@ -203,6 +203,7 @@ class Action:
                 {k: v for k, v in result.items() if k not in already_defined}
             )
 
+            self.manager.current_action = None
             return result
         except Exception as e:
             self.manager.failed_action = self.name  # Track which action failed

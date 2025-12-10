@@ -137,7 +137,7 @@ def simplify_traceback(
     ]
 
     if not action_framework_indices:
-        # No action framework code - this is a body error or import error
+        # No action framework code - this is a node body error (not inside an action) or import error
         # Start from the first node file occurrence
         start_idx = node_frame_indices[0]
     else:
@@ -155,7 +155,7 @@ def simplify_traceback(
             start_idx = node_frames_after_framework[0]
         else:
             # Fallback: use first node frame
-            # (shouldn't happen in normal execution)
+            # (unlikely edge case - shouldn't happen in normal execution)
             start_idx = node_frame_indices[0]
 
     # Extract relevant frames from start point onwards

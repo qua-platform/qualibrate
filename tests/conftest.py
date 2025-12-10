@@ -1,5 +1,6 @@
 from collections.abc import Generator
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 import tomli_w
@@ -139,3 +140,22 @@ def non_interactive_mode(mocker):
         return_value=False,
     )
     yield
+
+
+@pytest.fixture
+def mock_action_manager():
+    """Provide a mock ActionManager."""
+    manager = Mock()
+    manager.current_action = None
+    manager.predefined_names = set()
+    manager.actions = {}
+    return manager
+
+
+@pytest.fixture
+def mock_node():
+    """Provide a mock QualibrationNode."""
+    node = Mock()
+    node.namespace = {}
+    node.action_label = None
+    return node
