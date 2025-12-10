@@ -21,7 +21,7 @@ from typing_extensions import Self
 
 from qualibrate.models.node_status import ElementRunStatus
 from qualibrate.models.outcome import Outcome
-from qualibrate.models.operationalCondition import OperationalCondition
+from qualibrate.models.operational_condition import OperationalCondition
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.models.run_summary.graph import GraphRunSummary
@@ -864,7 +864,7 @@ class QualibrationGraph(
                         node_conditions.on_generator is not None
                         or node_conditions.on_function is not None
                     )
-                    loop_data["on_failure"] = node_conditions.on_failure
+                    loop_data["on_failure"] = node_conditions.on_scenario == Outcome.FAILED
                     loop_data["max_iterations"] = node_conditions.max_iterations
 
                 if isinstance(element, QualibrationGraph):

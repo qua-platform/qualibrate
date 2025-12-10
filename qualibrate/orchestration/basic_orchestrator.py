@@ -4,9 +4,8 @@ from collections.abc import Generator, Iterable, Sequence
 from datetime import datetime
 from queue import Queue
 from typing import Generic, cast
-
+from qualibrate.models.operational_condition import OperationalCondition
 import networkx as nx
-
 from qualibrate.models.execution_history import (
     ExecutionHistoryItem,
     ItemData,
@@ -228,7 +227,8 @@ class BasicOrchestrator(
                     successful_out_targets
                     if self.nx_graph.edges[element, successor]["operational_condition"].on_scenario
                     == Outcome.SUCCESSFUL
-                    else failed_out_targets
+                    else self._execute_condition(self.nx_graph.edges[element, successor]["operational_condition"],
+                                            element, failed_out_targets)
                 )
         else:
             successful_out_targets = (
@@ -241,6 +241,16 @@ class BasicOrchestrator(
                 self.nx_graph.edges[element, successor][
                     QualibrationGraph.EDGE_TARGETS_FIELD
                 ] = successful_out_targets
+
+    def _execute_condition(self,conditional_operation: OperationalCondition[GraphElementTypeVar], element: GraphElementTypeVar, targets: list[TargetType]) ->list[TargetType]:
+        if conditional_operation.on_generator is not None:
+            executed_condition = conditional_operation.on_generator()
+            #priming the generator, we need to get to the point where the generator expects out two variables
+            executed_condition.send(None)
+            return [target for target in targets if executed_condition.send((element, target))]
+        return [target  for target in targets if conditional_operation.on_function(element, target)]
+
+
 
     def _execute_loop_iteration(
         self,
