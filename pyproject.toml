@@ -51,11 +51,6 @@ select = [
     "SIM", # flake8-simplify
     "I",   # isort
 ]
-#ignore = [
-#    "E501"  # ignore line-too-long errors
-##]
-#[tool.ruff.lint.per-file-ignores]
-#"*.py" = ["E501"]  # E501 will be ignored for exit code, but still displayed
 
 [tool.ruff.lint.pycodestyle]
 max-line-length = 120
