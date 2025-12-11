@@ -9,7 +9,7 @@
  * @see CytoscapeGraph - Embedded graph visualization
  * @see GraphContext - Manages graph selection and execution state
  */
-import React from "react";
+import React, { useState } from "react";
 import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
@@ -20,12 +20,12 @@ import Graph from "../Graph/Graph";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
 import {getSelectedWorkflow} from "../../../../stores/GraphStores/GraphLibrary/selectors";
-import {submitWorkflow} from "../../../../stores/GraphStores/GraphLibrary/actions";
+import {setGraphNodeParameter, submitWorkflow} from "../../../../stores/GraphStores/GraphLibrary/actions";
 import {useRootDispatch} from "../../../../stores";
 import { getSelectedWorkflowName, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
 import { setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphCommon/actions";
 import SubgraphBreadcrumbs from "./components/SubgraphBreadcrumbs";
-import ParameterSelector from "../../../common/Parameters/InputElement";
+import ParameterSelector from "../../../common/Parameters/ParameterSelector";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -36,6 +36,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   const nodes = useSelector(getWorkflowGraphNodes);
   const selectedWorkflow = useSelector(getSelectedWorkflow);
   const selectedWorkflowName = useSelector(getSelectedWorkflowName);
+  const [errors, setErrors] = useState(new Set());
 
   const handleSubmit = () => dispatch(submitWorkflow());
 
@@ -43,8 +44,24 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     dispatch(setSelectedWorkflowName(calibrationGraphKey));
   };
 
+  const handleSetError = (key: string, isValid: boolean) => {
+    const newSet = new Set(errors);
+
+    if (isValid)
+      newSet.delete(key);
+    else
+      newSet.add(key);
+
+    setErrors(newSet);
+  };
+
+  const onNodeParameterChange = (parameterKey: string, newValue: string | number | boolean, isValid: boolean, nodeId?: string | undefined) => {
+    handleSetError(parameterKey, isValid);
+    dispatch(setGraphNodeParameter(parameterKey, newValue, nodeId));
+  };
+
   const renderInputElement = (key: string, parameter: SingleParameter) =>
-    <ParameterSelector parameterKey={key} parameter={parameter} />;
+    <ParameterSelector parameterKey={key} parameter={parameter} onChange={onNodeParameterChange} />;
 
   const show = selectedWorkflowName === calibrationGraphKey;
   return (
@@ -56,7 +73,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         <div className={styles.leftContainer}>
           <div>{calibrationGraphKey}</div>
           <div className={styles.runButtonWrapper}>
-            <BlueButton disabled={!show} onClick={handleSubmit}>
+            <BlueButton disabled={!show || errors.size !== 0} onClick={handleSubmit}>
               Run
             </BlueButton>
           </div>
@@ -81,7 +98,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
             currentItem={selectedWorkflow}
             getInputElement={renderInputElement}
           />
-          {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} />}
+          {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} onChange={onNodeParameterChange} />}
         </div>
         {show && (
           <div className={styles.graphContainer}>

@@ -3,7 +3,7 @@ import { GraphWorkflow } from "../../../modules/GraphLibrary/components/GraphLis
 import { RootDispatch, RootState } from "../../../stores";
 import { graphLibrarySlice, GraphMap } from "./GraphLibraryStore";
 import { GraphLibraryApi } from "../../../modules/GraphLibrary/api/GraphLibraryApi";
-import { getSelectedWorkflowName } from "../GraphCommon/selectors";
+import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../GraphCommon/selectors";
 import { getAllGraphs } from "./selectors";
 import { setActivePage } from "../../../stores/NavigationStore/actions";
 import { GRAPH_STATUS_KEY } from "../../../routing/ModulesRegistry";
@@ -163,3 +163,11 @@ export const submitWorkflow = () => async (dispatch: RootDispatch, getState: () 
     }
   }
 };
+
+export const setGraphNodeParameter = (paramKey: string, newValue: boolean | number | string, nodeId?: string) =>
+  (dispatch: RootDispatch, getState: () => RootState) => {
+    const subgraphBreadcrumbs = getSubgraphBreadcrumbs(getState());
+    const selectedWorkflowName = getSelectedWorkflowName(getState());
+
+    dispatch(setNodeParameter({ paramKey, newValue, nodeId, subgraphBreadcrumbs, selectedWorkflowName}));
+  };

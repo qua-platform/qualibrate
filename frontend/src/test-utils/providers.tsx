@@ -10,6 +10,7 @@ import { setTrackLatest } from "../stores/GraphStores/GraphStatus/actions";
 import { configureStore } from "@reduxjs/toolkit";
 import { useInitApp } from "../routing/AppRoutes";
 import { HistoryType, RunStatusType } from "../stores/WebSocketStore/WebSocketStore";
+import { NodeMap } from "@/modules/Nodes/components/NodeElement/NodeElement";
 
 /**
  * Mock WebSocket context value interface
@@ -47,8 +48,19 @@ export const createTestProviders = (overrides: {
   graphStatus?: {
     setTrackLatest?: (track: boolean) => void;
   };
+  allNodes?: NodeMap
 } = {}) => {
-  const mockStore = configureStore({ reducer: rootReducer });
+  const preloadedState = {
+    nodes: {
+      allNodes: overrides.allNodes,
+      isNodeRunning: false,
+      isAllStatusesUpdated: false,
+      updateAllButtonPressed: false,
+      isRescanningNodes: false,
+    }
+  };
+
+  const mockStore = configureStore({ reducer: rootReducer, preloadedState });
 
   // Helper component to set initial context values
   const ContextSetter = ({ children }: { children: React.ReactNode }) =>  {

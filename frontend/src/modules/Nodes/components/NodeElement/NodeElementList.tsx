@@ -5,7 +5,7 @@
  * Shows a loading spinner during node library rescanning.
  */
 import React from "react";
-import {NodeDTO, NodeElement} from "./NodeElement";
+import {NodeElement} from "./NodeElement";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../../NodesPage.module.scss";
 import LoaderPage from "../../../../ui-lib/loader/LoaderPage";
@@ -20,7 +20,11 @@ import {getAllNodes, getIsRescanningNodes} from "../../../../stores/NodesStore/s
  * node as an interactive NodeElement.
  */
 export const NodeElementList: React.FC = () => {
-  const allNodes = useSelector(getAllNodes);
+  const allNodes = useSelector(
+    getAllNodes,
+    // make sure that list rerenders only is map keys have changed
+    { equalityFn: (prev, curr) => Object.keys(prev || {}).join() === Object.keys(curr || {}).join() }
+  );
   const isRescanningNodes = useSelector(getIsRescanningNodes);
 
   if (isRescanningNodes) {
@@ -30,8 +34,8 @@ export const NodeElementList: React.FC = () => {
   return (
     allNodes && (
       <div className={styles.listWrapper} data-testid="node-list-wrapper">
-        {Object.entries(allNodes).map(([key, node]) => {
-          return <NodeElement key={key} nodeKey={key} node={node as NodeDTO} data-testid={`node-element-${key}`} />;
+        {Object.keys(allNodes).map((key) => {
+          return <NodeElement key={key} nodeKey={key} data-testid={`node-element-${key}`} />;
         })}
       </div>
     )

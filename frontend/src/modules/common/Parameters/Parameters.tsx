@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { classNames } from "../../../utils/classnames";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Parameters.module.scss";
 import { NodeDTO } from "../../Nodes/components/NodeElement/NodeElement";
 import { ArrowIcon } from "../../../ui-lib/Icons/ArrowIcon";
@@ -18,6 +19,7 @@ interface IProps {
   getInputElement: (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => React.JSX.Element;
 }
 
+export type ParameterTypes = "boolean" | "number" | "integer" | "array" | "string";
 export interface SingleParameter {
   id?: string;
   name?: string;
@@ -25,7 +27,7 @@ export interface SingleParameter {
   default?: string | boolean | number | string[];
   items?: { type: string };
   title: string;
-  type: string;
+  type: ParameterTypes;
   is_targets: boolean;
   description?: string | null;
 }
