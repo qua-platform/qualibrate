@@ -652,23 +652,29 @@ def search_snapshot_data(
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> Any:
     """
-    Extract values from a single snapshot by specifying a data path into its JSON structure.
+    Extract values from a single snapshot by specifying a data path into
+    its JSON structure.
 
-    The snapshot can be identified by ID or by matching metadata criteria (name, date, etc.).
-    If metadata filters are used instead of an ID, the newest (or oldest) matching snapshot is selected.
+    The snapshot can be identified by ID or by matching metadata criteria
+    (name, date, etc.). If metadata filters are used instead of an ID, the
+    newest (or oldest) matching snapshot is selected.
 
-    Use wildcards (`*`) in the data path to extract multiple values at once without knowing exact key names.
-    For example, `qubits.*.id` returns the ID for every qubit.
+    Use wildcards (`*`) in the data path to extract multiple values at once
+    without knowing exact key names. For example, `qubits.*.id` returns the
+    ID for every qubit.
 
     **Data Path Syntax:**
-    - Dot notation: `channels.ch1.port` → `data["channels"]["ch1"]["port"]`
-    - Wildcards: `qubits.*.id` → returns `id` for all qubits (13+ results instead of 1)
+    - Dot notation: `channels.ch1.port` →
+      `data["channels"]["ch1"]["port"]`
+    - Wildcards: `qubits.*.id` → returns `id` for all qubits
+      (13+ results instead of 1)
     - Array indices: `qubits.list.0` → first element in a list
 
     ### Example 1: Extract a single value
 
     **Request:**
-    `/root/snapshot/search?id=366&data_path=channels.ch1.intermediate_frequency`
+    `/root/snapshot/search?id=366&`
+    `data_path=channels.ch1.intermediate_frequency`
 
     **Response:**
     ```json
@@ -688,14 +694,20 @@ def search_snapshot_data(
     ### Example 2: Use wildcard to get multiple values
 
     **Request:**
-    `/root/snapshot/search?id=977&data_path=qubits.q6_10.xy.operations.*.length`
+    `/root/snapshot/search?id=977&`
+    `data_path=qubits.q6_10.xy.operations.*.length`
 
     **Response (abbreviated):**
     ```json
     [
-      {"key": ["qubits", "q6_10", "xy", "operations", "x180_DragCosine", "length"], "value": 24, ...},
-      {"key": ["qubits", "q6_10", "xy", "operations", "x90_DragCosine", "length"], "value": "#../x180_DragCosine/length", ...},
-      {"key": ["qubits", "q6_10", "xy", "operations", "-x90_DragCosine", "length"], "value": "#../x180_DragCosine/length", ...}
+      {"key": ["qubits", "q6_10", "xy", "operations",
+        "x180_DragCosine", "length"], "value": 24, ...},
+      {"key": ["qubits", "q6_10", "xy", "operations",
+        "x90_DragCosine", "length"],
+        "value": "#../x180_DragCosine/length", ...},
+      {"key": ["qubits", "q6_10", "xy", "operations",
+        "-x90_DragCosine", "length"],
+        "value": "#../x180_DragCosine/length", ...}
     ]
     ```
     Returns 13 operation lengths instead of just 1.
@@ -705,14 +717,20 @@ def search_snapshot_data(
     )
 
 
-@root_router.get("/snapshots/search", summary="Track parameter changes across snapshots")
+@root_router.get(
+    "/snapshots/search", summary="Track parameter changes across snapshots"
+)
 def search_snapshots_data(
     *,
     data_path: Annotated[Sequence[str | int], Depends(get_search_path)],
     filter_no_change: Annotated[
         bool,
         Query(
-            description="If true (default), only return snapshots where the value changed from the previous snapshot. Set to false to see all values."
+            description=(
+                "If true (default), only return snapshots where the value "
+                "changed from the previous snapshot. Set to false to see "
+                "all values."
+            )
         ),
     ] = True,
     page_filter: Annotated[PageFilter, Depends(get_page_filter)],
@@ -726,12 +744,14 @@ def search_snapshots_data(
     """
     Track how a specific parameter evolves across your calibration history.
 
-    This endpoint searches for a value at a specific path across multiple snapshots,
-    allowing you to see how calibration parameters change over time. Use `filter_no_change=true`
-    (default) to see only snapshots where the value actually changed, or `filter_no_change=false`
-    to see all snapshots including those where the value remained constant.
+    This endpoint searches for a value at a specific path across multiple
+    snapshots, allowing you to see how calibration parameters change over
+    time. Use `filter_no_change=true` (default) to see only snapshots where
+    the value actually changed, or `filter_no_change=false` to see all
+    snapshots including those where the value remained constant.
 
-    You can filter snapshots by metadata (name, date range, etc.) to narrow down your search.
+    You can filter snapshots by metadata (name, date range, etc.) to narrow
+    down your search.
 
     **Use cases:**
     - Track how a qubit's frequency has been adjusted during calibration
@@ -742,7 +762,8 @@ def search_snapshots_data(
     ### Example 1: See all parameter values (including unchanged)
 
     **Request:**
-    `/root/snapshots/search?filter_no_change=false&descending=true&data_path=channels.ch1.intermediate_frequency&page=1&per_page=3`
+    `/root/snapshots/search?filter_no_change=false&descending=true&`
+    `data_path=channels.ch1.intermediate_frequency&page=1&per_page=3`
 
     **Response (abbreviated):**
     ```json
@@ -750,18 +771,25 @@ def search_snapshots_data(
       "page": 1,
       "per_page": 3,
       "items": [
-        {"key": null, "value": null, "snapshot": {"id": 367, "created_at": "2025-08-22T12:16:42+03:00"}},
-        {"key": ["channels", "ch1", "intermediate_frequency"], "value": 100000000, "snapshot": {"id": 366, "created_at": "2025-08-22T10:54:07+03:00"}},
-        {"key": ["channels", "ch1", "intermediate_frequency"], "value": 100000000, "snapshot": {"id": 365, "created_at": "2025-08-21T14:12:28+03:00"}}
+        {"key": null, "value": null, "snapshot": {"id": 367,
+          "created_at": "2025-08-22T12:16:42+03:00"}},
+        {"key": ["channels", "ch1", "intermediate_frequency"],
+          "value": 100000000, "snapshot": {"id": 366,
+          "created_at": "2025-08-22T10:54:07+03:00"}},
+        {"key": ["channels", "ch1", "intermediate_frequency"],
+          "value": 100000000, "snapshot": {"id": 365,
+          "created_at": "2025-08-21T14:12:28+03:00"}}
       ]
     }
     ```
-    Shows 3 results: two with the same value (100000000) and one missing value (null).
+    Shows 3 results: two with the same value (100000000) and one missing
+    value (null).
 
     ### Example 2: See only value changes (default)
 
     **Request:**
-    `/root/snapshots/search?filter_no_change=true&descending=true&data_path=channels.ch1.intermediate_frequency&page=1&per_page=3`
+    `/root/snapshots/search?filter_no_change=true&descending=true&`
+    `data_path=channels.ch1.intermediate_frequency&page=1&per_page=3`
 
     **Response (abbreviated):**
     ```json
@@ -769,12 +797,17 @@ def search_snapshots_data(
       "page": 1,
       "per_page": 3,
       "items": [
-        {"key": ["channels", "ch1", "intermediate_frequency"], "value": 100000000, "snapshot": {"id": 361, "created_at": "2025-08-21T14:05:06+03:00"}},
-        {"key": ["channels", "ch1", "intermediate_frequency"], "value": 50000000, "snapshot": {"id": 360, "created_at": "2025-08-21T14:04:14+03:00"}}
+        {"key": ["channels", "ch1", "intermediate_frequency"],
+          "value": 100000000, "snapshot": {"id": 361,
+          "created_at": "2025-08-21T14:05:06+03:00"}},
+        {"key": ["channels", "ch1", "intermediate_frequency"],
+          "value": 50000000, "snapshot": {"id": 360,
+          "created_at": "2025-08-21T14:04:14+03:00"}}
       ]
     }
     ```
-    Shows only 2 results where the value actually changed (100000000 → 50000000), skipping unchanged entries.
+    Shows only 2 results where the value actually changed
+    (100000000 → 50000000), skipping unchanged entries.
     """
     total, seq = root.search_snapshots_data(
         data_path=data_path,
