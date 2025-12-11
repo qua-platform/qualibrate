@@ -14,8 +14,6 @@
     "strict": true,
     /* Specify module resolution strategy */
     "moduleResolution": "bundler",
-    /* Base directory to resolve non-absolute module names */
-    "baseUrl": "./",
     /* List of folders to include type definitions from */
     //    "typeRoots": ["node_modules/@types"],
     /* allow import React instead of import * as React */
