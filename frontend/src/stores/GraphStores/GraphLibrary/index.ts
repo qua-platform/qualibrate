@@ -13,6 +13,7 @@ export {
   setSelectedNodeNameInWorkflow,
   setSubgraphForward,
   setSubgraphBack,
+  setGraphNodeParameter,
 } from "./actions";
 export {
   getGraphLibraryState,

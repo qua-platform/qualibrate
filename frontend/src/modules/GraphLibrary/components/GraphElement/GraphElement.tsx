@@ -9,7 +9,7 @@
  * @see CytoscapeGraph - Embedded graph visualization
  * @see GraphContext - Manages graph selection and execution state
  */
-import React from "react";
+import React, { useState } from "react";
 import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
@@ -27,7 +27,8 @@ import {
   submitWorkflow,
   getSelectedNodeNameInWorkflow,
   getSelectedWorkflowName,
-  getSubgraphBreadcrumbs
+  getSubgraphBreadcrumbs,
+  setGraphNodeParameter,
 } from "../../../../stores/GraphStores/GraphLibrary";
 import {useRootDispatch} from "../../../../stores";
 
@@ -45,6 +46,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     // avoid unnecessary re-renders
     { equalityFn: (prev, curr) => prev.join() === curr.join() }
   );
+  const [errors, setErrors] = useState(new Set());
 
   const handleSubmit = () => dispatch(submitWorkflow());
   const handleSelectWorkflow = () => dispatch(setSelectedWorkflowName(calibrationGraphKey));
@@ -52,8 +54,24 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   const handleSetSubgraphBreadcrumbs = (key: string) => dispatch(setSubgraphForward(key));
   const handleBreadcrumbClick = (index: number) => dispatch(setSubgraphBack(index));
 
+  const handleSetError = (key: string, isValid: boolean) => {
+    const newSet = new Set(errors);
+
+    if (isValid)
+      newSet.delete(key);
+    else
+      newSet.add(key);
+
+    setErrors(newSet);
+  };
+
+  const onNodeParameterChange = (parameterKey: string, newValue: string | number | boolean, isValid: boolean, nodeId?: string | undefined) => {
+    handleSetError(parameterKey, isValid);
+    dispatch(setGraphNodeParameter(parameterKey, newValue, nodeId));
+  };
+
   const renderInputElement = (key: string, parameter: SingleParameter) =>
-    <ParameterSelector parameterKey={key} parameter={parameter} />;
+    <ParameterSelector parameterKey={key} parameter={parameter} onChange={onNodeParameterChange} />;
 
   const show = selectedWorkflowName === calibrationGraphKey;
   return (
@@ -65,7 +83,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         <div className={styles.leftContainer}>
           <div>{calibrationGraphKey}</div>
           <div className={styles.runButtonWrapper}>
-            <BlueButton disabled={!show} onClick={handleSubmit}>
+            <BlueButton disabled={!show || errors.size !== 0} onClick={handleSubmit}>
               Run
             </BlueButton>
           </div>
@@ -95,7 +113,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
             getInputElement={renderInputElement}
             parametersExpanded={true}
           />
-          {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} />}
+          {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} onChange={onNodeParameterChange} />}
         </div>
         {show && (
           <div className={styles.graphContainer}>

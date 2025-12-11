@@ -8,6 +8,8 @@ import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 import { CircularLoaderProgress } from "../../../../components";
+import { useSelector } from "react-redux";
+import { getRunStatusNodePercentage } from "../../../../stores/WebSocketStore/selectors";
 
 /**
  * Render status indicator based on calibration execution state.
@@ -21,9 +23,11 @@ import { CircularLoaderProgress } from "../../../../components";
  * @param status - Execution status from WebSocket updates
  * @param percentage - Progress percentage (0-100) for running state
  */
-export const StatusVisuals: React.FC<{ status?: string; percentage: number }> = ({ status = "pending", percentage }) => {
+export const StatusVisuals: React.FC<{ status?: string }> = ({ status = "pending" }) => {
+  const percentage = useSelector(getRunStatusNodePercentage);
+
   if (status === "running") {
-    return <CircularLoaderProgress percentage={percentage ?? 0} />;
+    return <CircularLoaderProgress percentage={Math.round(percentage ?? 0)} />;
   } else if (status === "finished") {
     return <div className={`${styles.dot} ${styles.greenDot}`} />;
   } else if (status === "error") {
