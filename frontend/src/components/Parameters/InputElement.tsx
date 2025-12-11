@@ -5,9 +5,8 @@ import { GraphWorkflow } from "../../modules/GraphLibrary";
 import InputField from "../Input/InputField";
 import { SingleParameter } from "./Parameters";
 import { useRootDispatch } from "../../stores";
-import { setNodeParameter } from "../../stores/GraphStores/GraphLibrary";
+import { getSelectedWorkflowName, getSubgraphBreadcrumbs, setNodeParameter } from "../../stores/GraphStores/GraphLibrary";
 import { useSelector } from "react-redux";
-import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../../stores/GraphStores/GraphCommon";
 
 const ParameterSelector = ({
   parameterKey,

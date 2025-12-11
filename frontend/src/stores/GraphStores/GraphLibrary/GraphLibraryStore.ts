@@ -1,6 +1,27 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ErrorObject } from "../../../components";
 import { GraphWorkflow } from "../../../modules/GraphLibrary";
+import { Node, Edge } from "@xyflow/react";
+
+export type EdgeData = {
+  condition?: boolean;
+  loop?: {
+    condition?: boolean;
+    maxIterations: number;
+  };
+};
+
+export type NodeData = {
+  label: string;
+  subgraph?: {
+    nodes: NodeWithData[];
+    edges: EdgeWithData[];
+  };
+};
+
+export type NodeWithData = Node<NodeData>;
+export type EdgeWithData = Edge<EdgeData>;
+
 
 export interface LastRunInfo {
   workflowName?: string;
@@ -18,18 +39,26 @@ export interface GraphMap {
   [key: string]: GraphWorkflow;
 }
 
-interface GraphLibraryState {
+export interface GraphLibraryState {
   allGraphs?: GraphMap;
+  selectedWorkflowName?: string;
+  selectedNodeNameInWorkflow?: string
   lastRunInfo?: LastRunInfo;
   isRescanningGraphs: boolean;
   errorObject: unknown;
+  // Key represents workflow graph,
+  // value is array of ids of nodes that contains subgraph that is currently opened
+  subgraphBreadcrumbs: Record<string, string[]>
 }
 
 const initialGraphLibraryState: GraphLibraryState = {
   allGraphs: undefined,
+  selectedWorkflowName: undefined,
+  selectedNodeNameInWorkflow: undefined,
   lastRunInfo: undefined,
   isRescanningGraphs: false,
   errorObject: undefined,
+  subgraphBreadcrumbs: {}
 };
 
 export const graphLibrarySlice = createSlice({
@@ -39,6 +68,12 @@ export const graphLibrarySlice = createSlice({
   reducers: {
     setAllGraphs: (state, action) => {
       state.allGraphs = action.payload;
+    },
+    setSelectedWorkflowName: (state, action) => {
+      state.selectedWorkflowName = action.payload;
+    },
+    setSelectedNodeNameInWorkflow: (state, action) => {
+      state.selectedNodeNameInWorkflow = action.payload;
     },
     setLastRunInfo: (state, action) => {
       state.lastRunInfo = action.payload;
@@ -78,6 +113,24 @@ export const graphLibrarySlice = createSlice({
     },
     setErrorObject: (state, action) => {
       state.errorObject = action.payload;
-    }
+    },
+    setSubgraphBreadcrumbs: (state, action) => {
+      if (state.selectedWorkflowName)
+        state.subgraphBreadcrumbs[state.selectedWorkflowName] = action.payload;
+    },
+    setSubgraphForward: (state, action) => {
+      if (state.selectedWorkflowName) {
+        state.subgraphBreadcrumbs[state.selectedWorkflowName] = state.subgraphBreadcrumbs[state.selectedWorkflowName]
+          ? [ ...state.subgraphBreadcrumbs[state.selectedWorkflowName], action.payload ]
+          : [ action.payload ];
+      }
+    },
+    setSubgraphBack: (state, action) => {
+      if (state.selectedWorkflowName)
+        state.subgraphBreadcrumbs[state.selectedWorkflowName].splice(
+          action.payload,
+          state.selectedWorkflowName.length
+        );
+    },
   },
 });

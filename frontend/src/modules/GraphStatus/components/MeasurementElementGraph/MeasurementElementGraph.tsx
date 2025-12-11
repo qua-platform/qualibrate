@@ -24,17 +24,30 @@ import {
 } from "../../../../stores/WebSocketStore";
 import { Graph } from "../../../Graph";
 import { SubgraphBreadcrumbs } from "../../../Graph";
+import { useRootDispatch } from "../../../../stores";
+import {
+  setGraphStasetSubgraphBack,
+  setGraphStatusSubgraphForward,
+  getGraphStatuSelectedNodeNameInWorkflow,
+  getGraphStatuSubgraphBreadcrumbs,
+} from "../../../../stores/GraphStores/GraphStatus";
 
 interface IProps {
-  onNodeClick?: (name: string) => void;
+  onNodeClick?: (name?: string) => void;
 }
 
 export const MeasurementElementGraph: React.FC<IProps> = ({ onNodeClick }) => {
+  const dispatch = useRootDispatch();
   const runStatusGraphStatus = useSelector(getRunStatusGraphStatus);
   const runStatusGraphFinishedNodes = useSelector(getRunStatusGraphFinishedNodes);
   const runStatusGraphTotalNodes = useSelector(getRunStatusGraphTotalNodes);
   const runStatusGraphName = useSelector(getRunStatusGraphName);
   const runStatusGraphRunDuration = useSelector(getRunStatusGraphRunDuration);
+  const subgraphBreadcrumbs = useSelector(getGraphStatuSubgraphBreadcrumbs);
+  const selectedNodeNameInWorkflow = useSelector(getGraphStatuSelectedNodeNameInWorkflow);
+
+  const handleSetSubgraphBreadcrumbs = (key: string) => dispatch(setGraphStatusSubgraphForward(key));
+  const handleBreadcrumbClick = (index: number) => dispatch(setGraphStasetSubgraphBack(index));
 
   const isRunning = runStatusGraphStatus === "running";
 
@@ -76,8 +89,19 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ onNodeClick }) => {
             </div>
           </div>
           <div className={styles.lowerLowerContainer}>
-            <SubgraphBreadcrumbs className={styles.subgraphBreadcrumbs} />
-            <Graph onNodeClick={onNodeClick} />
+            <SubgraphBreadcrumbs
+              className={styles.subgraphBreadcrumbs}
+              selectedWorkflowName={runStatusGraphName}
+              subgraphBreadcrumbs={subgraphBreadcrumbs}
+              onBreadcrumbClick={handleBreadcrumbClick}
+            />
+            <Graph
+              selectedWorkflowName={runStatusGraphName}
+              selectedNodeNameInWorkflow={selectedNodeNameInWorkflow}
+              onNodeClick={onNodeClick}
+              subgraphBreadcrumbs={subgraphBreadcrumbs}
+              onSetSubgraphBreadcrumbs={handleSetSubgraphBreadcrumbs}
+            />
           </div>
         </div>
       </div>

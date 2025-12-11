@@ -18,10 +18,9 @@ import {
   InfoIcon
 } from "../../../../components";
 import { Tooltip } from "@mui/material";
-import { getTrackLatest, setTrackLatest } from "../../../../stores/GraphStores/GraphStatus";
+import { getGraphStatuSelectedNodeNameInWorkflow, getTrackLatest, setTrackLatest, setGraphStatusSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphStatus";
 import { useSelector } from "react-redux";
 import { useRootDispatch } from "../../../../stores";
-import { getSelectedNodeNameInWorkflow, setSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphCommon";
 import { Measurement } from "../../GraphStatus";
 import {
   fetchOneSnapshot,
@@ -40,7 +39,7 @@ interface MeasurementElementProps {
 // and move to src/components
 export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element, dataMeasurementId }) => {
   const dispatch = useRootDispatch();
-  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
+  const selectedNodeNameInWorkflow = useSelector(getGraphStatuSelectedNodeNameInWorkflow);
   const trackLatest = useSelector(getTrackLatest);
 
   // Check if selected via list click or Cytoscape graph node click
@@ -71,7 +70,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     if (selectedNodeNameInWorkflow !== element.metadata?.name && trackLatest) {
       dispatch(setTrackLatest(false));
     }
-    dispatch(setSelectedNodeNameInWorkflow(element.metadata?.name));
+    dispatch(setGraphStatusSelectedNodeNameInWorkflow(element.metadata?.name));
     if (element.id) {
       dispatch(setSelectedSnapshotId(element.id));
       dispatch(setClickedForSnapshotSelection(true));

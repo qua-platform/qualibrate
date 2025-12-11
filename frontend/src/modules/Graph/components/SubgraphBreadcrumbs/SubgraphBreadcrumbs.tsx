@@ -1,23 +1,24 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import styles from "./SubgraphBreadcrumbs.module.scss";
-import { useRootDispatch } from "../../../../stores";
-import { getSelectedWorkflowName, getSubgraphBreadcrumbs, goBackInGraph } from "../../../../stores/GraphStores/GraphCommon";
 import { classNames } from "../../../../utils/classnames";
 
-const SubgraphBreadcrumbs = ({ className }: { className?: string }) => {
-  const dispatch = useRootDispatch();
-  const subgraphBreadcrumbs = useSelector(getSubgraphBreadcrumbs);
-  const selectedWorkflowName = useSelector(getSelectedWorkflowName);
-
-  const handleSelectWorkflow = (index: number) => dispatch(goBackInGraph(index));
-
-  return <div className={classNames(styles.breadcrumbsContainer, className)}>
+const SubgraphBreadcrumbs = ({
+  className,
+  subgraphBreadcrumbs,
+  selectedWorkflowName,
+  onBreadcrumbClick,
+}: {
+  className?: string
+  subgraphBreadcrumbs: string[]
+  selectedWorkflowName: string | undefined
+  onBreadcrumbClick: (index: number) => void
+}) => (
+  <div className={classNames(styles.breadcrumbsContainer, className)}>
     {subgraphBreadcrumbs.length !== 0 &&
       <button
         key={"reset"}
         className={styles.breadcrumbsButton}
-        onClick={() => handleSelectWorkflow(0)}
+        onClick={() => onBreadcrumbClick(0)}
       >
         {selectedWorkflowName}
       </button>
@@ -26,14 +27,14 @@ const SubgraphBreadcrumbs = ({ className }: { className?: string }) => {
       <span className={styles.breadcrumbsSeparator}>→</span>
       <button
         className={styles.breadcrumbsButton}
-        onClick={() => handleSelectWorkflow(index + 1)}
+        onClick={() => onBreadcrumbClick(index + 1)}
         disabled={index === subgraphBreadcrumbs.length - 1}
       >
         {key}
       </button>
     </React.Fragment>
     )}
-  </div>;
-};
+  </div>
+);
 
 export default SubgraphBreadcrumbs;

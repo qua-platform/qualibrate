@@ -13,8 +13,14 @@ import {useSelector} from "react-redux";
 import styles from "./MeasurementHistory.module.scss";
 import {MeasurementElementList} from "../MeasurementElementList/MeasurementElementList";
 import {useRootDispatch} from "../../../../stores";
-import {getAllMeasurements, getTrackLatest, setTrackLatest, Measurement} from "../../../../stores/GraphStores/GraphStatus";
-import {setSelectedNodeNameInWorkflow} from "../../../../stores/GraphStores/GraphCommon";
+import {
+  getAllMeasurements,
+  getTrackLatest,
+  setTrackLatest,
+  Measurement,
+  setGraphStatusSelectedNodeNameInWorkflow,
+} from "../../../../stores/GraphStores/GraphStatus";
+// import {setSelectedNodeNameInWorkflow} from "../../../../stores/GraphStores/GraphCommon";
 import {getTrackLatestSidePanel, fetchOneSnapshot, setDiffData, setLatestSnapshotId, setResult} from "../../../../stores/SnapshotsStore";
 
 interface IMeasurementHistoryListProps {
@@ -50,7 +56,7 @@ export const MeasurementHistory: React.FC<IMeasurementHistoryListProps> = ({ tit
           setLatestId(element.id);
           setLatestName(element.metadata?.name);
 
-          dispatch(setSelectedNodeNameInWorkflow(element?.metadata?.name));
+          dispatch(setGraphStatusSelectedNodeNameInWorkflow(element?.metadata?.name));
           if (element.id) {
             dispatch(setLatestSnapshotId(element.id));
             if (trackLatestSidePanel) {

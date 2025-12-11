@@ -8,7 +8,6 @@ import styles from "./Project.module.scss";
 import { useSelector } from "react-redux";
 import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary";
 import { useRootDispatch } from "../../stores";
-import { resetWorkflowGraphElements } from "../../stores/GraphStores/GraphCommon";
 import { fetchAllNodes } from "../../stores/NodesStore";
 
 const Project = () => {
@@ -25,7 +24,6 @@ const Project = () => {
 
   useEffect(() => {
     if (activeProject) {
-      dispatch(resetWorkflowGraphElements());
       dispatch(fetchAllNodes());
       dispatch(fetchAllCalibrationGraphs());
     }

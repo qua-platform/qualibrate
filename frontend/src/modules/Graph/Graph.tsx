@@ -23,34 +23,39 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import {
-  getSelectedNodeNameInWorkflow,
-  getShouldResetView,
-  getWorkflowGraphEdgesColored,
-  getWorkflowGraphNodes,
-  goForwardInGraph,
-  setEdges,
-  setNodes,
-  setSelectedNodeNameInWorkflow,
-  NodeWithData
-} from "../../stores/GraphStores/GraphCommon";
-import {setTrackLatest} from "../../stores/GraphStores/GraphStatus";
-import {useRootDispatch} from "../../stores";
-import {useSelector} from "react-redux";
 import componentTypes, { edgeOptions } from "./components";
+import useGraphData from "./hools";
+import { NodeWithData } from "../../stores/GraphStores/GraphLibrary";
 
 interface IProps {
-  onNodeClick?: (name: string) => void;
+  onNodeClick?: (name?: string) => void;
+  onSetSubgraphBreadcrumbs?: (key: string) => void
+  subgraphBreadcrumbs?: string[]
+  selectedWorkflowName?: string
+  selectedNodeNameInWorkflow?: string
 }
 
 const backgroundColor = "#2b2c32";
 
-const Graph = ({ onNodeClick }: IProps) => {
-  const nodes = useSelector(getWorkflowGraphNodes);
-  const edges = useSelector(getWorkflowGraphEdgesColored);
-  const shouldResetView = useSelector(getShouldResetView);
-  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
-  const dispatch = useRootDispatch();
+const Graph = ({
+  onNodeClick,
+  selectedWorkflowName,
+  subgraphBreadcrumbs,
+  onSetSubgraphBreadcrumbs,
+  selectedNodeNameInWorkflow,
+}: IProps) => {
+  const {
+    nodes,
+    edges,
+    setNodes,
+    setEdges,
+    shouldResetView,
+    setShouldResetView,
+    selectNode,
+  } = useGraphData(
+    selectedWorkflowName,
+    subgraphBreadcrumbs,
+  );
   const { fitView } = useReactFlow();
 
   useLayoutEffect(() => {
@@ -60,23 +65,27 @@ const Graph = ({ onNodeClick }: IProps) => {
   }, []);
 
   useEffect(() => {
-    shouldResetView &&
+    if (shouldResetView) {
       fitView({
         padding: 0.5,
       });
+      setShouldResetView(false);
+    }
   }, [shouldResetView]);
 
+  useEffect(() => {
+    selectedNodeNameInWorkflow && selectNode(selectedNodeNameInWorkflow);
+  }, [selectedNodeNameInWorkflow]);
+
   const handleSelectNode = (id?: string) => {
-    dispatch(setSelectedNodeNameInWorkflow(id));
+    selectNode(id);
   };
 
   const handleNodeClick = (_: React.MouseEvent, node: NodeWithData) => {
-    if (!!node.data.subgraph && selectedNodeNameInWorkflow === node.data.label) {
-      dispatch(goForwardInGraph(node.data.label));
+    if (!!node.data.subgraph && node.selected) {
+      onSetSubgraphBreadcrumbs && onSetSubgraphBreadcrumbs(node.data.label);
       handleSelectNode(undefined);
     } else {
-      // Disable "track latest" when manually selecting a node
-      dispatch(setTrackLatest(false));
       handleSelectNode(node.data.label);
       onNodeClick && node.data.label && onNodeClick(node.data.label);
     }
@@ -90,7 +99,7 @@ const Graph = ({ onNodeClick }: IProps) => {
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       // Apply changes and dispatch the updated nodes
-      dispatch(setNodes(applyNodeChanges(changes, nodes)));
+      setNodes(applyNodeChanges(changes, nodes) as NodeWithData[]);
     },
     [nodes]
   );
@@ -98,7 +107,7 @@ const Graph = ({ onNodeClick }: IProps) => {
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       // Apply changes and dispatch the updated edges
-      dispatch(setEdges(applyEdgeChanges(changes, edges)));
+      setEdges(applyEdgeChanges(changes, edges));
     },
     [edges]
   );
@@ -124,8 +133,14 @@ const Graph = ({ onNodeClick }: IProps) => {
   );
 };
 
-export default ({ onNodeClick }: IProps) => (
+export default ({ onNodeClick, selectedWorkflowName, subgraphBreadcrumbs, onSetSubgraphBreadcrumbs, selectedNodeNameInWorkflow }: IProps) => (
   <ReactFlowProvider>
-    <Graph onNodeClick={onNodeClick} />
+    <Graph
+      onNodeClick={onNodeClick}
+      selectedWorkflowName={selectedWorkflowName}
+      selectedNodeNameInWorkflow={selectedNodeNameInWorkflow}
+      subgraphBreadcrumbs={subgraphBreadcrumbs}
+      onSetSubgraphBreadcrumbs={onSetSubgraphBreadcrumbs}
+    />
   </ReactFlowProvider>
 );

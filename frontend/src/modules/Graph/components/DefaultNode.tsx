@@ -1,9 +1,9 @@
 import React from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
-import { NodeWithData } from "../../../stores/GraphStores/GraphCommon";
 import { classNames } from "../../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./styles.module.scss";
+import { NodeWithData } from "../../../stores/GraphStores/GraphLibrary";
 
 const DefaultNode = (props: NodeProps<NodeWithData>) => {
   return (
