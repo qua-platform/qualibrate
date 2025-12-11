@@ -183,25 +183,25 @@ def test_get_subpath_value_list_target_key(mocker, obj, key):
 
 
 @pytest.mark.parametrize("search_result", [None, []])
-def test__get_search_result_no_res(mocker, search_result):
+def test__get_search_results_no_res(mocker, search_result):
     from qualibrate_app.api.core.domain.local_storage.snapshot import (
         SnapshotLocalStorage,
     )
 
     snapshot = mocker.MagicMock(spec=SnapshotLocalStorage)
     snapshot.search.return_value = search_result
-    assert find_utils._get_search_result(snapshot, "path") is None
+    assert find_utils._get_search_results(snapshot, "path") == []
 
 
 @pytest.mark.parametrize("search_result", [["a"], ["a", "b"]])
-def test__get_search_result_valid(mocker, search_result):
+def test__get_search_results_valid(mocker, search_result):
     from qualibrate_app.api.core.domain.local_storage.snapshot import (
         SnapshotLocalStorage,
     )
 
     snapshot = mocker.MagicMock(spec=SnapshotLocalStorage)
     snapshot.search.return_value = search_result
-    assert find_utils._get_search_result(snapshot, "path") == "a"
+    assert find_utils._get_search_results(snapshot, "path") == search_result
     snapshot.search.assert_called_once_with("path", load=True)
 
 
@@ -242,7 +242,7 @@ def test__get_snapshot_search_result(
 
 def test_search_snapshots_data_with_filter_ascending_empty_iter(mocker):
     patched_get_res = mocker.patch(
-        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        "qualibrate_app.api.core.utils.find_utils._get_search_results",
     )
     assert (
         list(
@@ -259,7 +259,7 @@ def test_search_snapshots_data_with_filter_ascending_filter_no_change(mocker):
     search_res = ["a", "a", "b", "b", "b", "c"]
     snapshots = [f"s{i}" for i in range(len(search_res))]
     patched_get_res = mocker.patch(
-        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        "qualibrate_app.api.core.utils.find_utils._get_search_results",
         side_effect=search_res,
     )
     patched_get_s_res = mocker.patch(
@@ -285,7 +285,7 @@ def test_search_snapshots_data_with_filter_ascending_no_filter_no_change(
     search_res = ["a", "a", "b", "b", "b", "c"]
     snapshots = [f"s{i}" for i in range(len(search_res))]
     patched_get_res = mocker.patch(
-        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        "qualibrate_app.api.core.utils.find_utils._get_search_results",
         side_effect=search_res,
     )
     patched_get_s_res = mocker.patch(
@@ -307,7 +307,7 @@ def test_search_snapshots_data_with_filter_ascending_no_filter_no_change(
 
 def test_search_snapshots_data_with_filter_descending_empty_iter(mocker):
     patched_get_res = mocker.patch(
-        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        "qualibrate_app.api.core.utils.find_utils._get_search_results",
     )
     assert (
         list(
@@ -324,7 +324,7 @@ def test_search_snapshots_data_with_filter_descending_filter_no_change(mocker):
     search_res = ["a", "a", "b", "b", "b", "c"]
     snapshots = [f"s{i}" for i in range(len(search_res))]
     patched_get_res = mocker.patch(
-        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        "qualibrate_app.api.core.utils.find_utils._get_search_results",
         side_effect=search_res,
     )
     patched_get_s_res = mocker.patch(
@@ -350,7 +350,7 @@ def test_search_snapshots_data_with_filter_descending_no_filter_no_change(
     search_res = ["a", "a", "b", "b", "b", "c"]
     snapshots = [f"s{i}" for i in range(len(search_res))]
     patched_get_res = mocker.patch(
-        "qualibrate_app.api.core.utils.find_utils._get_search_result",
+        "qualibrate_app.api.core.utils.find_utils._get_search_results",
         side_effect=search_res,
     )
     patched_get_s_res = mocker.patch(
