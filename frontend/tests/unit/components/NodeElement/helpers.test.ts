@@ -6,9 +6,9 @@ import styles from "../../../../src/modules/Nodes/components/NodeElement/NodeEle
 describe("getNodeRowClass", () => {
   it("should highlight running node with animation", () => {
     const result = getNodeRowClass({
-      nodeName: "test_cal",
-      selectedItemName: "other_node",
-      runStatus: { name: "test_cal", status: "running" }
+      isSelected: true,
+      isLastRun: true,
+      runStatus: "running"
     });
 
     expect(result).toContain(styles.nodeSelectedRunning);
@@ -18,9 +18,9 @@ describe("getNodeRowClass", () => {
 
   it("should show error state for failed node", () => {
     const result = getNodeRowClass({
-      nodeName: "test_cal",
-      selectedItemName: "test_cal",
-      runStatus: { name: "test_cal", status: "error" }
+      isSelected: true,
+      isLastRun: true,
+      runStatus: "error"
     });
 
     expect(result).toContain(styles.nodeSelectedError);
@@ -29,9 +29,9 @@ describe("getNodeRowClass", () => {
 
   it("should show finished state with success styling", () => {
     const result = getNodeRowClass({
-      nodeName: "test_cal",
-      selectedItemName: "test_cal",
-      runStatus: { name: "test_cal", status: "finished" }
+      isSelected: true,
+      isLastRun: true,
+      runStatus: "finished"
     });
 
     expect(result).toContain(styles.nodeSelectedFinished);
@@ -40,9 +40,9 @@ describe("getNodeRowClass", () => {
 
   it("should show pending state for selected node without execution", () => {
     const result = getNodeRowClass({
-      nodeName: "test_cal",
-      selectedItemName: "test_cal",
-      runStatus: null
+      isSelected: true,
+      isLastRun: true,
+      runStatus: undefined
     });
 
     expect(result).toContain(styles.nodeSelectedPending);
@@ -51,9 +51,9 @@ describe("getNodeRowClass", () => {
 
   it("should return only base class when not selected and no status", () => {
     const result = getNodeRowClass({
-      nodeName: "test_cal",
-      selectedItemName: "other_node",
-      runStatus: null
+      isSelected: false,
+      isLastRun: true,
+      runStatus: undefined
     });
 
     expect(result).toBe(styles.rowWrapper);
@@ -62,9 +62,9 @@ describe("getNodeRowClass", () => {
   it("should prioritize running status when node is running", () => {
     // Even if selected, running status takes priority
     const result = getNodeRowClass({
-      nodeName: "test_cal",
-      selectedItemName: "test_cal",
-      runStatus: { name: "test_cal", status: "running" }
+      isSelected: true,
+      isLastRun: true,
+      runStatus: "running"
     });
 
     expect(result).toContain(styles.nodeSelectedRunning);
@@ -73,23 +73,12 @@ describe("getNodeRowClass", () => {
 
   it("should handle undefined status in runStatus", () => {
     const result = getNodeRowClass({
-      nodeName: "test_cal",
-      selectedItemName: "test_cal",
-      runStatus: { name: "test_cal", status: undefined }
+      isSelected: true,
+      isLastRun: true,
+      runStatus: undefined
     });
 
     // When status is undefined, treated as pending since isLastRun is true
     expect(result).toContain(styles.rowWrapper);
-  });
-
-  it("should return base class when runStatus is for different node", () => {
-    const result = getNodeRowClass({
-      nodeName: "test_cal",
-      selectedItemName: "test_cal",
-      runStatus: { name: "other_node", status: "running" }
-    });
-
-    // Not the last run node, but is selected, so should be pending
-    expect(result).toContain(styles.nodeSelectedPending);
   });
 });

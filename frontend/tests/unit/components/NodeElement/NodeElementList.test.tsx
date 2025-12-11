@@ -1,11 +1,12 @@
 import { describe, it, expect } from "vitest";
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { NodeElementList } from "../../../../src/modules/Nodes/components/NodeElement/NodeElementList";
-import type { NodeMap } from "../../../../src/modules/Nodes/components/NodeElement/NodeElement";
-import { createTestProviders } from "../../utils/providers";
-import { setAllNodes } from "../../../../src/stores/NodesStore";
+import { NodeMap } from "../../../../src/modules/Nodes";
 import { useRootDispatch } from "../../../../src/stores";
+import { setAllNodes } from "../../../../src/stores/NodesStore";
+import { createTestProviders } from "../../utils/providers";
+import { NodeElementList } from "../../../../src/modules/Nodes/components/NodeElement/NodeElementList";
+import { ParameterTypes } from "../../../../src/components/Parameters/Parameters";
 
 // Helper component to set nodes in context
 const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
@@ -61,10 +62,11 @@ describe("NodeElementList", () => {
   });
 
   it("should render empty list when nodes object is empty", () => {
+    const { Providers } = createTestProviders({ allNodes: {} });
     const { container } = render(
-      <TestWrapper nodes={{}}>
+      <Providers>
         <NodeElementList />
-      </TestWrapper>
+      </Providers>
     );
 
     // List wrapper should still be rendered
@@ -85,7 +87,7 @@ describe("NodeElementList", () => {
           param1: {
             default: "value1",
             title: "Parameter 1",
-            type: "string",
+            type: "string" as ParameterTypes,
             is_targets: false
           }
         }

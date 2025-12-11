@@ -1,4 +1,5 @@
 import { Node, Edge, MarkerType } from "@xyflow/react";
+import { FetchGraphResponse } from "../../../../src/stores/GraphStores/GraphLibrary";
 
 export const DEFAULT_NODE_TYPE = "DefaultNode";
 
@@ -211,3 +212,113 @@ export const createEmptyGraph = (): { nodes: Node[]; edges: Edge[] } => ({
   nodes: [],
   edges: [],
 });
+
+/**
+ * Creates a graph with N nodes in linear sequence.
+ * Usage: Performance testing, scalability tests
+ */
+export const createGraph = (
+  nodeCount: number,
+): { nodes: Node[]; edges: Edge[] } => {
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
+    id: `node${i + 1}`,
+    type: DEFAULT_NODE_TYPE,
+    position: { x: i * 150, y: 0 },
+    data: { label: `node${i + 1}` },
+  }));
+
+  const edges = Array.from({ length: nodeCount - 1 }, (_, i) => ({
+    id: `edge${i + 1}`,
+    source: `node${i + 1}`,
+    target: `node${i + 2}`,
+    markerEnd: { type: MarkerType.ArrowClosed },
+  }));
+
+  return { nodes, edges };
+};
+
+/**
+ * Creates a diamond-shaped DAG (Directed Acyclic Graph).
+ * Structure: start -> mid1, mid2 -> end
+ * Usage: Testing complex layout algorithms, DAG handling
+ */
+export const createDiamondGraph = (): { nodes: Node[]; edges: Edge[] } => ({
+  nodes: [
+    {
+      id: "start",
+      type: DEFAULT_NODE_TYPE,
+      position: { x: 0, y: 0 },
+      data: { label: "start" },
+    },
+    {
+      id: "mid1",
+      type: DEFAULT_NODE_TYPE,
+      position: { x: 0, y: 0 },
+      data: { label: "mid1" },
+    },
+    {
+      id: "mid2",
+      type: DEFAULT_NODE_TYPE,
+      position: { x: 0, y: 0 },
+      data: { label: "mid2" },
+    },
+    {
+      id: "end",
+      type: DEFAULT_NODE_TYPE,
+      position: { x: 0, y: 0 },
+      data: { label: "end" },
+    },
+  ],
+  edges: [
+    { id: "e1", source: "start", target: "mid1" },
+    { id: "e2", source: "start", target: "mid2" },
+    { id: "e3", source: "mid1", target: "end" },
+    { id: "e4", source: "mid2", target: "end" },
+  ],
+});
+
+/**
+ * Transforms ReactFlow graph data to API response format (FetchGraphResponse).
+ * Usage: Mocking API responses in integration tests
+ *
+ * NOTE: IDs must be sequential integers starting from 0 for ELK to work properly.
+ */
+export const transformToApiFormat = ({
+  nodes,
+  edges,
+}: {
+  nodes: Node[];
+  edges: Edge[];
+}) => {
+  // Create a mapping from string node IDs to sequential numeric IDs
+  const nodeIdMap = new Map<string, number>();
+  nodes.forEach((n, index) => {
+    nodeIdMap.set(n.id, index);
+  });
+
+  return {
+    nodes: nodes.map((n, index) => {
+      const data: { label: string; subgraph?: FetchGraphResponse } = {
+        label: (n.data.label || n.id) as string,
+      };
+      if (n.data.subgraph) {
+        data.subgraph = n.data.subgraph as FetchGraphResponse;
+      }
+      return {
+        id: index,
+        data,
+        position: n.position,
+        loop: false,
+      };
+    }),
+    edges: edges.map((e, index) => ({
+      id: e.id,
+      source: nodeIdMap.get(e.source) ?? 0,
+      target: nodeIdMap.get(e.target) ?? 1,
+      data: {
+        condition: true,
+      },
+      position: { x: 0, y: 0 },
+    })),
+  };
+};

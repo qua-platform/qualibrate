@@ -15,7 +15,7 @@ export { MeasurementElementStatusInfoAndParameters, MeasurementElementOutcomes }
 export { ParameterList } from "./Parameters/ParameterList";
 export { Parameters } from "./Parameters/Parameters";
 export type { InputParameter, SingleParameter } from "./Parameters/Parameters";
-export { default as ParameterSelector } from "./Parameters/InputElement";
+export { default as ParameterSelector } from "./Parameters/ParameterSelector";
 export { Results, ResultsError } from "./Results/Results";
 export { default as Toast } from "./Toast/Toast";
 export { ToggleSwitch } from "./ToggleSwitch/ToggleSwitch";

@@ -17,7 +17,7 @@ export const {
   setSubgraphBack,
 } = commonGraphSlice.actions;
 
-const layoutAndSetNodesAndEdges = (data: FetchGraphResponse) => (dispatch: RootDispatch) =>
+export const layoutAndSetNodesAndEdges = (data: FetchGraphResponse) => (dispatch: RootDispatch) =>
   getLayoutedElements(data).then((res) => {
     if (res) {
       dispatch(setNodes(res.nodes));

@@ -13,6 +13,7 @@ export {
   fetchWorkflowGraph,
   goForwardInGraph,
   goBackInGraph,
+  layoutAndSetNodesAndEdges,
 } from "./actions";
 export {
   getGraphCommonState,

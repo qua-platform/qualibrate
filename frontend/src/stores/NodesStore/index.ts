@@ -15,11 +15,12 @@ export {
   setIsRescanningNodes,
   fetchAllNodes,
   fetchNodeResults,
+  handleRunNode,
+  setNodeParameter,
 } from "./actions";
 export {
   getNodesState,
   getSubmitNodeResponseError,
-  getSelectedNode,
   getRunningNode,
   getRunningNodeInfo,
   getAllNodes,
@@ -28,5 +29,7 @@ export {
   getIsAllStatusesUpdated,
   getUpdateAllButtonPressed,
   getIsRescanningNodes,
+  getIsNodeSelected,
+  getNode,
 } from "./selectors";
 export { useInitNodes } from "./hooks";
