@@ -196,7 +196,9 @@ def search_snapshots_data_with_filter_descending(
         search_results = _get_search_result(snapshot, data_path)
         if previous_results != search_results:
             for search_result in previous_results:
-                yield _get_snapshot_search_result(previous_snapshot, search_result)
+                yield _get_snapshot_search_result(
+                    previous_snapshot, search_result
+                )
         previous_snapshot = snapshot
         previous_results = search_results
     for search_result in previous_results:
