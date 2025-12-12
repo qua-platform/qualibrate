@@ -1,9 +1,11 @@
 import { MarkerType } from "@xyflow/react";
 import DefaultNode from "./DefaultNode";
 import LoopingEdge from "./LoopingEdge";
+import ConditionalEdge from "./ConditionalEdge";
 
 export const DEFAULT_NODE_TYPE = "DefaultNode";
 export const LOOPING_EDGE_TYPE = "LoopingNode";
+export const CONDITIONAL_EDGE_TYPE = "ConditionalEdge";
 
 const edgeColor = "#40464d";
 export const edgeOptions = {
@@ -25,6 +27,7 @@ export default {
     [DEFAULT_NODE_TYPE]: DefaultNode,
   },
   edgeTypes: {
-    [LOOPING_EDGE_TYPE]: LoopingEdge
+    [LOOPING_EDGE_TYPE]: LoopingEdge,
+    [CONDITIONAL_EDGE_TYPE]: ConditionalEdge,
   },
 };

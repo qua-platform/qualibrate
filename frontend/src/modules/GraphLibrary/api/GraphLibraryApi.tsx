@@ -5,38 +5,40 @@ import { API_METHODS } from "../../../common/enums/Api";
 import { Measurement } from "../components/GraphStatus/GraphStatus";
 
 type NodeDTO = {
-  id: number
-  loop: boolean
+  id: number;
+  loop: boolean;
   data: {
-    label: string
-    condition?: boolean
-    subgraph?: FetchGraphResponse
-    max_iterations?: number,
-  }
+    label: string;
+    condition?: boolean;
+    subgraph?: FetchGraphResponse;
+    max_iterations?: number;
+  };
   position: {
-    x: number
-    y: number
-  }
-}
+    x: number;
+    y: number;
+  };
+};
 
 export type EdgeDTO = {
-  id: string
-  source: number
-  target: number
+  id: string;
+  source: number;
+  target: number;
   data: {
-    condition?: boolean
-    [key: string]: unknown
-  }
+    connect?: boolean;
+    condition_label?: string;
+    condition_text?: string;
+    [key: string]: unknown;
+  };
   position: {
-    x: number
-    y: number
-  }
-}
+    x: number;
+    y: number;
+  };
+};
 
 export type FetchGraphResponse = {
-  nodes: NodeDTO[],
-  edges: EdgeDTO[]
-}
+  nodes: NodeDTO[];
+  edges: EdgeDTO[];
+};
 
 export class GraphLibraryApi extends Api {
   constructor() {

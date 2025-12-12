@@ -1,6 +1,7 @@
 import React from "react";
 import { BaseEdge, BezierEdge, EdgeLabelRenderer, EdgeProps, MarkerType } from "@xyflow/react";
 import { EdgeWithData } from "../../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from "./styles.module.scss";
 
 const edgeColor = "#70767d";
@@ -33,14 +34,10 @@ const LoopingEdge = (props: EdgeProps<EdgeWithData>) => {
       <EdgeLabelRenderer>
         <div
           className={styles.loopLabel}
-          style={{ transform: `translate(-60%, -20%) translate(${sourceX - radiusX/2}px, ${sourceY - radiusY*2}px)` }}
+          style={{ transform: `translate(-60%, -20%) translate(${sourceX - radiusX / 2}px, ${sourceY - radiusY * 2}px)` }}
         >
-          {data?.loop?.condition ? "Condition" :  "Loop"}
-          {data?.loop?.maxIterations &&
-            <span className={styles.iterations}>
-              max {data?.loop?.maxIterations}&times;
-            </span>
-          }
+          {data?.loop?.condition ? "Condition" : "Loop"}
+          {data?.loop?.maxIterations && <span className={styles.iterations}>max {data?.loop?.maxIterations}&times;</span>}
         </div>
       </EdgeLabelRenderer>
     </>

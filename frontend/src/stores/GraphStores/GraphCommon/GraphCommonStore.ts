@@ -3,36 +3,38 @@ import { createSlice } from "@reduxjs/toolkit";
 import { Edge, Node } from "@xyflow/react";
 
 export type EdgeData = {
-  condition?: boolean
+  connect?: boolean;
+  condition_label?: string;
+  condition_description?: string;
   loop?: {
-    condition?: boolean
-    maxIterations: number
-  }
-}
+    condition?: boolean;
+    maxIterations: number;
+  };
+};
 
 export type NodeData = {
-  label: string
+  label: string;
   subgraph?: {
-    nodes: NodeWithData[],
-    edges: EdgeWithData[]
-  }
-}
+    nodes: NodeWithData[];
+    edges: EdgeWithData[];
+  };
+};
 
-export type NodeWithData = Node<NodeData>
-export type EdgeWithData = Edge<EdgeData>
+export type NodeWithData = Node<NodeData>;
+export type EdgeWithData = Edge<EdgeData>;
 
 interface GraphState {
   selectedWorkflowName?: string;
-  selectedNodeNameInWorkflow?: string
+  selectedNodeNameInWorkflow?: string;
   // workflow graph returned from backend as is
-  unformattedWorkflowElements?: FetchGraphResponse
+  unformattedWorkflowElements?: FetchGraphResponse;
   // graph that is currently shown in UI with applied layout and selected subgraph
-  nodes: NodeWithData[]
-  edges: EdgeWithData[]
-  shouldResetView: boolean
+  nodes: NodeWithData[];
+  edges: EdgeWithData[];
+  shouldResetView: boolean;
   // Key represents workflow graph,
   // value is array of ids of nodes that contains subgraph that is currently opened
-  subgraphBreadcrumbs: Record<string, string[]>
+  subgraphBreadcrumbs: Record<string, string[]>;
 }
 
 const initialCommonGraphState: GraphState = {
@@ -42,7 +44,7 @@ const initialCommonGraphState: GraphState = {
   nodes: [],
   edges: [],
   shouldResetView: true,
-  subgraphBreadcrumbs: {}
+  subgraphBreadcrumbs: {},
 };
 
 export const commonGraphSlice = createSlice({
@@ -55,9 +57,9 @@ export const commonGraphSlice = createSlice({
     },
     setSelectedNodeNameInWorkflow: (state, action) => {
       state.selectedNodeNameInWorkflow = action.payload;
-      state.nodes = state.nodes.map(node => ({
+      state.nodes = state.nodes.map((node) => ({
         ...node,
-        selected: action.payload === node.data.label
+        selected: action.payload === node.data.label,
       }));
     },
     resetWorkflowGraphElements: (state) => {
@@ -82,16 +84,13 @@ export const commonGraphSlice = createSlice({
     setSubgraphForward: (state, action) => {
       if (state.selectedWorkflowName) {
         state.subgraphBreadcrumbs[state.selectedWorkflowName] = state.subgraphBreadcrumbs[state.selectedWorkflowName]
-          ? [ ...state.subgraphBreadcrumbs[state.selectedWorkflowName], action.payload ]
-          : [ action.payload ];
+          ? [...state.subgraphBreadcrumbs[state.selectedWorkflowName], action.payload]
+          : [action.payload];
       }
     },
     setSubgraphBack: (state, action) => {
       if (state.selectedWorkflowName)
-        state.subgraphBreadcrumbs[state.selectedWorkflowName].splice(
-          action.payload,
-          state.selectedWorkflowName.length
-        );
+        state.subgraphBreadcrumbs[state.selectedWorkflowName].splice(action.payload, state.selectedWorkflowName.length);
     },
-  }
+  },
 });

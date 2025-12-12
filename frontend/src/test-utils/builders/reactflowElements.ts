@@ -1,4 +1,4 @@
-import { Node, Edge, MarkerType } from "@xyflow/react";
+import { Edge, MarkerType, Node } from "@xyflow/react";
 
 export const DEFAULT_NODE_TYPE = "DefaultNode";
 
@@ -33,6 +33,10 @@ export const createSimpleGraph = (): { nodes: Node[]; edges: Edge[] } => ({
       source: "node1",
       target: "node2",
       markerEnd: { type: MarkerType.ArrowClosed },
+      data: {
+        condition_label: "edge_label",
+        condition_description: "Edge Description",
+      },
     },
     {
       id: "edge2",
@@ -92,9 +96,7 @@ export const createGraphWithStatuses = (): {
  * Creates a node with selection state.
  * Usage: Testing node selection and highlighting
  */
-export const createGraphWithSelection = (
-  selectedId: string,
-): { nodes: Node[]; edges: Edge[] } => {
+export const createGraphWithSelection = (selectedId: string): { nodes: Node[]; edges: Edge[] } => {
   const { nodes, edges } = createSimpleGraph();
   return {
     nodes: nodes.map((node) => ({
@@ -172,9 +174,7 @@ export const createComplexGraph = (): { nodes: Node[]; edges: Edge[] } => ({
  * Creates a large graph for performance testing.
  * Usage: Testing layout performance and rendering with many nodes
  */
-export const createLargeGraph = (
-  nodeCount: number = 50,
-): { nodes: Node[]; edges: Edge[] } => {
+export const createLargeGraph = (nodeCount: number = 50): { nodes: Node[]; edges: Edge[] } => {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
