@@ -309,6 +309,7 @@ export const transformToApiFormat = ({
         data,
         position: n.position,
         loop: false,
+        selected: n.selected
       };
     }),
     edges: edges.map((e, index) => ({

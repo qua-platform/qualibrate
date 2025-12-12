@@ -3,20 +3,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import React, { act } from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { GraphElement } from "../../../../src/modules/GraphLibrary/components/GraphElement/GraphElement";
-import { setAllGraphs, getAllGraphs, getLastRunInfo, GraphLibraryApi } from "../../../../src/stores/GraphStores/GraphLibrary";
+import { setAllGraphs, getAllGraphs, getLastRunInfo, GraphLibraryApi, setSelectedWorkflowName, getSelectedWorkflowName } from "../../../../src/stores/GraphStores/GraphLibrary";
 import { createTestProviders } from "../../utils/providers";
-import { setSelectedWorkflowName, setNodes, setEdges, getSelectedWorkflowName } from "../../../../src/stores/GraphStores/GraphCommon";
 import { server } from "../../utils/mocks/server";
 import { http, HttpResponse } from "msw";
 import { getActivePage } from "../../../../src/stores/NavigationStore";
-
-// Mock Graph component to avoid ReactFlow dependencies
-vi.mock("../../../../src/modules/Graph/Graph", () => ({
-  default: () => (
-    <div data-testid="react-flow-graph">ReactFlow Graph</div>
-  ),
-  DEFAULT_NODE_TYPE: "DefaultNode",
-}));
 
 const mockWorkflowElementsResponce = {
   nodes: [
@@ -494,14 +485,6 @@ describe("GraphElement - UI Interactions", () => {
   });
 
   it("should show ReactFlow preview when expanded", async () => {
-    const mockNodes = [
-      { id: "node1", position: { x: 0, y: 0 }, data: { label: "Node 1" } },
-      { id: "node2", position: { x: 100, y: 0 }, data: { label: "Node 2" } },
-    ];
-    const mockEdges = [
-      { id: "edge1", source: "node1", target: "node2" },
-    ];
-
     const { Providers, mockStore } = createTestProviders({
       selection: {
         selectedItemName: "test_workflow",
@@ -509,8 +492,6 @@ describe("GraphElement - UI Interactions", () => {
     });
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
-    mockStore.dispatch(setNodes(mockNodes));
-    mockStore.dispatch(setEdges(mockEdges));
 
     render(
       <Providers>

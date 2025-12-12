@@ -118,7 +118,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         {show && (
           <div className={styles.graphContainer}>
             <Graph
-              selectedWorkflowName={selectedWorkflowName}
+              selectedWorkflowName={calibrationGraphKey}
               selectedNodeNameInWorkflow={selectedNodeNameInWorkflow}
               onNodeClick={handleSelectNode}
               subgraphBreadcrumbs={subgraphBreadcrumbs}

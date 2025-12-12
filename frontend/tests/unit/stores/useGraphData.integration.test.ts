@@ -13,23 +13,14 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { configureStore } from "@reduxjs/toolkit";
-import { waitFor } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 import { rootReducer } from "../../../src/stores";
-import {
-  fetchWorkflowGraph,
-  setSelectedNodeNameInWorkflow,
-  setNodes,
-  setEdges,
-  setShouldResetView,
-  getWorkflowGraphNodes,
-  getWorkflowGraphEdges,
-  layoutAndSetNodesAndEdges,
-} from "../../../src/stores/GraphStores/GraphCommon";
 import { setTrackLatest } from "../../../src/stores/GraphStores/GraphStatus";
-import { GraphLibraryApi } from "../../../src/stores/GraphStores/GraphLibrary";
+import { GraphLibraryApi, NodeWithData, setSelectedNodeNameInWorkflow } from "../../../src/stores/GraphStores/GraphLibrary";
 import { createSimpleGraph, createComplexGraph, transformToApiFormat } from "../utils/builders/reactflowElements";
+import useGraphData from "../../../src/modules/Graph/hooks";
 
-describe("Redux Store Integration", () => {
+describe("useGraphData Integration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -43,31 +34,29 @@ describe("Redux Store Integration", () => {
         result: transformToApiFormat(mockGraphData),
       };
       vi.spyOn(GraphLibraryApi, "fetchGraph").mockResolvedValue(mockApiResponse);
+      const { result } = renderHook(() => useGraphData("test-workflow"));
 
       // Create real Redux store
       const store = configureStore({ reducer: rootReducer });
 
-      // When: Dispatch fetchWorkflowGraph action
-      await store.dispatch(fetchWorkflowGraph("test-workflow"));
-
       // Then: Wait for async layout to complete
       await waitFor(() => {
         const state = store.getState();
-        expect(state.graph.common.nodes.length).toBeGreaterThan(0);
+        expect(result.current.nodes.length).toBeGreaterThan(0);
       });
 
       // And: Verify all expectations
       const state = store.getState();
-      expect(state.graph.common.edges.length).toBeGreaterThan(0);
+      expect(result.current.edges.length).toBeGreaterThan(0);
 
       // Verify nodes have been layouted (positions changed from initial values)
-      const hasLayoutedPositions = state.graph.common.nodes.some(
+      const hasLayoutedPositions = result.current.nodes.some(
         n => n.position.x !== 0 || n.position.y !== 0
       );
       expect(hasLayoutedPositions).toBe(true);
 
       // Verify shouldResetView flag is set
-      expect(state.graph.common.shouldResetView).toBe(true);
+      expect(result.current.shouldResetView).toBe(true);
 
       // Verify API was called with correct parameter
       expect(GraphLibraryApi.fetchGraph).toHaveBeenCalledWith("test-workflow");
@@ -80,17 +69,17 @@ describe("Redux Store Integration", () => {
         error: "Network error",
       });
 
-      const store = configureStore({ reducer: rootReducer });
       const consoleSpy = vi.spyOn(console, "log");
 
-      // When: Dispatch fetch action
-      await store.dispatch(fetchWorkflowGraph("test-workflow"));
+      const { result } = renderHook(() => useGraphData("test-workflow"));
 
       // Then: Error should be logged (current behavior)
-      expect(consoleSpy).toHaveBeenCalledWith("Network error");
+      await waitFor(() =>
+        expect(consoleSpy).toHaveBeenCalledWith("Network error")
+      )
 
       // And: Store should not be updated with invalid data
-      expect(store.getState().graph.common.nodes).toHaveLength(0);
+      expect(result.current.nodes).toHaveLength(0);
     });
 
     it("should handle complex graphs with multiple nodes and edges", async () => {
@@ -101,23 +90,21 @@ describe("Redux Store Integration", () => {
         result: transformToApiFormat(mockGraphData),
       };
       vi.spyOn(GraphLibraryApi, "fetchGraph").mockResolvedValue(mockApiResponse);
+      const { result } = renderHook(() => useGraphData("complex-workflow"));
 
       const store = configureStore({ reducer: rootReducer });
-
-      // When: Dispatch fetchWorkflowGraph
-      await store.dispatch(fetchWorkflowGraph("complex-workflow"));
 
       // Then: Wait for layout to complete and verify
       await waitFor(() => {
         const state = store.getState();
-        expect(state.graph.common.nodes.length).toBe(mockGraphData.nodes.length);
+        expect(result.current.nodes.length).toBe(mockGraphData.nodes.length);
       });
 
       const state = store.getState();
-      expect(state.graph.common.edges.length).toBe(mockGraphData.edges.length);
+      expect(result.current.edges.length).toBe(mockGraphData.edges.length);
 
       // Verify layout produces valid positions
-      state.graph.common.nodes.forEach(node => {
+      result.current.nodes.forEach(node => {
         expect(node.position).toBeDefined();
         expect(typeof node.position.x).toBe("number");
         expect(typeof node.position.y).toBe("number");
@@ -127,55 +114,56 @@ describe("Redux Store Integration", () => {
 
   describe("layoutAndSetNodesAndEdges Action", () => {
     it("should layout nodes and edges, then update store", async () => {
-      const store = configureStore({ reducer: rootReducer });
+      const mockApiResponse = {
+        isOk: true,
+        result: transformToApiFormat(createSimpleGraph()),
+      };
+      vi.spyOn(GraphLibraryApi, "fetchGraph").mockResolvedValue(mockApiResponse);
+      const { result } = renderHook(() => useGraphData("test-calibration"));
 
-      const inputData = transformToApiFormat(createSimpleGraph());
-
-      // When: Dispatch layout action
-      await store.dispatch(layoutAndSetNodesAndEdges(inputData));
-
-      // Then: Store should have layouted elements
-      const state = store.getState();
-      expect(state.graph.common.nodes.length).toBeGreaterThan(0);
-      expect(state.graph.common.edges).toBeDefined();
-      expect(state.graph.common.shouldResetView).toBe(true);
+      await waitFor(() => {
+        // Then: Store should have layouted elements
+        expect(result.current.nodes.length).toBeGreaterThan(0);
+        expect(result.current.edges).toBeDefined();
+        expect(result.current.shouldResetView).toBe(true);
+      });
 
       // Verify nodes have positions (ELK ran successfully)
-      state.graph.common.nodes.forEach(node => {
+      result.current.nodes.forEach(node => {
         expect(node.position).toBeDefined();
       });
     });
 
     it("should handle empty graph data", async () => {
-      const store = configureStore({ reducer: rootReducer });
-
-      const emptyData = { nodes: [], edges: [] };
-
-      // When: Dispatch layout with empty data
-      await store.dispatch(layoutAndSetNodesAndEdges(emptyData));
+      const mockApiResponse = {
+        isOk: true,
+        result:  { nodes: [], edges: [] },
+      };
+      vi.spyOn(GraphLibraryApi, "fetchGraph").mockResolvedValue(mockApiResponse);
+      const { result } = renderHook(() => useGraphData("test-calibration"));
 
       // Then: Store should handle empty state gracefully
-      const state = store.getState();
-      expect(state.graph.common.nodes).toEqual([]);
+      expect(result.current.nodes).toEqual([]);
       // shouldResetView might still be true from layout action
     });
   });
 
   describe("Node Selection State Synchronization", () => {
     it("should synchronize node selection between Redux and ReactFlow", () => {
+      const mockApiResponse = {
+        isOk: true,
+        result: transformToApiFormat(createSimpleGraph()),
+      };
+      vi.spyOn(GraphLibraryApi, "fetchGraph").mockResolvedValue(mockApiResponse);
+      const { result } = renderHook(() => useGraphData("test-calibration"));
       const store = configureStore({ reducer: rootReducer });
-      const { nodes, edges } = createSimpleGraph();
-
-      // Setup: Add nodes to store
-      store.dispatch(setNodes(nodes));
-      store.dispatch(setEdges(edges));
 
       // When: Select a node via Redux action
       store.dispatch(setSelectedNodeNameInWorkflow("node1"));
 
       // Then: Store should reflect selection
       const state = store.getState();
-      expect(state.graph.common.selectedNodeNameInWorkflow).toBe("node1");
+      expect(state.graph.library.selectedNodeNameInWorkflow).toBe("node1");
     });
 
     it("should clear selection when undefined is set", () => {
@@ -183,13 +171,13 @@ describe("Redux Store Integration", () => {
 
       // Given: A node is selected
       store.dispatch(setSelectedNodeNameInWorkflow("node1"));
-      expect(store.getState().graph.common.selectedNodeNameInWorkflow).toBe("node1");
+      expect(store.getState().graph.library.selectedNodeNameInWorkflow).toBe("node1");
 
       // When: Selection is cleared
       store.dispatch(setSelectedNodeNameInWorkflow(undefined));
 
       // Then: No node should be selected
-      expect(store.getState().graph.common.selectedNodeNameInWorkflow).toBeUndefined();
+      expect(store.getState().graph.library.selectedNodeNameInWorkflow).toBeUndefined();
     });
   });
 
@@ -209,50 +197,14 @@ describe("Redux Store Integration", () => {
     });
   });
 
-  describe("shouldResetView Flag Lifecycle", () => {
-    it("should set flag after layout, then allow clearing", async () => {
-      const store = configureStore({ reducer: rootReducer });
-
-      // When: Layout is calculated
-      await store.dispatch(
-        layoutAndSetNodesAndEdges(transformToApiFormat(createSimpleGraph()))
-      );
-
-      // Then: Flag should be set
-      expect(store.getState().graph.common.shouldResetView).toBe(true);
-
-      // When: Flag is manually cleared (as Graph component would do after fitView)
-      store.dispatch(setShouldResetView(false));
-
-      // Then: Flag should be cleared
-      expect(store.getState().graph.common.shouldResetView).toBe(false);
-    });
-  });
-
   describe("Selector Integration", () => {
-    it("should retrieve nodes and edges via selectors", () => {
-      const store = configureStore({ reducer: rootReducer });
-      const { nodes, edges } = createSimpleGraph();
-
-      store.dispatch(setNodes(nodes));
-      store.dispatch(setEdges(edges));
-
-      // When: Use selectors to retrieve data
-      const state = store.getState();
-      const selectedNodes = getWorkflowGraphNodes(state);
-      const selectedEdges = getWorkflowGraphEdges(state);
-
-      // Then: Selectors should return correct data
-      expect(selectedNodes).toEqual(nodes);
-      expect(selectedEdges).toEqual(edges);
-    });
-
     it("should return empty arrays when no data is set", () => {
+      const { result } = renderHook(() => useGraphData("test-calibration"));
       const store = configureStore({ reducer: rootReducer });
 
       const state = store.getState();
-      const selectedNodes = getWorkflowGraphNodes(state);
-      const selectedEdges = getWorkflowGraphEdges(state);
+      const selectedNodes = result.current.nodes;
+      const selectedEdges = result.current.edges;
 
       expect(selectedNodes).toEqual([]);
       expect(selectedEdges).toEqual([]);

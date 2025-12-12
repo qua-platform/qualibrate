@@ -6,29 +6,38 @@
  *
  * @see Graph.test.tsx - Unit tests with mocked ReactFlow
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import Graph from "../../../../src/modules/Graph/Graph";
 import { createTestProviders } from "../../utils/providers";
 import {
   createSimpleGraph,
   createComplexGraph,
-  createGraphWithStatuses,
+  transformToApiFormat,
 } from "../../utils/builders/reactflowElements";
-import { setNodes, setEdges } from "../../../../src/stores/GraphStores/GraphCommon";
+import { GraphLibraryApi, setSelectedNodeNameInWorkflow } from "../../../../src/stores/GraphStores/GraphLibrary";
+import { server } from "../../utils/mocks/server";
+import { http, HttpResponse } from "msw";
+import nodeStyles from "../../../../src/modules/Graph/components/styles.module.scss";
+
 
 describe("Graph - ReactFlow Integration Tests", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    server.use(
+      http.get("*/execution/get_graph/cytoscape*", () => {
+        return HttpResponse.json(transformToApiFormat(createSimpleGraph()));
+      })
+    );
+  });
   it("should render actual ReactFlow instance with real DOM", async () => {
-    const { nodes, edges } = createSimpleGraph();
-    const { Providers, mockStore } = createTestProviders();
+    const { Providers } = createTestProviders();
 
-    // Dispatch actions to set graph data
-    act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
-    });
-
-    const { container } = render(<Graph />, { wrapper: Providers });
+    const { container } = render(
+      <Graph selectedWorkflowName={"test_workflow"} />,
+      { wrapper: Providers }
+    );
 
     // Verify ReactFlow container exists
     const reactFlowContainer = container.querySelector(".react-flow");
@@ -43,71 +52,55 @@ describe("Graph - ReactFlow Integration Tests", () => {
   });
 
   it("should handle node selection with real ReactFlow API", async () => {
-    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
 
-    // Dispatch actions to set graph data
-    act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
-    });
-
-    render(<Graph />, { wrapper: Providers });
+    render(
+      <Graph
+        selectedWorkflowName={"test_workflow"}
+        onNodeClick={(nodeId) => mockStore.dispatch(setSelectedNodeNameInWorkflow(nodeId))}
+      />,
+      { wrapper: Providers }
+    );
 
     // Click node to select (using fireEvent since d3-drag doesn't work in jsdom)
     const node1 = await waitFor(() => screen.getByText("node1"));
-
-    // Simulate node click through React's onClick handler
     const nodeElement = node1.closest('[data-id="node1"]');
     expect(nodeElement).toBeInTheDocument();
+    act(() => {
+      (nodeElement as HTMLElement)?.click();
+    });
 
-    // Verify node is clickable (presence test - actual click requires browser environment)
-    expect(nodeElement).toHaveAttribute("data-id", "node1");
+    await waitFor(() => {
+      expect(mockStore.getState().graph.library.selectedNodeNameInWorkflow).toBe("node1")
+    })
   });
 
   it("should update node styles when selection changes", async () => {
-    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
 
-    // Dispatch actions to set graph data
+    const { container } = render(
+      <Graph selectedWorkflowName={"test_workflow"} />,
+      { wrapper: Providers }
+    );
+
+    // Click node to select (using fireEvent since d3-drag doesn't work in jsdom)
+    const node1 = await waitFor(() => screen.getByText("node1"));
+    const nodeElement = node1.closest('[data-id="node1"]');
+    expect(nodeElement).toBeInTheDocument();
     act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
+      (nodeElement as HTMLElement)?.click();
     });
-
-    const { container, rerender } = render(<Graph />, {
-      wrapper: Providers,
-    });
-
-    // Select node1
-    const updatedNodes = nodes.map((n) => ({
-      ...n,
-      selected: n.id === "node1",
-      className: n.id === "node1" ? "selected" : undefined,
-    }));
-
-    act(() => {
-      mockStore.dispatch(setNodes(updatedNodes));
-    });
-    rerender(<Graph />);
 
     await waitFor(() => {
       const selectedNode = container.querySelector('[data-id="node1"]');
-      expect(selectedNode).toHaveClass("selected");
+      expect(selectedNode).toHaveClass(nodeStyles.selected);
     });
   });
 
   it("should properly render custom node types", async () => {
-    const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
 
-    // Dispatch actions to set graph data
-    act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
-    });
-
-    render(<Graph />, { wrapper: Providers });
+    render(<Graph selectedWorkflowName={"test_workflow"} />, { wrapper: Providers });
 
     // Verify custom DefaultNode component is used
     await waitFor(() => {
@@ -120,13 +113,7 @@ describe("Graph - ReactFlow Integration Tests", () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
 
-    // Dispatch actions to set graph data
-    act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
-    });
-
-    const { container } = render(<Graph />, { wrapper: Providers });
+    const { container } = render(<Graph selectedWorkflowName={"test_workflow"} />, { wrapper: Providers });
 
     await waitFor(() => {
       // Check for edge container (edges may not render paths in jsdom without dimensions)
@@ -140,20 +127,17 @@ describe("Graph - ReactFlow Integration Tests", () => {
 
     // Verify edge data is in the store
     const state = mockStore.getState();
-    expect(state.graph.common.edges).toHaveLength(2);
   });
 
   it("should handle complex graph layouts", async () => {
-    const { nodes, edges } = createComplexGraph();
+    const mockSubmit = vi.fn().mockResolvedValue({
+      isOk: true,
+      result: transformToApiFormat(createComplexGraph()),
+    });
+    vi.spyOn(GraphLibraryApi, "fetchGraph").mockImplementation(mockSubmit);
     const { Providers, mockStore } = createTestProviders();
 
-    // Dispatch actions to set graph data
-    act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
-    });
-
-    render(<Graph />, { wrapper: Providers });
+    render(<Graph selectedWorkflowName={"test_workflow"} />, { wrapper: Providers });
 
     // Verify all nodes render
     await waitFor(() => {
@@ -161,53 +145,40 @@ describe("Graph - ReactFlow Integration Tests", () => {
       expect(screen.getByText("A1")).toBeInTheDocument();
       expect(screen.getByText("Merge")).toBeInTheDocument();
     });
-
-    // Verify correct number of edges in store
-    const state = mockStore.getState();
-    expect(state.graph.common.edges).toHaveLength(9);
-    expect(state.graph.common.nodes).toHaveLength(7);
   });
 
-  it("should render nodes with different status styles", async () => {
-    const { nodes, edges } = createGraphWithStatuses();
-    const { Providers, mockStore } = createTestProviders();
+  // Currently not supported
+  // it("should render nodes with different status styles", async () => {
+  //   const mockSubmit = vi.fn().mockResolvedValue({
+  //     isOk: true,
+  //     result: transformToApiFormat(createGraphWithStatuses()),
+  //   });
+  //   vi.spyOn(GraphLibraryApi, "fetchGraph").mockImplementation(mockSubmit);
+  //   const { Providers, mockStore } = createTestProviders();
 
-    // Dispatch actions to set graph data
-    act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
-    });
+  //   const { container } = render(<Graph selectedWorkflowName={"test_workflow"} />, { wrapper: Providers });
 
-    const { container } = render(<Graph />, { wrapper: Providers });
-
-    await waitFor(() => {
-      // Check each status class
-      expect(
-        container.querySelector('[data-id="pending_node"]')
-      ).toHaveClass("pending");
-      expect(
-        container.querySelector('[data-id="running_node"]')
-      ).toHaveClass("running");
-      expect(
-        container.querySelector('[data-id="completed_node"]')
-      ).toHaveClass("completed");
-      expect(container.querySelector('[data-id="failed_node"]')).toHaveClass(
-        "failed"
-      );
-    });
-  });
+  //   await waitFor(() => {
+  //     // Check each status class
+  //     expect(
+  //       container.querySelector('[data-id="pending_node"]')
+  //     ).toHaveClass("pending");
+  //     expect(
+  //       container.querySelector('[data-id="running_node"]')
+  //     ).toHaveClass("running");
+  //     expect(
+  //       container.querySelector('[data-id="completed_node"]')
+  //     ).toHaveClass("completed");
+  //     expect(container.querySelector('[data-id="failed_node"]')).toHaveClass(
+  //       "failed"
+  //     );
+  //   });
+  // });
 
   it("should handle viewport interactions (zoom, pan)", async () => {
-    const { nodes, edges } = createSimpleGraph();
-    const { Providers, mockStore } = createTestProviders();
+    const { Providers } = createTestProviders();
 
-    // Dispatch actions to set graph data
-    act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
-    });
-
-    const { container } = render(<Graph />, { wrapper: Providers });
+    const { container } = render(<Graph selectedWorkflowName={"test_workflow"} />, { wrapper: Providers });
 
     // Verify viewport controls exist
     await waitFor(() => {

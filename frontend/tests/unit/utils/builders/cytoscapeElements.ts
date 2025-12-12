@@ -4,8 +4,8 @@
  * Provides helper functions to create Cytoscape node and edge definitions
  * for use in tests.
  */
-import {NodeData} from "@/stores/GraphStores/GraphCommon/GraphCommonStore";
 import {Edge, Node} from "@xyflow/react";
+import { NodeData } from "../../../../src/stores/GraphStores/GraphLibrary";
 
 /**
  * Creates a graph node element definition.

@@ -24,7 +24,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import componentTypes, { edgeOptions } from "./components";
-import useGraphData from "./hools";
+import useGraphData from "./hooks";
 import { NodeWithData } from "../../stores/GraphStores/GraphLibrary";
 
 interface IProps {
@@ -113,7 +113,7 @@ const Graph = ({
   );
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles.wrapper} data-testid="react-flow-graph">
       <ReactFlow
         nodes={nodes}
         edges={edges}

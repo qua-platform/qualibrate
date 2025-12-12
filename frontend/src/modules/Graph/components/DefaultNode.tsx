@@ -7,7 +7,7 @@ import { NodeWithData } from "../../../stores/GraphStores/GraphLibrary";
 
 const DefaultNode = (props: NodeProps<NodeWithData>) => {
   return (
-    <div className={classNames(styles.defaultNode, props.selected && styles.selected, !!props.data.subgraph && styles.subgraph)}>
+    <div className={classNames(styles.defaultNode, props.selected && styles.selected, !!props.data.subgraph && styles.subgraph)} data-id={props.data.label}>
       <label className={styles.defaultNodeLabel}>{props.data.label}</label>
       <Handle className={styles.defaultNodeHandle} type="target" position={Position.Left} />
       <Handle className={styles.defaultNodeHandle} type="source" position={Position.Right} />

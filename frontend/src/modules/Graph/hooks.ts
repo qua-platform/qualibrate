@@ -17,21 +17,25 @@ const useGraphData = (selectedWorkflowName?: string, subgraphBreadcrumbs?: strin
 
   useEffect(() => {
     const fetchWorkflowGraph = async (workflowName: string) => {
-      const response = await GraphLibraryApi.fetchGraph(workflowName);
-      if (response.isOk && response.result) {
-        unformattedWorkflowElements.current = response.result;
-        // Uncomment to use mocks
-        // dispatch(setUnformattedWorkflowElements(MOCK_WORKFLOW_ELEMENTS));
-
-        if (subgraphBreadcrumbs?.length !== 0) {
-          setSubgraph();
-        } else {
-          layoutAndSetNodesAndEdges(response.result);
+      try {
+        const response = await GraphLibraryApi.fetchGraph(workflowName);
+        if (response.isOk && response.result) {
+          unformattedWorkflowElements.current = response.result;
           // Uncomment to use mocks
-          // dispatch(layoutAndSetNodesAndEdges(MOCK_WORKFLOW_ELEMENTS));
+          // dispatch(setUnformattedWorkflowElements(MOCK_WORKFLOW_ELEMENTS));
+
+          if (subgraphBreadcrumbs?.length !== 0) {
+            setSubgraph();
+          } else {
+            layoutAndSetNodesAndEdges(response.result);
+            // Uncomment to use mocks
+            // dispatch(layoutAndSetNodesAndEdges(MOCK_WORKFLOW_ELEMENTS));
+          }
+        } else if (response.error) {
+          console.log(response.error);
         }
-      } else if (response.error) {
-        console.log(response.error);
+      } catch (error) {
+        console.log(error);
       }
     };
 

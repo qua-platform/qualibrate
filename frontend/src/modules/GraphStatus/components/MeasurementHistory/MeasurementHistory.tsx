@@ -20,7 +20,6 @@ import {
   Measurement,
   setGraphStatusSelectedNodeNameInWorkflow,
 } from "../../../../stores/GraphStores/GraphStatus";
-// import {setSelectedNodeNameInWorkflow} from "../../../../stores/GraphStores/GraphCommon";
 import {getTrackLatestSidePanel, fetchOneSnapshot, setDiffData, setLatestSnapshotId, setResult} from "../../../../stores/SnapshotsStore";
 
 interface IMeasurementHistoryListProps {
