@@ -91,14 +91,14 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
   ],
   edges: [
     {
-      id: "workflow1-workflow2",
+      id: "workflow1->workflow2",
       source: 1,
       target: 2,
       data: { connect: true },
       position: { x: 100, y: 100 },
     },
     {
-      id: "workflow2-node1",
+      id: "workflow2->node1",
       source: 2,
       target: 3,
       data: {

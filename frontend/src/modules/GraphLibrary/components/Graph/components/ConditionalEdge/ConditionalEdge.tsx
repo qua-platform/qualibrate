@@ -1,12 +1,12 @@
 import React, { MouseEvent, useCallback, useState } from "react";
 import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath } from "@xyflow/react";
-import { EdgeWithData } from "../../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
-import { BasicDialog } from "../../../../../common/ui-components/common/BasicDialog/BasicDialog";
+import { EdgeWithData } from "../../../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
 // eslint-disable-next-line css-modules/no-unused-class
-import styles from "./styles.module.scss";
+import styles from "../styles.module.scss";
+import ConditionalEdgePopUp from "../ConditionalEdge/ConditionalEdgePopUp";
 
 const ConditionalEdge = (props: EdgeProps<EdgeWithData>) => {
-  const { id, data, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, markerEnd, style } = props;
+  const { id, source, target, data, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, markerEnd, style } = props;
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -46,7 +46,15 @@ const ConditionalEdge = (props: EdgeProps<EdgeWithData>) => {
           {data?.condition_label ?? "Condition"}
         </div>
       </EdgeLabelRenderer>
-      <BasicDialog description={data?.condition_description} open={open} onClose={handleOnClose} />
+      <ConditionalEdgePopUp
+        id={id}
+        open={open}
+        onClose={handleOnClose}
+        source={source}
+        target={target}
+        label={data?.condition_label}
+        description={data?.condition_description}
+      />
     </>
   );
 };

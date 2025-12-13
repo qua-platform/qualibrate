@@ -10,15 +10,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import ConditionalEdge from "../ConditionalEdge";
+import { ConditionalEdgePopUpProps } from "../ConditionalEdgePopUp";
 import { EdgeProps, Position, ReactFlow } from "@xyflow/react";
-import { BasicDialogProps } from "../../../../../../common/ui-components/common/BasicDialog/BasicDialog";
 import React from "react";
 
-// Mock BasicDialog to simplify
-vi.mock("../../../../../common/ui-components/common/BasicDialog/BasicDialog", () => ({
-  BasicDialog: ({ open, description, onClose }: BasicDialogProps) =>
+// Mock ConditionalEdgePopUp to simplify
+vi.mock(".../ConditionalEdgePopUp", () => ({
+  ConditionalEdgePopUp: ({ id, source, target, open, label, description, onClose }: ConditionalEdgePopUpProps) =>
     open ? (
       <div data-testid="dialog">
+        <div>{id}</div>
+        <div>{source}</div>
+        <div>{target}</div>
+        <div>{label}</div>
         <div>{description}</div>
         <button data-testid="close-dialog" onClick={onClose}>
           close
@@ -50,12 +54,12 @@ const defaultProps: EdgeProps = {
   deletable: undefined,
   selectable: undefined,
   selected: undefined,
-  source: "",
+  source: "1",
   sourcePosition: Position.Left,
-  target: "",
+  target: "2",
   targetPosition: Position.Right,
   type: undefined,
-  id: "edge1",
+  id: "node1->node2",
   data: { connect: true, condition_label: "Test Condition", condition_description: "Dialog text" },
   sourceX: 0,
   sourceY: 0,
@@ -99,15 +103,24 @@ describe("ConditionalEdge - Unit Tests", () => {
       </ReactFlow>
     );
     fireEvent.click(screen.getByText("Test Condition"));
-
-    const dialogContentElement = screen.getByTestId("dialog-content-text");
+    const sourceName = "node1";
+    const targetName = "node2";
+    const dialogContentElement = screen.getByTestId("conditional-edge-pop-up-content");
+    // const sourceNodeElement = screen.getByText(sourceName);
+    // const targetNodeElement = screen.getByText(targetName);
     expect(dialogContentElement).toBeInTheDocument();
     expect(dialogContentElement).toHaveTextContent("Dialog text");
+    expect(dialogContentElement).toHaveTextContent(sourceName);
+    expect(dialogContentElement).toHaveTextContent(targetName);
   });
 
   it("uses default label text when missing", () => {
     const props = { ...defaultProps, data: {} };
-    render(<ConditionalEdge {...props} />);
+    render(
+      <ReactFlow>
+        <ConditionalEdge {...props} />
+      </ReactFlow>
+    );
 
     expect(screen.getByText("Condition")).toBeInTheDocument();
   });
