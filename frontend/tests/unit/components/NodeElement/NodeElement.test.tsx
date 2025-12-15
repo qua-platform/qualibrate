@@ -6,8 +6,8 @@ import { createTestProviders } from "../../utils/providers";
 import * as NodesAPI from "../../../../src/stores/NodesStore/api/NodesAPI";
 import { setSelectedNode } from "../../../../src/stores/NodesStore/actions";
 import { NodeExecution } from "../../../../src/stores/WebSocketStore/WebSocketStore";
-import { setRunStatus } from "@/stores/WebSocketStore/actions";
-import { ParameterTypes } from "@/modules/common/Parameters/Parameters";
+import { setRunStatus } from "../../../../src/stores/WebSocketStore/actions";
+import { ParameterTypes } from "../../../../src/modules/common/Parameters/Parameters";
 
 // Helper to create mock NodeExecution objects
 const createMockNodeExecution = (overrides: Partial<NodeExecution> = {}): NodeExecution => ({

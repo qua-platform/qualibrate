@@ -42,9 +42,4 @@ export default defineConfig({
       '**/tests/e2e**', // Exclude the tests/e2e directory (Playwright E2E tests)
     ],
   },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
 });

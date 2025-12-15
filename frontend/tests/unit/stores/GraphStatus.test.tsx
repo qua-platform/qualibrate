@@ -1,3 +1,4 @@
+import "@testing-library/jest-dom"
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
@@ -9,16 +10,16 @@ import { getAllMeasurements, getTrackLatest } from "../../../src/stores/GraphSto
 import { getSelectedWorkflowName } from "../../../src/stores/GraphStores/GraphCommon/selectors";
 import { setSelectedWorkflowName } from "../../../src/stores/GraphStores/GraphCommon/actions";
 import { setNodes, setEdges } from "../../../src/stores/GraphStores/GraphCommon/actions";
-import { setActivePage } from "@/stores/NavigationStore/actions";
 import { server } from "../utils/mocks/server";
 import { http, HttpResponse } from "msw";
-import { getClickedForSnapshotSelection, getDiffData, getResult, getSelectedSnapshotId } from "@/stores/SnapshotsStore/selectors";
-import { SnapshotsApi } from "@/stores/SnapshotsStore/api/SnapshotsApi";
+import { getClickedForSnapshotSelection, getDiffData, getResult, getSelectedSnapshotId } from "../../../src/stores/SnapshotsStore/selectors";
+import { setActivePage } from "../../../src/stores/NavigationStore";
+import { SnapshotsApi } from "../../../src/stores/SnapshotsStore";
 
 const GRAPH_STATUS_KEY = "graph-status";
 
 // Mock the child components to isolate GraphStatus logic
-vi.mock("@/modules/GraphStatus/components/MeasurementElementGraph/MeasurementElementGraph", () => ({
+vi.mock("../../../src/modules/GraphStatus/components/MeasurementElementGraph/MeasurementElementGraph", () => ({
   MeasurementElementGraph: ({ onNodeClick }: { onNodeClick?: (name: string) => void }) => (
     <div data-testid="measurement-element-graph">
       <button onClick={() => onNodeClick?.("test_node")}>Click Node</button>
@@ -26,12 +27,12 @@ vi.mock("@/modules/GraphStatus/components/MeasurementElementGraph/MeasurementEle
   ),
 }));
 
-vi.mock("@/modules/GraphStatus/components/MeasurementHistory/MeasurementHistory", () => ({
+vi.mock("../../../src/modules/GraphStatus/components/MeasurementHistory/MeasurementHistory", () => ({
   MeasurementHistory: () => <div data-testid="measurement-history">Measurement History</div>,
 }));
 
 // Mock Results component to avoid FlexLayoutContext dependency
-vi.mock("@/components/Results/Results", () => ({
+vi.mock("../../../src/components/Results/Results", () => ({
   Results: ({ jsonObject, errorObject }: { jsonObject: object; errorObject?: object }) => (
     <div data-testid="results">
       {errorObject ? (
@@ -52,8 +53,8 @@ vi.mock("../GraphStatusStore", async () => {
   };
 });
 
-vi.mock("@/modules/Snapshots/context/SnapshotsContext", async () => {
-  const actual = await vi.importActual("@/modules/Snapshots/context/SnapshotsContext");
+vi.mock("../../../src/modules/Snapshots/context/SnapshotsContext", async () => {
+  const actual = await vi.importActual("../../../src/modules/Snapshots/context/SnapshotsContext");
   return {
     ...actual,
     useSnapshotsContext: vi.fn(),
@@ -61,8 +62,8 @@ vi.mock("@/modules/Snapshots/context/SnapshotsContext", async () => {
 });
 
 
-vi.mock("@/modules/common/context/SelectionContext", async () => {
-  const actual = await vi.importActual("@/modules/common/context/SelectionContext");
+vi.mock("../../../src/modules/common/context/SelectionContext", async () => {
+  const actual = await vi.importActual("../../../src/modules/common/context/SelectionContext");
   return {
     ...actual,
     useSelectionContext: vi.fn(),
