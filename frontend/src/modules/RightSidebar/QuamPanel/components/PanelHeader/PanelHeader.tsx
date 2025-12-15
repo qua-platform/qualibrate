@@ -1,7 +1,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./PanelHeader.module.scss";
-import { ToggleSwitchRightPanel } from "../../../../../common/ui-components/common/ToggleSwitchRightPanel/ToggleSwitchRightPanel";
+import { ToggleSwitch } from "../../../../../components";
 import { IdInputField } from "../IdInputField/IdInputField";
 
 type PanelHeaderProps = {
@@ -19,7 +19,7 @@ export const PanelHeader: React.FC<PanelHeaderProps> = ({ trackLatest, onToggleT
     <div className={styles.panelHeaderContent}>
       <div className={styles.trackLatestWrapper}>
         <span>Track latest</span>
-        <ToggleSwitchRightPanel isOn={trackLatest} onToggle={onToggleTrackLatest} />
+        <ToggleSwitch isOn={trackLatest} onToggle={onToggleTrackLatest} />
       </div>
     </div>
     <div className={styles.idWrapper}>

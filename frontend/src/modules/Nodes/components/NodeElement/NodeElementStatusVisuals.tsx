@@ -7,7 +7,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import CircularLoaderProgress from "../../../../ui-lib/Icons/CircularLoaderProgress";
+import { CircularLoaderProgress } from "../../../../components";
 import { useSelector } from "react-redux";
 import { getRunStatusNodePercentage } from "../../../../stores/WebSocketStore/selectors";
 

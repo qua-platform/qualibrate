@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ErrorObject } from "../../modules/common/Error/ErrorStatusInterface";
-import { NodeDTO, NodeMap } from "../../modules/Nodes/components/NodeElement/NodeElement";
+import { ErrorObject } from "../../components";
+import { NodeDTO, NodeMap } from "../../modules/Nodes";
 
 export interface StateUpdateObject {
   key?: string | number;

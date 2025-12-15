@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { Measurement } from "../GraphStores/GraphStatus/GraphStatusStore";
-import {ErrorObject} from "../../modules/common/Error/ErrorStatusInterface";
+import { Measurement } from "../GraphStores/GraphStatus";
+import {ErrorObject} from "../../components";
 
 /**
  * Results from completed calibration node.

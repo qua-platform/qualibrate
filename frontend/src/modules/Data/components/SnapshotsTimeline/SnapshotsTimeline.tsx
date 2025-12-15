@@ -2,8 +2,13 @@ import React from "react";
 import { SnapshotElement } from "../SnapshotElement/SnapshotElement";
 import styles from "./SnapshotsTimeline.module.scss";
 import { useSelector } from "react-redux";
-import { getAllSnapshots, getSelectedSnapshotId } from "../../../../stores/SnapshotsStore/selectors";
-import { fetchOneSnapshot, setClickedForSnapshotSelection, setSelectedSnapshotId } from "../../../../stores/SnapshotsStore/actions";
+import {
+  getAllSnapshots,
+  getSelectedSnapshotId,
+  fetchOneSnapshot,
+  setClickedForSnapshotSelection,
+  setSelectedSnapshotId,
+} from "../../../../stores/SnapshotsStore";
 import { useRootDispatch } from "../../../../stores";
 
 export const SnapshotsTimeline = () => {

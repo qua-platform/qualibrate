@@ -1,14 +1,12 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
-import styles from "./styles/TitleBarMenu.module.scss";
-import modulesMap, { PROJECT_KEY } from "../../routing/ModulesRegistry";
-import PageName from "../../common/ui-components/common/Page/PageName";
-import TitleBarGraphCard from "./TitleBarGraphCard/TitleBarGraphCard";
+import styles from "./TitleBarMenu.module.scss";
+import { modulesMap, PROJECT_KEY } from "../AppRoutes";
+import TitleBarGraphCard from "./components/TitleBarGraphCard/TitleBarGraphCard";
 import { useSelector } from "react-redux";
-import { getActivePage, getIsRefreshButtonShown } from "../../stores/NavigationStore/selectors";
-import BlueButton from "../../ui-lib/components/Button/BlueButton";
+import { BlueButton } from "../../components";
 import { useRootDispatch } from "../../stores";
-import { refreshPage } from "../../stores/NavigationStore/actions";
+import { getActivePage, getIsRefreshButtonShown, refreshPage } from "../../stores/NavigationStore";
 
 const TopBar: React.FC = () => {
   const activePage = useSelector(getActivePage);
@@ -23,7 +21,7 @@ const TitleBarMenu: React.FC = () => {
 
   return (
     <div className={styles.wrapper}>
-      <PageName>{modulesMap[activePage ?? ""]?.menuItem?.title ?? ""}</PageName>
+      <h1 className={styles.pageName}>{modulesMap[activePage ?? ""]?.menuItem?.title ?? ""}</h1>
       {IsRefreshButtonShown && <div className={styles.refreshButtonWrapper} data-testid="refresh-button">
         <BlueButton onClick={() => dispatch(refreshPage())}>Refresh</BlueButton>
       </div>}

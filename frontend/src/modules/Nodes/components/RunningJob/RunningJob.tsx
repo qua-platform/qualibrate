@@ -5,7 +5,7 @@ import styles from "./RunningJob.module.scss";
 import { StateUpdates } from "../StateUpdates/StateUpdates";
 import { RunningJobNodeProgressTracker } from "./RunningJobNodeProgressTracker";
 import { RunningJobParameters } from "./RunningJobParameters";
-import { getRunStatusNodeStatus } from "../../../../stores/WebSocketStore/selectors";
+import { getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
 
 export const RunningJob: React.FC = () => {
   const runNodeStatus = useSelector(getRunStatusNodeStatus);

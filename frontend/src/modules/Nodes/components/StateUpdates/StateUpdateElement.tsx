@@ -2,16 +2,12 @@ import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
 import { CircularProgress } from "@mui/material";
-import { CheckMarkBeforeIcon } from "../../../../ui-lib/Icons/CheckMarkBeforeIcon";
-import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
-import { CheckMarkAfterIcon } from "../../../../ui-lib/Icons/CheckMarkAfterIcon";
+import { SnapshotsApi, getLatestSnapshotId, getSecondId, getTrackLatestSidePanel, fetchOneSnapshot } from "../../../../stores/SnapshotsStore";
+import { CheckMarkBeforeIcon, CheckMarkAfterIcon } from "../../../../components";
 import { ValueRow } from "./ValueRow";
-import { setRunningNodeInfo } from "../../../../stores/NodesStore/actions";
 import { useRootDispatch } from "../../../../stores";
-import { RunningNodeInfo, StateUpdateObject } from "../../../../stores/NodesStore/NodesStore";
+import { setRunningNodeInfo, RunningNodeInfo, StateUpdateObject } from "../../../../stores/NodesStore";
 import { useSelector } from "react-redux";
-import { getLatestSnapshotId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
-import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
 
 interface StateUpdateProps {
   stateKey: string;

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { SnapshotDTO } from "../../modules/Snapshots/SnapshotDTO";
+import { SnapshotDTO } from "./api/SnapshotsApi";
 
 interface SnapshotsState {
   trackLatestSidePanel: boolean;

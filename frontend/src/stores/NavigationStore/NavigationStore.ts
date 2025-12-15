@@ -1,4 +1,4 @@
-import { ModuleKey } from "@/routing/ModulesRegistry";
+import { ModuleKey } from "../../modules/AppRoutes";
 import { createSlice } from "@reduxjs/toolkit";
 
 export interface NavigationState {

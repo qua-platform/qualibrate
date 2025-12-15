@@ -14,18 +14,14 @@ import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
 import {classNames} from "../../../../utils/classnames";
-import {Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
-import {ParameterList} from "../../../common/Parameters/ParameterList";
-import Graph from "../Graph/Graph";
+import {SubgraphBreadcrumbs} from "../../../Graph";
+import {Parameters, SingleParameter, ParameterList, ParameterSelector, BlueButton} from "../../../../components";
+import {Graph} from "../../../Graph";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import {getSelectedWorkflow} from "../../../../stores/GraphStores/GraphLibrary/selectors";
-import {setGraphNodeParameter, submitWorkflow} from "../../../../stores/GraphStores/GraphLibrary/actions";
+import {getSelectedWorkflow, submitWorkflow} from "../../../../stores/GraphStores/GraphLibrary";
 import {useRootDispatch} from "../../../../stores";
-import { getSelectedWorkflowName, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
-import { setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphCommon/actions";
-import SubgraphBreadcrumbs from "./components/SubgraphBreadcrumbs";
-import ParameterSelector from "../../../common/Parameters/ParameterSelector";
+import { getSelectedWorkflowName, getWorkflowGraphNodes, setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphCommon";
+import { setGraphNodeParameter } from "../../../../stores/GraphStores/GraphLibrary/actions";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;

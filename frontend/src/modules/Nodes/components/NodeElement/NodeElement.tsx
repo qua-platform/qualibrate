@@ -41,25 +41,24 @@ import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 import {CircularProgress} from "@mui/material";
-import {InputParameter, Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
-import {ErrorResponseWrapper} from "../../../common/Error/ErrorResponseWrapper";
 
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import {RunIcon} from "../../../../ui-lib/Icons/RunIcon";
+import {InputParameter, Parameters, SingleParameter, ErrorResponseWrapper, BlueButton, RunIcon, InfoIcon, ParameterSelector} from "../../../../components";
 import Tooltip from "@mui/material/Tooltip";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
-import { getNode, getIsNodeSelected, getSubmitNodeResponseError } from "../../../../stores/NodesStore/selectors";
-import { handleRunNode,
-  setNodeParameter,
+import {
+  getSubmitNodeResponseError,
   setSelectedNode,
-} from "../../../../stores/NodesStore/actions";
-import { getIsLastRunNode, getRunStatusIsRunning, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore/selectors";
-import {InfoIcon} from "../../../../ui-lib/Icons/InfoIcon";
+  handleRunNode,
+  setNodeParameter,
+  getIsNodeSelected,
+  getNode,
+} from "../../../../stores/NodesStore";
+import { getRunStatusIsRunning, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
 import {StatusVisuals} from "./NodeElementStatusVisuals";
 import {getNodeRowClass} from "./helpers";
-import {GraphWorkflow} from "../../../../modules/GraphLibrary/components/GraphList";
-import ParameterSelector from "../../../common/Parameters/ParameterSelector";
+import {GraphWorkflow} from "../../../../modules/GraphLibrary";
+import { getIsLastRunNode } from "../../../../stores/WebSocketStore/selectors";
 
 /**
  * Calibration node definition from backend node library scan.

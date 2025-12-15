@@ -1,7 +1,7 @@
 import {createSelector} from "@reduxjs/toolkit";
 import {getGraphState} from "../selectors";
 import {MarkerType} from "@xyflow/react";
-import { LOOPING_EDGE_TYPE } from "../../../modules/GraphLibrary/components/Graph/components";
+import { LOOPING_EDGE_TYPE } from "../../../modules/Graph";
 
 export const getGraphCommonState = createSelector(getGraphState, (graphState) => graphState.common);
 

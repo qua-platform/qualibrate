@@ -1,4 +1,4 @@
-import { ProjectDTO } from "../../modules/Project/ProjectDTO";
+import { ProjectDTO } from "./api/ProjectViewAPI";
 import { buildCreateSlice, asyncThunkCreator, PayloadAction } from "@reduxjs/toolkit";
 
 export interface ProjectsState {

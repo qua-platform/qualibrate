@@ -1,7 +1,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./PanelUpdates.module.scss";
-import { ToggleSwitchRightPanel } from "../../../../../common/ui-components/common/ToggleSwitchRightPanel/ToggleSwitchRightPanel";
+import { ToggleSwitch } from "../../../../../components";
 import { IdInputField } from "../IdInputField/IdInputField";
 
 type PanelUpdatesProps = {
@@ -22,7 +22,7 @@ export const PanelUpdates: React.FC<PanelUpdatesProps> = ({ previousSnapshot, on
         <div>Compare with:</div>
         <div className={styles.trackLatestWrapper}>
           <span>Prev</span>
-          <ToggleSwitchRightPanel isOn={previousSnapshot} onToggle={onTogglePrevious} />
+          <ToggleSwitch isOn={previousSnapshot} onToggle={onTogglePrevious} />
         </div>
         <div className={styles.idWrapper}>
           <div>ID:</div>

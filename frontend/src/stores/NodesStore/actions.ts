@@ -1,13 +1,11 @@
-import { NodesApi } from "../../modules/Nodes/api/NodesAPI";
+import { NodesApi } from "./api/NodesAPI";
 import { RootDispatch, RootState } from "..";
 import { ErrorWithDetails, nodesSlice, StateUpdate, StatusResponseType } from "./NodesStore";
-import { NodeDTO, NodeMap } from "../../modules/Nodes/components/NodeElement/NodeElement";
-import { SnapshotsApi } from "../../modules/Snapshots/api/SnapshotsApi";
+import { NodeDTO, NodeMap } from "../../modules/Nodes";
+import { fetchOneSnapshot, getFirstId, getSecondId, getTrackLatestSidePanel, SnapshotsApi } from "../SnapshotsStore";
 import { getRunningNode, getRunningNodeInfo } from "./selectors";
-import { formatDateTime } from "../../modules/GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
-import { InputParameter } from "@/modules/common/Parameters/Parameters";
-import { getFirstId, getSecondId, getTrackLatestSidePanel } from "../SnapshotsStore/selectors";
-import { fetchOneSnapshot } from "../SnapshotsStore/actions";
+import { formatDateTime } from "../../utils/formatDateTime";
+import { InputParameter } from "../../components";
 
 export const {
   setSelectedNode,

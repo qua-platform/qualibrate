@@ -1,5 +1,5 @@
-import { EdgeDTO, FetchGraphResponse } from "@/modules/GraphLibrary/api/GraphLibraryApi";
-import { DEFAULT_NODE_TYPE, LOOPING_EDGE_TYPE } from "../../../modules/GraphLibrary/components/Graph/components";
+import { EdgeDTO, FetchGraphResponse } from "../GraphLibrary";
+import { DEFAULT_NODE_TYPE, LOOPING_EDGE_TYPE } from "../../../modules/Graph";
 import { Node } from "@xyflow/react";
 import ELK from "elkjs/lib/elk.bundled.js";
 
