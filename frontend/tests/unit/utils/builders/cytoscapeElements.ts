@@ -5,7 +5,7 @@
  * for use in tests.
  */
 import {Edge, Node} from "@xyflow/react";
-import { NodeData } from "../../../../src/stores/GraphStores/GraphLibrary";
+import {NodeData} from "../../../../src/stores/GraphStores/GraphLibrary";
 
 /**
  * Creates a graph node element definition.
