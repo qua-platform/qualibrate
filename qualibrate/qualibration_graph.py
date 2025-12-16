@@ -852,6 +852,17 @@ class QualibrationGraph(
 
                 element = graph_self._elements[node_name]
                 subgraph_data = {}
+                loop_flag = False
+                loop_data: dict[str, Any] = {}
+                node_conditions = self._loop_conditions.get(node_name)
+                if node_conditions:
+                    loop_flag = True
+                    loop_data["condition"] = (
+                        node_conditions.on_generator is not None
+                        or node_conditions.on_function is not None
+                    )
+                    loop_data["on_failure"] = node_conditions.on_failure
+                    loop_data["max_iterations"] = node_conditions.max_iterations
 
                 if isinstance(element, QualibrationGraph):
                     subgraph_data["subgraph"] = (
@@ -861,7 +872,12 @@ class QualibrationGraph(
                 flow_dict["nodes"].append(
                     {
                         "id": node_id,
-                        "data": {"label": node_name, **subgraph_data},
+                        "loop": loop_flag,
+                        "data": {
+                            "label": node_name,
+                            **subgraph_data,
+                            **loop_data,
+                        },
                     }
                 )
 
@@ -1145,9 +1161,10 @@ class QualibrationGraph(
                     Callable[[GraphElementTypeVar, TargetType], bool], on
                 )
 
-    def loop_on_failure(
+    def _loop_on_failure(
         self, element: str | GraphElementTypeVar, max_iterations: int
     ) -> None:
+        """protected for internal use"""
         element_name = self._get_validated_element_name(element)
         conditions = self._loop_conditions[element_name]
         conditions.max_iterations = max_iterations
