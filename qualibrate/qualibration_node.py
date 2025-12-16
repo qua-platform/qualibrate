@@ -137,7 +137,8 @@ def simplify_traceback(
     ]
 
     if not action_framework_indices:
-        # No action framework code - this is a node body error (not inside an action) or import error
+        # No action framework code - this is a node body error
+        # (not inside an action) or import error
         # Start from the first node file occurrence
         start_idx = node_frame_indices[0]
     else:

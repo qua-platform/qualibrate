@@ -111,6 +111,17 @@ def action_with_no_return():
 
 
 @pytest.fixture
+def action_with_dict_return():
+    """Provide an action function that returns a dict value."""
+
+    def action_func(node):
+        """Action that returns a dict value."""
+        return {"x": 1, "y": 2, "z": 3}
+
+    return action_func
+
+
+@pytest.fixture
 def action_with_non_dict_return():
     """Provide an action function that returns a non-dict value."""
 

@@ -57,33 +57,30 @@ class TestRunAndUpdateNamespace:
 
         assert executed["called"] is True
 
-    def test_returns_function_result(self, mock_action_manager, mock_node, simple_action_function):
+    def test_returns_function_result(
+        self, mock_action_manager, mock_node, simple_action_function
+    ):
         """Test that method returns the function's return value."""
         action = Action(simple_action_function, mock_action_manager)
         result = action._run_and_update_namespace(mock_node)
 
         assert result == {"result": "success", "value": 42}
 
-    def test_updates_namespace_with_dict_return(self, mock_action_manager, mock_node):
+    def test_updates_namespace_with_dict_return(
+        self, mock_action_manager, mock_node, action_with_dict_return
+    ):
         """Test that dict returns update node.namespace."""
 
-        def test_func(node):
-            return {"x": 1, "y": 2, "z": 3}
-
-        action = Action(test_func, mock_action_manager)
+        action = Action(action_with_dict_return, mock_action_manager)
         action._run_and_update_namespace(mock_node)
 
         assert mock_node.namespace == {"x": 1, "y": 2, "z": 3}
 
     def test_no_namespace_update_with_none_return(
-        self, mock_action_manager, mock_node
+        self, mock_action_manager, mock_node, action_with_no_return
     ):
-        """Test that None return doesn't update namespace."""
-
-        def test_func(node):
-            return None
-
-        action = Action(test_func, mock_action_manager)
+        """Test that no return doesn't update namespace."""
+        action = Action(action_with_no_return, mock_action_manager)
         action._run_and_update_namespace(mock_node)
 
         assert mock_node.namespace == {}
@@ -178,7 +175,9 @@ class TestExecuteRunActionNonInteractive:
         current_action_during_execution = []
 
         def tracking_func(node):
-            current_action_during_execution.append(mock_action_manager.current_action)
+            current_action_during_execution.append(
+                mock_action_manager.current_action
+            )
             return {"result": "success"}
 
         action = Action(tracking_func, mock_action_manager)
@@ -287,7 +286,11 @@ class TestExecuteRunActionNonInteractive:
         assert mock_node.namespace == {}
 
     def test_current_action_not_cleared_on_exception(
-        self, action_that_raises, mock_action_manager, mock_node, non_interactive_mode
+        self,
+        action_that_raises,
+        mock_action_manager,
+        mock_node,
+        non_interactive_mode,
     ):
         """Test that current_action remains set if action raises.
 
@@ -303,7 +306,11 @@ class TestExecuteRunActionNonInteractive:
         assert mock_action_manager.current_action is action
 
     def test_exception_propagates_to_caller(
-        self, action_that_raises, mock_action_manager, mock_node, non_interactive_mode
+        self,
+        action_that_raises,
+        mock_action_manager,
+        mock_node,
+        non_interactive_mode,
     ):
         """Test that exceptions from actions propagate correctly."""
         action = Action(action_that_raises, mock_action_manager)
