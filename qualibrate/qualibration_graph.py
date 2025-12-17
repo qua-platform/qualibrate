@@ -75,24 +75,6 @@ NodeLibT = QualibrationNode[NodeParameters, MachineProtocol]
 GraphElLibT = QRunnable[RunnableParameters, RunnableParameters]
 
 
-# class LoopCondition(BaseModel, Generic[GraphElementTypeVar]):
-#     on_failure: bool = False
-#     on_function: Callable[[GraphElementTypeVar, TargetType], bool] | None = None
-#     on_generator: (
-#         Callable[
-#             [],
-#             Generator[
-#                 bool, tuple[GraphElementTypeVar, TargetType] | None, None
-#             ],
-#         ]
-#         | None
-#     ) = None
-#     max_iterations: int | None = None
-#     """
-#     Common amount for all loop types (on failure, on function, on generator)
-#     """
-
-
 class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType],
     GraphExportMixin[GraphElementTypeVar],
