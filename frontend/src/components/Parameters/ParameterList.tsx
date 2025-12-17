@@ -8,7 +8,7 @@ interface IProps {
   showParameters: boolean;
   mapOfItems?: NodeMap | GraphWorkflow;
   title?: string;
-  onChange: (parameterKey: string, newValue: string | number | boolean, isValid: boolean, nodeId?: string | undefined) => void
+  onChange: (parameterKey: string, newValue: string | number | boolean | string[], isValid: boolean, nodeId?: string | undefined) => void
 }
 
 export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfItems, onChange }) => {

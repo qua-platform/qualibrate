@@ -51,7 +51,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     setErrors(newSet);
   };
 
-  const onNodeParameterChange = (parameterKey: string, newValue: string | number | boolean, isValid: boolean, nodeId?: string | undefined) => {
+  const onNodeParameterChange = (parameterKey: string, newValue: string | number | boolean | string[], isValid: boolean, nodeId?: string | undefined) => {
     handleSetError(parameterKey, isValid);
     dispatch(setGraphNodeParameter(parameterKey, newValue, nodeId));
   };

@@ -164,7 +164,7 @@ export const submitWorkflow = () => async (dispatch: RootDispatch, getState: () 
   }
 };
 
-export const setGraphNodeParameter = (paramKey: string, newValue: boolean | number | string, nodeId?: string) =>
+export const setGraphNodeParameter = (paramKey: string, newValue: boolean | number | string | string[], nodeId?: string) =>
   (dispatch: RootDispatch, getState: () => RootState) => {
     const subgraphBreadcrumbs = getSubgraphBreadcrumbs(getState());
     const selectedWorkflowName = getSelectedWorkflowName(getState());
