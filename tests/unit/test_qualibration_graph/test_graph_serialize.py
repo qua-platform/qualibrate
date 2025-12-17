@@ -155,7 +155,8 @@ def test_serialize_with_nested_graphs(
                                 "id": "3->4",
                                 "source": 3,
                                 "target": 4,
-                                "data": {"condition": True},
+                                "data": {'connect': True,
+                                         'operational_condition': False,},
                             }
                         ],
                     },
@@ -168,7 +169,8 @@ def test_serialize_with_nested_graphs(
                 "id": "1->2",
                 "source": 1,
                 "target": 2,
-                "data": {"condition": True},
+                "data": {'connect': True,
+                         'operational_condition': False,},
             }
         ],
     }
@@ -203,8 +205,8 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
                                 "id": "3->4",
                                 "source": 3,
                                 "target": 4,
-                                "data": {"condition": False},
-                            }
+                                "data": {'connect': False,
+                                         'operational_condition': False,},                            }
                         ],
                     },
                 },
@@ -216,7 +218,9 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
                 "id": "1->2",
                 "source": 1,
                 "target": 2,
-                "data": {"condition": True},
+                "data": {'connect': True,
+                         'operational_condition': False,
+                         },
             }
         ],
     }

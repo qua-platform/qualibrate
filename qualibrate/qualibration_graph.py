@@ -1,10 +1,11 @@
 import copy
+import inspect
 import traceback
 from collections import defaultdict
 from collections.abc import Callable, Generator, Mapping, Sequence
 from contextvars import Token
 from datetime import datetime
-from inspect import isgeneratorfunction
+from inspect import isgeneratorfunction, Signature
 from pathlib import Path
 from types import TracebackType
 from typing import (
@@ -16,12 +17,12 @@ from typing import (
 )
 
 import networkx as nx
-from pydantic import BaseModel, create_model
+from pydantic import create_model
 from typing_extensions import Self
 
 from qualibrate.models.node_status import ElementRunStatus
 from qualibrate.models.outcome import Outcome
-from qualibrate.models.operational_condition import OperationalCondition
+from qualibrate.models.operational_condition import LoopCondition, OperationalCondition
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.models.run_summary.graph import GraphRunSummary
@@ -87,8 +88,6 @@ GraphElLibT = QRunnable[RunnableParameters, RunnableParameters]
 #     """
 #     Common amount for all loop types (on failure, on function, on generator)
 #     """
-class LoopCondition(OperationalCondition[GraphElementTypeVar]):
-    max_iterations: int | None = None
 
 class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType],
@@ -125,6 +124,8 @@ class QualibrationGraph(
     EDGE_TARGETS_FIELD = "targets"
     ELEMENT_STATUS_FIELD = "status"
     LOOP_TARGETS_FIELD = "loop_targets"
+    OPERATIONAL_CONDITION_FIELD = "operational_condition"
+    RUN_SCENARIO_FIELD = "scenario"
     _node_init_args = {
         ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
     }
@@ -146,7 +147,7 @@ class QualibrationGraph(
         if not isinstance(parameters, GraphParameters):
             raise ValueError("Graph parameters must be of type GraphParameters")
         super().__init__(name, parameters, description=description, modes=modes)
-        self._connectivity: dict[tuple[str, str], OperationalCondition[GraphElementTypeVar]]
+        self._connectivity: dict[tuple[str, str], dict[str,Any]]
         if finalize:
             if nodes is None or connectivity is None:
                 raise RuntimeError(
@@ -156,7 +157,8 @@ class QualibrationGraph(
             self._elements = dict(nodes)
             self._connectivity = {
                 # connectivity: Outcome.SUCCESSFUL
-                connectivity: OperationalCondition[GraphElementTypeVar](on_scenario=Outcome.SUCCESSFUL)
+                connectivity: {QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL,
+                               QualibrationGraph.OPERATIONAL_CONDITION_FIELD:OperationalCondition[GraphElementTypeVar]()}
             for connectivity in connectivity
             }
         else:
@@ -268,7 +270,8 @@ class QualibrationGraph(
                 new_graph._graph.add_edge(
                     new_graph._elements[source],
                     new_graph._elements[destination],
-                    operational_condition=copy.deepcopy(self._connectivity[(source, destination)]),
+                    scenario = self._connectivity[(source,destination)][QualibrationGraph.RUN_SCENARIO_FIELD],
+                    operational_condition=copy.deepcopy(self._connectivity[(source, destination)][QualibrationGraph.OPERATIONAL_CONDITION_FIELD]),
                 )
 
         # Copy orchestrator if it exists
@@ -350,7 +353,8 @@ class QualibrationGraph(
                 self._graph.add_edge(
                     source_element,
                     destination_element,
-                    operational_condition=self._connectivity[(source, destination)],
+                    scenario = self._connectivity[(source,destination)][QualibrationGraph.RUN_SCENARIO_FIELD],
+                    operational_condition=self._connectivity[(source, destination)][QualibrationGraph.OPERATIONAL_CONDITION_FIELD],
                 )
         self._validate_graph_acyclic()
 
@@ -864,7 +868,7 @@ class QualibrationGraph(
                         node_conditions.on_generator is not None
                         or node_conditions.on_function is not None
                     )
-                    loop_data["on_failure"] = node_conditions.on_scenario == Outcome.FAILED
+                    loop_data["on_failure"] = node_conditions.on_failure
                     loop_data["max_iterations"] = node_conditions.max_iterations
 
                 if isinstance(element, QualibrationGraph):
@@ -886,7 +890,15 @@ class QualibrationGraph(
 
                 for adj in adjacency:
                     target_name = adj["id"]
-
+                    #where QualibrationGraph.OPERATIONAL_CONDITION_FIELD is used, it's because it is how we save the operational condition in the graph
+                    #where it's not used but operational_condition key is still use, it's because this is the key returned to the ui and not necessarily the key we save the data in
+                    #same as for scenario
+                    condition_name, condition_content = self._get_operational_condition_signature_and_content(adj[QualibrationGraph.OPERATIONAL_CONDITION_FIELD])
+                    operational_condition_data = {'operational_condition': False}
+                    if condition_name and condition_content:
+                        operational_condition_data["operational_condition"] = True
+                        operational_condition_data["condition_label"] = condition_name
+                        operational_condition_data["condition_description"] = condition_content
                     flow_dict["edges"].append(
                         {
                             "id": f"{node_id}->"
@@ -894,10 +906,11 @@ class QualibrationGraph(
                             "source": node_id,
                             "target": name_identifier_dict[target_name],
                             "data": {
-                                "condition": adj.get(
-                                    "scenario", Outcome.SUCCESSFUL
+                                "connect": adj.get(
+                                    QualibrationGraph.RUN_SCENARIO_FIELD, Outcome.SUCCESSFUL
                                 )
                                 == Outcome.SUCCESSFUL,
+                                **operational_condition_data,
                             },
                         }
                     )
@@ -1091,7 +1104,7 @@ class QualibrationGraph(
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
     ) -> None:
-        self._connect(src, dst)
+        self._connect(src=src, dst=dst,run_scenario=Outcome.SUCCESSFUL)
 
     @ensure_not_finalized
     @ensure_building
@@ -1100,7 +1113,6 @@ class QualibrationGraph(
         /,
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
-        element: str | GraphElementTypeVar,
         on: (
                 Callable[
                     [],
@@ -1122,8 +1134,8 @@ class QualibrationGraph(
                 on_function = cast(
                     Callable[[GraphElementTypeVar, TargetType], bool], on
                 )
-        operational_condition = OperationalCondition(on_function = on_function, on_generator = on_generator, on_scenario=Outcome.FAILED)
-        self._connect(src, dst, operational_condition)
+        operational_condition = OperationalCondition(on_function = on_function, on_generator = on_generator)
+        self._connect(src=src, dst=dst,run_scenario=Outcome.FAILED,operational_condition= operational_condition)
 
     @ensure_not_finalized
     @ensure_building
@@ -1131,7 +1143,7 @@ class QualibrationGraph(
         self,
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
-        # run_scenario: Outcome,
+        run_scenario: Outcome,
         operational_condition: OperationalCondition[GraphElementTypeVar] = None,
     ) -> None:
         s = self._resolve_element_name(src)
@@ -1141,10 +1153,13 @@ class QualibrationGraph(
                 f"Both '{s}' and '{d}' must be added before connecting."
             )
         edge = (s, d)
-        self._connectivity[edge] = operational_condition if operational_condition else OperationalCondition(on_scenario=Outcome.SUCCESSFUL)
+        #bug fix it
+        if edge in self._connectivity:
+            raise ValueError(f"Edge '{edge}' already exists.")
+        self._connectivity[edge] ={QualibrationGraph.RUN_SCENARIO_FIELD : run_scenario,
+                                   QualibrationGraph.OPERATIONAL_CONDITION_FIELD: operational_condition if operational_condition else OperationalCondition()}
 
-        # if edge in self._connectivity:
-        #     return
+
         # self._connectivity[edge] = run_scenario
 
     def _get_validated_element_name(
@@ -1196,4 +1211,15 @@ class QualibrationGraph(
         element_name = self._get_validated_element_name(element)
         conditions = self._loop_conditions[element_name]
         conditions.max_iterations = max_iterations
-        conditions.on_scenario = Outcome.FAILED
+        conditions.on_failure = True
+
+    def _get_operational_condition_signature_and_content(self,operational_condition) -> tuple[str, str] | tuple[None, None]:
+        func = None
+        if operational_condition.on_function is not None:
+            func = operational_condition.on_function
+        elif operational_condition.on_generator is not None:
+            func = operational_condition.on_generator
+        if func is not None:
+            return func.__name__, inspect.getsource(func)
+        else:
+            return None,None

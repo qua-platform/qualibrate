@@ -13,6 +13,7 @@ with QualibrationGraph.build(
         on=lambda node, target: node.results[target]["fidelity"] < 0.95,
     )
     graph.connect("node", "node2")
+    # graph.connect_on_failure("node","node2", on=lambda x,y:True)
 
 if __name__ == "__main__":
     result = graph.run()

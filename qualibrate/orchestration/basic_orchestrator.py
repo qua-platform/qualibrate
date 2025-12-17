@@ -124,6 +124,10 @@ class BasicOrchestrator(
         """
         while not self._execution_queue.empty():
             element_to_run = self._execution_queue.get()
+            # Skip if already finished (handles duplicate queue entries)
+            if self.check_node_finished(element_to_run):
+                continue
+
             if all(
                 map(
                     self.check_node_finished, self.nx_graph.pred[element_to_run]
@@ -212,7 +216,7 @@ class BasicOrchestrator(
 
         # self.nx_graph.edges[element, successor]["operational_condition"] is of type OperationalCondition
         has_on_failed_successors = any(
-            self.nx_graph.edges[element, successor]["operational_condition"].on_scenario
+            self.nx_graph.edges[element, successor][QualibrationGraph.RUN_SCENARIO_FIELD]
             == Outcome.FAILED
             for successor in self.nx_graph.successors(element)
         )
@@ -225,9 +229,9 @@ class BasicOrchestrator(
                     QualibrationGraph.EDGE_TARGETS_FIELD
                 ] = (
                     successful_out_targets
-                    if self.nx_graph.edges[element, successor]["operational_condition"].on_scenario
+                    if self.nx_graph.edges[element, successor][QualibrationGraph.RUN_SCENARIO_FIELD]
                     == Outcome.SUCCESSFUL
-                    else self._execute_condition(self.nx_graph.edges[element, successor]["operational_condition"],
+                    else self._execute_condition(self.nx_graph.edges[element, successor][QualibrationGraph.OPERATIONAL_CONDITION_FIELD],
                                             element, failed_out_targets)
                 )
         else:
@@ -242,13 +246,16 @@ class BasicOrchestrator(
                     QualibrationGraph.EDGE_TARGETS_FIELD
                 ] = successful_out_targets
 
-    def _execute_condition(self,conditional_operation: OperationalCondition[GraphElementTypeVar], element: GraphElementTypeVar, targets: list[TargetType]) ->list[TargetType]:
-        if conditional_operation.on_generator is not None:
-            executed_condition = conditional_operation.on_generator()
+    def _execute_condition(self, operational_condition: OperationalCondition[GraphElementTypeVar], element: GraphElementTypeVar, targets: list[TargetType]) ->list[TargetType]:
+        if operational_condition.on_generator is not None:
+            executed_condition = operational_condition.on_generator()
             #priming the generator, we need to get to the point where the generator expects out two variables
             executed_condition.send(None)
             return [target for target in targets if executed_condition.send((element, target))]
-        return [target  for target in targets if conditional_operation.on_function(element, target)]
+        elif operational_condition.on_function is not None:
+            return [target for target in targets if operational_condition.on_function(element, target)]
+        # No condition specified, return all targets
+        return targets
 
 
 
@@ -296,7 +303,7 @@ class BasicOrchestrator(
                 yield False
                 return
             if (
-                conditions.on_scenario == Outcome.FAILED
+                conditions.on_failure
                 and nx_graph.nodes[element_to_run][
                     QualibrationGraph.ELEMENT_STATUS_FIELD
                 ]

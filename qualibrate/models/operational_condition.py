@@ -8,8 +8,6 @@ from qualibrate.utils.type_protocols import TargetType
 
 
 class OperationalCondition(BaseModel, Generic[GraphElementTypeVar]):
-    # on_failure: bool = False
-    on_scenario : Outcome
     on_function: Callable[[GraphElementTypeVar, TargetType], bool] | None = None
     on_generator: (
         Callable[
@@ -20,3 +18,8 @@ class OperationalCondition(BaseModel, Generic[GraphElementTypeVar]):
         ]
         | None
     ) = None
+
+
+class LoopCondition(OperationalCondition[GraphElementTypeVar]):
+    max_iterations: int | None = None
+    on_failure : bool = False
