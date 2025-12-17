@@ -2,17 +2,17 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from qualibrate import QualibrationNode, QualibrationGraph
+from qualibrate import QualibrationGraph, QualibrationNode
 from qualibrate.q_runnnable import QRunnable
 
 
 @pytest.fixture
-def mock_logger( mocker):
+def mock_logger(mocker):
     return mocker.patch("qualibrate.qualibration_graph.logger")
 
 
 @pytest.fixture
-def mock_library( mocker):
+def mock_library(mocker):
     """Mock the QualibrationLibrary to avoid initialization issues"""
     mock_lib = mocker.MagicMock()
     mock_lib.nodes.values_nocopy.return_value = {}  # Empty library
@@ -25,7 +25,7 @@ def mock_library( mocker):
 
 
 @pytest.fixture
-def mock_orchestrator( mocker):
+def mock_orchestrator(mocker):
     return mocker.patch(
         "qualibrate.orchestration.basic_orchestrator.QualibrationOrchestrator"
     )
@@ -41,7 +41,7 @@ def pre_setup_graph_nodes():
 
 
 @pytest.fixture
-def mocked__validate_no_elements_from_library( mocker):
+def mocked__validate_no_elements_from_library(mocker):
     return mocker.patch(
         "qualibrate.qualibration_graph.QualibrationGraph"
         "._validate_no_elements_from_library"
@@ -50,7 +50,7 @@ def mocked__validate_no_elements_from_library( mocker):
 
 @pytest.fixture
 def pre_setup_graph_parameters_build(
-        mocker, mocked__validate_no_elements_from_library
+    mocker, mocked__validate_no_elements_from_library
 ):
     mocked_build_base_parameters = mocker.patch.object(
         QRunnable, "build_parameters_class_from_instance"
@@ -68,7 +68,7 @@ def pre_setup_graph_parameters_build(
 
 @pytest.fixture
 def pre_setup_graph_init(
-        mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
+    mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
 ):
     mocked_add_nodes_and_connections = mocker.patch(
         "qualibrate.qualibration_graph.QualibrationGraph."

@@ -11,7 +11,6 @@ from qualibrate.models.operational_condition import OperationalCondition
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
 from qualibrate.parameters import GraphParameters
-from qualibrate.q_runnnable import QRunnable
 from qualibrate.utils.exceptions import CyclicGraphError, StopInspection
 
 
@@ -45,7 +44,8 @@ class TestQualibrationGraph:
         assert list(graph._connectivity.keys()) == connectivity
         assert all(
             edge[QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.SUCCESSFUL
-            and edge[QualibrationGraph.OPERATIONAL_CONDITION_FIELD] == OperationalCondition()
+            and edge[QualibrationGraph.OPERATIONAL_CONDITION_FIELD]
+            == OperationalCondition()
             for edge in graph._connectivity.values()
         )
         assert graph.name == "test_graph"
@@ -333,8 +333,18 @@ class TestQualibrationGraph:
 
         # Check connectivity was added with SUCCESSFUL outcome
         assert ("node1", "node2") in graph._connectivity
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.SUCCESSFUL
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.OPERATIONAL_CONDITION_FIELD] == OperationalCondition()
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.RUN_SCENARIO_FIELD
+            ]
+            == Outcome.SUCCESSFUL
+        )
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+            ]
+            == OperationalCondition()
+        )
 
     def test_connect_on_failure_adds_edge_with_failed_outcome_without_operational_condition(
         self, pre_setup_graph_init, mock_library
@@ -351,8 +361,18 @@ class TestQualibrationGraph:
 
         # Check connectivity was added with FAILED outcome
         assert ("node1", "node2") in graph._connectivity
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.FAILED
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.OPERATIONAL_CONDITION_FIELD] == OperationalCondition()
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.RUN_SCENARIO_FIELD
+            ]
+            == Outcome.FAILED
+        )
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+            ]
+            == OperationalCondition()
+        )
 
     def test_connect_with_node_objects(
         self, pre_setup_graph_init, mock_library
@@ -370,8 +390,18 @@ class TestQualibrationGraph:
             graph.connect(node1, node2)
 
         assert ("node1", "node2") in graph._connectivity
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.SUCCESSFUL
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.OPERATIONAL_CONDITION_FIELD] == OperationalCondition()
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.RUN_SCENARIO_FIELD
+            ]
+            == Outcome.SUCCESSFUL
+        )
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+            ]
+            == OperationalCondition()
+        )
 
     def test_connect_on_failure_with_node_objects(
         self, pre_setup_graph_init, mock_library
@@ -389,8 +419,18 @@ class TestQualibrationGraph:
             graph.connect_on_failure(node1, node2)
 
         assert ("node1", "node2") in graph._connectivity
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.FAILED
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.OPERATIONAL_CONDITION_FIELD] == OperationalCondition()
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.RUN_SCENARIO_FIELD
+            ]
+            == Outcome.FAILED
+        )
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+            ]
+            == OperationalCondition()
+        )
 
     def test_connect_raises_error_if_source_not_added(
         self, pre_setup_graph_nodes, mock_library
@@ -446,8 +486,18 @@ class TestQualibrationGraph:
 
         # Should still only have one edge
         assert len(graph._connectivity) == 1
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.SUCCESSFUL
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.OPERATIONAL_CONDITION_FIELD] == OperationalCondition()
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.RUN_SCENARIO_FIELD
+            ]
+            == Outcome.SUCCESSFUL
+        )
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+            ]
+            == OperationalCondition()
+        )
 
     def test_mixed_connect_and_connect_on_failure(
         self, pre_setup_graph_init, mock_library
@@ -471,11 +521,30 @@ class TestQualibrationGraph:
 
         # Check both edges exist with correct outcomes
         assert len(graph._connectivity) == 2
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.SUCCESSFUL
-        assert graph._connectivity[("node1", "node2")][QualibrationGraph.OPERATIONAL_CONDITION_FIELD] == OperationalCondition()
-        assert graph._connectivity[("node1", "node3")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.FAILED
-        assert graph._connectivity[("node1", "node3")][QualibrationGraph.OPERATIONAL_CONDITION_FIELD] == OperationalCondition()
-
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.RUN_SCENARIO_FIELD
+            ]
+            == Outcome.SUCCESSFUL
+        )
+        assert (
+            graph._connectivity[("node1", "node2")][
+                QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+            ]
+            == OperationalCondition()
+        )
+        assert (
+            graph._connectivity[("node1", "node3")][
+                QualibrationGraph.RUN_SCENARIO_FIELD
+            ]
+            == Outcome.FAILED
+        )
+        assert (
+            graph._connectivity[("node1", "node3")][
+                QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+            ]
+            == OperationalCondition()
+        )
 
     def test_build_context_manager_finalization(
         self, pre_setup_graph_init, mock_library

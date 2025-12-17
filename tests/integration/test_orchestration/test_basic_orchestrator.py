@@ -1,28 +1,26 @@
 from collections.abc import Generator
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 from pydantic import Field
 
+from qualibrate import QualibrationNode
 from qualibrate.models.execution_history import (
     ExecutionHistoryItem,
     ItemData,
     ItemMetadata,
 )
 from qualibrate.models.node_status import ElementRunStatus
+from qualibrate.models.operational_condition import OperationalCondition
 from qualibrate.models.outcome import Outcome
+from qualibrate.models.run_summary.node import NodeRunSummary
 from qualibrate.models.run_summary.run_error import RunError
 from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
-from qualibrate.parameters import (
-    GraphParameters,
-    RunnableParameters
-)
+from qualibrate.parameters import GraphParameters, RunnableParameters
 from qualibrate.qualibration_graph import QualibrationGraph
 from qualibrate.qualibration_library import QualibrationLibrary
-from unittest.mock import MagicMock
-from qualibrate import QualibrationNode
-from qualibrate.models.operational_condition import OperationalCondition
-from qualibrate.models.run_summary.node import NodeRunSummary
+
 
 @pytest.fixture
 def qualibration_lib(
@@ -170,6 +168,7 @@ def test_run_sequence_with_error(
         ),
     )
 
+
 def test_traverse_graph_with_conditional_failed_edge_filters_targets():
     """
     Integration test: Verify that operational conditions on failed edges
@@ -247,7 +246,8 @@ def test_traverse_graph_with_conditional_failed_edge_filters_targets():
 
     # Operational condition: only retry if error_type is "retriable"
     retry_condition = OperationalCondition(
-        on_function=lambda node, target: node.results[target]["error_type"] == "retriable"
+        on_function=lambda node, target: node.results[target]["error_type"]
+        == "retriable"
     )
 
     # Add edges
@@ -255,13 +255,13 @@ def test_traverse_graph_with_conditional_failed_edge_filters_targets():
         node1,
         node2_success,
         scenario=Outcome.SUCCESSFUL,
-        operational_condition=OperationalCondition()
+        operational_condition=OperationalCondition(),
     )
     nx_graph.add_edge(
         node1,
         node3_retry,
         scenario=Outcome.FAILED,
-        operational_condition=retry_condition
+        operational_condition=retry_condition,
     )
 
     mock_graph._graph = nx_graph
@@ -335,9 +335,18 @@ def test_traverse_graph_with_conditional_failed_edge_filters_targets():
     assert set(execution_log[2][1]) == {"q3", "q4"}
 
     # Verify all nodes finished
-    assert nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
-    assert nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
-    assert nx_graph.nodes[node3_retry][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
+    assert (
+        nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD]
+        == ElementRunStatus.finished
+    )
+    assert (
+        nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD]
+        == ElementRunStatus.finished
+    )
+    assert (
+        nx_graph.nodes[node3_retry][QualibrationGraph.ELEMENT_STATUS_FIELD]
+        == ElementRunStatus.finished
+    )
 
 
 def test_traverse_graph_with_generator_condition_on_failed_edge():
@@ -424,13 +433,13 @@ def test_traverse_graph_with_generator_condition_on_failed_edge():
         node1,
         node2_success,
         scenario=Outcome.SUCCESSFUL,
-        operational_condition=OperationalCondition()
+        operational_condition=OperationalCondition(),
     )
     nx_graph.add_edge(
         node1,
         node3_retry,
         scenario=Outcome.FAILED,
-        operational_condition=retry_condition
+        operational_condition=retry_condition,
     )
 
     mock_graph._graph = nx_graph
@@ -504,9 +513,18 @@ def test_traverse_graph_with_generator_condition_on_failed_edge():
     assert set(execution_log[2][1]) == {"q2", "q4"}
 
     # Verify all nodes finished
-    assert nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
-    assert nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
-    assert nx_graph.nodes[node3_retry][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
+    assert (
+        nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD]
+        == ElementRunStatus.finished
+    )
+    assert (
+        nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD]
+        == ElementRunStatus.finished
+    )
+    assert (
+        nx_graph.nodes[node3_retry][QualibrationGraph.ELEMENT_STATUS_FIELD]
+        == ElementRunStatus.finished
+    )
 
 
 def test_traverse_graph_multiple_failed_edges_different_conditions():
@@ -569,7 +587,12 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
 
     # Setup parameters
     mock_params = MagicMock()
-    for name in ["node1", "node2_success", "node3_timeout_handler", "node4_hw_handler"]:
+    for name in [
+        "node1",
+        "node2_success",
+        "node3_timeout_handler",
+        "node4_hw_handler",
+    ]:
         params = MagicMock()
         params.targets = None
         params.model_dump.return_value = {}
@@ -594,9 +617,24 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
     )
 
     # Add edges
-    nx_graph.add_edge(node1, node2_success, scenario=Outcome.SUCCESSFUL, operational_condition=OperationalCondition())
-    nx_graph.add_edge(node1, node3_timeout, scenario=Outcome.FAILED, operational_condition=timeout_condition)
-    nx_graph.add_edge(node1, node4_hw, scenario=Outcome.FAILED, operational_condition=hw_condition)
+    nx_graph.add_edge(
+        node1,
+        node2_success,
+        scenario=Outcome.SUCCESSFUL,
+        operational_condition=OperationalCondition(),
+    )
+    nx_graph.add_edge(
+        node1,
+        node3_timeout,
+        scenario=Outcome.FAILED,
+        operational_condition=timeout_condition,
+    )
+    nx_graph.add_edge(
+        node1,
+        node4_hw,
+        scenario=Outcome.FAILED,
+        operational_condition=hw_condition,
+    )
 
     mock_graph._graph = nx_graph
 
@@ -604,7 +642,7 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
     execution_log = {}
 
     def node1_run(interactive=False, **kwargs):
-        params = getattr(mock_params, "node1")
+        params = mock_params.node1
         targets_received = params.targets[:]
         execution_log["node1"] = targets_received
 
@@ -619,7 +657,7 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
         return summary
 
     def node2_run(interactive=False, **kwargs):
-        params = getattr(mock_params, "node2_success")
+        params = mock_params.node2_success
         targets_received = params.targets[:]
         execution_log["node2_success"] = targets_received
 
@@ -634,7 +672,7 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
         return summary
 
     def node3_run(interactive=False, **kwargs):
-        params = getattr(mock_params, "node3_timeout_handler")
+        params = mock_params.node3_timeout_handler
         targets_received = params.targets[:]
         execution_log["node3_timeout_handler"] = targets_received
 
@@ -649,7 +687,7 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
         return summary
 
     def node4_run(interactive=False, **kwargs):
-        params = getattr(mock_params, "node4_hw_handler")
+        params = mock_params.node4_hw_handler
         targets_received = params.targets[:]
         execution_log["node4_hw_handler"] = targets_received
 
@@ -679,4 +717,7 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
 
     # Verify all nodes finished
     for node in [node1, node2_success, node3_timeout, node4_hw]:
-        assert nx_graph.nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
+        assert (
+            nx_graph.nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD]
+            == ElementRunStatus.finished
+        )

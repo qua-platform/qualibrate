@@ -1,9 +1,9 @@
-from qualibrate.models.outcome import Outcome
-from qualibrate.utils.graph_building import (
-    GraphElementTypeVar)
-from pydantic import BaseModel
+from collections.abc import Callable, Generator
 from typing import Generic
-from collections.abc import Generator, Callable
+
+from pydantic import BaseModel
+
+from qualibrate.utils.graph_building import GraphElementTypeVar
 from qualibrate.utils.type_protocols import TargetType
 
 
@@ -22,4 +22,4 @@ class OperationalCondition(BaseModel, Generic[GraphElementTypeVar]):
 
 class LoopCondition(OperationalCondition[GraphElementTypeVar]):
     max_iterations: int | None = None
-    on_failure : bool = False
+    on_failure: bool = False

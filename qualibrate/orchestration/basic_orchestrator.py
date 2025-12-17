@@ -4,14 +4,16 @@ from collections.abc import Generator, Iterable, Sequence
 from datetime import datetime
 from queue import Queue
 from typing import Generic, cast
-from qualibrate.models.operational_condition import OperationalCondition
+
 import networkx as nx
+
 from qualibrate.models.execution_history import (
     ExecutionHistoryItem,
     ItemData,
     ItemMetadata,
 )
 from qualibrate.models.node_status import ElementRunStatus
+from qualibrate.models.operational_condition import OperationalCondition
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.models.run_summary.run_error import RunError
@@ -216,7 +218,9 @@ class BasicOrchestrator(
 
         # self.nx_graph.edges[element, successor]["operational_condition"] is of type OperationalCondition
         has_on_failed_successors = any(
-            self.nx_graph.edges[element, successor][QualibrationGraph.RUN_SCENARIO_FIELD]
+            self.nx_graph.edges[element, successor][
+                QualibrationGraph.RUN_SCENARIO_FIELD
+            ]
             == Outcome.FAILED
             for successor in self.nx_graph.successors(element)
         )
@@ -229,10 +233,17 @@ class BasicOrchestrator(
                     QualibrationGraph.EDGE_TARGETS_FIELD
                 ] = (
                     successful_out_targets
-                    if self.nx_graph.edges[element, successor][QualibrationGraph.RUN_SCENARIO_FIELD]
+                    if self.nx_graph.edges[element, successor][
+                        QualibrationGraph.RUN_SCENARIO_FIELD
+                    ]
                     == Outcome.SUCCESSFUL
-                    else self._execute_condition(self.nx_graph.edges[element, successor][QualibrationGraph.OPERATIONAL_CONDITION_FIELD],
-                                            element, failed_out_targets)
+                    else self._execute_condition(
+                        self.nx_graph.edges[element, successor][
+                            QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+                        ],
+                        element,
+                        failed_out_targets,
+                    )
                 )
         else:
             successful_out_targets = (
@@ -246,18 +257,29 @@ class BasicOrchestrator(
                     QualibrationGraph.EDGE_TARGETS_FIELD
                 ] = successful_out_targets
 
-    def _execute_condition(self, operational_condition: OperationalCondition[GraphElementTypeVar], element: GraphElementTypeVar, targets: list[TargetType]) ->list[TargetType]:
+    def _execute_condition(
+        self,
+        operational_condition: OperationalCondition[GraphElementTypeVar],
+        element: GraphElementTypeVar,
+        targets: list[TargetType],
+    ) -> list[TargetType]:
         if operational_condition.on_generator is not None:
             executed_condition = operational_condition.on_generator()
-            #priming the generator, we need to get to the point where the generator expects out two variables
+            # priming the generator, we need to get to the point where the generator expects out two variables
             executed_condition.send(None)
-            return [target for target in targets if executed_condition.send((element, target))]
+            return [
+                target
+                for target in targets
+                if executed_condition.send((element, target))
+            ]
         elif operational_condition.on_function is not None:
-            return [target for target in targets if operational_condition.on_function(element, target)]
+            return [
+                target
+                for target in targets
+                if operational_condition.on_function(element, target)
+            ]
         # No condition specified, return all targets
         return targets
-
-
 
     def _execute_loop_iteration(
         self,

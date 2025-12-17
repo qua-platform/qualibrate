@@ -9,7 +9,7 @@ from qualibrate.models.operational_condition import OperationalCondition
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.node import NodeRunSummary
 from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
-from qualibrate.parameters import RunnableParameters, GraphParameters
+from qualibrate.parameters import GraphParameters, RunnableParameters
 from qualibrate.qualibration_graph import QualibrationGraph
 
 
@@ -139,7 +139,7 @@ class TestBasicOrchestrator:
 
         # Mock check_node_finished to always return True
         mocker.patch.object(
-            orchestrator, "check_node_finished", side_effect=[False,True]
+            orchestrator, "check_node_finished", side_effect=[False, True]
         )
 
         assert orchestrator.get_next_element() == mock_node
@@ -344,11 +344,11 @@ class TestBasicOrchestrator:
         # Create actual dict objects that can be modified
         success_edge_data = {
             "scenario": Outcome.SUCCESSFUL,
-            "operational_condition": OperationalCondition()
+            "operational_condition": OperationalCondition(),
         }
         failure_edge_data = {
             "scenario": Outcome.FAILED,
-            "operational_condition": OperationalCondition()  # Empty condition
+            "operational_condition": OperationalCondition(),  # Empty condition
         }
 
         def edges_getitem(key):
@@ -543,8 +543,18 @@ class TestBasicOrchestrator:
         )
 
         # Add edges with scenarios
-        nx_graph.add_edge(node1, node2_success, scenario=Outcome.SUCCESSFUL,operational_condition=OperationalCondition())
-        nx_graph.add_edge(node1, node3_failure, scenario=Outcome.FAILED,operational_condition=OperationalCondition())
+        nx_graph.add_edge(
+            node1,
+            node2_success,
+            scenario=Outcome.SUCCESSFUL,
+            operational_condition=OperationalCondition(),
+        )
+        nx_graph.add_edge(
+            node1,
+            node3_failure,
+            scenario=Outcome.FAILED,
+            operational_condition=OperationalCondition(),
+        )
 
         mock_graph._graph = nx_graph
 
@@ -682,8 +692,18 @@ class TestBasicOrchestrator:
             node3_failure, status=ElementRunStatus.pending, retries=0
         )
 
-        nx_graph.add_edge(node1, node2_success, scenario=Outcome.SUCCESSFUL, operational_condition=OperationalCondition())
-        nx_graph.add_edge(node1, node3_failure, scenario=Outcome.FAILED, operational_condition=OperationalCondition())
+        nx_graph.add_edge(
+            node1,
+            node2_success,
+            scenario=Outcome.SUCCESSFUL,
+            operational_condition=OperationalCondition(),
+        )
+        nx_graph.add_edge(
+            node1,
+            node3_failure,
+            scenario=Outcome.FAILED,
+            operational_condition=OperationalCondition(),
+        )
 
         mock_graph._graph = nx_graph
 
@@ -808,8 +828,18 @@ class TestBasicOrchestrator:
             node3_failure, status=ElementRunStatus.pending, retries=0
         )
 
-        nx_graph.add_edge(node1, node2_success, scenario=Outcome.SUCCESSFUL, operational_condition=OperationalCondition())
-        nx_graph.add_edge(node1, node3_failure, scenario=Outcome.FAILED, operational_condition=OperationalCondition())
+        nx_graph.add_edge(
+            node1,
+            node2_success,
+            scenario=Outcome.SUCCESSFUL,
+            operational_condition=OperationalCondition(),
+        )
+        nx_graph.add_edge(
+            node1,
+            node3_failure,
+            scenario=Outcome.FAILED,
+            operational_condition=OperationalCondition(),
+        )
 
         mock_graph._graph = nx_graph
 
@@ -858,7 +888,7 @@ def test_execute_condition_with_lambda_function():
     mock_element.results = {
         "q1": {"value": 10},
         "q2": {"value": 5},
-        "q3": {"value": 15}
+        "q3": {"value": 15},
     }
 
     # Condition: filter targets where value > 8
@@ -871,6 +901,7 @@ def test_execute_condition_with_lambda_function():
 
     assert set(result) == {"q1", "q3"}
 
+
 def test_execute_condition_with_function():
     """Test _execute_condition with a simple function condition"""
 
@@ -880,19 +911,20 @@ def test_execute_condition_with_function():
     mock_element.results = {
         "q1": {"value": 10},
         "q2": {"value": 5},
-        "q3": {"value": 15}
+        "q3": {"value": 15},
     }
+
     def condition_function(el, target):
         return el.results[target]["value"] > 8
+
     # Condition: filter targets where value > 8
-    condition = OperationalCondition(
-        on_function=condition_function
-    )
+    condition = OperationalCondition(on_function=condition_function)
 
     targets = ["q1", "q2", "q3"]
     result = orchestrator._execute_condition(condition, mock_element, targets)
 
     assert set(result) == {"q1", "q3"}
+
 
 def test_execute_condition_with_generator():
     """Test _execute_condition with a generator condition"""
@@ -904,7 +936,7 @@ def test_execute_condition_with_generator():
     mock_element.results = {
         "q1": {"fidelity": 0.96},
         "q2": {"fidelity": 0.92},
-        "q3": {"fidelity": 0.98}
+        "q3": {"fidelity": 0.98},
     }
 
     # Generator condition: filter targets where fidelity > 0.95
@@ -921,7 +953,7 @@ def test_execute_condition_with_generator():
     assert set(result) == {"q1", "q3"}
 
 
-def test_set_out_targets_with_operational_condition_on_failure( mocker):
+def test_set_out_targets_with_operational_condition_on_failure(mocker):
     """Test _set_out_targets routes targets through operational condition on failed edge"""
     orchestrator = BasicOrchestrator()
 
@@ -951,10 +983,10 @@ def test_set_out_targets_with_operational_condition_on_failure( mocker):
         mock_failure_successor,
     ]
 
-
     # Operational condition: only route targets with error_count <= 3
     op_condition = OperationalCondition(
-        on_function=lambda node, target: node.results[target]["error_count"] <= 3
+        on_function=lambda node, target: node.results[target]["error_count"]
+        <= 3
     )
 
     mock_edges = MagicMock()
@@ -962,7 +994,7 @@ def test_set_out_targets_with_operational_condition_on_failure( mocker):
     success_edge_data = {"scenario": Outcome.SUCCESSFUL}
     failure_edge_data = {
         "scenario": Outcome.FAILED,
-        "operational_condition": op_condition
+        "operational_condition": op_condition,
     }
 
     def edges_getitem(key):
@@ -981,34 +1013,49 @@ def test_set_out_targets_with_operational_condition_on_failure( mocker):
     orchestrator._set_out_targets_for_element(mock_node)
 
     # Successful edge should get successful targets
-    assert success_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q1", "q2"]
+    assert success_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == [
+        "q1",
+        "q2",
+    ]
 
     # Failed edge should get failed targets filtered by condition (q3 has error_count=2 <= 3)
     assert failure_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q3"]
 
 
-def test_connect_on_failure_with_condition_lambda_function( pre_setup_graph_init, mock_library):
+def test_connect_on_failure_with_condition_lambda_function(
+    pre_setup_graph_init, mock_library
+):
     """Test that connect_on_failure() with condition function works correctly"""
     (nodes, _, _, _) = pre_setup_graph_init
 
     with QualibrationGraph.build(
-            name="test_graph",
-            parameters=GraphParameters(),
+        name="test_graph",
+        parameters=GraphParameters(),
     ) as graph:
         graph.add_nodes(nodes["node1"], nodes["node2"])
         graph.connect_on_failure(
-            "node1",
-            "node2",
-            on=lambda element, target: True
+            "node1", "node2", on=lambda element, target: True
         )
 
     # Check connectivity
     assert ("node1", "node2") in graph._connectivity
-    assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.FAILED
-    assert graph._connectivity[("node1", "node2")][
-               QualibrationGraph.OPERATIONAL_CONDITION_FIELD].on_function is not None
+    assert (
+        graph._connectivity[("node1", "node2")][
+            QualibrationGraph.RUN_SCENARIO_FIELD
+        ]
+        == Outcome.FAILED
+    )
+    assert (
+        graph._connectivity[("node1", "node2")][
+            QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+        ].on_function
+        is not None
+    )
 
-def test_connect_on_failure_with_condition_generator( pre_setup_graph_init, mock_library):
+
+def test_connect_on_failure_with_condition_generator(
+    pre_setup_graph_init, mock_library
+):
     """Test that connect_on_failure() with generator condition works correctly"""
     (nodes, _, _, _) = pre_setup_graph_init
 
@@ -1018,19 +1065,29 @@ def test_connect_on_failure_with_condition_generator( pre_setup_graph_init, mock
             yield True
 
     with QualibrationGraph.build(
-            name="test_graph",
-            parameters=GraphParameters(),
+        name="test_graph",
+        parameters=GraphParameters(),
     ) as graph:
         graph.add_nodes(nodes["node1"], nodes["node2"])
         graph.connect_on_failure("node1", "node2", on=condition_gen)
 
     # Check connectivity
     assert ("node1", "node2") in graph._connectivity
-    assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.FAILED
-    assert graph._connectivity[("node1", "node2")][
-               QualibrationGraph.OPERATIONAL_CONDITION_FIELD].on_generator is not None
+    assert (
+        graph._connectivity[("node1", "node2")][
+            QualibrationGraph.RUN_SCENARIO_FIELD
+        ]
+        == Outcome.FAILED
+    )
+    assert (
+        graph._connectivity[("node1", "node2")][
+            QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+        ].on_generator
+        is not None
+    )
 
-def test_get_next_element_skips_already_finished_node( mocker):
+
+def test_get_next_element_skips_already_finished_node(mocker):
     """Test that get_next_element skips nodes that are already finished (duplicate queue entries)"""
     orchestrator = BasicOrchestrator()
 
@@ -1049,7 +1106,7 @@ def test_get_next_element_skips_already_finished_node( mocker):
     )
     mock_nx_graph.return_value.pred = {
         mock_finished_node: [],
-        mock_pending_node: []
+        mock_pending_node: [],
     }
 
     # Mock check_node_finished
@@ -1081,9 +1138,7 @@ def test_get_next_element_skips_node_with_unfinished_predecessors(mocker):
         "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
         new_callable=PropertyMock,
     )
-    mock_nx_graph.return_value.pred = {
-        mock_node: [mock_pred1, mock_pred2]
-    }
+    mock_nx_graph.return_value.pred = {mock_node: [mock_pred1, mock_pred2]}
 
     # Mock check_node_finished: pred1 finished, pred2 not finished, node not finished
     def check_finished(node):
@@ -1119,6 +1174,7 @@ def test_execute_condition_with_empty_condition_returns_all_targets():
     # Should return all targets when no condition is specified
     assert result == targets
 
+
 def test_set_out_targets_with_empty_operational_condition_on_failure(mocker):
     """Test that empty operational condition on failed edge passes all failed targets"""
     orchestrator = BasicOrchestrator()
@@ -1146,12 +1202,12 @@ def test_set_out_targets_with_empty_operational_condition_on_failure(mocker):
 
     success_edge_data = {
         "scenario": Outcome.SUCCESSFUL,
-        "operational_condition": OperationalCondition()
+        "operational_condition": OperationalCondition(),
     }
     # Empty operational condition - should pass all failed targets
     failure_edge_data = {
         "scenario": Outcome.FAILED,
-        "operational_condition": OperationalCondition()  # Empty
+        "operational_condition": OperationalCondition(),  # Empty
     }
 
     def edges_getitem(key):
@@ -1173,10 +1229,13 @@ def test_set_out_targets_with_empty_operational_condition_on_failure(mocker):
     assert success_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q1"]
 
     # Failed edge with empty condition should get ALL failed targets
-    assert set(failure_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD]) == {"q2", "q3"}
+    assert set(failure_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD]) == {
+        "q2",
+        "q3",
+    }
 
 
-def test_get_next_element_returns_node_when_all_predecessors_finished( mocker):
+def test_get_next_element_returns_node_when_all_predecessors_finished(mocker):
     """Test that get_next_element returns node when all predecessors are finished"""
     orchestrator = BasicOrchestrator()
 
@@ -1190,9 +1249,7 @@ def test_get_next_element_returns_node_when_all_predecessors_finished( mocker):
         "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
         new_callable=PropertyMock,
     )
-    mock_nx_graph.return_value.pred = {
-        mock_node: [mock_pred1, mock_pred2]
-    }
+    mock_nx_graph.return_value.pred = {mock_node: [mock_pred1, mock_pred2]}
 
     def check_finished(node):
         if node == mock_node:
@@ -1230,7 +1287,10 @@ def test_execute_condition_with_generator_that_returns_false():
 
     assert result == []
 
-def test_set_out_targets_multiple_failed_edges_with_different_conditions(mocker):
+
+def test_set_out_targets_multiple_failed_edges_with_different_conditions(
+    mocker,
+):
     """Test routing to multiple failed edges with different conditions"""
     from qualibrate.models.operational_condition import OperationalCondition
 
@@ -1264,25 +1324,27 @@ def test_set_out_targets_multiple_failed_edges_with_different_conditions(mocker)
 
     # Different conditions for different error types
     timeout_condition = OperationalCondition(
-        on_function=lambda node, target: node.results[target]["error_type"] == "timeout"
+        on_function=lambda node, target: node.results[target]["error_type"]
+        == "timeout"
     )
     calibration_condition = OperationalCondition(
-        on_function=lambda node, target: node.results[target]["error_type"] == "calibration"
+        on_function=lambda node, target: node.results[target]["error_type"]
+        == "calibration"
     )
 
     mock_edges = MagicMock()
 
     success_edge_data = {
         "scenario": Outcome.SUCCESSFUL,
-        "operational_condition": OperationalCondition()
+        "operational_condition": OperationalCondition(),
     }
     timeout_edge_data = {
         "scenario": Outcome.FAILED,
-        "operational_condition": timeout_condition
+        "operational_condition": timeout_condition,
     }
     calibration_edge_data = {
         "scenario": Outcome.FAILED,
-        "operational_condition": calibration_condition
+        "operational_condition": calibration_condition,
     }
 
     def edges_getitem(key):
@@ -1300,11 +1362,14 @@ def test_set_out_targets_multiple_failed_edges_with_different_conditions(mocker)
 
     orchestrator._graph = MagicMock()
 
-    #Adding the right parameters to the edge
+    # Adding the right parameters to the edge
     orchestrator._set_out_targets_for_element(mock_node)
 
     # Timeout handler should get q1 and q3
-    assert set(timeout_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD]) == {"q1", "q3"}
+    assert set(timeout_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD]) == {
+        "q1",
+        "q3",
+    }
 
     # Calibration handler should get q2
     assert calibration_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q2"]

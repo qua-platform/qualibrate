@@ -27,7 +27,6 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-
 def ensure_finalized(
     fn: Callable[Concatenate["QualibrationGraph[Any]", P], R],
 ) -> Callable[Concatenate["QualibrationGraph[Any]", P], R]:

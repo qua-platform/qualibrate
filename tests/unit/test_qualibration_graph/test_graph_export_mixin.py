@@ -40,8 +40,20 @@ class TestGraphExportMixin:
             ],
             # this is standard name so kept as is
             "adjacency": [
-                [{"id": "one_more_node", QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL, QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition()},],
-                [{"id": "test_cal", QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL, QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition()}],
+                [
+                    {
+                        "id": "one_more_node",
+                        QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL,
+                        QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition(),
+                    },
+                ],
+                [
+                    {
+                        "id": "test_cal",
+                        QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL,
+                        QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition(),
+                    }
+                ],
                 [],
             ],
         }
