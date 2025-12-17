@@ -830,107 +830,118 @@ class QualibrationGraph(
 
     @ensure_finalized
     def serialize_graph_representation(self) -> Mapping[str, Any]:
-        identifier = 1
+        flow_dict = defaultdict(list)
 
-        def __serialize_graph_represantation_inner(
-            graph_self: "QualibrationGraph[Any]",
-        ) -> Mapping[str, Any]:
-            flow_dict = defaultdict(list)
-            nonlocal identifier
-            nx_data = dict(
-                graph_self.__class__.nx_graph_export(
-                    graph_self._graph, node_names_only=True
-                )
+        nx_data = dict(
+            self.__class__.nx_graph_export(
+                self._graph, node_names_only=True
             )
+        )
 
-            nodes_raw = nx_data.pop("nodes")
-            adj_raw = nx_data.pop("adjacency")
+        nodes_raw = nx_data.pop("nodes")
+        adj_raw = nx_data.pop("adjacency")
 
-            name_identifier_dict = {}
-            for node in nodes_raw:
-                node_id = identifier
-                identifier += 1
-                node_name = node["id"]
-                name_identifier_dict[node_name] = node_id
+        for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
+            node_name = node["id"]
 
-            for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
-                node_name = node["id"]
-                node_id = name_identifier_dict[node_name]
+            element = self._elements[node_name]
+            subgraph_data = {}
+            loop_flag = False
+            loop_data: dict[str, Any] = {}
 
-                element = graph_self._elements[node_name]
-                subgraph_data = {}
-                loop_flag = False
-                loop_data: dict[str, Any] = {}
-                node_conditions = self._loop_conditions.get(node_name)
-                if node_conditions:
-                    loop_flag = True
-                    loop_data["condition"] = (
+            if node_name in self._loop_conditions:
+                node_conditions = self._loop_conditions[node_name]
+                loop_flag = True
+                loop_data["condition"] = (
                         node_conditions.on_generator is not None
                         or node_conditions.on_function is not None
-                    )
-                    loop_data["on_failure"] = node_conditions.on_failure
-                    loop_data["max_iterations"] = node_conditions.max_iterations
+                )
+                loop_data["on_failure"] = node_conditions.on_failure
+                loop_data["max_iterations"] = node_conditions.max_iterations
 
-                if isinstance(element, QualibrationGraph):
-                    subgraph_data["subgraph"] = (
-                        __serialize_graph_represantation_inner(element)
+            if isinstance(element, QualibrationGraph):
+                subgraph_data["subgraph"] = (
+                    element.serialize_graph_representation()
+                )
+
+            flow_dict["nodes"].append(
+                {
+                    "name": node_name,
+                    "loop": loop_flag,
+                    "data": {
+                        "label": node_name,
+                        **subgraph_data,
+                        **loop_data,
+                    },
+                }
+            )
+
+            for adj in adjacency:
+                # where QualibrationGraph.OPERATIONAL_CONDITION_FIELD is used, it's because it is how we save the operational condition in the graph
+                # where it's not used but operational_condition key is still used, it's because this is the key returned to the ui and not necessarily the key we save the data in
+                # the same as for a scenario
+
+                target_name = adj["id"]
+
+                condition_name, condition_content = (
+                    self._get_operational_condition_signature_and_content(
+                        adj[QualibrationGraph.OPERATIONAL_CONDITION_FIELD]
+                    )
+                )
+
+                operational_condition_data = {
+                    "operational_condition": False
+                }
+
+                if condition_name and condition_content:
+                    operational_condition_data.update(
+                        {
+                            "operational_condition": True,
+                            "condition_label": condition_name,
+                            "condition_description": condition_content,
+                        }
                     )
 
-                flow_dict["nodes"].append(
+                flow_dict["edges"].append(
                     {
-                        "id": node_id,
-                        "loop": loop_flag,
+                        "id": f"{node_name}->{target_name}",
+                        "source": node_name,
+                        "target": target_name,
                         "data": {
-                            "label": node_name,
-                            **subgraph_data,
-                            **loop_data,
+                            "connect_on": adj.get(
+                                QualibrationGraph.RUN_SCENARIO_FIELD,
+                                Outcome.SUCCESSFUL,
+                            )
+                                          == Outcome.SUCCESSFUL,
+                            **operational_condition_data,
                         },
                     }
                 )
 
-                for adj in adjacency:
-                    target_name = adj["id"]
-                    # where QualibrationGraph.OPERATIONAL_CONDITION_FIELD is used, it's because it is how we save the operational condition in the graph
-                    # where it's not used but operational_condition key is still use, it's because this is the key returned to the ui and not necessarily the key we save the data in
-                    # same as for scenario
-                    condition_name, condition_content = (
-                        self._get_operational_condition_signature_and_content(
-                            adj[QualibrationGraph.OPERATIONAL_CONDITION_FIELD]
-                        )
-                    )
-                    operational_condition_data = {
-                        "operational_condition": False
-                    }
-                    if condition_name and condition_content:
-                        operational_condition_data["operational_condition"] = (
-                            True
-                        )
-                        operational_condition_data["condition_label"] = (
-                            condition_name
-                        )
-                        operational_condition_data["condition_description"] = (
-                            condition_content
-                        )
-                    flow_dict["edges"].append(
-                        {
-                            "id": f"{node_id}->"
-                            f"{name_identifier_dict[target_name]}",
-                            "source": node_id,
-                            "target": name_identifier_dict[target_name],
-                            "data": {
-                                "connect": adj.get(
-                                    QualibrationGraph.RUN_SCENARIO_FIELD,
-                                    Outcome.SUCCESSFUL,
-                                )
-                                == Outcome.SUCCESSFUL,
-                                **operational_condition_data,
-                            },
-                        }
-                    )
+            if node_name in self._loop_conditions:
+                flow_dict["edges"].append(
+                    self._add_loop_to_edge(node_name=node_name)
+                )
 
-            return dict(flow_dict)
+        return dict(flow_dict)
 
-        return __serialize_graph_represantation_inner(self)
+    def _add_loop_to_edge(self,node_name):
+        loop_data: dict[str, Any] = {}
+        if node_name in self._loop_conditions:
+            node_conditions = self._loop_conditions.get(node_name)
+            # loop_flag = True
+            loop_data["id"] = f'{node_name}->{node_name}'
+            loop_data["source"] = node_name
+            loop_data["target"] = node_name
+            loop_data["data"] = {
+                "condition":
+                    node_conditions.on_generator is not None
+                    or node_conditions.on_function is not None,
+                "max_iterations": node_conditions.max_iterations,
+            }
+            loop_data["data"]["condition_label"], loop_data["data"]["condition_content"] = self._get_operational_condition_signature_and_content(node_conditions)
+
+        return loop_data
 
     def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """
@@ -1233,8 +1244,9 @@ class QualibrationGraph(
         conditions.on_failure = True
 
     def _get_operational_condition_signature_and_content(
-        self, operational_condition
+        self, operational_condition: OperationalCondition[GraphElementTypeVar]
     ) -> tuple[str, str] | tuple[None, None]:
+        # Returns the conditions method signature and also its content
         func = None
         if operational_condition.on_function is not None:
             func = operational_condition.on_function

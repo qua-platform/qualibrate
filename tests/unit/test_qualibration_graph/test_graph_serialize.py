@@ -133,30 +133,30 @@ def test_serialize_with_nested_graphs(
     assert g.serialize_graph_representation() == {
         "nodes": [
             {
-                "id": 1,
+                "name": "subg",
                 "loop": False,
                 "data": {
                     "label": "subg",
                     "subgraph": {
                         "nodes": [
                             {
-                                "id": 3,
+                                "name": "test_cal",
                                 "loop": False,
                                 "data": {"label": "test_cal"},
                             },
                             {
-                                "id": 4,
+                                "name": "one_more_node",
                                 "loop": False,
                                 "data": {"label": "one_more_node"},
                             },
                         ],
                         "edges": [
                             {
-                                "id": "3->4",
-                                "source": 3,
-                                "target": 4,
+                                "id": "test_cal->one_more_node",
+                                "source": "test_cal",
+                                "target": "one_more_node",
                                 "data": {
-                                    "connect": True,
+                                    "connect_on": True,
                                     "operational_condition": False,
                                 },
                             }
@@ -164,15 +164,15 @@ def test_serialize_with_nested_graphs(
                     },
                 },
             },
-            {"id": 2, "loop": False, "data": {"label": "test_cal"}},
+            {"name": "test_cal", "loop": False, "data": {"label": "test_cal"}},
         ],
         "edges": [
             {
-                "id": "1->2",
-                "source": 1,
-                "target": 2,
+                "id": "subg->test_cal",
+                "source": "subg",
+                "target": "test_cal",
                 "data": {
-                    "connect": True,
+                    "connect_on": True,
                     "operational_condition": False,
                 },
             }
@@ -187,48 +187,34 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
     assert g.serialize_graph_representation() == {
         "nodes": [
             {
-                "id": 1,
+                "name": "subg",
                 "loop": False,
                 "data": {
                     "label": "subg",
                     "subgraph": {
                         "nodes": [
-                            {
-                                "id": 3,
-                                "loop": False,
-                                "data": {"label": "test_cal"},
-                            },
-                            {
-                                "id": 4,
-                                "loop": False,
-                                "data": {"label": "one_more_node"},
-                            },
+                            {"name": "test_cal", "loop": False, "data": {"label": "test_cal"}},
+                            {"name": "one_more_node", "loop": False, "data": {"label": "one_more_node"}},
                         ],
                         "edges": [
                             {
-                                "id": "3->4",
-                                "source": 3,
-                                "target": 4,
-                                "data": {
-                                    "connect": False,
-                                    "operational_condition": False,
-                                },
+                                "id": "test_cal->one_more_node",
+                                "source": "test_cal",
+                                "target": "one_more_node",
+                                "data": {"connect_on": False, "operational_condition": False},
                             }
                         ],
                     },
                 },
             },
-            {"id": 2, "loop": False, "data": {"label": "test_cal"}},
+            {"name": "test_cal", "loop": False, "data": {"label": "test_cal"}},
         ],
         "edges": [
             {
-                "id": "1->2",
-                "source": 1,
-                "target": 2,
-                "data": {
-                    "connect": True,
-                    "operational_condition": False,
-                },
+                "id": "subg->test_cal",
+                "source": "subg",
+                "target": "test_cal",
+                "data": {"connect_on": True, "operational_condition": False},
             }
         ],
     }
