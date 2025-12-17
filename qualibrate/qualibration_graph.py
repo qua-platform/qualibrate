@@ -1181,8 +1181,6 @@ class QualibrationGraph(
             else OperationalCondition(),
         }
 
-        # self._connectivity[edge] = run_scenario
-
     def _get_validated_element_name(
         self, element: str | GraphElementTypeVar
     ) -> str:
