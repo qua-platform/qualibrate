@@ -59,6 +59,7 @@ from qualibrate.utils.graph_building import (
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import MachineProtocol, TargetType
+from tests.calibration_nodes_and_graphs_for_testing.graph_with_old_building_method import nodes
 
 if TYPE_CHECKING:
     from qualibrate.orchestration.qualibration_orchestrator import (
@@ -833,9 +834,7 @@ class QualibrationGraph(
         flow_dict = defaultdict(list)
 
         nx_data = dict(
-            self.__class__.nx_graph_export(
-                self._graph, node_names_only=True
-            )
+            self.__class__.nx_graph_export(self._graph, node_names_only=True)
         )
 
         nodes_raw = nx_data.pop("nodes")
@@ -848,16 +847,6 @@ class QualibrationGraph(
             subgraph_data = {}
             loop_flag = False
             loop_data: dict[str, Any] = {}
-
-            if node_name in self._loop_conditions:
-                node_conditions = self._loop_conditions[node_name]
-                loop_flag = True
-                loop_data["condition"] = (
-                        node_conditions.on_generator is not None
-                        or node_conditions.on_function is not None
-                )
-                loop_data["on_failure"] = node_conditions.on_failure
-                loop_data["max_iterations"] = node_conditions.max_iterations
 
             if isinstance(element, QualibrationGraph):
                 subgraph_data["subgraph"] = (
@@ -889,9 +878,7 @@ class QualibrationGraph(
                     )
                 )
 
-                operational_condition_data = {
-                    "operational_condition": False
-                }
+                operational_condition_data = {"operational_condition": False}
 
                 if condition_name and condition_content:
                     operational_condition_data.update(
@@ -912,7 +899,7 @@ class QualibrationGraph(
                                 QualibrationGraph.RUN_SCENARIO_FIELD,
                                 Outcome.SUCCESSFUL,
                             )
-                                          == Outcome.SUCCESSFUL,
+                            == Outcome.SUCCESSFUL,
                             **operational_condition_data,
                         },
                     }
@@ -925,21 +912,25 @@ class QualibrationGraph(
 
         return dict(flow_dict)
 
-    def _add_loop_to_edge(self,node_name):
+    def _add_loop_to_edge(self, node_name):
         loop_data: dict[str, Any] = {}
         if node_name in self._loop_conditions:
             node_conditions = self._loop_conditions.get(node_name)
-            # loop_flag = True
-            loop_data["id"] = f'{node_name}->{node_name}'
+            loop_data["id"] = f"{node_name}->{node_name}"
             loop_data["source"] = node_name
             loop_data["target"] = node_name
             loop_data["data"] = {
-                "condition":
-                    node_conditions.on_generator is not None
-                    or node_conditions.on_function is not None,
+                "condition": node_conditions.on_generator is not None
+                or node_conditions.on_function is not None
+                or node_conditions.max_iterations is not None,
                 "max_iterations": node_conditions.max_iterations,
             }
-            loop_data["data"]["condition_label"], loop_data["data"]["condition_content"] = self._get_operational_condition_signature_and_content(node_conditions)
+            (
+                loop_data["data"]["condition_label"],
+                loop_data["data"]["condition_content"],
+            ) = self._get_operational_condition_signature_and_content(
+                node_conditions
+            )
 
         return loop_data
 
