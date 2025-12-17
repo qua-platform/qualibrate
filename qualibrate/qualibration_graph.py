@@ -59,7 +59,6 @@ from qualibrate.utils.graph_building import (
 from qualibrate.utils.logger_m import logger
 from qualibrate.utils.read_files import get_module_name, import_from_path
 from qualibrate.utils.type_protocols import MachineProtocol, TargetType
-from tests.calibration_nodes_and_graphs_for_testing.graph_with_old_building_method import nodes
 
 if TYPE_CHECKING:
     from qualibrate.orchestration.qualibration_orchestrator import (
