@@ -875,7 +875,9 @@ class QualibrationGraph(
                     )
                 )
 
-                operational_condition_data = {"operational_condition": False}
+                operational_condition_data: dict[str, bool | str] = {
+                    "operational_condition": False
+                }
 
                 if condition_name and condition_content:
                     operational_condition_data.update(
@@ -909,10 +911,10 @@ class QualibrationGraph(
 
         return dict(flow_dict)
 
-    def _add_loop_to_edge(self, node_name):
+    def _add_loop_to_edge(self, node_name: str) -> dict[str, Any]:
         loop_data: dict[str, Any] = {}
         if node_name in self._loop_conditions:
-            node_conditions = self._loop_conditions.get(node_name)
+            node_conditions = self._loop_conditions[node_name]
             loop_data["id"] = f"{node_name}->{node_name}"
             loop_data["source"] = node_name
             loop_data["target"] = node_name
@@ -1144,8 +1146,10 @@ class QualibrationGraph(
                 on_function = cast(
                     Callable[[GraphElementTypeVar, TargetType], bool], on
                 )
-        operational_condition = OperationalCondition(
-            on_function=on_function, on_generator=on_generator
+        operational_condition: OperationalCondition[GraphElementTypeVar] = (
+            OperationalCondition(
+                on_function=on_function, on_generator=on_generator
+            )
         )
         self._connect(
             src=src,
@@ -1161,7 +1165,8 @@ class QualibrationGraph(
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
         run_scenario: Outcome,
-        operational_condition: OperationalCondition[GraphElementTypeVar] = None,
+        operational_condition: OperationalCondition[GraphElementTypeVar]
+        | None = None,
     ) -> None:
         s = self._resolve_element_name(src)
         d = self._resolve_element_name(dst)
@@ -1235,12 +1240,12 @@ class QualibrationGraph(
         self, operational_condition: OperationalCondition[GraphElementTypeVar]
     ) -> tuple[str, str] | tuple[None, None]:
         # Returns the conditions method signature and also its content
-        func = None
         if operational_condition.on_function is not None:
             func = operational_condition.on_function
-        elif operational_condition.on_generator is not None:
-            func = operational_condition.on_generator
-        if func is not None:
             return func.__name__, inspect.getsource(func)
-        else:
-            return None, None
+
+        if operational_condition.on_generator is not None:
+            gen = operational_condition.on_generator
+            return gen.__name__, inspect.getsource(gen)
+
+        return None, None
