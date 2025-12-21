@@ -242,47 +242,59 @@ def test_serialize_graph_with_operational_condition_and_loop(
     # Should have 4 nodes
     assert len(serialized["nodes"]) == 4
 
-    # Should have 3 edges (1 success, 2 failure)
-    assert len(serialized["edges"]) == 3
+    # Should have 4 edges (1 success, 2 failure, 1 loop self-edge)
+    assert len(serialized["edges"]) == 4
 
     # Find node (the one with loop)
-    node = next(n for n in serialized["nodes"] if n["data"]["label"] == "node")
-    assert node["loop"] is True
-    assert node["data"]["condition"] is True  # Has loop condition
-    assert node["data"]["on_failure"] is False  # Not a loop on failure
-    # Note: max_iterations might not be set if only 'on' was specified
+    node_data = next(n for n in serialized["nodes"] if n["data"]["label"] == "node")
+    node_name = node_data["name"]
 
     # Find edges
     edges = serialized["edges"]
 
+    # Find the loop self-edge (node -> node)
+    loop_edge = next(
+        (e for e in edges if e["source"] ==  e["target"]),
+        None
+    )
+    assert loop_edge is not None
+    assert loop_edge["id"] == f"{node_name}->{node_name}"
+    assert loop_edge["data"]["condition"] is True  # Has loop condition
+    assert "condition_label" in loop_edge["data"]
+    assert loop_edge["data"]["condition_label"] == "<lambda>"
+    assert "condition_content" in loop_edge["data"]
+    assert loop_edge["data"]["max_iterations"] is None  # Not specified in this graph
+
     # Find success edge (node -> node4)
-    node_id = node["id"]
-    node4 = next(n for n in serialized["nodes"] if n["data"]["label"] == "node4")
+    node4_data = next(n for n in serialized["nodes"] if n["data"]["label"] == "node4")
+    node4_name = node4_data["name"]
     success_edge = next(
         e for e in edges
-        if e["source"] == node_id and e["target"] == node4["id"]
+        if e["source"] == node_name and e["target"] == node4_name
     )
-    assert success_edge["data"]["connect"] is True  # Success path
+    assert success_edge["data"]["connect_on"] is True  # Success path
     assert success_edge["data"]["operational_condition"] is False  # No condition on success
 
     # Find failure edges with conditions
-    node2 = next(n for n in serialized["nodes"] if n["data"]["label"] == "node2")
+    node2_data = next(n for n in serialized["nodes"] if n["data"]["label"] == "node2")
+    node2_name = node2_data["name"]
     node2_edge = next(
         e for e in edges
-        if e["source"] == node_id and e["target"] == node2["id"]
+        if e["source"] == node_name and e["target"] == node2_name
     )
-    assert node2_edge["data"]["connect"] is False  # Failure path
+    assert node2_edge["data"]["connect_on"] is False  # Failure path
     assert node2_edge["data"]["operational_condition"] is True  # Has condition
     assert "condition_label" in node2_edge["data"]
     assert node2_edge["data"]["condition_label"] == "<lambda>"  # Lambda function
     assert "condition_description" in node2_edge["data"]
 
-    node3 = next(n for n in serialized["nodes"] if n["data"]["label"] == "node3")
+    node3_data = next(n for n in serialized["nodes"] if n["data"]["label"] == "node3")
+    node3_name = node3_data["name"]
     node3_edge = next(
         e for e in edges
-        if e["source"] == node_id and e["target"] == node3["id"]
+        if e["source"] == node_name and e["target"] == node3_name
     )
-    assert node3_edge["data"]["connect"] is False  # Failure path
+    assert node3_edge["data"]["connect_on"] is False  # Failure path
     assert node3_edge["data"]["operational_condition"] is True  # Has condition
     assert "condition_label" in node3_edge["data"]
     assert node3_edge["data"]["condition_label"] == "<lambda>"  # Lambda function
@@ -297,9 +309,10 @@ def test_serialize_graph_with_multiple_operational_conditions(
     serialized = g.serialize_graph_representation()
     edges = serialized["edges"]
 
-    # Count edges by type
-    success_edges = [e for e in edges if e["data"]["connect"] is True]
-    failure_edges = [e for e in edges if e["data"]["connect"] is False]
+    # Count edges by type (excluding self-loop)
+    non_loop_edges = [e for e in edges if e["source"] != e["target"]]
+    success_edges = [e for e in non_loop_edges if e["data"]["connect_on"] is True]
+    failure_edges = [e for e in non_loop_edges if e["data"]["connect_on"] is False]
 
     assert len(success_edges) == 1
     assert len(failure_edges) == 2

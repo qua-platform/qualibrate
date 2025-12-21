@@ -844,7 +844,6 @@ class QualibrationGraph(
 
             element = self._elements[node_name]
             subgraph_data = {}
-            loop_flag = False
             loop_data: dict[str, Any] = {}
 
             if isinstance(element, QualibrationGraph):
@@ -855,7 +854,6 @@ class QualibrationGraph(
             flow_dict["nodes"].append(
                 {
                     "name": node_name,
-                    "loop": loop_flag,
                     "data": {
                         "label": node_name,
                         **subgraph_data,

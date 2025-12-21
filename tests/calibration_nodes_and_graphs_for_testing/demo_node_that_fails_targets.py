@@ -1,5 +1,3 @@
-from pydantic import Field
-
 from qualibrate import NodeParameters, QualibrationNode
 from qualibrate.models.outcome import Outcome
 
@@ -11,13 +9,14 @@ class Parameters(NodeParameters):
     float_value: float = 1.0
 
 
-node = QualibrationNode("test_node", parameters=Parameters())
-node.parameters = Parameters(qubits=["q1","q2","q3","q4"])
+node = QualibrationNode("demo_node_that_fails_targets", parameters=Parameters())
+# node.parameters = Parameters(qubits=["q1","q2","q3","q4"])
 
 
 @node.run_action()
 def node_runs_indication(node: QualibrationNode):
     node.log("node is running")
-    node.outcomes["q1"] = "successful"
-    node.outcomes["q2"] = Outcome.FAILED
+    for target in node.parameters.targets:
+        node.outcomes[target] = Outcome.FAILED
+    node.outcomes["q1"] = Outcome.SUCCESSFUL
     return node.outcomes
