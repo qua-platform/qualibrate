@@ -4,7 +4,7 @@ library = QualibrationLibrary.get_active_library()
 USED_NODE = "test_node"
 
 with QualibrationGraph.build(
-    "graph_with_loop",
+    "graph_with_loop_with_lambda",
 ) as graph:
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node"))
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node2"))
