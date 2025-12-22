@@ -130,6 +130,7 @@ def test_serialize_with_nested_graphs(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
     g = qualibration_lib.graphs["workflow_top"]
+
     assert g.serialize_graph_representation() == {
         "nodes": [
             {
@@ -154,7 +155,6 @@ def test_serialize_with_nested_graphs(
                                 "target": "one_more_node",
                                 "data": {
                                     "connect_on": True,
-                                    "operational_condition": False,
                                 },
                             }
                         ],
@@ -170,17 +170,16 @@ def test_serialize_with_nested_graphs(
                 "target": "test_cal",
                 "data": {
                     "connect_on": True,
-                    "operational_condition": False,
                 },
             }
         ],
     }
 
-
 def test_serialize_with_nested_graphs_and_connect_on_failure(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
     g = qualibration_lib.graphs["workflow_top_connect_on_failure"]
+
     assert g.serialize_graph_representation() == {
         "nodes": [
             {
@@ -205,7 +204,6 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
                                 "target": "one_more_node",
                                 "data": {
                                     "connect_on": False,
-                                    "operational_condition": False,
                                 },
                             }
                         ],
@@ -219,7 +217,9 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
                 "id": "subg->test_cal",
                 "source": "subg",
                 "target": "test_cal",
-                "data": {"connect_on": True, "operational_condition": False},
+                "data": {
+                    "connect_on": True,
+                },
             }
         ],
     }
@@ -255,7 +255,8 @@ def test_serialize_graph_with_operational_condition_and_loop(
     # Check for loop-specific fields (adjust based on actual _add_loop_to_edge implementation)
     assert "data" in loop_edge
     # The loop edge should have max_iterations field
-    assert "max_iterations" in loop_edge["data"]
+    assert "loop" in loop_edge["data"]
+    assert "max_iterations" in loop_edge["data"]["loop"]
 
     # Find success edge (node -> node4)
     node4_data = next(
@@ -268,9 +269,6 @@ def test_serialize_graph_with_operational_condition_and_loop(
         if e["source"] == node_name and e["target"] == node4_name
     )
     assert success_edge["data"]["connect_on"] is True  # Success path
-    assert (
-        success_edge["data"]["operational_condition"] is False
-    )  # No condition on success
 
     # Find failure edges with conditions
     node2_data = next(
@@ -283,12 +281,9 @@ def test_serialize_graph_with_operational_condition_and_loop(
         if e["source"] == node_name and e["target"] == node2_name
     )
     assert node2_edge["data"]["connect_on"] is False  # Failure path
-    assert node2_edge["data"]["operational_condition"] is True  # Has condition
-    assert "condition_label" in node2_edge["data"]
-    assert (
-        node2_edge["data"]["condition_label"] == "<lambda>"
-    )  # Lambda function
-    assert "condition_description" in node2_edge["data"]
+    assert "condition" in node2_edge["data"]
+    assert node2_edge["data"]["condition"]["label"] == "<lambda>"
+    assert "description" in node2_edge["data"]["condition"]
 
     node3_data = next(
         n for n in serialized["nodes"] if n["data"]["label"] == "node3"
@@ -300,10 +295,9 @@ def test_serialize_graph_with_operational_condition_and_loop(
         if e["source"] == node_name and e["target"] == node3_name
     )
     assert node3_edge["data"]["connect_on"] is False  # Failure path
-    assert node3_edge["data"]["operational_condition"] is True  # Has condition
-    assert "condition_label" in node3_edge["data"]
+    assert "label" in node3_edge["data"]['condition']
     assert (
-        node3_edge["data"]["condition_label"] == "<lambda>"
+        node3_edge["data"]['condition']["label"] == "<lambda>"
     )  # Lambda function
 
 
@@ -330,7 +324,7 @@ def test_serialize_graph_with_multiple_operational_conditions(
 
     # Both failure edges should have operational conditions
     for edge in failure_edges:
-        assert edge["data"]["operational_condition"] is True
-        assert "condition_label" in edge["data"]
-        assert "condition_description" in edge["data"]
-        assert edge["data"]["condition_label"] == "<lambda>"  # Both are lambdas
+        # assert edge["data"]["operational_condition"] is True
+        assert "label" in edge["data"]['condition']
+        assert "description" in edge["data"]['condition']
+        assert edge["data"]['condition']["description"] is not None

@@ -866,7 +866,6 @@ class QualibrationGraph(
                 # where QualibrationGraph.OPERATIONAL_CONDITION_FIELD is used, it's because it is how we save the operational condition in the graph
                 # where it's not used but operational_condition key is still used, it's because this is the key returned to the ui and not necessarily the key we save the data in
                 # the same as for a scenario
-
                 target_name = adj["id"]
 
                 condition_name, condition_content = (
@@ -875,32 +874,33 @@ class QualibrationGraph(
                     )
                 )
 
-                operational_condition_data: dict[str, bool | str] = {
-                    "operational_condition": False
-                }
+                operational_condition_data: dict[str, bool | str] = {}
+
 
                 if condition_name and condition_content:
                     operational_condition_data.update(
                         {
-                            "operational_condition": True,
-                            "condition_label": condition_name,
-                            "condition_description": condition_content,
+                            "label": condition_name,
+                            "description": condition_content,
                         }
                     )
+
+                data = {
+                    "connect_on": adj.get(
+                        QualibrationGraph.RUN_SCENARIO_FIELD,
+                        Outcome.SUCCESSFUL,
+                    )
+                                  == Outcome.SUCCESSFUL,
+                }
+                if operational_condition_data:
+                    data["condition"] = operational_condition_data
 
                 flow_dict["edges"].append(
                     {
                         "id": f"{node_name}->{target_name}",
                         "source": node_name,
                         "target": target_name,
-                        "data": {
-                            "connect_on": adj.get(
-                                QualibrationGraph.RUN_SCENARIO_FIELD,
-                                Outcome.SUCCESSFUL,
-                            )
-                            == Outcome.SUCCESSFUL,
-                            **operational_condition_data,
-                        },
+                        "data": data
                     }
                 )
 
@@ -912,26 +912,23 @@ class QualibrationGraph(
         return dict(flow_dict)
 
     def _add_loop_to_edge(self, node_name: str) -> dict[str, Any]:
-        loop_data: dict[str, Any] = {}
-        if node_name in self._loop_conditions:
-            node_conditions = self._loop_conditions[node_name]
-            loop_data["id"] = f"{node_name}->{node_name}"
-            loop_data["source"] = node_name
-            loop_data["target"] = node_name
-            loop_data["data"] = {
-                "condition": node_conditions.on_generator is not None
-                or node_conditions.on_function is not None
-                or node_conditions.max_iterations is not None,
-                "max_iterations": node_conditions.max_iterations,
-            }
-            (
-                loop_data["data"]["condition_label"],
-                loop_data["data"]["condition_content"],
-            ) = self._get_operational_condition_signature_and_content(
-                node_conditions
-            )
+        if node_name not in self._loop_conditions:
+            raise KeyError(f"Loop condition not found for node {node_name}")
 
-        return loop_data
+        node_conditions: LoopCondition[GraphElementTypeVar] = self._loop_conditions[node_name]
+        label,content = self._get_operational_condition_signature_and_content(node_conditions)
+        data = {'loop':{}}
+        if label and content:
+            data["loop"]["label"] = label
+            data["loop"]["content"] = content
+        if max_iterations := node_conditions.max_iterations:
+            data["loop"]["max_iterations"] = max_iterations
+        return {
+            "id": f"{node_name}->{node_name}",
+            "source": node_name,
+            "target": node_name,
+            "data":  data,
+        }
 
     def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """
