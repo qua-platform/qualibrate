@@ -35,7 +35,6 @@ def recursive_properties_solver(
                 )
             else:
                 properties[name] = resolved
-                if 'default' in structure:
+                if "default" in structure:
                     properties[name]["default"] = structure["default"]
     return properties
-

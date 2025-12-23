@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from qualibrate.parameters import GraphParameters, NodeParameters
 
+
 class Color(Enum):
     RED = "Red"
     GREEN = "Green"
@@ -19,7 +20,7 @@ class TestCreateParameters:
     class SampleNodeParametersWithEnum(NodeParameters):
         qubits: list[str] | None = None
         other_param: str = "test"
-        color : Color = Color.RED
+        color: Color = Color.RED
 
     class SampleGraphParameters(GraphParameters):
         qubits: list[str] | None = None
@@ -28,7 +29,7 @@ class TestCreateParameters:
     class SampleGraphParametersWithEnum(GraphParameters):
         qubits: list[str] | None = None
         other_param: str = "test"
-        color : Color = Color.RED
+        color: Color = Color.RED
 
     @pytest.mark.parametrize(
         "parameters_class", [SampleNodeParameters, SampleGraphParameters]
@@ -104,7 +105,8 @@ class TestCreateParameters:
         }
 
     @pytest.mark.parametrize(
-        "parameters_class", [SampleNodeParametersWithEnum,SampleGraphParametersWithEnum]
+        "parameters_class",
+        [SampleNodeParametersWithEnum, SampleGraphParametersWithEnum],
     )
     def test_serialize_includes_enum_values(self, parameters_class):
         serialized = parameters_class.serialize(exclude_targets=False)
@@ -117,7 +119,8 @@ class TestCreateParameters:
         assert serialized["color"]["default"] == Color.RED.value
 
     @pytest.mark.parametrize(
-        "parameters_class", [SampleNodeParametersWithEnum, SampleGraphParametersWithEnum]
+        "parameters_class",
+        [SampleNodeParametersWithEnum, SampleGraphParametersWithEnum],
     )
     def test_serialize_exclude_targets_enum(self, parameters_class):
         serialized = parameters_class.serialize(exclude_targets=True)
@@ -125,7 +128,8 @@ class TestCreateParameters:
         assert "color" in serialized
 
     @pytest.mark.parametrize(
-        "parameters_class", [SampleNodeParametersWithEnum, SampleGraphParametersWithEnum]
+        "parameters_class",
+        [SampleNodeParametersWithEnum, SampleGraphParametersWithEnum],
     )
     def test_serialize_include_targets_with_enum(self, parameters_class):
         expected = {

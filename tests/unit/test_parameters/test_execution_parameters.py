@@ -1,5 +1,3 @@
-from email.policy import default
-
 import pytest
 from pydantic import Field
 
