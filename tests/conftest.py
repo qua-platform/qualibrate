@@ -164,9 +164,29 @@ def mock_action_manager():
 
 
 @pytest.fixture
+def action_manager(mocker):
+    """Provide a real ActionManager instance with required patches."""
+    from qualibrate.runnables.run_action.action_manager import ActionManager
+
+    mocker.patch("qualibrate.runnables.run_action.action_manager.inspect.stack")
+    mocker.patch(
+        "qualibrate.runnables.run_action.action_manager"
+        ".get_frame_for_keeping_names_from_manager"
+    )
+    mocker.patch(
+        "qualibrate.runnables.run_action.action_manager"
+        ".get_defined_in_frame_names",
+        return_value=set(),
+    )
+    return ActionManager()
+
+
+@pytest.fixture
 def mock_node():
     """Provide a mock QualibrationNode."""
     node = Mock()
+    node.name = "test_node"
     node.namespace = {}
     node.action_label = None
+    node._action_manager = None
     return node
