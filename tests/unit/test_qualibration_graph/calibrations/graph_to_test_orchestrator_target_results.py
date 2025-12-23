@@ -29,7 +29,6 @@ USED_NODE = "test_node_with_results"
 with QualibrationGraph.build(
         "graph_with_operational_condition_and_loop",
         parameters=Parameters(qubits=[f"q{i}" for i in range(1,5)]),
-        # orchestrator=BasicOrchestrator(skip_failed=True),
 ) as graph:
     node = library.nodes.get_nocopy(USED_NODE).copy(name="node")
     node2 = library.nodes.get_nocopy("demo_node_that_fails_targets").copy(name="node2")

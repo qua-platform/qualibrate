@@ -555,7 +555,8 @@ class BasicOrchestrator(
                 map(
                     lambda outcome: outcome == Outcome.SUCCESSFUL,
                     [
-                        node.outcomes.get(target, Outcome.FAILED)
+                        # node.outcomes.get(target, Outcome.FAILED)
+                        node.outcomes.get(target,Outcome.SUCCESSFUL)
                         for node in elements_without_successors
                     ],
                 )

@@ -12,7 +12,6 @@ class Parameters(NodeParameters):
 node = QualibrationNode(
     "demo_node_that_succeeds_targets", parameters=Parameters()
 )
-# node.parameters = Parameters(qubits=["q1","q2","q3","q4"])
 
 
 @node.run_action()
