@@ -29,7 +29,13 @@ def recursive_properties_solver(
             structure.update(structure.pop("allOf")[0])
         if "$ref" in structure:
             resolved = resolve_pointer(schema, structure["$ref"][1:])
-            properties[name] = recursive_properties_solver(
-                resolved["properties"], schema
-            )
+            if "properties" in resolved:
+                properties[name] = recursive_properties_solver(
+                    resolved["properties"], schema
+                )
+            else:
+                properties[name] = resolved
+                if 'default' in structure:
+                    properties[name]["default"] = structure["default"]
     return properties
+
