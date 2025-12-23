@@ -1,13 +1,21 @@
-import React, { ChangeEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import styles from "./ArraySelector.module.scss";
+import EnumSelectorDropdown from "./components/EnumSelectorDropdown/EnumSelectorDropdown";
+import QubitsSelectorPopup from "./components/QubitsSelectorPopup/QubitsSelectorPopup";
+import { classNames } from "../../utils/classnames";
 
-type SelectorOption = {
+const MAX_LIST_HEIGHT = 200;
+
+export type SelectorOption = {
   id: string;
   title: string;
+  online: boolean;
+  percent: number;
+  lastRun: string;
 }
 
 type IProps = {
-  key: string
+  parameterKey: string
   disabled: boolean
   value: string[]
   options: SelectorOption[]
@@ -15,124 +23,91 @@ type IProps = {
 }
 
 const ArraySelector = ({
+  parameterKey,
   disabled,
   value,
   options,
   onChange,
 }: IProps) => {
-  const [searchValue, setSearchValue] = useState("");
-  const [position, setPosition] = useState<DOMRect>();
-  const [openPopup, setOpenPopup] = useState(false);
-
-  const ref = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const getSearchStringIndex = useCallback(
-    (string: string) => string.trim().toLowerCase().indexOf(searchValue.trim().toLowerCase()),
-    [searchValue]
-  );
-  const showOptionsSelector = useMemo(
-    () => options.filter(option => !value.includes(option.id)).length > 0,
-    [value, options]
-  );
-  const filteredOptions = useMemo(
-    () => options.filter(option => !value.includes(option.id)).filter(option => getSearchStringIndex(option.title) !== -1),
-    [value, options, getSearchStringIndex]
-  );
-
-  const togglePopup = () => setOpenPopup(prev => !prev);
-  const handleEsc = (evt: KeyboardEvent) => evt.key === "Escape" && setOpenPopup(false);
-  const handleSelect = (id: string) => onChange([...value, id]);
   const handleRemoveItem = (id: string) => onChange(value.filter(option => option !== id));
-  const handleEnterSearchValue = (evt: ChangeEvent<HTMLInputElement>) => setSearchValue(evt.target.value);
-  const handleClearSearchValue = () => setSearchValue("");
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [showExpandButton, setShowExpandButton] = useState(false);
+  const [popupPosition, setPopupPosition] = useState<DOMRect>();
+  const listRef = useRef<HTMLDivElement>(null);
+  const popupButtonInListRef = useRef<HTMLButtonElement>(null);
+  const popupButtonInExpandRef = useRef<HTMLButtonElement>(null);
+  const isQubitsSelector = parameterKey === "qubits";
+  const showOpenPopupButton = !disabled && options.length !== 0 && (!isQubitsSelector || !isPopupOpen);
+
+  const togglePopup = useCallback(() => setIsPopupOpen(prev => !prev), []);
+  const handleClosePopup = () => setIsPopupOpen(false);
 
   useLayoutEffect(() => {
-    const handleClick = (evt: MouseEvent | TouchEvent) => {
-      if (ref.current && !ref.current.contains(evt.target as Node)) {
-        setOpenPopup(false);
-      }
-    };
+    // For short and expanded lists attach popup to button in list
+    if ((expanded || !showExpandButton) && popupButtonInListRef.current)
+      setPopupPosition(popupButtonInListRef.current.getBoundingClientRect());
 
-    if (openPopup) {
-      window.addEventListener("mouseup", handleClick);
-      window.addEventListener("touchend", handleClick);
-      window.addEventListener("keydown", handleEsc);
-      return () => {
-        window.removeEventListener("mouseup", handleClick);
-        window.removeEventListener("touchend", handleClick);
-        window.removeEventListener("keydown", handleEsc);
-      };
+    // For collapsed list attach popup to 'Show more' button
+    if (showExpandButton && popupButtonInExpandRef.current)
+      setPopupPosition(popupButtonInExpandRef.current.getBoundingClientRect());
+  }, [isPopupOpen, value, expanded, showExpandButton]);
+
+  useLayoutEffect(() => {
+    if (!listRef.current) return;
+
+    // Show 'Show more' button when list reach MAX_LIST_HEIGHT
+    if (listRef.current.getBoundingClientRect().height >= MAX_LIST_HEIGHT) {
+      setShowExpandButton(true);
+    } else {
+      setShowExpandButton(false);
+      setExpanded(false);
     }
-  }, [openPopup]);
-
-  useEffect(() => {
-    openPopup && inputRef.current?.focus();
-  }, [openPopup]);
-
-  useEffect(() => {
-    if (ref.current)
-      setPosition(ref.current.getBoundingClientRect());
-  }, [openPopup, value]);
+  }, [value]);
 
   const renderChip = (optionId: string) => {
     const title = options.find(option => option.id === optionId)?.title || optionId;
 
     return <div key={optionId} className={styles.chip}>
       <span className={styles.chipLabel} title={title}>{title}</span>
-      <button
-        className={styles.chipRemoveButton}
-        onClick={() => handleRemoveItem(optionId)}
-      >
+      <button className={styles.chipRemoveButton} onClick={() => handleRemoveItem(optionId)}>
         &times;
       </button>
     </div>;
   };
 
-  const renderSelectorOption = (option: SelectorOption) => {
-    const searchStringIndex = getSearchStringIndex(option.title);
-    const parts = [
-      option.title.slice(0, searchStringIndex),
-      option.title.slice(searchStringIndex, searchStringIndex + searchValue.trim().length),
-      option.title.slice(searchStringIndex + searchValue.trim().length),
-    ];
 
-    return <span
-      key={option.id}
-      onClick={() => handleSelect(option.id)}
-      data-value={option.id}
-      className={styles.popupOption}
-    >
-      {parts.map((part, index) => index === 1 ? <strong key={part}>{part}</strong> : part)}
-    </span>;
-  };
-
-  return <div className={styles.field}>
-    {value.map(renderChip)}
-    {showOptionsSelector && !disabled && <div className={styles.popupWrapper} ref={ref}>
-      <button className={styles.openPopupButton} onClick={togglePopup}>+</button>
-      {openPopup && <div className={styles.popup} style={{ top: position?.bottom, left: position?.left }}>
-        <div className={styles.popupInput}>
-          <input
-            className={styles.searchField}
-            value={searchValue}
-            onChange={handleEnterSearchValue}
-            ref={inputRef}
-            type={"text"}
-            placeholder={"Search option..."}
-          />
-          <button
-            className={styles.clearSearchButton}
-            onClick={handleClearSearchValue}
-          >
-            &times;
-          </button>
-        </div>
-        <div className={styles.popupList}>
-          {filteredOptions.map(renderSelectorOption)}
-        </div>
-      </div>}
+  return <div className={classNames(styles.field, expanded && styles.expanded)}>
+    <div className={styles.chipsContainer} ref={listRef}>
+      {value.map(renderChip)}
+      {showOpenPopupButton && (
+        <button className={styles.openPopupTrigger} onClick={togglePopup} ref={popupButtonInListRef}>+</button>
+      )}
+    </div>
+    {!expanded && showExpandButton && <div className={styles.showMore}>
+      <button className={styles.showMoreButton} onClick={() => setExpanded(true)}>Show more</button>
+      {showOpenPopupButton && (
+        <button className={styles.openPopupTrigger} onClick={togglePopup} ref={popupButtonInExpandRef}>+</button>
+      )}
     </div>}
+    {expanded && <button className={styles.showLessButton} onClick={() => setExpanded(false)}>Show less</button>}
+    {(isQubitsSelector
+      ? <QubitsSelectorPopup
+        open={isPopupOpen}
+        onClose={handleClosePopup}
+        onChange={onChange}
+        options={options}
+        value={value}
+      />
+      : <EnumSelectorDropdown
+        open={isPopupOpen}
+        onClose={handleClosePopup}
+        onChange={onChange}
+        options={options}
+        value={value}
+        position={popupPosition}
+      />
+    )}
   </div>;
 };
 

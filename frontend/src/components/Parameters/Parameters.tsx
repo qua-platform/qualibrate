@@ -26,7 +26,13 @@ export interface SingleParameter {
   parameters?: InputParameter;
   default?: string | boolean | number | string[];
   items?: { type: string };
-  options?: { id: string, title: string }[];
+  options?: {
+    id: string;
+    title: string;
+    online: boolean;
+    percent: number;
+    lastRun: string;
+  }[];
   title: string;
   type: ParameterTypes;
   is_targets: boolean;

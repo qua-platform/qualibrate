@@ -6,6 +6,7 @@ import { fetchOneSnapshot, getFirstId, getSecondId, getTrackLatestSidePanel, Sna
 import { getRunningNode, getRunningNodeInfo } from "./selectors";
 import { formatDateTime } from "../../utils/formatDateTime";
 import { InputParameter } from "../../components";
+import { createNodesMock } from "../../../tests/unit/components/ArraySelector/__mocks__/arrayParameter";
 
 export const {
   setSelectedNode,
@@ -27,7 +28,8 @@ export const fetchAllNodes = (rescan?: boolean) => async (dispatch: RootDispatch
   dispatch(setIsRescanningNodes(true));
   const response = await NodesApi.fetchAllNodes(rescan);
   if (response.isOk) {
-    dispatch(setAllNodes(response.result! as NodeMap));
+    // dispatch(setAllNodes(response.result! as NodeMap));
+    dispatch(setAllNodes(createNodesMock(response.result! as NodeMap)));
   } else if (response.error) {
     console.error("Failed to fetch all nodes:", response.error);
   }
