@@ -3066,7 +3066,7 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.4.1"
+version = "0.5.0"
 description = ""
 optional = false
 python-versions = "^3.10,<3.13"
@@ -3118,7 +3118,7 @@ docs = ["mkdocs-gen-files", "mkdocs-jupyter", "mkdocstrings[python] (>=0.18)"]
 
 [[package]]
 name = "quam-builder"
-version = "0.2.0"
+version = "0.2.1"
 description = "A Python tool designed to programmatically construct QUAM (Quantum Abstract Machine) configurations for the Quantum Orchestration Platform (QOP)."
 optional = false
 python-versions = ">=3.9,<3.13"
@@ -3136,7 +3136,7 @@ xarray = ">=2024.7.0"
 type = "git"
 url = "https://github.com/qua-platform/quam-builder.git"
 reference = "HEAD"
-resolved_reference = "9c924713e0255dd293ac1bc18d2dbf38f1c128bd"
+resolved_reference = "e3683ff182bda5c5f339af088993b907355c2466"
 
 [[package]]
 name = "rapidfuzz"
@@ -3679,14 +3679,14 @@ typing-extensions = ">=4.12.0"
 
 [[package]]
 name = "tzdata"
-version = "2025.2"
+version = "2025.3"
 description = "Provider of IANA time zone data"
 optional = false
 python-versions = ">=2"
 groups = ["test"]
 files = [
-    {file = "tzdata-2025.2-py2.py3-none-any.whl", hash = "sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8"},
-    {file = "tzdata-2025.2.tar.gz", hash = "sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9"},
+    {file = "tzdata-2025.3-py2.py3-none-any.whl", hash = "sha256:06a47e5700f3081aab02b2e513160914ff0694bce9947d6b76ebd6bf57cfc5d1"},
+    {file = "tzdata-2025.3.tar.gz", hash = "sha256:de39c2ca5dc7b0344f2eba86f49d614019d29f060fc4ebc8a417896a620b56a7"},
 ]
 
 [[package]]
@@ -4077,4 +4077,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.13"
-content-hash = "72d3290c4ff4f0afea2b387d2cde3904d6f84d60cf591af5f9048e1581aa8193"
+content-hash = "9b26c0dbf9613f8700e4a5e71747c4794098ad3cd7c2682fb098cb17422b55c9"
