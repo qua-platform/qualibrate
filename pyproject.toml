@@ -31,7 +31,6 @@ pytest-mock = "^3.15.1"
 freezegun = "^1.2.0"
 xarray = "^2024.1.0"
 quam-builder = {git = "https://github.com/qua-platform/quam-builder.git"}
-#qualibration-libs = {path = "../qualibration-libs", develop = true}
 
 #[tool.poetry.group.qm-dev.dependencies]
 #qualibrate-config = {path = "../qualibrate-config", develop = true}
@@ -47,7 +46,7 @@ warn_return_any = true
 plugins = ['pydantic.mypy']
 
 [[tool.mypy.overrides]]
-module = ["jsonpatch", "jsonpointer", "qualibration_libs.*", "qualang_tools.*"]
+module = ["jsonpatch", "jsonpointer", "qualang_tools.*"]
 ignore_missing_imports = true
 
 [tool.ruff]

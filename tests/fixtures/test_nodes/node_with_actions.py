@@ -9,7 +9,7 @@ This node tests:
 """
 
 from typing import Any
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import xarray as xr
@@ -17,7 +17,8 @@ from pydantic import Field
 from qualang_tools.results import progress_counter
 from qualang_tools.units import unit
 from qualibrate import NodeParameters, QualibrationNode
-from qualibration_libs.data import XarrayDataFetcher
+
+from tests.fixtures.test_helpers import XarrayDataFetcher
 
 
 class Parameters(NodeParameters):
@@ -93,11 +94,6 @@ def execute_qua_program(
     mock_job = Mock()
     mock_job.result_handles.keys.return_value = ["I"]
 
-    # Mock fetching_tool to return a result with is_processing method
-    mock_result = Mock()
-    mock_result.is_processing.return_value = False
-    mock_result.fetch_all.return_value = {"I": Mock()}
-
     # Code supposed to display the progress bar (won't work)
     u = unit(coerce_to_integer=True)
     span = node.parameters.frequency_span_in_mhz * u.MHz
@@ -110,18 +106,15 @@ def execute_qua_program(
         ),
     }
 
-    with patch(
-        "qualibration_libs.data.fetcher.fetching_tool", return_value=mock_result
-    ):
-        data_fetcher = XarrayDataFetcher(mock_job, sweep_axes)
-        for _dataset in data_fetcher:
-            progress_counter(
-                data_fetcher[
-                    "nonexistent_key"
-                ],  # This will raise KeyError from inside XarrayDataFetcher
-                node.parameters.num_shots,
-                start_time=data_fetcher.t_start,
-            )
+    data_fetcher = XarrayDataFetcher(mock_job, sweep_axes)
+    for _dataset in data_fetcher:
+        progress_counter(
+            data_fetcher[
+                "nonexistent_key"
+            ],  # This will raise KeyError from inside XarrayDataFetcher
+            node.parameters.num_shots,
+            start_time=data_fetcher.t_start,
+        )
     node.log(mock_job.execution_report())
 
     return {"ds_raw": _dataset}
