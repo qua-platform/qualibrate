@@ -9,10 +9,11 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
-from unittest.mock import Mock
+from typing import Any, cast
+from unittest.mock import Mock, create_autospec
 
 import pytest
+from qualibrate import QualibrationGraph, QualibrationLibrary, QualibrationNode
 
 from qualibrate_runner.config.models import State
 from qualibrate_runner.core.models.common import RunError, StateUpdate
@@ -44,7 +45,7 @@ def sample_traceback() -> list[str]:
 
 
 @pytest.fixture
-def sample_run_error(sample_traceback: Any) -> RunError:
+def sample_run_error(sample_traceback: list[str]) -> RunError:
     """Provide a sample RunError instance."""
     return RunError(
         error_class="ValueError",
@@ -66,7 +67,7 @@ def sample_state_update() -> StateUpdate:
 
 
 @pytest.fixture
-def sample_last_run_running(aware_datetime: Any) -> LastRun:
+def sample_last_run_running(aware_datetime: datetime) -> LastRun:
     """Provide a LastRun instance with RUNNING status."""
     return LastRun(
         status=RunStatusEnum.RUNNING,
@@ -80,7 +81,7 @@ def sample_last_run_running(aware_datetime: Any) -> LastRun:
 
 @pytest.fixture
 def sample_last_run_finished(
-    aware_datetime: Any, later_datetime: Any
+    aware_datetime: datetime, later_datetime: datetime
 ) -> LastRun:
     """Provide a LastRun instance with FINISHED status."""
     return LastRun(
@@ -97,7 +98,9 @@ def sample_last_run_finished(
 
 @pytest.fixture
 def sample_last_run_error(
-    aware_datetime: Any, later_datetime: Any, sample_run_error: Any
+    aware_datetime: datetime,
+    later_datetime: datetime,
+    sample_run_error: RunError,
 ) -> LastRun:
     """Provide a LastRun instance with ERROR status."""
     return LastRun(
@@ -118,43 +121,61 @@ def fresh_state() -> State:
     return State()
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_node() -> Mock:
-    """Provide a mock QualibrationNode.
+    """Provide a mock QualibrationNode with enforced interface.
+
+    Uses create_autospec to ensure the mock conforms to QualibrationNode's
+    actual interface, catching typos and signature mismatches early.
+
+    Scope is explicitly set to "function" to ensure each test gets a fresh
+    mock instance with clean state (empty state_updates dict, no call history).
+    This prevents test pollution from mutable state.
 
     Note: This cannot be used directly with State() due to Pydantic
     validation. Use state_with_node fixture instead.
     """
-    node = Mock()
+    node = cast(Mock, create_autospec(QualibrationNode, instance=True))
+
     node.name = "test_node"
     node.snapshot_idx = 42
     node.run_summary = None
     node.state_updates = {}
+
     return node
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def mock_workflow() -> Mock:
-    """Provide a mock workflow (QGraph).
+    """Provide a mock QualibrationGraph with enforced interface.
+
+    Uses create_autospec to ensure the mock conforms to QualibrationGraph's
+    actual interface, catching typos and signature mismatches early.
+
+    Scope is explicitly set to "function" to ensure each test gets a fresh
+    mock instance with clean call history. This prevents test pollution from
+    accumulated mock state.
 
     Note: This cannot be used directly with State() due to Pydantic
     validation. Use state_with_workflow fixture instead.
     """
-    workflow = Mock()
+    workflow = cast(Mock, create_autospec(QualibrationGraph, instance=True))
+
     workflow.name = "test_workflow"
     workflow.snapshot_idx = 100
     workflow.run_summary = None
+
     return workflow
 
 
 @pytest.fixture
-def state_with_node(mock_node: Any) -> State:
+def state_with_node(mock_node: Mock) -> State:
     """Provide a State with a mock node (bypassing validation)."""
     return State.model_construct(run_item=mock_node)
 
 
 @pytest.fixture
-def state_with_workflow(mock_workflow: Any) -> State:
+def state_with_workflow(mock_workflow: Mock) -> State:
     """Provide a State with a mock workflow (bypassing validation)."""
     return State.model_construct(run_item=mock_workflow)
 
@@ -163,7 +184,7 @@ def state_with_workflow(mock_workflow: Any) -> State:
 
 
 @pytest.fixture
-def mock_library(mock_workflow: Any) -> Mock:
+def mock_library(mock_workflow: Mock) -> Mock:
     """Provide a mock QualibrationLibrary."""
     library = Mock()
     library.graphs = {"test_workflow": mock_workflow}
@@ -204,7 +225,7 @@ def sample_workflow_parameters_class() -> type[Any]:
 
 
 @pytest.fixture(scope="function")
-def test_library() -> Any:
+def test_library() -> QualibrationLibrary[Any, Any]:
     """
     Provide a QualibrationLibrary instance loaded with test nodes.
 
@@ -215,14 +236,12 @@ def test_library() -> Any:
     Scope is explicitly set to "function" to ensure each test gets fresh
     node instances, maintaining test independence.
     """
-    from qualibrate import QualibrationLibrary
-
     # Get path to test_nodes directory
     test_nodes_path = Path(__file__).parent / "fixtures" / "test_nodes"
 
     # Create library with set_active=False to avoid interfering with
     # other tests
-    library: Any = QualibrationLibrary(
+    library: QualibrationLibrary[Any, Any] = QualibrationLibrary(
         library_folder=test_nodes_path, set_active=False
     )
 

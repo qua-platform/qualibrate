@@ -27,7 +27,7 @@ class Parameters(NodeParameters):
 
 
 # Create the node
-node: QualibrationNode[Parameters, Parameters] = QualibrationNode(  # type: ignore[type-var]
+node: QualibrationNode[Parameters, Any] = QualibrationNode(
     name="node_with_subroutine",
     parameters=Parameters(),
 )
@@ -60,7 +60,7 @@ def another_helper(value: float, message: str) -> float:
 
 
 @node.run_action
-def prepare_data(node: Any) -> dict[str, Any]:
+def prepare_data(node: QualibrationNode[Parameters, Any]) -> dict[str, Any]:
     """Generate measurement data based on parameters."""
     # Simple data generation without errors
     data = [
@@ -70,7 +70,9 @@ def prepare_data(node: Any) -> dict[str, Any]:
 
 
 @node.run_action(skip_if=not node.parameters.trigger_subroutine_error)  # type: ignore[misc]
-def process_with_subroutine(node: Any) -> dict[str, Any]:
+def process_with_subroutine(
+    node: QualibrationNode[Parameters, Any],
+) -> dict[str, Any]:
     """Process data using a helper function.
 
     This action calls helper_function, which will raise an IndexError
@@ -84,7 +86,7 @@ def process_with_subroutine(node: Any) -> dict[str, Any]:
 
 
 @node.run_action
-def finalize(node: Any) -> dict[str, str]:
+def finalize(node: QualibrationNode[Parameters, Any]) -> dict[str, str]:
     """Finalize results."""
     return {"status": "completed"}
 
