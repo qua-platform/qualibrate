@@ -1,5 +1,4 @@
 from email.policy import default
-from enum import Enum
 
 import pytest
 from pydantic import Field
@@ -13,10 +12,6 @@ from qualibrate.parameters import (
 )
 from qualibrate.utils.type_protocols import TargetType
 
-class Color(Enum):
-    RED = "Red"
-    GREEN = "Green"
-    BLUE = "Blue"
 
 class Node1(NodeParameters):
     qubits: list[TargetType] | None = Field(
@@ -30,12 +25,6 @@ class Node2(NodeParameters):
         default_factory=lambda: ["d", "e", "f"]
     )
     float_value: float = 2.0
-
-class Node3(NodeParameters):
-    qubits: list[TargetType] | None = Field(
-        default_factory=lambda: ["d", "e", "f"]
-    )
-    color: Color = Color.RED
 
 
 class Graph(GraphParameters):
