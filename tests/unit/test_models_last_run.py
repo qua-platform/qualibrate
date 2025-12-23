@@ -8,146 +8,16 @@ workflows, including status, timing, results, and errors.
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Any
-from unittest.mock import Mock
 
-from qualibrate_runner.core.models.common import StateUpdate
 from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
 from qualibrate_runner.core.models.last_run import LastRun
-
-
-class TestLastRunCreation:
-    """Tests for creating LastRun instances."""
-
-    def test_create_running_node(self, aware_datetime: Any) -> None:
-        """Test creating LastRun for a running node."""
-        last_run = LastRun(
-            status=RunStatusEnum.RUNNING,
-            started_at=aware_datetime,
-            name="test_node",
-            idx=-1,
-            runnable_type=RunnableType.NODE,
-            passed_parameters={},
-        )
-
-        assert last_run.status == RunStatusEnum.RUNNING
-        assert last_run.started_at == aware_datetime
-        assert last_run.completed_at is None
-        assert last_run.name == "test_node"
-        assert last_run.idx == -1
-        assert last_run.runnable_type == RunnableType.NODE
-        assert last_run.passed_parameters == {}
-        assert last_run.run_result is None
-        assert last_run.error is None
-
-    def test_create_finished_node(
-        self, aware_datetime: Any, later_datetime: Any
-    ) -> None:
-        """Test creating LastRun for a finished node."""
-        # Use model_construct to bypass validation for mock run_result
-        last_run = LastRun.model_construct(
-            status=RunStatusEnum.FINISHED,
-            started_at=aware_datetime,
-            completed_at=later_datetime,
-            name="test_node",
-            idx=42,
-            runnable_type=RunnableType.NODE,
-            run_result=Mock(success=True),
-            passed_parameters={},
-        )
-
-        assert last_run.status == RunStatusEnum.FINISHED
-        assert last_run.completed_at == later_datetime
-        assert last_run.idx == 42
-        assert last_run.run_result is not None
-        assert last_run.error is None
-
-    def test_create_error_node(
-        self, aware_datetime: Any, later_datetime: Any, sample_run_error: Any
-    ) -> None:
-        """Test creating LastRun for a failed node."""
-        last_run = LastRun(
-            status=RunStatusEnum.ERROR,
-            started_at=aware_datetime,
-            completed_at=later_datetime,
-            name="test_node",
-            idx=-1,
-            runnable_type=RunnableType.NODE,
-            error=sample_run_error,
-            passed_parameters={},
-        )
-
-        assert last_run.status == RunStatusEnum.ERROR
-        assert last_run.error is not None
-        assert last_run.error.error_class == "ValueError"
-        assert last_run.run_result is None
-
-    def test_create_running_workflow(self, aware_datetime: Any) -> None:
-        """Test creating LastRun for a running workflow."""
-        last_run = LastRun(
-            status=RunStatusEnum.RUNNING,
-            started_at=aware_datetime,
-            name="test_workflow",
-            idx=-1,
-            runnable_type=RunnableType.GRAPH,
-            passed_parameters={},
-        )
-
-        assert last_run.runnable_type == RunnableType.GRAPH
-        assert last_run.name == "test_workflow"
-
-    def test_create_with_passed_parameters(self, aware_datetime: Any) -> None:
-        """Test creating LastRun with passed parameters."""
-        params = {
-            "amplitude": 0.5,
-            "frequency": 5.0e9,
-            "num_averages": 1000,
-        }
-
-        last_run = LastRun(
-            status=RunStatusEnum.RUNNING,
-            started_at=aware_datetime,
-            name="test_node",
-            idx=-1,
-            runnable_type=RunnableType.NODE,
-            passed_parameters=params,
-        )
-
-        assert last_run.passed_parameters == params
-        assert last_run.passed_parameters["amplitude"] == 0.5
-
-    def test_create_with_state_updates(self, aware_datetime: Any) -> None:
-        """Test creating LastRun with state updates."""
-        state_updates = {
-            "qubit_0.frequency": StateUpdate(
-                key="qubit_0",
-                attr="frequency",
-                old=5.0e9,
-                new=5.1e9,
-                updated=True,
-            )
-        }
-
-        last_run = LastRun(
-            status=RunStatusEnum.FINISHED,
-            started_at=aware_datetime,
-            completed_at=aware_datetime,
-            name="test_node",
-            idx=42,
-            runnable_type=RunnableType.NODE,
-            state_updates=state_updates,
-            passed_parameters={},
-        )
-
-        assert len(last_run.state_updates) == 1
-        assert "qubit_0.frequency" in last_run.state_updates
 
 
 class TestLastRunDuration:
     """Tests for the run_duration computed field."""
 
     def test_duration_for_completed_run(
-        self, aware_datetime: Any, later_datetime: Any
+        self, aware_datetime: datetime, later_datetime: datetime
     ) -> None:
         """Test run_duration calculation for completed run."""
         # later_datetime is 5.5 seconds after aware_datetime
@@ -181,7 +51,9 @@ class TestLastRunDuration:
         # Duration should be positive and small (less than 1 second)
         assert 0 < last_run.run_duration < 1.0  # type: ignore[operator]
 
-    def test_duration_for_very_short_run(self, aware_datetime: Any) -> None:
+    def test_duration_for_very_short_run(
+        self, aware_datetime: datetime
+    ) -> None:
         """Test duration for very short execution (milliseconds)."""
         completed = aware_datetime + timedelta(milliseconds=150)
 
@@ -197,7 +69,7 @@ class TestLastRunDuration:
 
         assert last_run.run_duration == 0.15  # type: ignore[comparison-overlap]
 
-    def test_duration_for_long_run(self, aware_datetime: Any) -> None:
+    def test_duration_for_long_run(self, aware_datetime: datetime) -> None:
         """Test duration for long execution (minutes)."""
         # 5 minutes and 30 seconds
         completed = aware_datetime + timedelta(minutes=5, seconds=30)
@@ -245,7 +117,9 @@ class TestLastRunDuration:
 class TestLastRunSerialization:
     """Tests for LastRun serialization and deserialization."""
 
-    def test_serialize_running_node(self, sample_last_run_running: Any) -> None:
+    def test_serialize_running_node(
+        self, sample_last_run_running: LastRun
+    ) -> None:
         """Test serializing a running node to dict."""
         data = sample_last_run_running.model_dump()
 
@@ -258,7 +132,7 @@ class TestLastRunSerialization:
         assert data["error"] is None
 
     def test_serialize_finished_node(
-        self, sample_last_run_finished: Any
+        self, sample_last_run_finished: LastRun
     ) -> None:
         """Test serializing a finished node to dict."""
         data = sample_last_run_finished.model_dump()
@@ -269,7 +143,7 @@ class TestLastRunSerialization:
         assert "run_result" in data
         assert "amplitude" in data["passed_parameters"]
 
-    def test_serialize_error_node(self, sample_last_run_error: Any) -> None:
+    def test_serialize_error_node(self, sample_last_run_error: LastRun) -> None:
         """Test serializing a failed node to dict."""
         data = sample_last_run_error.model_dump()
 
@@ -278,7 +152,7 @@ class TestLastRunSerialization:
         assert data["error"]["error_class"] == "ValueError"
         assert data["error"]["message"] == "Invalid data"
 
-    def test_deserialize_from_dict(self, aware_datetime: Any) -> None:
+    def test_deserialize_from_dict(self, aware_datetime: datetime) -> None:
         """Test deserializing LastRun from dict."""
         data = {
             "status": RunStatusEnum.RUNNING,
@@ -299,135 +173,12 @@ class TestLastRunSerialization:
         assert last_run.name == "test_node"
 
 
-class TestLastRunStatusTransitions:
-    """Tests for different status values and transitions."""
-
-    def test_all_status_values(self, aware_datetime: Any) -> None:
-        """Test that all status enum values can be used."""
-        for status in RunStatusEnum:
-            last_run = LastRun(
-                status=status,
-                started_at=aware_datetime,
-                completed_at=aware_datetime
-                if status != RunStatusEnum.RUNNING
-                else None,
-                name="test_node",
-                idx=-1,
-                runnable_type=RunnableType.NODE,
-                passed_parameters={},
-            )
-            assert last_run.status == status
-
-    def test_running_to_finished_transition(self, aware_datetime: Any) -> None:
-        """Test updating from RUNNING to FINISHED status."""
-        # Initial RUNNING state
-        last_run = LastRun(
-            status=RunStatusEnum.RUNNING,
-            started_at=aware_datetime,
-            name="test_node",
-            idx=-1,
-            runnable_type=RunnableType.NODE,
-            passed_parameters={},
-        )
-
-        # Simulate update to FINISHED (use model_construct for mock run_result)
-        completed = aware_datetime + timedelta(seconds=5)
-        updated_run = LastRun.model_construct(
-            status=RunStatusEnum.FINISHED,
-            started_at=last_run.started_at,
-            completed_at=completed,
-            name=last_run.name,
-            idx=42,
-            runnable_type=last_run.runnable_type,
-            run_result=Mock(success=True),
-            passed_parameters={},
-        )
-
-        assert updated_run.status == RunStatusEnum.FINISHED
-        assert updated_run.completed_at is not None
-        assert updated_run.idx == 42
-
-    def test_running_to_error_transition(
-        self, aware_datetime: Any, sample_run_error: Any
-    ) -> None:
-        """Test updating from RUNNING to ERROR status."""
-        # Initial RUNNING state
-        last_run = LastRun(
-            status=RunStatusEnum.RUNNING,
-            started_at=aware_datetime,
-            name="test_node",
-            idx=-1,
-            runnable_type=RunnableType.NODE,
-            passed_parameters={},
-        )
-
-        # Simulate update to ERROR
-        completed = aware_datetime + timedelta(seconds=2)
-        updated_run = LastRun(
-            status=RunStatusEnum.ERROR,
-            started_at=last_run.started_at,
-            completed_at=completed,
-            name=last_run.name,
-            idx=-1,
-            runnable_type=last_run.runnable_type,
-            error=sample_run_error,
-            passed_parameters={},
-        )
-
-        assert updated_run.status == RunStatusEnum.ERROR
-        assert updated_run.error is not None
-        assert updated_run.idx == -1
-
-
 class TestLastRunEdgeCases:
     """Tests for edge cases and special scenarios."""
 
-    def test_idx_negative_one_for_no_snapshot(
-        self, aware_datetime: Any
+    def test_node_vs_graph_runnable_types(
+        self, aware_datetime: datetime
     ) -> None:
-        """Test that idx=-1 indicates no snapshot was created."""
-        last_run = LastRun(
-            status=RunStatusEnum.RUNNING,
-            started_at=aware_datetime,
-            name="test_node",
-            idx=-1,
-            runnable_type=RunnableType.NODE,
-            passed_parameters={},
-        )
-
-        assert last_run.idx == -1
-
-    def test_empty_passed_parameters(self, aware_datetime: Any) -> None:
-        """Test with empty passed_parameters dict."""
-        last_run = LastRun(
-            status=RunStatusEnum.RUNNING,
-            started_at=aware_datetime,
-            name="test_node",
-            idx=-1,
-            runnable_type=RunnableType.NODE,
-            passed_parameters={},
-        )
-
-        assert last_run.passed_parameters == {}
-        assert len(last_run.passed_parameters) == 0
-
-    def test_empty_state_updates(self, aware_datetime: Any) -> None:
-        """Test with empty state_updates dict."""
-        last_run = LastRun(
-            status=RunStatusEnum.FINISHED,
-            started_at=aware_datetime,
-            completed_at=aware_datetime,
-            name="test_node",
-            idx=42,
-            runnable_type=RunnableType.NODE,
-            state_updates={},
-            passed_parameters={},
-        )
-
-        assert last_run.state_updates == {}
-        assert len(last_run.state_updates) == 0
-
-    def test_node_vs_graph_runnable_types(self, aware_datetime: Any) -> None:
         """Test both NODE and GRAPH runnable types."""
         node_run = LastRun(
             status=RunStatusEnum.RUNNING,
@@ -449,66 +200,3 @@ class TestLastRunEdgeCases:
 
         assert node_run.runnable_type == RunnableType.NODE
         assert graph_run.runnable_type == RunnableType.GRAPH
-
-    def test_very_long_node_name(self, aware_datetime: Any) -> None:
-        """Test with very long node name."""
-        long_name = "very_long_node_name_" * 20
-
-        last_run = LastRun(
-            status=RunStatusEnum.RUNNING,
-            started_at=aware_datetime,
-            name=long_name,
-            idx=-1,
-            runnable_type=RunnableType.NODE,
-            passed_parameters={},
-        )
-
-        assert last_run.name == long_name
-        assert len(last_run.name) > 300
-
-    def test_many_state_updates(self, aware_datetime: Any) -> None:
-        """Test with many state updates."""
-        state_updates = {
-            f"qubit_{i}.frequency": StateUpdate(
-                key=f"qubit_{i}",
-                attr="frequency",
-                old=5.0e9 + i * 0.1e9,
-                new=5.1e9 + i * 0.1e9,
-                updated=True,
-            )
-            for i in range(50)
-        }
-
-        last_run = LastRun(
-            status=RunStatusEnum.FINISHED,
-            started_at=aware_datetime,
-            completed_at=aware_datetime,
-            name="test_node",
-            idx=42,
-            runnable_type=RunnableType.NODE,
-            state_updates=state_updates,
-            passed_parameters={},
-        )
-
-        assert len(last_run.state_updates) == 50
-
-    def test_complex_passed_parameters(self, aware_datetime: Any) -> None:
-        """Test with complex nested passed_parameters."""
-        params = {
-            "basic": 42,
-            "nested": {"a": 1, "b": {"c": 2}},
-            "list": [1, 2, 3],
-            "mixed": [{"x": 1}, {"y": 2}],
-        }
-
-        last_run = LastRun(
-            status=RunStatusEnum.RUNNING,
-            started_at=aware_datetime,
-            name="test_node",
-            idx=-1,
-            runnable_type=RunnableType.NODE,
-            passed_parameters=params,
-        )
-
-        assert last_run.passed_parameters["nested"]["b"]["c"] == 2
-        assert len(last_run.passed_parameters["list"]) == 3

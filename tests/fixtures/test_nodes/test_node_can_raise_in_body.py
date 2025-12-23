@@ -37,7 +37,7 @@ class Parameters(NodeParameters):
 
 # Create the node
 node: QualibrationNode[Parameters, Parameters] = QualibrationNode(  # type: ignore[type-var]
-    name="node_raises_in_body",
+    name="node_can_raise_in_body",
     parameters=Parameters(),
 )
 

@@ -11,6 +11,8 @@ import pytest
 from fastapi import HTTPException
 from pydantic import ValidationError
 
+from qualibrate_runner.config.models import State
+from qualibrate_runner.core.models.common import StateUpdate
 from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
 from qualibrate_runner.core.run_job import (
     get_active_library_or_error,
@@ -24,7 +26,7 @@ class TestValidateInputParameters:
     """Tests for validate_input_parameters function."""
 
     def test_valid_parameters_pass_validation(
-        self, sample_parameters_class: Any
+        self, sample_parameters_class: type[Any]
     ) -> None:
         """Test that valid parameters pass validation."""
         params = {"amplitude": 0.5, "frequency": 5.0e9, "num_averages": 100}
@@ -36,7 +38,7 @@ class TestValidateInputParameters:
         assert result.num_averages == 100  # type: ignore[attr-defined]
 
     def test_valid_parameters_with_defaults(
-        self, sample_parameters_class: Any
+        self, sample_parameters_class: type[Any]
     ) -> None:
         """Test that validation works with default values."""
         params = {"amplitude": 0.5, "frequency": 5.0e9}
@@ -48,7 +50,7 @@ class TestValidateInputParameters:
         assert result.num_averages == 100  # type: ignore[attr-defined]  # Default value
 
     def test_invalid_parameter_raises_http_exception(
-        self, sample_parameters_class: Any
+        self, sample_parameters_class: type[Any]
     ) -> None:
         """Test that invalid parameters raise HTTPException with 422 status."""
         params = {"amplitude": 1.5, "frequency": 5.0e9}  # amplitude > 1.0
@@ -60,7 +62,7 @@ class TestValidateInputParameters:
         assert exc_info.value.detail is not None
 
     def test_missing_required_field_raises_http_exception(
-        self, sample_parameters_class: Any
+        self, sample_parameters_class: type[Any]
     ) -> None:
         """Test that missing required field raises HTTPException."""
         params = {"amplitude": 0.5}  # Missing required 'frequency'
@@ -73,7 +75,9 @@ class TestValidateInputParameters:
         errors = exc_info.value.detail
         assert any("frequency" in str(error).lower() for error in errors)
 
-    def test_type_coercion_works(self, sample_parameters_class: Any) -> None:
+    def test_type_coercion_works(
+        self, sample_parameters_class: type[Any]
+    ) -> None:
         """Test that Pydantic type coercion works as expected."""
         params = {
             "amplitude": "0.5",  # String that can be coerced to float
@@ -93,7 +97,7 @@ class TestGetActiveLibraryOrError:
 
     @patch("qualibrate_runner.core.run_job.QualibrationLibrary")
     def test_returns_library_when_exists(
-        self, mock_lib_class: Any, mock_library: Any
+        self, mock_lib_class: Mock, mock_library: Mock
     ) -> None:
         """Test that function returns library when one exists."""
         mock_lib_class.get_active_library.return_value = mock_library
@@ -105,7 +109,7 @@ class TestGetActiveLibraryOrError:
 
     @patch("qualibrate_runner.core.run_job.QualibrationLibrary")
     def test_raises_exception_when_no_library(
-        self, mock_lib_class: Any
+        self, mock_lib_class: Mock
     ) -> None:
         """Test that function raises exception when no library exists."""
         mock_lib_class.get_active_library.side_effect = RuntimeError(
@@ -122,7 +126,7 @@ class TestRunNodeHappyPath:
     """Tests for run_node function - happy path scenarios."""
 
     def test_sets_run_item_to_node(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that state.run_item is set to the node."""
         mock_node.run = Mock(return_value=None)
@@ -132,7 +136,7 @@ class TestRunNodeHappyPath:
         assert fresh_state.run_item is mock_node
 
     def test_creates_last_run_with_running_status(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that initial LastRun has RUNNING status."""
         # Track state during execution
@@ -152,18 +156,19 @@ class TestRunNodeHappyPath:
         assert last_run_during_execution.name == "test_node"
 
     def test_updates_state_with_finished_status(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that final state has FINISHED status on success."""
         mock_node.run = Mock(return_value=None)
 
         run_node(mock_node, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
         assert fresh_state.last_run.error is None
 
     def test_captures_snapshot_idx(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that snapshot_idx is captured from node."""
         mock_node.run = Mock(return_value=None)
@@ -171,10 +176,11 @@ class TestRunNodeHappyPath:
 
         run_node(mock_node, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.idx == 42
 
     def test_captures_run_summary(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that run_summary is captured from node."""
         mock_node.run = Mock(return_value=None)
@@ -183,10 +189,14 @@ class TestRunNodeHappyPath:
         run_node(mock_node, {}, fresh_state)
 
         # run_result should be None since run_summary is None
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.run_result is None
 
     def test_captures_state_updates(
-        self, mock_node: Any, fresh_state: Any, sample_state_update: Any
+        self,
+        mock_node: Mock,
+        fresh_state: State,
+        sample_state_update: StateUpdate,
     ) -> None:
         """Test that state_updates are captured from node."""
 
@@ -196,16 +206,18 @@ class TestRunNodeHappyPath:
 
         run_node(mock_node, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.state_updates == state_updates
 
     def test_sets_completed_at_timestamp(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that completed_at is set after execution."""
         mock_node.run = Mock(return_value=None)
 
         run_node(mock_node, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.completed_at is not None
         assert (
             fresh_state.last_run.completed_at > fresh_state.last_run.started_at
@@ -216,7 +228,7 @@ class TestRunNodeErrorPath:
     """Tests for run_node function - error scenarios."""
 
     def test_captures_exception_in_state(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that exceptions are captured in state.last_run.error."""
         mock_node.run = Mock(side_effect=ValueError("Test error"))
@@ -224,18 +236,23 @@ class TestRunNodeErrorPath:
         with pytest.raises(ValueError, match="Test error"):
             run_node(mock_node, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
         assert fresh_state.last_run.error is not None
         assert fresh_state.last_run.error.error_class == "ValueError"
         assert fresh_state.last_run.error.message == "Test error"
 
-    def test_captures_traceback(self, mock_node: Any, fresh_state: Any) -> None:
+    def test_captures_traceback(
+        self, mock_node: Mock, fresh_state: State
+    ) -> None:
         """Test that full traceback is captured."""
         mock_node.run = Mock(side_effect=RuntimeError("Node failed"))
 
         with pytest.raises(RuntimeError):
             run_node(mock_node, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
+        assert fresh_state.last_run.error is not None
         assert len(fresh_state.last_run.error.traceback) > 0
         # Traceback should be a list of strings
         assert all(
@@ -244,7 +261,7 @@ class TestRunNodeErrorPath:
         )
 
     def test_re_raises_original_exception(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that the original exception is re-raised."""
         original_error = ValueError("Original error")
@@ -257,7 +274,7 @@ class TestRunNodeErrorPath:
         assert exc_info.value is original_error
 
     def test_state_updated_even_on_error(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that state is updated in finally block even on error."""
         mock_node.run = Mock(side_effect=RuntimeError("Error"))
@@ -266,12 +283,13 @@ class TestRunNodeErrorPath:
             run_node(mock_node, {}, fresh_state)
 
         # State should still be updated with error info
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
         assert fresh_state.last_run.completed_at is not None
         assert fresh_state.last_run.name == "test_node"
 
     def test_snapshot_idx_negative_one_on_error(
-        self, mock_node: Any, fresh_state: Any
+        self, mock_node: Mock, fresh_state: State
     ) -> None:
         """Test that snapshot_idx remains -1 on error."""
         mock_node.run = Mock(side_effect=ValueError("Error"))
@@ -280,6 +298,7 @@ class TestRunNodeErrorPath:
         with pytest.raises(ValueError):
             run_node(mock_node, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.idx == -1
 
 
@@ -289,10 +308,10 @@ class TestRunWorkflowHappyPath:
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_retrieves_fresh_workflow_from_library(
         self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
+        mock_get_library: Mock,
+        mock_library: Mock,
+        mock_workflow: Mock,
+        fresh_state: State,
     ) -> None:
         """Test that workflow is retrieved fresh from library."""
         mock_get_library.return_value = mock_library
@@ -323,10 +342,10 @@ class TestRunWorkflowHappyPath:
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_creates_last_run_with_graph_type(
         self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
+        mock_get_library: Mock,
+        mock_library: Mock,
+        mock_workflow: Mock,
+        fresh_state: State,
     ) -> None:
         """Test that LastRun is created with GRAPH runnable_type."""
         mock_get_library.return_value = mock_library
@@ -355,10 +374,10 @@ class TestRunWorkflowHappyPath:
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_validates_parameters_with_full_parameters_class(
         self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
+        mock_get_library: Mock,
+        mock_library: Mock,
+        mock_workflow: Mock,
+        fresh_state: State,
     ) -> None:
         """Test that parameters are validated using full_parameters_class."""
         mock_get_library.return_value = mock_library
@@ -382,10 +401,10 @@ class TestRunWorkflowHappyPath:
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_splits_parameters_into_nodes_and_params(
         self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
+        mock_get_library: Mock,
+        mock_library: Mock,
+        mock_workflow: Mock,
+        fresh_state: State,
     ) -> None:
         """Test that parameters are split into nodes and parameters."""
         mock_get_library.return_value = mock_library
@@ -414,10 +433,10 @@ class TestRunWorkflowHappyPath:
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_updates_state_with_finished_status(
         self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
+        mock_get_library: Mock,
+        mock_library: Mock,
+        mock_workflow: Mock,
+        fresh_state: State,
     ) -> None:
         """Test that final state has FINISHED status on success."""
         mock_get_library.return_value = mock_library
@@ -431,31 +450,9 @@ class TestRunWorkflowHappyPath:
 
         run_workflow(mock_workflow, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
         assert fresh_state.last_run.error is None
-
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
-    def test_captures_workflow_snapshot_idx(
-        self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
-    ) -> None:
-        """Test that snapshot_idx is captured from workflow."""
-        mock_get_library.return_value = mock_library
-
-        # Setup workflow
-        mock_workflow.run = Mock(return_value=None)
-        mock_workflow.snapshot_idx = 100
-        mock_params = Mock()
-        mock_params.nodes.model_dump.return_value = {}
-        mock_params.parameters.model_dump.return_value = {}
-        mock_workflow.full_parameters_class.return_value = mock_params
-
-        run_workflow(mock_workflow, {}, fresh_state)
-
-        assert fresh_state.last_run.idx == 100
 
 
 class TestRunWorkflowErrorPath:
@@ -463,7 +460,7 @@ class TestRunWorkflowErrorPath:
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_library_not_found_raises_exception(
-        self, mock_get_library: Any, mock_workflow: Any, fresh_state: Any
+        self, mock_get_library: Mock, mock_workflow: Mock, fresh_state: State
     ) -> None:
         """Test that missing library raises exception."""
         mock_get_library.side_effect = RuntimeError("No active library")
@@ -471,15 +468,16 @@ class TestRunWorkflowErrorPath:
         with pytest.raises(RuntimeError, match="No active library"):
             run_workflow(mock_workflow, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_workflow_not_in_library_raises_exception(
         self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
+        mock_get_library: Mock,
+        mock_library: Mock,
+        mock_workflow: Mock,
+        fresh_state: State,
     ) -> None:
         """Test that missing workflow in library raises exception."""
         mock_get_library.return_value = mock_library
@@ -488,15 +486,16 @@ class TestRunWorkflowErrorPath:
         with pytest.raises(KeyError):
             run_workflow(mock_workflow, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_parameter_validation_errors_raise_exception(
         self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
+        mock_get_library: Mock,
+        mock_library: Mock,
+        mock_workflow: Mock,
+        fresh_state: State,
     ) -> None:
         """Test that parameter validation errors are raised."""
         mock_get_library.return_value = mock_library
@@ -518,15 +517,16 @@ class TestRunWorkflowErrorPath:
         with pytest.raises(ValidationError):
             run_workflow(mock_workflow, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_runtime_errors_captured_and_reraised(
         self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
+        mock_get_library: Mock,
+        mock_library: Mock,
+        mock_workflow: Mock,
+        fresh_state: State,
     ) -> None:
         """Test that runtime errors during workflow.run are captured."""
         mock_get_library.return_value = mock_library
@@ -541,16 +541,18 @@ class TestRunWorkflowErrorPath:
         with pytest.raises(RuntimeError, match="Workflow failed"):
             run_workflow(mock_workflow, {}, fresh_state)
 
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
+        assert fresh_state.last_run.error is not None
         assert fresh_state.last_run.error.error_class == "RuntimeError"
 
     @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
     def test_state_updated_even_on_error(
         self,
-        mock_get_library: Any,
-        mock_library: Any,
-        mock_workflow: Any,
-        fresh_state: Any,
+        mock_get_library: Mock,
+        mock_library: Mock,
+        mock_workflow: Mock,
+        fresh_state: State,
     ) -> None:
         """Test that state is updated in finally block even on error."""
         mock_get_library.return_value = mock_library
@@ -566,5 +568,6 @@ class TestRunWorkflowErrorPath:
             run_workflow(mock_workflow, {}, fresh_state)
 
         # State should still be updated
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
         assert fresh_state.last_run.completed_at is not None

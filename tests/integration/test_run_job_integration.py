@@ -16,8 +16,9 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+from qualibrate import QualibrationLibrary
 
-from qualibrate_runner.config.models import RunStatusEnum
+from qualibrate_runner.config.models import RunStatusEnum, State
 from qualibrate_runner.core.run_job import run_node
 
 
@@ -25,15 +26,16 @@ class TestSimpleNodeExecution:
     """Integration tests for simple nodes without action system."""
 
     def test_simple_node_success(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test successful execution of simple node."""
-        node = test_library.nodes["node_raises_in_body"]
+        node = test_library.nodes["node_can_raise_in_body"]
 
         # Execute through run_node (full orchestration)
         run_node(node, {}, fresh_state)
 
         # Verify state tracking
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
         assert fresh_state.last_run.completed_at is not None
         assert fresh_state.last_run.error is None
@@ -44,24 +46,25 @@ class TestSimpleNodeExecution:
         assert node.results["error_raised"] is False
 
     def test_simple_node_with_different_parameters(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test simple node with runtime parameter override."""
-        node = test_library.nodes["node_raises_in_body"]
+        node = test_library.nodes["node_can_raise_in_body"]
 
         # Execute with custom parameters
         params = {"amplitude": 0.8, "num_points": 5}
         run_node(node, params, fresh_state)
 
         # Verify execution succeeded
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
         assert fresh_state.last_run.passed_parameters == params
 
     def test_simple_node_error_in_body(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test error capture when node body raises exception."""
-        node = test_library.nodes["node_raises_in_body"]
+        node = test_library.nodes["node_can_raise_in_body"]
 
         # Execute with should_fail=True
         params = {
@@ -74,6 +77,7 @@ class TestSimpleNodeExecution:
             run_node(node, params, fresh_state)
 
         # Verify error was captured in state
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
         assert fresh_state.last_run.error is not None
         assert "ValueError" in fresh_state.last_run.error.error_class
@@ -84,7 +88,7 @@ class TestNodeWithActionsExecution:
     """Integration tests for nodes with action system."""
 
     def test_all_actions_execute(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test full execution with all default actions."""
         node = test_library.nodes["node_with_actions"]
@@ -93,6 +97,7 @@ class TestNodeWithActionsExecution:
         run_node(node, {}, fresh_state)
 
         # Verify state tracking
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
         assert fresh_state.last_run.error is None
 
@@ -103,7 +108,7 @@ class TestNodeWithActionsExecution:
         assert "summary" in node.namespace
 
     def test_conditional_action_skip(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test conditional action skipping via parameters."""
         node = test_library.nodes["node_with_actions"]
@@ -113,6 +118,7 @@ class TestNodeWithActionsExecution:
         run_node(node, params, fresh_state)
 
         # Verify execution succeeded
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
 
         # Verify normal actions ran
@@ -123,7 +129,7 @@ class TestNodeWithActionsExecution:
         assert "state_updated" not in node.namespace
 
     def test_action_raises_error(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test error capture when action raises exception."""
         node = test_library.nodes["node_with_actions"]
@@ -138,12 +144,13 @@ class TestNodeWithActionsExecution:
             run_node(node, params, fresh_state)
 
         # Verify error was captured
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
         assert fresh_state.last_run.error is not None
         assert "ValueError" in fresh_state.last_run.error.error_class
 
     def test_error_from_external_library(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test error propagation from external library code."""
         node = test_library.nodes["node_with_actions"]
@@ -156,6 +163,7 @@ class TestNodeWithActionsExecution:
             run_node(node, params, fresh_state)
 
         # Verify error was captured
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
         assert fresh_state.last_run.error is not None
 
@@ -164,7 +172,7 @@ class TestNamespaceAccumulation:
     """Integration tests for namespace data flow across actions."""
 
     def test_namespace_accumulates_across_actions(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test that namespace accumulates data from all actions."""
         node = test_library.nodes["node_with_actions"]
@@ -184,7 +192,7 @@ class TestNamespaceAccumulation:
         assert "summary" in node.namespace
 
     def test_later_actions_use_earlier_data(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test that actions can access data from previous actions."""
         node = test_library.nodes["node_with_actions"]
@@ -205,7 +213,7 @@ class TestStateTracking:
     """Integration tests for state lifecycle management."""
 
     def test_state_lifecycle_success(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test state transitions during successful execution."""
         node = test_library.nodes["node_with_actions"]
@@ -226,7 +234,7 @@ class TestStateTracking:
         )
 
     def test_state_lifecycle_with_error(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test state updates when execution fails."""
         node = test_library.nodes["node_with_actions"]
@@ -244,7 +252,7 @@ class TestStateTracking:
         assert fresh_state.last_run.completed_at is not None
 
     def test_passed_parameters_captured(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test that passed parameters are captured in state."""
         node = test_library.nodes["node_with_actions"]
@@ -258,6 +266,7 @@ class TestStateTracking:
         run_node(node, params, fresh_state)
 
         # Verify parameters were captured
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.passed_parameters == params
 
 
@@ -265,40 +274,45 @@ class TestParametricBehavior:
     """Integration tests for parametric node behavior."""
 
     def test_namespace_persists_across_runs(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test that namespace accumulates across multiple runs"""
         node = test_library.nodes["node_with_actions"]
 
         # First execution: normal (with update_state=True by default)
         run_node(node, {}, fresh_state)
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
         assert "state_updated" in node.namespace
         first_run_keys = set(node.namespace.keys())
 
         # Second execution: namespace should accumulate, not reset
         run_node(node, {"update_state": False}, fresh_state)
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
-        # Verify namespace accumulated - all keys from first run still present
+        # Verify namespace accumulated - all keys from first run are still
+        # present (none have disappeared)
         assert first_run_keys.issubset(set(node.namespace.keys()))
         # "state_updated" still present from first run (correct behavior)
         assert "state_updated" in node.namespace
 
     def test_error_execution_preserves_namespace(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test that namespace is preserved even when execution fails."""
         node = test_library.nodes["node_with_actions"]
 
         # First execution: normal
         run_node(node, {}, fresh_state)
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
         successful_run_keys = set(node.namespace.keys())
 
         # Second execution: trigger error
         with pytest.raises(ValueError):
             run_node(node, {"trigger_error": True}, fresh_state)
-        assert fresh_state.last_run.status == RunStatusEnum.ERROR
+        assert fresh_state.last_run is not None
+        assert fresh_state.last_run.status == RunStatusEnum.ERROR  # type: ignore[comparison-overlap]
 
         # Namespace from successful run should still be present
         assert successful_run_keys.issubset(set(node.namespace.keys()))
@@ -308,7 +322,7 @@ class TestErrorMessaging:
     """Integration tests for improved error messaging"""
 
     def test_error_details_for_action_failure(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test error details when error occurs in action."""
         node = test_library.nodes["node_with_actions"]
@@ -320,6 +334,7 @@ class TestErrorMessaging:
             run_node(node, params, fresh_state)
 
         # Verify error was captured
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
         assert fresh_state.last_run.error is not None
         error = fresh_state.last_run.error
@@ -353,10 +368,10 @@ class TestErrorMessaging:
         )
 
     def test_error_details_for_body_failure(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test error details when error occurs in node body (not in action)."""
-        node = test_library.nodes["node_raises_in_body"]
+        node = test_library.nodes["node_can_raise_in_body"]
 
         # Trigger error in node body
         params = {
@@ -369,11 +384,13 @@ class TestErrorMessaging:
             run_node(node, params, fresh_state)
 
         # Verify error was captured
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
         assert fresh_state.last_run.error is not None
         error = fresh_state.last_run.error
 
         # 1. Headline should indicate body error (no action)
+        assert error.details_headline is not None
         assert (
             "body" in error.details_headline
             or "initialization" in error.details_headline
@@ -381,6 +398,7 @@ class TestErrorMessaging:
 
         # 2. Details should NOT contain action execution summary
         # (since no actions were used)
+        assert error.details is not None
         assert (
             "Completed actions" not in error.details
             or "prepare_data" not in error.details
@@ -395,7 +413,7 @@ class TestErrorMessaging:
         assert "action_manager.py" not in error.details
 
     def test_error_details_with_action_history(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test error details include completed and skipped actions."""
         node = test_library.nodes["node_with_actions"]
@@ -410,10 +428,13 @@ class TestErrorMessaging:
             run_node(node, params, fresh_state)
 
         # Verify error was captured
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
+        assert fresh_state.last_run.error is not None
         error = fresh_state.last_run.error
 
         # 1. Should show completed actions before the error
+        assert error.details is not None
         assert "Completed actions" in error.details
         assert "prepare_data" in error.details
         assert "process_data" in error.details
@@ -426,7 +447,7 @@ class TestErrorMessaging:
         assert "process_data_with_error" in error.details
 
     def test_error_details_for_action_with_subroutine(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test error in subroutine called by action shows full call chain."""
         node = test_library.nodes["node_with_subroutine"]
@@ -438,14 +459,18 @@ class TestErrorMessaging:
             run_node(node, params, fresh_state)
 
         # Verify error was captured
+        assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
+        assert fresh_state.last_run.error is not None
         error = fresh_state.last_run.error
 
         # 1. Headline should mention the action (not the subroutine)
+        assert error.details_headline is not None
         assert "process_with_subroutine" in error.details_headline
 
         # 2. Simplified traceback should show BOTH the action AND the
         # subroutine
+        assert error.details is not None
         assert "Traceback:" in error.details
         # Should include the action function
         assert "process_with_subroutine" in error.details
@@ -465,7 +490,7 @@ class TestErrorMessaging:
         assert len(error.traceback) > 5
 
     def test_error_headline_for_action(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test headline format for action errors."""
         node = test_library.nodes["node_with_actions"]
@@ -478,7 +503,10 @@ class TestErrorMessaging:
         with pytest.raises(ValueError):
             run_node(node, params, fresh_state)
 
+        assert fresh_state.last_run is not None
+        assert fresh_state.last_run.error is not None
         error = fresh_state.last_run.error
+        assert error.details_headline is not None
         headline = error.details_headline
         assert "process_data_with_error" in headline
 
@@ -486,10 +514,10 @@ class TestErrorMessaging:
         assert "action" in headline
 
     def test_error_headline_for_body(
-        self, test_library: Any, fresh_state: Any
+        self, test_library: QualibrationLibrary[Any, Any], fresh_state: State
     ) -> None:
         """Test headline format for body/initialization errors."""
-        node = test_library.nodes["node_raises_in_body"]
+        node = test_library.nodes["node_can_raise_in_body"]
 
         params = {
             "should_fail": True,
@@ -500,7 +528,10 @@ class TestErrorMessaging:
         with pytest.raises(RuntimeError):
             run_node(node, params, fresh_state)
 
+        assert fresh_state.last_run is not None
+        assert fresh_state.last_run.error is not None
         error = fresh_state.last_run.error
+        assert error.details_headline is not None
         headline = error.details_headline
 
         # Should indicate location (body or initialization)
