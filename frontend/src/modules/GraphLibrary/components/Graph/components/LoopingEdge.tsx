@@ -1,6 +1,6 @@
 import React from "react";
 import { BaseEdge, BezierEdge, EdgeLabelRenderer, EdgeProps, MarkerType } from "@xyflow/react";
-import { EdgeWithData } from "../../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
+import { EdgeData, EdgeWithData } from "../../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./styles.module.scss";
 
@@ -18,6 +18,22 @@ export const loopingEdgeOptions = {
   },
 };
 
+const getLabelsFromData = (edgeData?: EdgeData) => {
+  const hasCondition = Boolean(edgeData?.loop?.content);
+  const hasMax = edgeData?.loop?.max_iterations !== undefined && edgeData?.loop?.max_iterations !== null;
+  const label = edgeData?.loop?.label;
+
+  const firstLabel = label ?? (hasCondition ? "condition" : undefined);
+  const secondLabel = hasMax ? `max ${edgeData?.loop?.max_iterations}` : undefined;
+
+  // case: only max_iterations (5x)
+  if (!hasCondition && !label && hasMax) {
+    return { firstLabel: undefined, secondLabel: `${edgeData?.loop?.max_iterations}` };
+  }
+
+  return { firstLabel, secondLabel };
+};
+
 const LoopingEdge = (props: EdgeProps<EdgeWithData>) => {
   if (props.source !== props.target) {
     return <BezierEdge {...props} />;
@@ -28,6 +44,12 @@ const LoopingEdge = (props: EdgeProps<EdgeWithData>) => {
   const radiusY = 30;
   const edgePath = `M ${sourceX} ${sourceY} A ${radiusX} ${radiusY} 0 1 0 ${targetX} ${targetY}`;
 
+  const { firstLabel, secondLabel } = getLabelsFromData(data);
+
+  const leftLabel = firstLabel ? `(${firstLabel}` : undefined;
+  // const rightLabel = secondLabel ? `${leftLabel ? " | max " : ""}${secondLabel}` : undefined;
+  const rightLabel = secondLabel ? `${secondLabel}` : undefined;
+
   return (
     <>
       <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={style} />
@@ -36,8 +58,9 @@ const LoopingEdge = (props: EdgeProps<EdgeWithData>) => {
           className={styles.loopLabel}
           style={{ transform: `translate(-60%, -20%) translate(${sourceX - radiusX / 2}px, ${sourceY - radiusY * 2}px)` }}
         >
-          {data?.loop?.condition ? "Condition" : "Loop"}
-          {data?.loop?.maxIterations && <span className={styles.iterations}>max {data?.loop?.maxIterations}&times;</span>}
+          {leftLabel}
+          {leftLabel && rightLabel && <span className={styles.iterations}>{rightLabel}&times;)</span>}
+          {!leftLabel && rightLabel && <>({rightLabel}&times;)</>}
         </div>
       </EdgeLabelRenderer>
     </>

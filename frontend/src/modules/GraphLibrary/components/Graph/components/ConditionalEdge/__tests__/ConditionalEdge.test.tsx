@@ -7,19 +7,18 @@
  * - clicking the label opens BasicDialog
  * - closing the dialog resets state
  */
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import {beforeEach, describe, expect, it, vi} from "vitest";
+import {fireEvent, render, screen} from "@testing-library/react";
 import ConditionalEdge from "../ConditionalEdge";
-import { ConditionalEdgePopUpProps } from "../ConditionalEdgePopUp";
-import { EdgeProps, Position, ReactFlow } from "@xyflow/react";
+import {EdgeProps, Position, ReactFlow} from "@xyflow/react";
 import React from "react";
+import {ConditionalEdgePopUpProps} from "../ConditionalEdgePopUp";
 
 // Mock ConditionalEdgePopUp to simplify
-vi.mock(".../ConditionalEdgePopUp", () => ({
-  ConditionalEdgePopUp: ({ id, source, target, open, label, description, onClose }: ConditionalEdgePopUpProps) =>
+vi.mock("../ConditionalEdgePopUp", () => ({
+  default: ({ source, target, open, label, description, onClose }: ConditionalEdgePopUpProps) =>
     open ? (
-      <div data-testid="dialog">
-        <div>{id}</div>
+      <div data-testid="conditional-edge-pop-up-content">
         <div>{source}</div>
         <div>{target}</div>
         <div>{label}</div>
@@ -34,33 +33,38 @@ vi.mock(".../ConditionalEdgePopUp", () => ({
 // Mock ReactFlow's useReactFlow hook
 const mockFitView = vi.fn();
 const mockBezierFn = vi.fn(() => ["M0,0 C10,10 20,20 30,30", 50, 60]);
-vi.mock("@xyflow/react", async () => {
-  const actual = await vi.importActual("@xyflow/react");
+vi.mock("@xyflow/react", () => ({
+  BaseEdge: () => <div data-testid="base-edge" />,
 
-  return {
-    ...actual,
-    useReactFlow: () => ({
-      fitView: mockFitView,
-      getBezierPath: mockBezierFn,
-      getNodes: vi.fn(() => []),
-      getEdges: vi.fn(() => []),
-      setViewport: vi.fn(),
-    }),
-  };
-});
+  EdgeLabelRenderer: ({ children }: { children: React.ReactNode }) => <div className="react-flow__edgelabel-renderer">{children}</div>,
+
+  getBezierPath: () => ["M0,0 C10,10 20,20 30,30", 50, 60],
+
+  Position: {
+    Left: "left",
+    Right: "right",
+  },
+
+  ReactFlow: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
 
 const defaultProps: EdgeProps = {
   animated: undefined,
   deletable: undefined,
   selectable: undefined,
   selected: undefined,
-  source: "1",
+  id: "node1->node2",
+  source: "node1",
   sourcePosition: Position.Left,
-  target: "2",
+  target: "node2",
   targetPosition: Position.Right,
   type: undefined,
-  id: "node1->node2",
-  data: { connect: true, condition_label: "Test Condition", condition_description: "Dialog text" },
+  data: {
+    condition: {
+      label: "Test Condition",
+      content: "Dialog text",
+    },
+  },
   sourceX: 0,
   sourceY: 0,
   targetX: 10,
@@ -96,7 +100,7 @@ describe("ConditionalEdge - Unit Tests", () => {
     expect(screen.getByText("Test Condition")).toBeInTheDocument();
   });
 
-  it("opens BasicDialog when label is clicked", () => {
+  it("opens ConditionalEdgePopUp when label is clicked", () => {
     render(
       <ReactFlow>
         <ConditionalEdge {...defaultProps} />
@@ -106,8 +110,6 @@ describe("ConditionalEdge - Unit Tests", () => {
     const sourceName = "node1";
     const targetName = "node2";
     const dialogContentElement = screen.getByTestId("conditional-edge-pop-up-content");
-    // const sourceNodeElement = screen.getByText(sourceName);
-    // const targetNodeElement = screen.getByText(targetName);
     expect(dialogContentElement).toBeInTheDocument();
     expect(dialogContentElement).toHaveTextContent("Dialog text");
     expect(dialogContentElement).toHaveTextContent(sourceName);

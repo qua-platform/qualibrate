@@ -17,46 +17,34 @@ const layoutOptions = {
 export const getLayoutedElements = ({ nodes = [], edges = [] }: FetchGraphResponse) => {
   const loopingEdges: EdgeDTO[] = [];
 
-  const children = nodes.map((node) => {
-    const isLoopingNode = node.loop;
-    if (isLoopingNode) {
-      loopingEdges.push({
-        id: `${node.id}`,
-        source: node.id,
-        target: node.id,
-        data: {
-          loop: {
-            condition: node.data.condition,
-            maxIterations: node.data.max_iterations,
-          },
-        },
-        position: { x: 100, y: 100 },
-      });
-    }
-    return {
-      ...node,
-      id: String(node.id),
-      targetPosition: "left",
-      sourcePosition: "right",
-      // Hardcode a width and height for elk to use when layouting.
-      width: 70,
-      height: 70,
-    };
-  });
+  const children = nodes.map((node) => ({
+    ...node,
+    id: `${node.id}`,
+    targetPosition: "left",
+    sourcePosition: "right",
+    // Hardcode a width and height for elk to use when layouting.
+    width: 70,
+    height: 70,
+  }));
 
   const graph = {
     id: "root",
     layoutOptions,
     children,
-    edges: [...edges, ...loopingEdges].map((edge) => ({
-      ...edge,
-      id: String(edge.id),
-      source: String(edge.source),
-      target: String(edge.target),
-      sources: [String(edge.source)],
-      targets: [String(edge.target)],
-      type: "loop" in edge.data ? LOOPING_EDGE_TYPE : edge.data.condition_label ? CONDITIONAL_EDGE_TYPE : undefined,
-    })),
+    edges: [...edges, ...loopingEdges].map((edge) => {
+      const loopEdgeType = "loop" in edge.data ? LOOPING_EDGE_TYPE : undefined;
+      const conditionalEdgeType = edge.data.condition?.label ? CONDITIONAL_EDGE_TYPE : undefined;
+      const typeOfAnEdge = loopEdgeType ?? conditionalEdgeType ?? undefined;
+      return {
+        ...edge,
+        id: String(edge.id),
+        source: String(edge.source),
+        target: String(edge.target),
+        sources: [String(edge.source)],
+        targets: [String(edge.target)],
+        type: typeOfAnEdge,
+      };
+    }),
   };
 
   return elk

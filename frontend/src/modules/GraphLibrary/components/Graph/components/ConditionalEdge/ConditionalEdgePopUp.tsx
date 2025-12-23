@@ -3,7 +3,6 @@ import { Dialog } from "@mui/material";
 import styles from "./ConditionalEdgePopUp.module.scss";
 
 export interface ConditionalEdgePopUpProps {
-  id: string;
   open: boolean;
   source: string;
   target: string;
@@ -13,9 +12,7 @@ export interface ConditionalEdgePopUpProps {
 }
 
 const ConditionalEdgePopUp = (props: ConditionalEdgePopUpProps) => {
-  const { id, source, target, open, label, description, onClose } = props;
-  const sourceLabel = id.split("->")[0];
-  const targetLabel = id.split("->")[1];
+  const { source, target, open, label, description, onClose } = props;
   return (
     <Dialog
       PaperProps={{
@@ -34,12 +31,12 @@ const ConditionalEdgePopUp = (props: ConditionalEdgePopUpProps) => {
             <div className={styles.conditionNodeVisual} id="conditionNodeVisual">
               <div className={styles.conditionModalGraphWrapper}>
                 <div className={styles.conditionNodeCircle} />
-                <div className={styles.conditionNodeLabel}>{sourceLabel ?? source}</div>
+                <div className={styles.conditionNodeLabel}>{source}</div>
               </div>
               <div className={styles.conditionNodeArrow}>→</div>
               <div className={styles.conditionModalGraphWrapper}>
                 <div className={styles.conditionNodeCircle} />
-                <div className={styles.conditionNodeLabel}>{targetLabel ?? target}</div>
+                <div className={styles.conditionNodeLabel}>{target}</div>
               </div>
             </div>
           </div>
@@ -66,9 +63,8 @@ const ConditionalEdgePopUp = (props: ConditionalEdgePopUpProps) => {
               className={styles.conditionModalInputTextareaLogic}
               id="conditionLogicTextarea"
               placeholder="Enter condition label..."
-            >
-              {description}
-            </textarea>
+              value={description}
+            />
           </div>
         </div>
       </div>

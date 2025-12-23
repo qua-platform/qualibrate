@@ -5,7 +5,7 @@ import { API_METHODS } from "../../../common/enums/Api";
 import { Measurement } from "../components/GraphStatus/GraphStatus";
 
 type NodeDTO = {
-  id: number;
+  id: string;
   loop: boolean;
   data: {
     label: string;
@@ -21,12 +21,19 @@ type NodeDTO = {
 
 export type EdgeDTO = {
   id: string;
-  source: number;
-  target: number;
+  source: string;
+  target: string;
   data: {
-    connect?: boolean;
-    condition_label?: string;
-    condition_text?: string;
+    connect_on?: boolean;
+    loop?: {
+      label?: string;
+      content?: string;
+      max_iterations?: number;
+    };
+    condition?: {
+      label?: string;
+      content?: string;
+    };
     [key: string]: unknown;
   };
   position: {

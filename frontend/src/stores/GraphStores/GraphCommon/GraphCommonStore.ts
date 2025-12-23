@@ -3,12 +3,15 @@ import { createSlice } from "@reduxjs/toolkit";
 import { Edge, Node } from "@xyflow/react";
 
 export type EdgeData = {
-  connect?: boolean;
-  condition_label?: string;
-  condition_description?: string;
+  connect_on?: boolean;
   loop?: {
-    condition?: boolean;
-    maxIterations: number;
+    label?: string;
+    content?: string;
+    max_iterations: number;
+  };
+  condition?: {
+    label?: string;
+    content?: string;
   };
 };
 

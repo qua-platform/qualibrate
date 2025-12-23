@@ -36,24 +36,23 @@ const ConditionalEdge = (props: EdgeProps<EdgeWithData>) => {
       <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={style} />
       <EdgeLabelRenderer>
         <div
-          data-testid={`conditional-edge-${data?.condition_label ?? "condition"}`}
+          data-testid={`conditional-edge-${data?.condition?.label ?? "condition"}`}
           onClick={handleOnClick}
           className={styles.conditionLabel}
           style={{
             transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
           }}
         >
-          {data?.condition_label ?? "Condition"}
+          {data?.condition?.label ?? "Condition"}
         </div>
       </EdgeLabelRenderer>
       <ConditionalEdgePopUp
-        id={id}
         open={open}
         onClose={handleOnClose}
         source={source}
         target={target}
-        label={data?.condition_label}
-        description={data?.condition_description}
+        label={data?.condition?.label}
+        description={data?.condition?.content}
       />
     </>
   );

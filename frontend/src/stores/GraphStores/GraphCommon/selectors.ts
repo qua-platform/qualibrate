@@ -35,9 +35,9 @@ export const getWorkflowGraphEdgesColored = createSelector(getWorkflowGraphEdges
     if (edge.type === LOOPING_EDGE_TYPE) {
       color = LIGHT_GREY;
     } else {
-      if (edge.data?.connect === true) {
+      if (edge.data?.connect_on === true) {
         color = GREEN;
-      } else if (edge.data?.connect === false) {
+      } else if (edge.data?.connect_on === false) {
         color = RED;
       }
     }
