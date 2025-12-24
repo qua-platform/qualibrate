@@ -1,4 +1,4 @@
-import { SnapshotsApi } from "../../modules/Snapshots/api/SnapshotsApi";
+import { SnapshotsApi } from "./api/SnapshotsApi";
 
 export const fetchSnapshotJsonData = (id: string) => {
   try {

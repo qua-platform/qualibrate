@@ -1,7 +1,8 @@
-import { EdgeDTO, FetchGraphResponse } from "@/modules/GraphLibrary/api/GraphLibraryApi";
-import { CONDITIONAL_EDGE_TYPE, DEFAULT_NODE_TYPE, LOOPING_EDGE_TYPE } from "../../../modules/GraphLibrary/components/Graph/components";
 import { Node } from "@xyflow/react";
 import ELK from "elkjs/lib/elk.bundled.js";
+import { EdgeDTO, FetchGraphResponse } from "../GraphLibrary";
+import { LOOPING_EDGE_TYPE } from "../../../modules/Graph";
+import { CONDITIONAL_EDGE_TYPE, DEFAULT_NODE_TYPE } from "../../../modules/Graph/components";
 
 const elk = new ELK();
 const spacingBetweenLayers = "100";

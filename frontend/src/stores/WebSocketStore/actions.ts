@@ -1,7 +1,6 @@
 import { RootDispatch, RootState } from "..";
-import { setLastRunInfo } from "../GraphStores/GraphLibrary/actions";
-import { getLastRunInfo } from "../GraphStores/GraphLibrary/selectors";
-import { fetchShouldRedirectUserToProjectPage } from "../ProjectStore/actions";
+import { setLastRunInfo, getLastRunInfo } from "../GraphStores/GraphLibrary";
+import { fetchShouldRedirectUserToProjectPage } from "../ProjectStore";
 import { getConnectionLostAt, getShowConnectionErrorDialog } from "./selectors";
 import { RunStatusType, webSocketSlice } from "./WebSocketStore";
 

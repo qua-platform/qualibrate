@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useRootDispatch } from "..";
-import { AuthApi } from "../../modules/Login/api/AuthApi";
+import { AuthApi } from "./api/AuthApi";
 import { setAuthorize, setError, setTriedLoginWithEmptyString } from "./actions";
-import { HOME_URL } from "../../common/modules";
+import { HOME_URL } from "../../utils/api/apiRoutes";
 import { useEffect } from "react";
 
 const getCookieStartingWith = (prefix: string) => {

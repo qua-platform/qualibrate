@@ -31,47 +31,34 @@
  * - API errors only shown after submission completes (no loading state error recovery)
  *
  * **FRAGILE: State Management**:
- * - Direct mutation of allNodes map in NodesContext via setAllNodes
- * - Parameter updates trigger re-render of entire NodesContext consumer tree
  * - No debouncing on parameter input changes
  *
  * @see NodesContext for execution state management
  * @see WebSocketContext for real-time status updates (WebSocketContext.tsx:265-269)
  * @see Parameters for the collapsible parameter editing UI
  */
-import React from "react";
+import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import {Checkbox, CircularProgress} from "@mui/material";
-import {InputParameter, Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
-import {ErrorResponseWrapper} from "../../../common/Error/ErrorResponseWrapper";
+import {CircularProgress} from "@mui/material";
 
-import InputField from "../../../../common/ui-components/common/Input/InputField";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import {NodesApi} from "../../api/NodesAPI";
-import {RunIcon} from "../../../../ui-lib/Icons/RunIcon";
+import {InputParameter, Parameters, SingleParameter, ErrorResponseWrapper, BlueButton, RunIcon, InfoIcon, ParameterSelector} from "../../../../components";
 import Tooltip from "@mui/material/Tooltip";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
-import { getAllNodes, getSelectedNode, getSubmitNodeResponseError } from "../../../../stores/NodesStore/selectors";
-import { setAllNodes,
-  setIsAllStatusesUpdated,
-  setIsNodeRunning,
-  setResults,
-  setRunningNode,
-  setRunningNodeInfo,
+import {
+  getSubmitNodeResponseError,
   setSelectedNode,
-  setSubmitNodeResponseError,
-  setUpdateAllButtonPressed,
-} from "../../../../stores/NodesStore/actions";
-import { ErrorWithDetails } from "../../../../stores/NodesStore/NodesStore";
-import { getRunStatusIsRunning, getRunStatusNodeName, getRunStatusNodePercentage, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore/selectors";
-import { getFirstId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
-import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
-import {InfoIcon} from "../../../../ui-lib/Icons/InfoIcon";
+  handleRunNode,
+  setNodeParameter,
+  getIsNodeSelected,
+  getNode,
+} from "../../../../stores/NodesStore";
+import { getRunStatusIsRunning, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
 import {StatusVisuals} from "./NodeElementStatusVisuals";
 import {getNodeRowClass} from "./helpers";
-import {GraphWorkflow} from "@/modules/GraphLibrary/components/GraphList";
+import {GraphWorkflow} from "../../../../modules/GraphLibrary";
+import { getIsLastRunNode } from "../../../../stores/WebSocketStore/selectors";
 
 /**
  * Calibration node definition from backend node library scan.
@@ -106,23 +93,6 @@ export interface NodeMap {
 }
 
 /**
- * Format Date object to "YYYY/MM/DD HH:mm:ss" string for display.
- *
- * Used to display execution timestamps in the UI. This format matches
- * the NodesContext.parseDateString() format for bidirectional conversion.
- */
-const formatDate = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-
-  return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
-};
-
-/**
  * Interactive calibration node component with real-time execution tracking.
  *
  * Renders a single quantum calibration node with parameter inputs, execution controls,
@@ -152,159 +122,42 @@ const formatDate = (date: Date) => {
  * @see getNodeRowClass for dynamic styling based on execution status (helpers.ts)
  * @see StatusVisuals for status indicator rendering (NodeElementStatusVisuals.tsx)
  */
-export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ nodeKey, node }) => {
+export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
   const dispatch = useRootDispatch();
-  const firstId = useSelector(getFirstId);
-  const secondId = useSelector(getSecondId);
-  const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
-  const allNodes = useSelector(getAllNodes);
-  const selectedNode = useSelector(getSelectedNode);
+  const node = useSelector(state => getNode(state, nodeKey));
+  const isNodeSelected = useSelector(state => getIsNodeSelected(state, nodeKey));
   const submitNodeResponseError = useSelector(getSubmitNodeResponseError);
   const runStatusIsRunning = useSelector(getRunStatusIsRunning);
-  const runStatusNodeName = useSelector(getRunStatusNodeName);
+  const isLastRunNode = useSelector(state => getIsLastRunNode(state, nodeKey));
   const runStatusNodeStatus = useSelector(getRunStatusNodeStatus);
-  const runStatusNodePercentage = useSelector(getRunStatusNodePercentage);
+  const [errors, setErrors] = useState(new Set());
 
+  const handleSetError = (key: string, isValid: boolean) => {
+    const newSet = new Set(errors);
+
+    if (isValid)
+      newSet.delete(key);
+    else
+      newSet.add(key);
+
+    setErrors(newSet);
+  };
   /**
    * Update a single parameter value in the node's parameter map.
    *
    * Modifies the parameter's default value while preserving other metadata
    * (title, type, description). Triggers a full NodesContext state update,
    * causing re-render of all consumers.
-   *
-   * @remarks
-   * **FRAGILE: No Debouncing**:
-   * Every keystroke triggers full allNodes map update and context re-render.
-   * Consider adding debouncing for text inputs to reduce re-render frequency.
-   *
-   * **FRAGILE: Direct State Mutation Pattern**:
-   * Spreads entire allNodes map on every update. For large node libraries,
-   * this could cause performance issues. Consider using a reducer pattern
-   * or immutable update helpers.
    */
-  const updateParameter = (paramKey: string, newValue: boolean | number | string) => {
-    const updatedParameters = {
-      ...node.parameters,
-      [paramKey]: {
-        ...(node.parameters as InputParameter)[paramKey],
-        default: newValue,
-      },
-    };
-    dispatch(setAllNodes({ ...allNodes, [nodeKey]: { ...node, parameters: updatedParameters } }));
+  const updateParameter = (paramKey: string, newValue: boolean | number | string, isValid: boolean) => {
+    handleSetError(paramKey, isValid);
+    dispatch(setNodeParameter({ nodeKey, paramKey, newValue }));
   };
 
-  /**
-   * Render appropriate input component based on parameter type.
-   *
-   * Creates type-specific input elements for parameter editing. Currently
-   * supports boolean (Checkbox) and all other types (InputField with string coercion).
-   *
-   * @remarks
-   * **FRAGILE: Limited Type Support**:
-   * Only boolean has dedicated UI - all other types (number, string, etc.) use
-   * generic InputField with string coercion. Number validation happens at submission
-   * time on backend, not during input. Consider adding number input with validation.
-   *
-   * **IMPROVEMENT NEEDED: Type Validation**:
-   * No client-side validation for parameter types. Users can enter invalid values
-   * (e.g., text in number field) and only discover errors after submission.
-   */
-  const getInputElement = (key: string, parameter: SingleParameter) => {
-    switch (parameter.type) {
-      case "boolean":
-        return (
-          <Checkbox
-            checked={parameter.default as boolean}
-            onClick={() => updateParameter(key, !parameter.default)}
-            inputProps={{ "aria-label": "controlled" }}
-            data-testid={`checkbox-${key}`}
-          />
-        );
-      default:
-        return (
-          <InputField
-            placeholder={key}
-            data-testid={`input-field-${key}`}
-            value={parameter.default ? parameter.default.toString() : ""}
-            onChange={(val: boolean | number | string) => {
-              updateParameter(key, val);
-            }}
-          />
-        );
-    }
-  };
+  const renderInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) =>
+    <ParameterSelector parameterKey={key} parameter={parameter} node={node} onChange={updateParameter} />;
 
-  /**
-   * Extract parameter values from parameter definitions for API submission.
-   *
-   * Transforms parameter metadata objects into a simple key-value map containing
-   * only the default values needed for backend execution.
-   *
-   * @param parameters - Full parameter definitions with type, title, description
-   * @returns Simplified map of parameter names to values for API payload
-   */
-  const transformInputParameters = (parameters: InputParameter) => {
-    return Object.entries(parameters).reduce(
-      (acc, [key, parameter]) => {
-        acc[key] = parameter.default ?? null;
-        return acc;
-      },
-      {} as { [key: string]: boolean | number | string | null | string[] }
-    );
-  };
-
-  /**
-   * Submit node execution request to backend and update execution state.
-   *
-   * Handles the complete flow of starting a calibration run:
-   * 1. Reset execution state and clear previous results
-   * 2. Submit parameters to backend API
-   * 3. Update UI state based on success/failure
-   * 4. Trigger snapshot refresh if tracking latest results
-   *
-   * After successful submission, WebSocket updates will drive further state changes
-   * (progress updates, completion status, etc.) via NodesContext.
-   *
-   * @remarks
-   * **FRAGILE: Error Handling**:
-   * Assumes error format matches ErrorWithDetails structure with detail[0].
-   * If backend returns different error format, will throw accessing undefined properties.
-   * No try-catch wrapping the API call - network errors will crash the component.
-   *
-   * **State Synchronization**:
-   * Sets initial status to "running" optimistically before WebSocket confirms.
-   * WebSocket updates (via NodesContext useEffect) will override this with actual status.
-   *
-   * **Side Effect: Snapshot Fetching**:
-   * Conditionally fetches snapshot if trackLatestSidePanel is enabled. This coupling
-   * between node execution and snapshot state makes the flow harder to follow.
-   */
-  const handleClick = async () => {
-    dispatch(setIsNodeRunning(true));
-    dispatch(setResults({}));
-    dispatch(setUpdateAllButtonPressed(false));
-    dispatch(setIsAllStatusesUpdated(false));
-    dispatch(setRunningNode(node));
-    dispatch(setSubmitNodeResponseError(undefined));
-    const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
-    if (result.isOk) {
-      dispatch(setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" }));
-    } else {
-      const errorWithDetails = result.error as ErrorWithDetails;
-      dispatch(setSubmitNodeResponseError({
-        nodeName: node.name,
-        name: `${errorWithDetails.detail[0].type ?? "Error msg"}: `,
-        msg: errorWithDetails.detail[0].msg,
-      }));
-      dispatch(setRunningNodeInfo({
-        timestampOfRun: formatDate(new Date()),
-        status: "error",
-      }));
-    }
-    if (trackLatestSidePanel) {
-      dispatch(fetchOneSnapshot(Number(firstId), Number(secondId), false, true));
-    }
-  };
+  const handleClick = async () => dispatch(handleRunNode(node));
 
   /**
    * Insert spaces into long strings to enable line wrapping at fixed intervals.
@@ -319,15 +172,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
       // Dynamic styling based on selection state and execution status
       // See helpers.ts:getNodeRowClass for styling logic
       className={getNodeRowClass({
-        nodeName: node.name,
-        selectedItemName: selectedNode ?? "",
-        runStatus:
-          runStatusNodeName && runStatusNodeStatus
-            ? {
-                name: runStatusNodeName,
-                status: runStatusNodeStatus,
-              }
-            : null,
+        isSelected: isNodeSelected,
+        isLastRun: isLastRunNode,
+        runStatus: runStatusNodeStatus,
       })}
       data-testid={`node-element-${nodeKey}`}
       onClick={() => {
@@ -353,31 +200,28 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
         <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
           {/*
             Show status indicator if:
-            1. This node is currently running (runStatus.node.name === node.name), OR
+            1. This node is currently running (isLastRunNode), OR
             2. This node is NOT selected AND there's a non-pending status to show
 
             FRAGILE: Complex conditional logic - difficult to reason about all cases.
             Consider extracting to shouldShowStatus() helper function.
           */}
-          {(runStatusNodeName === node.name || (selectedNode !== node.name && runStatusNodeStatus !== "pending")) && (
-            <StatusVisuals
-              status={runStatusNodeName === node.name ? runStatusNodeStatus : "pending"}
-              percentage={Math.round(runStatusNodePercentage ?? 0)}
-            />
+          {(isLastRunNode || (isNodeSelected && runStatusNodeStatus !== "pending")) && (
+            <StatusVisuals status={isLastRunNode ? runStatusNodeStatus : "pending"} />
           )}
         </div>
-        {/* Show Run button only when: node is selected AND nothing is currently running */}
-        {!runStatusIsRunning && node.name === selectedNode && (
+        {/* Show Run button only when: node is selected AND nothing is currently running AND parameter inputs have no errors */}
+        {!runStatusIsRunning && isNodeSelected && errors.size === 0 && (
           <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
             <RunIcon className={styles.runButtonIcon} />
             <span className={styles.runButtonText}>Run</span>
           </BlueButton>
         )}
         {/* Show spinner when: node is selected AND something is running */}
-        {runStatusIsRunning && node.name === selectedNode && <CircularProgress size={32} />}
+        {runStatusIsRunning && isNodeSelected && <CircularProgress size={32} />}
       </div>
       {/* Show validation errors only for the selected node that failed submission */}
-      {node.name === selectedNode && node.name === submitNodeResponseError?.nodeName && (
+      {isNodeSelected && node.name === submitNodeResponseError?.nodeName && (
         <ErrorResponseWrapper error={submitNodeResponseError} />
       )}
       {/* Show parameters section if node has any parameters defined */}
@@ -386,9 +230,9 @@ export const NodeElement: React.FC<{ nodeKey: string; node: NodeDTO }> = ({ node
           parametersExpanded={true}
           showTitle={true}
           key={node.name}
-          show={selectedNode === node.name}
+          show={isNodeSelected}
           currentItem={node}
-          getInputElement={getInputElement}
+          getInputElement={renderInputElement}
           data-testid={`parameters-${nodeKey}`}
         />
       )}

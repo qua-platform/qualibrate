@@ -1,15 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "./styles/LogsPanel.module.scss";
-import { formatDateTime } from "../../GraphLibrary/components/GraphStatus/components/MeasurementElement/MeasurementElement";
-import { NodesApi } from "../../../modules/Nodes/api/NodesAPI";
-
-export interface LogsViewerResponseDTO {
-  asctime: string;
-  name: string;
-  levelname: string;
-  message: string;
-  exc_info?: string;
-}
+import { formatDateTime } from "../../../utils/formatDateTime";
+import { LogsViewerResponseDTO, NodesApi } from "../../../stores/NodesStore";
 
 export const LogsPanel = () => {
   const [logs, setLogs] = useState<LogsViewerResponseDTO[]>([]);

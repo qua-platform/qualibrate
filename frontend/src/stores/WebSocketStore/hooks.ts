@@ -9,7 +9,7 @@ import {
 import { useRootDispatch } from "..";
 import { useSelector } from "react-redux";
 import { getConnectionLostAt, getShowConnectionErrorDialog } from "./selectors";
-import { setAllMeasurements } from "../GraphStores/GraphStatus/actions";
+import { setAllMeasurements } from "../GraphStores/GraphStatus";
 import { HistoryType, RunStatusType } from "./WebSocketStore";
 import { WS_EXECUTION_HISTORY, WS_GET_STATUS } from "../../services/webSocketRoutes";
 import WebSocketService from "../../services/WebSocketService";

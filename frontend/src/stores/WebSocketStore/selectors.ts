@@ -115,6 +115,12 @@ export const getRunStatusNodeName = createSelector(
   (runStatusNodeState) => runStatusNodeState?.name
 );
 
+export const getIsLastRunNode = createSelector(
+  getRunStatusNodeName,
+  (runStatusNodeName, nodeKey: string) => nodeKey,
+  (runStatusNodeName, nodeKey) => runStatusNodeName === nodeKey
+);
+
 export const getRunStatusNodeStatus = createSelector(
   getRunStatusNode,
   (runStatusNodeState) => runStatusNodeState?.status

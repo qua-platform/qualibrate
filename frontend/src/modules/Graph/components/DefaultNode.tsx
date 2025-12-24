@@ -1,0 +1,18 @@
+import React from "react";
+import { Handle, NodeProps, Position } from "@xyflow/react";
+// eslint-disable-next-line css-modules/no-unused-class
+import styles from "./styles.module.scss";
+import { NodeWithData } from "../../../stores/GraphStores/GraphCommon";
+import { classNames } from "../../../utils/classnames";
+
+const DefaultNode = (props: NodeProps<NodeWithData>) => {
+  return (
+    <div className={classNames(styles.defaultNode, props.selected && styles.selected, !!props.data.subgraph && styles.subgraph)}>
+      <label className={styles.defaultNodeLabel}>{props.data.label}</label>
+      <Handle className={styles.defaultNodeHandle} type="target" position={Position.Left} />
+      <Handle className={styles.defaultNodeHandle} type="source" position={Position.Right} />
+    </div>
+  );
+};
+
+export default DefaultNode;

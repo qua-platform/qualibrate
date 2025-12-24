@@ -1,20 +1,20 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import authReducer from "./AuthStore/AuthStore";
+import { AuthReducer } from "./AuthStore";
 import { useDispatch } from "react-redux";
-import projectsReducer from "./ProjectStore/ProjectStore";
-import { graphStore } from "./GraphStores/index";
-import nodesReducer from "./NodesStore/NodesStore";
-import navigationReducer from "./NavigationStore/NavigationStore";
-import webSocketReducer from "./WebSocketStore/WebSocketStore";
-import SnapshotsReducer from "./SnapshotsStore/SnapshotsStore";
+import { ProjectsReducer } from "./ProjectStore";
+import { GraphStore } from "./GraphStores/index";
+import { NodesReducer } from "./NodesStore";
+import { NavigationReducer } from "./NavigationStore";
+import { WebSocketReducer } from "./WebSocketStore";
+import { SnapshotsReducer } from "./SnapshotsStore";
 
 export const rootReducer = combineReducers({
-  auth: authReducer,
-  projects: projectsReducer,
-  graph: graphStore,
-  nodes: nodesReducer,
-  navigation: navigationReducer,
-  webSocket: webSocketReducer,
+  auth: AuthReducer,
+  projects: ProjectsReducer,
+  graph: GraphStore,
+  nodes: NodesReducer,
+  navigation: NavigationReducer,
+  webSocket: WebSocketReducer,
   snapshots: SnapshotsReducer
 });
 

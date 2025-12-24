@@ -1,3 +1,5 @@
+export const HOME_URL = "/";
+export const LOGIN_URL = "/login";
 export const ALL_SNAPSHOTS = ({ branchName = "main", pageNumber = 1, pageLimit = 100, reverseOrder = false, globalReverse = false }) =>
   "api/branch/" +
   branchName +

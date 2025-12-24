@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ErrorObject } from "../../../modules/common/Error/ErrorStatusInterface";
-import { GraphWorkflow } from "../../../modules/GraphLibrary/components/GraphList";
+import { ErrorObject } from "../../../components";
+import { GraphWorkflow } from "../../../modules/GraphLibrary";
 
 export interface LastRunInfo {
   workflowName?: string;

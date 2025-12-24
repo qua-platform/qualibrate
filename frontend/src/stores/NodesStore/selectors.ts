@@ -8,9 +8,10 @@ export const getSubmitNodeResponseError = createSelector(
   (state) => state.submitNodeResponseError
 );
 
-export const getSelectedNode = createSelector(
+export const getIsNodeSelected = createSelector(
   getNodesState,
-  (state) => state.selectedNode
+  (state, nodeKey: string) => nodeKey,
+  (state, nodeKey) => state.selectedNode === nodeKey
 );
 
 export const getRunningNode = createSelector(
@@ -26,6 +27,12 @@ export const getRunningNodeInfo = createSelector(
 export const getAllNodes = createSelector(
   getNodesState,
   (state) => state.allNodes
+);
+
+export const getNode = createSelector(
+  getAllNodes,
+  (_, nodeKey: string) => nodeKey,
+  (allNodes, key) => allNodes[key],
 );
 
 export const getIsNodeRunning = createSelector(
