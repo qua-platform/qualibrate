@@ -216,7 +216,8 @@ class BasicOrchestrator(
                 f"Can't set out targets of {element} without run summary"
             )
 
-        # self.nx_graph.edges[element, successor]["operational_condition"] is of type OperationalCondition
+        # self.nx_graph.edges[element, successor]["operational_condition"]
+        # is of type OperationalCondition
         has_on_failed_successors = any(
             self.nx_graph.edges[element, successor][
                 QualibrationGraph.RUN_SCENARIO_FIELD
@@ -265,7 +266,8 @@ class BasicOrchestrator(
     ) -> list[TargetType]:
         if operational_condition.on_generator is not None:
             executed_condition = operational_condition.on_generator()
-            # priming the generator, we need to get to the point where the generator expects out two variables
+            # priming the generator, we need to get to the point
+            # where the generator expects out two variables
             executed_condition.send(None)
             return [
                 target
@@ -555,7 +557,7 @@ class BasicOrchestrator(
             for element in elements_without_successors
             for target in element.outcomes
         }
-        skipped_targets = set(self.initial_targets) - final_targets
+        skipped_targets = set(self.initial_targets or []) - final_targets
         for target in final_targets or []:
             successful = all(
                 map(

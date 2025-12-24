@@ -142,7 +142,6 @@ class QualibrationGraph(
                 )
             self._elements = dict(nodes)
             self._connectivity = {
-                # connectivity: Outcome.SUCCESSFUL
                 connectivity: {
                     QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL,
                     QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition[
@@ -863,8 +862,12 @@ class QualibrationGraph(
             )
 
             for adj in adjacency:
-                # where QualibrationGraph.OPERATIONAL_CONDITION_FIELD is used, it's because it is how we save the operational condition in the graph
-                # where it's not used but operational_condition key is still used, it's because this is the key returned to the ui and not necessarily the key we save the data in
+                # where QualibrationGraph.OPERATIONAL_CONDITION_FIELD is used,
+                # it's because it is how
+                # we save the operational condition in the graph
+                # where it's not used but operational_condition key
+                # is still used, it's because this is the key returned
+                # to the ui and not necessarily the key we save the data in
                 # the same as for a scenario
                 target_name = adj["id"]
 
@@ -920,7 +923,7 @@ class QualibrationGraph(
         label, content = self._get_operational_condition_signature_and_content(
             node_conditions
         )
-        data = {"loop": {}}
+        data: dict[str, Any] = {"loop": {}}
         if label and content:
             data["loop"]["label"] = label
             data["loop"]["content"] = content
@@ -1175,7 +1178,6 @@ class QualibrationGraph(
                 f"Both '{s}' and '{d}' must be added before connecting."
             )
         edge = (s, d)
-        # bug fix it
         if edge in self._connectivity:
             raise ValueError(f"Edge '{edge}' already exists.")
         self._connectivity[edge] = {

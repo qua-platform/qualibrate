@@ -253,7 +253,8 @@ def test_serialize_graph_with_operational_condition_and_loop(
     loop_edge = next((e for e in edges if e["source"] == e["target"]), None)
     assert loop_edge is not None
     assert loop_edge["id"] == f"{node_name}->{node_name}"
-    # Check for loop-specific fields (adjust based on actual _add_loop_to_edge implementation)
+    # Check for loop-specific fields
+    # (adjust based on actual _add_loop_to_edge implementation)
     assert "data" in loop_edge
     # The loop edge should have max_iterations field
     assert "loop" in loop_edge["data"]
@@ -305,7 +306,8 @@ def test_serialize_graph_with_operational_condition_and_loop(
 def test_serialize_graph_with_multiple_operational_conditions(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
-    """Test that both failure edges with different conditions are properly serialized."""
+    """Test that both failure edges with different
+    conditions are properly serialized."""
     g = qualibration_lib.graphs["graph_with_operational_condition_and_loop"]
 
     serialized = g.serialize_graph_representation()
