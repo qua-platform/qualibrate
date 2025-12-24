@@ -1376,3 +1376,87 @@ def test_set_out_targets_multiple_failed_edges_with_different_conditions(
 
     # Success edge should be empty
     assert success_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == []
+
+
+class TestFillFinalOutcomes:
+    def setup_method(self):
+        # Common setup for all tests
+        self.orchestrator = BasicOrchestrator()
+        self.orchestrator.final_outcomes = {}
+        self.orchestrator.initial_targets = ["t1", "t2", "t3", "t4"]
+
+    def make_node(self, outcomes):
+        node = MagicMock()
+        node.outcomes = outcomes  # dict: {target: Outcome}
+        return node
+
+    def test_all_targets_successful(self, mocker):
+        """All targets reach leaves and succeed."""
+        leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL})
+        leaf2 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL})
+
+        # Patch the nx_graph property
+        mock_nx_graph = mocker.patch.object(
+            self.orchestrator.__class__,
+            "nx_graph",
+            new_callable=PropertyMock
+        )
+
+        mock_graph = MagicMock()
+        mock_graph.succ = {leaf1: [], leaf2: []}
+        mock_nx_graph.return_value = mock_graph
+
+        self.orchestrator._fill_final_outcomes()
+
+        assert self.orchestrator.final_outcomes["t1"] == Outcome.SUCCESSFUL
+        assert self.orchestrator.final_outcomes["t2"] == Outcome.SUCCESSFUL
+        # t3 and t4 never reached any leaf → fail
+        assert self.orchestrator.final_outcomes["t3"] == Outcome.FAILED
+        assert self.orchestrator.final_outcomes["t4"] == Outcome.FAILED
+
+    def test_some_targets_fail(self, mocker):
+        """Some targets fail on at least one leaf node."""
+        leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.FAILED})
+        leaf2 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL})
+
+        # Patch the nx_graph property
+        mock_nx_graph = mocker.patch.object(
+            self.orchestrator.__class__,
+            "nx_graph",
+            new_callable=PropertyMock
+        )
+
+        mock_graph = MagicMock()
+        mock_graph.succ = {leaf1: [], leaf2: []}
+        mock_nx_graph.return_value = mock_graph
+
+        self.orchestrator._fill_final_outcomes()
+
+        # t1 succeeds on all → successful
+        assert self.orchestrator.final_outcomes["t1"] == Outcome.SUCCESSFUL
+        # t2 fails on one leaf → failed
+        assert self.orchestrator.final_outcomes["t2"] == Outcome.FAILED
+        # t3 and t4 never reached any leaf → fail
+        assert self.orchestrator.final_outcomes["t3"] == Outcome.FAILED
+        assert self.orchestrator.final_outcomes["t4"] == Outcome.FAILED
+
+    def test_target_missing_from_leaf_outcomes(self, mocker):
+        """Target missing from leaf outcomes defaults to SUCCESSFUL."""
+        leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL})
+
+        mock_nx_graph = mocker.patch.object(
+            self.orchestrator.__class__,
+            "nx_graph",
+            new_callable=PropertyMock
+        )
+
+        mock_graph = MagicMock()
+        mock_graph.succ = {leaf1: []}
+        mock_nx_graph.return_value = mock_graph
+
+        self.orchestrator.initial_targets = ["t1", "t2"]
+        self.orchestrator._fill_final_outcomes()
+
+        assert self.orchestrator.final_outcomes["t1"] == Outcome.SUCCESSFUL
+        # t2 never appears in any leaf node outcomes
+        assert self.orchestrator.final_outcomes["t2"] == Outcome.FAILED
