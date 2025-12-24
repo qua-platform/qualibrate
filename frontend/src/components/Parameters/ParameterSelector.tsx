@@ -24,16 +24,16 @@ const ParameterSelector = ({
   const [error, setError] = useState<undefined | string>(undefined);
   const [inputValue, setInputValue] = useState(parameter.default);
 
-  const handleBlur = useCallback(() => {
-    const { isValid, error } = validate(parameter, inputValue);
+  const handleBlur = useCallback((value: SingleParameter["default"]) => {
+    const { isValid, error } = validate(parameter, value);
 
-    onChange(parameterKey, inputValue as string, isValid, node?.name);
+    onChange(parameterKey, value as string, isValid, node?.name);
     setError(error);
   }, [inputValue]);
 
   const handleChangeBoolean = useCallback(() => {
     setInputValue(!inputValue);
-    handleBlur();
+    handleBlur(!inputValue);
   }, [handleBlur]);
 
   /**
@@ -54,7 +54,7 @@ const ParameterSelector = ({
         placeholder={parameterKey}
         value={inputValue as string}
         onChange={setInputValue}
-        onBlur={handleBlur}
+        onBlur={() => handleBlur(inputValue)}
         className={styles.input}
         type={["number", "integer"].includes(parameter.type) ? "number" : "string"}
         data-testid={`input-field-${parameterKey}`}
@@ -76,9 +76,13 @@ const ParameterSelector = ({
           return (
             <ArraySelector
               key={parameterKey}
+              parameterKey={parameterKey}
               disabled={false}
-              value={parameter.default as string[]}
-              onChange={(value) => onChange(parameterKey, value, true)}
+              value={inputValue as string[]}
+              onChange={(value) => {
+                setInputValue(value);
+                handleBlur(value);
+              }}
               options={parameter.options}
             />
           );
