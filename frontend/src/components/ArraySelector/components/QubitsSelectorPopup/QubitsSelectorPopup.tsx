@@ -19,8 +19,8 @@ type IProps = {
   onChange: (value: string[]) => void;
 }
 
-const getSearchStringIndex = (string: string, searchValue: string) =>
-  string.trim().toLowerCase().indexOf(searchValue.trim().toLowerCase());
+const getSearchStringIndex = (sourceString: string, searchValue: string) =>
+  sourceString.trim().toLowerCase().indexOf(searchValue.trim().toLowerCase());
 
 const SelectorOption = ({
   option,

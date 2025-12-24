@@ -22,6 +22,7 @@ import {getSelectedWorkflow, submitWorkflow} from "../../../../stores/GraphStore
 import {useRootDispatch} from "../../../../stores";
 import { getSelectedWorkflowName, getWorkflowGraphNodes, setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphCommon";
 import { setGraphNodeParameter } from "../../../../stores/GraphStores/GraphLibrary/actions";
+import { ParamaterValue } from "../../../../components/Parameters/Parameters";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -51,7 +52,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     setErrors(newSet);
   };
 
-  const onNodeParameterChange = (parameterKey: string, newValue: string | number | boolean | string[], isValid: boolean, nodeId?: string | undefined) => {
+  const onNodeParameterChange = (parameterKey: string, newValue: ParamaterValue, isValid: boolean, nodeId?: string | undefined) => {
     handleSetError(parameterKey, isValid);
     dispatch(setGraphNodeParameter(parameterKey, newValue, nodeId));
   };

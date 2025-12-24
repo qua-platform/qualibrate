@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Checkbox } from "@mui/material";
-import { SingleParameter } from "./Parameters";
+import { ParamaterValue, SingleParameter } from "./Parameters";
 import { validate } from "./utils";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Parameters.module.scss";
@@ -19,7 +19,7 @@ const ParameterSelector = ({
   parameterKey: string
   parameter: SingleParameter
   node?: NodeDTO | GraphWorkflow
-  onChange: (paramKey: string, newValue: string | number | boolean | string[], isValid: boolean, nodeId?: string | undefined) => void
+  onChange: (paramKey: string, newValue: ParamaterValue, isValid: boolean, nodeId?: string | undefined) => void
 }) => {
   const [error, setError] = useState<undefined | string>(undefined);
   const [inputValue, setInputValue] = useState(parameter.default);

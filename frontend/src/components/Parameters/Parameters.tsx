@@ -20,11 +20,12 @@ interface IProps {
 }
 
 export type ParameterTypes = "boolean" | "number" | "integer" | "array" | "string";
+export type ParamaterValue = string | boolean | number | string[];
 export interface SingleParameter {
   id?: string;
   name?: string;
   parameters?: InputParameter;
-  default?: string | boolean | number | string[];
+  default?: ParamaterValue;
   items?: { type: string };
   options?: {
     id: string;

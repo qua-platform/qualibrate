@@ -23,7 +23,7 @@ const EnumSelectorDropdown = ({
   const buttonRef = useRef<HTMLDivElement>(null);
 
   const getSearchStringIndex = useCallback(
-    (string: string) => string.trim().toLowerCase().indexOf(searchValue.trim().toLowerCase()),
+    (sourceString: string) => sourceString.trim().toLowerCase().indexOf(searchValue.trim().toLowerCase()),
     [searchValue]
   );
   const filteredOptions = useMemo(

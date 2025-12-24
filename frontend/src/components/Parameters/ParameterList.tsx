@@ -1,14 +1,14 @@
 import React from "react";
 import { NodeDTO, NodeMap } from "../../modules/Nodes";
 import { GraphWorkflow } from "../../modules/GraphLibrary";
-import { Parameters, SingleParameter } from "./Parameters";
+import { ParamaterValue, Parameters, SingleParameter } from "./Parameters";
 import ParameterSelector from "./ParameterSelector";
 
 interface IProps {
   showParameters: boolean;
   mapOfItems?: NodeMap | GraphWorkflow;
   title?: string;
-  onChange: (parameterKey: string, newValue: string | number | boolean | string[], isValid: boolean, nodeId?: string | undefined) => void
+  onChange: (parameterKey: string, newValue: ParamaterValue, isValid: boolean, nodeId?: string | undefined) => void
 }
 
 export const ParameterList: React.FC<IProps> = ({ showParameters = false, mapOfItems, onChange }) => {
