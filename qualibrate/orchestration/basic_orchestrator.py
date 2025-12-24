@@ -550,12 +550,17 @@ class BasicOrchestrator(
         elements_without_successors = list(
             filter(lambda n: len(successors[n]) == 0, successors.keys())
         )
-        for target in self.initial_targets or []:
+        final_targets = {
+            target
+            for element in elements_without_successors
+            for target in element.outcomes
+        }
+        skipped_targets =  set(self.initial_targets) - final_targets
+        for target in final_targets or []:
             successful = all(
                 map(
                     lambda outcome: outcome == Outcome.SUCCESSFUL,
                     [
-                        # node.outcomes.get(target, Outcome.FAILED)
                         node.outcomes.get(target,Outcome.SUCCESSFUL)
                         for node in elements_without_successors
                     ],
@@ -564,6 +569,8 @@ class BasicOrchestrator(
             self.final_outcomes[target] = (
                 Outcome.SUCCESSFUL if successful else Outcome.FAILED
             )
+        for skipped_target in skipped_targets:
+            self.final_outcomes[skipped_target] = Outcome.FAILED
 
 
 def _current_and_predecessors_statuses(
