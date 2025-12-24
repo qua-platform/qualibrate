@@ -8,7 +8,7 @@
  * @see GraphElement - Uses this for workflow preview
  * @see MeasurementElementGraph - Uses this for execution status visualization
  */
-import {useCallback, useEffect, useLayoutEffect} from "react";
+import {MouseEvent, useCallback, useEffect, useLayoutEffect, useState} from "react";
 
 import styles from "./Graph.module.scss";
 import {
@@ -17,6 +17,7 @@ import {
   Background,
   ConnectionLineType,
   EdgeChange,
+  EdgeProps,
   NodeChange,
   ReactFlow,
   ReactFlowProvider,
@@ -38,8 +39,10 @@ import {
 import {setTrackLatest} from "../../../../stores/GraphStores/GraphStatus/actions";
 import {useRootDispatch} from "../../../../stores";
 import {useSelector} from "react-redux";
-import {NodeWithData} from "../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
-import componentTypes, { edgeOptions } from "./components";
+import {EdgeWithData, NodeWithData} from "../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
+import componentTypes, {CONDITIONAL_EDGE_TYPE, edgeOptions} from "./components";
+import ConditionalEdgePopUp from "./components/ConditionalEdge/ConditionalEdgePopUp";
+import ConditionalEdge from "./components/ConditionalEdge/ConditionalEdge";
 
 interface IProps {
   onNodeClick?: (name: string) => void;
@@ -54,6 +57,16 @@ const Graph = ({ onNodeClick }: IProps) => {
   const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
   const dispatch = useRootDispatch();
   const { fitView } = useReactFlow();
+  const [selectedEdge, setSelectedEdge] = useState<EdgeWithData | null>(null);
+
+  const handleConditionClick = useCallback((edge: EdgeWithData) => {
+    setSelectedEdge(edge);
+  }, []);
+
+  const edgeTypes = {
+    ...componentTypes.edgeTypes,
+    [CONDITIONAL_EDGE_TYPE]: (props: EdgeProps<EdgeWithData>) => <ConditionalEdge {...props} onConditionClick={handleConditionClick} />,
+  };
 
   useLayoutEffect(() => {
     fitView({
@@ -72,7 +85,11 @@ const Graph = ({ onNodeClick }: IProps) => {
     dispatch(setSelectedNodeNameInWorkflow(id));
   };
 
-  const handleNodeClick = (_: React.MouseEvent, node: NodeWithData) => {
+  const handleClosePopup = () => {
+    setSelectedEdge(null);
+  };
+
+  const handleNodeClick = (_: MouseEvent, node: NodeWithData) => {
     if (!!node.data.subgraph && selectedNodeNameInWorkflow === node.data.label) {
       dispatch(goForwardInGraph(node.data.label));
       handleSelectNode(undefined);
@@ -84,7 +101,7 @@ const Graph = ({ onNodeClick }: IProps) => {
     }
   };
 
-  const handleBackgroundClick = (evt: React.MouseEvent) => {
+  const handleBackgroundClick = (evt: MouseEvent) => {
     // Clear selection when clicking graph background
     handleSelectNode(undefined);
   };
@@ -111,6 +128,8 @@ const Graph = ({ onNodeClick }: IProps) => {
         nodes={nodes}
         edges={edges}
         {...componentTypes}
+        nodeTypes={componentTypes.nodeTypes}
+        edgeTypes={edgeTypes}
         connectionLineType={ConnectionLineType.SmoothStep}
         onPaneClick={handleBackgroundClick}
         onNodesChange={onNodesChange}
@@ -122,6 +141,16 @@ const Graph = ({ onNodeClick }: IProps) => {
       >
         <Background color={backgroundColor} bgColor={backgroundColor} />
       </ReactFlow>
+      {selectedEdge && (
+        <ConditionalEdgePopUp
+          open={true}
+          onClose={handleClosePopup}
+          source={selectedEdge.source}
+          target={selectedEdge.target}
+          label={selectedEdge.data?.condition?.label}
+          description={selectedEdge.data?.condition?.content}
+        />
+      )}
     </div>
   );
 };

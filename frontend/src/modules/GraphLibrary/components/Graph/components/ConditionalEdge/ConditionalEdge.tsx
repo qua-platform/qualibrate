@@ -1,12 +1,15 @@
-import React, { MouseEvent, useCallback, useState } from "react";
+import React, { MouseEvent } from "react";
 import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath } from "@xyflow/react";
 import { EdgeWithData } from "../../../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../styles.module.scss";
-import ConditionalEdgePopUp from "../ConditionalEdge/ConditionalEdgePopUp";
 
-const ConditionalEdge = (props: EdgeProps<EdgeWithData>) => {
-  const { id, source, target, data, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, markerEnd, style } = props;
+interface ConditionalEdgeProps extends EdgeProps<EdgeWithData> {
+  onConditionClick?: (edge: EdgeWithData) => void;
+}
+
+const ConditionalEdge = (props: ConditionalEdgeProps) => {
+  const { id, data, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, markerEnd, style, onConditionClick } = props;
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -17,19 +20,10 @@ const ConditionalEdge = (props: EdgeProps<EdgeWithData>) => {
     targetPosition,
   });
 
-  const [open, setOpen] = useState(false);
-
-  const handleOnClick = useCallback(
-    (e: MouseEvent<HTMLDivElement>) => {
-      e.stopPropagation();
-      setOpen(true);
-    },
-    [setOpen]
-  );
-
-  const handleOnClose = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
+  const handleOnClick = (e: MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onConditionClick?.(props as EdgeWithData);
+  };
 
   return (
     <>
@@ -46,14 +40,6 @@ const ConditionalEdge = (props: EdgeProps<EdgeWithData>) => {
           {data?.condition?.label ?? "Condition"}
         </div>
       </EdgeLabelRenderer>
-      <ConditionalEdgePopUp
-        open={open}
-        onClose={handleOnClose}
-        source={source}
-        target={target}
-        label={data?.condition?.label}
-        description={data?.condition?.content}
-      />
     </>
   );
 };

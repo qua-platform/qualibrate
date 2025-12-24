@@ -14,16 +14,7 @@ export interface ConditionalEdgePopUpProps {
 const ConditionalEdgePopUp = (props: ConditionalEdgePopUpProps) => {
   const { source, target, open, label, description, onClose } = props;
   return (
-    <Dialog
-      PaperProps={{
-        sx: {
-          borderRadius: "12px",
-        },
-      }}
-      data-test-id
-      open={open}
-      onClose={onClose}
-    >
+    <Dialog classes={{ paper: styles.conditionModalWrapper }} data-test-id open={open} onClose={onClose}>
       <div data-testid={"conditional-edge-pop-up-content"} className={styles.conditionModalContent}>
         <div className={styles.conditionModalHeader}>
           <div>
