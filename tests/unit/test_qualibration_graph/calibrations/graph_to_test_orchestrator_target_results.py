@@ -16,7 +16,6 @@ Expected behavior with qubits=["q1", "q2", "q3", "q4"]:
 from typing import ClassVar
 
 from qualibrate import QualibrationGraph, QualibrationLibrary, QualibrationNode, GraphParameters
-from qualibrate.models.outcome import Outcome
 
 class Parameters(GraphParameters):
     targets_name: ClassVar[str] = "qubits"
@@ -37,17 +36,11 @@ with QualibrationGraph.build(
 
     graph.add_nodes(node, node2, node3, node4)
 
-    # Add loop with fidelity check (retry if fidelity < 0.95)
-    # Access results from namespace
     graph.loop(
         "node",
         on=lambda node, target: node.namespace.get("calibration_results").get(target).get("fidelity") < 0.7,
         max_iterations=3
     )
-
-    # Connect failure paths with conditions
-    # node2: gets retriable errors (error_type == "retriable")
-
 
     graph.connect_on_failure(
         "node",
@@ -55,11 +48,9 @@ with QualibrationGraph.build(
         on=lambda node, target: node.namespace.get("calibration_results").get(target).get("error_type") == "retriable"
     )
 
-    # node3: gets permanent errors (error_type == "permanent")
     graph.connect_on_failure(
         "node",
         "node3",
-        # on=lambda node, target: node.namespace.get("calibration_results").get(target).get("error_type") == "permanent"
         on= lambda node, target: True
     )
 

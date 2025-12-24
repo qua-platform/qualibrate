@@ -1259,7 +1259,7 @@ def test_get_next_element_returns_node_when_all_predecessors_finished(mocker):
     mock_nx_graph.return_value.pred = {mock_node: [mock_pred1, mock_pred2]}
 
     def check_finished(node):
-        return node == mock_node
+        return node != mock_node
 
     mocker.patch.object(
         orchestrator, "check_node_finished", side_effect=check_finished
