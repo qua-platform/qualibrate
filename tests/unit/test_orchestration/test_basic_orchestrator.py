@@ -1392,14 +1392,16 @@ class TestFillFinalOutcomes:
 
     def test_all_targets_successful(self, mocker):
         """All targets reach leaves and succeed."""
-        leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL})
-        leaf2 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL})
+        leaf1 = self.make_node(
+            {"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL}
+        )
+        leaf2 = self.make_node(
+            {"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL}
+        )
 
         # Patch the nx_graph property
         mock_nx_graph = mocker.patch.object(
-            self.orchestrator.__class__,
-            "nx_graph",
-            new_callable=PropertyMock
+            self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock
         )
 
         mock_graph = MagicMock()
@@ -1417,13 +1419,13 @@ class TestFillFinalOutcomes:
     def test_some_targets_fail(self, mocker):
         """Some targets fail on at least one leaf node."""
         leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.FAILED})
-        leaf2 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL})
+        leaf2 = self.make_node(
+            {"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL}
+        )
 
         # Patch the nx_graph property
         mock_nx_graph = mocker.patch.object(
-            self.orchestrator.__class__,
-            "nx_graph",
-            new_callable=PropertyMock
+            self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock
         )
 
         mock_graph = MagicMock()
@@ -1445,9 +1447,7 @@ class TestFillFinalOutcomes:
         leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL})
 
         mock_nx_graph = mocker.patch.object(
-            self.orchestrator.__class__,
-            "nx_graph",
-            new_callable=PropertyMock
+            self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock
         )
 
         mock_graph = MagicMock()

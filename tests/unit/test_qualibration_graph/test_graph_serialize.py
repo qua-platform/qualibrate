@@ -175,6 +175,7 @@ def test_serialize_with_nested_graphs(
         ],
     }
 
+
 def test_serialize_with_nested_graphs_and_connect_on_failure(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
@@ -295,9 +296,9 @@ def test_serialize_graph_with_operational_condition_and_loop(
         if e["source"] == node_name and e["target"] == node3_name
     )
     assert node3_edge["data"]["connect_on"] is False  # Failure path
-    assert "label" in node3_edge["data"]['condition']
+    assert "label" in node3_edge["data"]["condition"]
     assert (
-        node3_edge["data"]['condition']["label"] == "<lambda>"
+        node3_edge["data"]["condition"]["label"] == "<lambda>"
     )  # Lambda function
 
 
@@ -325,6 +326,6 @@ def test_serialize_graph_with_multiple_operational_conditions(
     # Both failure edges should have operational conditions
     for edge in failure_edges:
         # assert edge["data"]["operational_condition"] is True
-        assert "label" in edge["data"]['condition']
-        assert "description" in edge["data"]['condition']
-        assert edge["data"]['condition']["description"] is not None
+        assert "label" in edge["data"]["condition"]
+        assert "description" in edge["data"]["condition"]
+        assert edge["data"]["condition"]["description"] is not None

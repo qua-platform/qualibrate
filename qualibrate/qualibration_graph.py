@@ -876,7 +876,6 @@ class QualibrationGraph(
 
                 operational_condition_data: dict[str, bool | str] = {}
 
-
                 if condition_name and condition_content:
                     operational_condition_data.update(
                         {
@@ -890,7 +889,7 @@ class QualibrationGraph(
                         QualibrationGraph.RUN_SCENARIO_FIELD,
                         Outcome.SUCCESSFUL,
                     )
-                                  == Outcome.SUCCESSFUL,
+                    == Outcome.SUCCESSFUL,
                 }
                 if operational_condition_data:
                     data["condition"] = operational_condition_data
@@ -900,7 +899,7 @@ class QualibrationGraph(
                         "id": f"{node_name}->{target_name}",
                         "source": node_name,
                         "target": target_name,
-                        "data": data
+                        "data": data,
                     }
                 )
 
@@ -915,9 +914,13 @@ class QualibrationGraph(
         if node_name not in self._loop_conditions:
             raise KeyError(f"Loop condition not found for node {node_name}")
 
-        node_conditions: LoopCondition[GraphElementTypeVar] = self._loop_conditions[node_name]
-        label,content = self._get_operational_condition_signature_and_content(node_conditions)
-        data = {'loop':{}}
+        node_conditions: LoopCondition[GraphElementTypeVar] = (
+            self._loop_conditions[node_name]
+        )
+        label, content = self._get_operational_condition_signature_and_content(
+            node_conditions
+        )
+        data = {"loop": {}}
         if label and content:
             data["loop"]["label"] = label
             data["loop"]["content"] = content
@@ -927,7 +930,7 @@ class QualibrationGraph(
             "id": f"{node_name}->{node_name}",
             "source": node_name,
             "target": node_name,
-            "data":  data,
+            "data": data,
         }
 
     def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
