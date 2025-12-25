@@ -10,10 +10,12 @@
 import "@testing-library/jest-dom";
 import {beforeEach, describe, expect, it, vi} from "vitest";
 import {fireEvent, render, screen} from "@testing-library/react";
-import ConditionalEdge from "../ConditionalEdge";
-import {EdgeProps, Position, ReactFlow} from "@xyflow/react";
+import ConditionalEdge, {
+  ConditionalEdgeProps
+} from "../../../../src/modules/Graph/components/ConditionalEdge/ConditionalEdge";
+import {Position, ReactFlow} from "@xyflow/react";
 import React from "react";
-import {ConditionalEdgePopUpProps} from "../ConditionalEdgePopUp";
+import {ConditionalEdgePopUpProps} from "../../../../src/modules/Graph/components/ConditionalEdge/ConditionalEdgePopUp";
 
 // Mock ConditionalEdgePopUp to simplify
 vi.mock("../ConditionalEdgePopUp", () => ({
@@ -49,7 +51,7 @@ vi.mock("@xyflow/react", () => ({
   ReactFlow: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-const defaultProps: EdgeProps = {
+const defaultProps: ConditionalEdgeProps = {
   animated: undefined,
   deletable: undefined,
   selectable: undefined,
@@ -62,7 +64,7 @@ const defaultProps: EdgeProps = {
   type: undefined,
   data: {
     condition: {
-      label: "Test Condition",
+      label: "test-condition",
       content: "Dialog text",
     },
   },
@@ -98,23 +100,26 @@ describe("ConditionalEdge - Unit Tests", () => {
       </ReactFlow>
     );
 
-    expect(screen.getByText("Test Condition")).toBeInTheDocument();
+    expect(screen.getByText("test-condition")).toBeInTheDocument();
   });
 
-  it("opens ConditionalEdgePopUp when label is clicked", () => {
+  it("when label is clicked calls onConditionClick to open ConditionalEdgePopUp", () => {
+    const onConditionClick = vi.fn();
     render(
       <ReactFlow>
-        <ConditionalEdge {...defaultProps} />
+        <ConditionalEdge {...defaultProps} onConditionClick={onConditionClick} />
       </ReactFlow>
     );
-    fireEvent.click(screen.getByText("Test Condition"));
-    const sourceName = "node1";
-    const targetName = "node2";
-    const dialogContentElement = screen.getByTestId("conditional-edge-pop-up-content");
-    expect(dialogContentElement).toBeInTheDocument();
-    expect(dialogContentElement).toHaveTextContent("Dialog text");
-    expect(dialogContentElement).toHaveTextContent(sourceName);
-    expect(dialogContentElement).toHaveTextContent(targetName);
+    fireEvent.click(screen.getByTestId("conditional-edge-test-condition"));
+
+    expect(onConditionClick).toHaveBeenCalledTimes(1);
+    expect(onConditionClick).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "node1->node2",
+        source: "node1",
+        target: "node2",
+      })
+    );
   });
 
   it("uses default label text when missing", () => {

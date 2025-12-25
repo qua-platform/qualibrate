@@ -3,7 +3,6 @@ import { RootDispatch, RootState } from "../../";
 import { commonGraphSlice } from "./GraphCommonStore";
 import { getLayoutedElements } from "./utils";
 import { getSubgraphBreadcrumbs, getUnformattedWorkflowElements } from "./selectors";
-import { MOCK_WORKFLOW_ELEMENTS } from "./__mocks__/mocks";
 // import {createSimpleNestedGraph} from "../../../test-utils/builders/cytoscapeElements";
 
 export const {
@@ -34,14 +33,14 @@ export const fetchWorkflowGraph = (nodeName: string) => async (dispatch: RootDis
 
     dispatch(setUnformattedWorkflowElements(response.result));
     // Uncomment to use mocks
-    dispatch(setUnformattedWorkflowElements(MOCK_WORKFLOW_ELEMENTS));
+    // dispatch(setUnformattedWorkflowElements(MOCK_WORKFLOW_ELEMENTS));
 
     if (subgraphBreadcrumbs.length) {
       dispatch(setSubgraph());
     } else {
       dispatch(layoutAndSetNodesAndEdges(response.result));
       // Uncomment to use mocks
-      dispatch(layoutAndSetNodesAndEdges(MOCK_WORKFLOW_ELEMENTS));
+      // dispatch(layoutAndSetNodesAndEdges(MOCK_WORKFLOW_ELEMENTS));
     }
   } else if (response.error) {
     console.log(response.error);

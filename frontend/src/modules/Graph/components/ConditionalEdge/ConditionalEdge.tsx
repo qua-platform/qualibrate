@@ -4,7 +4,7 @@ import { EdgeWithData } from "../../../../stores/GraphStores/GraphCommon/GraphCo
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../styles.module.scss";
 
-interface ConditionalEdgeProps extends EdgeProps<EdgeWithData> {
+export interface ConditionalEdgeProps extends EdgeProps<EdgeWithData> {
   onConditionClick?: (edge: EdgeWithData) => void;
 }
 
