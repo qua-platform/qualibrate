@@ -127,6 +127,8 @@ class BasicOrchestrator(
         while not self._execution_queue.empty():
             element_to_run = self._execution_queue.get()
             # Skip if already finished (handles duplicate queue entries)
+            # for cases like diamond cases where a-> b,c b,c->d
+            # d will be twice in queue and we dont want to execute it twice
             if self.check_node_finished(element_to_run):
                 continue
 

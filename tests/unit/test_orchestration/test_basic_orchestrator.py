@@ -1100,7 +1100,9 @@ def test_get_next_element_skips_already_finished_node(mocker):
 
     # Simulate duplicate: add finished node twice, then pending node
     orchestrator._execution_queue.put(mock_finished_node)
-    orchestrator._execution_queue.put(mock_finished_node)  # Duplicate!
+    orchestrator._execution_queue.put(
+        mock_finished_node
+    )  # Duplicate! (intentionally)
     orchestrator._execution_queue.put(mock_pending_node)
 
     # Mock nx_graph
