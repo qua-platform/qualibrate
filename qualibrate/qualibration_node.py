@@ -125,6 +125,7 @@ class QualibrationNode(
         *,
         parameters_class: type[ParametersType] | None = None,
         modes: RunModes | None = None,
+        machine: NodeMachineType | None = None,
     ):
         if self.__class__.active_node is not None:
             return
@@ -142,8 +143,8 @@ class QualibrationNode(
         # class is used just for passing reference to the running instance
         self._fraction_complete = 0.0
         self.results: dict[Any, Any] = {}
-        self.machine: NodeMachineType | None = None
         self.storage_manager: StorageManager[Self] | None = None
+        self.machine = machine
 
         # Initialize the ActionManager to handle run_action logic.
         self._action_manager = ActionManager()
@@ -517,6 +518,51 @@ class QualibrationNode(
             custom_loaders=custom_loaders,
             build_params_class=isinstance(caller, type),
         )
+
+    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
+        # Get base QRunnable serialization
+        data = dict(super().serialize(**kwargs))
+        pre_mutated_data = copy.deepcopy(data)
+        try:
+            if (
+                self.machine is not None
+                and hasattr(self.machine, "active_qubits")
+                and hasattr(self.machine, "qubits")
+            ):
+                qubits = self.machine.qubits.keys()
+                active_qubits = {
+                    qubit.name for qubit in self.machine.active_qubits
+                }
+
+                # Build metadata for each qubit
+                metadata = {}
+                for qubit in qubits:
+                    qubit_info = self.machine.qubits[qubit]
+                    gate_fidelity = None
+                    if hasattr(qubit_info, "gate_fidelity") and hasattr(
+                        qubit_info.gate_fidelity, "averaged"
+                    ):
+                        gate_fidelity = qubit_info.gate_fidelity.averaged
+                    metadata[qubit] = {
+                        "active": qubit in active_qubits,
+                        "fidelity": gate_fidelity,
+                    }
+
+                # Store metadata in the serialized data
+                if "parameters" not in data:
+                    data["parameters"] = {}
+                if "qubits" not in data["parameters"]:
+                    data["parameters"]["qubits"] = {}
+
+                data["parameters"]["qubits"]["metadata"] = metadata
+        except Exception:
+            # for any exception that could happen, return the old data as it was
+            logger.info(
+                "Failed to serialize quam machine, probably used a different"
+                " quam package hence the machine json load isn't compatible"
+            )
+            return pre_mutated_data
+        return data
 
     def _post_run(
         self,
