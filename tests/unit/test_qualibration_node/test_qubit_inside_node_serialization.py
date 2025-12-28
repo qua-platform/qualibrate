@@ -37,8 +37,9 @@ class TestNodeSerialization:
     """Test suite for QualibrationNode.serialize() method"""
 
     @pytest.fixture
-    def base_node(self):
+    def base_node(self, mocker):
         """Create a basic node without machine for testing"""
+        mocker.patch.object(QualibrationNode, "_get_storage_manager")
         node = QualibrationNode(name="test_node", parameters=NodeParameters())
         return node
 
@@ -227,8 +228,9 @@ class TestNodeSerialization:
 class TestNodeSerializationEdgeCases:
     """Test edge cases and error conditions"""
 
-    def test_serialize_with_partial_machine_attributes(self):
+    def test_serialize_with_partial_machine_attributes(self, mocker):
         """Test machine with only some attributes"""
+        mocker.patch.object(QualibrationNode, "_get_storage_manager")
         node = QualibrationNode(name="test", parameters=NodeParameters())
 
         # Machine with only active_qubits
@@ -246,8 +248,9 @@ class TestNodeSerializationEdgeCases:
         result = node.serialize()
         assert isinstance(result, dict)
 
-    def test_serialize_large_number_of_qubits(self):
+    def test_serialize_large_number_of_qubits(self, mocker):
         """Test serialization with a large number of qubits"""
+        mocker.patch.object(QualibrationNode, "_get_storage_manager")
         node = QualibrationNode(name="test", parameters=NodeParameters())
 
         # Create 100 qubits
