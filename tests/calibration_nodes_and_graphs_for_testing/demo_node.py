@@ -1,5 +1,5 @@
 from pydantic import Field
-# from quam.components import BasicQuam
+from quam.components import BasicQuam
 from qualibrate import NodeParameters, QualibrationNode
 
 
@@ -11,9 +11,9 @@ class Parameters(NodeParameters):
 
 
 node = QualibrationNode("test_node", parameters=Parameters())
-# node = QualibrationNode("test_node", parameters=Parameters(),machine = BasicQuam().load())
+node = QualibrationNode("test_node", parameters=Parameters(),machine = BasicQuam().load())
 node.parameters = Parameters()
-# node.machine = BasicQuam.load()
+node.machine = BasicQuam.load()
 
 
 @node.run_action()
