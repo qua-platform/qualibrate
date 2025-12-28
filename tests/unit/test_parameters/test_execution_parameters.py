@@ -91,116 +91,116 @@ class TestExecutionParameters:
             },
         }
 
-        def test_serialize_force_exclude_targets(self):
-            assert ExecutionParams.serialize(exclude_targets=True) == {
-                "parameters": {
-                    "str_value": {
-                        "default": "test",
-                        "title": "Str Value",
-                        "type": "string",
+    def test_serialize_force_exclude_targets(self):
+        assert ExecutionParams.serialize(exclude_targets=True) == {
+            "parameters": {
+                "str_value": {
+                    "default": "test",
+                    "title": "Str Value",
+                    "type": "string",
+                    "is_targets": False,
+                }
+            },
+            "nodes": {
+                "node1": {
+                    "int_value": {
+                        "default": 1,
+                        "title": "Int Value",
+                        "type": "integer",
                         "is_targets": False,
                     }
                 },
-                "nodes": {
-                    "node1": {
-                        "int_value": {
-                            "default": 1,
-                            "title": "Int Value",
-                            "type": "integer",
-                            "is_targets": False,
-                        }
-                    },
-                    "node2": {
-                        "float_value": {
-                            "default": 2.0,
-                            "title": "Float Value",
-                            "type": "number",
-                            "is_targets": False,
-                        }
-                    },
+                "node2": {
+                    "float_value": {
+                        "default": 2.0,
+                        "title": "Float Value",
+                        "type": "number",
+                        "is_targets": False,
+                    }
                 },
-            }
+            },
+        }
 
-        def test_serialize_force_not_exclude_targets(self):
-            assert ExecutionParams.serialize(exclude_targets=False) == {
-                "parameters": {
+    def test_serialize_force_not_exclude_targets(self):
+        assert ExecutionParams.serialize(exclude_targets=False) == {
+            "parameters": {
+                "qubits": {
+                    "items": {"type": "string"},
+                    "type": "array",
+                    "title": "Qubits",
+                    "is_targets": True,
+                },
+                "str_value": {
+                    "default": "test",
+                    "title": "Str Value",
+                    "type": "string",
+                    "is_targets": False,
+                },
+            },
+            "nodes": {
+                "node1": {
                     "qubits": {
-                        "items": {"type": "string"},
-                        "type": "array",
+                        "anyOf": [
+                            {"items": {"type": "string"}, "type": "array"},
+                            {"type": "null"},
+                        ],
+                        # "default": ["a", "b", "c"],
                         "title": "Qubits",
                         "is_targets": True,
                     },
-                    "str_value": {
-                        "default": "test",
-                        "title": "Str Value",
-                        "type": "string",
+                    "int_value": {
+                        "default": 1,
+                        "title": "Int Value",
+                        "type": "integer",
                         "is_targets": False,
                     },
                 },
-                "nodes": {
-                    "node1": {
-                        "qubits": {
-                            "anyOf": [
-                                {"items": {"type": "string"}, "type": "array"},
-                                {"type": "null"},
-                            ],
-                            "default": ["a", "b", "c"],
-                            "title": "Qubits",
-                            "is_targets": True,
-                        },
-                        "int_value": {
-                            "default": 1,
-                            "title": "Int Value",
-                            "type": "integer",
-                            "is_targets": False,
-                        },
+                "node2": {
+                    "qubits": {
+                        "anyOf": [
+                            {"items": {"type": "string"}, "type": "array"},
+                            {"type": "null"},
+                        ],
+                        # "default": ["d", "e", "f"],
+                        "title": "Qubits",
+                        "is_targets": True,
                     },
-                    "node2": {
-                        "qubits": {
-                            "anyOf": [
-                                {"items": {"type": "string"}, "type": "array"},
-                                {"type": "null"},
-                            ],
-                            "default": ["d", "e", "f"],
-                            "title": "Qubits",
-                            "is_targets": True,
-                        },
-                        "float_value": {
-                            "default": 2.0,
-                            "title": "Float Value",
-                            "type": "number",
-                            "is_targets": False,
-                        },
+                    "float_value": {
+                        "default": 2.0,
+                        "title": "Float Value",
+                        "type": "number",
+                        "is_targets": False,
                     },
                 },
-            }
+            },
+        }
 
-        def test_serialize_with_none_parameters_class(self, mocker):
-            mock_model_fields = mocker.patch(
-                "qualibrate.parameters.ExecutionParameters.model_fields"
-            )
-            mock_model_fields.__getitem__.return_value = mocker.MagicMock(
-                annotation=None
-            )
+    def test_serialize_with_none_parameters_class(self, mocker):
+        mock_model_fields = mocker.patch(
+            "qualibrate.parameters.ExecutionParameters.model_fields"
+        )
+        mock_model_fields.__getitem__.return_value = mocker.MagicMock(
+            annotation=None
+        )
 
-            with pytest.raises(
-                RuntimeError, match="Graph parameters class can't be none"
-            ):
-                ExecutionParameters.serialize()
+        with pytest.raises(
+            RuntimeError, match="Graph parameters class can't be none"
+        ):
+            ExecutionParameters.serialize()
 
-        def test_serialize_none_parameters_class(self, mocker):
-            mock_model_fields = mocker.patch(
-                "qualibrate.parameters.ExecutionParameters.model_fields"
-            )
-            mock_model_fields.__getitem__.return_value = mocker.MagicMock(
-                annotation=RunnableParameters
-            )
+    def test_serialize_none_parameters_class(self, mocker):
+        mock_model_fields = mocker.patch(
+            "qualibrate.parameters.ExecutionParameters.model_fields"
+        )
+        mock_model_fields.__getitem__.return_value = mocker.MagicMock(
+            annotation=RunnableParameters
+        )
 
-            with pytest.raises(
-                RuntimeError,
-                match=(
-                    "Graph parameters class should be subclass of "
-                    "qualibrate.parameters.GraphParameters"
-                ),
-            ):
-                ExecutionParameters.serialize()
+        with pytest.raises(
+            RuntimeError,
+            match=(
+                "Graph parameters class should be subclass of "
+                "qualibrate.parameters.GraphParameters"
+            ),
+        ):
+            ExecutionParameters.serialize()
