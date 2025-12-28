@@ -32,7 +32,6 @@ def simulate_calibration(node: QualibrationNode):
             results[target] = {"fidelity": 0.89, "error_type": "retriable"}
             node.outcomes[target] = Outcome.FAILED
         else:  # q4
-            # q4 fails with permanent error
             results[target] = {"fidelity": 0.85, "error_type": "retriable"}
             node.outcomes[target] = Outcome.FAILED
     # Store results in namespace so they persist
