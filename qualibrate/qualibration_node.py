@@ -562,8 +562,6 @@ class QualibrationNode(
             return pre_mutated_data
         return data
 
-        return data
-
     def _post_run(
         self,
         initial_targets: Sequence[TargetType],
