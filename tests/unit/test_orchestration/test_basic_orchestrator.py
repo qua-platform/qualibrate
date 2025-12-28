@@ -5,7 +5,10 @@ import pytest
 
 from qualibrate import QualibrationNode
 from qualibrate.models.node_status import ElementRunStatus
-from qualibrate.models.operational_condition import OperationalCondition, LoopCondition
+from qualibrate.models.operational_condition import (
+    LoopCondition,
+    OperationalCondition,
+)
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.node import NodeRunSummary
 from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
