@@ -522,36 +522,43 @@ class QualibrationNode(
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         # Get base QRunnable serialization
         data = dict(super().serialize(**kwargs))
-
-        if (
-            self.machine is not None
-            and hasattr(self.machine, "active_qubits")
-            and hasattr(self.machine, "qubits")
-        ):
-            qubits = self.machine.qubits.keys()
-            active_qubits = {qubit.name for qubit in self.machine.active_qubits}
-
-            # Build metadata for each qubit
-            metadata = {}
-            for qubit in qubits:
-                qubit_info = self.machine.qubits[qubit]
-                gate_fidelity = None
-                if hasattr(qubit_info, "gate_fidelity") and hasattr(
-                    qubit_info.gate_fidelity, "averaged"
-                ):
-                    gate_fidelity = qubit_info.gate_fidelity.averaged
-                metadata[qubit] = {
-                    "active": qubit in active_qubits,
-                    "fidelity": gate_fidelity,
+        pre_mutated_data = copy.deepcopy(data)
+        try:
+            if (
+                self.machine is not None
+                and hasattr(self.machine, "active_qubits")
+                and hasattr(self.machine, "qubits")
+            ):
+                qubits = self.machine.qubits.keys()
+                active_qubits = {
+                    qubit.name for qubit in self.machine.active_qubits
                 }
 
-            # Store metadata in the serialized data
-            if "parameters" not in data:
-                data["parameters"] = {}
-            if "qubits" not in data["parameters"]:
-                data["parameters"]["qubits"] = {}
+                # Build metadata for each qubit
+                metadata = {}
+                for qubit in qubits:
+                    qubit_info = self.machine.qubits[qubit]
+                    gate_fidelity = None
+                    if hasattr(qubit_info, "gate_fidelity") and hasattr(
+                        qubit_info.gate_fidelity, "averaged"
+                    ):
+                        gate_fidelity = qubit_info.gate_fidelity.averaged
+                    metadata[qubit] = {
+                        "active": qubit in active_qubits,
+                        "fidelity": gate_fidelity,
+                    }
 
-            data["parameters"]["qubits"]["metadata"] = metadata
+                # Store metadata in the serialized data
+                if "parameters" not in data:
+                    data["parameters"] = {}
+                if "qubits" not in data["parameters"]:
+                    data["parameters"]["qubits"] = {}
+
+                data["parameters"]["qubits"]["metadata"] = metadata
+        except Exception:
+            # for any exception that could happen, return the old data as it was
+            return pre_mutated_data
+        return data
 
         return data
 

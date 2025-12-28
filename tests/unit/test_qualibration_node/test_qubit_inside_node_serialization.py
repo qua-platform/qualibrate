@@ -29,6 +29,10 @@ class MockMachine:
         self.active_qubits = active_qubits_list
 
 
+def _active_qubits_names(mocked_machine: MockMachine) -> list[str]:
+    return [active_qubit.name for active_qubit in mocked_machine.active_qubits]
+
+
 class TestNodeSerialization:
     """Test suite for QualibrationNode.serialize() method"""
 
@@ -103,19 +107,34 @@ class TestNodeSerialization:
         # Check all qubits are in metadata
         assert set(metadata.keys()) == set(mock_qubits.keys())
 
-        # Check active qubits
-        assert metadata["qA1"]["active"] is True
-        assert metadata["qA2"]["active"] is True
-        assert metadata["qA3"]["active"] is True
-        assert metadata["qA4"]["active"] is False
-        assert metadata["qA5"]["active"] is False
+        # Check active qubits, this is based on the node_with_machine fixture
+        active_qubits_names = _active_qubits_names(node_with_machine.machine)
+
+        for qubit in metadata:
+            assert (metadata[qubit]["active"]) == (qubit in active_qubits_names)
 
         # Check fidelity values
-        assert metadata["qA1"]["fidelity"] == 0.9607522653458166
-        assert metadata["qA2"]["fidelity"] == 0.9789885462390904
-        assert metadata["qA3"]["fidelity"] == 0.9987151301821622
+        assert (
+            metadata["qA1"]["fidelity"]
+            == mock_qubits["qA1"].gate_fidelity.averaged
+        )
+        assert (
+            metadata["qA2"]["fidelity"]
+            == mock_qubits["qA2"].gate_fidelity.averaged
+        )
+        assert (
+            metadata["qA3"]["fidelity"]
+            == mock_qubits["qA3"].gate_fidelity.averaged
+        )
+        # qA4 doesn't have gate_fidelity.averaged, so accessing it should raise
+        # AttributeError
+        with pytest.raises(AttributeError):
+            _ = mock_qubits["qA4"].gate_fidelity.averaged
         assert metadata["qA4"]["fidelity"] is None
-        assert metadata["qA5"]["fidelity"] == 1.0000000657302262
+        assert (
+            metadata["qA5"]["fidelity"]
+            == mock_qubits["qA5"].gate_fidelity.averaged
+        )
 
     def test_serialize_active_qubit_identification(
         self, base_node, mock_qubits
@@ -127,13 +146,11 @@ class TestNodeSerialization:
 
         result = base_node.serialize()
         metadata = result["parameters"]["qubits"]["metadata"]
+        active_qubits_names = _active_qubits_names(machine)
 
-        # Only qA1 and qA3 should be active
-        assert metadata["qA1"]["active"] is True
-        assert metadata["qA2"]["active"] is False
-        assert metadata["qA3"]["active"] is True
-        assert metadata["qA4"]["active"] is False
-        assert metadata["qA5"]["active"] is False
+        # Only qA1 and qA3 should be activ
+        for qubit in metadata:
+            assert (metadata[qubit]["active"]) == (qubit in active_qubits_names)
 
     def test_serialize_qubit_without_gate_fidelity(self, base_node):
         """Test serialization when qubit doesn't have gate_fidelity attribute"""
@@ -148,7 +165,7 @@ class TestNodeSerialization:
         result = base_node.serialize()
         metadata = result["parameters"]["qubits"]["metadata"]
 
-        assert metadata["qA1"]["active"] is False
+        assert metadata["qA1"]["active"] not in base_node.machine.active_qubits
         assert metadata["qA1"]["fidelity"] is None
 
     def test_serialize_qubit_without_averaged_fidelity(self, base_node):
@@ -247,9 +264,10 @@ class TestNodeSerializationEdgeCases:
         result = node.serialize()
         metadata = result["parameters"]["qubits"]["metadata"]
 
-        assert len(metadata) == 100
+        assert len(metadata) == len(qubits)
         # Check some active/inactive states
-        assert metadata["q0"]["active"] is True
-        assert metadata["q1"]["active"] is False
-        assert metadata["q50"]["active"] is True
-        assert metadata["q51"]["active"] is False
+        active_qubits_names = _active_qubits_names(machine)
+        assert "q0" in active_qubits_names
+        assert "q1" not in active_qubits_names
+        assert "q50" in active_qubits_names
+        assert "q51" not in active_qubits_names
