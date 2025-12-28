@@ -558,8 +558,8 @@ class QualibrationNode(
         except Exception:
             # for any exception that could happen, return the old data as it was
             logger.info(
-                "Failed to serialize quam machine, probably used a different quam"
-                "package hence the machine json load isn't compatible"
+                "Failed to serialize quam machine, probably used a different"
+                " quam package hence the machine json load isn't compatible"
             )
             return pre_mutated_data
         return data
