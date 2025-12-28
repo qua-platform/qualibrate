@@ -54,8 +54,8 @@ select = [
 ]
 
 [tool.ruff.lint.pycodestyle]
-max-line-length = 80
-max-doc-length = 80
+max-line-length = 120
+max-doc-length = 120
 
 [tool.mypy]
 python_version = "3.10"

@@ -5,7 +5,10 @@ import pytest
 
 from qualibrate import QualibrationNode
 from qualibrate.models.node_status import ElementRunStatus
-from qualibrate.models.operational_condition import OperationalCondition
+from qualibrate.models.operational_condition import (
+    LoopCondition,
+    OperationalCondition,
+)
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.node import NodeRunSummary
 from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
@@ -240,7 +243,85 @@ class TestBasicOrchestrator:
         # Should be intersection: q2 and q3
         assert set(result) == {"q2", "q3"}
 
-    # TODO: get in targets with loop conditions
+    def test_get_in_targets_with_loop_targets(self, mocker):
+        """Test that _get_in_targets includes
+        loop targets from previous iterations"""
+        orchestrator = BasicOrchestrator()
+
+        mock_node = MagicMock()
+        mock_pred = MagicMock()
+
+        mock_nx_graph = mocker.patch(
+            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            new_callable=mocker.PropertyMock,
+        )
+        mock_nx_graph.return_value.predecessors.return_value = [mock_pred]
+        mock_nx_graph.return_value.edges = {
+            (mock_pred, mock_node): {
+                QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2"]
+            }
+        }
+        # Mock loop targets on the node itself
+        mock_nx_graph.return_value.nodes = {
+            mock_node: {
+                QualibrationGraph.LOOP_TARGETS_FIELD: ["q3", "q4"],
+                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
+            },
+            mock_pred: {
+                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished
+            },
+        }
+
+        result = orchestrator._get_in_targets_for_element(mock_node)
+
+        # Should include both edge targets (q1, q2) AND loop targets (q3, q4)
+        assert set(result) == {"q1", "q2", "q3", "q4"}
+
+    def test_get_in_targets_with_loop_targets_and_multiple_predecessors(
+        self, mocker
+    ):
+        """Test that loop targets are added to the intersection
+        of predecessor targets"""
+        orchestrator = BasicOrchestrator()
+
+        mock_node = MagicMock()
+        mock_pred1 = MagicMock()
+        mock_pred2 = MagicMock()
+
+        mock_nx_graph = mocker.patch(
+            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            new_callable=mocker.PropertyMock,
+        )
+        mock_nx_graph.return_value.predecessors.return_value = [
+            mock_pred1,
+            mock_pred2,
+        ]
+        mock_nx_graph.return_value.edges = {
+            (mock_pred1, mock_node): {
+                QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2", "q3"]
+            },
+            (mock_pred2, mock_node): {
+                QualibrationGraph.EDGE_TARGETS_FIELD: ["q2", "q3", "q4"]
+            },
+        }
+        # Mock loop targets
+        mock_nx_graph.return_value.nodes = {
+            mock_node: {
+                QualibrationGraph.LOOP_TARGETS_FIELD: ["q5"],
+                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
+            },
+            mock_pred1: {
+                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished
+            },
+            mock_pred2: {
+                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished
+            },
+        }
+
+        result = orchestrator._get_in_targets_for_element(mock_node)
+
+        # Intersection of predecessors (q2, q3) + loop targets (q5)
+        assert set(result) == {"q2", "q3", "q5"}
 
     def test_set_out_targets_all_successful_skip_failed_disabled(self, mocker):
         """Test _set_out_targets with all successful targets
@@ -443,7 +524,252 @@ class TestBasicOrchestrator:
             "q2",
         ]
 
-    # TODO: test loop related logic
+    def test_is_loop_iteration_needed_no_conditions(self):
+        """Test that loop stops immediately when
+        no loop conditions are defined"""
+        orchestrator = BasicOrchestrator()
+        mock_element = MagicMock()
+        mock_element.name = "test_element"
+
+        mock_graph = MagicMock()
+        mock_graph._loop_conditions = {}
+
+        orchestrator._graph = mock_graph
+
+        iteration_generator = orchestrator._is_loop_iteration_needed(
+            mock_element
+        )
+
+        # First yield should be True (initial execution)
+        assert next(iteration_generator) is True
+        # Second yield should be False (no loop conditions)
+        assert iteration_generator.send(None) is False
+
+    def test_is_loop_iteration_needed_max_iterations(self):
+        """Test that loop respects max_iterations limit"""
+        orchestrator = BasicOrchestrator()
+        mock_element = MagicMock()
+        mock_element.name = "test_element"
+        mock_element.run_summary = None
+
+        mock_graph = MagicMock()
+        max_iterations = 3
+        mock_graph._loop_conditions = {
+            "test_element": LoopCondition(max_iterations=max_iterations)
+        }
+
+        orchestrator._graph = mock_graph
+
+        iteration_generator = orchestrator._is_loop_iteration_needed(
+            mock_element
+        )
+
+        # First yield - initial execution
+        assert next(iteration_generator) is True
+
+        for _iteration_index in range(1, max_iterations):
+            assert iteration_generator.send(None) is True
+
+        assert iteration_generator.send(None) is False
+
+    def test_is_loop_iteration_needed_on_function_with_reuse_targets(
+        self, mocker
+    ):
+        """Test loop with on_function that filters targets for re-execution"""
+        orchestrator = BasicOrchestrator()
+        mock_element = MagicMock()
+        mock_element.name = "test_element"
+
+        # Mock run summary with initial targets
+        mock_summary = MagicMock()
+        mock_summary.initial_targets = ["q1", "q2", "q3"]
+        mock_element.run_summary = mock_summary
+
+        # Filter function: only reuse targets q1 and q2
+        def filter_func(element, target):
+            return target in ["q1", "q2"]
+
+        max_iterations = 5
+        mock_graph = MagicMock()
+        mock_graph._loop_conditions = {
+            "test_element": LoopCondition(
+                on_function=filter_func, max_iterations=max_iterations
+            )
+        }
+
+        mock_nx_graph = mocker.patch(
+            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            new_callable=mocker.PropertyMock,
+        )
+        mock_nx_graph.return_value.nodes = {
+            mock_element: {
+                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.pending
+            }
+        }
+
+        orchestrator._graph = mock_graph
+
+        iteration_generator = orchestrator._is_loop_iteration_needed(
+            mock_element
+        )
+
+        # Initial execution
+        assert next(iteration_generator) is True
+
+        # After first run, should continue with q1, q2
+        assert iteration_generator.send(None) is True
+
+        # Check that loop targets were set
+        assert mock_nx_graph.return_value.nodes[mock_element][
+            QualibrationGraph.LOOP_TARGETS_FIELD
+        ] == ["q1", "q2"]
+
+    def test_is_loop_iteration_needed_on_function_no_reuse_targets(self):
+        """Test loop stops when on_function filters out all targets"""
+        orchestrator = BasicOrchestrator()
+        mock_element = MagicMock()
+        mock_element.name = "test_element"
+
+        mock_summary = MagicMock()
+        mock_summary.initial_targets = ["q1", "q2", "q3"]
+        mock_element.run_summary = mock_summary
+
+        # Filter function: reject all targets
+        def filter_func(element, target):
+            return False
+
+        mock_graph = MagicMock()
+        mock_graph._loop_conditions = {
+            "test_element": LoopCondition(on_function=filter_func)
+        }
+
+        orchestrator._graph = mock_graph
+
+        iteration_generator = orchestrator._is_loop_iteration_needed(
+            mock_element
+        )
+
+        # Initial execution
+        assert next(iteration_generator) is True
+
+        # No targets to reuse, should stop
+        assert iteration_generator.send(None) is False
+
+    def test_is_loop_iteration_needed_on_generator(self):
+        """Test loop with generator function that controls iteration"""
+        orchestrator = BasicOrchestrator()
+        mock_element = MagicMock()
+        mock_element.name = "test_element"
+
+        mock_summary = MagicMock()
+        mock_summary.initial_targets = ["q1", "q2"]
+        mock_element.run_summary = mock_summary
+
+        # Generator function: accept q1 once, then stop
+        def generator_func():
+            count = 0
+            while True:
+                element, target = yield
+                if target == "q1" and count < 1:
+                    count += 1
+                    yield True
+                else:
+                    yield False
+
+        mock_graph = MagicMock()
+        mock_graph._loop_conditions = {
+            "test_element": LoopCondition(on_generator=generator_func)
+        }
+
+        orchestrator._graph = mock_graph
+
+        iteration_generator = orchestrator._is_loop_iteration_needed(
+            mock_element
+        )
+
+        # Initial execution
+        assert next(iteration_generator) is True
+        assert iteration_generator.send(None) is True
+        assert iteration_generator.send(None) is False
+
+    def test_traverse_graph_with_loop_condition(self):
+        """Integration test: Graph with a node
+        that loops based on a condition"""
+        orchestrator = BasicOrchestrator()
+
+        # Create mock node that "fails" first time, succeeds second time
+        node1 = MagicMock(spec=QualibrationNode)
+        node1.name = "looping_node"
+        node1.description = None
+        node1.parameters = MagicMock(spec=RunnableParameters)
+        node1.outcomes = {}
+        node1.snapshot_idx = None
+
+        # Track execution count
+        execution_count = [0]
+
+        # First run: some targets fail
+        summary1 = MagicMock(spec=NodeRunSummary)
+        summary1.successful_targets = ["q1"]
+        summary1.failed_targets = ["q2"]
+        summary1.initial_targets = ["q1", "q2"]
+
+        # Second run: all succeed
+        summary2 = MagicMock(spec=NodeRunSummary)
+        summary2.successful_targets = ["q2"]
+        summary2.failed_targets = []
+        summary2.initial_targets = ["q2"]
+
+        def node_run(interactive=False, **kwargs):
+            execution_count[0] += 1
+            if execution_count[0] == 1:
+                node1.run_summary = summary1
+                return summary1
+            else:
+                node1.run_summary = summary2
+                return summary2
+
+        node1.run = node_run
+
+        mock_graph = MagicMock(spec=QualibrationGraph)
+        mock_graph.name = "test_graph"
+
+        # Loop condition: retry failed targets
+        def should_retry(element, target):
+            return target in element.run_summary.failed_targets
+
+        mock_graph._loop_conditions = {
+            "looping_node": LoopCondition(
+                on_function=should_retry, max_iterations=5
+            )
+        }
+
+        # Setup parameters
+        mock_params = MagicMock()
+        node1_params = MagicMock()
+        node1_params.targets = None
+        node1_params.model_dump.return_value = {}
+        mock_params.looping_node = node1_params
+        mock_graph.full_parameters.nodes = mock_params
+
+        # Create NetworkX graph
+        import networkx as nx
+
+        nx_graph = nx.DiGraph()
+        nx_graph.add_node(node1, status=ElementRunStatus.pending, retries=0)
+        mock_graph._graph = nx_graph
+
+        # Run traversal
+        orchestrator.traverse_graph(mock_graph, ["q1", "q2"])
+
+        # Node should have been executed twice (initial + 1 retry for q2)
+        assert execution_count[0] == 2
+
+        # Final status should be finished
+        assert (
+            nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD]
+            == ElementRunStatus.finished
+        )
 
     def test_traverse_graph_with_success_and_failure_paths(self, mocker):
         """
