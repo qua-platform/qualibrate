@@ -1,10 +1,8 @@
 from typing import Any
 from unittest.mock import Mock
-
 import pytest
-
-from qualibrate import QualibrationNode
-from qualibrate.parameters import NodeParameters
+from qualibrate.qualibration_node import QualibrationNode
+from qualibrate import NodeParameters
 
 
 class MockQubit:
