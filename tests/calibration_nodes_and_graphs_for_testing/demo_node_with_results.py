@@ -22,10 +22,6 @@ def simulate_calibration(node: QualibrationNode):
         if target == "q1":
             # q1 succeeds
             results[target] = {"fidelity": 0.98, "error_type": None}
-            # node.outcomes = {
-            #     "q1": "success",
-            #     "fidelity": 0.98, "error_type": None
-            # }
             node.outcomes[target] = Outcome.SUCCESSFUL
         elif target == "q2":
             # q2 fails with retriable error
