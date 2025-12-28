@@ -13,6 +13,7 @@ from qualibrate.models.execution_history import (
     ItemMetadata,
 )
 from qualibrate.models.node_status import ElementRunStatus
+from qualibrate.models.operational_condition import OperationalCondition
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_summary.base import BaseRunSummary
 from qualibrate.models.run_summary.run_error import RunError
@@ -125,6 +126,12 @@ class BasicOrchestrator(
         """
         while not self._execution_queue.empty():
             element_to_run = self._execution_queue.get()
+            # Skip if already finished (handles duplicate queue entries)
+            # for cases like diamond cases where a-> b,c b,c->d
+            # d will be twice in queue and we dont want to execute it twice
+            if self.check_node_finished(element_to_run):
+                continue
+
             if all(
                 map(
                     self.check_node_finished, self.nx_graph.pred[element_to_run]
@@ -211,8 +218,12 @@ class BasicOrchestrator(
                 f"Can't set out targets of {element} without run summary"
             )
 
+        # self.nx_graph.edges[element, successor]["operational_condition"]
+        # is of type OperationalCondition
         has_on_failed_successors = any(
-            self.nx_graph.edges[element, successor]["scenario"]
+            self.nx_graph.edges[element, successor][
+                QualibrationGraph.RUN_SCENARIO_FIELD
+            ]
             == Outcome.FAILED
             for successor in self.nx_graph.successors(element)
         )
@@ -225,9 +236,17 @@ class BasicOrchestrator(
                     QualibrationGraph.EDGE_TARGETS_FIELD
                 ] = (
                     successful_out_targets
-                    if self.nx_graph.edges[element, successor]["scenario"]
+                    if self.nx_graph.edges[element, successor][
+                        QualibrationGraph.RUN_SCENARIO_FIELD
+                    ]
                     == Outcome.SUCCESSFUL
-                    else failed_out_targets
+                    else self._execute_condition(
+                        self.nx_graph.edges[element, successor][
+                            QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+                        ],
+                        element,
+                        failed_out_targets,
+                    )
                 )
         else:
             successful_out_targets = (
@@ -240,6 +259,31 @@ class BasicOrchestrator(
                 self.nx_graph.edges[element, successor][
                     QualibrationGraph.EDGE_TARGETS_FIELD
                 ] = successful_out_targets
+
+    def _execute_condition(
+        self,
+        operational_condition: OperationalCondition[GraphElementTypeVar],
+        element: GraphElementTypeVar,
+        targets: list[TargetType],
+    ) -> list[TargetType]:
+        if operational_condition.on_generator is not None:
+            executed_condition = operational_condition.on_generator()
+            # priming the generator, we need to get to the point
+            # where the generator expects out two variables
+            executed_condition.send(None)
+            return [
+                target
+                for target in targets
+                if executed_condition.send((element, target))
+            ]
+        elif operational_condition.on_function is not None:
+            return [
+                target
+                for target in targets
+                if operational_condition.on_function(element, target)
+            ]
+        # No condition specified, return all targets
+        return targets
 
     def _execute_loop_iteration(
         self,
@@ -510,19 +554,28 @@ class BasicOrchestrator(
         elements_without_successors = list(
             filter(lambda n: len(successors[n]) == 0, successors.keys())
         )
-        for target in self.initial_targets or []:
+        final_targets = {
+            target
+            for element in elements_without_successors
+            for target in element.outcomes
+        }
+        skipped_targets = set(self.initial_targets or []) - final_targets
+        for target in final_targets:
+            outcomes = [
+                node.outcomes.get(target, Outcome.SUCCESSFUL)
+                for node in elements_without_successors
+            ]
             successful = all(
                 map(
                     lambda outcome: outcome == Outcome.SUCCESSFUL,
-                    [
-                        node.outcomes.get(target, Outcome.FAILED)
-                        for node in elements_without_successors
-                    ],
+                    outcomes,
                 )
             )
             self.final_outcomes[target] = (
                 Outcome.SUCCESSFUL if successful else Outcome.FAILED
             )
+        for skipped_target in skipped_targets:
+            self.final_outcomes[skipped_target] = Outcome.FAILED
 
 
 def _current_and_predecessors_statuses(
