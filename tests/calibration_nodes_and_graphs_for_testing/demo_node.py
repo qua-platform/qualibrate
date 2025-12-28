@@ -1,7 +1,5 @@
 from enum import Enum
 
-from pydantic import Field
-
 from qualibrate import NodeParameters, QualibrationNode
 from qualibrate.models.outcome import Outcome
 
