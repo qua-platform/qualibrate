@@ -558,14 +558,15 @@ class BasicOrchestrator(
             for target in element.outcomes
         }
         skipped_targets = set(self.initial_targets or []) - final_targets
-        for target in final_targets or []:
+        for target in final_targets:
+            outcomes = [
+                node.outcomes.get(target, Outcome.SUCCESSFUL)
+                for node in elements_without_successors
+            ]
             successful = all(
                 map(
                     lambda outcome: outcome == Outcome.SUCCESSFUL,
-                    [
-                        node.outcomes.get(target, Outcome.SUCCESSFUL)
-                        for node in elements_without_successors
-                    ],
+                    outcomes,
                 )
             )
             self.final_outcomes[target] = (
