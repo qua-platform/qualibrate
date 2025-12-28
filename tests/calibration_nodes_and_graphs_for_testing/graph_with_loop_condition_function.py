@@ -9,7 +9,7 @@ def check_fidelity(node: QualibrationNode, target: str):
 
 
 with QualibrationGraph.build(
-    "graph_with_loop",
+    "graph_with_loop_with_function",
 ) as graph:
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node"))
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node2"))

@@ -954,7 +954,8 @@ def test_execute_condition_with_generator():
 
 
 def test_set_out_targets_with_operational_condition_on_failure(mocker):
-    """Test _set_out_targets routes targets through operational condition on failed edge"""
+    """Test _set_out_targets routes targets through
+    operational condition on failed edge"""
     orchestrator = BasicOrchestrator()
 
     mock_node = MagicMock()
@@ -1018,7 +1019,8 @@ def test_set_out_targets_with_operational_condition_on_failure(mocker):
         "q2",
     ]
 
-    # Failed edge should get failed targets filtered by condition (q3 has error_count=2 <= 3)
+    # Failed edge should get failed targets filtered by condition
+    # (q3 has error_count=2 <= 3)
     assert failure_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q3"]
 
 
@@ -1056,7 +1058,8 @@ def test_connect_on_failure_with_condition_lambda_function(
 def test_connect_on_failure_with_condition_generator(
     pre_setup_graph_init, mock_library
 ):
-    """Test that connect_on_failure() with generator condition works correctly"""
+    """Test that connect_on_failure() with
+    generator condition works correctly"""
     (nodes, _, _, _) = pre_setup_graph_init
 
     def condition_gen():
@@ -1088,7 +1091,8 @@ def test_connect_on_failure_with_condition_generator(
 
 
 def test_get_next_element_skips_already_finished_node(mocker):
-    """Test that get_next_element skips nodes that are already finished (duplicate queue entries)"""
+    """Test that get_next_element skips nodes
+    that are already finished (duplicate queue entries)"""
     orchestrator = BasicOrchestrator()
 
     mock_finished_node = MagicMock()
@@ -1123,7 +1127,8 @@ def test_get_next_element_skips_already_finished_node(mocker):
 
 
 def test_get_next_element_skips_node_with_unfinished_predecessors(mocker):
-    """Test that get_next_element skips node if any predecessor is not finished"""
+    """Test that get_next_element skips
+    node if any predecessor is not finished"""
     orchestrator = BasicOrchestrator()
 
     mock_node = MagicMock()
@@ -1140,11 +1145,10 @@ def test_get_next_element_skips_node_with_unfinished_predecessors(mocker):
     )
     mock_nx_graph.return_value.pred = {mock_node: [mock_pred1, mock_pred2]}
 
-    # Mock check_node_finished: pred1 finished, pred2 not finished, node not finished
+    # Mock check_node_finished: pred1 finished,
+    # pred2 not finished, node not finished
     def check_finished(node):
-        if node == mock_pred1:
-            return True
-        return False
+        return node == mock_pred1
 
     mocker.patch.object(
         orchestrator, "check_node_finished", side_effect=check_finished
@@ -1159,7 +1163,8 @@ def test_get_next_element_skips_node_with_unfinished_predecessors(mocker):
 
 
 def test_execute_condition_with_empty_condition_returns_all_targets():
-    """Test _execute_condition with empty operational condition (no function, no generator) returns all targets"""
+    """Test _execute_condition with empty operational condition
+    (no function, no generator) returns all targets"""
 
     orchestrator = BasicOrchestrator()
 
@@ -1176,7 +1181,8 @@ def test_execute_condition_with_empty_condition_returns_all_targets():
 
 
 def test_set_out_targets_with_empty_operational_condition_on_failure(mocker):
-    """Test that empty operational condition on failed edge passes all failed targets"""
+    """Test that empty operational condition
+    on failed edge passes all failed targets"""
     orchestrator = BasicOrchestrator()
 
     mock_node = MagicMock()
@@ -1236,7 +1242,8 @@ def test_set_out_targets_with_empty_operational_condition_on_failure(mocker):
 
 
 def test_get_next_element_returns_node_when_all_predecessors_finished(mocker):
-    """Test that get_next_element returns node when all predecessors are finished"""
+    """Test that get_next_element returns
+    node when all predecessors are finished"""
     orchestrator = BasicOrchestrator()
 
     mock_node = MagicMock()
@@ -1252,9 +1259,7 @@ def test_get_next_element_returns_node_when_all_predecessors_finished(mocker):
     mock_nx_graph.return_value.pred = {mock_node: [mock_pred1, mock_pred2]}
 
     def check_finished(node):
-        if node == mock_node:
-            return False  # The node itself is not finished
-        return True
+        return node != mock_node
 
     mocker.patch.object(
         orchestrator, "check_node_finished", side_effect=check_finished
@@ -1376,3 +1381,87 @@ def test_set_out_targets_multiple_failed_edges_with_different_conditions(
 
     # Success edge should be empty
     assert success_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == []
+
+
+class TestFillFinalOutcomes:
+    def setup_method(self):
+        # Common setup for all tests
+        self.orchestrator = BasicOrchestrator()
+        self.orchestrator.final_outcomes = {}
+        self.orchestrator.initial_targets = ["t1", "t2", "t3", "t4"]
+
+    def make_node(self, outcomes):
+        node = MagicMock()
+        node.outcomes = outcomes  # dict: {target: Outcome}
+        return node
+
+    def test_all_targets_successful(self, mocker):
+        """All targets reach leaves and succeed."""
+        leaf1 = self.make_node(
+            {"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL}
+        )
+        leaf2 = self.make_node(
+            {"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL}
+        )
+
+        # Patch the nx_graph property
+        mock_nx_graph = mocker.patch.object(
+            self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock
+        )
+
+        mock_graph = MagicMock()
+        mock_graph.succ = {leaf1: [], leaf2: []}
+        mock_nx_graph.return_value = mock_graph
+
+        self.orchestrator._fill_final_outcomes()
+
+        assert self.orchestrator.final_outcomes["t1"] == Outcome.SUCCESSFUL
+        assert self.orchestrator.final_outcomes["t2"] == Outcome.SUCCESSFUL
+        # t3 and t4 never reached any leaf → fail
+        assert self.orchestrator.final_outcomes["t3"] == Outcome.FAILED
+        assert self.orchestrator.final_outcomes["t4"] == Outcome.FAILED
+
+    def test_some_targets_fail(self, mocker):
+        """Some targets fail on at least one leaf node."""
+        leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.FAILED})
+        leaf2 = self.make_node(
+            {"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL}
+        )
+
+        # Patch the nx_graph property
+        mock_nx_graph = mocker.patch.object(
+            self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock
+        )
+
+        mock_graph = MagicMock()
+        mock_graph.succ = {leaf1: [], leaf2: []}
+        mock_nx_graph.return_value = mock_graph
+
+        self.orchestrator._fill_final_outcomes()
+
+        # t1 succeeds on all → successful
+        assert self.orchestrator.final_outcomes["t1"] == Outcome.SUCCESSFUL
+        # t2 fails on one leaf → failed
+        assert self.orchestrator.final_outcomes["t2"] == Outcome.FAILED
+        # t3 and t4 never reached any leaf → fail
+        assert self.orchestrator.final_outcomes["t3"] == Outcome.FAILED
+        assert self.orchestrator.final_outcomes["t4"] == Outcome.FAILED
+
+    def test_target_missing_from_leaf_outcomes(self, mocker):
+        """Target missing from leaf outcomes defaults to SUCCESSFUL."""
+        leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL})
+
+        mock_nx_graph = mocker.patch.object(
+            self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock
+        )
+
+        mock_graph = MagicMock()
+        mock_graph.succ = {leaf1: []}
+        mock_nx_graph.return_value = mock_graph
+
+        self.orchestrator.initial_targets = ["t1", "t2"]
+        self.orchestrator._fill_final_outcomes()
+
+        assert self.orchestrator.final_outcomes["t1"] == Outcome.SUCCESSFUL
+        # t2 never appears in any leaf node outcomes
+        assert self.orchestrator.final_outcomes["t2"] == Outcome.FAILED

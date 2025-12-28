@@ -182,7 +182,8 @@ def test_traverse_graph_with_conditional_failed_edge_filters_targets():
     Expected:
     - node1 runs with all targets (set by orchestrator)
     - Successful targets go to node2_success (set by orchestrator)
-    - Failed targets are filtered by condition before going to node3_retry (set by orchestrator)
+    - Failed targets are filtered by condition
+     before going to node3_retry (set by orchestrator)
     """
     orchestrator = BasicOrchestrator(skip_failed=False)
 
