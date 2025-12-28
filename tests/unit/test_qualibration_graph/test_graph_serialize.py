@@ -130,45 +130,47 @@ def test_serialize_with_nested_graphs(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
     g = qualibration_lib.graphs["workflow_top"]
+
     assert g.serialize_graph_representation() == {
         "nodes": [
             {
-                "id": 1,
-                "loop": False,
+                "name": "subg",
                 "data": {
                     "label": "subg",
                     "subgraph": {
                         "nodes": [
                             {
-                                "id": 3,
-                                "loop": False,
+                                "name": "test_cal",
                                 "data": {"label": "test_cal"},
                             },
                             {
-                                "id": 4,
-                                "loop": False,
+                                "name": "one_more_node",
                                 "data": {"label": "one_more_node"},
                             },
                         ],
                         "edges": [
                             {
-                                "id": "3->4",
-                                "source": 3,
-                                "target": 4,
-                                "data": {"condition": True},
+                                "id": "test_cal->one_more_node",
+                                "source": "test_cal",
+                                "target": "one_more_node",
+                                "data": {
+                                    "connect_on": True,
+                                },
                             }
                         ],
                     },
                 },
             },
-            {"id": 2, "loop": False, "data": {"label": "test_cal"}},
+            {"name": "test_cal", "data": {"label": "test_cal"}},
         ],
         "edges": [
             {
-                "id": "1->2",
-                "source": 1,
-                "target": 2,
-                "data": {"condition": True},
+                "id": "subg->test_cal",
+                "source": "subg",
+                "target": "test_cal",
+                "data": {
+                    "connect_on": True,
+                },
             }
         ],
     }
@@ -178,45 +180,154 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
     qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
 ):
     g = qualibration_lib.graphs["workflow_top_connect_on_failure"]
+
     assert g.serialize_graph_representation() == {
         "nodes": [
             {
-                "id": 1,
-                "loop": False,
+                "name": "subg",
                 "data": {
                     "label": "subg",
                     "subgraph": {
                         "nodes": [
                             {
-                                "id": 3,
-                                "loop": False,
+                                "name": "test_cal",
                                 "data": {"label": "test_cal"},
                             },
                             {
-                                "id": 4,
-                                "loop": False,
+                                "name": "one_more_node",
                                 "data": {"label": "one_more_node"},
                             },
                         ],
                         "edges": [
                             {
-                                "id": "3->4",
-                                "source": 3,
-                                "target": 4,
-                                "data": {"condition": False},
+                                "id": "test_cal->one_more_node",
+                                "source": "test_cal",
+                                "target": "one_more_node",
+                                "data": {
+                                    "connect_on": False,
+                                },
                             }
                         ],
                     },
                 },
             },
-            {"id": 2, "loop": False, "data": {"label": "test_cal"}},
+            {"name": "test_cal", "data": {"label": "test_cal"}},
         ],
         "edges": [
             {
-                "id": "1->2",
-                "source": 1,
-                "target": 2,
-                "data": {"condition": True},
+                "id": "subg->test_cal",
+                "source": "subg",
+                "target": "test_cal",
+                "data": {
+                    "connect_on": True,
+                },
             }
         ],
     }
+
+
+def test_serialize_graph_with_operational_condition_and_loop(
+    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
+):
+    """Test serialization of graph with operational conditions and loop."""
+    g = qualibration_lib.graphs["graph_with_operational_condition_and_loop"]
+
+    serialized = g.serialize_graph_representation()
+
+    # Should have 4 nodes
+    assert len(serialized["nodes"]) == 4
+
+    # Should have 4 edges (1 success, 2 failure, 1 loop self-edge)
+    assert len(serialized["edges"]) == 4
+
+    # Find node (the one with loop)
+    node_data = next(
+        n for n in serialized["nodes"] if n["data"]["label"] == "node"
+    )
+    node_name = node_data["name"]
+
+    # Find edges
+    edges = serialized["edges"]
+
+    # Find the loop self-edge (node -> node)
+    loop_edge = next((e for e in edges if e["source"] == e["target"]), None)
+    assert loop_edge is not None
+    assert loop_edge["id"] == f"{node_name}->{node_name}"
+    # Check for loop-specific fields
+    # (adjust based on actual _add_loop_to_edge implementation)
+    assert "data" in loop_edge
+    # The loop edge should have max_iterations field
+    assert "loop" in loop_edge["data"]
+    assert "max_iterations" in loop_edge["data"]["loop"]
+
+    # Find success edge (node -> node4)
+    node4_data = next(
+        n for n in serialized["nodes"] if n["data"]["label"] == "node4"
+    )
+    node4_name = node4_data["name"]
+    success_edge = next(
+        e
+        for e in edges
+        if e["source"] == node_name and e["target"] == node4_name
+    )
+    assert success_edge["data"]["connect_on"] is True  # Success path
+
+    # Find failure edges with conditions
+    node2_data = next(
+        n for n in serialized["nodes"] if n["data"]["label"] == "node2"
+    )
+    node2_name = node2_data["name"]
+    node2_edge = next(
+        e
+        for e in edges
+        if e["source"] == node_name and e["target"] == node2_name
+    )
+    assert node2_edge["data"]["connect_on"] is False  # Failure path
+    assert "condition" in node2_edge["data"]
+    assert node2_edge["data"]["condition"]["label"] == "<lambda>"
+    assert "description" in node2_edge["data"]["condition"]
+
+    node3_data = next(
+        n for n in serialized["nodes"] if n["data"]["label"] == "node3"
+    )
+    node3_name = node3_data["name"]
+    node3_edge = next(
+        e
+        for e in edges
+        if e["source"] == node_name and e["target"] == node3_name
+    )
+    assert node3_edge["data"]["connect_on"] is False  # Failure path
+    assert "label" in node3_edge["data"]["condition"]
+    assert (
+        node3_edge["data"]["condition"]["label"] == "<lambda>"
+    )  # Lambda function
+
+
+def test_serialize_graph_with_multiple_operational_conditions(
+    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
+):
+    """Test that both failure edges with different
+    conditions are properly serialized."""
+    g = qualibration_lib.graphs["graph_with_operational_condition_and_loop"]
+
+    serialized = g.serialize_graph_representation()
+    edges = serialized["edges"]
+
+    # Count edges by type (excluding self-loop)
+    non_loop_edges = [e for e in edges if e["source"] != e["target"]]
+    success_edges = [
+        e for e in non_loop_edges if e["data"]["connect_on"] is True
+    ]
+    failure_edges = [
+        e for e in non_loop_edges if e["data"]["connect_on"] is False
+    ]
+
+    assert len(success_edges) == 1
+    assert len(failure_edges) == 2
+
+    # Both failure edges should have operational conditions
+    for edge in failure_edges:
+        # assert edge["data"]["operational_condition"] is True
+        assert "label" in edge["data"]["condition"]
+        assert "description" in edge["data"]["condition"]
+        assert edge["data"]["condition"]["description"] is not None

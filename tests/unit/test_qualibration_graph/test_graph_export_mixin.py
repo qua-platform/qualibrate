@@ -1,4 +1,5 @@
 from qualibrate.models.node_status import ElementRunStatus
+from qualibrate.models.operational_condition import OperationalCondition
 from qualibrate.models.outcome import Outcome
 from qualibrate.parameters import (
     GraphParameters,
@@ -39,8 +40,20 @@ class TestGraphExportMixin:
             ],
             # this is standard name so kept as is
             "adjacency": [
-                [{"id": "one_more_node", "scenario": Outcome.SUCCESSFUL}],
-                [{"id": "test_cal", "scenario": Outcome.SUCCESSFUL}],
+                [
+                    {
+                        "id": "one_more_node",
+                        QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL,
+                        QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition(),
+                    },
+                ],
+                [
+                    {
+                        "id": "test_cal",
+                        QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL,
+                        QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition(),
+                    }
+                ],
                 [],
             ],
         }
