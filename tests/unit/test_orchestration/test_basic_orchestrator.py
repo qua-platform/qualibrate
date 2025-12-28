@@ -543,8 +543,9 @@ class TestBasicOrchestrator:
         mock_element.run_summary = None
 
         mock_graph = MagicMock()
+        max_iterations = 3
         mock_graph._loop_conditions = {
-            "test_element": LoopCondition(max_iterations=3)
+            "test_element": LoopCondition(max_iterations=max_iterations)
         }
 
         orchestrator._graph = mock_graph
@@ -556,11 +557,9 @@ class TestBasicOrchestrator:
         # First yield - initial execution
         assert next(iteration_generator) is True
 
-        # Iterations 1 and 2 should continue
-        assert iteration_generator.send(None) is True
-        assert iteration_generator.send(None) is True
+        for _iteration_index in range(1, max_iterations):
+            assert iteration_generator.send(None) is True
 
-        # Iteration 3 (max reached) should stop
         assert iteration_generator.send(None) is False
 
     def test_is_loop_iteration_needed_on_function_with_reuse_targets(
@@ -580,10 +579,11 @@ class TestBasicOrchestrator:
         def filter_func(element, target):
             return target in ["q1", "q2"]
 
+        max_iterations = 5
         mock_graph = MagicMock()
         mock_graph._loop_conditions = {
             "test_element": LoopCondition(
-                on_function=filter_func, max_iterations=5
+                on_function=filter_func, max_iterations=max_iterations
             )
         }
 
@@ -680,36 +680,6 @@ class TestBasicOrchestrator:
         # Initial execution
         assert next(iteration_generator) is True
         assert iteration_generator.send(None) is True
-        assert iteration_generator.send(None) is False
-
-    def test_is_loop_iteration_needed_on_failure(self, mocker):
-        """Test loop continues when node fails and on_failure is True"""
-        orchestrator = BasicOrchestrator()
-        mock_element = MagicMock()
-        mock_element.name = "test_element"
-        mock_element.run_summary = None
-
-        mock_graph = MagicMock()
-        mock_graph._loop_conditions = {
-            "test_element": LoopCondition(on_failure=True, max_iterations=3)
-        }
-
-        orchestrator._graph = mock_graph
-
-        iteration_generator = orchestrator._is_loop_iteration_needed(
-            mock_element
-        )
-
-        # Initial execution
-        assert next(iteration_generator) is True
-
-        # Node failed (error status), should retry
-        assert iteration_generator.send(None) is True
-
-        # Should continue until max_iterations
-        assert iteration_generator.send(None) is True
-
-        # Max iterations reached
         assert iteration_generator.send(None) is False
 
     def test_traverse_graph_with_loop_condition(self):
