@@ -1,7 +1,6 @@
-import React, { MouseEvent } from "react";
+import React from "react";
 import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath } from "@xyflow/react";
-// eslint-disable-next-line css-modules/no-unused-class
-import styles from "../styles.module.scss";
+import styles from "./ConditionalEdge.module.scss";
 import { EdgeWithData } from "../../../../stores/GraphStores/GraphLibrary";
 
 export interface ConditionalEdgeProps extends EdgeProps<EdgeWithData> {
@@ -9,7 +8,7 @@ export interface ConditionalEdgeProps extends EdgeProps<EdgeWithData> {
 }
 
 const ConditionalEdge = (props: ConditionalEdgeProps) => {
-  const { id, data, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, markerEnd, style, onConditionClick } = props;
+  const { id, data, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, markerEnd, style } = props;
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -20,18 +19,12 @@ const ConditionalEdge = (props: ConditionalEdgeProps) => {
     targetPosition,
   });
 
-  const handleOnClick = (e: MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    onConditionClick?.(props as EdgeWithData);
-  };
-
   return (
     <>
       <BaseEdge id={id} path={edgePath} markerEnd={markerEnd} style={style} />
       <EdgeLabelRenderer>
         <div
           data-testid={`conditional-edge-${data?.condition?.label ?? "condition"}`}
-          onClick={handleOnClick}
           className={styles.conditionLabel}
           style={{
             transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,

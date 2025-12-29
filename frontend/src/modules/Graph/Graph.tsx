@@ -17,7 +17,6 @@ import {
   Background,
   ConnectionLineType,
   EdgeChange,
-  EdgeProps,
   NodeChange,
   ReactFlow,
   ReactFlowProvider,
@@ -25,10 +24,9 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import useGraphData from "./hooks";
-import componentTypes, { CONDITIONAL_EDGE_TYPE, edgeOptions } from "./components";
-import ConditionalEdge from "./components/ConditionalEdge/ConditionalEdge";
+import componentTypes, { edgeOptions } from "./components";
 import { NodeWithData, EdgeWithData } from "../../stores/GraphStores/GraphLibrary";
-import ConditionalEdgePopUp from "./components/ConditionalEdge/ConditionalEdgePopUp";
+import EdgePopUp from "./components/EdgePopup/EdgePopUp";
 
 
 interface IProps {
@@ -63,14 +61,10 @@ const Graph = ({
   const { fitView } = useReactFlow();
   const [selectedEdge, setSelectedEdge] = useState<EdgeWithData | null>(null);
 
-  const handleConditionClick = useCallback((edge: EdgeWithData) => {
-    setSelectedEdge(edge);
+  const handleEdgeClick = useCallback((evt: MouseEvent, edge: EdgeWithData) => {
+    if (edge.data?.condition?.label || edge.data?.loop)
+      setSelectedEdge(edge);
   }, []);
-
-  const edgeTypes = {
-    ...componentTypes.edgeTypes,
-    [CONDITIONAL_EDGE_TYPE]: (props: EdgeProps<EdgeWithData>) => <ConditionalEdge {...props} onConditionClick={handleConditionClick} />,
-  };
 
   useLayoutEffect(() => {
     fitView({
@@ -136,13 +130,12 @@ const Graph = ({
         nodes={nodes}
         edges={edges}
         {...componentTypes}
-        nodeTypes={componentTypes.nodeTypes}
-        edgeTypes={edgeTypes}
         connectionLineType={ConnectionLineType.SmoothStep}
         onPaneClick={handleBackgroundClick}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
+        onEdgeClick={handleEdgeClick}
         minZoom={0.1}
         defaultEdgeOptions={edgeOptions}
         fitView
@@ -150,13 +143,12 @@ const Graph = ({
         <Background color={backgroundColor} bgColor={backgroundColor} />
       </ReactFlow>
       {selectedEdge && (
-        <ConditionalEdgePopUp
+        <EdgePopUp
           open={true}
           onClose={handleClosePopup}
           source={selectedEdge.source}
           target={selectedEdge.target}
-          label={selectedEdge.data?.condition?.label}
-          description={selectedEdge.data?.condition?.content}
+          info={selectedEdge.data?.condition || selectedEdge.data?.loop}
         />
       )}
     </div>

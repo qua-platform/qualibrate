@@ -1,0 +1,41 @@
+.defaultNode {
+  width: 40px;
+  height: 40px;
+  outline: 2px solid #40464d;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  background-color: #161b22;
+  transition: all 0.2s;
+
+  &:hover {
+    outline-color: #58a6ff;
+  }
+
+  .defaultNodeLabel {
+    color: #A8A6A6;
+    font-weight: 400;
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .defaultNodeHandle {
+    width: 0;
+    height: 0;
+    visibility: hidden;
+  }
+
+  &.selected {
+    outline-color: #58a6ff;
+    border-width: 1px;
+    font-weight: 1;
+    color: #FFF;
+  }
+
+  &.subgraph {
+    transition: background-position 0s;
+    background: url("/assets/icons/nodes.svg") center no-repeat, #161b22;
+  }
+}

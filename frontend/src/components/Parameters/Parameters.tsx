@@ -48,7 +48,7 @@ export const Parameters: React.FC<IProps> = ({
   const [expanded, setExpanded] = React.useState<boolean>(selectedNodeNameInWorkflow === title || parametersExpanded);
 
   useEffect(() => {
-    if (selectedNodeNameInWorkflow === title) {
+    if (selectedNodeNameInWorkflow === title || parametersExpanded) {
       setExpanded(true);
     } else {
       setExpanded(false);
