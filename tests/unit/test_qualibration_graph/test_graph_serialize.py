@@ -197,6 +197,10 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
                                 "name": "one_more_node",
                                 "data": {"label": "one_more_node"},
                             },
+                            {
+                                "name": "test_node",
+                                "data": {"label": "test_node"},
+                            },
                         ],
                         "edges": [
                             {
@@ -206,7 +210,15 @@ def test_serialize_with_nested_graphs_and_connect_on_failure(
                                 "data": {
                                     "connect_on": False,
                                 },
-                            }
+                            },
+                            {
+                                "id": "test_cal->test_node",
+                                "source": "test_cal",
+                                "target": "test_node",
+                                "data": {
+                                    "connect_on": True,
+                                },
+                            },
                         ],
                     },
                 },

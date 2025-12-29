@@ -316,15 +316,23 @@ class QualibrationGraph(
         to:
         - Add elements to the graph based on their names.
         - Add edges (connections) between elements if both elements exist.
+        - Validate that every element with outgoing connections has at least one
+          connection on a successful outcome.
 
         Raises:
             ValueError: If a connection references an element that has not been
                 registered. The error message includes the offending element
                 name and the available element names.
+            ValueError: If an element has outgoing connections but no connection
+                defined for a successful outcome.
         """
 
         for element_name in self._elements:
             self._add_element_to_nx_by_name(element_name)
+
+        # Track which nodes have success connections
+        nodes_with_success = set()
+        nodes_with_any_connection = set()
 
         for source, destination in self._connectivity:
             try:
@@ -344,17 +352,33 @@ class QualibrationGraph(
                     "registered. Available element names: "
                     f"{tuple(self._elements.keys())}"
                 ) from ex
+
+            # Track connections
+            nodes_with_any_connection.add(source)
+            edge_data = self._connectivity[(source, destination)]
+            if edge_data[self.RUN_SCENARIO_FIELD] == Outcome.SUCCESSFUL:
+                nodes_with_success.add(source)
+
             if not self._graph.has_edge(source_element, destination_element):
                 self._graph.add_edge(
                     source_element,
                     destination_element,
-                    scenario=self._connectivity[(source, destination)][
-                        QualibrationGraph.RUN_SCENARIO_FIELD
+                    scenario=edge_data[self.RUN_SCENARIO_FIELD],
+                    operational_condition=edge_data[
+                        self.OPERATIONAL_CONDITION_FIELD
                     ],
-                    operational_condition=self._connectivity[
-                        (source, destination)
-                    ][QualibrationGraph.OPERATIONAL_CONDITION_FIELD],
                 )
+
+        # Validate that all nodes with connections have at least one success path
+        nodes_without_success = nodes_with_any_connection - nodes_with_success
+        if nodes_without_success:
+            raise ValueError(
+                f"The following nodes in graph '{self.name}' have outgoing "
+                f"connections but no success path: {sorted(nodes_without_success)}. "
+                f"Every node with outgoing edges must have at least one connection "
+                f"on successful outcome."
+            )
+
         self._validate_graph_acyclic()
 
     @staticmethod
