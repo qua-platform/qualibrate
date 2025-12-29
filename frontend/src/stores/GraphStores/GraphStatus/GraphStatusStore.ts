@@ -28,11 +28,15 @@ export interface Measurement {
 interface GraphStatusState {
   allMeasurements?: Measurement[];
   trackLatest: boolean;
+  subgraphBreadcrumbs: string[]
+  selectedNodeNameInWorkflow?: string
 }
 
 const initialGraphStatusState: GraphStatusState = {
   allMeasurements: [],
   trackLatest: false,
+  subgraphBreadcrumbs: [],
+  selectedNodeNameInWorkflow: undefined,
 };
 
 const graphStatusSlice = createSlice({
@@ -45,6 +49,23 @@ const graphStatusSlice = createSlice({
     },
     setTrackLatest: (state, action) => {
       state.trackLatest = action.payload;
+    },
+    setSelectedNodeNameInWorkflow: (state, action) => {
+      state.selectedNodeNameInWorkflow = action.payload;
+    },
+    setSubgraphBreadcrumbs: (state, action) => {
+      state.subgraphBreadcrumbs = action.payload;
+    },
+    setSubgraphForward: (state, action) => {
+      state.subgraphBreadcrumbs = state.subgraphBreadcrumbs
+        ? [ ...state.subgraphBreadcrumbs, action.payload ]
+        : [ action.payload ];
+    },
+    setSubgraphBack: (state, action) => {
+      state.subgraphBreadcrumbs.splice(
+        action.payload,
+        state.subgraphBreadcrumbs.length
+      );
     },
   },
 });

@@ -16,14 +16,14 @@ import styles from "./GraphStatus.module.scss";
 import { Results } from "../../components";
 import { MeasurementHistory } from "./components/MeasurementHistory/MeasurementHistory";
 import { MeasurementElementGraph } from "./components/MeasurementElementGraph/MeasurementElementGraph";
-import { getAllMeasurements, fetchAllMeasurements, setTrackLatest, GlobalParameterStructure } from "../../stores/GraphStores/GraphStatus";
+import { getAllMeasurements, fetchAllMeasurements, setTrackLatest, GlobalParameterStructure, getGraphStatuSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphStatus";
 import { useRootDispatch } from "../../stores";
-import { getSelectedNodeNameInWorkflow, getWorkflowGraphNodes, setSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphCommon";
 import { getLastRunError, getLastRunNodeName } from "../../stores/GraphStores/GraphLibrary";
 import { getRunStatusGraphName, getRunStatusGraphTotalNodes } from "../../stores/WebSocketStore";
 import { getResult, fetchOneSnapshot, setClickedForSnapshotSelection, setDiffData, setResult, setSelectedSnapshotId } from "../../stores/SnapshotsStore";
 import { getActivePage } from "../../stores/NavigationStore";
 import { GRAPH_STATUS_KEY } from "../AppRoutes";
+import { setGraphStatusSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphStatus/actions";
 
 export interface Measurement {
   created_at?: string;
@@ -45,13 +45,13 @@ export interface Measurement {
 
 const GraphStatus = () => {
   const dispatch = useRootDispatch();
-  const nodes = useSelector(getWorkflowGraphNodes);
+  // const nodes = useSelector(getWorkflowGraphNodes);
   const activePage = useSelector(getActivePage);
   const allMeasurements = useSelector(
     getAllMeasurements,
     (prev?: Measurement[], current?: Measurement[]) => JSON.stringify(prev) === JSON.stringify(current)
   );
-  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
+  const selectedNodeNameInWorkflow = useSelector(getGraphStatuSelectedNodeNameInWorkflow);
   const runStatusGraphName = useSelector(getRunStatusGraphName);
   const runStatusGraphTotalNodes = useSelector(getRunStatusGraphTotalNodes);
   const lastRunNodeName = useSelector(getLastRunNodeName);
@@ -82,14 +82,15 @@ const GraphStatus = () => {
    * Fetches measurement snapshot and displays results in right panel.
    * Disables track-latest mode when manually selecting a node.
    */
-  const handleOnGraphNodeClick = async (name: string) => {
+  const handleOnGraphNodeClick = async (name?: string) => {
     const temp = await setupAllMeasurements();
     const measurements = temp && temp.length > 0 ? temp : (allMeasurements ?? []);
     dispatch(setTrackLatest(false));
-    dispatch(setSelectedNodeNameInWorkflow(undefined));
-    const measurementId = getMeasurementId(name, measurements);
+    // Disable "track latest" when manually selecting a node
+    dispatch(setGraphStatusSelectedNodeNameInWorkflow(undefined));
+    const measurementId = name && getMeasurementId(name, measurements);
     if (measurementId) {
-      dispatch(setSelectedNodeNameInWorkflow(name));
+      dispatch(setGraphStatusSelectedNodeNameInWorkflow(name));
       dispatch(setSelectedSnapshotId(measurementId));
       dispatch(setClickedForSnapshotSelection(true));
       dispatch(fetchOneSnapshot(measurementId, measurementId - 1, true, true));
@@ -103,7 +104,7 @@ const GraphStatus = () => {
     <div className={styles.wrapper}>
       <div className={styles.leftContainer}>
         <div className={styles.graphAndHistoryWrapper}>
-          {!!nodes.length && activePage === GRAPH_STATUS_KEY && (
+          {activePage === GRAPH_STATUS_KEY && (
             <MeasurementElementGraph
               key={`${runStatusGraphName}-${runStatusGraphTotalNodes}`}
               onNodeClick={handleOnGraphNodeClick}

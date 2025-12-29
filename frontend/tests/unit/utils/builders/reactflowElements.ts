@@ -291,13 +291,9 @@ export const transformToApiFormat = ({
   edges: Edge[];
 }) => {
   // Create a mapping from string node IDs to sequential numeric IDs
-  const nodeIdMap = new Map<string, number>();
-  nodes.forEach((n, index) => {
-    nodeIdMap.set(n.id, index);
-  });
 
   return {
-    nodes: nodes.map((n, index) => {
+    nodes: nodes.map((n) => {
       const data: { label: string; subgraph?: FetchGraphResponse } = {
         label: (n.data.label || n.id) as string,
       };
@@ -305,18 +301,22 @@ export const transformToApiFormat = ({
         data.subgraph = n.data.subgraph as FetchGraphResponse;
       }
       return {
-        id: index,
+        name: n.id,
         data,
         position: n.position,
         loop: false,
+        selected: n.selected
       };
     }),
-    edges: edges.map((e, index) => ({
+    edges: edges.map((e) => ({
       id: e.id,
-      source: nodeIdMap.get(e.source) ?? 0,
-      target: nodeIdMap.get(e.target) ?? 1,
+      source: e.source ?? nodes[0].id,
+      target: e.target ?? nodes[1].id,
       data: {
-        condition: true,
+        condition: {
+          label: "string",
+          content: "string",
+        },
       },
       position: { x: 0, y: 0 },
     })),

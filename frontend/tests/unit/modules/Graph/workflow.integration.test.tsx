@@ -10,11 +10,11 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { configureStore } from "@reduxjs/toolkit";
-import { waitFor } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 import { createComplexGraph, transformToApiFormat } from "../../utils/builders/reactflowElements";
-import { GraphLibraryApi } from "../../../../src/stores/GraphStores/GraphLibrary";
+import { GraphLibraryApi, setSelectedWorkflowName } from "../../../../src/stores/GraphStores/GraphLibrary";
 import { rootReducer } from "../../../../src/stores";
-import { fetchWorkflowGraph } from "../../../../src/stores/GraphStores/GraphCommon";
+import useGraphData from "../../../../src/modules/Graph/hooks";
 
 describe("Real-World Workflows - Graph Data Fetching", () => {
   beforeEach(() => {
@@ -28,20 +28,21 @@ describe("Real-World Workflows - Graph Data Fetching", () => {
       isOk: true,
       result: transformToApiFormat(mockGraphData),
     });
+    const { result } = renderHook(() => useGraphData("test-calibration"));
 
     const store = configureStore({ reducer: rootReducer });
 
     // When: Dispatch fetchWorkflowGraph action
-    await store.dispatch(fetchWorkflowGraph("test-calibration"));
+    await store.dispatch(setSelectedWorkflowName("test-calibration"));
+    // await store.dispatch(fetchWorkflowGraph("test-calibration"));
 
     // Then: API should be called
     expect(GraphLibraryApi.fetchGraph).toHaveBeenCalledWith("test-calibration");
 
     // And: Store should be updated with layouted data
     await waitFor(() => {
-      const state = store.getState();
-      expect(state.graph.common.nodes.length).toBeGreaterThan(0);
-      expect(state.graph.common.shouldResetView).toBe(true);
+      expect(result.current.nodes.length).toBeGreaterThan(0);
+      expect(result.current.shouldResetView).toBe(true);
     });
   });
 
@@ -52,17 +53,18 @@ describe("Real-World Workflows - Graph Data Fetching", () => {
       error: "Network timeout",
     });
 
-    const store = configureStore({ reducer: rootReducer });
     const consoleSpy = vi.spyOn(console, "log");
 
     // When: Dispatch fetch action
-    await store.dispatch(fetchWorkflowGraph("test-workflow"));
+    const { result } = renderHook(() => useGraphData("test-workflow"));
 
     // Then: Error should be logged
-    expect(consoleSpy).toHaveBeenCalledWith("Network timeout");
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith("Network timeout");
+    });
 
     // And: Store should not have invalid data
-    expect(store.getState().graph.common.nodes).toHaveLength(0);
+    expect(result.current.nodes).toHaveLength(0);
   });
 
   it("should support retry mechanism on failures", async () => {
@@ -82,17 +84,19 @@ describe("Real-World Workflows - Graph Data Fetching", () => {
     });
 
     // When: First fetch fails
-    await store.dispatch(fetchWorkflowGraph("retry-test"));
+    let { result, rerender } = renderHook((props: string) => useGraphData(props), { initialProps: "retry-test" });
     expect(apiCallCount).toBe(1);
-    expect(store.getState().graph.common.nodes).toHaveLength(0);
+    expect(result.current.nodes).toHaveLength(0);
 
     // When: User triggers retry
-    await store.dispatch(fetchWorkflowGraph("retry-test"));
+    rerender("retry-test2");
 
     // Then: Second call should succeed
-    expect(apiCallCount).toBe(2);
     await waitFor(() => {
-      expect(store.getState().graph.common.nodes.length).toBeGreaterThan(0);
+      expect(apiCallCount).toBe(2);
+    });
+    await waitFor(() => {
+      expect(result.current.nodes.length).toBeGreaterThan(0);
     });
   });
 });

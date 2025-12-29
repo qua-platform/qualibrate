@@ -5,6 +5,10 @@ import graphStatusSlice from "./GraphStatusStore";
 export const {
   setAllMeasurements,
   setTrackLatest,
+  setSelectedNodeNameInWorkflow: setGraphStatusSelectedNodeNameInWorkflow,
+  setSubgraphBreadcrumbs: setGraphStatusSubgraphBreadcrumbs,
+  setSubgraphForward: setGraphStatusSubgraphForward,
+  setSubgraphBack: setGraphStasetSubgraphBack,
 } = graphStatusSlice.actions;
 
 export const fetchAllMeasurements = () => async (dispatch: RootDispatch) => {

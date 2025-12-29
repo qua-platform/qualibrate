@@ -15,3 +15,13 @@ export const getTrackLatest = createSelector(
   getGraphStatusState,
   (statusState) => statusState.trackLatest
 );
+
+export const getGraphStatuSubgraphBreadcrumbs = createSelector(
+  getGraphStatusState,
+  (statusState) => statusState.subgraphBreadcrumbs
+);
+
+export const getGraphStatuSelectedNodeNameInWorkflow = createSelector(
+  getGraphStatusState,
+  (statusState) => statusState.selectedNodeNameInWorkflow
+);

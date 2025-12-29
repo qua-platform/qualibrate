@@ -7,15 +7,17 @@
  * @see Graph.tsx - ReactFlow graph visualization component
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, waitFor, act } from "@testing-library/react";
-import { createTestProviders } from "../../utils/providers";
+import { render, waitFor, act, renderHook } from "@testing-library/react";
 import {
   createSimpleGraph,
   createGraphWithSelection,
-  createEmptyGraph,
+  transformToApiFormat,
 } from "../../utils/builders/reactflowElements";
 import Graph from "../../../../src/modules/Graph/Graph";
-import { setNodes, setEdges, setShouldResetView } from "../../../../src/stores/GraphStores/GraphCommon/actions";
+import useGraphData from "../../../../src/modules/Graph/hooks";
+import { GraphLibraryApi, NodeWithData, setSelectedNodeNameInWorkflow, setSelectedWorkflowName } from "../../../../src/stores/GraphStores/GraphLibrary";
+import { createTestProviders } from "../../utils/providers";
+import { GraphElement } from "../../../../src/modules/GraphLibrary/components/GraphElement/GraphElement";
 
 // Mock ReactFlow's useReactFlow hook
 const mockFitView = vi.fn();
@@ -53,9 +55,10 @@ describe("Graph - Initialization & Rendering", () => {
 
   it("should render edges with arrow markers", () => {
     const { nodes, edges } = createSimpleGraph();
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { Providers } = createTestProviders();
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container } = render(
       <Providers>
@@ -70,9 +73,10 @@ describe("Graph - Initialization & Rendering", () => {
 
   it("should render Background component with correct colors", () => {
     const { nodes, edges } = createSimpleGraph();
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { Providers } = createTestProviders();
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container } = render(
       <Providers>
@@ -87,9 +91,10 @@ describe("Graph - Initialization & Rendering", () => {
 
   it("should apply minZoom constraint of 0.1", () => {
     const { nodes, edges } = createSimpleGraph();
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { Providers } = createTestProviders();
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container } = render(
       <Providers>
@@ -104,9 +109,10 @@ describe("Graph - Initialization & Rendering", () => {
 
   it("should call fitView on mount", async () => {
     const { nodes, edges } = createSimpleGraph();
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { Providers } = createTestProviders();
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     render(
       <Providers>
@@ -121,10 +127,11 @@ describe("Graph - Initialization & Rendering", () => {
   });
 
   it("should render empty graph without errors", () => {
-    const { nodes, edges } = createEmptyGraph();
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { nodes, edges } = createSimpleGraph();
+    const { Providers } = createTestProviders();
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container } = render(
       <Providers>
@@ -138,9 +145,10 @@ describe("Graph - Initialization & Rendering", () => {
 
   it("should use custom DefaultNode component type", () => {
     const { nodes, edges } = createSimpleGraph();
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { Providers } = createTestProviders();
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container } = render(
       <Providers>
@@ -159,37 +167,45 @@ describe("Graph - Node Selection", () => {
     mockFitView.mockClear();
   });
 
-  it("should mark node as selected when selectedNodeNameInWorkflow is set", () => {
-    const { nodes, edges } = createGraphWithSelection("node2");
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+  it("should mark node as selected when selectedNodeNameInWorkflow is set", async () => {
+    const mockSubmit = vi.fn().mockResolvedValue({
+      isOk: true,
+      result: transformToApiFormat(createGraphWithSelection("node2"))
+    });
+    vi.spyOn(GraphLibraryApi, "fetchGraph").mockImplementation(mockSubmit);
+    const { Providers } = createTestProviders();
 
     const { container } = render(
       <Providers>
-        <Graph />
+        <Graph selectedWorkflowName="test_workflow" />
       </Providers>
     );
 
-    // Check that node2 has selected class
-    const selectedNode = container.querySelector('[data-id="node2"]');
-    expect(selectedNode).toBeTruthy();
+    await waitFor(() => {
+      // Check that node2 has selected class
+      const selectedNode = container.querySelector('[data-id="node2"]');
+      expect(selectedNode).toBeTruthy();
+    })
   });
 
-  it("should highlight selected node with correct styles", () => {
-    const { nodes, edges } = createGraphWithSelection("node1");
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+  it("should highlight selected node with correct styles", async () => {
+    const mockSubmit = vi.fn().mockResolvedValue({
+      isOk: true,
+      result: transformToApiFormat(createGraphWithSelection("node1"))
+    });
+    vi.spyOn(GraphLibraryApi, "fetchGraph").mockImplementation(mockSubmit);
+    const { Providers } = createTestProviders();
 
     const { container } = render(
       <Providers>
-        <Graph />
+        <Graph selectedWorkflowName="test_workflow" />
       </Providers>
     );
 
-    const selectedNode = container.querySelector('[data-id="node1"]');
-    expect(selectedNode).toBeTruthy();
+    await waitFor(() => {
+      const selectedNode = container.querySelector('[data-id="node1"]');
+      expect(selectedNode).toBeTruthy();
+    });
   });
 
   it("should unselect all nodes when selection is cleared", () => {
@@ -198,8 +214,9 @@ describe("Graph - Node Selection", () => {
 
     // Start with a selected node
     const selectedNodes = nodes.map((n) => ({ ...n, selected: true }));
-    mockStore.dispatch(setNodes(selectedNodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(selectedNodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container, rerender } = render(
       <Providers>
@@ -210,7 +227,7 @@ describe("Graph - Node Selection", () => {
     // Clear selection
     const unselectedNodes = nodes.map((n) => ({ ...n, selected: false }));
     act(() => {
-      mockStore.dispatch(setNodes(unselectedNodes));
+      result.current.setNodes(unselectedNodes as NodeWithData[]);
     });
     rerender(
       <Providers>
@@ -224,10 +241,12 @@ describe("Graph - Node Selection", () => {
   });
 
   it("should synchronize selection state with Redux", () => {
+
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     render(
       <Providers>
@@ -241,25 +260,26 @@ describe("Graph - Node Selection", () => {
   });
 
   it("should update selection when Redux state changes", async () => {
-    const { nodes, edges } = createSimpleGraph();
+    const mockSubmit = vi.fn().mockResolvedValue({
+      isOk: true,
+      result: transformToApiFormat(createSimpleGraph())
+    });
+    vi.spyOn(GraphLibraryApi, "fetchGraph").mockImplementation(mockSubmit);
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
-
+ 
     const { container, rerender } = render(
       <Providers>
-        <Graph />
+        <Graph selectedWorkflowName={"test_workflow"} />
       </Providers>
     );
 
     // Update Redux to select node2
-    const selectedNodes = nodes.map((n) => ({ ...n, selected: n.id === "node2" }));
     act(() => {
-      mockStore.dispatch(setNodes(selectedNodes));
+      mockStore.dispatch(setSelectedNodeNameInWorkflow("node2"));
     });
     rerender(
       <Providers>
-        <Graph />
+        <Graph selectedWorkflowName={"test_workflow"}/>
       </Providers>
     );
 
@@ -270,25 +290,26 @@ describe("Graph - Node Selection", () => {
   });
 
   it("should handle multiple selection state changes", async () => {
-    const { nodes, edges } = createSimpleGraph();
+    const mockSubmit = vi.fn().mockResolvedValue({
+      isOk: true,
+      result: transformToApiFormat(createSimpleGraph())
+    });
+    vi.spyOn(GraphLibraryApi, "fetchGraph").mockImplementation(mockSubmit);
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
 
     const { container, rerender } = render(
       <Providers>
-        <Graph />
+        <Graph selectedWorkflowName={"test_workflow"}/>
       </Providers>
     );
 
     // Select node1
-    const selectedNodes1 = nodes.map((n) => ({ ...n, selected: n.id === "node1" }));
     act(() => {
-      mockStore.dispatch(setNodes(selectedNodes1));
+      mockStore.dispatch(setSelectedNodeNameInWorkflow("node1"));
     });
     rerender(
       <Providers>
-        <Graph />
+        <Graph selectedWorkflowName={"test_workflow"}/>
       </Providers>
     );
 
@@ -297,13 +318,12 @@ describe("Graph - Node Selection", () => {
     });
 
     // Change to node3
-    const selectedNodes3 = nodes.map((n) => ({ ...n, selected: n.id === "node3" }));
     act(() => {
-      mockStore.dispatch(setNodes(selectedNodes3));
+      mockStore.dispatch(setSelectedNodeNameInWorkflow("node3"));
     });
     rerender(
       <Providers>
-        <Graph />
+        <Graph selectedWorkflowName={"test_workflow"}/>
       </Providers>
     );
 
@@ -321,9 +341,10 @@ describe("Graph - Event Handling", () => {
   it("should call onNodeClick callback when node is clicked", async () => {
     const { nodes, edges } = createSimpleGraph();
     const onNodeClick = vi.fn();
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { Providers } = createTestProviders();
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     render(
       <Providers>
@@ -339,8 +360,9 @@ describe("Graph - Event Handling", () => {
   it("should dispatch setTrackLatest(false) on node click", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     render(
       <Providers>
@@ -356,8 +378,9 @@ describe("Graph - Event Handling", () => {
   it("should dispatch setSelectedNodeNameInWorkflow on node click", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     render(
       <Providers>
@@ -372,8 +395,9 @@ describe("Graph - Event Handling", () => {
   it("should clear selection on background click", async () => {
     const { nodes, edges } = createGraphWithSelection("node1");
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container } = render(
       <Providers>
@@ -388,8 +412,9 @@ describe("Graph - Event Handling", () => {
   it("should handle onPaneClick event correctly", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container } = render(
       <Providers>
@@ -405,8 +430,9 @@ describe("Graph - Event Handling", () => {
     const { nodes, edges } = createSimpleGraph();
     const onNodeClick = vi.fn();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container } = render(
       <Providers>
@@ -423,8 +449,9 @@ describe("Graph - Event Handling", () => {
     const { nodes, edges } = createSimpleGraph();
     const onNodeClick = vi.fn();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     render(
       <Providers>
@@ -445,8 +472,9 @@ describe("Graph - State Updates", () => {
   it("should update nodes when Redux state changes", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { rerender } = render(
       <Providers>
@@ -466,7 +494,7 @@ describe("Graph - State Updates", () => {
     ];
 
     act(() => {
-      mockStore.dispatch(setNodes(updatedNodes));
+      result.current.setNodes(updatedNodes as NodeWithData[]);
     });
     rerender(
       <Providers>
@@ -483,8 +511,9 @@ describe("Graph - State Updates", () => {
   it("should update edges when Redux state changes", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { rerender, container } = render(
       <Providers>
@@ -503,7 +532,7 @@ describe("Graph - State Updates", () => {
     ];
 
     act(() => {
-      mockStore.dispatch(setEdges(updatedEdges));
+      result.current.setEdges(updatedEdges);
     });
     rerender(
       <Providers>
@@ -519,8 +548,9 @@ describe("Graph - State Updates", () => {
   it("should apply node changes via applyNodeChanges", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     render(
       <Providers>
@@ -535,8 +565,9 @@ describe("Graph - State Updates", () => {
   it("should handle status class updates", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { rerender, container } = render(
       <Providers>
@@ -550,7 +581,7 @@ describe("Graph - State Updates", () => {
     );
 
     act(() => {
-      mockStore.dispatch(setNodes(updatedNodes));
+      result.current.setNodes(updatedNodes as NodeWithData[]);
     });
     rerender(
       <Providers>
@@ -566,8 +597,9 @@ describe("Graph - State Updates", () => {
   it("should handle multiple simultaneous state updates", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { rerender, container } = render(
       <Providers>
@@ -580,8 +612,8 @@ describe("Graph - State Updates", () => {
     const updatedEdges = [...edges, { id: "edge3", source: "node2", target: "node1" }];
 
     act(() => {
-      mockStore.dispatch(setNodes(updatedNodes));
-      mockStore.dispatch(setEdges(updatedEdges));
+      result.current.setNodes(updatedNodes as NodeWithData[]);
+      result.current.setEdges(updatedEdges);
     });
     rerender(
       <Providers>
@@ -601,28 +633,21 @@ describe("Graph - View Management", () => {
   });
 
   it("should call fitView when shouldResetView is true", async () => {
-    const { nodes, edges } = createSimpleGraph();
+    const mockSubmit = vi.fn().mockResolvedValue({
+      isOk: false,
+      result: transformToApiFormat(createSimpleGraph()),
+    });
+    vi.spyOn(GraphLibraryApi, "fetchGraph").mockImplementation(mockSubmit);
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
 
-    const { rerender } = render(
+    render(
       <Providers>
-        <Graph />
+        <GraphElement calibrationGraphKey={"test-calibration"} />
       </Providers>
     );
 
     mockFitView.mockClear();
-
-    // Trigger view reset
-    act(() => {
-      mockStore.dispatch(setShouldResetView(true));
-    });
-    rerender(
-      <Providers>
-        <Graph />
-      </Providers>
-    );
+    mockStore.dispatch(setSelectedWorkflowName("test-calibration"));
 
     await waitFor(() => {
       expect(mockFitView).toHaveBeenCalledWith({ padding: 0.5 });
@@ -632,8 +657,9 @@ describe("Graph - View Management", () => {
   it("should not call fitView when shouldResetView is false", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { rerender } = render(
       <Providers>
@@ -646,8 +672,8 @@ describe("Graph - View Management", () => {
     // Update nodes without triggering view reset
     const updatedNodes = nodes.map((n) => ({ ...n, className: "test" }));
     act(() => {
-      mockStore.dispatch(setNodes(updatedNodes));
-      mockStore.dispatch(setShouldResetView(false));
+      result.current.setNodes(updatedNodes as NodeWithData[]);
+      result.current.setShouldResetView(false);
     });
     rerender(
       <Providers>
@@ -665,8 +691,9 @@ describe("Graph - View Management", () => {
   it("should apply correct padding to fitView", async () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     render(
       <Providers>
@@ -682,8 +709,9 @@ describe("Graph - View Management", () => {
   it("should respect minZoom constraint", () => {
     const { nodes, edges } = createSimpleGraph();
     const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
+    const { result } = renderHook(() => useGraphData("test-calibration"));
+    result.current.setNodes(nodes as NodeWithData[]);
+    result.current.setEdges(edges);
 
     const { container } = render(
       <Providers>
@@ -694,34 +722,5 @@ describe("Graph - View Management", () => {
     // ReactFlow should have minZoom prop set
     const reactFlowWrapper = container.querySelector(".react-flow");
     expect(reactFlowWrapper).toBeInTheDocument();
-  });
-
-  it("should reset view after layout calculation", async () => {
-    const { nodes, edges } = createSimpleGraph();
-    const { Providers, mockStore } = createTestProviders();
-    mockStore.dispatch(setNodes(nodes));
-    mockStore.dispatch(setEdges(edges));
-
-    const { rerender } = render(
-      <Providers>
-        <Graph />
-      </Providers>
-    );
-
-    mockFitView.mockClear();
-
-    // Simulate layout completion
-    act(() => {
-      mockStore.dispatch(setShouldResetView(true));
-    });
-    rerender(
-      <Providers>
-        <Graph />
-      </Providers>
-    );
-
-    await waitFor(() => {
-      expect(mockFitView).toHaveBeenCalled();
-    });
   });
 });

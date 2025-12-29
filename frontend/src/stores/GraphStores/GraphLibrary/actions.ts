@@ -3,19 +3,23 @@ import { GraphWorkflow } from "../../../modules/GraphLibrary";
 import { RootDispatch, RootState } from "../../../stores";
 import { graphLibrarySlice, GraphMap } from "./GraphLibraryStore";
 import { GraphLibraryApi } from "./api/GraphLibraryApi";
-import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../GraphCommon";
-import { getAllGraphs } from "./selectors";
+import { getAllGraphs, getSelectedWorkflowName, getSubgraphBreadcrumbs } from "./selectors";
 import { setActivePage } from "../../../stores/NavigationStore";
 import { GRAPH_STATUS_KEY } from "../../../modules/AppRoutes";
 import { setTrackLatest } from "../GraphStatus";
 
 export const {
   setAllGraphs,
+  setSelectedWorkflowName,
+  setSelectedNodeNameInWorkflow,
   setLastRunInfo,
   setLastRunActive,
   setIsRescanningGraphs,
   setNodeParameter,
   setErrorObject,
+  setSubgraphForward,
+  setSubgraphBack,
+  setSubgraphBreadcrumbs,
 } = graphLibrarySlice.actions;
 
 const updateObject = (obj: GraphWorkflow): GraphWorkflow => {

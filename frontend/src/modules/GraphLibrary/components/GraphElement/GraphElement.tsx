@@ -18,10 +18,19 @@ import {SubgraphBreadcrumbs} from "../../../Graph";
 import {Parameters, SingleParameter, ParameterList, ParameterSelector, BlueButton} from "../../../../components";
 import {Graph} from "../../../Graph";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
-import {getSelectedWorkflow, submitWorkflow} from "../../../../stores/GraphStores/GraphLibrary";
+import {
+  getSelectedWorkflow,
+  setSelectedNodeNameInWorkflow,
+  setSelectedWorkflowName,
+  setSubgraphBack,
+  setSubgraphForward,
+  submitWorkflow,
+  getSelectedNodeNameInWorkflow,
+  getSelectedWorkflowName,
+  getSubgraphBreadcrumbs,
+  setGraphNodeParameter,
+} from "../../../../stores/GraphStores/GraphLibrary";
 import {useRootDispatch} from "../../../../stores";
-import { getSelectedWorkflowName, getWorkflowGraphNodes, setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphCommon";
-import { setGraphNodeParameter } from "../../../../stores/GraphStores/GraphLibrary/actions";
 import { ParamaterValue } from "../../../../components/Parameters/Parameters";
 
 interface ICalibrationGraphElementProps {
@@ -30,16 +39,21 @@ interface ICalibrationGraphElementProps {
 
 export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrationGraphKey }) => {
   const dispatch = useRootDispatch();
-  const nodes = useSelector(getWorkflowGraphNodes);
   const selectedWorkflow = useSelector(getSelectedWorkflow);
   const selectedWorkflowName = useSelector(getSelectedWorkflowName);
+  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
+  const subgraphBreadcrumbs = useSelector(
+    getSubgraphBreadcrumbs,
+    // avoid unnecessary re-renders
+    { equalityFn: (prev, curr) => prev.join() === curr.join() }
+  );
   const [errors, setErrors] = useState(new Set());
 
   const handleSubmit = () => dispatch(submitWorkflow());
-
-  const handleSelect = () => {
-    dispatch(setSelectedWorkflowName(calibrationGraphKey));
-  };
+  const handleSelectWorkflow = () => dispatch(setSelectedWorkflowName(calibrationGraphKey));
+  const handleSelectNode = (nodeName?: string) => dispatch(setSelectedNodeNameInWorkflow(nodeName));
+  const handleSetSubgraphBreadcrumbs = (key: string) => dispatch(setSubgraphForward(key));
+  const handleBreadcrumbClick = (index: number) => dispatch(setSubgraphBack(index));
 
   const handleSetError = (key: string, isValid: boolean) => {
     const newSet = new Set(errors);
@@ -64,7 +78,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   return (
     <div
       className={classNames(styles.wrapper, show ? styles.calibrationGraphSelected : "")}
-      onClick={handleSelect}
+      onClick={handleSelectWorkflow}
     >
       <div className={styles.upperContainer}>
         <div className={styles.leftContainer}>
@@ -78,7 +92,11 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         &nbsp; &nbsp; &nbsp; &nbsp;
         {(show || selectedWorkflow?.description) &&
           <div className={styles.rightContainer}>
-            {show && <SubgraphBreadcrumbs />}
+            {show && <SubgraphBreadcrumbs
+              selectedWorkflowName={selectedWorkflowName}
+              subgraphBreadcrumbs={subgraphBreadcrumbs}
+              onBreadcrumbClick={handleBreadcrumbClick}
+            />}
             {selectedWorkflow?.description && (
               <div>{selectedWorkflow?.description}</div>
             )}
@@ -94,12 +112,19 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
             showTitle={true}
             currentItem={selectedWorkflow}
             getInputElement={renderInputElement}
+            parametersExpanded={true}
           />
           {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} onChange={onNodeParameterChange} />}
         </div>
         {show && (
           <div className={styles.graphContainer}>
-            {!!nodes.length && <Graph />}
+            <Graph
+              selectedWorkflowName={calibrationGraphKey}
+              selectedNodeNameInWorkflow={selectedNodeNameInWorkflow}
+              onNodeClick={handleSelectNode}
+              subgraphBreadcrumbs={subgraphBreadcrumbs}
+              onSetSubgraphBreadcrumbs={handleSetSubgraphBreadcrumbs}
+            />
           </div>
         )}
       </div>
