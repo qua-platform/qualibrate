@@ -3,7 +3,7 @@ import { FetchGraphResponse } from "../../GraphLibrary";
 export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
   nodes: [
     {
-      id: 1,
+      id: "workflow1",
       loop: true,
       data: {
         label: "workflow1",
@@ -12,97 +12,132 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
         subgraph: {
           nodes: [
             {
-              id: 1,
+              id: "wf_node1",
               loop: false,
               data: { label: "wf_node1" },
-              position: { "x": 100, "y": 100 }
+              position: { x: 100, y: 100 },
             },
             {
-              id: 2,
+              id: "wf_node2",
               loop: false,
               data: { label: "wf_node2" },
-              position: { "x": 100, "y": 100 }
+              position: { x: 100, y: 100 },
             },
             {
-              id: 3,
+              id: "wf_node3",
               loop: false,
               data: { label: "wf_node3" },
-              position: { "x": 100, "y": 100 }
+              position: { x: 100, y: 100 },
             },
           ],
           edges: [
             {
               id: "wf_node1-wf_node3",
-              source: 1,
-              target: 3,
-              data: { condition: true },
-              position: { "x": 100, "y": 100 }
+              source: "wf_node1",
+              target: "wf_node3",
+              data: { connect_on: true },
+              position: { x: 100, y: 100 },
+            },
+            {
+              id: "wf_node2-wf_node2",
+              source: "wf_node2",
+              target: "wf_node2",
+              data: { loop: { label: "repeat-until-success", content: "some content", max_iterations: 5 } },
+              position: { x: 100, y: 100 },
             },
           ],
-        }
+        },
       },
-      position: { "x": 100, "y": 100 }
+      position: { x: 100, y: 100 },
     },
     {
-      id: 2,
+      id: "workflow2",
       loop: false,
       data: {
         label: "workflow2",
         subgraph: {
           nodes: [
             {
-              id: 1,
+              id: "wf_node1",
               loop: false,
               data: { label: "wf_node1" },
-              position: { "x": 100, "y": 100 }
+              position: { x: 100, y: 100 },
             },
             {
-              id: 2,
+              id: "wf_node2",
               loop: false,
               data: { label: "wf_node2" },
-              position: { "x": 100, "y": 100 }
+              position: { x: 100, y: 100 },
             },
             {
-              id: 3,
+              id: "wf_node3",
               loop: false,
               data: { label: "wf_node3" },
-              position: { "x": 100, "y": 100 }
+              position: { x: 100, y: 100 },
             },
           ],
           edges: [
             {
               id: "wf_node1-wf_node3",
-              source: 1,
-              target: 3,
-              data: { condition: true },
-              position: { "x": 100, "y": 100 }
+              source: "wf_node1",
+              target: "wf_node3",
+              data: { connect_on: true },
+              position: { x: 100, y: 100 },
             },
           ],
-        }
+        },
       },
-      position: { "x": 100, "y": 100 }
+      position: { x: 100, y: 100 },
     },
     {
-      id: 3,
+      id: "node1",
       loop: false,
       data: { label: "node1" },
-      position: { "x": 100, "y": 100 }
-    }
+      position: { x: 100, y: 100 },
+    },
   ],
   edges: [
     {
-      id: "workflow1-workflow2",
-      source: 1,
-      target: 2,
-      data: { condition: true },
-      position: {  "x": 100, "y": 100  }
+      id: "workflow1->workflow1",
+      source: "workflow1",
+      target: "workflow1",
+      data: { loop: { label: "repeat-until-success", content: "some content", max_iterations: 5 } },
+      position: { x: 100, y: 100 },
     },
     {
-      id: "workflow2-node1",
-      source: 2,
-      target: 3,
-      data: { condition: true },
-      position: { "x": 100, "y": 100 }
+      id: "workflow2->workflow2",
+      source: "workflow2",
+      target: "workflow2",
+      data: { loop: { content: "some content", max_iterations: 5 } },
+      position: { x: 100, y: 100 },
+    },
+    {
+      id: "node1->node1",
+      source: "node1",
+      target: "node1",
+      data: { loop: { max_iterations: 15 } },
+      position: { x: 100, y: 100 },
+    },
+    {
+      id: "workflow1->workflow2",
+      source: "workflow1",
+      target: "workflow2",
+      data: { connect_on: true },
+      position: { x: 100, y: 100 },
+    },
+    {
+      id: "workflow2->node1",
+      source: "workflow2",
+      target: "node1",
+      data: {
+        connect_on: false,
+        condition: {
+          label: "Condition 1",
+          content:
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+        },
+      },
+      position: { x: 100, y: 100 },
     },
   ],
 };
