@@ -2,7 +2,7 @@ import React from "react";
 import { BaseEdge, BezierEdge, EdgeLabelRenderer, EdgeProps, MarkerType } from "@xyflow/react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./styles.module.scss";
-import { EdgeData, EdgeWithData } from "../../../stores/GraphStores/GraphCommon";
+import { EdgeData, EdgeWithData } from "../../../stores/GraphStores/GraphLibrary";
 
 const edgeColor = "#70767d";
 export const loopingEdgeOptions = {

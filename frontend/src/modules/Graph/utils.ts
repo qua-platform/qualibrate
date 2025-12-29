@@ -1,8 +1,7 @@
 import { Node } from "@xyflow/react";
 import ELK from "elkjs/lib/elk.bundled.js";
-import { EdgeDTO, FetchGraphResponse } from "../GraphLibrary";
-import { LOOPING_EDGE_TYPE } from "../../../modules/Graph";
-import { CONDITIONAL_EDGE_TYPE, DEFAULT_NODE_TYPE } from "../../../modules/Graph/components";
+import { EdgeDTO, FetchGraphResponse } from "../../stores/GraphStores/GraphLibrary";
+import { CONDITIONAL_EDGE_TYPE, DEFAULT_NODE_TYPE, LOOPING_EDGE_TYPE } from "./components";
 
 const elk = new ELK();
 const spacingBetweenLayers = "100";
@@ -20,7 +19,7 @@ export const getLayoutedElements = ({ nodes = [], edges = [] }: FetchGraphRespon
 
   const children = nodes.map((node) => ({
     ...node,
-    id: `${node.id}`,
+    id: node.name,
     targetPosition: "left",
     sourcePosition: "right",
     // Hardcode a width and height for elk to use when layouting.

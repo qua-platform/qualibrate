@@ -1,4 +1,4 @@
-import { Edge, MarkerType, Node } from "@xyflow/react";
+import { Node, Edge, MarkerType } from "@xyflow/react";
 import { FetchGraphResponse } from "../../../../src/stores/GraphStores/GraphLibrary";
 
 export const DEFAULT_NODE_TYPE = "DefaultNode";
@@ -34,10 +34,6 @@ export const createSimpleGraph = (): { nodes: Node[]; edges: Edge[] } => ({
       source: "node1",
       target: "node2",
       markerEnd: { type: MarkerType.ArrowClosed },
-      data: {
-        condition_label: "edge_label",
-        condition_description: "Edge Description",
-      },
     },
     {
       id: "edge2",
@@ -97,7 +93,9 @@ export const createGraphWithStatuses = (): {
  * Creates a node with selection state.
  * Usage: Testing node selection and highlighting
  */
-export const createGraphWithSelection = (selectedId: string): { nodes: Node[]; edges: Edge[] } => {
+export const createGraphWithSelection = (
+  selectedId: string,
+): { nodes: Node[]; edges: Edge[] } => {
   const { nodes, edges } = createSimpleGraph();
   return {
     nodes: nodes.map((node) => ({
@@ -175,7 +173,9 @@ export const createComplexGraph = (): { nodes: Node[]; edges: Edge[] } => ({
  * Creates a large graph for performance testing.
  * Usage: Testing layout performance and rendering with many nodes
  */
-export const createLargeGraph = (nodeCount: number = 50): { nodes: Node[]; edges: Edge[] } => {
+export const createLargeGraph = (
+  nodeCount: number = 50,
+): { nodes: Node[]; edges: Edge[] } => {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
@@ -291,13 +291,9 @@ export const transformToApiFormat = ({
   edges: Edge[];
 }) => {
   // Create a mapping from string node IDs to sequential numeric IDs
-  const nodeIdMap = new Map<string, number>();
-  nodes.forEach((n, index) => {
-    nodeIdMap.set(n.id, index);
-  });
 
   return {
-    nodes: nodes.map((n, index) => {
+    nodes: nodes.map((n) => {
       const data: { label: string; subgraph?: FetchGraphResponse } = {
         label: (n.data.label || n.id) as string,
       };
@@ -305,18 +301,22 @@ export const transformToApiFormat = ({
         data.subgraph = n.data.subgraph as FetchGraphResponse;
       }
       return {
-        id: index,
+        name: n.id,
         data,
         position: n.position,
         loop: false,
+        selected: n.selected
       };
     }),
-    edges: edges.map((e, index) => ({
+    edges: edges.map((e) => ({
       id: e.id,
-      source: nodeIdMap.get(e.source) ?? 0,
-      target: nodeIdMap.get(e.target) ?? 1,
+      source: e.source ?? nodes[0].id,
+      target: e.target ?? nodes[1].id,
       data: {
-        condition: true,
+        condition: {
+          label: "string",
+          content: "string",
+        },
       },
       position: { x: 0, y: 0 },
     })),

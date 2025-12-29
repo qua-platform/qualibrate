@@ -9,11 +9,12 @@
  * @see Graph component integration with GraphStatus
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, waitFor, act } from "@testing-library/react";
+import { render, waitFor, act, renderHook } from "@testing-library/react";
 import { Graph } from "../../../src/modules/Graph";
 import { createTestProviders } from "../utils/providers";
 import { createGraphWithStatuses, createSimpleGraph } from "../utils/builders/reactflowElements";
-import { setEdges, setNodes, setSelectedNodeNameInWorkflow } from "../../../src/stores/GraphStores/GraphCommon";
+import useGraphData from "../../../src/modules/Graph/hooks";
+import { NodeData, NodeWithData, setSelectedNodeNameInWorkflow } from "../../../src/stores/GraphStores/GraphLibrary";
 
 describe("Real-World Workflows - Graph State Updates", () => {
   beforeEach(() => {
@@ -23,11 +24,12 @@ describe("Real-World Workflows - Graph State Updates", () => {
   it("should update graph node statuses during execution", async () => {
     const { Providers, mockStore } = createTestProviders();
 
+    const { result } = renderHook(() => useGraphData("test-calibration"));
     // Setup: Initial graph with pending nodes
     const { nodes, edges } = createGraphWithStatuses();
     act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
+      result.current.setNodes(nodes as NodeWithData[]);
+      result.current.setEdges(edges);
     });
 
     const { rerender } = render(<Graph />, { wrapper: Providers });
@@ -35,7 +37,7 @@ describe("Real-World Workflows - Graph State Updates", () => {
     // Verify initial state
     await waitFor(() => {
       const state = mockStore.getState();
-      expect(state.graph.common.nodes.length).toBe(nodes.length);
+      expect(result.current.nodes.length).toBe(nodes.length);
     });
 
     // When: Simulate status update (e.g., from WebSocket)
@@ -50,14 +52,14 @@ describe("Real-World Workflows - Graph State Updates", () => {
     );
 
     act(() => {
-      mockStore.dispatch(setNodes(updatedNodes));
+      result.current.setNodes(updatedNodes as NodeWithData[]);
       rerender(<Graph />);
     });
 
     // Then: Node should have updated status in state
     await waitFor(() => {
       const state = mockStore.getState();
-      const runningNode = state.graph.common.nodes.find(n => n.id === "pending_node");
+      const runningNode = result.current.nodes.find(n => n.id === "pending_node");
       expect(runningNode?.className).toBe("running");
     });
   });
@@ -65,11 +67,12 @@ describe("Real-World Workflows - Graph State Updates", () => {
   it("should manage selection state correctly", async () => {
     const { Providers, mockStore } = createTestProviders();
 
+    const { result } = renderHook(() => useGraphData("test-calibration"));
     // Setup: Graph with nodes
     const { nodes, edges } = createSimpleGraph();
     act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
+      result.current.setNodes(nodes as NodeWithData[]);
+      result.current.setEdges(edges);
     });
 
     render(<Graph />, { wrapper: Providers });
@@ -81,7 +84,7 @@ describe("Real-World Workflows - Graph State Updates", () => {
 
     // Then: Selection should be reflected in state
     await waitFor(() => {
-      expect(mockStore.getState().graph.common.selectedNodeNameInWorkflow).toBe("node1");
+      expect(mockStore.getState().graph.library.selectedNodeNameInWorkflow).toBe("node1");
     });
 
     // When: Clear selection
@@ -91,18 +94,19 @@ describe("Real-World Workflows - Graph State Updates", () => {
 
     // Then: Selection should be cleared
     await waitFor(() => {
-      expect(mockStore.getState().graph.common.selectedNodeNameInWorkflow).toBeUndefined();
+      expect(mockStore.getState().graph.library.selectedNodeNameInWorkflow).toBeUndefined();
     });
   });
 
   it("should handle rapid status updates efficiently", async () => {
     const { Providers, mockStore } = createTestProviders();
 
+    const { result } = renderHook(() => useGraphData("test-calibration"));
     // Setup: Graph with status nodes
     const { nodes, edges } = createGraphWithStatuses();
     act(() => {
-      mockStore.dispatch(setNodes(nodes));
-      mockStore.dispatch(setEdges(edges));
+      result.current.setNodes(nodes as NodeWithData[]);
+      result.current.setEdges(edges);
     });
 
     const { rerender } = render(<Graph />, { wrapper: Providers });
@@ -114,10 +118,10 @@ describe("Real-World Workflows - Graph State Updates", () => {
       for (let i = 0; i < 10; i++) {
         const updatedNodes = nodes.map((n) => ({
           ...n,
-          data: { ...n.data, updateCount: i, status: i % 2 === 0 ? "running" : "completed" },
+          data: { ...n.data as NodeData, updateCount: i, status: i % 2 === 0 ? "running" : "completed" },
           className: i % 2 === 0 ? "running" : "completed",
         }));
-        mockStore.dispatch(setNodes(updatedNodes));
+        result.current.setNodes(updatedNodes as NodeWithData[]);
         rerender(<Graph />);
       }
     });
@@ -130,7 +134,7 @@ describe("Real-World Workflows - Graph State Updates", () => {
     // And: Final state should be reflected
     await waitFor(() => {
       const state = mockStore.getState();
-      expect(state.graph.common.nodes.length).toBe(nodes.length);
+      expect(result.current.nodes.length).toBe(nodes.length);
     });
   });
 });

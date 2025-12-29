@@ -1,10 +1,9 @@
-import { FetchGraphResponse } from "../../GraphLibrary";
+import { FetchGraphResponse } from "../../../../src/stores/GraphStores/GraphLibrary";
 
 export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
   nodes: [
     {
-      id: "workflow1",
-      loop: true,
+      name: "workflow1",
       data: {
         label: "workflow1",
         condition: false,
@@ -12,19 +11,19 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
         subgraph: {
           nodes: [
             {
-              id: "wf_node1",
+              name: "wf_node1",
               loop: false,
               data: { label: "wf_node1" },
               position: { x: 100, y: 100 },
             },
             {
-              id: "wf_node2",
+              name: "wf_node2",
               loop: false,
               data: { label: "wf_node2" },
               position: { x: 100, y: 100 },
             },
             {
-              id: "wf_node3",
+              name: "wf_node3",
               loop: false,
               data: { label: "wf_node3" },
               position: { x: 100, y: 100 },
@@ -51,26 +50,26 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
       position: { x: 100, y: 100 },
     },
     {
-      id: "workflow2",
+      name: "workflow2",
       loop: false,
       data: {
         label: "workflow2",
         subgraph: {
           nodes: [
             {
-              id: "wf_node1",
+              name: "wf_node1",
               loop: false,
               data: { label: "wf_node1" },
               position: { x: 100, y: 100 },
             },
             {
-              id: "wf_node2",
+              name: "wf_node2",
               loop: false,
               data: { label: "wf_node2" },
               position: { x: 100, y: 100 },
             },
             {
-              id: "wf_node3",
+              name: "wf_node3",
               loop: false,
               data: { label: "wf_node3" },
               position: { x: 100, y: 100 },
@@ -90,7 +89,7 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
       position: { x: 100, y: 100 },
     },
     {
-      id: "node1",
+      name: "node1",
       loop: false,
       data: { label: "node1" },
       position: { x: 100, y: 100 },

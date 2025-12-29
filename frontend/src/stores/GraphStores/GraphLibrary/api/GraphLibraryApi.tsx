@@ -5,8 +5,7 @@ import { API_METHODS } from "../../../../utils/api/types";
 import { Measurement } from "../../../../modules/GraphStatus";
 
 type NodeDTO = {
-  id: string;
-  loop: boolean;
+  name: string;
   data: {
     label: string;
     condition?: boolean;

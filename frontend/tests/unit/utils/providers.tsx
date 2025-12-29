@@ -4,13 +4,13 @@ import { render, RenderOptions } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { ReactFlowProvider } from "@xyflow/react";
-import { setSelectedNodeNameInWorkflow } from "../../../src/stores/GraphStores/GraphCommon";
 import { rootReducer, useRootDispatch } from "../../../src/stores";
 import { setTrackLatest } from "../../../src/stores/GraphStores/GraphStatus";
 import { configureStore } from "@reduxjs/toolkit";
 import { useInitApp } from "../../../src/modules/AppRoutes";
 import { HistoryType, RunStatusType } from "../../../src/stores/WebSocketStore";
 import { NodeMap } from "../../../src/modules/Nodes";
+import { setSelectedNodeNameInWorkflow } from "../../../src/stores/GraphStores/GraphLibrary";
 
 /**
  * Mock WebSocket context value interface

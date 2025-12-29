@@ -7,8 +7,8 @@ import { ArrowIcon } from "../Icons/ArrowIcon";
 import { GraphWorkflow } from "../../modules/GraphLibrary";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../Icons/InfoIcon";
-import { getSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphCommon";
 import { useSelector } from "react-redux";
+import { getSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphLibrary";
 
 interface IProps {
   parametersExpanded?: boolean;

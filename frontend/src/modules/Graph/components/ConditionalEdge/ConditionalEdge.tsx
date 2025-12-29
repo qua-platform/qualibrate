@@ -1,8 +1,8 @@
 import React, { MouseEvent } from "react";
 import { BaseEdge, EdgeLabelRenderer, EdgeProps, getBezierPath } from "@xyflow/react";
-import { EdgeWithData } from "../../../../stores/GraphStores/GraphCommon/GraphCommonStore";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../styles.module.scss";
+import { EdgeWithData } from "../../../../stores/GraphStores/GraphLibrary";
 
 export interface ConditionalEdgeProps extends EdgeProps<EdgeWithData> {
   onConditionClick?: (edge: EdgeWithData) => void;
