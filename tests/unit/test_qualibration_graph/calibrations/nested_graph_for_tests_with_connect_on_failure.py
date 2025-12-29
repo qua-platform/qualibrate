@@ -35,7 +35,9 @@ with topg_ as topg:
     ) as subg:
         subg.add_node(library.nodes["test_cal"])
         subg.add_node(library.nodes["one_more_node"])
+        subg.add_node(library.nodes["test_node"])
         subg.connect_on_failure(src="test_cal", dst="one_more_node")
+        subg.connect_on_failure(src="test_cal", dst="test_node")
 
 
     node1 = library.nodes["test_cal"]
