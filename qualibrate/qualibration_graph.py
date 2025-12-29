@@ -364,7 +364,9 @@ class QualibrationGraph(
                     source_element,
                     destination_element,
                     scenario=edge_data[self.RUN_SCENARIO_FIELD],
-                    operational_condition=edge_data[self.OPERATIONAL_CONDITION_FIELD],
+                    operational_condition=edge_data[
+                        self.OPERATIONAL_CONDITION_FIELD
+                    ],
                 )
 
         # Validate that all nodes with connections have at least one success path
