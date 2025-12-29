@@ -680,11 +680,12 @@ class TestQualibrationGraph:
         # Create a third node
         node3 = MagicMock(QualibrationNode)
         node3.name = "node3"
+        nodes["node3"] = node3
         # Mocking parameters class to be independent on
         # classes to get an error for the right reasons
         nodes["node1"].parameters_class = MagicMock()
         nodes["node2"].parameters_class = MagicMock()
-        node3.parameters_class = MagicMock()
+        nodes["node3"].parameters_class = MagicMock()
 
         with (
             pytest.raises(ValueError, match="no success path.*node1"),
@@ -693,12 +694,12 @@ class TestQualibrationGraph:
                 parameters=GraphParameters(),
             ) as graph,
         ):
-            graph.add_nodes(nodes["node1"], nodes["node2"], node3)
+            graph.add_nodes(nodes["node1"], nodes["node2"], nodes["node3"])
             # Only add failure connections from node1
             graph.connect_on_failure("node1", "node2")
-            graph.connect_on_failure("node1", node3)
+            graph.connect_on_failure("node1", "node3")
             # node2 has a success connection, so it's fine
-            graph.connect("node2", node3)
+            graph.connect("node2", "node3")
 
     def test_validate_success_paths_allows_mixed_connections(
         self, mocker, pre_setup_graph_nodes, mock_library
@@ -729,7 +730,7 @@ class TestQualibrationGraph:
             graph.connect("node2", "node3")  # Another valid connection
 
         assert graph._finalized
-        assert len(graph._connectivity) == 3
+        assert len(graph._connectivity) == len(nodes)
         # Verify node1 has both success and failure connections
         assert ("node1", "node2") in graph._connectivity
         assert ("node1", "node3") in graph._connectivity
