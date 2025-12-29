@@ -59,9 +59,9 @@ const useGraphData = (selectedWorkflowName?: string, subgraphBreadcrumbs?: strin
           if (edge.type === LOOPING_EDGE_TYPE) {
               color = LIGHT_GREAY;
           } else {
-              if (edge.data?.condition === true) {
+              if (edge.data?.connect_on === true) {
                   color = GREEN;
-              } else if (edge.data?.condition === false) {
+              } else if (edge.data?.connect_on === false) {
                   color = RED;
               }
           }

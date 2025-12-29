@@ -92,7 +92,7 @@ describe("Graph - ReactFlow Integration Tests", () => {
     });
 
     await waitFor(() => {
-      const selectedNode = container.querySelector('[data-id="node1"]');
+      const selectedNode = screen.getByText("node1").closest('[data-id="node1"]');
       expect(selectedNode).toHaveClass(nodeStyles.selected);
     });
   });

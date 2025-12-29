@@ -4,10 +4,15 @@ import { GraphWorkflow } from "../../../modules/GraphLibrary";
 import { Node, Edge } from "@xyflow/react";
 
 export type EdgeData = {
-  condition?: boolean;
+  connect_on?: boolean;
   loop?: {
-    condition?: boolean;
-    maxIterations: number;
+    label?: string;
+    content?: string;
+    max_iterations?: number;
+  };
+  condition?: {
+    label?: string;
+    content?: string;
   };
 };
 

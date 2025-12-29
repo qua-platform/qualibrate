@@ -5,38 +5,46 @@ import { API_METHODS } from "../../../../utils/api/types";
 import { Measurement } from "../../../../modules/GraphStatus";
 
 type NodeDTO = {
-  id: number
-  loop: boolean
+  name: string;
   data: {
-    label: string
-    condition?: boolean
-    subgraph?: FetchGraphResponse
-    max_iterations?: number,
-  }
+    label: string;
+    condition?: boolean;
+    subgraph?: FetchGraphResponse;
+    max_iterations?: number;
+  };
   position: {
-    x: number
-    y: number
-  }
-}
+    x: number;
+    y: number;
+  };
+};
 
 export type EdgeDTO = {
-  id: string
-  source: number
-  target: number
+  id: string;
+  source: string;
+  target: string;
   data: {
-    condition?: boolean
-    [key: string]: unknown
-  }
+    connect_on?: boolean;
+    loop?: {
+      label?: string;
+      content?: string;
+      max_iterations?: number;
+    };
+    condition?: {
+      label?: string;
+      content?: string;
+    };
+    [key: string]: unknown;
+  };
   position: {
-    x: number
-    y: number
-  }
-}
+    x: number;
+    y: number;
+  };
+};
 
 export type FetchGraphResponse = {
-  nodes: NodeDTO[],
-  edges: EdgeDTO[]
-}
+  nodes: NodeDTO[];
+  edges: EdgeDTO[];
+};
 
 export class GraphLibraryApi extends Api {
   constructor() {
