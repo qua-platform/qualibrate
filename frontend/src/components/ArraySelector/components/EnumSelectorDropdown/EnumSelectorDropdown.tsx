@@ -1,6 +1,15 @@
-import styles from "./EnumSelectorDropdown.module.scss";
 import React, { useState, useRef, useCallback, useMemo, ChangeEvent, useLayoutEffect, useEffect } from "react";
-import { SelectorOption } from "../../ArraySelector";
+import { classNames } from "../../../../utils/classnames";
+import styles from "./EnumSelectorDropdown.module.scss";
+import { getSearchStringIndex } from "../../utils";
+
+type EnumSelectorDropdownProps = {
+  open: boolean
+  onClose: () => void;
+  onChange: (id: string | string[]) => void;
+  options: string[];
+  value: string | string[];
+}
 
 const EnumSelectorDropdown = ({
   open,
@@ -8,33 +17,24 @@ const EnumSelectorDropdown = ({
   onChange,
   options,
   value,
-  position,
-}: {
-  open: boolean
-  onClose: () => void;
-  onChange: (id: string[]) => void;
-  options: SelectorOption[];
-  value: string[];
-  position?: DOMRect;
-}) => {
+}: EnumSelectorDropdownProps) => {
   const [searchValue, setSearchValue] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
 
-  const getSearchStringIndex = useCallback(
-    (sourceString: string) => sourceString.trim().toLowerCase().indexOf(searchValue.trim().toLowerCase()),
-    [searchValue]
-  );
   const filteredOptions = useMemo(
-    () => options.filter(option => !value.includes(option.id)).filter(option => getSearchStringIndex(option.title) !== -1),
-    [value, options, getSearchStringIndex]
+    () => options.filter(option => getSearchStringIndex(option, searchValue) !== -1),
+    [value, options, searchValue]
   );
 
   const handleEsc = (evt: KeyboardEvent) => evt.key === "Escape" && onClose();
   const handleEnterSearchValue = (evt: ChangeEvent<HTMLInputElement>) => setSearchValue(evt.target.value);
   const handleClearSearchValue = () => setSearchValue("");
-  const handleSelect = useCallback((id: string) => onChange([...value, id]), [value]);
+  const handleSelect = useCallback((id: string) => {
+    onChange(id);
+    onClose();
+  }, [value]);
 
   useLayoutEffect(() => {
     const handleClick = (evt: MouseEvent | TouchEvent) => {
@@ -59,43 +59,46 @@ const EnumSelectorDropdown = ({
     open && inputRef.current?.focus();
   }, [open]);
 
-  const renderSelectorOption = (option: SelectorOption) => {
-    const searchStringIndex = getSearchStringIndex(option.title);
+  const renderSelectorOption = (option: string) => {
+    const isSelected = value.includes(option);
+    const searchStringIndex = getSearchStringIndex(option, searchValue);
     const parts = [
-      option.title.slice(0, searchStringIndex),
-      option.title.slice(searchStringIndex, searchStringIndex + searchValue.trim().length),
-      option.title.slice(searchStringIndex + searchValue.trim().length),
+      option.slice(0, searchStringIndex),
+      option.slice(searchStringIndex, searchStringIndex + searchValue.trim().length),
+      option.slice(searchStringIndex + searchValue.trim().length),
     ];
 
     return <span
-      key={option.id}
-      onClick={() => handleSelect(option.id)}
-      data-value={option.id}
-      className={styles.popupOption}
+      key={option}
+      onClick={() => handleSelect(option)}
+      data-value={option}
+      className={classNames(styles.popupOption, isSelected && styles.selected)}
     >
       {parts.map((part, index) => index === 1 ? <strong key={part}>{part}</strong> : part)}
     </span>;
   };
 
   return open && (
-    <div className={styles.popup} style={{ top: position?.bottom, left: position?.left }} ref={buttonRef}>
-      <div className={styles.popupInput}>
-        <input
-          className={styles.searchField}
-          value={searchValue}
-          onChange={handleEnterSearchValue}
-          ref={inputRef}
-          type={"text"}
-          placeholder={"Search option..."} />
-        <button
-          className={styles.clearSearchButton}
-          onClick={handleClearSearchValue}
-        >
-          &times;
-        </button>
-      </div>
-      <div className={styles.popupList}>
-        {filteredOptions.map(renderSelectorOption)}
+    <div className={styles.popupWrapper}>
+      <div className={styles.popup} ref={buttonRef}>
+        <div className={styles.popupInput}>
+          <input
+            className={styles.searchField}
+            value={searchValue}
+            onChange={handleEnterSearchValue}
+            ref={inputRef}
+            type={"text"}
+            placeholder={"Search option..."} />
+          <button
+            className={styles.clearSearchButton}
+            onClick={handleClearSearchValue}
+          >
+            &times;
+          </button>
+        </div>
+        <div className={styles.popupList}>
+          {filteredOptions.map(renderSelectorOption)}
+        </div>
       </div>
     </div>
   );

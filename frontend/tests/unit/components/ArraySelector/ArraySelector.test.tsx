@@ -3,12 +3,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { createTestProviders } from "../../utils/providers";
-import { ArraySelector } from "../../../../src/components";
+import { QubitsSelector, EnumSelector } from "../../../../src/components";
 import userEvent from '@testing-library/user-event';
-import styles from "../../../../src/components/ArraySelector/ArraySelector.module.scss";
+import selectorStyles from "../../../../src/components/ArraySelector/components/ArraySelectorTrigger/ArraySelectorTrigger.module.scss";
 import enumStyles from "../../../../src/components/ArraySelector/components/EnumSelectorDropdown/EnumSelectorDropdown.module.scss";
 import qubitsStyles from "../../../../src/components/ArraySelector/components/QubitsSelectorPopup/QubitsSelectorPopup.module.scss";
-import { arrayParameterMock } from "./__mocks__/arrayParameter";
+import { enumParameterMock, qubitDefaultMock, qubitMetadata } from "./__mocks__/arrayParameter";
 
 describe("ArraySelector - Trigger and selected data display", () => {
   beforeEach(() => {
@@ -20,8 +20,7 @@ describe("ArraySelector - Trigger and selected data display", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'parameterKey'}
+        <EnumSelector
           disabled={false}
           value={[]}
           onChange={() => {}}
@@ -30,7 +29,7 @@ describe("ArraySelector - Trigger and selected data display", () => {
       </Providers>
     );
 
-    await waitFor(() => expect(container.querySelector(`.${styles.field}`)).toBeInTheDocument());
+    await waitFor(() => expect(container.querySelector(`.${selectorStyles.wrapper}`)).toBeInTheDocument());
   });
 
   it("should render selector with selected values", async () => {
@@ -38,10 +37,9 @@ describe("ArraySelector - Trigger and selected data display", () => {
 
     render(
       <Providers>
-        <ArraySelector
-          parameterKey={'parameterKey'}
+        <EnumSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={enumParameterMock.array.default}
           onChange={() => {}}
           options={[]}
         />
@@ -49,46 +47,31 @@ describe("ArraySelector - Trigger and selected data display", () => {
     );
 
     await waitFor(() => {
-      arrayParameterMock.array.default.map(option =>
-        expect(screen.getByText(option)).toBeInTheDocument()
-      );
+      expect(screen.getByText(enumParameterMock.array.default)).toBeInTheDocument()
     });
   });
 
-  it("should not render 'plus' button when options list is empty", async () => {
+  it("should not open popup when selector is disabled", async () => {
     const { Providers } = createTestProviders();
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'parameterKey'}
-          disabled={false}
-          value={arrayParameterMock.array.default}
-          onChange={() => {}}
-          options={[]}
-        />
-      </Providers>
-    );
-
-    expect(container.querySelector(`.${styles.openPopupTrigger}`)).not.toBeInTheDocument()
-  });
-
-  it("should not render 'plus' button when selector is disabled", async () => {
-    const { Providers } = createTestProviders();
-
-    const { container } = render(
-      <Providers>
-        <ArraySelector
-          parameterKey={'parameterKey'}
+        <EnumSelector
           disabled={true}
-          value={arrayParameterMock.array.default}
+          value={enumParameterMock.array.default}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          options={enumParameterMock.array.enum}
         />
       </Providers>
     );
 
-    expect(container.querySelector(`.${styles.openPopupTrigger}`)).not.toBeInTheDocument()
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
+    expect(openButton).toBeInTheDocument();
+    if (!openButton) return;
+
+    fireEvent.click(openButton);
+
+    expect(container.querySelector(`.${enumStyles.popup}`)).not.toBeInTheDocument()
   });
 });
 
@@ -98,17 +81,16 @@ describe("Enum Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'parameterKey'}
+        <EnumSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={enumParameterMock.array.default}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          options={enumParameterMock.array.enum}
         />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
@@ -123,27 +105,24 @@ describe("Enum Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'parameterKey'}
+        <EnumSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={enumParameterMock.array.default}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          options={enumParameterMock.array.enum}
         />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
     fireEvent.click(openButton);
 
     await waitFor(() => {
-      arrayParameterMock.array.default.map(selectedOption =>
-        expect(container.querySelector(`.${enumStyles.popupOption}[data-value="${selectedOption}]"`))
-          .not.toBeInTheDocument()
-      )
+      expect(container.querySelector(`.${enumStyles.popupOption}[data-value="${enumParameterMock.array.default}]"`))
+        .not.toBeInTheDocument()
     });
   });
 
@@ -153,32 +132,28 @@ describe("Enum Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'parameterKey'}
+        <EnumSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={enumParameterMock.array.default}
           onChange={mockOnChange}
-          options={arrayParameterMock.array.options}
+          options={enumParameterMock.array.enum}
         />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
     fireEvent.click(openButton);
 
-    const firstOption = container.querySelector(`.${enumStyles.popupOption}`)
+    const firstOption = container.querySelector(`.${enumStyles.popupOption}`);
     expect(firstOption).toBeInTheDocument();
     if (!firstOption) return;
 
     fireEvent.click(firstOption);
 
-    expect(mockOnChange).toBeCalledWith([
-      ...arrayParameterMock.array.default,
-      firstOption?.getAttribute('data-value')
-    ])
+    expect(mockOnChange).toBeCalledWith(firstOption?.getAttribute('data-value'));
   });
 
   it("should filter out options on search", async () => {
@@ -186,17 +161,16 @@ describe("Enum Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'parameterKey'}
+        <EnumSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={enumParameterMock.array.default}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          options={enumParameterMock.array.enum}
         />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
@@ -206,20 +180,20 @@ describe("Enum Selector", () => {
     expect(input).toBeInTheDocument();
     if (!input) return;
 
-    const firstOption = arrayParameterMock.array.options.reverse().find(option => !arrayParameterMock.array.default.includes(option.id));
+    const firstOption = enumParameterMock.array.enum.reverse().find(option => !enumParameterMock.array.default.includes(option));
     expect(firstOption).toBeTruthy();
     if (!firstOption) return
 
     const user = userEvent.setup();
-    await user.type(input, firstOption.title);
+    await user.type(input, firstOption);
 
     expect(Array.from(container.querySelectorAll(`.${enumStyles.popupOption}`)).length).toBe(1);
-    expect(container.querySelector(`.${enumStyles.popupOption}`)?.getAttribute('data-value')).toBe(firstOption.id);
+    expect(container.querySelector(`.${enumStyles.popupOption}`)?.getAttribute('data-value')).toBe(firstOption);
   });
 });
 
-const getSelectedOptions = () => arrayParameterMock.array.options
-  .map(option => screen.queryByTestId(`option_${option.id}`))
+const getSelectedOptions = () => Object.keys(qubitMetadata)
+  .map(option => screen.queryByTestId(`option_${option}`))
   .filter(element => element?.classList.contains(qubitsStyles.selected))
 
 describe("Qubits Selector", () => {
@@ -228,17 +202,16 @@ describe("Qubits Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'qubits'}
+        <QubitsSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={qubitDefaultMock}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          metadata={qubitMetadata}
         />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
@@ -253,24 +226,23 @@ describe("Qubits Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'qubits'}
+        <QubitsSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={qubitDefaultMock}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          metadata={qubitMetadata}
         />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
     fireEvent.click(openButton);
 
     await waitFor(() => {
-      arrayParameterMock.array.default.map(selectedOption =>
+      qubitDefaultMock.map(selectedOption =>
         expect(screen.getByTestId(`option_${selectedOption}`).classList).toContain(qubitsStyles.selected)
       )
     });
@@ -282,23 +254,22 @@ describe("Qubits Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'qubits'}
+        <QubitsSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={qubitDefaultMock}
           onChange={mockOnChange}
-          options={arrayParameterMock.array.options}
+          metadata={qubitMetadata}
         />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument()
     if (!openButton) return;
 
     fireEvent.click(openButton);
 
-    const firstOptionId = arrayParameterMock.array.options.find(option => !arrayParameterMock.array.default.includes(option.id))?.id
+    const firstOptionId = Object.keys(qubitMetadata).find(option => !qubitDefaultMock.includes(option));
     const firstOption = screen.getByTestId(`option_${firstOptionId}`)
     expect(firstOption).toBeInTheDocument();
     if (!firstOption) return;
@@ -312,7 +283,7 @@ describe("Qubits Selector", () => {
     fireEvent.click(applyButton);
 
     await waitFor(() => expect(mockOnChange).toBeCalledWith([
-      ...arrayParameterMock.array.default,
+      ...qubitDefaultMock,
       firstOption?.getAttribute('data-value')
     ]))
   });
@@ -323,18 +294,17 @@ describe("Qubits Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'qubits'}
+        <QubitsSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={qubitDefaultMock}
           onChange={mockOnChange}
-          options={arrayParameterMock.array.options}
+          metadata={qubitMetadata}
         />
       </Providers>
     );
 
 
-    let openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    let openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
@@ -355,13 +325,13 @@ describe("Qubits Selector", () => {
     expect(mockOnChange).not.toBeCalledWith();
     await waitFor(() => expect(screen.queryByText('Select qubits...')).not.toBeInTheDocument());
 
-    openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     if (!openButton) return;
     fireEvent.click(openButton);
 
     const selectedOptions = getSelectedOptions();
     expect(selectedOptions.map(element => element?.getAttribute('data-value')).sort())
-      .toStrictEqual(arrayParameterMock.array.default.sort())
+      .toStrictEqual(qubitDefaultMock.sort())
   });
 
   it("should filter out options on search", async () => {
@@ -369,17 +339,16 @@ describe("Qubits Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'qubits'}
+        <QubitsSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={qubitDefaultMock}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          metadata={qubitMetadata}
         />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
@@ -389,19 +358,19 @@ describe("Qubits Selector", () => {
     expect(input).toBeInTheDocument();
     if (!input) return;
 
-    const firstOption = arrayParameterMock.array.options[0];
+    const firstOption = qubitDefaultMock[0];
     expect(firstOption).toBeTruthy();
     if (!firstOption) return
 
     const user = userEvent.setup();
-    await user.type(input, firstOption.title);
+    await user.type(input, firstOption);
 
-    const filteredOptions = arrayParameterMock.array.options
-      .map(option => screen.queryByTestId(`option_${option.id}`))
+    const filteredOptions = Object.keys(qubitMetadata)
+      .map(option => screen.queryByTestId(`option_${option}`))
       .filter(element => element || false)
 
     expect(Array.from(filteredOptions).length).toBe(1);
-    expect(filteredOptions[0]?.getAttribute('data-value')).toBe(firstOption.id);
+    expect(filteredOptions[0]?.getAttribute('data-value')).toBe(firstOption);
   });
 
   it("should select all options on 'Select all' click", async () => {
@@ -409,17 +378,16 @@ describe("Qubits Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'qubits'}
+        <QubitsSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={qubitDefaultMock}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          metadata={qubitMetadata}
         />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
@@ -433,7 +401,7 @@ describe("Qubits Selector", () => {
 
     const selectedOptions = getSelectedOptions()
 
-    expect(selectedOptions.length).toBe(arrayParameterMock.array.options.length);
+    expect(selectedOptions.length).toBe(Object.keys(qubitMetadata).length);
   });
 
   it("should clear all selection on 'Clear all' click", async () => {
@@ -441,18 +409,17 @@ describe("Qubits Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'qubits'}
+        <QubitsSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={qubitDefaultMock}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          metadata={qubitMetadata}
         />
       </Providers>
     );
 
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
@@ -466,7 +433,7 @@ describe("Qubits Selector", () => {
 
     const selectedOptions = getSelectedOptions()
 
-    expect(selectedOptions.length).toBe(arrayParameterMock.array.options.length);
+    expect(selectedOptions.length).toBe(Object.keys(qubitMetadata).length);
 
     const clearAllButton = screen.getByTestId("clearAll");
     expect(clearAllButton).toBeInTheDocument();
@@ -484,18 +451,17 @@ describe("Qubits Selector", () => {
 
     const { container } = render(
       <Providers>
-        <ArraySelector
-          parameterKey={'qubits'}
+        <QubitsSelector
           disabled={false}
-          value={arrayParameterMock.array.default}
+          value={qubitDefaultMock}
           onChange={() => {}}
-          options={arrayParameterMock.array.options}
+          metadata={qubitMetadata}
         />
       </Providers>
     );
 
 
-    const openButton = container.querySelector(`.${styles.openPopupTrigger}`);
+    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
     expect(openButton).toBeInTheDocument();
     if (!openButton) return;
 
@@ -510,7 +476,7 @@ describe("Qubits Selector", () => {
     const selectedOptions = getSelectedOptions()
 
     expect(selectedOptions.length).toBe(
-      arrayParameterMock.array.options.filter(option => option.online).length
+      Object.values(qubitMetadata).filter(option => option.active).length
     );
   });
 });

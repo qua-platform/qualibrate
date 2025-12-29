@@ -1,1 +1,2 @@
-export { default as ArraySelector } from "./ArraySelector";
+export { default as EnumSelector } from "./EnumSelector";
+export { default as QubitsSelector } from "./QubitsSelector";

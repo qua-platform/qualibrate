@@ -1,4 +1,5 @@
-export { ArraySelector } from "./ArraySelector";
+export { EnumSelector } from "./ArraySelector";
+export { QubitsSelector } from "./ArraySelector";
 export { BasicDialog } from "./BasicDialog/BasicDialog";
 export { default as BlueButton } from "./Button/BlueButton";
 export { ErrorResponseWrapper } from "./Error/ErrorResponseWrapper";

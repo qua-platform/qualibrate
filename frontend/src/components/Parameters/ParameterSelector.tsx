@@ -8,7 +8,7 @@ import { NodeDTO } from "../../modules/Nodes";
 import { GraphWorkflow } from "../../modules/GraphLibrary";
 import InputField from "../Input/InputField";
 import { classNames } from "../../utils/classnames";
-import { ArraySelector } from "../ArraySelector";
+import { EnumSelector, QubitsSelector } from "../ArraySelector";
 
 const ParameterSelector = ({
   parameterKey,
@@ -49,7 +49,45 @@ const ParameterSelector = ({
    * time on backend, not during input. Consider adding number input with validation.
    */
   const renderInput = useCallback(() => {
-    const renderDefaultField = (
+    if (parameter.type === "boolean")
+      return (
+        <Checkbox
+          checked={inputValue as boolean}
+          onClick={handleChangeBoolean}
+          inputProps={{ "aria-label": "controlled" }}
+          data-testid={`input-field-${parameterKey}`}
+        />
+      );
+
+    if (parameter.enum)
+      return (
+        <EnumSelector
+          key={parameterKey}
+          disabled={false}
+          value={Array.isArray(inputValue) ? inputValue : (inputValue as string || "").split(",")}
+          onChange={(value) => {
+            setInputValue(value);
+            handleBlur(value);
+          }}
+          options={parameter.enum}
+        />
+      );
+
+    if (parameterKey === "qubits" && parameter.metadata)
+      return (
+        <QubitsSelector
+          key={parameterKey}
+          disabled={false}
+          value={inputValue as string[]}
+          onChange={(value) => {
+            setInputValue(value);
+            handleBlur(value);
+          }}
+          metadata={parameter.metadata}
+        />
+      );
+
+    return (
       <InputField
         placeholder={parameterKey}
         value={inputValue as string}
@@ -60,37 +98,6 @@ const ParameterSelector = ({
         data-testid={`input-field-${parameterKey}`}
       />
     );
-
-    switch (parameter.type) {
-      case "boolean":
-        return (
-          <Checkbox
-            checked={inputValue as boolean}
-            onClick={handleChangeBoolean}
-            inputProps={{ "aria-label": "controlled" }}
-            data-testid={`input-field-${parameterKey}`}
-          />
-        );
-      case "array":
-        if (parameter.options)
-          return (
-            <ArraySelector
-              key={parameterKey}
-              parameterKey={parameterKey}
-              disabled={false}
-              value={inputValue as string[]}
-              onChange={(value) => {
-                setInputValue(value);
-                handleBlur(value);
-              }}
-              options={parameter.options}
-            />
-          );
-        else
-          return renderDefaultField;
-      default:
-        return renderDefaultField;
-    }
   }, [inputValue, parameter.default]);
 
 

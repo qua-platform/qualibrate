@@ -1,24 +1,23 @@
-import { InputParameter } from "../../../../../src/components";
+import { QubitMetadataList } from "../../../../../src/components/Parameters/Parameters";
 import { NodeMap } from "../../../../../src/modules/Nodes";
 
-const parameterOptions = Array.from({ length: 50 }).map((_, index) => ({
-  id: `q${index}`,
-  title: `q${index}${index === 2 ? 'long option long option long option long option' : ''}`,
-  online: index % 3 !== 0,
-  percent: index,
-  lastRun: `${index}h ago`,
-}))
+export const qubitDefaultMock = ["q1 long long long long", "q2", "q4"];
+export const qubitMetadata = Array.from({ length: 50 })
+  .map((_, index) => index)
+  .reduce((acc, index) => ({
+    ...acc,
+    [index === 0 ? "q1 long long long long" : `q${index}`]: {
+      active: index % 3 !== 0,
+      fidelity: index,
+    }
+  }), {} as QubitMetadataList);
 
-export const arrayParameterMock = {
+export const enumParameterMock = {
   array: {
-    title: "Array",
-    default: [
-        parameterOptions[0].id,
-        parameterOptions[2].id,
-        parameterOptions[5].id,
-    ],
-    options: parameterOptions,
-    type: "array",
+    title: "Enum",
+    default: 'q0',
+    enum: Array.from({ length: 50 }).map((_, index) => `q${index}`),
+    type: "string",
     is_targets: true
   }
 };
@@ -36,9 +35,9 @@ export const createNodesMock = (nodes: NodeMap) => Object.entries(nodes || {})
           ...node.parameters,
           qubits: {
             ...node.parameters!.qubits,
-            options: parameterOptions,
+            metadata: qubitMetadata,
           },
-          ...arrayParameterMock,
+          ...enumParameterMock,
         }
       }
     }), {});

@@ -7,6 +7,7 @@ export { default as CircularLoaderProgress } from "./CircularLoaderProgress";
 export { default as CollapseSideMenuIcon } from "./CollapseSideMenuIcon";
 export { default as DataIcon } from "./DataIcon";
 export { default as ErrorIcon } from "./ErrorIcon";
+export { default as ExpandIcon } from "./ExpandIcon";
 export { default as ExpandSideMenuIcon } from "./ExpandSideMenuIcon";
 export { default as GraphLibraryIcon } from "./GraphLibraryIcon";
 export { default as GraphStatusIcon } from "./GraphStatusIcon";

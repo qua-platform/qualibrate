@@ -2,69 +2,60 @@ import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState }
 import styles from "./QubitsSelectorPopup.module.scss";
 import { Dialog, Button } from "@mui/material";
 import { classNames } from "../../../../utils/classnames";
-
-type SelectorOption = {
-  id: string;
-  title: string;
-  online: boolean;
-  percent: number;
-  lastRun: string;
-}
+import { QubitMetadata, QubitMetadataList } from "../../../Parameters/Parameters";
+import { getSearchStringIndex } from "../../utils";
 
 type IProps = {
   open: boolean;
   onClose: () => void;
   value: string[];
-  options: SelectorOption[];
+  metadata: QubitMetadataList;
   onChange: (value: string[]) => void;
 }
 
-const getSearchStringIndex = (sourceString: string, searchValue: string) =>
-  sourceString.trim().toLowerCase().indexOf(searchValue.trim().toLowerCase());
-
-const SelectorOption = ({
+const Qubit = ({
   option,
+  metadata,
   handleSelect,
   handleRemoveItem,
   selection,
   searchValue,
 }: {
-  option: SelectorOption;
+  option: string;
+  metadata: QubitMetadata;
   handleSelect: (id: string) => void;
   handleRemoveItem: (id: string) => void;
   selection: string[];
   searchValue: string;
 }) => {
-  const searchStringIndex = getSearchStringIndex(option.title, searchValue);
-  const isOnline = option.online;
-  const isSelected = selection.includes(option.id);
+  const searchStringIndex = getSearchStringIndex(option, searchValue);
+  const isActive = metadata.active;
+  const isSelected = selection.includes(option);
   const parts = [
-    option.title.slice(0, searchStringIndex),
-    option.title.slice(searchStringIndex, searchStringIndex + searchValue.trim().length),
-    option.title.slice(searchStringIndex + searchValue.trim().length),
+    option.slice(0, searchStringIndex),
+    option.slice(searchStringIndex, searchStringIndex + searchValue.trim().length),
+    option.slice(searchStringIndex + searchValue.trim().length),
   ];
 
   const handleClick = () => {
-    if (!isOnline) return;
+    if (!isActive) return;
 
     isSelected
-      ? handleRemoveItem(option.id)
-      : handleSelect(option.id);
+      ? handleRemoveItem(option)
+      : handleSelect(option);
   };
 
   return <div
     onClick={handleClick}
-    data-value={option.id}
-    data-testid={`option_${option.id}`}
-    className={classNames(styles.popupOption, !isOnline && styles.offline, isSelected && styles.selected)}
+    data-value={option}
+    data-testid={`option_${option}`}
+    className={classNames(styles.popupOption, !isActive && styles.offline, isSelected && styles.selected)}
   >
     <span className={styles.popupOptionLabel} title={parts.join("")}>
       {parts.map((part, index) => index === 1 ? <strong key={part}>{part}</strong> : part)}
     </span>
-    <div className={styles.popupOptionStatus}>{isOnline ? "online" : "offline"}</div>
-    <span className={styles.popupOptionFooter}>
-      {option.percent}% • {option.lastRun} ago
-    </span>
+    <div className={styles.popupOptionStatus}>{isActive ? "active" : "inactive"}</div>
+    <span className={styles.popupOptionFooter}>{metadata.fidelity}%</span>
   </div>;
 };
 
@@ -72,24 +63,25 @@ const QubitsSelectorPopup = ({
   open,
   onClose,
   value,
-  options,
+  metadata,
   onChange,
 }: IProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [selection, setSelection] = useState<string[]>([]);
+  const options = Object.keys(metadata);
   const inputRef = useRef<HTMLInputElement>(null);
   const filteredOptions = useMemo(
-    () => options.filter(option => getSearchStringIndex(option.title, searchValue) !== -1),
+    () => options.filter(option => getSearchStringIndex(option, searchValue) !== -1),
     [options, searchValue]
   );
 
   const handleSelect = (id: string) => setSelection(prev => [...prev, id]);
   const handleRemoveItem = useCallback((id: string) => setSelection(selection.filter(option => option !== id)), [selection]);
   const handleSelectAll = useCallback(() =>
-    setSelection(filteredOptions.map(option => option.id))
+    setSelection(filteredOptions)
   , [filteredOptions]);
   const handleClear = () => setSelection([]);
-  const handleSelectOnline = () => setSelection(options.filter(option => option.online).map(option => option.id));
+  const handleSelectOnline = () => setSelection(options.filter(option => metadata[option].active));
   const handleApply = () => {
     onChange(selection);
     onClose();
@@ -149,9 +141,10 @@ const QubitsSelectorPopup = ({
         </div>
         <div className={styles.popupList}>
           {filteredOptions.map((option) => (
-            <SelectorOption
-              key={option.id}
+            <Qubit
+              key={option}
               option={option}
+              metadata={metadata[option]}
               handleSelect={handleSelect}
               handleRemoveItem={handleRemoveItem}
               selection={selection}

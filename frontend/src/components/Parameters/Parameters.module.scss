@@ -42,6 +42,10 @@
   & > div, input {
     height: 25px;
     border-color: var(--box-background) !important;
+
+    &:hover {
+      border-color: #58a6ff !important;
+    }
   }
 
   span {
