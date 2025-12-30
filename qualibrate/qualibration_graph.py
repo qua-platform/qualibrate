@@ -985,6 +985,31 @@ class QualibrationGraph(
             node.update(additional)
             connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
+        #change qubits to a var, also add cast to what we send into the method
+        add_metadata = True
+        for element in self._elements.values():
+            if isinstance(element, QualibrationNode):
+                if element.machine is None:
+                    add_metadata = False
+                    break
+            elif isinstance(element, QualibrationGraph):
+                try:
+                    value = additional["parameters"]["qubits"]["metadata"]
+                except KeyError:
+                    add_metadata = False
+                    break
+            else:
+                add_metadata = False
+                break
+        if add_metadata and "qubits" in data["parameters"]:
+            element = next(iter(self._elements.values()))
+            machine = None
+            if isinstance(element, QualibrationNode):
+                data["parameters"]["qubits"]["metadata"] = self.__class__._get_machine_for_graph(
+                    element.machine
+                )
+            elif isinstance(element, QualibrationGraph):
+                data["parameters"]["qubits"]["metadata"] = additional["parameters"]["qubits"]["metadata"]
         if cytoscape:
             data["cytoscape"] = self.__class__.cytoscape_representation(data)
         return data

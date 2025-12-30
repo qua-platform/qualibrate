@@ -265,12 +265,14 @@ class QualibrationNode(
         """
         modes = self.modes.model_copy(update={"inspection": False})
         active_node = self.__class__.active_node
+
         try:
             self.__class__.active_node = None
             instance = self.__class__(
                 self.name,
                 self.parameters_class(),
                 self.description,
+                machine=self.machine,
                 modes=modes,
             )
             instance.modes.inspection = self.modes.inspection
