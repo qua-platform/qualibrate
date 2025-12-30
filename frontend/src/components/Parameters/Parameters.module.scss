@@ -35,12 +35,17 @@
 
 .parameterValue {
   width: 100%;
+  min-width: 0;
   margin-top: 2px;
   color: var(--font) !important;
 
-  div, input {
+  & > div, input {
     height: 25px;
     border-color: var(--box-background) !important;
+
+    &:hover {
+      border-color: #58a6ff !important;
+    }
   }
 
   span {

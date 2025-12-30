@@ -1,0 +1,136 @@
+.field {
+  min-width: 0;
+  position: relative;
+  max-height: 200px;
+  overflow: hidden;
+
+  &.expanded {
+    max-height: none;
+  }
+
+  .chipsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+    height: 100%;
+
+    .chip {
+      border-radius: 6px;
+      padding: 2px 0 2px 6px;
+      height: 24px;
+      box-sizing: border-box;
+      color: #3CDEF8;
+      background-color: #2CCBE51A;
+      font-size: 14px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      align-self: flex-start;
+      max-width: 100%;
+      z-index: 0;
+
+      .chipLabel {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .chipRemoveButton {
+        margin-left: 6px;
+        width: 16px;
+        color: #3CDEF8;
+        font-size: 20px;
+        flex-shrink: 0;
+        user-select: none;
+      }
+    }
+  }
+
+  .openPopupTrigger {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1px solid #3CDEF8;
+    color: #3CDEF8;
+    font-size: 20px;
+    line-height: 24px;
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+    user-select: none;
+    background-color: transparent;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #3CDEF818;
+    }
+  }
+
+  .showMore {
+    position: absolute;
+    width: 100%;
+    height: 40px;
+    top: 160px;
+    left: 0;
+    background-image: linear-gradient(transparent, var(--popup-background) 55%);
+    z-index: 1;
+
+    &::before {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 50%;
+      width: 80px;
+      left: calc(50% - 40px);
+      box-shadow: 0px 0px 10px 10px var(--popup-background);
+      transition: all ease-in 0.2s;
+      z-index: 0;
+    }
+
+    .showMoreButton {
+      display: block;
+      width: 100%;
+      height: 100%;
+      font-size: 16px;
+      text-align: center;
+      color: var(--menu-text-color);
+      z-index: 1;
+      position: relative;
+    }
+
+    &:has(.showMoreButton:hover)::before {
+      top: 45%;
+      box-shadow: 0px 0px 30px 20px var(--popup-background);
+    }
+
+    .openPopupTrigger {
+      position: absolute;
+      right: 5px;
+      top: 50%;
+      transform: translatey(-50%);
+      z-index: 2;
+    }
+  }
+
+  .showLessButton {
+    width: 100%;
+    color: var(--menu-text-color);
+    font-size: 16px;
+    line-height: 24px;
+    display: flex;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #42424c;
+    }
+  }
+}
+
+.enumIconExpanded {
+  transform: rotate(180deg);
+}

@@ -94,7 +94,7 @@ export const graphLibrarySlice = createSlice({
     },
     setNodeParameter: (state, action: PayloadAction<{
       paramKey: string
-      newValue: boolean | number | string
+      newValue: boolean | number | string | string[]
       nodeId?: string
       selectedWorkflowName?: string
       subgraphBreadcrumbs: string[]

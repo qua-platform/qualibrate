@@ -1,7 +1,7 @@
 import { SingleParameter } from "./Parameters";
 
 export const validate = (parameter: SingleParameter, value: unknown) => {
-  if (value === undefined) {
+  if (value === undefined || value === "" || (Array.isArray(value) && value.length === 0)) {
     return {
       isValid: false,
       error: "Must be not empty",

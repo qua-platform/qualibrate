@@ -20,12 +20,24 @@ interface IProps {
 }
 
 export type ParameterTypes = "boolean" | "number" | "integer" | "array" | "string";
+export type ParamaterValue = string | boolean | number | string[];
+export type QubitMetadata = { active: boolean; fidelity: number; }
+export type QubitMetadataList = Record<string, QubitMetadata>
 export interface SingleParameter {
   id?: string;
   name?: string;
   parameters?: InputParameter;
-  default?: string | boolean | number | string[];
+  default?: ParamaterValue;
   items?: { type: string };
+  enum?: string[]
+  metadata?: QubitMetadataList;
+  options?: {
+    id: string;
+    title: string;
+    online: boolean;
+    percent: number;
+    lastRun: string;
+  }[];
   title: string;
   type: ParameterTypes;
   is_targets: boolean;
