@@ -1,8 +1,7 @@
 import React from "react";
 import { BaseEdge, BezierEdge, EdgeLabelRenderer, EdgeProps, MarkerType } from "@xyflow/react";
-// eslint-disable-next-line css-modules/no-unused-class
-import styles from "./styles.module.scss";
-import { EdgeData, EdgeWithData } from "../../../stores/GraphStores/GraphLibrary";
+import styles from "./LoopingEdge.module.scss";
+import { EdgeData, EdgeWithData } from "../../../../stores/GraphStores/GraphLibrary";
 
 const edgeColor = "#70767d";
 export const loopingEdgeOptions = {
@@ -46,8 +45,7 @@ const LoopingEdge = (props: EdgeProps<EdgeWithData>) => {
 
   const { firstLabel, secondLabel } = getLabelsFromData(data);
 
-  const leftLabel = firstLabel ? `(${firstLabel}` : undefined;
-  // const rightLabel = secondLabel ? `${leftLabel ? " | max " : ""}${secondLabel}` : undefined;
+  const leftLabel = firstLabel ? `${firstLabel}` : undefined;
   const rightLabel = secondLabel ? `${secondLabel}` : undefined;
 
   return (
@@ -59,8 +57,8 @@ const LoopingEdge = (props: EdgeProps<EdgeWithData>) => {
           style={{ transform: `translate(-60%, -20%) translate(${sourceX - radiusX / 2}px, ${sourceY - radiusY * 2}px)` }}
         >
           {leftLabel}
-          {leftLabel && rightLabel && <span className={styles.iterations}>{rightLabel}&times;)</span>}
-          {!leftLabel && rightLabel && <>({rightLabel}&times;)</>}
+          {leftLabel && rightLabel && <span className={styles.iterations}>{rightLabel}&times;</span>}
+          {!leftLabel && rightLabel && <>{rightLabel}&times;</>}
         </div>
       </EdgeLabelRenderer>
     </>

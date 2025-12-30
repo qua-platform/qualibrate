@@ -1,6 +1,6 @@
 import { MarkerType } from "@xyflow/react";
-import DefaultNode from "./DefaultNode";
-import LoopingEdge from "./LoopingEdge";
+import DefaultNode from "./DefaultNode/DefaultNode";
+import LoopingEdge from "./LoopingEdge/LoopingEdge";
 import ConditionalEdge from "./ConditionalEdge/ConditionalEdge";
 
 export const DEFAULT_NODE_TYPE = "DefaultNode";

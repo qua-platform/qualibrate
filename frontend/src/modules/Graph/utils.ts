@@ -32,8 +32,8 @@ export const getLayoutedElements = ({ nodes = [], edges = [] }: FetchGraphRespon
     layoutOptions,
     children,
     edges: [...edges, ...loopingEdges].map((edge) => {
-      const loopEdgeType = "loop" in edge.data ? LOOPING_EDGE_TYPE : undefined;
-      const conditionalEdgeType = edge.data.condition?.label ? CONDITIONAL_EDGE_TYPE : undefined;
+      const loopEdgeType = (edge.data && "loop" in edge.data) ? LOOPING_EDGE_TYPE : undefined;
+      const conditionalEdgeType = edge.data?.condition?.label ? CONDITIONAL_EDGE_TYPE : undefined;
       const typeOfAnEdge = loopEdgeType ?? conditionalEdgeType ?? undefined;
       return {
         ...edge,

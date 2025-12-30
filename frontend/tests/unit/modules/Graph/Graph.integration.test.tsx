@@ -18,7 +18,7 @@ import {
 import { GraphLibraryApi, setSelectedNodeNameInWorkflow } from "../../../../src/stores/GraphStores/GraphLibrary";
 import { server } from "../../utils/mocks/server";
 import { http, HttpResponse } from "msw";
-import nodeStyles from "../../../../src/modules/Graph/components/styles.module.scss";
+import nodeStyles from "../../../../src/modules/Graph/components/DefaultNode/DefaultNode.module.scss";
 
 
 describe("Graph - ReactFlow Integration Tests", () => {

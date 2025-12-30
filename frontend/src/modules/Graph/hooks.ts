@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getLayoutedElements } from "./utils";
 import { FetchGraphResponse, GraphLibraryApi, EdgeWithData, NodeWithData } from "../../stores/GraphStores/GraphLibrary";
 import { LOOPING_EDGE_TYPE } from "./components";
+// import {MOCK_WORKFLOW_ELEMENTS} from "../../../tests/unit/utils/mocks/workflow"
 
 const DEFAULT_COLOR = "#40464d";
 const LIGHT_GREAY = "#70767d";
@@ -22,14 +23,14 @@ const useGraphData = (selectedWorkflowName?: string, subgraphBreadcrumbs?: strin
         if (response.isOk && response.result) {
           unformattedWorkflowElements.current = response.result;
           // Uncomment to use mocks
-          // dispatch(setUnformattedWorkflowElements(MOCK_WORKFLOW_ELEMENTS));
+          // unformattedWorkflowElements.current = MOCK_WORKFLOW_ELEMENTS;
 
           if (subgraphBreadcrumbs?.length !== 0) {
             setSubgraph();
           } else {
             layoutAndSetNodesAndEdges(response.result);
             // Uncomment to use mocks
-            // dispatch(layoutAndSetNodesAndEdges(MOCK_WORKFLOW_ELEMENTS));
+            // layoutAndSetNodesAndEdges(MOCK_WORKFLOW_ELEMENTS);
           }
         } else if (response.error) {
           console.log(response.error);

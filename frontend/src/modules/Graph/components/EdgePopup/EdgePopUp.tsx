@@ -1,18 +1,21 @@
 import React from "react";
 import { Dialog } from "@mui/material";
-import styles from "./ConditionalEdgePopUp.module.scss";
+import styles from "./EdgePopUp.module.scss";
 
 export interface ConditionalEdgePopUpProps {
   open: boolean;
   source: string;
   target: string;
-  label?: string;
-  description?: string;
+  info?: {
+    label?: string;
+    content?: string;
+  }
   onClose: () => void;
 }
 
-const ConditionalEdgePopUp = (props: ConditionalEdgePopUpProps) => {
-  const { source, target, open, label, description, onClose } = props;
+const EdgePopUp = (props: ConditionalEdgePopUpProps) => {
+  const { source, target, open, info: { label, content } = {}, onClose } = props;
+
   return (
     <Dialog classes={{ paper: styles.conditionModalWrapper }} data-test-id open={open} onClose={onClose}>
       <div data-testid={"conditional-edge-pop-up-content"} className={styles.conditionModalContent}>
@@ -43,9 +46,8 @@ const ConditionalEdgePopUp = (props: ConditionalEdgePopUpProps) => {
               className={styles.conditionModalInputTextarea}
               id="conditionTextarea"
               placeholder="Enter condition label..."
-            >
-              {label}
-            </textarea>
+              defaultValue={label}
+            />
           </div>
           <div className={styles.conditionModalInputGroup}>
             <label className={styles.conditionModalInputLabel}>Logic</label>
@@ -54,7 +56,7 @@ const ConditionalEdgePopUp = (props: ConditionalEdgePopUpProps) => {
               className={styles.conditionModalInputTextareaLogic}
               id="conditionLogicTextarea"
               placeholder="Enter condition label..."
-              value={description}
+              defaultValue={content}
             />
           </div>
         </div>
@@ -63,4 +65,4 @@ const ConditionalEdgePopUp = (props: ConditionalEdgePopUpProps) => {
   );
 };
 
-export default ConditionalEdgePopUp;
+export default EdgePopUp;

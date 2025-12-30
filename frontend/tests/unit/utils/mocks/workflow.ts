@@ -12,19 +12,16 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
           nodes: [
             {
               name: "wf_node1",
-              loop: false,
               data: { label: "wf_node1" },
               position: { x: 100, y: 100 },
             },
             {
               name: "wf_node2",
-              loop: false,
               data: { label: "wf_node2" },
               position: { x: 100, y: 100 },
             },
             {
               name: "wf_node3",
-              loop: false,
               data: { label: "wf_node3" },
               position: { x: 100, y: 100 },
             },
@@ -41,7 +38,7 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
               id: "wf_node2-wf_node2",
               source: "wf_node2",
               target: "wf_node2",
-              data: { loop: { label: "repeat-until-success", content: "some content", max_iterations: 5 } },
+              data: { loop: { content: "some content" } },
               position: { x: 100, y: 100 },
             },
           ],
@@ -51,26 +48,22 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
     },
     {
       name: "workflow2",
-      loop: false,
       data: {
         label: "workflow2",
         subgraph: {
           nodes: [
             {
               name: "wf_node1",
-              loop: false,
               data: { label: "wf_node1" },
               position: { x: 100, y: 100 },
             },
             {
               name: "wf_node2",
-              loop: false,
               data: { label: "wf_node2" },
               position: { x: 100, y: 100 },
             },
             {
               name: "wf_node3",
-              loop: false,
               data: { label: "wf_node3" },
               position: { x: 100, y: 100 },
             },
@@ -90,7 +83,6 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
     },
     {
       name: "node1",
-      loop: false,
       data: { label: "node1" },
       position: { x: 100, y: 100 },
     },
@@ -100,7 +92,11 @@ export const MOCK_WORKFLOW_ELEMENTS: FetchGraphResponse = {
       id: "workflow1->workflow1",
       source: "workflow1",
       target: "workflow1",
-      data: { loop: { label: "repeat-until-success", content: "some content", max_iterations: 5 } },
+      data: { loop: {
+        label: "repeat-until-success",
+        content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+        max_iterations: 5,
+      } },
       position: { x: 100, y: 100 },
     },
     {

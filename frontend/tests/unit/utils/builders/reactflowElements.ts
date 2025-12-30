@@ -34,6 +34,13 @@ export const createSimpleGraph = (): { nodes: Node[]; edges: Edge[] } => ({
       source: "node1",
       target: "node2",
       markerEnd: { type: MarkerType.ArrowClosed },
+      data: {
+        condition: {
+          label: "test-condition",
+          content:
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+        }
+      }
     },
     {
       id: "edge2",
@@ -312,12 +319,7 @@ export const transformToApiFormat = ({
       id: e.id,
       source: e.source ?? nodes[0].id,
       target: e.target ?? nodes[1].id,
-      data: {
-        condition: {
-          label: "string",
-          content: "string",
-        },
-      },
+      data: e.data,
       position: { x: 0, y: 0 },
     })),
   };
