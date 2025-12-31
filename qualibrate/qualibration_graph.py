@@ -936,6 +936,26 @@ class QualibrationGraph(
             "data": data,
         }
 
+    def _get_machine_metadata(self):
+        # if self._check_machines_metadata_equality():
+        if self._elements is None:
+            logger.warning(f"Graph {self.name} has no elements hence cant extract machine metadata")
+            return None
+        elements_machines_metadata = (element._get_machine_metadata() for element
+                                      in self._elements.values() if element._get_machine_metadata() is not None)
+        try:
+            first = next(elements_machines_metadata)
+        except StopIteration:
+            logger.info(f"All elements have no quam machine in graph {self.name}")
+            return None  # all None (or empty)
+        if all(v == first for v in elements_machines_metadata):
+            return first
+        logger.warning(f"Not all machines have the same metadata hence cant choose one in graph {self.name}")
+        return None
+
+
+
+
     def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """
         Serializes the graph into a dictionary format.
@@ -985,30 +1005,10 @@ class QualibrationGraph(
             node.update(additional)
             connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
-        #change qubits to a var, also add cast to what we send into the method
-        add_metadata = True
-        for element in self._elements.values():
-            if isinstance(element, QualibrationNode):
-                if element.machine is None:
-                    add_metadata = False
-                    break
-            elif isinstance(element, QualibrationGraph):
-                try:
-                    _ = additional["parameters"]["qubits"]["metadata"]
-                except KeyError:
-                    add_metadata = False
-                    break
-            else:
-                add_metadata = False
-                break
-        if add_metadata and "qubits" in data["parameters"]:
-            element = next(iter(self._elements.values()))
-            if isinstance(element, QualibrationNode):
-                data["parameters"]["qubits"]["metadata"] = self.__class__._get_machine_for_graph(
-                    element.machine
-                )
-            elif isinstance(element, QualibrationGraph):
-                data["parameters"]["qubits"]["metadata"] = additional["parameters"]["qubits"]["metadata"]
+        machine_metadata = self._get_machine_metadata()
+        if "qubits" in data["parameters"] and machine_metadata is not None:
+            data["parameters"]["qubits"]["metadata"] = machine_metadata
+
         if cytoscape:
             data["cytoscape"] = self.__class__.cytoscape_representation(data)
         return data
