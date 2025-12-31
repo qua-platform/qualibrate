@@ -569,7 +569,6 @@ class QualibrationNode(
         return metadata
 
     def _get_machine_metadata(self) -> Mapping[str, Any] | None:
-        # returns None if we dont have the right attributes in machine else {}
         if self._machine is None:
             return None
 
@@ -579,8 +578,7 @@ class QualibrationNode(
                 self._machine_metadata = self._extract_machines_metadata()
             except AttributeError:
                 self._machine_metadata = None
-        # if not hasattr(self._machine, "qubits"):
-        #     return None
+
         # Always return dict (even empty) if machine has qubits
         return self._machine_metadata
 
