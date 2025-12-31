@@ -6,6 +6,7 @@ library = QualibrationLibrary.get_active_library()
 
 USED_NODE = "test_node_mocked_machine"
 
+
 class Parameters(GraphParameters):
     targets_name: ClassVar[str] = "qubits"
     qubits: list[str]

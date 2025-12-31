@@ -243,12 +243,9 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
             tuple[QRunnable, BaseRunSummary]: The executed runnable and summary.
         """
         pass
+
     @abstractmethod
     def _get_machine_metadata(self):
-
-
-
-
         pass
 
     @property

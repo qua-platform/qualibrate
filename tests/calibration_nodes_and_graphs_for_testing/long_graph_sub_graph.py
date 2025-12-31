@@ -1,19 +1,21 @@
 from typing import ClassVar
+
 from qualibrate import GraphParameters, QualibrationGraph, QualibrationLibrary
 
 library = QualibrationLibrary.get_active_library()
 USED_NODE = "test_node_mocked_machine"
 
+
 class Parameters(GraphParameters):
     targets_name: ClassVar[str] = "qubits"
     qubits: list[str]
+
 
 # Build the main graph
 with QualibrationGraph.build(
     "long_graph_sub_graph",
     parameters=Parameters(qubits=[f"q{i}" for i in range(3)]),
 ) as graph:
-
     # # Add nodes to the main graph
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node_1"))
     for i in range(2, 5):

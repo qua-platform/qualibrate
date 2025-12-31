@@ -957,15 +957,16 @@ class QualibrationGraph(
             return None
 
         first = machines_metadata[0]
-        if all(machine_metadata == first for machine_metadata in machines_metadata[1:]):
+        if all(
+            machine_metadata == first
+            for machine_metadata in machines_metadata[1:]
+        ):
             return first
 
         logger.warning(
             f"Not all machines have the same metadata hence cant choose one in graph {self.name}"
         )
         return None
-
-
 
     def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """

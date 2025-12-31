@@ -53,8 +53,7 @@ class TestNodeSerialization:
         """Create a basic node with qubits in parameters"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
         node = QualibrationNode(
-            name="test_node",
-            parameters=ParametersWithQubits()
+            name="test_node", parameters=ParametersWithQubits()
         )
         return node
 
@@ -94,7 +93,9 @@ class TestNodeSerialization:
         if "parameters" in result and "qubits" in result["parameters"]:
             assert "metadata" not in result["parameters"]["qubits"]
 
-    def test_serialize_with_machine_but_no_qubits_in_params(self, base_node, mock_qubits):
+    def test_serialize_with_machine_but_no_qubits_in_params(
+        self, base_node, mock_qubits
+    ):
         """Test serialization when machine exists but parameters don't have qubits field"""
         active_qubits = [mock_qubits["qA1"]]
         machine = MockMachine(mock_qubits, active_qubits)
@@ -105,9 +106,13 @@ class TestNodeSerialization:
         assert isinstance(result, dict)
         # Should not have qubits metadata when parameters don't have qubits field
         if "parameters" in result:
-            assert "qubits" not in result["parameters"] or "metadata" not in result["parameters"].get("qubits", {})
+            assert "qubits" not in result[
+                "parameters"
+            ] or "metadata" not in result["parameters"].get("qubits", {})
 
-    def test_serialize_with_machine_no_attributes(self, base_node_with_qubits_params):
+    def test_serialize_with_machine_no_attributes(
+        self, base_node_with_qubits_params
+    ):
         """Test serialization when machine lacks required attributes"""
         base_node_with_qubits_params.machine = Mock(
             spec=[]
@@ -181,7 +186,9 @@ class TestNodeSerialization:
         for qubit in metadata:
             assert (metadata[qubit]["active"]) == (qubit in active_qubits_names)
 
-    def test_serialize_qubit_without_gate_fidelity(self, base_node_with_qubits_params):
+    def test_serialize_qubit_without_gate_fidelity(
+        self, base_node_with_qubits_params
+    ):
         """Test serialization when qubit doesn't have gate_fidelity attribute"""
         qubits = {
             "qA1": Mock(spec=["name"]),  # No gate_fidelity attribute
@@ -197,7 +204,9 @@ class TestNodeSerialization:
         assert metadata["qA1"]["active"] is False
         assert metadata["qA1"]["fidelity"] is None
 
-    def test_serialize_qubit_without_averaged_fidelity(self, base_node_with_qubits_params):
+    def test_serialize_qubit_without_averaged_fidelity(
+        self, base_node_with_qubits_params
+    ):
         """Test serialization when gate_fidelity doesn't
         have 'averaged' attribute"""
         qubits = {
@@ -259,10 +268,7 @@ class TestNodeSerializationEdgeCases:
     def test_serialize_with_partial_machine_attributes(self, mocker):
         """Test machine with only some attributes"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
-        node = QualibrationNode(
-            name="test",
-            parameters=ParametersWithQubits()
-        )
+        node = QualibrationNode(name="test", parameters=ParametersWithQubits())
 
         # Machine with only active_qubits
         node.machine = Mock(spec=["active_qubits"])
@@ -284,10 +290,7 @@ class TestNodeSerializationEdgeCases:
     def test_serialize_large_number_of_qubits(self, mocker):
         """Test serialization with a large number of qubits"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
-        node = QualibrationNode(
-            name="test",
-            parameters=ParametersWithQubits()
-        )
+        node = QualibrationNode(name="test", parameters=ParametersWithQubits())
 
         # Create 100 qubits
         qubits = {

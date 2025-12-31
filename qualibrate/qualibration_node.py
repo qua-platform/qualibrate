@@ -534,9 +534,9 @@ class QualibrationNode(
         metadata = {}
         try:
             if (
-                self.parameters is not None and
-                hasattr(self.parameters,"qubits") and
-                self.machine is not None
+                self.parameters is not None
+                and hasattr(self.parameters, "qubits")
+                and self.machine is not None
                 and hasattr(self.machine, "active_qubits")
                 and hasattr(self.machine, "qubits")
             ):
@@ -590,7 +590,11 @@ class QualibrationNode(
 
         metadata = self._get_machine_metadata()
 
-        if "parameters" in data and "qubits" in data["parameters"] and metadata is not None:
+        if (
+            "parameters" in data
+            and "qubits" in data["parameters"]
+            and metadata is not None
+        ):
             data["parameters"]["qubits"]["metadata"] = metadata
 
         return data
