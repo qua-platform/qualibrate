@@ -994,7 +994,7 @@ class QualibrationGraph(
                     break
             elif isinstance(element, QualibrationGraph):
                 try:
-                    value = additional["parameters"]["qubits"]["metadata"]
+                    _ = additional["parameters"]["qubits"]["metadata"]
                 except KeyError:
                     add_metadata = False
                     break
@@ -1003,7 +1003,6 @@ class QualibrationGraph(
                 break
         if add_metadata and "qubits" in data["parameters"]:
             element = next(iter(self._elements.values()))
-            machine = None
             if isinstance(element, QualibrationNode):
                 data["parameters"]["qubits"]["metadata"] = self.__class__._get_machine_for_graph(
                     element.machine

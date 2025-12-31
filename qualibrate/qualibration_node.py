@@ -527,6 +527,8 @@ class QualibrationNode(
         pre_mutated_data = copy.deepcopy(data)
         try:
             if (
+                "parameters" in data and
+                "qubits" in data["parameters"] and
                 self.machine is not None
                 and hasattr(self.machine, "active_qubits")
                 and hasattr(self.machine, "qubits")
@@ -549,12 +551,6 @@ class QualibrationNode(
                         "active": qubit in active_qubits,
                         "fidelity": gate_fidelity,
                     }
-
-                # Store metadata in the serialized data
-                if "parameters" not in data:
-                    data["parameters"] = {}
-                if "qubits" not in data["parameters"]:
-                    data["parameters"]["qubits"] = {}
 
                 data["parameters"]["qubits"]["metadata"] = metadata
         except Exception:
