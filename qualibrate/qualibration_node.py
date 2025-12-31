@@ -259,7 +259,9 @@ class QualibrationNode(
     @machine.setter
     def machine(self, value: NodeMachineType | None) -> None:
         self._machine = value
-        self._machine_metadata = None  # invalidate cache
+        self._machine_metadata: Mapping[str, Any] | None = (
+            None  # invalidate cache
+        )
 
     def __copy__(self) -> Self:
         """
@@ -530,7 +532,7 @@ class QualibrationNode(
             build_params_class=isinstance(caller, type),
         )
 
-    def _extract_machines_metadata(self):
+    def _extract_machines_metadata(self) -> Mapping[str, Any] | None:
         metadata = {}
         try:
             if (
@@ -566,7 +568,8 @@ class QualibrationNode(
             return None
         return metadata
 
-    def _get_machine_metadata(self):
+    def _get_machine_metadata(self) -> Mapping[str, Any] | None:
+        # returns None if we dont have the right attributes in machine else {}
         if self._machine is None:
             return None
 
@@ -576,13 +579,10 @@ class QualibrationNode(
                 self._machine_metadata = self._extract_machines_metadata()
             except AttributeError:
                 self._machine_metadata = None
-
-        # Only return metadata if machine exists and has qubits attribute
-        if not hasattr(self._machine, "qubits"):
-            return None
-
+        # if not hasattr(self._machine, "qubits"):
+        #     return None
         # Always return dict (even empty) if machine has qubits
-        return self._machine_metadata or {}
+        return self._machine_metadata
 
     def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
         # Get base QRunnable serialization

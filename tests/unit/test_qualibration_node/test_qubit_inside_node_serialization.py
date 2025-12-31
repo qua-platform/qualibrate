@@ -121,9 +121,9 @@ class TestNodeSerialization:
         result = base_node_with_qubits_params.serialize()
 
         assert isinstance(result, dict)
-        # Should not have qubits metadata when machine lacks attributes
+        # Should have empty qubits metadata when machine lacks attributes
         if "parameters" in result and "qubits" in result["parameters"]:
-            assert "metadata" not in result["parameters"]["qubits"]
+            assert "metadata" in result["parameters"]["qubits"]
 
     def test_serialize_with_complete_machine(
         self, node_with_machine, mock_qubits

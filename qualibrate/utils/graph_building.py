@@ -14,7 +14,6 @@ import networkx as nx
 
 from qualibrate.parameters import RunnableParameters
 from qualibrate.q_runnnable import QRunnable
-from qualibrate.utils.logger_m import logger
 
 if TYPE_CHECKING:
     from qualibrate.qualibration_graph import QualibrationGraph
@@ -113,40 +112,6 @@ class GraphExportMixin(Generic[GraphElementTypeVar]):
                 for adj in adjacency:
                     adj["id"] = adj["id"].name
         return data
-
-    @staticmethod
-    def _get_machine_for_graph(machine):
-        # Build metadata for each qubit
-        metadata = {}
-        try:
-            if (
-                machine is not None
-                and hasattr(machine, "active_qubits")
-                and hasattr(machine, "qubits")
-            ):
-                qubits = machine.qubits.keys()
-                active_qubits = {qubit.name for qubit in machine.active_qubits}
-
-                for qubit in qubits:
-                    qubit_info = machine.qubits[qubit]
-                    gate_fidelity = None
-                    if hasattr(qubit_info, "gate_fidelity") and hasattr(
-                        qubit_info.gate_fidelity, "averaged"
-                    ):
-                        gate_fidelity = qubit_info.gate_fidelity.averaged
-                    metadata[qubit] = {
-                        "active": qubit in active_qubits,
-                        "fidelity": gate_fidelity,
-                    }
-
-        except Exception:
-            # for any exception that could happen, return the old data as it was
-            logger.info(
-                "Failed to serialize quam machine for graph, probably used a different"
-                " quam package hence the machine json load isn't compatible"
-            )
-            return {}
-        return metadata
 
     @staticmethod
     def cytoscape_representation(

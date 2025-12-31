@@ -245,7 +245,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         pass
 
     @abstractmethod
-    def _get_machine_metadata(self):
+    def _get_machine_metadata(self) -> Mapping[str, Any] | None:
         pass
 
     @property

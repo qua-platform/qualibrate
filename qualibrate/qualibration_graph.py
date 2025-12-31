@@ -936,22 +936,21 @@ class QualibrationGraph(
             "data": data,
         }
 
-    def _get_machine_metadata(self):
+    def _get_machine_metadata(self) -> Mapping[str, Any] | None:
         if not self._elements:
             logger.warning(
                 f"Graph {self.name} has no elements hence cant extract machine metadata"
             )
             return None
 
-        machines_metadata = []
-
-        for element in self._elements.values():
-            metadata = element._get_machine_metadata()
-            if metadata:
-                machines_metadata.append(metadata)
+        machines_metadata = [
+            metadata
+            for element in self._elements.values()
+            if (metadata := element._get_machine_metadata())
+        ]
 
         if not machines_metadata:
-            logger.info(
+            logger.debug(
                 f"No elements with usable machine metadata in graph {self.name}"
             )
             return None
