@@ -5,7 +5,14 @@ import pytest
 
 from qualibrate import GraphParameters, NodeParameters, QualibrationGraph, QualibrationNode
 
+MOCK_QUBITS_FIDELITIES = {
+    "q1": 0.99,
+    "q2": 0.95,
+    "q3": 0.98,
+    "q4": None,
+}
 
+ACTIVE_QUBITS = {"q1", "q3"}
 class MockQubit:
     """Mock qubit class for testing"""
 
@@ -15,7 +22,7 @@ class MockQubit:
             self.gate_fidelity = Mock()
             self.gate_fidelity.averaged = gate_fidelity_value
         else:
-            self.gate_fidelity = Mock(spec=[])  # No 'averaged' attribute
+            self.gate_fidelity = Mock(spec=[])
 
 
 class MockMachine:
@@ -56,16 +63,14 @@ class TestGraphSerialization:
         )
         return mock_lib
 
+
     @pytest.fixture
     def mock_qubits(self):
         """Create mock qubits with various configurations"""
-        qubits = {
-            "q1": MockQubit("q1", 0.99),
-            "q2": MockQubit("q2", 0.95),
-            "q3": MockQubit("q3", 0.98),
-            "q4": MockQubit("q4", None),  # No fidelity
+        return {
+            name: MockQubit(name, fidelity)
+            for name, fidelity in MOCK_QUBITS_FIDELITIES.items()
         }
-        return qubits
 
     @pytest.fixture
     def mock_machine(self, mock_qubits):
@@ -399,7 +404,7 @@ class TestNestedGraphSerialization:
     def test_serialize_graph_with_subgraph_no_metadata(
             self, mocker, node_with_machine, mock_qubits, mock_library
     ):
-        """Test serialization when subgraph has no metadata"""
+        """Subgraph has nodes without machines; parent graph collects valid metadata from nodes that do"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
 
         # Create subgraph with node without machine
@@ -426,9 +431,9 @@ class TestNestedGraphSerialization:
 
         result = parent_graph.serialize()
 
-        # Parent graph should not have metadata because subgraph doesn't
-        if "parameters" in result and "qubits" in result["parameters"]:
-            assert "metadata" not in result["parameters"]["qubits"]
+        metadata = result["parameters"]["qubits"]["metadata"]
+        assert metadata
+        assert "q1" in metadata
 
 
 class TestGraphSerializationEdgeCases:

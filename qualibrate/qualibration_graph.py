@@ -937,22 +937,33 @@ class QualibrationGraph(
         }
 
     def _get_machine_metadata(self):
-        # if self._check_machines_metadata_equality():
-        if self._elements is None:
-            logger.warning(f"Graph {self.name} has no elements hence cant extract machine metadata")
+        if not self._elements:
+            logger.warning(
+                f"Graph {self.name} has no elements hence cant extract machine metadata"
+            )
             return None
-        elements_machines_metadata = (element._get_machine_metadata() for element
-                                      in self._elements.values() if element._get_machine_metadata() is not None)
-        try:
-            first = next(elements_machines_metadata)
-        except StopIteration:
-            logger.info(f"All elements have no quam machine in graph {self.name}")
-            return None  # all None (or empty)
-        if all(v == first for v in elements_machines_metadata):
-            return first
-        logger.warning(f"Not all machines have the same metadata hence cant choose one in graph {self.name}")
-        return None
 
+        machines_metadata = []
+
+        for element in self._elements.values():
+            metadata = element._get_machine_metadata()
+            if metadata:
+                machines_metadata.append(metadata)
+
+        if not machines_metadata:
+            logger.info(
+                f"No elements with usable machine metadata in graph {self.name}"
+            )
+            return None
+
+        first = machines_metadata[0]
+        if all(machine_metadata == first for machine_metadata in machines_metadata[1:]):
+            return first
+
+        logger.warning(
+            f"Not all machines have the same metadata hence cant choose one in graph {self.name}"
+        )
+        return None
 
 
 
