@@ -533,15 +533,17 @@ class QualibrationNode(
         )
 
     def _extract_machines_metadata(self) -> Mapping[str, Any] | None:
-        metadata = {}
+        metadata = None
         try:
             if (
-                self.parameters is not None
-                and hasattr(self.parameters, "qubits")
-                and self.machine is not None
-                and hasattr(self.machine, "active_qubits")
-                and hasattr(self.machine, "qubits")
+                    self.parameters is not None
+                    and hasattr(self.parameters, "qubits")
+                    and
+                    self.machine is not None
+                    and hasattr(self.machine, "active_qubits")
+                    and hasattr(self.machine, "qubits")
             ):
+                metadata = {}
                 qubits = self.machine.qubits.keys()
                 active_qubits = {
                     qubit.name for qubit in self.machine.active_qubits
@@ -552,7 +554,7 @@ class QualibrationNode(
                     qubit_info = self.machine.qubits[qubit]
                     gate_fidelity = None
                     if hasattr(qubit_info, "gate_fidelity") and hasattr(
-                        qubit_info.gate_fidelity, "averaged"
+                            qubit_info.gate_fidelity, "averaged"
                     ):
                         gate_fidelity = qubit_info.gate_fidelity.averaged
                     metadata[qubit] = {
