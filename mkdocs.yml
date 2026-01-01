@@ -54,6 +54,7 @@ nav:
   - configuration.md
   - "Additional features":
       - node_actions.md
+  - release_notes.md
 
   # - "API References":
   #   - "API_references/index.md"
