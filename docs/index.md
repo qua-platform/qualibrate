@@ -37,6 +37,9 @@ For advanced features like looping, failure handling, and nested subgraphs, see 
 ### [Web App](web_app.md)
 QUAlibrate's web interface allows users to run calibration nodes and graphs intuitively. With live updates, parameter adjustments, and graphical results, the web app makes calibration processes more accessible to users without deep programming expertise.
 
+### [Release Notes](release_notes.md)
+QUAlibrate is updated regularly to provide new features, performance improvements and bug fixes.
+These release notes provide more information about those changes. 
 
 ## Community and Support
 QUAlibrate is fully open source, and contributions are welcome! If you want to report a bug, request a new feature, or contribute code, check out our [GitHub repository](https://github.com/qua-platform/qualibrate). For questions, feel free to open an issue or reach out through the community.
