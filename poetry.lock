@@ -2854,7 +2854,7 @@ tomli-w = ">=1.0.0,<2.0.0"
 
 [[package]]
 name = "qualibrate-core"
-version = "0.5.0"
+version = "0.6.0"
 description = ""
 optional = false
 python-versions = "^3.10,<3.13"
@@ -2871,14 +2871,14 @@ networkx = "~3.4.2"
 pydantic = "^2.9.2"
 python-json-logger = "^3.2.1"
 qualang-tools = {version = ">=0.20.0", markers = "python_version >= \"3.10\" and python_version < \"3.13\""}
-qualibrate-config = "^0.1.7,<0.2.0"
+qualibrate-config = "^0.1.8,<0.2.0"
 types-networkx = "~3.4.2.20250527"
 
 [package.source]
 type = "git"
 url = "https://github.com/qua-platform/qualibrate-core.git"
 reference = "HEAD"
-resolved_reference = "8fe5f724e0069876b5f390a1008671943659f3b1"
+resolved_reference = "e02b120503bdeccf0579ef406ece2c2cc48f36d0"
 
 [[package]]
 name = "rapidfuzz"
@@ -3781,4 +3781,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.13"
-content-hash = "f403f28c62219e2e8f2726ab85b1061c00624c648ca2cd9a36bfa545095d652e"
+content-hash = "44963590f85aa49537e1cb5e580f69ecaa3a61ebfcc0aa415e1a9df00652774f"

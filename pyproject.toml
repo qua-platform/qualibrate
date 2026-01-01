@@ -14,7 +14,7 @@ click = "^8.1.7,<8.2.0"
 tomli = { version = "^2.0.1", python = "<3.11" }
 tomli-w = "^1.0.0"
 jsonpatch = "^1.33"
-qualibrate-core = "^0.5.0,<0.6.0"
+qualibrate-core = "^0.6.0,<0.7.0"
 qualibrate-config = "^0.1.8,<0.2.0"
 websockets = "^15.0.1"
 
