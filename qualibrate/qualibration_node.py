@@ -252,6 +252,17 @@ class QualibrationNode(
     def action_label(self, value: str | None) -> None:
         self._custom_action_label = value
 
+    @property
+    def machine(self) -> NodeMachineType | None:
+        return self._machine
+
+    @machine.setter
+    def machine(self, value: NodeMachineType | None) -> None:
+        self._machine = value
+        self._machine_metadata: Mapping[str, Any] | None = (
+            None  # invalidate cache
+        )
+
     def __copy__(self) -> Self:
         """
         Creates a shallow copy of the node.
@@ -265,12 +276,14 @@ class QualibrationNode(
         """
         modes = self.modes.model_copy(update={"inspection": False})
         active_node = self.__class__.active_node
+
         try:
             self.__class__.active_node = None
             instance = self.__class__(
                 self.name,
                 self.parameters_class(),
                 self.description,
+                machine=self.machine,
                 modes=modes,
             )
             instance.modes.inspection = self.modes.inspection
@@ -519,23 +532,23 @@ class QualibrationNode(
             build_params_class=isinstance(caller, type),
         )
 
-    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
-        # Get base QRunnable serialization
-        data = dict(super().serialize(**kwargs))
-        pre_mutated_data = copy.deepcopy(data)
+    def _extract_machines_metadata(self) -> Mapping[str, Any] | None:
+        metadata = None
         try:
             if (
-                self.machine is not None
+                self.parameters is not None
+                and hasattr(self.parameters, "qubits")
+                and self.machine is not None
                 and hasattr(self.machine, "active_qubits")
                 and hasattr(self.machine, "qubits")
             ):
+                metadata = {}
                 qubits = self.machine.qubits.keys()
                 active_qubits = {
                     qubit.name for qubit in self.machine.active_qubits
                 }
 
                 # Build metadata for each qubit
-                metadata = {}
                 for qubit in qubits:
                     qubit_info = self.machine.qubits[qubit]
                     gate_fidelity = None
@@ -547,21 +560,42 @@ class QualibrationNode(
                         "active": qubit in active_qubits,
                         "fidelity": gate_fidelity,
                     }
-
-                # Store metadata in the serialized data
-                if "parameters" not in data:
-                    data["parameters"] = {}
-                if "qubits" not in data["parameters"]:
-                    data["parameters"]["qubits"] = {}
-
-                data["parameters"]["qubits"]["metadata"] = metadata
         except Exception:
             # for any exception that could happen, return the old data as it was
             logger.info(
-                "Failed to serialize quam machine, probably used a different"
+                "Failed to set quam machine metadata, probably used a different"
                 " quam package hence the machine json load isn't compatible"
             )
-            return pre_mutated_data
+            return None
+        return metadata
+
+    def _get_machine_metadata(self) -> Mapping[str, Any] | None:
+        if self._machine is None:
+            return None
+
+        if self._machine_metadata is None:
+            # Only extract metadata if machine has the right attributes
+            try:
+                self._machine_metadata = self._extract_machines_metadata()
+            except AttributeError:
+                self._machine_metadata = None
+
+        # Always return dict (even empty) if machine has qubits
+        return self._machine_metadata
+
+    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
+        # Get base QRunnable serialization
+        data = dict(super().serialize(**kwargs))
+
+        metadata = self._get_machine_metadata()
+
+        if (
+            "parameters" in data
+            and "qubits" in data["parameters"]
+            and metadata is not None
+        ):
+            data["parameters"]["qubits"]["metadata"] = metadata
+
         return data
 
     def _post_run(
