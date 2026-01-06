@@ -150,14 +150,15 @@ def simplify_traceback(
             idx for idx in node_frame_indices if idx > last_framework_idx
         ]
 
-        if node_frames_after_framework:
-            # Start from the first node frame after framework code
-            # This captures the action function + all nested calls
-            start_idx = node_frames_after_framework[0]
-        else:
-            # Fallback: use first node frame
-            # (unlikely edge case - shouldn't happen in normal execution)
-            start_idx = node_frame_indices[0]
+        # Start from the first node frame after framework code
+        # This captures the action function + all nested calls
+        # Fallback: use first node frame
+        # (unlikely edge case - shouldn't happen in normal execution)
+        start_idx = (
+            node_frames_after_framework[0]
+            if node_frames_after_framework
+            else node_frame_indices[0]
+        )
 
     # Extract relevant frames from start point onwards
     relevant_frames = all_frames[start_idx:]
@@ -794,10 +795,11 @@ class QualibrationNode(
             for i in range(start_line, end_line):
                 line_num = i + 1
                 line_text = lines[i].rstrip()
-                if line_num == error_lineno:
-                    marker = "  # <- Error occurred here"
-                else:
-                    marker = ""
+                marker = (
+                    "  # <- Error occurred here"
+                    if line_num == error_lineno
+                    else ""
+                )
                 snippet_lines.append(f"{line_num:4d}: {line_text}{marker}")
 
             return "\n".join(snippet_lines)
@@ -829,10 +831,11 @@ class QualibrationNode(
             # Determine if it's in node body or during initialization
             # If we have any actions registered, it's likely in the body
             # Otherwise, it's during initialization
-            if self._action_manager.actions:
-                location = "node initialization (outside of actions)"
-            else:
-                location = "node body"
+            location = (
+                "node initialization (outside of actions)"
+                if self._action_manager.actions
+                else "node body"
+            )
             return f"Failure in {location}"
 
     def _generate_error_details(
