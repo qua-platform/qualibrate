@@ -38,6 +38,20 @@ qualibrate-runner start
 
 In this case, ensure that the correct address and port are specified in the configuration file. For more details, refer to the [configuration documentation](https://qua-platform.github.io/qualibrate/configuration/).
 
+## Testing
+
+To run the test suite:
+
+```bash
+poetry run pytest
+```
+
+For verbose output:
+
+```bash
+poetry run pytest -v
+```
+
 ## License
 
 QUAlibrate-Runner is licensed under the BSD-3 license. See the [LICENSE](https://github.com/qua-platform/qualibrate-runner/blob/main/LICENSE) file for more details.

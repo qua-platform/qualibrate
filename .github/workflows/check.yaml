@@ -22,7 +22,7 @@ jobs:
           cache-dependency-path: poetry.lock
 
       - name: Install python deps
-        run: poetry install --with dev --all-extras
+        run: poetry install --with dev
 
       - name: Check python package typing
         run: poetry run poe type

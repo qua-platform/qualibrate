@@ -1,3 +1,17 @@
+"""
+Execution tracking model for calibration jobs.
+
+This module defines the LastRun model, which captures information about
+a single execution of a node or workflow. It includes:
+- Execution status and timing
+- Input parameters and results
+- Error information if the execution failed
+- State updates (changes to QuAM quantum machine state)
+
+The LastRun is updated by run_job.run_node() and run_job.run_workflow()
+throughout the execution lifecycle (RUNNING -> FINISHED/ERROR).
+"""
+
 from collections.abc import Mapping
 from datetime import datetime
 from typing import Annotated, Any
@@ -13,8 +27,18 @@ __all__ = ["LastRun"]
 
 
 class LastRun(BaseModel):
-    """Model representing the last executed run."""
+    """
+    Execution record for a calibration node or workflow.
 
+    This model captures info about a single execution, from start to
+    completion (or error). It's designed to be updated twice:
+    1. Initially: when execution starts (RUNNING status, start time)
+    2. Finally: when execution completes (FINISHED/ERROR status, results/error)
+
+    The model supports serialization to JSON for API responses and storage.
+    """
+
+    # Execution status can be RUNNING, FINISHED, or ERROR
     status: Annotated[
         RunStatusEnum,
         Field(
@@ -70,7 +94,7 @@ class LastRun(BaseModel):
     ] = None
 
     @computed_field(description="Duration of the run in seconds.")
-    def run_duration(self) -> float:
+    def run_duration(self) -> float:  # Unit: seconds
         duration = (
             self.completed_at - self.started_at
             if self.completed_at is not None

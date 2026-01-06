@@ -17,12 +17,20 @@ jsonpatch = "^1.33"
 qualibrate-core = "^0.6.0,<0.7.0"
 qualibrate-config = "^0.1.8,<0.2.0"
 websockets = "^15.0.1"
+quam = "^0.4.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.18.2"
 ruff = "^0.13.1"
 poethepoet = "^0.37.0"
 qualibrate-core = {git = "https://github.com/qua-platform/qualibrate-core.git"}
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.2"
+pytest-mock = "^3.15.1"
+freezegun = "^1.2.0"
+xarray = "^2024.1.0"
+quam-builder = {git = "https://github.com/qua-platform/quam-builder.git"}
 
 #[tool.poetry.group.qm-dev.dependencies]
 #qualibrate-config = {path = "../qualibrate-config", develop = true}
@@ -38,7 +46,7 @@ warn_return_any = true
 plugins = ['pydantic.mypy']
 
 [[tool.mypy.overrides]]
-module = ["jsonpatch", "jsonpointer"]
+module = ["jsonpatch", "jsonpointer", "qualang_tools.*"]
 ignore_missing_imports = true
 
 [tool.ruff]
@@ -69,6 +77,12 @@ type = "mypy ."
 check.sequence = ["lint", "format", "type"]
 fix.sequence = ["lint-fix", "format-fix", "type"]
 fix.ignore_fail = "return_non_zero"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 
 [build-system]
 requires = ["poetry-core"]
