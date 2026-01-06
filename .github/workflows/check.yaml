@@ -27,6 +27,24 @@ jobs:
       - name: Update qualibrate-core to latest main
         run: poetry update qualibrate-core
 
+      - name: Create qualibrate config for tests
+        run: |
+          mkdir -p ~/.qualibrate
+          cat > ~/.qualibrate/config.toml << 'EOF'
+          [qualibrate]
+          version = 5
+          project = "test"
+          log_folder = "/tmp/qualibrate/logs"
+
+          [qualibrate.storage]
+          type = "local_storage"
+          location = "/tmp/qualibrate/data"
+
+          [qualibrate.calibration_library]
+          folder = "/tmp/qualibrate/calibrations"
+          resolver = "qualibrate.QualibrationLibrary"
+          EOF
+
       - name: Check python package typing
         run: poetry run poe type
 
