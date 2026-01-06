@@ -24,6 +24,9 @@ jobs:
       - name: Install python deps
         run: poetry install --with dev
 
+      - name: Update qualibrate-core to latest main
+        run: poetry update qualibrate-core
+
       - name: Check python package typing
         run: poetry run poe type
 
@@ -32,3 +35,6 @@ jobs:
 
       - name: Check format python package
         run: poetry run poe format
+
+      - name: Run tests
+        run: poetry run pytest

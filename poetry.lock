@@ -3090,7 +3090,7 @@ types-networkx = "~3.4.2.20250527"
 type = "git"
 url = "https://github.com/qua-platform/qualibrate-core.git"
 reference = "HEAD"
-resolved_reference = "e02b120503bdeccf0579ef406ece2c2cc48f36d0"
+resolved_reference = "6d9eed5a7fa0073131b00b4405a33b5c75289a93"
 
 [[package]]
 name = "quam"
