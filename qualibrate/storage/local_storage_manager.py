@@ -189,10 +189,9 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             for elem_group in proposed_content_mapping.values()
             for elem in elem_group
         )
-        if all_attrs_present:
-            content_mapping = proposed_content_mapping
-        else:
-            content_mapping = None
+        content_mapping = (
+            proposed_content_mapping if all_attrs_present else None
+        )
 
         # Save as single file in data folder
         machine.save(Path(self.data_handler.path) / "quam_state.json")

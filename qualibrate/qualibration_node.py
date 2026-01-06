@@ -206,6 +206,7 @@ class QualibrationNode(
         *,
         parameters_class: type[ParametersType] | None = None,
         modes: RunModes | None = None,
+        machine: NodeMachineType | None = None,
     ):
         if self.__class__.active_node is not None:
             return
@@ -223,8 +224,8 @@ class QualibrationNode(
         # class is used just for passing reference to the running instance
         self._fraction_complete = 0.0
         self.results: dict[Any, Any] = {}
-        self.machine: NodeMachineType | None = None
         self.storage_manager: StorageManager[Self] | None = None
+        self.machine = machine
 
         # Initialize the ActionManager to handle run_action logic.
         self._action_manager = ActionManager()
@@ -332,6 +333,17 @@ class QualibrationNode(
     def action_label(self, value: str | None) -> None:
         self._custom_action_label = value
 
+    @property
+    def machine(self) -> NodeMachineType | None:
+        return self._machine
+
+    @machine.setter
+    def machine(self, value: NodeMachineType | None) -> None:
+        self._machine = value
+        self._machine_metadata: Mapping[str, Any] | None = (
+            None  # invalidate cache
+        )
+
     def __copy__(self) -> Self:
         """
         Creates a shallow copy of the node.
@@ -345,12 +357,14 @@ class QualibrationNode(
         """
         modes = self.modes.model_copy(update={"inspection": False})
         active_node = self.__class__.active_node
+
         try:
             self.__class__.active_node = None
             instance = self.__class__(
                 self.name,
                 self.parameters_class(),
                 self.description,
+                machine=self.machine,
                 modes=modes,
             )
             instance.modes.inspection = self.modes.inspection
@@ -598,6 +612,72 @@ class QualibrationNode(
             custom_loaders=custom_loaders,
             build_params_class=isinstance(caller, type),
         )
+
+    def _extract_machines_metadata(self) -> Mapping[str, Any] | None:
+        metadata = None
+        try:
+            if (
+                self.parameters is not None
+                and hasattr(self.parameters, "qubits")
+                and self.machine is not None
+                and hasattr(self.machine, "active_qubits")
+                and hasattr(self.machine, "qubits")
+            ):
+                metadata = {}
+                qubits = self.machine.qubits.keys()
+                active_qubits = {
+                    qubit.name for qubit in self.machine.active_qubits
+                }
+
+                # Build metadata for each qubit
+                for qubit in qubits:
+                    qubit_info = self.machine.qubits[qubit]
+                    gate_fidelity = None
+                    if hasattr(qubit_info, "gate_fidelity") and hasattr(
+                        qubit_info.gate_fidelity, "averaged"
+                    ):
+                        gate_fidelity = qubit_info.gate_fidelity.averaged
+                    metadata[qubit] = {
+                        "active": qubit in active_qubits,
+                        "fidelity": gate_fidelity,
+                    }
+        except Exception:
+            # for any exception that could happen, return the old data as it was
+            logger.info(
+                "Failed to set quam machine metadata, probably used a different"
+                " quam package hence the machine json load isn't compatible"
+            )
+            return None
+        return metadata
+
+    def _get_machine_metadata(self) -> Mapping[str, Any] | None:
+        if self._machine is None:
+            return None
+
+        if self._machine_metadata is None:
+            # Only extract metadata if machine has the right attributes
+            try:
+                self._machine_metadata = self._extract_machines_metadata()
+            except AttributeError:
+                self._machine_metadata = None
+
+        # Always return dict (even empty) if machine has qubits
+        return self._machine_metadata
+
+    def serialize(self, **kwargs: Any) -> Mapping[str, Any]:
+        # Get base QRunnable serialization
+        data = dict(super().serialize(**kwargs))
+
+        metadata = self._get_machine_metadata()
+
+        if (
+            "parameters" in data
+            and "qubits" in data["parameters"]
+            and metadata is not None
+        ):
+            data["parameters"]["qubits"]["metadata"] = metadata
+
+        return data
 
     def _post_run(
         self,

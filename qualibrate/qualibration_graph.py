@@ -1,4 +1,5 @@
 import copy
+import inspect
 import traceback
 from collections import defaultdict
 from collections.abc import Callable, Generator, Mapping, Sequence
@@ -16,10 +17,14 @@ from typing import (
 )
 
 import networkx as nx
-from pydantic import BaseModel, create_model
+from pydantic import create_model
 from typing_extensions import Self
 
 from qualibrate.models.node_status import ElementRunStatus
+from qualibrate.models.operational_condition import (
+    LoopCondition,
+    OperationalCondition,
+)
 from qualibrate.models.outcome import Outcome
 from qualibrate.models.run_mode import RunModes
 from qualibrate.models.run_summary.base import BaseRunSummary
@@ -70,24 +75,6 @@ NodeLibT = QualibrationNode[NodeParameters, MachineProtocol]
 GraphElLibT = QRunnable[RunnableParameters, RunnableParameters]
 
 
-class LoopCondition(BaseModel, Generic[GraphElementTypeVar]):
-    on_failure: bool = False
-    on_function: Callable[[GraphElementTypeVar, TargetType], bool] | None = None
-    on_generator: (
-        Callable[
-            [],
-            Generator[
-                bool, tuple[GraphElementTypeVar, TargetType] | None, None
-            ],
-        ]
-        | None
-    ) = None
-    max_iterations: int | None = None
-    """
-    Common amount for all loop types (on failure, on function, on generator)
-    """
-
-
 class QualibrationGraph(
     QRunnable[GraphCreateParametersType, GraphRunParametersType],
     GraphExportMixin[GraphElementTypeVar],
@@ -123,6 +110,8 @@ class QualibrationGraph(
     EDGE_TARGETS_FIELD = "targets"
     ELEMENT_STATUS_FIELD = "status"
     LOOP_TARGETS_FIELD = "loop_targets"
+    OPERATIONAL_CONDITION_FIELD = "operational_condition"
+    RUN_SCENARIO_FIELD = "scenario"
     _node_init_args = {
         ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
     }
@@ -144,7 +133,7 @@ class QualibrationGraph(
         if not isinstance(parameters, GraphParameters):
             raise ValueError("Graph parameters must be of type GraphParameters")
         super().__init__(name, parameters, description=description, modes=modes)
-        self._connectivity: dict[tuple[str, str], Outcome]
+        self._connectivity: dict[tuple[str, str], dict[str, Any]]
         if finalize:
             if nodes is None or connectivity is None:
                 raise RuntimeError(
@@ -153,7 +142,12 @@ class QualibrationGraph(
                 )
             self._elements = dict(nodes)
             self._connectivity = {
-                connectivity: Outcome.SUCCESSFUL
+                connectivity: {
+                    QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL,
+                    QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition[
+                        GraphElementTypeVar
+                    ](),
+                }
                 for connectivity in connectivity
             }
         else:
@@ -265,7 +259,14 @@ class QualibrationGraph(
                 new_graph._graph.add_edge(
                     new_graph._elements[source],
                     new_graph._elements[destination],
-                    scenario=self._connectivity[(source, destination)],
+                    scenario=self._connectivity[(source, destination)][
+                        QualibrationGraph.RUN_SCENARIO_FIELD
+                    ],
+                    operational_condition=copy.deepcopy(
+                        self._connectivity[(source, destination)][
+                            QualibrationGraph.OPERATIONAL_CONDITION_FIELD
+                        ]
+                    ),
                 )
 
         # Copy orchestrator if it exists
@@ -315,15 +316,23 @@ class QualibrationGraph(
         to:
         - Add elements to the graph based on their names.
         - Add edges (connections) between elements if both elements exist.
+        - Validate that every element with outgoing connections has at least one
+          connection on a successful outcome.
 
         Raises:
             ValueError: If a connection references an element that has not been
                 registered. The error message includes the offending element
                 name and the available element names.
+            ValueError: If an element has outgoing connections but no connection
+                defined for a successful outcome.
         """
 
         for element_name in self._elements:
             self._add_element_to_nx_by_name(element_name)
+
+        # Track which nodes have success connections
+        nodes_with_success = set()
+        nodes_with_any_connection = set()
 
         for source, destination in self._connectivity:
             try:
@@ -343,12 +352,33 @@ class QualibrationGraph(
                     "registered. Available element names: "
                     f"{tuple(self._elements.keys())}"
                 ) from ex
+
+            # Track connections
+            nodes_with_any_connection.add(source)
+            edge_data = self._connectivity[(source, destination)]
+            if edge_data[self.RUN_SCENARIO_FIELD] == Outcome.SUCCESSFUL:
+                nodes_with_success.add(source)
+
             if not self._graph.has_edge(source_element, destination_element):
                 self._graph.add_edge(
                     source_element,
                     destination_element,
-                    scenario=self._connectivity[(source, destination)],
+                    scenario=edge_data[self.RUN_SCENARIO_FIELD],
+                    operational_condition=edge_data[
+                        self.OPERATIONAL_CONDITION_FIELD
+                    ],
                 )
+
+        # Validate that all nodes with connections have at least one success path
+        nodes_without_success = nodes_with_any_connection - nodes_with_success
+        if nodes_without_success:
+            raise ValueError(
+                f"The following nodes in graph '{self.name}' have outgoing "
+                f"connections but no success path: {sorted(nodes_without_success)}. "
+                f"Every node with outgoing edges must have at least one connection "
+                f"on successful outcome."
+            )
+
         self._validate_graph_acyclic()
 
     @staticmethod
@@ -823,85 +853,143 @@ class QualibrationGraph(
 
     @ensure_finalized
     def serialize_graph_representation(self) -> Mapping[str, Any]:
-        identifier = 1
+        flow_dict = defaultdict(list)
 
-        def __serialize_graph_represantation_inner(
-            graph_self: "QualibrationGraph[Any]",
-        ) -> Mapping[str, Any]:
-            flow_dict = defaultdict(list)
-            nonlocal identifier
-            nx_data = dict(
-                graph_self.__class__.nx_graph_export(
-                    graph_self._graph, node_names_only=True
+        nx_data = dict(
+            self.__class__.nx_graph_export(self._graph, node_names_only=True)
+        )
+
+        nodes_raw = nx_data.pop("nodes")
+        adj_raw = nx_data.pop("adjacency")
+
+        for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
+            node_name = node["id"]
+
+            element = self._elements[node_name]
+            subgraph_data = {}
+            loop_data: dict[str, Any] = {}
+
+            if isinstance(element, QualibrationGraph):
+                subgraph_data["subgraph"] = (
+                    element.serialize_graph_representation()
                 )
+
+            flow_dict["nodes"].append(
+                {
+                    "name": node_name,
+                    "data": {
+                        "label": node_name,
+                        **subgraph_data,
+                        **loop_data,
+                    },
+                }
             )
 
-            nodes_raw = nx_data.pop("nodes")
-            adj_raw = nx_data.pop("adjacency")
+            for adj in adjacency:
+                # where QualibrationGraph.OPERATIONAL_CONDITION_FIELD is used,
+                # it's because it is how
+                # we save the operational condition in the graph
+                # where it's not used but operational_condition key
+                # is still used, it's because this is the key returned
+                # to the ui and not necessarily the key we save the data in
+                # the same as for a scenario
+                target_name = adj["id"]
 
-            name_identifier_dict = {}
-            for node in nodes_raw:
-                node_id = identifier
-                identifier += 1
-                node_name = node["id"]
-                name_identifier_dict[node_name] = node_id
-
-            for node, adjacency in zip(nodes_raw, adj_raw, strict=False):
-                node_name = node["id"]
-                node_id = name_identifier_dict[node_name]
-
-                element = graph_self._elements[node_name]
-                subgraph_data = {}
-                loop_flag = False
-                loop_data: dict[str, Any] = {}
-                node_conditions = self._loop_conditions.get(node_name)
-                if node_conditions:
-                    loop_flag = True
-                    loop_data["condition"] = (
-                        node_conditions.on_generator is not None
-                        or node_conditions.on_function is not None
+                condition_name, condition_content = (
+                    self._get_operational_condition_signature_and_content(
+                        adj[QualibrationGraph.OPERATIONAL_CONDITION_FIELD]
                     )
-                    loop_data["on_failure"] = node_conditions.on_failure
-                    loop_data["max_iterations"] = node_conditions.max_iterations
-
-                if isinstance(element, QualibrationGraph):
-                    subgraph_data["subgraph"] = (
-                        __serialize_graph_represantation_inner(element)
-                    )
-
-                flow_dict["nodes"].append(
-                    {
-                        "id": node_id,
-                        "loop": loop_flag,
-                        "data": {
-                            "label": node_name,
-                            **subgraph_data,
-                            **loop_data,
-                        },
-                    }
                 )
 
-                for adj in adjacency:
-                    target_name = adj["id"]
+                operational_condition_data: dict[str, bool | str] = {}
 
-                    flow_dict["edges"].append(
+                if condition_name and condition_content:
+                    operational_condition_data.update(
                         {
-                            "id": f"{node_id}->"
-                            f"{name_identifier_dict[target_name]}",
-                            "source": node_id,
-                            "target": name_identifier_dict[target_name],
-                            "data": {
-                                "condition": adj.get(
-                                    "scenario", Outcome.SUCCESSFUL
-                                )
-                                == Outcome.SUCCESSFUL,
-                            },
+                            "label": condition_name,
+                            "description": condition_content,
                         }
                     )
 
-            return dict(flow_dict)
+                data = {
+                    "connect_on": adj.get(
+                        QualibrationGraph.RUN_SCENARIO_FIELD,
+                        Outcome.SUCCESSFUL,
+                    )
+                    == Outcome.SUCCESSFUL,
+                }
+                if operational_condition_data:
+                    data["condition"] = operational_condition_data
 
-        return __serialize_graph_represantation_inner(self)
+                flow_dict["edges"].append(
+                    {
+                        "id": f"{node_name}->{target_name}",
+                        "source": node_name,
+                        "target": target_name,
+                        "data": data,
+                    }
+                )
+
+            if node_name in self._loop_conditions:
+                flow_dict["edges"].append(
+                    self._add_loop_to_edge(node_name=node_name)
+                )
+
+        return dict(flow_dict)
+
+    def _add_loop_to_edge(self, node_name: str) -> dict[str, Any]:
+        if node_name not in self._loop_conditions:
+            raise KeyError(f"Loop condition not found for node {node_name}")
+
+        node_conditions: LoopCondition[GraphElementTypeVar] = (
+            self._loop_conditions[node_name]
+        )
+        label, content = self._get_operational_condition_signature_and_content(
+            node_conditions
+        )
+        data: dict[str, Any] = {"loop": {}}
+        if label and content:
+            data["loop"]["label"] = label
+            data["loop"]["content"] = content
+        if max_iterations := node_conditions.max_iterations:
+            data["loop"]["max_iterations"] = max_iterations
+        return {
+            "id": f"{node_name}->{node_name}",
+            "source": node_name,
+            "target": node_name,
+            "data": data,
+        }
+
+    def _get_machine_metadata(self) -> Mapping[str, Any] | None:
+        if not self._elements:
+            logger.warning(
+                f"Graph {self.name} has no elements hence cant extract machine metadata"
+            )
+            return None
+
+        machines_metadata = [
+            metadata
+            for element in self._elements.values()
+            if (metadata := element._get_machine_metadata())
+        ]
+
+        if not machines_metadata:
+            logger.debug(
+                f"No elements with usable machine metadata in graph {self.name}"
+            )
+            return None
+
+        first = machines_metadata[0]
+        if all(
+            machine_metadata == first
+            for machine_metadata in machines_metadata[1:]
+        ):
+            return first
+
+        logger.warning(
+            f"Not all machines have the same metadata hence cant choose one in graph {self.name}"
+        )
+        return None
 
     def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
         """
@@ -952,6 +1040,10 @@ class QualibrationGraph(
             node.update(additional)
             connectivity.extend([(node_id, item["id"]) for item in adjacency])
         data.update({"nodes": nodes, "connectivity": connectivity})
+        machine_metadata = self._get_machine_metadata()
+        if "qubits" in data["parameters"] and machine_metadata is not None:
+            data["parameters"]["qubits"]["metadata"] = machine_metadata
+
         if cytoscape:
             data["cytoscape"] = self.__class__.cytoscape_representation(data)
         return data
@@ -1088,7 +1180,7 @@ class QualibrationGraph(
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
     ) -> None:
-        self._connect(src, dst, Outcome.SUCCESSFUL)
+        self._connect(src=src, dst=dst, run_scenario=Outcome.SUCCESSFUL)
 
     @ensure_not_finalized
     @ensure_building
@@ -1097,8 +1189,36 @@ class QualibrationGraph(
         /,
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
+        on: (
+            Callable[
+                [],
+                Generator[
+                    bool, tuple[GraphElementTypeVar, TargetType] | None, None
+                ],
+            ]
+            | Callable[[GraphElementTypeVar, TargetType], bool]
+            | None
+        ) = None,
     ) -> None:
-        self._connect(src, dst, Outcome.FAILED)
+        on_function, on_generator = None, None
+        if on is not None:
+            if isgeneratorfunction(on):
+                on_generator = on
+            else:
+                on_function = cast(
+                    Callable[[GraphElementTypeVar, TargetType], bool], on
+                )
+        operational_condition: OperationalCondition[GraphElementTypeVar] = (
+            OperationalCondition(
+                on_function=on_function, on_generator=on_generator
+            )
+        )
+        self._connect(
+            src=src,
+            dst=dst,
+            run_scenario=Outcome.FAILED,
+            operational_condition=operational_condition,
+        )
 
     @ensure_not_finalized
     @ensure_building
@@ -1107,6 +1227,8 @@ class QualibrationGraph(
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
         run_scenario: Outcome,
+        operational_condition: OperationalCondition[GraphElementTypeVar]
+        | None = None,
     ) -> None:
         s = self._resolve_element_name(src)
         d = self._resolve_element_name(dst)
@@ -1116,8 +1238,13 @@ class QualibrationGraph(
             )
         edge = (s, d)
         if edge in self._connectivity:
-            return
-        self._connectivity[edge] = run_scenario
+            raise ValueError(f"Edge '{edge}' already exists.")
+        self._connectivity[edge] = {
+            QualibrationGraph.RUN_SCENARIO_FIELD: run_scenario,
+            QualibrationGraph.OPERATIONAL_CONDITION_FIELD: operational_condition
+            if operational_condition
+            else OperationalCondition(),
+        }
 
     def _get_validated_element_name(
         self, element: str | GraphElementTypeVar
@@ -1169,3 +1296,17 @@ class QualibrationGraph(
         conditions = self._loop_conditions[element_name]
         conditions.max_iterations = max_iterations
         conditions.on_failure = True
+
+    def _get_operational_condition_signature_and_content(
+        self, operational_condition: OperationalCondition[GraphElementTypeVar]
+    ) -> tuple[str, str] | tuple[None, None]:
+        # Returns the conditions method signature and also its content
+        if operational_condition.on_function is not None:
+            func = operational_condition.on_function
+            return func.__name__, inspect.getsource(func)
+
+        if operational_condition.on_generator is not None:
+            gen = operational_condition.on_generator
+            return gen.__name__, inspect.getsource(gen)
+
+        return None, None
