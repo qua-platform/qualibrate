@@ -85,6 +85,88 @@ ParametersType = TypeVar("ParametersType", bound=NodeParameters)
 NodeMachineType = TypeVar("NodeMachineType", bound=MachineProtocol)
 
 
+def simplify_traceback(
+    tb: Any,  # types.TracebackType
+    node_filepath: Path,
+) -> list[str]:
+    """
+    Simplify traceback to show only frames from the user's node code onwards.
+
+    This removes framework overhead while preserving:
+    - User's node code (action function entry point)
+    - Subroutines called from the node (nested calls)
+    - Libraries called from the node
+    - Sub-libraries called by those libraries
+
+    The algorithm finds the entry point into user code by looking for the
+    first node file frame AFTER any action framework code. This handles:
+    - Action errors with subroutines: Includes entire call chain within node
+    - Action errors without subroutines: Starts from action function
+    - Body errors: Starts from node body code
+    - Import errors: Starts from import-time code
+
+    Args:
+        tb: The exception's traceback
+        node_filepath: Path to the node file being executed
+
+    Returns:
+        List of formatted traceback strings
+    """
+    # Get all traceback frames
+    all_frames = traceback.extract_tb(tb)
+
+    # Find ALL frames in the node file
+    node_filepath_str = str(node_filepath)
+    node_frame_indices = [
+        idx
+        for idx, frame in enumerate(all_frames)
+        if frame.filename == node_filepath_str
+    ]
+
+    if not node_frame_indices:
+        # Node file not in traceback (error during framework code
+        # before node execution). Keep the full traceback
+        return traceback.format_list(all_frames)
+
+    # Find ALL frames in action framework code
+    action_framework_indices = [
+        idx
+        for idx, frame in enumerate(all_frames)
+        if "action_manager.py" in frame.filename
+        or "action.py" in frame.filename
+    ]
+
+    if not action_framework_indices:
+        # No action framework code - this is a node body error
+        # (not inside an action) or import error
+        # Start from the first node file occurrence
+        start_idx = node_frame_indices[0]
+    else:
+        # Find the first node file frame AFTER the last action framework frame
+        # This is the entry point into user code (action function)
+        last_framework_idx = max(action_framework_indices)
+
+        node_frames_after_framework = [
+            idx for idx in node_frame_indices if idx > last_framework_idx
+        ]
+
+        # Start from the first node frame after framework code
+        # This captures the action function + all nested calls
+        # Fallback: use first node frame
+        # (unlikely edge case - shouldn't happen in normal execution)
+        start_idx = (
+            node_frames_after_framework[0]
+            if node_frames_after_framework
+            else node_frame_indices[0]
+        )
+
+    # Extract relevant frames from start point onwards
+    relevant_frames = all_frames[start_idx:]
+
+    # Format the frames
+    return traceback.format_list(relevant_frames)
+
+
 class QualibrationNode(
     QRunnable[ParametersType, ParametersType],
     Generic[ParametersType, NodeMachineType],
@@ -656,6 +738,170 @@ class QualibrationNode(
         logger.debug(f"Node run summary {self.run_summary}")
         return self.run_summary
 
+    def _extract_source_snippet(self, tb: Any) -> str | None:
+        """
+        Extract source code snippet from the node file where error occurred.
+
+        Returns the relevant lines from the node file with line numbers,
+        or None if source cannot be read.
+
+        Uses LAST occurrence strategy - finds the deepest point in the node file
+        where the error occurred (could be in a subroutine, action, or body).
+
+        Args:
+            tb: The exception's traceback
+
+        Returns:
+            Formatted source snippet with line numbers and error marker,
+            or None if source cannot be read
+        """
+        try:
+            if not self.filepath:
+                return None
+            # Find the LAST frame in the node file
+            # (deepest point where error occurred)
+            # Note: This is different from simplify_traceback
+            # - we want the actual error location
+            all_frames = traceback.extract_tb(tb)
+            node_filepath_str = str(self.filepath)
+
+            node_frame_indices = [
+                idx
+                for idx, frame in enumerate(all_frames)
+                if frame.filename == node_filepath_str
+            ]
+
+            if not node_frame_indices:
+                return None
+
+            # Get the LAST occurrence
+            # - this is where the error actually occurred
+            # (could be in a subroutine, action function, or body code)
+            error_frame = all_frames[node_frame_indices[-1]]
+            error_lineno = error_frame.lineno
+            if not error_lineno:
+                return None
+
+            # Read the source file
+            with open(self.filepath) as f:
+                lines = f.readlines()
+
+            # Extract 2 lines before and 2 lines after (5 lines total)
+            # -3 because lineno is 1-indexed
+            start_line = max(0, error_lineno - 3)
+            end_line = min(len(lines), error_lineno + 2)
+
+            snippet_lines = []
+            for i in range(start_line, end_line):
+                line_num = i + 1
+                line_text = lines[i].rstrip()
+                marker = (
+                    "  # <- Error occurred here"
+                    if line_num == error_lineno
+                    else ""
+                )
+                snippet_lines.append(f"{line_num:4d}: {line_text}{marker}")
+
+            return "\n".join(snippet_lines)
+        except Exception:
+            # If we can't read the source, just return None
+            return None
+
+    def _generate_error_headline(self, ex: Exception) -> str:
+        """
+        Generate a headline describing the error.
+
+        Returns a string like:
+        - "KeyError in action 'execute_qua_program'"
+        - "ValueError in action 'process_data'"
+        - "RuntimeError in node body"
+        - "ImportError in node initialization"
+
+        Args:
+            ex: The exception that was raised
+
+        Returns:
+            Formatted headline string
+        """
+        failed_action = self._action_manager.failed_action
+
+        if failed_action:
+            return f"Failed action '{failed_action}'"
+        else:
+            # Determine if it's in node body or during initialization
+            # If we have any actions registered, it's likely in the body
+            # Otherwise, it's during initialization
+            location = (
+                "node initialization (outside of actions)"
+                if self._action_manager.actions
+                else "node body"
+            )
+            return f"Failure in {location}"
+
+    def _generate_error_details(
+        self, ex: Exception, simplified_tb: list[str]
+    ) -> str:
+        """
+        Generate detailed error context including action history,
+        source snippet, and simplified traceback.
+
+        Returns a simple markdown string with:
+        - Failed action name (if applicable)
+        - Source code snippet from node file
+        - Simplified traceback
+        - List of successfully completed actions
+        - List of skipped actions
+        - Error type and message
+
+        Uses simple markdown compatible with React renderers
+        (no nested code blocks or emojis).
+
+        Args:
+            ex: The exception that was raised
+            simplified_tb: Simplified traceback (list of formatted strings)
+
+        Returns:
+            Formatted details string (simple markdown)
+        """
+        lines = []
+
+        # Source code snippet (only from node file)
+        source_snippet = self._extract_source_snippet(ex.__traceback__)
+        if source_snippet:
+            lines.append("Source Code:")
+            # Add snippet lines with indentation
+            for line in source_snippet.split("\n"):
+                lines.append(f"  {line}")
+            lines.append("")
+
+        # Simplified traceback
+        if simplified_tb:
+            lines.append("Traceback:")
+            # Add traceback lines with minimal indentation
+            for tb_line in simplified_tb:
+                # Remove extra whitespace and format consistently
+                lines.append(f"  {tb_line.rstrip()}")
+            lines.append("")
+
+        # Action history (only if actions were used)
+        completed = self._action_manager.completed_actions
+        skipped = self._action_manager.skipped_actions
+
+        if completed or skipped:
+            if completed:
+                lines.append("Completed actions (in order):")
+                for action in completed:
+                    lines.append(f"  - {action}")
+                lines.append("")
+
+            if skipped:
+                lines.append("Skipped actions:")
+                for action in skipped:
+                    lines.append(f"  - {action}")
+                lines.append("")
+
+        return "\n".join(lines)
+
     def run(
         self,
         interactive: bool = False,
@@ -721,11 +967,23 @@ class QualibrationNode(
             self.__class__.active_node = self
             self._action_manager.skip_actions = skip_actions
 
+            # Reset action execution history for this run
+            self._action_manager.completed_actions.clear()
+            self._action_manager.skipped_actions.clear()
+            self._action_manager.failed_action = None
+
             self.run_node_file(self.filepath)
         except Exception as ex:
+            # Generate simplified traceback for error details (user-friendly)
+            simplified_tb = simplify_traceback(ex.__traceback__, self.filepath)
+
+            # This particular RunError is propagated to the frontend
             run_error = RunError(
                 error_class=ex.__class__.__name__,
                 message=str(ex),
+                details_headline=self._generate_error_headline(ex),
+                details=self._generate_error_details(ex, simplified_tb),
+                # Keep FULL traceback
                 traceback=traceback.format_tb(ex.__traceback__),
             )
             logger.exception(f"Failed to run node {self.name}", exc_info=ex)
