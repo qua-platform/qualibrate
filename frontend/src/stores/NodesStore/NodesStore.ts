@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ErrorObject } from "../../modules/common/Error/ErrorStatusInterface";
-import { NodeDTO, NodeMap } from "../../modules/Nodes/components/NodeElement/NodeElement";
+import { ErrorObject } from "../../components";
+import { NodeDTO, NodeMap } from "../../modules/Nodes";
 
 export interface StateUpdateObject {
   key?: string | number;
@@ -96,11 +96,24 @@ export const nodesSlice = createSlice({
     setRunningNode: (state, action) => {
       state.runningNode = action.payload;
     },
+    runNode: (state, action) => {
+      state.isNodeRunning = true;
+      state.results = {};
+      state.updateAllButtonPressed = false;
+      state.isAllStatusesUpdated = false;
+      state.runningNode = action.payload;
+      state.submitNodeResponseError = undefined;
+    },
     setRunningNodeInfo: (state, action) => {
       state.runningNodeInfo = action.payload;
     },
     setAllNodes: (state, action) => {
       state.allNodes = action.payload;
+    },
+    setNodeParameter: (state, action) => {
+      const { nodeKey, paramKey, newValue } = action.payload;
+      if (state.allNodes && state.allNodes[nodeKey].parameters)
+        state.allNodes[nodeKey].parameters[paramKey].default = newValue;
     },
     setIsNodeRunning: (state, action) => {
       state.isNodeRunning = action.payload;

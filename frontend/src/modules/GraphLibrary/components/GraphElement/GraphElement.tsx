@@ -9,23 +9,29 @@
  * @see CytoscapeGraph - Embedded graph visualization
  * @see GraphContext - Manages graph selection and execution state
  */
-import React from "react";
+import React, { useState } from "react";
 import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
 import {classNames} from "../../../../utils/classnames";
-import {Parameters, SingleParameter} from "../../../common/Parameters/Parameters";
-import {ParameterList} from "../../../common/Parameters/ParameterList";
-import Graph from "../Graph/Graph";
+import {SubgraphBreadcrumbs} from "../../../Graph";
+import {Parameters, SingleParameter, ParameterList, ParameterSelector, BlueButton} from "../../../../components";
+import {Graph} from "../../../Graph";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
-import BlueButton from "../../../../ui-lib/components/Button/BlueButton";
-import {getSelectedWorkflow} from "../../../../stores/GraphStores/GraphLibrary/selectors";
-import {submitWorkflow} from "../../../../stores/GraphStores/GraphLibrary/actions";
+import {
+  getSelectedWorkflow,
+  setSelectedNodeNameInWorkflow,
+  setSelectedWorkflowName,
+  setSubgraphBack,
+  setSubgraphForward,
+  submitWorkflow,
+  getSelectedNodeNameInWorkflow,
+  getSelectedWorkflowName,
+  getSubgraphBreadcrumbs,
+  setGraphNodeParameter,
+} from "../../../../stores/GraphStores/GraphLibrary";
 import {useRootDispatch} from "../../../../stores";
-import { getSelectedWorkflowName, getWorkflowGraphNodes } from "../../../../stores/GraphStores/GraphCommon/selectors";
-import { setSelectedWorkflowName } from "../../../../stores/GraphStores/GraphCommon/actions";
-import SubgraphBreadcrumbs from "./components/SubgraphBreadcrumbs";
-import ParameterSelector from "../../../common/Parameters/InputElement";
+import { ParamaterValue } from "../../../../components/Parameters/Parameters";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -33,30 +39,52 @@ interface ICalibrationGraphElementProps {
 
 export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrationGraphKey }) => {
   const dispatch = useRootDispatch();
-  const nodes = useSelector(getWorkflowGraphNodes);
   const selectedWorkflow = useSelector(getSelectedWorkflow);
   const selectedWorkflowName = useSelector(getSelectedWorkflowName);
+  const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
+  const subgraphBreadcrumbs = useSelector(
+    getSubgraphBreadcrumbs,
+    // avoid unnecessary re-renders
+    { equalityFn: (prev, curr) => prev.join() === curr.join() }
+  );
+  const [errors, setErrors] = useState(new Set());
 
   const handleSubmit = () => dispatch(submitWorkflow());
+  const handleSelectWorkflow = () => dispatch(setSelectedWorkflowName(calibrationGraphKey));
+  const handleSelectNode = (nodeName?: string) => dispatch(setSelectedNodeNameInWorkflow(nodeName));
+  const handleSetSubgraphBreadcrumbs = (key: string) => dispatch(setSubgraphForward(key));
+  const handleBreadcrumbClick = (index: number) => dispatch(setSubgraphBack(index));
 
-  const handleSelect = () => {
-    dispatch(setSelectedWorkflowName(calibrationGraphKey));
+  const handleSetError = (key: string, isValid: boolean) => {
+    const newSet = new Set(errors);
+
+    if (isValid)
+      newSet.delete(key);
+    else
+      newSet.add(key);
+
+    setErrors(newSet);
+  };
+
+  const onNodeParameterChange = (parameterKey: string, newValue: ParamaterValue, isValid: boolean, nodeId?: string | undefined) => {
+    handleSetError(parameterKey, isValid);
+    dispatch(setGraphNodeParameter(parameterKey, newValue, nodeId));
   };
 
   const renderInputElement = (key: string, parameter: SingleParameter) =>
-    <ParameterSelector parameterKey={key} parameter={parameter} />;
+    <ParameterSelector parameterKey={key} parameter={parameter} onChange={onNodeParameterChange} />;
 
   const show = selectedWorkflowName === calibrationGraphKey;
   return (
     <div
       className={classNames(styles.wrapper, show ? styles.calibrationGraphSelected : "")}
-      onClick={handleSelect}
+      onClick={handleSelectWorkflow}
     >
       <div className={styles.upperContainer}>
         <div className={styles.leftContainer}>
           <div>{calibrationGraphKey}</div>
           <div className={styles.runButtonWrapper}>
-            <BlueButton disabled={!show} onClick={handleSubmit}>
+            <BlueButton disabled={!show || errors.size !== 0} onClick={handleSubmit}>
               Run
             </BlueButton>
           </div>
@@ -64,7 +92,11 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
         &nbsp; &nbsp; &nbsp; &nbsp;
         {(show || selectedWorkflow?.description) &&
           <div className={styles.rightContainer}>
-            {show && <SubgraphBreadcrumbs />}
+            {show && <SubgraphBreadcrumbs
+              selectedWorkflowName={selectedWorkflowName}
+              subgraphBreadcrumbs={subgraphBreadcrumbs}
+              onBreadcrumbClick={handleBreadcrumbClick}
+            />}
             {selectedWorkflow?.description && (
               <div>{selectedWorkflow?.description}</div>
             )}
@@ -80,12 +112,19 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
             showTitle={true}
             currentItem={selectedWorkflow}
             getInputElement={renderInputElement}
+            parametersExpanded={true}
           />
-          {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} />}
+          {selectedWorkflow && <ParameterList showParameters={show} mapOfItems={selectedWorkflow.nodes} onChange={onNodeParameterChange} />}
         </div>
         {show && (
           <div className={styles.graphContainer}>
-            {!!nodes.length && <Graph />}
+            <Graph
+              selectedWorkflowName={calibrationGraphKey}
+              selectedNodeNameInWorkflow={selectedNodeNameInWorkflow}
+              onNodeClick={handleSelectNode}
+              subgraphBreadcrumbs={subgraphBreadcrumbs}
+              onSetSubgraphBreadcrumbs={handleSetSubgraphBreadcrumbs}
+            />
           </div>
         )}
       </div>

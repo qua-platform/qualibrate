@@ -1,17 +1,13 @@
 import React from "react";
-import { SnapshotsApi } from "../../../Snapshots/api/SnapshotsApi";
+import { SnapshotsApi, getLatestSnapshotId, getSecondId, getTrackLatestSidePanel, fetchOneSnapshot } from "../../../../stores/SnapshotsStore";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../RunningJob/RunningJob.module.scss";
 import { StateUpdateElement } from "./StateUpdateElement";
 import { Button } from "@mui/material";
 // import { ErrorStatusWrapper } from "../../../common/Error/ErrorStatusWrapper";
-import { getRunningNodeInfo, getUpdateAllButtonPressed } from "../../../../stores/NodesStore/selectors";
-import { setUpdateAllButtonPressed } from "../../../../stores/NodesStore/actions";
+import { getRunningNodeInfo, getUpdateAllButtonPressed, setUpdateAllButtonPressed, StateUpdate } from "../../../../stores/NodesStore";
 import { useSelector } from "react-redux";
 import { useRootDispatch } from "../../../../stores";
-import { StateUpdate } from "../../../../stores/NodesStore/NodesStore";
-import { getLatestSnapshotId, getSecondId, getTrackLatestSidePanel } from "../../../../stores/SnapshotsStore/selectors";
-import { fetchOneSnapshot } from "../../../../stores/SnapshotsStore/actions";
 
 export const StateUpdates: React.FC = () => {
   const dispatch = useRootDispatch();

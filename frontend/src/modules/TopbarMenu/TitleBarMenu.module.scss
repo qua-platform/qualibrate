@@ -1,0 +1,39 @@
+@use "../../styles/variables.scss";
+@use "../../styles/_base.scss";
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: var(--background-dark);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.menuCardsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-left: auto;
+  justify-content: flex-end;
+  padding-right: 25px;
+  margin-right: 25px;
+}
+
+.refreshButtonWrapper {
+  display: flex;
+  background-color: #28292F;
+  align-self: center;
+}
+
+.pageName {
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--font);
+  font-family: var(--font-family-cond), serif;
+  padding-right: 10px;
+  padding-left: 30px;
+  align-self: center;
+  white-space: nowrap;
+}

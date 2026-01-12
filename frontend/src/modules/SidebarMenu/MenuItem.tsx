@@ -1,10 +1,10 @@
 import React from "react";
 import Tooltip from "@mui/material/Tooltip";
-import { Module } from "../../routing/ModulesRegistry";
+import { Module } from "../AppRoutes";
 import styles from "./styles/MenuItem.module.scss";
 import { MENU_TEXT_COLOR } from "../../utils/colors";
 import { classNames } from "../../utils/classnames";
-import { setActivePage } from "../../stores/NavigationStore/actions";
+import { setActivePage } from "../../stores/NavigationStore";
 import { useRootDispatch } from "../../stores";
 
 const MenuItem: React.FC<

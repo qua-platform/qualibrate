@@ -1,7 +1,7 @@
-import { GRAPH_LIBRARY_KEY, NODES_KEY } from "../../routing/ModulesRegistry";
+import { GRAPH_LIBRARY_KEY, NODES_KEY } from "../../modules/AppRoutes";
 import { RootDispatch, RootState } from "..";
-import { fetchAllCalibrationGraphs } from "../GraphStores/GraphLibrary/actions";
-import { fetchAllNodes } from "../NodesStore/actions";
+import { fetchAllCalibrationGraphs } from "../GraphStores/GraphLibrary";
+import { fetchAllNodes } from "../NodesStore";
 import { navigationSlice } from "./NavigationStore";
 import { getActivePage } from "./selectors";
 

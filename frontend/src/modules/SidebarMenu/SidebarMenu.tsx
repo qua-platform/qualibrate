@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { bottomMenuItems, HELP_KEY, menuItems, PROJECT_KEY, TOGGLE_SIDEBAR_KEY } from "../../routing/ModulesRegistry";
+import { bottomMenuItems, HELP_KEY, menuItems, PROJECT_KEY, TOGGLE_SIDEBAR_KEY } from "../AppRoutes";
 import MenuItem from "./MenuItem";
 // import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
 // import ThemeToggle from "../themeModule/ThemeToggle";
@@ -7,17 +7,11 @@ import { classNames } from "../../utils/classnames";
 import styles from "./styles/SidebarMenu.module.scss";
 import cyKeys from "../../utils/cyKeys";
 import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/GlobalThemeContext";
-import QUAlibrateLogoIcon from "../../ui-lib/Icons/QUAlibrateLogoIcon";
-import QUAlibrateLogoSmallIcon from "../../ui-lib/Icons/QualibrateLogoSmall";
-import ExpandSideMenuIcon from "../../ui-lib/Icons/ExpandSideMenuIcon";
-import CollapseSideMenuIcon from "../../ui-lib/Icons/CollapseSideMenuIcon";
-import ProjectFolderIcon from "../../ui-lib/Icons/ProjectFolderIcon";
-import { extractInitials, getColorIndex } from "../Project/helpers";
-import { colorPalette } from "../Project/constants";
+import { QUAlibrateLogoIcon, QualibrateLogoSmallIcon, ExpandSideMenuIcon, CollapseSideMenuIcon, ProjectFolderIcon } from "../../components";
+import { extractInitials, getColorIndex, colorPalette } from "../Project";
 import { useSelector } from "react-redux";
-import { getActiveProject, getShouldGoToProjectPage } from "../../stores/ProjectStore/selectors";
-import { getActivePage } from "../../stores/NavigationStore/selectors";
-import { setActivePage } from "../../stores/NavigationStore/actions";
+import { getActiveProject, getShouldGoToProjectPage } from "../../stores/ProjectStore";
+import { getActivePage, setActivePage } from "../../stores/NavigationStore";
 import { useRootDispatch } from "../../stores";
 
 const SidebarMenu: React.FunctionComponent = () => {
@@ -45,7 +39,7 @@ const SidebarMenu: React.FunctionComponent = () => {
     <>
       <div className={containerClassName}>
         <button className={styles.qualibrateLogo} data-cy={cyKeys.HOME_PAGE}>
-          {minify ? <QUAlibrateLogoSmallIcon /> : <QUAlibrateLogoIcon />}
+          {minify ? <QualibrateLogoSmallIcon /> : <QUAlibrateLogoIcon />}
         </button>
 
         <div className={styles.menuContent}>

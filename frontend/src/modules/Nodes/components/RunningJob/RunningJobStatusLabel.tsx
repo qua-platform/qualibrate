@@ -1,9 +1,7 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
-import CheckmarkIcon from "../../../../ui-lib/Icons/CheckmarkIcon";
-import ErrorIcon from "../../../../ui-lib/Icons/ErrorIcon";
-import { StopIcon } from "../../../../ui-lib/Icons/StopIcon";
+import { CheckmarkIcon, ErrorIcon, StopIcon } from "../../../../components";
 
 export const RunningJobStatusLabel: React.FC<{ status?: string; percentage?: number; onStop?: () => void }> = ({ status, percentage = 0, onStop }) => {
   if (status === "finished") {

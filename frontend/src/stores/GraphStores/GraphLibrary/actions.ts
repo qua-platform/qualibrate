@@ -1,21 +1,25 @@
-import { InputParameter } from "../../../modules/common/Parameters/Parameters";
-import { GraphWorkflow } from "../../../modules/GraphLibrary/components/GraphList";
+import { InputParameter } from "../../../components";
+import { GraphWorkflow } from "../../../modules/GraphLibrary";
 import { RootDispatch, RootState } from "../../../stores";
 import { graphLibrarySlice, GraphMap } from "./GraphLibraryStore";
-import { GraphLibraryApi } from "../../../modules/GraphLibrary/api/GraphLibraryApi";
-import { getSelectedWorkflowName } from "../GraphCommon/selectors";
-import { getAllGraphs } from "./selectors";
-import { setActivePage } from "../../../stores/NavigationStore/actions";
-import { GRAPH_STATUS_KEY } from "../../../routing/ModulesRegistry";
-import { setTrackLatest } from "../GraphStatus/actions";
+import { GraphLibraryApi } from "./api/GraphLibraryApi";
+import { getAllGraphs, getSelectedWorkflowName, getSubgraphBreadcrumbs } from "./selectors";
+import { setActivePage } from "../../../stores/NavigationStore";
+import { GRAPH_STATUS_KEY } from "../../../modules/AppRoutes";
+import { setTrackLatest } from "../GraphStatus";
 
 export const {
   setAllGraphs,
+  setSelectedWorkflowName,
+  setSelectedNodeNameInWorkflow,
   setLastRunInfo,
   setLastRunActive,
   setIsRescanningGraphs,
   setNodeParameter,
   setErrorObject,
+  setSubgraphForward,
+  setSubgraphBack,
+  setSubgraphBreadcrumbs,
 } = graphLibrarySlice.actions;
 
 const updateObject = (obj: GraphWorkflow): GraphWorkflow => {
@@ -163,3 +167,11 @@ export const submitWorkflow = () => async (dispatch: RootDispatch, getState: () 
     }
   }
 };
+
+export const setGraphNodeParameter = (paramKey: string, newValue: boolean | number | string | string[], nodeId?: string) =>
+  (dispatch: RootDispatch, getState: () => RootState) => {
+    const subgraphBreadcrumbs = getSubgraphBreadcrumbs(getState());
+    const selectedWorkflowName = getSelectedWorkflowName(getState());
+
+    dispatch(setNodeParameter({ paramKey, newValue, nodeId, subgraphBreadcrumbs, selectedWorkflowName}));
+  };

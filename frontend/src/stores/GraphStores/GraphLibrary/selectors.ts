@@ -1,10 +1,20 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { getGraphState } from "../selectors";
-import { getSelectedWorkflowName, getSubgraphBreadcrumbs } from "../GraphCommon/selectors";
+import { GraphLibraryState } from "./GraphLibraryStore";
 
 export const getGraphLibraryState = createSelector(
   getGraphState,
   (graphState) => graphState.library
+);
+
+export const getSelectedWorkflowName = createSelector(getGraphLibraryState, (libraryState: GraphLibraryState) => libraryState.selectedWorkflowName);
+
+export const getSelectedNodeNameInWorkflow = createSelector(getGraphLibraryState, (libraryState: GraphLibraryState) => libraryState.selectedNodeNameInWorkflow);
+
+export const getSubgraphBreadcrumbs = createSelector(
+  getGraphLibraryState,
+  getSelectedWorkflowName,
+  (libraryState, selectedWorkflowName) => libraryState.subgraphBreadcrumbs[selectedWorkflowName || ""] || []
 );
 
 export const getAllGraphs = createSelector(

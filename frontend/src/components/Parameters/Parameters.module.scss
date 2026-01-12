@@ -1,0 +1,102 @@
+.parametersWrapper {
+  gap: 10px;
+  font-size: 12px;
+  padding-left: 15px;
+  padding-top: 10px;
+  width: 300px;
+}
+
+.arrowIconWrapper {
+  margin-top: -3px;
+  padding-right: 5px;
+}
+
+.nodeNotSelected {
+  display: none;
+}
+
+.parameterTitle {
+  font-size: 14px;
+  height: 25px;
+  display: flex;
+}
+
+.parameterValues {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.parameterLabel {
+  padding: 10px 20px;
+  align-content: center;
+  text-wrap: nowrap;
+}
+
+.parameterValue {
+  width: 100%;
+  min-width: 0;
+  margin-top: 2px;
+  color: var(--font) !important;
+
+  & > div, input {
+    height: 25px;
+    border-color: var(--box-background) !important;
+
+    &:hover {
+      border-color: #58a6ff !important;
+    }
+  }
+
+  span {
+    padding: 0;
+    align-self: center;
+  }
+
+  fieldset {
+    border-color: var(--box-background) !important;
+  }
+
+  .parameterValueSelector {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+
+    // Remove default browser arrows control
+    .input input {
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      &[type="number"] {
+        -moz-appearance: textfield;
+      }
+    }
+
+    &.error input {
+      border-color: var(--error) !important;
+    }
+
+    .error {
+      color: var(--error);
+      height: 20px;
+      line-height: 20px;
+      margin-top: 2px;
+    }
+  }
+}
+
+.descriptionWrapper {
+  padding-left: 10px;
+  align-content: center;
+  text-align: right;
+}
+
+.descriptionTooltip {
+  overflow: scroll;
+  max-height: 500px;
+  white-space: pre-line;
+  border-radius: 6px;
+}

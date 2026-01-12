@@ -1,0 +1,37 @@
+@use "../../../../styles/_base";
+
+.wrapper {
+  @include base.input;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  height: 25px;
+  line-height: 25px;
+  padding: 0 6px 0 14px;
+  border-color: var(--box-background);
+  transition: border-color 0.2s;
+
+  &.disabled {
+    cursor: default;
+  }
+
+  &:hover:not(.disabled) {
+    border-color: #58a6ff;
+  }
+
+  .list {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .counter {
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+
+  &.error {
+    border: 1px solid rgb(255 36 99 / 30%);
+  }
+}

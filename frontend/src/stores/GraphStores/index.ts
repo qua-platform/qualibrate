@@ -1,10 +1,10 @@
 import { combineSlices } from "@reduxjs/toolkit";
-import { commonGraphSlice } from "./GraphCommon/GraphCommonStore";
-import { graphLibrarySlice } from "./GraphLibrary/GraphLibraryStore";
-import graphStatusSlice from "./GraphStatus/GraphStatusStore";
+import { graphLibrarySlice } from "./GraphLibrary";
+import { graphStatusSlice } from "./GraphStatus";
 
-export const graphStore = combineSlices(
-  commonGraphSlice,
+export const GraphStore = combineSlices(
   graphLibrarySlice,
   graphStatusSlice,
 );
+
+export { useInitGraphs } from "./hooks";

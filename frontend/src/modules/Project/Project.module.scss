@@ -18,40 +18,6 @@
   border-top: 1px solid var(--border-color);
 }
 
-
-.projectPageLayout {
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-color);
-  max-width: 100%;
-  padding-left: 70px;
-  padding-right: 70px;
-  position: relative;
-}
-
-.projectActions {
-  padding-right: 20px;
-}
-
-.pageActions {
-  border-radius: 45px;
-  height: 100%;
-  width: fit-content;
-  position: sticky;
-  bottom: 80px;
-  left: 70px;
-  background-color: var(--background-color);
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.actionButton {
-  width: 150px;
-  height: 40px;
-}
-
 .searchProjectField {
   input {
     border-radius: 45px;

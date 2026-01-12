@@ -2,7 +2,7 @@ import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./RunningJob.module.scss";
 import { useSelector } from "react-redux";
-import { getRunningNode } from "../../../../stores/NodesStore/selectors";
+import { getRunningNode } from "../../../../stores/NodesStore";
 
 export const RunningJobParameters: React.FC = () => {
   const runningNode = useSelector(getRunningNode);
