@@ -11,11 +11,12 @@ from qualibrate_app.api.core.domain.bases.base_with_settings import (
 )
 from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.domain.bases.load_type_flag import LoadTypeFlag
+from qualibrate_app.api.core.models.snapshot import MachineSearchResults
 from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate_app.api.core.types import (
-    DocumentSequenceType,
     DocumentType,
     IdType,
+    PageFilter,
 )
 from qualibrate_app.api.core.utils.find_utils import (
     get_subpath_value_on_any_depth,
@@ -147,12 +148,12 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         self,
         search_path: Sequence[str | int],
         load: bool = False,
-    ) -> DocumentSequenceType | None:
+    ) -> Sequence[MachineSearchResults] | None:
         pass
 
     def search_recursive(
         self, target_key: str, load: bool = False
-    ) -> DocumentSequenceType | None:
+    ) -> Sequence[MachineSearchResults] | None:
         if (
             not self._load_type_flag.is_set(
                 SnapshotLoadTypeFlag.DataWithMachine
@@ -169,7 +170,7 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
 
     @abstractmethod
     def get_latest_snapshots(
-        self, page: int = 1, per_page: int = 50, reverse: bool = False
+        self, pages_filter: PageFilter, descending: bool = False
     ) -> tuple[int, Sequence["SnapshotBase"]]:
         pass
 
@@ -201,3 +202,9 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
     @abstractmethod
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         pass
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}"
+            f"(id={self.id!r}, load_type={self.load_type_flag!r})"
+        )

@@ -16,7 +16,13 @@ from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
 from qualibrate_app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
-from qualibrate_app.api.core.types import DocumentType, IdType
+from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
+from qualibrate_app.api.core.types import (
+    DocumentType,
+    IdType,
+    PageFilter,
+    SearchWithIdFilter,
+)
 from qualibrate_app.api.core.utils.request_utils import request_with_db
 from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
 
@@ -62,7 +68,9 @@ class BranchTimelineDb(BranchBase):
 
     def get_snapshot(self, id: IdType | None = None) -> SnapshotBase:
         if id is None:
-            latest = self.get_latest_snapshots(1)
+            latest = self.get_latest_snapshots(
+                pages_filter=PageFilter(page=1, per_page=1)
+            )
             if len(latest) != 1:
                 raise QJsonDbException("Can't load latest snapshot of branch")
             return latest[1][0]
@@ -83,7 +91,9 @@ class BranchTimelineDb(BranchBase):
 
     def get_node(self, id: IdType | None = None) -> NodeBase:
         if id is None:
-            latest = self.get_latest_nodes(1)
+            latest = self.get_latest_nodes(
+                pages_filter=PageFilter(page=1, per_page=1)
+            )
             if len(latest) != 1:
                 raise QJsonDbException("Can't load latest node of branch")
             return latest[1][0]
@@ -105,8 +115,7 @@ class BranchTimelineDb(BranchBase):
     def _get_remote_snapshots(
         self,
         metadata: bool,
-        page: int,
-        per_page: int,
+        page_filter: PageFilter,
         reverse: bool,
     ) -> tuple[int, Sequence[DocumentType]]:
         timeline_db_config = self.timeline_db_config
@@ -114,8 +123,8 @@ class BranchTimelineDb(BranchBase):
             f"branch/{self._name}/history",
             params={
                 "metadata": metadata,
-                "page": page,
-                "per_page": per_page,
+                "page": page_filter.page,
+                "per_page": page_filter.per_page,
                 "reverse": reverse,
             },
             host=timeline_db_config.address_with_root,
@@ -133,13 +142,13 @@ class BranchTimelineDb(BranchBase):
 
     def get_latest_snapshots(
         self,
-        page: int = 0,
-        per_page: int = 50,
-        reverse: bool = False,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        descending: bool = False,
     ) -> tuple[int, list[SnapshotBase]]:
         """Retrieve last num_snapshots from this branch"""
         total, snapshots = self._get_remote_snapshots(
-            True, page, per_page, reverse
+            True, pages_filter, descending
         )
         return total, [
             SnapshotTimelineDb(
@@ -150,13 +159,13 @@ class BranchTimelineDb(BranchBase):
 
     def get_latest_nodes(
         self,
-        page: int = 0,
-        per_page: int = 50,
-        reverse: bool = False,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        descending: bool = False,
     ) -> tuple[int, list[NodeBase]]:
         """Retrieve last num_snapshots from this branch"""
         total, snapshots = self._get_remote_snapshots(
-            False, page, per_page, reverse
+            False, pages_filter, descending
         )
         return total, [
             NodeTimelineDb(
@@ -166,3 +175,14 @@ class BranchTimelineDb(BranchBase):
             )
             for snapshot in snapshots
         ]
+
+    def search_snapshots_data(
+        self,
+        *,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
+        filter_no_change: bool = True,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotSearchResult]]:
+        raise NotImplementedError()

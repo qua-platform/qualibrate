@@ -10,7 +10,12 @@ from qualibrate_app.api.core.domain.bases.branch import (
 )
 from qualibrate_app.api.core.domain.bases.node import NodeBase
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
-from qualibrate_app.api.core.types import IdType
+from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
+from qualibrate_app.api.core.types import (
+    IdType,
+    PageFilter,
+    SearchWithIdFilter,
+)
 
 
 class CustomBranchBase(BranchBase):
@@ -27,10 +32,31 @@ class CustomBranchBase(BranchBase):
     def get_node(self, id: IdType | None = None) -> NodeBase:
         raise NotImplementedError
 
-    def get_latest_snapshots(self, num: int = 50) -> Sequence[SnapshotBase]:
+    def get_latest_snapshots(
+        self,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        descending: bool = False,
+    ) -> Sequence[SnapshotBase]:
         raise NotImplementedError
 
-    def get_latest_nodes(self, num: int = 50) -> Sequence[NodeBase]:
+    def get_latest_nodes(
+        self,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        descending: bool = False,
+    ) -> Sequence[NodeBase]:
+        raise NotImplementedError
+
+    def search_snapshots_data(
+        self,
+        *,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
+        filter_no_change: bool = True,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotSearchResult]]:
         raise NotImplementedError
 
 

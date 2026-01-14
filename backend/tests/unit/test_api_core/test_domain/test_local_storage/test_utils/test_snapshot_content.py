@@ -4,18 +4,25 @@ from unittest.mock import PropertyMock, call
 
 import pytest
 
-from qualibrate_app.api.core.domain.bases.snapshot import SnapshotLoadType
+from qualibrate_app.api.core.domain.bases.storage import StorageLoadTypeFlag
 from qualibrate_app.api.core.domain.local_storage.utils import snapshot_content
 from qualibrate_app.api.core.utils.path.node import NodePath
 from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+
+
+@pytest.fixture
+def snapshot_path(tmp_path, settings):
+    path = NodePath(tmp_path / "snapshot_path")
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def test_read_minified_node_content_node_info_filled(mocker, settings):
     dt = datetime.now().astimezone()
     patched_get_id_local_path = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
-            ".IdToLocalPath.get"
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.IdToLocalPath.get_path"
         ),
         side_effect=[1, 2],
     )
@@ -67,8 +74,8 @@ def test_read_minified_node_content_node_info_empty_valid_id_file_exists(
     node_file.touch()
     patched_get_id_local_path = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
-            ".IdToLocalPath.get"
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.IdToLocalPath.get_path"
         ),
         return_value=1,
     )
@@ -112,8 +119,8 @@ def test_read_minified_node_content_node_info_empty_no_id_no_file(
     node_file = snapshot_path / "node_file.json"
     patched_get_id_local_path = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage._id_to_local_path"
-            ".IdToLocalPath.get"
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.IdToLocalPath.get_path"
         ),
     )
     patched_file_stat_patch = mocker.patch(
@@ -141,7 +148,7 @@ def test_read_minified_node_content_node_info_empty_no_id_no_file(
     patched_path_parent.assert_called_once()
 
 
-def test_read_metadata_node_content_node_info_filled(mocker, settings):
+def test_read_metadata_node_content_node_info_filled(settings):
     metadata = {"name": "name", "data_path": "subpath", "custom": "info"}
     snapshot_path = NodePath(
         settings.storage.location.joinpath("2024-04-12", "#2_node_174011")
@@ -177,216 +184,275 @@ def test_read_metadata_node_content_node_info_not_filled(mocker, settings):
     }
 
 
-def test_read_data_node_content_valid_path_specified_with_others(
-    tmp_path, settings
+def test_get_node_filepath(snapshot_path):
+    assert (
+        snapshot_content.get_node_filepath(snapshot_path)
+        == snapshot_path / "node.json"
+    )
+
+
+def test_get_data_node_path_valid(snapshot_path):
+    node_info = {"data": {"quam": "some_quam.json"}}
+    quam_path = snapshot_path / "some_quam.json"
+    quam_path.write_text("{}")
+    result = snapshot_content.get_data_node_path(
+        node_info, snapshot_path / "node.json", snapshot_path
+    )
+    assert result == quam_path.resolve()
+
+
+def test_get_data_node_path_outside(snapshot_path):
+    node_info = {"data": {"quam": "../hack.json"}}
+    node_file = snapshot_path / "node.json"
+    with pytest.raises(QFileNotFoundException):
+        snapshot_content.get_data_node_path(node_info, node_file, snapshot_path)
+
+
+def test_update_state_file(tmp_path):
+    path = tmp_path / "test.json"
+    new_quam = {"foo": "bar"}
+    snapshot_content.update_state_file(path, new_quam)
+    assert path.exists()
+    assert json.loads(path.read_text()) == new_quam
+
+
+def test_update_state_dir_warns_on_missing_keys(tmp_path, caplog):
+    (tmp_path / "state.json").write_text(json.dumps({"a": 1}))
+    (tmp_path / "wiring.json").write_text(
+        json.dumps({"wiring": {}, "network": {}})
+    )
+    new_quam = {"a": 2, "wiring": {"x": 1}, "network": {}, "missing": True}
+    snapshot_content.update_state_dir(tmp_path, new_quam)
+    assert "missing" not in json.loads((tmp_path / "state.json").read_text())
+    assert (
+        "Not all root items of the new quam state have been saved"
+        in caplog.text
+    )
+
+
+def test_update_active_machine_path_file(mocker, tmp_path, settings):
+    path = tmp_path / "q.json"
+    path.write_text("{}")
+    mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.get_quam_state_path"
+        ),
+        return_value=path,
+    )
+    snapshot_content.update_active_machine_path(settings, {"foo": "bar"})
+    assert json.loads(path.read_text()) == {"foo": "bar"}
+
+
+def test_update_active_machine_path_dir(mocker, tmp_path, settings):
+    directory = tmp_path / "quam"
+    directory.mkdir()
+    (directory / "state.json").write_text(json.dumps({"x": 1}))
+    mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.get_quam_state_path"
+        ),
+        return_value=directory,
+    )
+    snapshot_content.update_active_machine_path(settings, {"x": 2})
+    assert json.loads((directory / "state.json").read_text()) == {"x": 2}
+
+
+def test_read_quam_content_file(tmp_path):
+    path = tmp_path / "file.json"
+    path.write_text(json.dumps({"foo": 1}))
+    result = snapshot_content.read_quam_content(path)
+    assert result == {"foo": 1}
+
+
+def test_read_quam_content_dir_with_invalid_json(tmp_path, caplog):
+    (tmp_path / "ok.json").write_text(json.dumps({"x": 1}))
+    (tmp_path / "bad.json").write_text("{ not valid")
+    result = snapshot_content.read_quam_content(tmp_path)
+    assert result["x"] == 1
+    assert "Failed to json decode" in caplog.text
+
+
+def test_load_snapshot_metadata_from_node_content(
+    mocker, snapshot_path, settings
 ):
-    node_path = tmp_path / "node.json"
-    state_path = tmp_path / "state_.json"
-    state_path_content = {"a": "b", "c": 3}
-    state_path.write_text(json.dumps(state_path_content))
-    parameters_model = {"p1": "v1", "p2": 2}
-    outcomes = {"q1": "successful", "q2": "failed"}
-    node_info = {
-        "data": {
-            "quam": "state_.json",
-            "parameters": {"model": parameters_model},
-            "outcomes": outcomes,
-        },
-    }
-    assert snapshot_content.read_data_node_content(
-        node_info, node_path, tmp_path, settings
-    ) == {
-        "quam": state_path_content,
-        "parameters": parameters_model,
-        "outcomes": outcomes,
-    }
+    snapshot_info = {"id": 1}
+    mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.read_metadata_node_content"
+        ),
+        return_value={"foo": "bar"},
+    )
+    snapshot_content.load_snapshot_metadata_from_node_content(
+        {"metadata": {"foo": "bar"}},
+        snapshot_path / "node.json",
+        snapshot_path,
+        settings,
+        snapshot_info,
+    )
+    assert snapshot_info == {"id": 1, "metadata": {"foo": "bar"}}
 
 
-def test_read_data_node_content_valid_path_specified_without_others(
-    tmp_path, settings
+def test_load_snapshot_data_without_refs_from_node_content(
+    snapshot_path, settings
 ):
-    node_path = tmp_path / "node.json"
-    state_path = tmp_path / "state_.json"
-    state_path_content = {"a": "b", "c": 3}
-    state_path.write_text(json.dumps(state_path_content))
-    node_info = {"data": {"quam": "state_.json"}}
-    assert snapshot_content.read_data_node_content(
-        node_info, node_path, tmp_path, settings
-    ) == {
-        "quam": state_path_content,
-        "parameters": None,
-        "outcomes": None,
-    }
+    snapshot_info = {}
+    node_info = {"data": {"quam": "skip", "machine": "skip", "x": 123}}
+    snapshot_content.load_snapshot_data_without_refs_from_node_content(
+        node_info,
+        snapshot_path / "node.json",
+        snapshot_path,
+        settings,
+        snapshot_info,
+    )
+    assert snapshot_info["data"] == {"x": 123}
 
 
-def test_read_data_node_content_path_not_specified(tmp_path, settings):
-    node_path = tmp_path / "node.json"
-    state_path = tmp_path / "state.json"
-    state_path_content = {"a": "b", "c": 3}
-    state_path.write_text(json.dumps(state_path_content))
-    assert snapshot_content.read_data_node_content(
-        {}, node_path, tmp_path, settings
-    ) == {
-        "quam": None,
-        "parameters": None,
-        "outcomes": None,
-    }
-
-
-def test_read_data_node_content_invalid_path(tmp_path, settings):
-    node_path = tmp_path / "node.json"
-    with pytest.raises(QFileNotFoundException) as ex:
-        snapshot_content.read_data_node_content(
-            {"data": {"quam": "../../state.json"}},
-            node_path,
-            tmp_path,
-            settings,
+def test_load_snapshot_data_machine_no_machine_key(mocker):
+    patched_get_data_node_path = mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.get_data_node_path"
+        ),
+        return_value=None,
+    )
+    patched_read_quam_content = mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.read_quam_content"
+        ),
+    )
+    snapshot_info = {"data": {}}
+    assert (
+        snapshot_content.load_snapshot_data_machine_from_node_content(
+            {}, "node_path", "snapshot_path", None, snapshot_info
         )
-    assert ex.type == QFileNotFoundException
-    assert ex.value.args == ("Unknown quam data path",)
+        is None
+    )
+    patched_get_data_node_path.assert_called_once_with(
+        {}, "node_path", "snapshot_path"
+    )
+    patched_read_quam_content.assert_not_called()
+    assert snapshot_info["data"]["quam"] is None
 
 
-@pytest.mark.parametrize("file_exists", (False, True))
-def test_default_snapshot_content_loader_node_file_issue(
-    mocker, tmp_path, file_exists
+def test_load_snapshot_data_machine_from_node_content(mocker, settings):
+    patched_get_data_node_path = mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.get_data_node_path"
+        ),
+        return_value="quam_path",
+    )
+    patched_read_quam_content = mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.read_quam_content"
+        ),
+        return_value={"machine": "..."},
+    )
+    snapshot_info = {"data": {}}
+    snapshot_content.load_snapshot_data_machine_from_node_content(
+        {}, "node_path", "snapshot_path", None, snapshot_info
+    )
+    assert snapshot_info["data"]["quam"] == {"machine": "..."}
+    patched_get_data_node_path.assert_called_once_with(
+        {}, "node_path", "snapshot_path"
+    )
+    patched_read_quam_content.assert_called_once_with("quam_path")
+
+
+def test_load_snapshot_data_results_from_node_content(
+    mocker, snapshot_path, settings
 ):
-    node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
-    node_path.mkdir(parents=True)
-    patched_node_path_name = mocker.patch.object(
-        node_path.__class__,
-        "node_name",
-        new_callable=PropertyMock,
-        return_value="name",
+    fake_storage = mocker.MagicMock()
+    fake_storage.data = {"some": "results"}
+    dfs_patch = mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.DataFileStorage"
+        ),
+        return_value=fake_storage,
     )
-    if file_exists:
-        # node file exists; but contains invalid json
-        (node_path / "node.json").touch()
-        mocker.patch(
-            "json.load", side_effect=json.JSONDecodeError("msg", "doc", 1)
+    snapshot_info = {"data": {}}
+    snapshot_content.load_snapshot_data_results_from_node_content(
+        {}, snapshot_path / "node.json", snapshot_path, settings, snapshot_info
+    )
+    assert snapshot_info["data"]["results"] == {"some": "results"}
+    dfs_patch.assert_called_once_with(snapshot_path, settings)
+    fake_storage.load_from_flag.assert_called_once_with(
+        StorageLoadTypeFlag.DataFileWithoutRefs
+    )
+
+
+def test_load_snapshot_data_results_with_imgs_from_node_content(
+    mocker, snapshot_path, settings
+):
+    fake_storage = mocker.MagicMock()
+    fake_storage.data = {"imgs": [1, 2, 3]}
+    dfs_patch = mocker.patch(
+        (
+            "qualibrate_app.api.core.domain.local_storage.utils."
+            "snapshot_content.DataFileStorage"
+        ),
+        return_value=fake_storage,
+    )
+    snapshot_info = {"data": {}}
+    snapshot_content.load_snapshot_data_results_with_imgs_from_node_content(
+        {}, snapshot_path / "node.json", snapshot_path, settings, snapshot_info
+    )
+    assert snapshot_info["data"]["results"] == {"imgs": [1, 2, 3]}
+    dfs_patch.assert_called_once_with(snapshot_path, settings)
+    fake_storage.load_from_flag.assert_called_once_with(
+        StorageLoadTypeFlag.DataFileWithImgs
+    )
+
+
+def test_default_snapshot_content_updater_patches_exists(
+    mocker, snapshot_path, settings
+):
+    node_file = snapshot_path / "node.json"
+    quam_file = snapshot_path / "quam.json"
+    quam_file.write_text("{}")
+    node_file.write_text(
+        json.dumps(
+            {"data": {"quam": "quam.json"}, "patches": [{"patch1": "info"}]}
         )
-    else:
-        # there is no node file
-        mocker.patch("pathlib.Path.is_file", return_value=False)
-    patched_read_minified = mocker.patch(
-        (
-            "qualibrate_app.api.core.domain.local_storage.utils."
-            "snapshot_content.read_minified_node_content"
-        ),
-        return_value={"minified": {}},
     )
-    assert snapshot_content.default_snapshot_content_loader(
-        node_path, SnapshotLoadType.Minified, None
-    ) == {"minified": {}}
-    patched_read_minified.assert_called_once_with(
-        {}, node_path / "node.json", node_path, None
+    mocker.patch(
+        "qualibrate_app.api.core.domain.local_storage.utils.snapshot_content."
+        "update_active_machine_path"
     )
-    patched_node_path_name.assert_not_called()
+    result = snapshot_content.default_snapshot_content_updater(
+        snapshot_path,
+        {"quam": {"x": 1}},
+        [{"note": "patch"}],
+        settings,
+    )
+    assert result
+    content = json.loads(node_file.read_text())
+    assert content["patches"] == [{"patch1": "info"}, {"note": "patch"}]
 
 
-def test_default_snapshot_content_loader_node_valid_minified(mocker, tmp_path):
-    node_info = {"a": 1}
-    node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
-    node_path.mkdir(parents=True)
-    node_file = node_path / "node.json"
-    node_file.write_text(json.dumps(node_info))
-    patched_read_minified = mocker.patch(
-        (
-            "qualibrate_app.api.core.domain.local_storage.utils."
-            "snapshot_content.read_minified_node_content"
-        ),
-        return_value={"minified": {}},
+def test_default_snapshot_content_updater_adds_patch_key(
+    mocker, snapshot_path, settings
+):
+    node_file = snapshot_path / "node.json"
+    quam_file = snapshot_path / "quam.json"
+    quam_file.write_text("{}")
+    node_file.write_text(json.dumps({"data": {"quam": "quam.json"}}))
+    mocker.patch(
+        "qualibrate_app.api.core.domain.local_storage.utils.snapshot_content."
+        "update_active_machine_path"
     )
-    patched_read_metadata = mocker.patch(
-        (
-            "qualibrate_app.api.core.domain.local_storage.utils."
-            "snapshot_content.read_metadata_node_content"
-        ),
+    result = snapshot_content.default_snapshot_content_updater(
+        snapshot_path,
+        {"quam": {"y": 2}},
+        [{"extra": "patch"}],
+        settings,
     )
-    assert snapshot_content.default_snapshot_content_loader(
-        node_path, SnapshotLoadType.Minified, None
-    ) == {"minified": {}}
-
-    patched_read_minified.assert_called_once_with(
-        node_info, node_file, node_path, None
-    )
-    patched_read_metadata.assert_not_called()
-
-
-def test_default_snapshot_content_loader_node_valid_metadata(mocker, tmp_path):
-    node_info = {"a": 1}
-    node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
-    node_path.mkdir(parents=True)
-    node_file = node_path / "node.json"
-    node_file.write_text(json.dumps(node_info))
-    patched_read_minified = mocker.patch(
-        (
-            "qualibrate_app.api.core.domain.local_storage.utils."
-            "snapshot_content.read_minified_node_content"
-        ),
-        return_value={"minified": {}},
-    )
-    patched_read_metadata = mocker.patch(
-        (
-            "qualibrate_app.api.core.domain.local_storage.utils."
-            "snapshot_content.read_metadata_node_content"
-        ),
-        return_value={},
-    )
-    patched_read_data = mocker.patch(
-        (
-            "qualibrate_app.api.core.domain.local_storage.utils."
-            "snapshot_content.read_data_node_content"
-        ),
-    )
-    assert snapshot_content.default_snapshot_content_loader(
-        node_path, SnapshotLoadType.Metadata, None
-    ) == {"minified": {}, "metadata": {}}
-    patched_read_minified.assert_called_once_with(
-        node_info, node_file, node_path, None
-    )
-    patched_read_metadata.assert_called_once_with(
-        node_info, node_file, node_path, None
-    )
-    patched_read_data.assert_not_called()
-
-
-def test_default_snapshot_content_loader_node_valid_data(mocker, tmp_path):
-    node_info = {"a": 1}
-    node_path = NodePath(tmp_path / "2024-04-27" / "#1_name_120000")
-    node_path.mkdir(parents=True)
-    node_filepath = node_path / "node.json"
-    node_filepath.write_text(json.dumps(node_info))
-    patched_read_minified = mocker.patch(
-        (
-            "qualibrate_app.api.core.domain.local_storage.utils."
-            "snapshot_content.read_minified_node_content"
-        ),
-        return_value={"minified": {}},
-    )
-    patched_read_metadata = mocker.patch(
-        (
-            "qualibrate_app.api.core.domain.local_storage.utils."
-            "snapshot_content.read_metadata_node_content"
-        ),
-        return_value={},
-    )
-    _read_data_node_content = {"quam": {}, "parameters": None}
-    patched_read_data = mocker.patch(
-        (
-            "qualibrate_app.api.core.domain.local_storage.utils."
-            "snapshot_content.read_data_node_content"
-        ),
-        return_value=_read_data_node_content,
-    )
-    assert snapshot_content.default_snapshot_content_loader(
-        node_path, SnapshotLoadType.Data, None
-    ) == {"minified": {}, "metadata": {}, "data": _read_data_node_content}
-    patched_read_minified.assert_called_once_with(
-        node_info, node_filepath, node_path, None
-    )
-    patched_read_metadata.assert_called_once_with(
-        node_info, node_filepath, node_path, None
-    )
-    patched_read_data.assert_called_once_with(
-        node_info, node_filepath, node_path, None
-    )
+    assert result
+    content = json.loads(node_file.read_text())
+    assert content["patches"] == [{"extra": "patch"}]

@@ -12,7 +12,13 @@ from qualibrate_app.api.core.domain.bases.i_dump import IDump
 from qualibrate_app.api.core.domain.bases.node import NodeBase
 from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
 from qualibrate_app.api.core.models.branch import Branch as BranchModel
-from qualibrate_app.api.core.types import DocumentType, IdType
+from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
+from qualibrate_app.api.core.types import (
+    DocumentType,
+    IdType,
+    PageFilter,
+    SearchWithIdFilter,
+)
 
 __all__ = ["BranchBase", "BranchLoadType"]
 
@@ -67,19 +73,31 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
     @abstractmethod
     def get_latest_snapshots(
         self,
-        page: int = 0,
-        per_page: int = 50,
-        reverse: bool = False,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         pass
 
     @abstractmethod
     def get_latest_nodes(
         self,
-        page: int = 1,
-        per_page: int = 50,
-        reverse: bool = False,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        descending: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
+        pass
+
+    @abstractmethod
+    def search_snapshots_data(
+        self,
+        *,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        data_path: Sequence[str | int],
+        filter_no_change: bool = True,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotSearchResult]]:
         pass
 
     def dump(self) -> BranchModel:
@@ -87,3 +105,6 @@ class BranchBase(DomainWithConfigBase, IDump, ABC):
             name=self._name,
             **self.content,
         )
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name!r})"

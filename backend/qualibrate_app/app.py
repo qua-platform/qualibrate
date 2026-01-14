@@ -6,6 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from qualibrate_app.api.__main__ import api_router
 from qualibrate_app.api.exceptions.classes.base import QualibrateException
 from qualibrate_app.api.exceptions.handler import qualibrate_exception_handler
+from qualibrate_app.api.middleware.process_time import ProcessTimeMiddleware
 from qualibrate_app.config.resolvers import (
     get_config_path,
     get_default_static_files_path,
@@ -40,6 +41,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(api_router, prefix="/api")
 

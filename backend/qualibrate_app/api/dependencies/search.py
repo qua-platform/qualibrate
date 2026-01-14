@@ -27,7 +27,15 @@ def check_path(value: str) -> str:
 
 
 def get_search_path(
-    data_path: Annotated[str, Query(description="Path to search")],
+    data_path: Annotated[
+        str,
+        Query(
+            description=(
+                "Data path to search in snapshot state. Dot separated path "
+                "parts. Example: `channels.ch1.filter_fir_taps.0`"
+            )
+        ),
+    ],
 ) -> Sequence[str | int]:
     """Generate list of search subpaths from search path.
 

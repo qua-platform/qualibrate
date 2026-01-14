@@ -1,24 +1,35 @@
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Generator, Iterator, Mapping, Sequence
 from itertools import chain
-from typing import Any, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+    cast,
+)
 
-from qualibrate_app.api.core.types import DocumentSequenceType
+from qualibrate_app.api.core.models.snapshot import (
+    MachineSearchResults,
+    SnapshotSearchResult,
+)
+
+if TYPE_CHECKING:
+    from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
 
 
 def _get_subpath_value_wildcard(
     obj: Mapping[str, Any] | Sequence[Any],
     target_path: Sequence[str | int],
     current_path: list[str | int],
-) -> DocumentSequenceType:
+) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
         if isinstance(obj, Sequence):
             return [
-                {"key": current_path + [i], "value": val}
+                MachineSearchResults(key=current_path + [i], value=val)
                 for i, val in enumerate(obj)
             ]
         elif isinstance(obj, Mapping):
             return [
-                {"key": current_path + [key], "value": val}
+                MachineSearchResults(key=current_path + [key], value=val)
                 for key, val in obj.items()
             ]
         else:
@@ -51,9 +62,9 @@ def get_subpath_value_mapping(
     target_path: Sequence[str | int],
     current_path: list[str | int],
     key: str,
-) -> DocumentSequenceType:
+) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
-        return [{"key": current_path + [key], "value": obj[key]}]
+        return [MachineSearchResults(key=current_path + [key], value=obj[key])]
     else:
         return get_subpath_value(
             obj[key], target_path[1:], current_path + [key]
@@ -65,9 +76,9 @@ def get_subpath_value_sequence(
     target_path: Sequence[str | int],
     current_path: list[str | int],
     key: int,
-) -> DocumentSequenceType:
+) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
-        return [{"key": current_path + [key], "value": obj[key]}]
+        return [MachineSearchResults(key=current_path + [key], value=obj[key])]
     else:
         return get_subpath_value(
             obj[key], target_path[1:], current_path + [key]
@@ -78,7 +89,7 @@ def get_subpath_value(
     obj: Mapping[str, Any] | Sequence[Any],
     target_path: Sequence[str | int],
     current_path: list[str | int] | None = None,
-) -> DocumentSequenceType:
+) -> Sequence[MachineSearchResults]:
     if current_path is None:
         current_path = []
     if len(target_path) == 0:
@@ -102,8 +113,8 @@ def get_subpath_value_on_any_depth(
     obj: Mapping[str, Any] | Sequence[Any],
     key: str,
     current_path: list[str | int] | None = None,
-    paths: list[dict[str, Any]] | None = None,
-) -> list[dict[str, Any]]:
+    paths: list[MachineSearchResults] | None = None,
+) -> list[MachineSearchResults]:
     if current_path is None:
         current_path = []
     if paths is None:
@@ -111,7 +122,9 @@ def get_subpath_value_on_any_depth(
     if isinstance(obj, Mapping):
         for k, v in obj.items():
             if k == key:
-                paths.append({"path": current_path + [k], "value": v})
+                paths.append(
+                    MachineSearchResults(key=current_path + [k], value=v)
+                )
             else:
                 get_subpath_value_on_any_depth(
                     v, key, current_path + [k], paths
@@ -120,3 +133,82 @@ def get_subpath_value_on_any_depth(
         for i, item in enumerate(obj):
             get_subpath_value_on_any_depth(item, key, current_path + [i], paths)
     return paths
+
+
+SnapshotType = TypeVar("SnapshotType", bound="SnapshotBase")
+
+
+def _get_search_results(
+    snapshot: SnapshotType, data_path: Sequence[str | int]
+) -> Sequence[MachineSearchResults]:
+    """Get all search results for a given data path.
+
+    Args:
+        snapshot: The snapshot to search
+        data_path: The path to search for
+
+    Returns:
+        A sequence of all matching search results (empty sequence if none found)
+    """
+    search_results = snapshot.search(data_path, load=True)
+    return search_results if search_results else []
+
+
+def _get_snapshot_search_result(
+    snapshot: SnapshotType,
+    result: MachineSearchResults | None,
+) -> SnapshotSearchResult:
+    result_dict = {} if result is None else result.model_dump()
+    snapshot_dump = snapshot.dump()
+    return SnapshotSearchResult(snapshot=snapshot_dump, **result_dict)
+
+
+def search_snapshots_data_with_filter_ascending(
+    snapshots: Iterator[SnapshotType],
+    data_path: Sequence[str | int],
+    filter_no_change: bool,
+) -> Generator[SnapshotSearchResult, None, None]:
+    previous_search_result: MachineSearchResults | None = None
+    for snapshot in snapshots:
+        search_results = _get_search_results(snapshot, data_path)
+        for search_result in search_results:
+            if filter_no_change:
+                if previous_search_result != search_result:
+                    previous_search_result = search_result
+                    yield _get_snapshot_search_result(
+                        snapshot, previous_search_result
+                    )
+            else:
+                yield _get_snapshot_search_result(snapshot, search_result)
+
+
+def search_snapshots_data_with_filter_descending(
+    snapshots: Iterator[SnapshotType],
+    data_path: Sequence[str | int],
+    filter_no_change: bool,
+) -> Generator[SnapshotSearchResult, None, None]:
+    snapshot = next(snapshots, None)
+    if snapshot is None:
+        return
+    search_results = _get_search_results(snapshot, data_path)
+    if not filter_no_change:
+        for search_result in search_results:
+            yield _get_snapshot_search_result(snapshot, search_result)
+        for snapshot in snapshots:
+            search_results = _get_search_results(snapshot, data_path)
+            for search_result in search_results:
+                yield _get_snapshot_search_result(snapshot, search_result)
+        return
+    previous_snapshot: SnapshotType = snapshot
+    previous_results: Sequence[MachineSearchResults] = search_results
+    for snapshot in snapshots:
+        search_results = _get_search_results(snapshot, data_path)
+        if previous_results != search_results:
+            for search_result in previous_results:
+                yield _get_snapshot_search_result(
+                    previous_snapshot, search_result
+                )
+        previous_snapshot = snapshot
+        previous_results = search_results
+    for search_result in previous_results:
+        yield _get_snapshot_search_result(previous_snapshot, search_result)

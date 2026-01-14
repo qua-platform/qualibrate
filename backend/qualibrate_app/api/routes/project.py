@@ -121,11 +121,11 @@ def create_project(
 
     ### Args
     - project_name (str): Name for the new project.
-    - storage_location (Optional[Path]): Optional filesystem location for the
+    - storage_location (Path | None): Optional filesystem location for the
     project data if the backend supports it.
-    - calibration_library_folder (Optional[Path]): Path to the calibration
+    - calibration_library_folder (Path | None): Path to the calibration
     library folder to associate with this project.
-    - quam_state_path (Optional[Path]): Path to an initial QUAM state file
+    - quam_state_path (Path | None): Path to an initial QUAM state file
     that will be set on project creation.
     """
     projects_manager.create(

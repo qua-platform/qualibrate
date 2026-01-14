@@ -1,4 +1,3 @@
-import contextlib
 import json
 import logging
 from collections.abc import Mapping, MutableMapping, Sequence
@@ -20,24 +19,26 @@ from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadTypeFlag,
 )
-from qualibrate_app.api.core.domain.local_storage._id_to_local_path import (
-    IdToLocalPath,
-)
 from qualibrate_app.api.core.domain.local_storage.utils import (
     snapshot_content as snapshot_content_utils,
 )
-from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
-    find_latest_node_id,
-    find_n_latest_nodes_ids,
+from qualibrate_app.api.core.domain.local_storage.utils.local_path_id import (
+    IdToLocalPath,
 )
+from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
+    find_nodes_ids_by_filter,
+)
+from qualibrate_app.api.core.models.snapshot import MachineSearchResults
 from qualibrate_app.api.core.schemas.state_updates import StateUpdates
 from qualibrate_app.api.core.types import (
-    DocumentSequenceType,
     DocumentType,
     IdType,
+    PageFilter,
+    SearchWithIdFilter,
 )
 from qualibrate_app.api.core.utils.find_utils import get_subpath_value
 from qualibrate_app.api.core.utils.path.node import NodePath
+from qualibrate_app.api.core.utils.slice import get_page_slice
 from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate_app.api.core.utils.types_parsing import TYPE_TO_STR
 from qualibrate_app.api.exceptions.classes.storage import (
@@ -47,6 +48,7 @@ from qualibrate_app.api.exceptions.classes.storage import (
 from qualibrate_app.api.exceptions.classes.values import QValueException
 
 __all__ = ["SnapshotLocalStorage"]
+
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +106,7 @@ class SnapshotLocalStorage(SnapshotBase):
             The path to the node.
         """
         if self._node_path is None:
-            self._node_path = IdToLocalPath().get_or_raise(
+            self._node_path = IdToLocalPath().get_path_or_raise(
                 self._settings.project,
                 self._id,
                 self._settings.storage.location,
@@ -151,7 +153,7 @@ class SnapshotLocalStorage(SnapshotBase):
 
     def search(
         self, search_path: Sequence[str | int], load: bool = False
-    ) -> DocumentSequenceType | None:
+    ) -> Sequence[MachineSearchResults] | None:
         """
         Searches for a value in the snapshot data at a specified path.
 
@@ -169,38 +171,58 @@ class SnapshotLocalStorage(SnapshotBase):
         # TODO: update logic; not use quam directly
         return get_subpath_value(self.data["quam"], search_path)
 
+    def _get_latest_snapshots_ids(
+        self,
+        storage_location: Path,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        descending: bool = False,
+    ) -> Sequence[IdType]:
+        ids = find_nodes_ids_by_filter(
+            storage_location,
+            search_filter=search_filter,
+            project_name=self._settings.project,
+            descending=descending,
+        )
+        return get_page_slice(ids, pages_filter)
+
     def get_latest_snapshots(
-        self, page: int = 1, per_page: int = 50, reverse: bool = False
+        self, pages_filter: PageFilter, descending: bool = False
     ) -> tuple[int, Sequence[SnapshotBase]]:
         """
         Retrieves the latest snapshots. First item in sequence is current.
 
         Args:
-            page: The page number. Defaults to 1.
-            per_page: The number of snapshots per page. Defaults to 50.
-            reverse: Whether to reverse the order. Defaults to False.
+            pages_filter: PageFilter.
+            descending: Whether to reverse the order. Defaults to False.
 
         Returns:
             Total number of snapshots and a sequence of the latest snapshots.
         """
         storage_location = self._settings.storage.location
-        total = find_latest_node_id(storage_location)
+        project_path_manager = IdToLocalPath().get_project_manager(
+            self._settings.project, storage_location
+        )
+        total = len(project_path_manager)
         self.load_from_flag(SnapshotLoadTypeFlag.Metadata)
-        if page == 1 and per_page == 1:
+        if descending and pages_filter.page == 1 and pages_filter.per_page == 1:
             return total, [self]
-        ids = find_n_latest_nodes_ids(
+        ids_paged = self._get_latest_snapshots_ids(
             storage_location,
-            page,
-            per_page,
-            self._settings.project,
-            max_node_id=(self.id or total) - 1,
+            pages_filter=PageFilter(
+                page=pages_filter.page, per_page=pages_filter.per_page
+            ),
+            search_filter=SearchWithIdFilter(
+                max_node_id=(self.id or project_path_manager.max_id) - 1,
+            ),
+            descending=descending,
         )
         snapshots = [
-            SnapshotLocalStorage(id, settings=self._settings) for id in ids
+            SnapshotLocalStorage(id, settings=self._settings)
+            for id in ids_paged
         ]
         for snapshot in snapshots:
-            with contextlib.suppress(OSError):
-                snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
+            snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         return total, [self, *snapshots]
 
     def compare_by_id(

@@ -12,7 +12,11 @@ from qualibrate_app.api.core.domain.bases.snapshot import (
     SnapshotLoadTypeFlag,
 )
 from qualibrate_app.api.core.models.snapshot import Snapshot
-from qualibrate_app.api.core.types import DocumentSequenceType, IdType
+from qualibrate_app.api.core.types import (
+    DocumentSequenceType,
+    IdType,
+    PageFilter,
+)
 
 
 class SnapshotBaseCustom(SnapshotBase):
@@ -33,7 +37,7 @@ class SnapshotBaseCustom(SnapshotBase):
         raise NotImplementedError()
 
     def get_latest_snapshots(
-        self, page: int = 1, per_page: int = 50, reverse: bool = False
+        self, pages_filter: PageFilter, descending: bool = False
     ) -> Sequence[SnapshotBase]:
         raise NotImplementedError()
 

@@ -10,14 +10,13 @@ from typing import (
 from qualibrate_config.models import QualibrateConfig
 
 from qualibrate_app.api.core.domain.bases.snapshot import (
-    SnapshotLoadType,
     SnapshotLoadTypeFlag,
 )
 from qualibrate_app.api.core.domain.bases.storage import (
     DataFileStorage,
     StorageLoadTypeFlag,
 )
-from qualibrate_app.api.core.domain.local_storage._id_to_local_path import (
+from qualibrate_app.api.core.domain.local_storage.utils.local_path_id import (
     IdToLocalPath,
 )
 from qualibrate_app.api.core.types import (
@@ -34,7 +33,7 @@ logger = logging.getLogger(__name__)
 __all__ = [
     "SnapshotContentLoaderType",
     "SnapshotContentUpdaterType",
-    "default_snapshot_content_loader",
+    "default_snapshot_content_loader_from_flag",
     "default_snapshot_content_updater",
 ]
 
@@ -84,7 +83,8 @@ def read_minified_node_content(
     user_storage = settings.storage.location
     parents = list(
         filter(
-            lambda p_id: id_local_path.get(project, p_id, user_storage), parents
+            lambda p_id: id_local_path.get_path(project, p_id, user_storage),
+            parents,
         )
     )
     created_at_str = node_info.get("created_at")
@@ -154,13 +154,6 @@ def get_data_node_path(
     if not quam_abs_path.is_relative_to(snapshot_path):
         raise QFileNotFoundException("Unknown quam data path")
     return quam_abs_path
-
-
-def get_data_node_dir(
-    snapshot_path: Path, quam_dir_name: str = "quam_state"
-) -> Path | None:
-    quam_state_dir = snapshot_path / quam_dir_name
-    return quam_state_dir if quam_state_dir.is_dir() else None
 
 
 def update_state_file(state_file: Path, new_quam: Mapping[str, Any]) -> None:
@@ -238,30 +231,6 @@ def read_quam_content(quam_path: Path) -> dict[str, Any]:
     return quam
 
 
-def read_data_node_content(
-    node_info: Mapping[str, Any],
-    node_filepath: Path,
-    snapshot_path: Path,
-    settings: QualibrateConfig,
-) -> dict[str, Any]:
-    """Read quam data based on node info.
-
-    Args:
-        node_info: Node content
-        node_filepath: path to file that contains node info
-        snapshot_path: Node root
-    """
-    quam_path = get_data_node_path(node_info, node_filepath, snapshot_path)
-    node_data = dict(node_info.get("data", {}))
-    other_data = {
-        "parameters": dict(node_data.get("parameters", {})).get("model"),
-        "outcomes": node_data.get("outcomes"),
-    }
-    if quam_path is None:
-        return {"quam": None, **other_data}
-    return {"quam": read_quam_content(quam_path), **other_data}
-
-
 def default_snapshot_content_updater(
     snapshot_path: NodePath,
     new_snapshot: Mapping[str, Any],
@@ -309,32 +278,6 @@ def _node_info_from_node_filename(node_filepath: Path) -> DocumentType:
             return dict(json.load(f))
         except json.JSONDecodeError:
             return {}
-
-
-def default_snapshot_content_loader(
-    snapshot_path: NodePath,
-    load_type: SnapshotLoadType,
-    settings: QualibrateConfig,
-    raw: bool = False,
-) -> DocumentType:
-    node_filepath = get_node_filepath(snapshot_path)
-    node_info = _node_info_from_node_filename(node_filepath)
-    if raw:
-        return node_info
-    content = read_minified_node_content(
-        node_info, node_filepath, snapshot_path, settings
-    )
-    if load_type < SnapshotLoadType.Metadata:
-        return content
-    content["metadata"] = read_metadata_node_content(
-        node_info, node_filepath, snapshot_path, settings
-    )
-    if load_type < SnapshotLoadType.Data:
-        return content
-    content["data"] = read_data_node_content(
-        node_info, node_filepath, snapshot_path, settings
-    )
-    return content
 
 
 def load_minified_from_node_content(
@@ -391,6 +334,7 @@ def load_snapshot_data_machine_from_node_content(
     quam_path = get_data_node_path(node_info, node_filepath, snapshot_path)
     # TODO: expected behaviour?
     quam_data = read_quam_content(quam_path) if quam_path else None
+    # TODO: use both quam and machine
     snapshot_info["data"]["quam"] = quam_data
 
 

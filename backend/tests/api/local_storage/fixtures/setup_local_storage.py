@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from qualibrate_app.api.core.domain.local_storage._id_to_local_path import (
+from qualibrate_app.api.core.domain.local_storage.utils.local_path_id import (
     IdToLocalPath,
 )
 
@@ -88,7 +88,7 @@ def default_local_storage_project(
 ) -> Generator[Path, None, None]:
     project_path = local_storage_path / "project"
     yield _setup_local_storage_project(project_path)
-    IdToLocalPath()._project_to_path.clear()
+    IdToLocalPath()._project_to_manager.clear()
 
 
 @pytest.fixture
@@ -97,7 +97,7 @@ def local_storage_project_with_name(
 ) -> Generator[Path, None, None]:
     project_path = tmp_path / "local_storage" / request.param
     yield _setup_local_storage_project(project_path)
-    IdToLocalPath()._project_to_path.clear()
+    IdToLocalPath()._project_to_manager.clear()
 
 
 @pytest.fixture

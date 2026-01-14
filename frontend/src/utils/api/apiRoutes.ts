@@ -1,16 +1,14 @@
 export const HOME_URL = "/";
 export const LOGIN_URL = "/login";
-export const ALL_SNAPSHOTS = ({ branchName = "main", pageNumber = 1, pageLimit = 100, reverseOrder = false, globalReverse = false }) =>
+export const ALL_SNAPSHOTS = ({ branchName = "main", pageNumber = 1, pageLimit = 100, descending = true}) =>
   "api/branch/" +
   branchName +
   "/snapshots_history?page=" +
   pageNumber +
   "&per_page=" +
   pageLimit +
-  "&reverse=" +
-  reverseOrder +
-  "&global_reverse=" +
-  globalReverse;
+  "&descending=" +
+  descending;
 export const ONE_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/`;
 export const SNAPSHOT_RESULT = (snapshotId: string) => `api/data_file/${snapshotId}/content`;
 export const SNAPSHOT_DIFF = (currentSnapshotId: string, newSnapshotId: string) =>
