@@ -1,0 +1,26 @@
+.firstRowWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switchWrapper {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 31px;
+  border: 1px solid var(--border, #42424C);
+}
+
+.switchOption {
+  padding: 6px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  color: #b0b0b0;
+}
+
+.selected {
+  background: rgb(44 203 229 / 60%);
+  color: white;
+}

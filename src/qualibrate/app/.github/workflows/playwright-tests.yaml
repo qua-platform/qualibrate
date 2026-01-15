@@ -1,0 +1,37 @@
+name: Playwright Tests [PR or Manual]
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      qualibrate-ref:
+        description: 'Name of branch for qualibrate repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-runner-ref:
+        description: 'Name of branch for qualibrate-runner repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-core-ref:
+        description: 'Name of branch for qualibrate-core repo'
+        default: 'main'
+        required: false
+        type: string
+      qualibrate-config-ref:
+        description: 'Name of branch for qualibrate-config repo'
+        default: 'main'
+        required: false
+        type: string
+
+jobs:
+  call-reusable-playwright-tests:
+    uses: qua-platform/qualibrate-app/.github/workflows/reusable-playwright-tests.yaml@main
+    with:
+      qualibrate-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-ref }}
+      qualibrate-app-ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
+      qualibrate-runner-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-runner-ref }}
+      qualibrate-core-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-core-ref }}
+      qualibrate-config-ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.qualibrate-config-ref }}
+    secrets: inherit

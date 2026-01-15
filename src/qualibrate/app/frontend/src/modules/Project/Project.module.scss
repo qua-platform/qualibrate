@@ -1,0 +1,25 @@
+.projectPageWrapper {
+  max-width: 100%;
+  padding: 50px 70px 20px;
+  position: sticky;
+  top: 0;
+  background-color: var(--background-color);
+  z-index: 20;
+  color: var(--sub-text-color);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.splashNoProject {
+  padding-top: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
+}
+
+.searchProjectField {
+  input {
+    border-radius: 45px;
+  }
+}

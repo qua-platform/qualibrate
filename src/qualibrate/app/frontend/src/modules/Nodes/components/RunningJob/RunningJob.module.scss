@@ -1,0 +1,495 @@
+@use "../../../../styles/variables";
+@use "../../../../styles/base";
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  max-height: 52%;
+  //padding: 30px;
+  color: #A5ACB6;
+  padding-bottom: 28px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+.runningJobWrapper {
+  display: inline-flex;
+}
+
+.runningJobNameWrapper {
+  display: inline-flex;
+}
+
+.runningJobName {
+  color: white;
+}
+
+.greenDot {
+  width: 12px;
+  height: 12px;
+  background-color: var(--status-color-finished);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.redDot {
+  width: 12px;
+  height: 12px;
+  background-color: var(--status-color-error);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.greyDot {
+  width: 12px;
+  height: 12px;
+  background-color: var(--status-color-pending);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.stopButtonContainer {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+
+.stopButtonWrapper {
+  cursor: pointer;
+}
+
+.stopButton {
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: rgb(255 97 115 / 10%);
+  }
+
+  &:focus {
+    outline: none;
+    background-color: rgb(255 97 115 / 10%);
+  }
+
+  &:active {
+    background-color: rgb(255 97 115 / 20%);
+  }
+}
+
+.parameterStatesWrapper {
+  display: flex;
+  max-height: 220px;
+}
+
+.parameterColumnWrapper {
+  width: 50%;
+  margin-top: 12px;
+  padding-bottom: 3px;
+  margin-right: 6px;
+  background-color: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: scroll;
+}
+
+.statesColumnWrapper {
+  width: 50%;
+  margin-top: 12px;
+  margin-left: 6px;
+  background-color: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding-bottom: 14px;
+  padding-top: 6px;
+}
+
+.runInfoWrapper {
+  display: flex;
+  padding-left: 20px;
+  margin-top: 20px;
+  padding-top: 6px;
+  padding-bottom: 10px;
+  font-size: 14px;
+  background-color: var(--popup-background);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.runInfoColumn {
+  display: grid;
+  width: 50%;
+}
+
+.jobInfoKey {
+  display: inline-flex;
+  width: 100px;
+}
+
+.jobInfoKeySecondColumn {
+  display: inline-flex;
+  width: 50px;
+}
+
+.jobInfoValue {
+  display: inline-flex;
+  color: white;
+  word-break: break-all;
+}
+
+.jobInfoValueText {
+  color: #A5ACB6;
+}
+
+.runInfoRow {
+  display: inline-flex;
+  padding-top: 7px;
+}
+
+.parametersWrapper {
+  padding-top: 6px;
+  padding-left: 20px;
+  max-height: 200px;
+  overflow-y: scroll;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #A5ACB6 transparent;
+}
+
+.parametersWrapper::-webkit-scrollbar {
+  width: 2px;
+}
+
+.parametersWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.parametersWrapper::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+}
+
+.parameterTitleWrapper {
+  display: flex;
+  font-size: 14px;
+  padding: 5px 15px 5px 0;
+}
+
+.parameterValues {
+  display: flex;
+  width: 100%;
+  font-size: 12px;
+}
+
+.parameterLabel {
+  padding-right: 10px;
+  padding-top: 10px;
+  width: 100px;
+  font-size: 12px;
+  max-width: 170px;
+  flex: 1;
+}
+
+.parameterValue {
+  padding-top: 10px;
+  color: white;
+  font-size: 14px;
+}
+
+.stateWrapper {
+  display: flex;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px 15px 5px 20px;
+}
+
+.stateTitle {
+  width: 100%;
+  text-wrap-mode: nowrap;
+}
+
+.updateAllButton {
+  font-family: Roboto, serif;
+  height: 20px;
+  text-wrap: nowrap;
+  font-size: 14px;
+  color: #3CDEF8 !important;
+  text-transform: none !important;
+}
+
+.stateUpdatesTopWrapper {
+  overflow-y: scroll;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #A5ACB6 transparent;
+  max-height: calc(100% - 51px);
+  margin-bottom: 10px;
+  margin-top: 6px;
+}
+
+.stateUpdatesTopWrapper::-webkit-scrollbar {
+  width: 2px;
+}
+
+.stateUpdatesTopWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.stateUpdatesTopWrapper::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+}
+
+.stateUpdateWrapper {
+  padding-bottom: 5px;
+  padding-left: 20px;
+}
+
+.stateUpdateOrderNumberAndTitleWrapper {
+  font-family: Roboto, serif;
+  font-size: 12px;
+  display: flex;
+}
+
+.stateUpdateOrderNumber {
+  color: #A5ACB6;
+}
+
+.stateUpdateOrderKey {
+  padding-left: 7px;
+  color: white;
+}
+
+.stateUpdateValueWrapper {
+  display: flex;
+  padding-left: 12px;
+  padding-top: 8px;
+  padding-bottom: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stateUpdateValueOld {
+  display: flex;
+  align-items: center;
+}
+
+.stateUpdateRightArrowIconWrapper {
+  padding-left: 5px;
+  padding-right: 5px;
+  align-content: center;
+}
+
+.stateUpdateUndoIconWrapper {
+  padding-left: 12px;
+  padding-top: 3px;
+
+  svg {
+    cursor: pointer;
+  }
+}
+
+.stateUpdateValueNew {
+  display: flex;
+  align-items: center;
+}
+
+.valueContainer {
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 14px;
+  background-color: #42464C;
+  color: white;
+  border-radius: 6px;
+  border: 1px solid #42464C;
+  transition: all 1s ease;
+  cursor: pointer;
+  width: fit-content;
+  max-width: 100%;
+  height: fit-content;
+  align-items: center;
+  outline: none !important;
+  //display: inline-block;
+  //padding: 2px 4px;
+  //font-size: 14px;
+  //background-color: #42464c;
+  //color: white;
+  //border-radius: 6px;
+  //border: 1px solid #42464c;
+  //transition: all 0.2s ease;
+  //cursor: pointer;
+  //width: auto; /* Širina automatski prati sadržaj */
+  //min-width: 50px; /* Minimalna širina */
+  //max-width: 100%; /* Maksimalna širina (za mobilne uređaje) */
+  //overflow: hidden;
+  //white-space: nowrap; /* Sprečava prelom */
+  //text-overflow: ellipsis; /* Dodaje "..." ako je tekst predugačak */
+}
+
+.valueContainerEditable {
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 14px;
+  background: rgb(44 203 229 / 10%);
+  color: #3CDEF8;
+  border-radius: 6px;
+  border: 1px solid rgb(44 203 229 / 10%);
+  cursor: pointer;
+}
+
+.valueContainerDisabled {
+  display: inline-block;
+  padding: 2px 4px;
+  font-size: 14px;
+  color: #32FFC6;
+  border-radius: 6px;
+  border: 1px solid rgb(0 213 154 / 10%);
+  background: rgb(0 213 154 / 10%);
+
+}
+
+input:focus {
+  outline: none !important;
+}
+
+.stateUpdateIconBeforeWrapper {
+  margin-left: auto;
+  padding-right: 13px;
+  display: flex;
+  align-items: center;
+
+  svg {
+    cursor: pointer;
+  }
+}
+
+.stateUpdateIconAfterWrapper {
+  margin-left: auto;
+  padding-right: 13px;
+  display: flex;
+  align-items: center;
+}
+
+.stateUpdateComponentTextWrapper {
+  padding-left: 10px;
+}
+
+.stateUpdateKeyText {
+  font-weight: bold;
+}
+
+.upArrowIconWrapper {
+  cursor: pointer;
+}
+
+.stateUpdateValueText {
+  font-size: 12px;
+}
+
+.stateUpdateValueTextWrapper {
+  padding-top: 5px;
+  align-items: center;
+  display: flex;
+}
+
+.editIconWrapper {
+  padding-left: 5px;
+}
+
+.newValueOfState {
+  padding-left: 5px;
+
+  input {
+    font-size: 12px;
+    padding: 0 !important;
+    height: 20px !important;
+  }
+}
+
+.jobInfoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leftStatus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nodeText {
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 22px;
+}
+
+.nodeName {
+  color: white;
+  font-family: Roboto, sans-serif;
+  margin-left: 4px;
+  font-size: 20px;
+}
+
+.rightStatus {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.percentage {
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.loadingBarWrapper {
+  width: 100%;
+}
+
+.finishedText {
+  color: #32FFC6;
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.errorText {
+  color: var(--status-color-error);
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bar_running {
+  --progress-color: var(--status-color-running);
+}
+
+.bar_pending {
+  --progress-color: var(--status-color-pending);
+}
+
+.bar_finished {
+  --progress-color: var(--status-color-finished);
+}
+
+.bar_error {
+  --progress-color: var(--status-color-error);
+}

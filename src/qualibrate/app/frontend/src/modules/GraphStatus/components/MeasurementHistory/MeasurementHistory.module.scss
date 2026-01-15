@@ -1,0 +1,89 @@
+.wrapper {
+  font-style: normal;
+  font-weight: 500;
+  height: 50%;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  background-color: var(--popup-background); 
+  padding: 8px 12px; 
+  font-size: 16px;
+  justify-content: space-between;
+}
+
+.title {
+  color: #fff;
+  font-family: "Roboto Condensed", serif;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.trackLatestWrapper {
+  display: flex;
+  align-items: center;
+  color: #c6cdd6;
+  font-family: Roboto, serif;
+  font-size: 14px;
+  font-weight: 400;
+  gap: 8px;
+
+  span {
+    font-size: 14px; 
+    color: #fff;
+  }
+
+  .toggleSwitch {
+    width: 36px; 
+    height: 12px; 
+    background-color: #4a4a4a;
+    border-radius: 6px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &.toggleOn {
+      background-color: #28a745;
+    }
+
+    &.toggleOff {
+      background-color: #4a4a4a;
+    }
+  }
+
+  .toggleKnob {
+    width: 18px; 
+    height: 18px;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
+    position: absolute;
+    top: -3px; 
+    left: 0;
+    transition: left 0.3s ease;
+
+    &.toggleOn {
+      left: calc(100% - 18px);
+    }
+
+    &.toggleOff {
+      left: 0;
+    }
+  }
+}
+
+.contentContainer {
+  background-color: #2A2B31;
+  padding: 10px 12px;
+  height: calc(100% - 60px);
+}
+
+.lowerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px; 
+  color: #c6cdd6;
+  padding: 5px 0; 
+}
