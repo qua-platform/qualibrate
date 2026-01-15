@@ -1,0 +1,83 @@
+[tool.poetry]
+name = "qualibrate-core"
+version = "0.6.0"
+description = ""
+authors = ["Quantum Machines <info@quantum-machines.co>"]
+readme = "README.md"
+packages = [{ include = "qualibrate" }]
+
+[tool.poetry.dependencies]
+python = "^3.10,<3.13"
+pydantic = "^2.9.2"
+qualang-tools = { version = ">=0.20.0", python = ">=3.10,<3.13" }
+networkx = "~3.4.2"                                               # max available version with python 3.10 support
+jsonpointer = "^3.0.0"
+types-networkx = "~3.4.2.20250527"
+datamodel-code-generator = "^0.33.0"
+matplotlib = "^3.10.6"
+python-json-logger = "^3.2.1"
+qualibrate-config = "^0.1.8,<0.2.0"
+jsonpatch = "^1.33"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.2"
+pytest-mock = "^3.15.1"
+quam = { version = "^0.4.2", python = ">=3.10,<3.13" }
+xarray = "~2025.6.1"
+pillow = "^11.0.0"
+#setuptools = "^75.1.0"    # it was required for qm -> betterproto -> pkg_resources (contains in setuptools)
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.13.1"
+mypy = "^1.18.2"
+poethepoet = "^0.37.0"
+
+#[tool.poetry.group.qm-dev.dependencies]
+#qualibrate-config = {path = "../qualibrate-config", develop = true}
+
+[tool.ruff]
+line-length = 80
+target-version = "py310"
+exclude = ["calibrations"]
+ignore = ["E501"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "I",   # isort
+]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 120
+max-doc-length = 120
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+exclude = ["tests", "calibrations"]
+plugins = ['pydantic.mypy']
+
+[[tool.mypy.overrides]]
+module = ["qualang_tools.*", "quam.*", "jsonpointer", "jsonpatch"]
+ignore_missing_imports = true
+
+[tool.poe.tasks]
+lint = "ruff check ."
+lint-fix = "ruff check --fix ."
+format = "ruff format --check ."
+format-fix = "ruff format ."
+type = "mypy ."
+check.sequence = ["lint", "format", "type"]
+fix.sequence = ["lint-fix", "format-fix", "type"]
+fix.ignore_fail = "return_non_zero"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
