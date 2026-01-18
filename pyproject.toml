@@ -7,13 +7,10 @@ repository = "https://github.com/qua-platform/qualibrate"
 readme = "README.md"
 
 # PACKAGES: Defines what gets installed when users do "pip install qualibrate"
-# Each package is found in a specific location within the monorepo
+# Single unified package containing core, runner, app, and composite as subpackages
 packages = [
-    { include = "qualibrate", from = "src/qualibrate/core" },           # SDK - from qualibrate import QualibrationGraph
-    { include = "qualibrate_runner", from = "src/qualibrate/runner" },  # Runner server
-    { include = "qualibrate_app", from = "src/qualibrate/app/backend" },# App backend + API
-    { include = "qualibrate_composite", from = "src/qualibrate" },      # Orchestrator
-    { include = "qualibrate_examples" }                                 # Examples (at root)
+    { include = "qualibrate", from = "src" },  # Main package with core/runner/app/composite subpackages
+    { include = "qualibrate_examples" }        # Examples (at root)
 ]
 
 # INCLUDE: Extra files to package (app needs built frontend)
@@ -125,11 +122,12 @@ xarray = "~2025.6.1"
 # ============================================================================
 # CLI SCRIPTS
 # These create command-line tools when package is installed
+# All 3 commands are installed with: pip install qualibrate
 # ============================================================================
 [tool.poetry.scripts]
-qualibrate = "qualibrate_composite.__main__:main"        # Main orchestrator: qualibrate start
-qualibrate-runner = "qualibrate_runner.__main__:main"    # Runner server (can run standalone)
-qualibrate-app = "qualibrate_app.__main__:main"          # App server (can run standalone)
+qualibrate = "qualibrate.composite.__main__:main"        # Main orchestrator: qualibrate start
+qualibrate-runner = "qualibrate.runner.__main__:main"    # Runner server (can run standalone)
+qualibrate-app = "qualibrate.app.backend.__main__:main"  # App server (can run standalone)
 
 # ============================================================================
 # MYPY CONFIGURATION (Type Checking)
