@@ -1,93 +1,212 @@
 [tool.poetry]
 name = "qualibrate"
-version = "0.5.0"
+version = "0.6.0"
 description = "Qubit calibration software"
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate"
-packages = [{ include = "qualibrate_composite" }, { include = "qualibrate_examples" }]
 readme = "README.md"
 
+# PACKAGES: Defines what gets installed when users do "pip install qualibrate"
+# Each package is found in a specific location within the monorepo
+packages = [
+    { include = "qualibrate", from = "src/qualibrate/core" },           # SDK - from qualibrate import QualibrationGraph
+    { include = "qualibrate_runner", from = "src/qualibrate/runner" },  # Runner server
+    { include = "qualibrate_app", from = "src/qualibrate/app/backend" },# App backend + API
+    { include = "qualibrate_composite", from = "src/qualibrate" },      # Orchestrator
+    { include = "qualibrate_examples" }                                 # Examples (at root)
+]
+
+# INCLUDE: Extra files to package (app needs built frontend)
+include = [
+    { path = "qualibrate_static/**/*", format = ["sdist", "wheel"] }  # Built frontend files for app
+]
+
+# ============================================================================
+# RUNTIME DEPENDENCIES
+# These are installed when users do "pip install qualibrate"
+# Merged from: core + runner + app + composite
+# ============================================================================
 [tool.poetry.dependencies]
 python = "^3.10,<3.13"
+
+# Core dependencies (from qualibrate-core)
+pydantic = "^2.11.9"              # Using higher version from composite (was ^2.9.2 in core)
+qualang-tools = { version = ">=0.20.0", python = ">=3.10,<3.13" }
+networkx = "~3.4.2"               # Max version with Python 3.10 support
+jsonpointer = "^3.0.0"
+jsonpatch = "^1.33"
+types-networkx = "~3.4.2.20250527"
+datamodel-code-generator = "^0.33.0"
+matplotlib = "^3.10.6"
+python-json-logger = "^3.2.1"
+
+# Web framework (from runner + app + composite)
 fastapi = "^0.117.1"
 uvicorn = "^0.37.0"
-pydantic = "^2.11.9"
-pydantic-settings = "^2.11.0"
-click = "^8.1.7,<8.2.0"
-tomli = { version = "^2.0.1", python = "<3.11" }
-tomli-w = "^1.0.0"
-a2wsgi = "^1.10.8"
-qualibrate-core = "0.6.0"
-qualibrate-runner = "0.6.0"
-qualibrate-app = "0.6.0"
-qualibrate-config = "0.1.8"
+pydantic-settings = "^2.11.0"     # From composite (runner had ^2.10.1)
 
+# CLI tools (from runner + app + composite)
+click = "^8.1.7,<8.2.0"
+tomli = { version = "^2.0.1", python = "<3.11" }  # Only needed for Python < 3.11
+tomli-w = "^1.0.0"
+
+# Additional dependencies
+requests = "^2.32.4"              # From app
+websockets = "^15.0.1"            # From runner
+quam = "^0.4.2"                   # From runner (used by runner and tests)
+a2wsgi = "^1.10.8"                # From composite (for WSGI middleware)
+qualibrate-config = "^0.1.8,<0.2.0"  # Using version range (was pinned to 0.1.8 in composite)
+
+# TODO: Uncomment after publishing json-timeline-database
+# json-timeline-database = { version = "^X.X.X", optional = true }
+
+# EXTRAS: Optional feature sets
+[tool.poetry.extras]
+json-timeline-db = ["json-timeline-database"]  # From app - optional timeline DB support
+
+# ============================================================================
+# DEV DEPENDENCIES
+# Only installed in development environment (poetry install)
+# Used for linting, type checking, formatting
+# ============================================================================
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.18.2"
 ruff = "^0.13.1"
 poethepoet = "^0.37.0"
+types-requests = "^2.32.4.20250913"  # From app - type stubs for requests
 
-#[tool.poetry.group.qm-dev.dependencies]
-#qualibrate-config = {path = "../qualibrate-config", develop = true}
-#qualibrate-app = {path = "../qualibrate-app/backend", develop = true}
-#qualibrate-runner = {path = "../qualibrate-runner", develop = true}
-#qualibrate-core = {path = "../qualibrate-core", develop = true}
-#qua-dashboards = { path = "../qua-dashboards", develop = true }
-
+# ============================================================================
+# TEST DEPENDENCIES
+# Only installed when running tests
+# Merged from core + runner + app test groups
+# ============================================================================
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.2"
 pytest-mock = "^3.15.1"
 
+# Test-specific dependencies (from core)
+quam = { version = "^0.4.2", python = ">=3.10,<3.13" }  # Also in runtime, but needed for tests
+xarray = "~2025.6.1"              # Using higher version from core (runner had ^2024.1.0)
+pillow = "^11.0.0"                # From core
+# setuptools = "^75.1.0"          # Was required for qm -> betterproto -> pkg_resources
+                                   # Commented - kept for reference if needed later
+
+# Test-specific dependencies (from runner)
+freezegun = "^1.2.0"              # Time mocking for runner tests
+quam-builder = {git = "https://github.com/qua-platform/quam-builder.git"}  # Git dep for runner tests
+
+# Test-specific dependencies (from app)
+httpx = "^0.28.1"                 # HTTP client for testing FastAPI
+
+# ============================================================================
+# FRONTEND E2E TEST DEPENDENCIES
+# From app - for frontend integration/E2E tests that need full stack
+# Install with: poetry install --with fe_test
+# These deps allow backend to serve real quantum data for frontend E2E tests
+# ============================================================================
+[tool.poetry.group.fe_test.dependencies]
+quam = { version = "^0.4.2", python = ">=3.10,<3.13" }
+xarray = "~2025.6.1"
+
+# ============================================================================
+# QM-DEV GROUP (COMMENTED - for Quantum Machines internal development)
+# Uncomment these when developing qualibrate alongside related QM packages
+# This allows you to work on multiple repos simultaneously with local changes
+# ============================================================================
+#[tool.poetry.group.qm-dev.dependencies]
+#qualibrate-config = {path = "../qualibrate-config", develop = true}
+#qua-dashboards = {path = "../qua-dashboards", develop = true}
+#
+# The following are no longer needed (now part of this monorepo):
+#qualibrate-app = {path = "../qualibrate-app/backend", develop = true}
+#qualibrate-runner = {path = "../qualibrate-runner", develop = true}
+#qualibrate-core = {path = "../qualibrate-core", develop = true}
+
+# ============================================================================
+# CLI SCRIPTS
+# These create command-line tools when package is installed
+# ============================================================================
 [tool.poetry.scripts]
-qualibrate = "qualibrate_composite.__main__:main"
+qualibrate = "qualibrate_composite.__main__:main"        # Main orchestrator: qualibrate start
+qualibrate-runner = "qualibrate_runner.__main__:main"    # Runner server (can run standalone)
+qualibrate-app = "qualibrate_app.__main__:main"          # App server (can run standalone)
 
-
+# ============================================================================
+# MYPY CONFIGURATION (Type Checking)
+# Consolidated from all sub-packages
+# ============================================================================
 [tool.mypy]
 python_version = "3.10"
-strict = true
+strict = true                      # Enable all strict type checking
 warn_return_any = true
-exclude = ['tests/']
-plugins = ['pydantic.mypy']
+exclude = ["tests", "calibrations"]  # Don't type-check tests or calibration scripts
+plugins = ['pydantic.mypy']        # Enable Pydantic plugin for better type inference
 
+# Modules without type stubs - ignore import errors
 [[tool.mypy.overrides]]
-# TODO: add py.typed to json_timeline_database and remove from ignore imports
 module = [
     "jsonpatch",
     "jsonpointer",
-    "json_timeline_database.*",
+    "qualang_tools.*",
+    "quam.*",
+    "json_timeline_database.*",    # TODO: add py.typed to json_timeline_database package
     "qua_dashboards.*",
 ]
 ignore_missing_imports = true
 
+# ============================================================================
+# RUFF CONFIGURATION (Linter & Formatter)
+# Consolidated from all sub-packages
+# Using 120 character line length (from core standards)
+# ============================================================================
 [tool.ruff]
-line-length = 80
+line-length = 120                  # Max line length
 target-version = "py310"
+exclude = ["calibrations"]         # Don't lint user calibration scripts
+ignore = ["E501"]                  # Ignore line-too-long errors (let formatter handle it)
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle
+    "E",   # pycodestyle errors
     "F",   # Pyflakes
-    "UP",  # pyupgrade
-    "B",   # flake8-bugbear
-    "SIM", # flake8-simplify
-    "I",   # isort
+    "UP",  # pyupgrade (modernize Python syntax)
+    "B",   # flake8-bugbear (catch common bugs)
+    "SIM", # flake8-simplify (simplify code)
+    "I",   # isort (import sorting)
 ]
 
 [tool.ruff.lint.pycodestyle]
-max-line-length = 80
-max-doc-length = 80
+max-line-length = 120
+max-doc-length = 120
 
+# ============================================================================
+# POE TASKS (Task Runner)
+# Defines shortcuts for common development tasks
+# ============================================================================
 [tool.poe.tasks]
-lint = "ruff check ."
-lint-fix = "ruff check --fix ."
-format = "ruff format --check ."
-format-fix = "ruff format ."
-type = "mypy ."
-check.sequence = ["lint", "format", "type"]
-fix.sequence = ["lint-fix", "format-fix", "type"]
-fix.ignore_fail = "return_non_zero"
+lint = "ruff check ."              # Check code with ruff
+lint-fix = "ruff check --fix ."    # Auto-fix ruff issues
+format = "ruff format --check ."   # Check code formatting
+format-fix = "ruff format ."       # Auto-format code
+type = "mypy ."                    # Type check with mypy
+check.sequence = ["lint", "format", "type"]      # Run all checks
+fix.sequence = ["lint-fix", "format-fix", "type"]# Auto-fix + type check
+fix.ignore_fail = "return_non_zero"              # Continue even if some tasks fail
 
+# ============================================================================
+# PYTEST CONFIGURATION
+# From runner - defines how pytest discovers and runs tests
+# ============================================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]              # Where to look for tests
+python_files = ["test_*.py"]       # Test file pattern
+python_classes = ["Test*"]         # Test class pattern
+python_functions = ["test_*"]      # Test function pattern
 
+# ============================================================================
+# BUILD SYSTEM
+# Tells pip/poetry to use Poetry's build backend when building this package
+# ============================================================================
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
