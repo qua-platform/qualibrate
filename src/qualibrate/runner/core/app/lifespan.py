@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from qualibrate_runner.api.sockets.tasks import execution_history, run_status
+from qualibrate.runner.api.sockets.tasks import execution_history, run_status
 
 __all__ = ["app_lifespan"]
 

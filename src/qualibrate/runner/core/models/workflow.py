@@ -2,8 +2,8 @@ from typing import Annotated
 
 from pydantic import BaseModel, Field
 
-from qualibrate_runner.core.models.common import RunError
-from qualibrate_runner.core.models.enums import RunStatusEnum
+from qualibrate.runner.core.models.common import RunError
+from qualibrate.runner.core.models.enums import RunStatusEnum
 
 
 class WorkflowStatus(BaseModel):

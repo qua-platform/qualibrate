@@ -8,4 +8,4 @@ class RunnerMeta(BaseModel):
     @computed_field  # type: ignore[prop-decorator]
     @cached_property
     def version(self) -> str:
-        return package_version("qualibrate_runner")
+        return package_version("qualibrate")

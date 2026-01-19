@@ -8,7 +8,7 @@ from qualibrate_config.file import get_config_file
 from qualibrate_config.models import CalibrationLibraryConfig, QualibrateConfig
 from qualibrate_config.resolvers import get_qualibrate_config
 
-from qualibrate_runner.config import vars as config_vars
+from qualibrate.runner.config import vars as config_vars
 
 __all__ = ["get_config_path", "get_settings", "get_cl_settings"]
 

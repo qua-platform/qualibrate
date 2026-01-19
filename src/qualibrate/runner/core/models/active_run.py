@@ -4,8 +4,8 @@ from typing import Annotated, Any
 
 from pydantic import AwareDatetime, BaseModel, Field, computed_field
 
-from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
-from qualibrate_runner.core.models.run_results import RunResults
+from qualibrate.runner.core.models.enums import RunnableType, RunStatusEnum
+from qualibrate.runner.core.models.run_results import RunResults
 
 __all__ = ["RunStatus", "RunStatusNode", "RunStatusGraph"]
 

@@ -1,6 +1,6 @@
 from functools import cache
 
-from qualibrate_runner.core.app.ws_manager import (
+from qualibrate.runner.core.app.ws_manager import (
     SocketConnectionManagerList,
     SocketConnectionManagerMapping,
 )

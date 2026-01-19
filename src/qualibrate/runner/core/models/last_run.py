@@ -17,11 +17,11 @@ from datetime import datetime
 from typing import Annotated, Any
 
 from pydantic import AwareDatetime, BaseModel, Field, computed_field
-from qualibrate.models.run_summary.graph import GraphRunSummary
-from qualibrate.models.run_summary.node import NodeRunSummary
+from qualibrate.core.models.run_summary.graph import GraphRunSummary
+from qualibrate.core.models.run_summary.node import NodeRunSummary
 
-from qualibrate_runner.core.models.common import RunError, StateUpdate
-from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
+from qualibrate.runner.core.models.common import RunError, StateUpdate
+from qualibrate.runner.core.models.enums import RunnableType, RunStatusEnum
 
 __all__ = ["LastRun"]
 

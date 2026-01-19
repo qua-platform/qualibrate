@@ -7,8 +7,8 @@ from itertools import islice
 from pathlib import Path
 from typing import Any, TextIO, cast
 
-from qualibrate.utils.logger_m import LazyInitLogger, logger
-from qualibrate.utils.logger_utils.filters import filter_log_date
+from qualibrate.core.utils.logger_m import LazyInitLogger, logger
+from qualibrate.core.utils.logger_utils.filters import filter_log_date
 from qualibrate_config.models import QualibrateConfig
 
 __all__ = [

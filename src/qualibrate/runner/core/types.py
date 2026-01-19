@@ -4,9 +4,9 @@ from qualibrate import (
     QualibrationLibrary,
     QualibrationNode,
 )
-from qualibrate.parameters import RunnableParameters
-from qualibrate.q_runnnable import QRunnable
-from qualibrate.utils.type_protocols import MachineProtocol
+from qualibrate.core.parameters import RunnableParameters
+from qualibrate.core.q_runnnable import QRunnable
+from qualibrate.core.utils.type_protocols import MachineProtocol
 
 __all__ = ["QNodeType", "QGraphType", "QLibraryType"]
 

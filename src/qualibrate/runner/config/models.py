@@ -13,9 +13,9 @@ continuously updated as jobs execute.
 
 from pydantic import BaseModel, ConfigDict
 
-from qualibrate_runner.core.models.enums import RunStatusEnum
-from qualibrate_runner.core.models.last_run import LastRun
-from qualibrate_runner.core.types import QGraphType, QNodeType
+from qualibrate.runner.core.models.enums import RunStatusEnum
+from qualibrate.runner.core.models.last_run import LastRun
+from qualibrate.runner.core.types import QGraphType, QNodeType
 
 __all__ = ["State", "RunStatusEnum"]
 
