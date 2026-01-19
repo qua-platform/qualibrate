@@ -13,10 +13,8 @@ packages = [
     { include = "qualibrate_examples" }        # Examples (at root)
 ]
 
-# INCLUDE: Extra files to package (app needs built frontend)
-include = [
-    { path = "qualibrate_static/**/*", format = ["sdist", "wheel"] }  # Built frontend files for app
-]
+# NOTE: qualibrate_static/ will be inside src/qualibrate/app/ after flattening
+# No need for explicit include - it's packaged automatically as part of qualibrate
 
 # ============================================================================
 # RUNTIME DEPENDENCIES
@@ -127,7 +125,7 @@ xarray = "~2025.6.1"
 [tool.poetry.scripts]
 qualibrate = "qualibrate.composite.__main__:main"        # Main orchestrator: qualibrate start
 qualibrate-runner = "qualibrate.runner.__main__:main"    # Runner server (can run standalone)
-qualibrate-app = "qualibrate.app.backend.__main__:main"  # App server (can run standalone)
+qualibrate-app = "qualibrate.app.__main__:main"          # App server (can run standalone, after flattening)
 
 # ============================================================================
 # MYPY CONFIGURATION (Type Checking)
