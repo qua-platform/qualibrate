@@ -4,20 +4,20 @@ from typing import Annotated, Any, cast
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel
 
-from qualibrate_runner.api.dependencies import get_graph_nocopy as get_qgraph
-from qualibrate_runner.api.dependencies import get_node_copy as get_qnode_copy
-from qualibrate_runner.api.dependencies import (
+from qualibrate.runner.api.dependencies import get_graph_nocopy as get_qgraph
+from qualibrate.runner.api.dependencies import get_node_copy as get_qnode_copy
+from qualibrate.runner.api.dependencies import (
     get_state,
 )
-from qualibrate_runner.config import (
+from qualibrate.runner.config import (
     State,
 )
-from qualibrate_runner.core.run_job import (
+from qualibrate.runner.core.run_job import (
     run_node,
     run_workflow,
     validate_input_parameters,
 )
-from qualibrate_runner.core.types import QGraphType, QNodeType
+from qualibrate.runner.core.types import QGraphType, QNodeType
 
 submit_router = APIRouter(prefix="/submit")
 

@@ -6,7 +6,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.types import ASGIApp
 
-from qualibrate_composite.config import get_config_path, get_settings
+from qualibrate.composite.config import get_config_path, get_settings
 
 
 def encoded_password(password: str) -> str:

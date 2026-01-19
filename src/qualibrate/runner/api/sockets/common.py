@@ -3,11 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
-from qualibrate_runner.core.app.ws_manager import (
+from qualibrate.runner.core.app.ws_manager import (
     SocketConnectionManagerList,
     SocketConnectionManagerMapping,
 )
-from qualibrate_runner.core.app.ws_managers import (
+from qualibrate.runner.core.app.ws_managers import (
     get_execution_history_socket_manager,
     get_run_status_socket_manager,
 )

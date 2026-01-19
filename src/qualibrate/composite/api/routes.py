@@ -4,8 +4,8 @@ from fastapi import APIRouter, Body, Depends, Response, status
 from fastapi.responses import JSONResponse
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate_composite.api.auth_middleware import encoded_password
-from qualibrate_composite.config import get_settings
+from qualibrate.composite.api.auth_middleware import encoded_password
+from qualibrate.composite.config import get_settings
 
 base_router = APIRouter()
 

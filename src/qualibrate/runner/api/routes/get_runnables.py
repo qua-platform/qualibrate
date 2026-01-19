@@ -2,17 +2,17 @@ from collections.abc import Mapping
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
-from qualibrate.runnables.runnable_collection import RunnableCollection
+from qualibrate.core.runnables.runnable_collection import RunnableCollection
 
-from qualibrate_runner.api.dependencies import get_graph_nocopy as get_qgraph
-from qualibrate_runner.api.dependencies import get_graphs as get_qgraphs
-from qualibrate_runner.api.dependencies import (
+from qualibrate.runner.api.dependencies import get_graph_nocopy as get_qgraph
+from qualibrate.runner.api.dependencies import get_graphs as get_qgraphs
+from qualibrate.runner.api.dependencies import (
     get_node_nocopy as get_qnode,
 )
-from qualibrate_runner.api.dependencies import (
+from qualibrate.runner.api.dependencies import (
     get_nodes as get_qnodes,
 )
-from qualibrate_runner.core.types import QGraphType, QNodeType
+from qualibrate.runner.core.types import QGraphType, QNodeType
 
 get_runnables_router = APIRouter()
 

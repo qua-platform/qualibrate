@@ -7,7 +7,7 @@ import click
 from qualibrate_config import vars as config_vars
 from qualibrate_config.cli import config_command
 
-from qualibrate_composite.config import vars as composite_vars
+from qualibrate.composite.config import vars as composite_vars
 
 
 def _projects_folder_exist() -> bool:
@@ -182,12 +182,12 @@ def start_command(
             os.environ.setdefault(attr_to_set, env_value_to_set)
 
     _set_module_env_name_and_value(
-        "qualibrate_app.config.vars",
+        "qualibrate.app.backend.config.vars",
         attr_to_set="CONFIG_PATH_ENV_NAME",
         env_value_to_set=config_path_str,
     )
     _set_module_env_name_and_value(
-        "qualibrate_runner.config.vars",
+        "qualibrate.runner.config.vars",
         attr_to_set="CONFIG_PATH_ENV_NAME",
         env_value_to_set=config_path_str,
     )
@@ -197,6 +197,6 @@ def start_command(
         env_value_to_set=config_path_str,
     )
 
-    from qualibrate_composite.app import main as app_main
+    from qualibrate.composite.app import main as app_main
 
     app_main(port=port, host=host, reload=reload, root_path=root_path)

@@ -4,13 +4,13 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate_runner.api.dependencies import get_state
-from qualibrate_runner.config import State
-from qualibrate_runner.config.resolvers import get_cl_settings, get_settings
-from qualibrate_runner.core.models.enums import RunStatusEnum
-from qualibrate_runner.core.models.last_run import LastRun
-from qualibrate_runner.core.models.runner_meta import RunnerMeta
-from qualibrate_runner.utils.logs_parser import (
+from qualibrate.runner.api.dependencies import get_state
+from qualibrate.runner.config import State
+from qualibrate.runner.config.resolvers import get_cl_settings, get_settings
+from qualibrate.runner.core.models.enums import RunStatusEnum
+from qualibrate.runner.core.models.last_run import LastRun
+from qualibrate.runner.core.models.runner_meta import RunnerMeta
+from qualibrate.runner.utils.logs_parser import (
     get_logs_from_qualibrate_files,
     get_logs_from_qualibrate_in_memory_storage,
 )

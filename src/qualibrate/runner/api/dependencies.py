@@ -3,11 +3,11 @@ from functools import cache
 from typing import Annotated, cast
 
 from fastapi import Depends, HTTPException
-from qualibrate.runnables.runnable_collection import RunnableCollection
+from qualibrate.core.runnables.runnable_collection import RunnableCollection
 from qualibrate_config.models import CalibrationLibraryConfig
 
-from qualibrate_runner.config import State, get_cl_settings
-from qualibrate_runner.core.types import QGraphType, QLibraryType, QNodeType
+from qualibrate.runner.config import State, get_cl_settings
+from qualibrate.runner.core.types import QGraphType, QLibraryType, QNodeType
 
 library_rescan_lock = asyncio.Lock()
 

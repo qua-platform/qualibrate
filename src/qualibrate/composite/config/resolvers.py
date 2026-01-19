@@ -11,7 +11,7 @@ from qualibrate_config.resolvers import (
     get_qualibrate_config_path,
 )
 
-from qualibrate_composite.config.vars import (
+from qualibrate.composite.config.vars import (
     CONFIG_PATH_ENV_NAME,
     CORS_ORIGINS_ENV_NAME,
     ROOT_PATH_ENV_NAME,

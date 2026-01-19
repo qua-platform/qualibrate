@@ -9,11 +9,11 @@ from fastapi.routing import Mount
 from packaging.requirements import Requirement
 from packaging.version import Version
 
-from qualibrate_composite.api.auth_middleware import (
+from qualibrate.composite.api.auth_middleware import (
     QualibrateAppAuthMiddleware,
     RunnerAuthMiddleware,
 )
-from qualibrate_composite.utils.logging_filter import EndpointFilter
+from qualibrate.composite.utils.logging_filter import EndpointFilter
 
 # Frequently polled endpoints that should be filtered from logs
 EXECUTION_STATUS_ENDPOINT = "/execution/is_running"
@@ -26,7 +26,7 @@ OUTPUT_LOGS_ENDPOINT = "/execution/output_logs"
 
 def spawn_qualibrate_runner(app: FastAPI) -> None:
     try:
-        from qualibrate_runner.app import app as runner_app
+        from qualibrate.runner.app import app as runner_app
     except ImportError as ex:
         raise ImportError(
             "Can't import qualibrate_runner instance. "
@@ -50,7 +50,7 @@ def spawn_qualibrate_runner(app: FastAPI) -> None:
 
 def spawn_qualibrate_app(app: FastAPI) -> None:
     try:
-        from qualibrate_app.app import app as qualibrate_app_app
+        from qualibrate.app.backend.app import app as qualibrate_app_app
     except ImportError as ex:
         raise ImportError(
             "Can't import qualibrate_app instance. "

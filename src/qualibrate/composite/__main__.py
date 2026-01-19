@@ -2,7 +2,7 @@ import click
 from qualibrate_config.cli.config import config_command
 from qualibrate_config.cli.project import project_group
 
-from qualibrate_composite.cli import start_command
+from qualibrate.composite.cli import start_command
 
 
 @click.group()

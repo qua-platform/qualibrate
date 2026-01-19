@@ -2,10 +2,10 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from qualibrate_composite.api.routes import base_router
-from qualibrate_composite.config import get_config_path, get_settings
-from qualibrate_composite.config.resolvers import get_cors_origin, get_root_path
-from qualibrate_composite.utils.spawn import (
+from qualibrate.composite.api.routes import base_router
+from qualibrate.composite.config import get_config_path, get_settings
+from qualibrate.composite.config.resolvers import get_cors_origin, get_root_path
+from qualibrate.composite.utils.spawn import (
     app_lifespan,
     spawn_qua_dashboards,
     spawn_qualibrate_app,
@@ -51,7 +51,7 @@ if composite.runner.spawn and composite.app.spawn:
 
 def main(port: int, host: str, reload: bool, root_path: str = "") -> None:
     uvicorn.run(
-        "qualibrate_composite.app:app",
+        "qualibrate.composite.app:app",
         port=port,
         host=host,
         reload=reload,

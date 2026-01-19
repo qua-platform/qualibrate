@@ -2,20 +2,20 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from qualibrate import QualibrationGraph
-from qualibrate.models.execution_history import ExecutionHistory
+from qualibrate.core.models.execution_history import ExecutionHistory
 
-from qualibrate_runner.api.dependencies import get_state
-from qualibrate_runner.api.utils import get_model_docstring
-from qualibrate_runner.config import State
-from qualibrate_runner.core.models.active_run import RunStatus
-from qualibrate_runner.core.models.enums import RunStatusEnum
-from qualibrate_runner.core.models.last_run import LastRun
-from qualibrate_runner.core.models.workflow import WorkflowStatus
-from qualibrate_runner.core.statuses import (
+from qualibrate.runner.api.dependencies import get_state
+from qualibrate.runner.api.utils import get_model_docstring
+from qualibrate.runner.config import State
+from qualibrate.runner.core.models.active_run import RunStatus
+from qualibrate.runner.core.models.enums import RunStatusEnum
+from qualibrate.runner.core.models.last_run import LastRun
+from qualibrate.runner.core.models.workflow import WorkflowStatus
+from qualibrate.runner.core.statuses import (
     get_graph_execution_history,
     get_run_status,
 )
-from qualibrate_runner.core.types import QGraphType
+from qualibrate.runner.core.types import QGraphType
 
 last_run_router = APIRouter(prefix="/last_run")
 
