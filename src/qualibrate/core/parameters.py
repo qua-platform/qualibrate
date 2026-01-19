@@ -13,12 +13,12 @@ from pydantic import (
     model_validator,
 )
 
-from qualibrate.utils.exceptions import TargetsFieldNotExist
-from qualibrate.utils.logger_m import logger
-from qualibrate.utils.naming import get_full_class_path
-from qualibrate.utils.parameters import recursive_properties_solver
-from qualibrate.utils.type_protocols import TargetType
-from qualibrate.utils.types_parsing import types_conversion
+from qualibrate.core.utils.exceptions import TargetsFieldNotExist
+from qualibrate.core.utils.logger_m import logger
+from qualibrate.core.utils.naming import get_full_class_path
+from qualibrate.core.utils.parameters import recursive_properties_solver
+from qualibrate.core.utils.type_protocols import TargetType
+from qualibrate.core.utils.types_parsing import types_conversion
 
 if sys.version_info >= (3, 11):
     from typing import Self

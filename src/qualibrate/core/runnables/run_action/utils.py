@@ -24,7 +24,7 @@ import inspect
 import sys
 from types import FrameType
 
-from qualibrate.utils.logger_m import logger
+from qualibrate.core.utils.logger_m import logger
 
 
 def is_interactive() -> bool:

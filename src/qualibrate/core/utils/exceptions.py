@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from qualibrate.q_runnnable import (
+    from qualibrate.core.q_runnnable import (
         CreateParametersType,
         QRunnable,
         RunParametersType,

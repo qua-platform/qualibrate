@@ -34,19 +34,19 @@ from collections.abc import Callable, Sequence
 from functools import wraps
 from typing import TYPE_CHECKING, Any, TypeAlias
 
-from qualibrate.runnables.run_action.action import (
+from qualibrate.core.runnables.run_action.action import (
     Action,
     ActionCallableType,
     ActionReturnType,
 )
-from qualibrate.runnables.run_action.utils import (
+from qualibrate.core.runnables.run_action.utils import (
     get_defined_in_frame_names,
     get_frame_for_keeping_names_from_manager,
 )
-from qualibrate.utils.logger_m import logger
+from qualibrate.core.utils.logger_m import logger
 
 if TYPE_CHECKING:
-    from qualibrate.qualibration_node import QualibrationNode
+    from qualibrate.core.qualibration_node import QualibrationNode
 
 ActionDecoratorType: TypeAlias = (
     ActionCallableType | Callable[..., ActionCallableType]

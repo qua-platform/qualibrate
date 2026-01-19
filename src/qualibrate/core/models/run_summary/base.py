@@ -9,10 +9,10 @@ from pydantic import (
     field_serializer,
 )
 
-from qualibrate.models.outcome import Outcome
-from qualibrate.models.run_summary.run_error import RunError
-from qualibrate.parameters import RunnableParameters
-from qualibrate.utils.type_protocols import TargetType
+from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.models.run_summary.run_error import RunError
+from qualibrate.core.parameters import RunnableParameters
+from qualibrate.core.utils.type_protocols import TargetType
 
 __all__ = ["BaseRunSummary"]
 

@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Any
 
-from qualibrate.utils.logger_m import logger
-from qualibrate.utils.node.loaders.json_loader import JSONLoader
+from qualibrate.core.utils.logger_m import logger
+from qualibrate.core.utils.node.loaders.json_loader import JSONLoader
 
 try:
     from quam.core import QuamRoot

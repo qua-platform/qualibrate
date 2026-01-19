@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING, Any, Optional, TypeVar
 import jsonpatch
 import jsonpointer
 
-from qualibrate.parameters import NodeParameters
-from qualibrate.utils.logger_m import logger
-from qualibrate.utils.type_protocols import MachineProtocol
+from qualibrate.core.parameters import NodeParameters
+from qualibrate.core.utils.logger_m import logger
+from qualibrate.core.utils.type_protocols import MachineProtocol
 
 if TYPE_CHECKING:
-    from qualibrate.qualibration_node import QualibrationNode
+    from qualibrate.core.qualibration_node import QualibrationNode
 
 try:
     from quam.utils import string_reference

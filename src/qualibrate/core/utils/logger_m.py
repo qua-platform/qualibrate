@@ -11,15 +11,15 @@ from qualibrate_config.resolvers import (
     get_qualibrate_config_path,
 )
 
-from qualibrate.utils.logger_utils.filters import (
+from qualibrate.core.utils.logger_utils.filters import (
     NonUserLogFilter,
     UserLogFilter,
 )
-from qualibrate.utils.logger_utils.fotmatters import (
+from qualibrate.core.utils.logger_utils.fotmatters import (
     ConsoleFormatter,
     QualibrateJsonFormatter,
 )
-from qualibrate.utils.logger_utils.handlers import InMemoryLogHandler
+from qualibrate.core.utils.logger_utils.handlers import InMemoryLogHandler
 
 _SysExcInfoType = (
     tuple[type[BaseException], BaseException, TracebackType | None]

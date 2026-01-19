@@ -4,7 +4,7 @@ from collections import deque
 from datetime import datetime
 from typing import Any
 
-from qualibrate.utils.logger_utils.filters import filter_log_date
+from qualibrate.core.utils.logger_utils.filters import filter_log_date
 
 __all__ = ["InMemoryLogHandler"]
 

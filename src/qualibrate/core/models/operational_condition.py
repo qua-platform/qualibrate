@@ -3,8 +3,8 @@ from typing import Generic
 
 from pydantic import BaseModel
 
-from qualibrate.utils.graph_building import GraphElementTypeVar
-from qualibrate.utils.type_protocols import TargetType
+from qualibrate.core.utils.graph_building import GraphElementTypeVar
+from qualibrate.core.utils.type_protocols import TargetType
 
 
 class OperationalCondition(BaseModel, Generic[GraphElementTypeVar]):

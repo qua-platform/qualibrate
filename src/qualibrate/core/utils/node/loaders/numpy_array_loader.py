@@ -4,7 +4,7 @@ from typing import Any
 import numpy as np
 from numpy.lib.npyio import NpzFile
 
-from qualibrate.utils.node.loaders.base_loader import BaseLoader
+from qualibrate.core.utils.node.loaders.base_loader import BaseLoader
 
 
 class NumpyArrayLoader(BaseLoader):

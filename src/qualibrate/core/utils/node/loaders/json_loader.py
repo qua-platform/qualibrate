@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from qualibrate.utils.node.loaders.base_loader import BaseLoader
+from qualibrate.core.utils.node.loaders.base_loader import BaseLoader
 
 
 class JSONLoader(BaseLoader):

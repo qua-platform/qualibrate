@@ -12,11 +12,11 @@ from typing import (
 
 import networkx as nx
 
-from qualibrate.parameters import RunnableParameters
-from qualibrate.q_runnnable import QRunnable
+from qualibrate.core.parameters import RunnableParameters
+from qualibrate.core.q_runnnable import QRunnable
 
 if TYPE_CHECKING:
-    from qualibrate.qualibration_graph import QualibrationGraph
+    from qualibrate.core.qualibration_graph import QualibrationGraph
 
 GraphElementTypeVar = TypeVar(
     "GraphElementTypeVar",

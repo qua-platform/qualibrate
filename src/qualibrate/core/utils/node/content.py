@@ -11,15 +11,15 @@ from datamodel_code_generator.model import get_data_model_types
 from datamodel_code_generator.parser.jsonschema import JsonSchemaParser
 from pydantic import ConfigDict, Field, PydanticDeprecatedSince20  # noqa: F401
 
-from qualibrate import NodeParameters
-from qualibrate.utils.logger_m import logger
-from qualibrate.utils.node.loaders import (
+from qualibrate.core.parameters import NodeParameters
+from qualibrate.core.utils.logger_m import logger
+from qualibrate.core.utils.node.loaders import (
     DEFAULT_LOADERS,
     SUPPORTED_EXTENSIONS,
     QuamLoader,
 )
-from qualibrate.utils.node.loaders.base_loader import BaseLoader
-from qualibrate.utils.node.path_solver import (
+from qualibrate.core.utils.node.loaders.base_loader import BaseLoader
+from qualibrate.core.utils.node.path_solver import (
     get_data_filepath,
     get_node_dir_path,
     get_node_filepath,

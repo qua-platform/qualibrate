@@ -7,17 +7,17 @@ from qualibrate_config.resolvers import (
     get_qualibrate_config_path,
 )
 
-from qualibrate.models.run_summary.graph import GraphRunSummary
-from qualibrate.models.run_summary.node import NodeRunSummary
-from qualibrate.parameters import (
+from qualibrate.core.models.run_summary.graph import GraphRunSummary
+from qualibrate.core.models.run_summary.node import NodeRunSummary
+from qualibrate.core.parameters import (
     ExecutionParameters,
     NodeParameters,
 )
-from qualibrate.qualibration_graph import GraphElementTypeVar, QualibrationGraph
-from qualibrate.qualibration_node import QualibrationNode
-from qualibrate.runnables.runnable_collection import RunnableCollection
-from qualibrate.utils.logger_m import logger
-from qualibrate.utils.type_protocols import MachineProtocol
+from qualibrate.core.qualibration_graph import GraphElementTypeVar, QualibrationGraph
+from qualibrate.core.qualibration_node import QualibrationNode
+from qualibrate.core.runnables.runnable_collection import RunnableCollection
+from qualibrate.core.utils.logger_m import logger
+from qualibrate.core.utils.type_protocols import MachineProtocol
 
 __all__ = ["QualibrationLibrary"]
 

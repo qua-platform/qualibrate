@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 if TYPE_CHECKING:
     from typing import Any
 
-    from qualibrate.qualibration_node import QualibrationNode
+    from qualibrate.core.qualibration_node import QualibrationNode
 
 
 NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[Any, Any]")

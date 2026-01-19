@@ -14,12 +14,12 @@ from typing import (
 from pydantic import create_model
 from typing_extensions import Self
 
-from qualibrate.models.outcome import Outcome
-from qualibrate.models.run_mode import RunModes
-from qualibrate.models.run_summary.base import BaseRunSummary
-from qualibrate.parameters import RunnableParameters
-from qualibrate.utils.logger_m import logger
-from qualibrate.utils.type_protocols import TargetType
+from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.models.run_mode import RunModes
+from qualibrate.core.models.run_summary.base import BaseRunSummary
+from qualibrate.core.parameters import RunnableParameters
+from qualibrate.core.utils.logger_m import logger
+from qualibrate.core.utils.type_protocols import TargetType
 
 CreateParametersType = TypeVar("CreateParametersType", bound=RunnableParameters)
 RunParametersType = TypeVar("RunParametersType", bound=RunnableParameters)

@@ -32,15 +32,15 @@ from typing import (
     TypeAlias,
 )
 
-from qualibrate.runnables.run_action.utils import (
+from qualibrate.core.runnables.run_action.utils import (
     get_frame_to_update_from_action,
     is_interactive,
 )
-from qualibrate.utils.logger_m import logger
+from qualibrate.core.utils.logger_m import logger
 
 if TYPE_CHECKING:
-    from qualibrate.qualibration_node import QualibrationNode
-    from qualibrate.runnables.run_action.action_manager import ActionManager
+    from qualibrate.core.qualibration_node import QualibrationNode
+    from qualibrate.core.runnables.run_action.action_manager import ActionManager
 
 ActionReturnType: TypeAlias = Mapping[str, Any]
 ActionCallableType: TypeAlias = Callable[..., ActionReturnType | None]

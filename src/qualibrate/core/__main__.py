@@ -1,14 +1,14 @@
 import logging
 from pathlib import Path
 
-from qualibrate.parameters import NodeParameters, RunnableParameters
-from qualibrate.q_runnnable import QRunnable
-from qualibrate.qualibration_node import QualibrationNode
-from qualibrate.utils.type_protocols import MachineProtocol
+from qualibrate.core.parameters import NodeParameters, RunnableParameters
+from qualibrate.core.q_runnnable import QRunnable
+from qualibrate.core.qualibration_node import QualibrationNode
+from qualibrate.core.utils.type_protocols import MachineProtocol
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    from qualibrate import QualibrationLibrary
+    from qualibrate.core.qualibration_library import QualibrationLibrary
 
     library_folder = Path(__file__).parent.parent / "calibrations"
     library = QualibrationLibrary[

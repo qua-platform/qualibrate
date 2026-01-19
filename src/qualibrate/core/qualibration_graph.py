@@ -20,51 +20,51 @@ import networkx as nx
 from pydantic import create_model
 from typing_extensions import Self
 
-from qualibrate.models.node_status import ElementRunStatus
-from qualibrate.models.operational_condition import (
+from qualibrate.core.models.node_status import ElementRunStatus
+from qualibrate.core.models.operational_condition import (
     LoopCondition,
     OperationalCondition,
 )
-from qualibrate.models.outcome import Outcome
-from qualibrate.models.run_mode import RunModes
-from qualibrate.models.run_summary.base import BaseRunSummary
-from qualibrate.models.run_summary.graph import GraphRunSummary
-from qualibrate.models.run_summary.run_error import RunError
-from qualibrate.parameters import (
+from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.models.run_mode import RunModes
+from qualibrate.core.models.run_summary.base import BaseRunSummary
+from qualibrate.core.models.run_summary.graph import GraphRunSummary
+from qualibrate.core.models.run_summary.run_error import RunError
+from qualibrate.core.parameters import (
     ExecutionParameters,
     GraphElementsParameters,
     GraphParameters,
     NodeParameters,
     RunnableParameters,
 )
-from qualibrate.q_runnnable import (
+from qualibrate.core.q_runnnable import (
     QRunnable,
     file_is_calibration_graph_instance,
     run_modes_ctx,
 )
-from qualibrate.qualibration_node import QualibrationNode
-from qualibrate.runnables.runnable_collection import RunnableCollection
-from qualibrate.utils.exceptions import (
+from qualibrate.core.qualibration_node import QualibrationNode
+from qualibrate.core.runnables.runnable_collection import RunnableCollection
+from qualibrate.core.utils.exceptions import (
     CyclicGraphError,
     StopInspection,
     TargetsFieldNotExist,
 )
-from qualibrate.utils.graph_building import (
+from qualibrate.core.utils.graph_building import (
     GraphElementTypeVar,
     GraphExportMixin,
     ensure_building,
     ensure_finalized,
     ensure_not_finalized,
 )
-from qualibrate.utils.logger_m import logger
-from qualibrate.utils.read_files import get_module_name, import_from_path
-from qualibrate.utils.type_protocols import MachineProtocol, TargetType
+from qualibrate.core.utils.logger_m import logger
+from qualibrate.core.utils.read_files import get_module_name, import_from_path
+from qualibrate.core.utils.type_protocols import MachineProtocol, TargetType
 
 if TYPE_CHECKING:
-    from qualibrate.orchestration.qualibration_orchestrator import (
+    from qualibrate.core.orchestration.qualibration_orchestrator import (
         QualibrationOrchestrator,
     )
-    from qualibrate.qualibration_library import QualibrationLibrary
+    from qualibrate.core.qualibration_library import QualibrationLibrary
 
 __all__ = ["QGraphBaseType", "QualibrationGraph", "GraphElementTypeVar"]
 
@@ -158,7 +158,7 @@ class QualibrationGraph(
             defaultdict(LoopCondition)
         )
         if orchestrator is None:
-            from qualibrate.orchestration.basic_orchestrator import (
+            from qualibrate.core.orchestration.basic_orchestrator import (
                 BasicOrchestrator,
             )
 
@@ -383,7 +383,7 @@ class QualibrationGraph(
 
     @staticmethod
     def _get_library() -> "QualibrationLibrary[NodeLibT, GraphElLibT]":
-        from qualibrate.qualibration_library import QualibrationLibrary
+        from qualibrate.core.qualibration_library import QualibrationLibrary
 
         return QualibrationLibrary.get_active_library(create=False)
 

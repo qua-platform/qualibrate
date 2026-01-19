@@ -3,7 +3,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Any
 
-from qualibrate.utils.logger_m import logger
+from qualibrate.core.utils.logger_m import logger
 
 
 def get_node_dir_path(id: int, base_path: Path) -> Path | None:

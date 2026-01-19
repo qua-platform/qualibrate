@@ -2,7 +2,7 @@ from importlib.util import find_spec
 from pathlib import Path
 from typing import Any
 
-from qualibrate.utils.node.loaders import BaseLoader
+from qualibrate.core.utils.node.loaders import BaseLoader
 
 
 class XarrayLoader(BaseLoader):
