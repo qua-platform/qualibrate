@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from qualibrate_app.api.exceptions.classes.storage import (
+from qualibrate.app.api.exceptions.classes.storage import (
     QRelativeNotSubpathException,
 )
 

@@ -5,11 +5,11 @@ from pathlib import Path
 from qualibrate_config.core.project.create import create_project
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate.app.backend.api.core.domain.bases.base_with_settings import (
+from qualibrate.app.api.core.domain.bases.base_with_settings import (
     DomainWithConfigBase,
 )
-from qualibrate.app.backend.api.core.models.project import Project
-from qualibrate.app.backend.api.exceptions.classes.values import QValueException
+from qualibrate.app.api.core.models.project import Project
+from qualibrate.app.api.exceptions.classes.values import QValueException
 
 
 class ProjectsManagerBase(DomainWithConfigBase, ABC):

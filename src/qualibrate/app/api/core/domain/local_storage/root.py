@@ -1,27 +1,27 @@
 from collections.abc import Sequence
 from typing import Any
 
-from qualibrate_app.api.core.domain.bases.branch import BranchBase
-from qualibrate_app.api.core.domain.bases.node import NodeBase
-from qualibrate_app.api.core.domain.bases.root import RootBase
-from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
-from qualibrate_app.api.core.domain.local_storage.branch import (
+from qualibrate.app.api.core.domain.bases.branch import BranchBase
+from qualibrate.app.api.core.domain.bases.node import NodeBase
+from qualibrate.app.api.core.domain.bases.root import RootBase
+from qualibrate.app.api.core.domain.bases.snapshot import SnapshotBase
+from qualibrate.app.api.core.domain.local_storage.branch import (
     BranchLocalStorage,
 )
-from qualibrate_app.api.core.domain.local_storage.node import NodeLocalStorage
-from qualibrate_app.api.core.domain.local_storage.snapshot import (
+from qualibrate.app.api.core.domain.local_storage.node import NodeLocalStorage
+from qualibrate.app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
 )
-from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
+from qualibrate.app.api.core.domain.local_storage.utils.node_utils import (
     find_nodes_ids_by_filter,
 )
-from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.models.snapshot import SnapshotSearchResult
+from qualibrate.app.api.core.types import (
     IdType,
     PageFilter,
     SearchWithIdFilter,
 )
-from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.app.api.exceptions.classes.storage import QFileNotFoundException
 
 __all__ = ["RootLocalStorage"]
 

@@ -6,19 +6,19 @@ from typing import Any, ClassVar
 
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate.app.backend.api.core.domain.bases.base_with_settings import (
+from qualibrate.app.api.core.domain.bases.base_with_settings import (
     DomainWithConfigBase,
 )
-from qualibrate.app.backend.api.core.domain.bases.i_dump import IDump
-from qualibrate.app.backend.api.core.domain.bases.load_type_flag import LoadTypeFlag
-from qualibrate.app.backend.api.core.models.snapshot import MachineSearchResults
-from qualibrate.app.backend.api.core.models.snapshot import Snapshot as SnapshotModel
-from qualibrate.app.backend.api.core.types import (
+from qualibrate.app.api.core.domain.bases.i_dump import IDump
+from qualibrate.app.api.core.domain.bases.load_type_flag import LoadTypeFlag
+from qualibrate.app.api.core.models.snapshot import MachineSearchResults
+from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
+from qualibrate.app.api.core.types import (
     DocumentType,
     IdType,
     PageFilter,
 )
-from qualibrate.app.backend.api.core.utils.find_utils import (
+from qualibrate.app.api.core.utils.find_utils import (
     get_subpath_value_on_any_depth,
 )
 

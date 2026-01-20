@@ -2,7 +2,7 @@ from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from qualibrate_app.api.exceptions.classes.base import QualibrateException
+from qualibrate.app.api.exceptions.classes.base import QualibrateException
 
 
 async def qualibrate_exception_handler(

@@ -4,17 +4,17 @@ from functools import partial
 from pathlib import Path
 from typing import Any
 
-from qualibrate.app.backend.api.core.domain.local_storage.utils.local_path_id import (
+from qualibrate.app.api.core.domain.local_storage.utils.local_path_id import (
     IdToLocalPath,
 )
-from qualibrate.app.backend.api.core.types import (
+from qualibrate.app.api.core.types import (
     IdType,
     PageFilter,
     SearchFilter,
     SearchWithIdFilter,
 )
-from qualibrate.app.backend.api.core.utils.path.node import NodePath
-from qualibrate.app.backend.api.core.utils.path.node_date import NodesDatePath
+from qualibrate.app.api.core.utils.path.node import NodePath
+from qualibrate.app.api.core.utils.path.node_date import NodesDatePath
 
 
 def find_latest_node(base_path: Path) -> NodePath | None:

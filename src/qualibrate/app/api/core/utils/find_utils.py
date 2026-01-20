@@ -7,13 +7,13 @@ from typing import (
     cast,
 )
 
-from qualibrate_app.api.core.models.snapshot import (
+from qualibrate.app.api.core.models.snapshot import (
     MachineSearchResults,
     SnapshotSearchResult,
 )
 
 if TYPE_CHECKING:
-    from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
+    from qualibrate.app.api.core.domain.bases.snapshot import SnapshotBase
 
 
 def _get_subpath_value_wildcard(

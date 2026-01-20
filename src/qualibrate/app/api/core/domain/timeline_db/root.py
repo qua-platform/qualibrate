@@ -1,22 +1,22 @@
 from collections.abc import Sequence
 from typing import Any
 
-from qualibrate_app.api.core.domain.bases.root import RootBase
-from qualibrate_app.api.core.domain.timeline_db.branch import BranchTimelineDb
-from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
-from qualibrate_app.api.core.domain.timeline_db.snapshot import (
+from qualibrate.app.api.core.domain.bases.root import RootBase
+from qualibrate.app.api.core.domain.timeline_db.branch import BranchTimelineDb
+from qualibrate.app.api.core.domain.timeline_db.node import NodeTimelineDb
+from qualibrate.app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
-from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.models.snapshot import SnapshotSearchResult
+from qualibrate.app.api.core.types import (
     DocumentSequenceType,
     DocumentType,
     IdType,
     PageFilter,
     SearchWithIdFilter,
 )
-from qualibrate_app.api.core.utils.request_utils import request_with_db
-from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
+from qualibrate.app.api.core.utils.request_utils import request_with_db
+from qualibrate.app.api.exceptions.classes.timeline_db import QJsonDbException
 
 __all__ = ["RootTimelineDb"]
 

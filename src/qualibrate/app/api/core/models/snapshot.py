@@ -3,8 +3,8 @@ from typing import Annotated, Any
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
 
-from qualibrate_app.api.core.models.base import ModelWithIdCreatedAt
-from qualibrate_app.api.core.types import IdType
+from qualibrate.app.api.core.models.base import ModelWithIdCreatedAt
+from qualibrate.app.api.core.types import IdType
 
 
 class SimplifiedSnapshot(ModelWithIdCreatedAt):

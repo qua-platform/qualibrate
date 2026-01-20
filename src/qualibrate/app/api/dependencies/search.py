@@ -3,8 +3,8 @@ from typing import Annotated
 
 from fastapi import Query
 
-from qualibrate_app.api.core.types import AllowedSearchKeys
-from qualibrate_app.api.core.utils.request_utils import HTTPException422
+from qualibrate.app.api.core.types import AllowedSearchKeys
+from qualibrate.app.api.core.utils.request_utils import HTTPException422
 
 
 def check_path_item(item: str) -> bool:

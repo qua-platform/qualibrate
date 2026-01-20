@@ -5,15 +5,15 @@ from enum import IntEnum
 
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate.app.backend.api.core.domain.bases.base_with_settings import (
+from qualibrate.app.api.core.domain.bases.base_with_settings import (
     DomainWithConfigBase,
 )
-from qualibrate.app.backend.api.core.domain.bases.i_dump import IDump
-from qualibrate.app.backend.api.core.domain.bases.node import NodeBase
-from qualibrate.app.backend.api.core.domain.bases.snapshot import SnapshotBase
-from qualibrate.app.backend.api.core.models.branch import Branch as BranchModel
-from qualibrate.app.backend.api.core.models.snapshot import SnapshotSearchResult
-from qualibrate.app.backend.api.core.types import (
+from qualibrate.app.api.core.domain.bases.i_dump import IDump
+from qualibrate.app.api.core.domain.bases.node import NodeBase
+from qualibrate.app.api.core.domain.bases.snapshot import SnapshotBase
+from qualibrate.app.api.core.models.branch import Branch as BranchModel
+from qualibrate.app.api.core.models.snapshot import SnapshotSearchResult
+from qualibrate.app.api.core.types import (
     DocumentType,
     IdType,
     PageFilter,

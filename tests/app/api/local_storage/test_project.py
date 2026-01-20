@@ -9,7 +9,7 @@ from qualibrate_config.core.project.path import get_project_path
 from qualibrate_config.models import QualibrateConfig
 from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
-from qualibrate_app.api.core.models.project import Project
+from qualibrate.app.api.core.models.project import Project
 from qualibrate_app.config import get_config_path
 
 if sys.version_info < (3, 11):

@@ -4,11 +4,11 @@ from datetime import date
 from itertools import chain
 from pathlib import Path
 
-from qualibrate.app.backend.api.core.types import (
+from qualibrate.app.api.core.types import (
     IdType,
     SearchWithIdFilter,
 )
-from qualibrate.app.backend.api.core.utils.path.node import NodePath
+from qualibrate.app.api.core.utils.path.node import NodePath
 
 __all__ = ["IdToProjectLocalPath"]
 

@@ -7,7 +7,7 @@ from qualibrate_config.vars import (
     QUALIBRATE_PATH,
 )
 
-from qualibrate_app.config import CONFIG_PATH_ENV_NAME
+from qualibrate.app.config import CONFIG_PATH_ENV_NAME
 
 
 @click.command(name="start")
@@ -36,6 +36,6 @@ from qualibrate_app.config import CONFIG_PATH_ENV_NAME
 def start_command(config_path: Path, port: int, reload: bool) -> None:
     os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
 
-    from qualibrate_app.app import main as app_main
+    from qualibrate.app.app import main as app_main
 
     app_main(port=port, reload=reload)

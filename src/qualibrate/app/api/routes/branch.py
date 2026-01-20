@@ -4,39 +4,39 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
 
-from qualibrate_app.api.core.domain.bases.branch import (
+from qualibrate.app.api.core.domain.bases.branch import (
     BranchBase,
     BranchLoadType,
 )
-from qualibrate_app.api.core.domain.bases.node import NodeLoadType
-from qualibrate_app.api.core.domain.bases.snapshot import (
+from qualibrate.app.api.core.domain.bases.node import NodeLoadType
+from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotLoadTypeFlag,
 )
-from qualibrate_app.api.core.domain.local_storage.branch import (
+from qualibrate.app.api.core.domain.local_storage.branch import (
     BranchLocalStorage,
 )
-from qualibrate_app.api.core.domain.timeline_db.branch import BranchTimelineDb
-from qualibrate_app.api.core.models.branch import Branch as BranchModel
-from qualibrate_app.api.core.models.node import Node as NodeModel
-from qualibrate_app.api.core.models.paged import PagedCollection
-from qualibrate_app.api.core.models.snapshot import (
+from qualibrate.app.api.core.domain.timeline_db.branch import BranchTimelineDb
+from qualibrate.app.api.core.models.branch import Branch as BranchModel
+from qualibrate.app.api.core.models.node import Node as NodeModel
+from qualibrate.app.api.core.models.paged import PagedCollection
+from qualibrate.app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
     SnapshotSearchResult,
 )
-from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
+from qualibrate.app.api.core.types import (
     IdType,
     PageFilter,
     SearchFilter,
     SearchWithIdFilter,
 )
-from qualibrate_app.api.dependencies.search import get_search_path
-from qualibrate_app.api.routes.utils.dependencies import (
+from qualibrate.app.api.dependencies.search import get_search_path
+from qualibrate.app.api.routes.utils.dependencies import (
     get_page_filter,
     get_search_filter,
     get_snapshot_load_type_flag,
 )
-from qualibrate_app.config import get_settings
+from qualibrate.app.config import get_settings
 
 branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
 

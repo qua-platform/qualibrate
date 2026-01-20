@@ -3,7 +3,7 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from qualibrate_app.api.routes.utils import vars as routes_vars
+from qualibrate.app.api.routes.utils import vars as routes_vars
 
 other_router = APIRouter()
 

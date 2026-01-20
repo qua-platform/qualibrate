@@ -1,10 +1,10 @@
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate_app.api.core.domain.bases.node import NodeBase
-from qualibrate_app.api.core.domain.local_storage.snapshot import (
+from qualibrate.app.api.core.domain.bases.node import NodeBase
+from qualibrate.app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
 )
-from qualibrate_app.api.core.types import IdType
+from qualibrate.app.api.core.types import IdType
 
 __all__ = ["NodeLocalStorage"]
 

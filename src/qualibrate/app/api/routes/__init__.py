@@ -1,11 +1,11 @@
 from fastapi import APIRouter
 
-from qualibrate_app.api.routes.branch import branch_router
-from qualibrate_app.api.routes.data_file import data_file_router
-from qualibrate_app.api.routes.others import other_router
-from qualibrate_app.api.routes.project import project_router, projects_router
-from qualibrate_app.api.routes.root import root_router
-from qualibrate_app.api.routes.snapshot import snapshot_router
+from qualibrate.app.api.routes.branch import branch_router
+from qualibrate.app.api.routes.data_file import data_file_router
+from qualibrate.app.api.routes.others import other_router
+from qualibrate.app.api.routes.project import project_router, projects_router
+from qualibrate.app.api.routes.root import root_router
+from qualibrate.app.api.routes.snapshot import snapshot_router
 
 __all__ = [
     "other_router",

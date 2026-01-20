@@ -11,7 +11,7 @@ from qualibrate_config.models import (
 )
 from qualibrate_config.resolvers import get_qualibrate_config
 
-from qualibrate_app.config import vars as config_vars
+from qualibrate.app.config import vars as config_vars
 
 __all__ = [
     "get_default_static_files_path",
@@ -24,11 +24,11 @@ __all__ = [
 def get_default_static_files_path() -> Path | None:
     import sys
 
-    module_file = sys.modules["qualibrate_app"].__file__
+    module_file = sys.modules["qualibrate.app"].__file__
     if module_file is None:
         return None
     module_path = Path(module_file)
-    return module_path.parents[1] / "qualibrate_static"
+    return module_path.parent / "qualibrate_static"  # Sibling of __init__.py after flattening
 
 
 @lru_cache

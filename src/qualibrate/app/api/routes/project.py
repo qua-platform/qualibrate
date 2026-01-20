@@ -8,16 +8,16 @@ import requests
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from qualibrate_config.models import QualibrateConfig, StorageType
 
-from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
-from qualibrate_app.api.core.domain.local_storage.project import (
+from qualibrate.app.api.core.domain.bases.project import ProjectsManagerBase
+from qualibrate.app.api.core.domain.local_storage.project import (
     ProjectsManagerLocalStorage,
 )
-from qualibrate_app.api.core.domain.timeline_db.project import (
+from qualibrate.app.api.core.domain.timeline_db.project import (
     ProjectsManagerTimelineDb,
 )
-from qualibrate_app.api.core.models.project import Project
-from qualibrate_app.api.routes.utils import vars as routes_vars
-from qualibrate_app.config import (
+from qualibrate.app.api.core.models.project import Project
+from qualibrate.app.api.routes.utils import vars as routes_vars
+from qualibrate.app.config import (
     get_config_path,
     get_settings,
 )

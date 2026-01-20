@@ -4,10 +4,10 @@ from qualibrate_config.core.project.active import get_active_project
 from qualibrate_config.core.project.p_list import verbose_list_projects
 from qualibrate_config.core.project.switch import switch_project
 
-from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
-from qualibrate_app.api.core.models.project import Project
-from qualibrate_app.api.exceptions.classes.values import QValueException
-from qualibrate_app.config import get_settings
+from qualibrate.app.api.core.domain.bases.project import ProjectsManagerBase
+from qualibrate.app.api.core.models.project import Project
+from qualibrate.app.api.exceptions.classes.values import QValueException
+from qualibrate.app.config import get_settings
 
 
 class ProjectsManagerLocalStorage(ProjectsManagerBase):

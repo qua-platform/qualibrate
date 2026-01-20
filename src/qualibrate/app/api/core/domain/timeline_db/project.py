@@ -5,11 +5,11 @@ from urllib.parse import urljoin
 
 import requests
 
-from qualibrate_app.api.core.domain.bases.project import ProjectsManagerBase
-from qualibrate_app.api.core.models.project import Project
-from qualibrate_app.api.core.utils.request_utils import request_with_db
-from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
-from qualibrate_app.api.exceptions.classes.values import QValueException
+from qualibrate.app.api.core.domain.bases.project import ProjectsManagerBase
+from qualibrate.app.api.core.models.project import Project
+from qualibrate.app.api.core.utils.request_utils import request_with_db
+from qualibrate.app.api.exceptions.classes.timeline_db import QJsonDbException
+from qualibrate.app.api.exceptions.classes.values import QValueException
 
 
 class ProjectsManagerTimelineDb(ProjectsManagerBase):

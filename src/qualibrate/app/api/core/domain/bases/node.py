@@ -3,28 +3,28 @@ from enum import IntEnum
 
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate.app.backend.api.core.domain.bases.base_with_settings import (
+from qualibrate.app.api.core.domain.bases.base_with_settings import (
     DomainWithConfigBase,
 )
-from qualibrate.app.backend.api.core.domain.bases.i_dump import IDump
-from qualibrate.app.backend.api.core.domain.bases.snapshot import (
+from qualibrate.app.api.core.domain.bases.i_dump import IDump
+from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadTypeFlag,
 )
-from qualibrate.app.backend.api.core.domain.bases.storage import DataFileStorage
-from qualibrate.app.backend.api.core.models.node import Node as NodeModel
-from qualibrate.app.backend.api.core.models.snapshot import (
+from qualibrate.app.api.core.domain.bases.storage import DataFileStorage
+from qualibrate.app.api.core.models.node import Node as NodeModel
+from qualibrate.app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
 )
-from qualibrate.app.backend.api.core.types import IdType
-from qualibrate.app.backend.api.core.utils.path.common import resolve_and_check_relative
-from qualibrate.app.backend.api.exceptions.classes.storage import (
+from qualibrate.app.api.core.types import IdType
+from qualibrate.app.api.core.utils.path.common import resolve_and_check_relative
+from qualibrate.app.api.exceptions.classes.storage import (
     QNotADirectoryException,
 )
 
 __all__ = ["NodeBase", "NodeLoadType"]
 
-from qualibrate.app.backend.config.vars import METADATA_OUT_PATH
+from qualibrate.app.config.vars import METADATA_OUT_PATH
 
 
 class NodeLoadType(IntEnum):

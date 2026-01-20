@@ -3,18 +3,18 @@ from typing import Annotated
 
 from fastapi import Depends, Query
 
-from qualibrate_app.api.core.domain.bases.snapshot import (
+from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotLoadType,
     SnapshotLoadTypeFlag,
     SnapshotLoadTypeToLoadTypeFlag,
 )
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.types import (
     IdType,
     PageFilter,
     SearchFilter,
     SearchWithIdFilter,
 )
-from qualibrate_app.api.routes.utils.snapshot_load_type import (
+from qualibrate.app.api.routes.utils.snapshot_load_type import (
     parse_load_type_flag,
 )
 

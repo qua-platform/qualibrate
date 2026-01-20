@@ -1,10 +1,10 @@
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate_app.api.core.domain.bases.node import NodeBase
-from qualibrate_app.api.core.domain.timeline_db.snapshot import (
+from qualibrate.app.api.core.domain.bases.node import NodeBase
+from qualibrate.app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
-from qualibrate_app.api.core.types import DocumentType, IdType
+from qualibrate.app.api.core.types import DocumentType, IdType
 
 __all__ = ["NodeTimelineDb"]
 

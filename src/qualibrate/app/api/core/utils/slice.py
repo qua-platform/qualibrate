@@ -2,7 +2,7 @@ import itertools
 from collections.abc import Iterable, Sequence
 from typing import TypeVar
 
-from qualibrate_app.api.core.types import PageFilter
+from qualibrate.app.api.core.types import PageFilter
 
 T = TypeVar("T")
 

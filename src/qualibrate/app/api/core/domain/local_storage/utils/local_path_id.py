@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from qualibrate.app.backend.api.core.domain.local_storage.utils.project_local_path_id import (  # noqa: E501
+from qualibrate.app.api.core.domain.local_storage.utils.project_local_path_id import (  # noqa: E501
     IdToProjectLocalPath,
 )
-from qualibrate.app.backend.api.core.types import IdType
-from qualibrate.app.backend.api.core.utils.path.node import NodePath
-from qualibrate.app.backend.api.core.utils.singleton import Singleton
-from qualibrate.app.backend.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.app.api.core.types import IdType
+from qualibrate.app.api.core.utils.path.node import NodePath
+from qualibrate.app.api.core.utils.singleton import Singleton
+from qualibrate.app.api.exceptions.classes.storage import QFileNotFoundException
 
 __all__ = ["IdToLocalPath"]
 

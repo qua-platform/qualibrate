@@ -1,4 +1,4 @@
-from qualibrate_app.api.core.models.base import ModelWithIdCreatedAt
+from qualibrate.app.api.core.models.base import ModelWithIdCreatedAt
 
 
 class Branch(ModelWithIdCreatedAt):

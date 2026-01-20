@@ -3,11 +3,11 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
-from qualibrate_app.api.__main__ import api_router
-from qualibrate_app.api.exceptions.classes.base import QualibrateException
-from qualibrate_app.api.exceptions.handler import qualibrate_exception_handler
-from qualibrate_app.api.middleware.process_time import ProcessTimeMiddleware
-from qualibrate_app.config.resolvers import (
+from qualibrate.app.api.__main__ import api_router
+from qualibrate.app.api.exceptions.classes.base import QualibrateException
+from qualibrate.app.api.exceptions.handler import qualibrate_exception_handler
+from qualibrate.app.api.middleware.process_time import ProcessTimeMiddleware
+from qualibrate.app.config.resolvers import (
     get_config_path,
     get_default_static_files_path,
     get_settings,
@@ -67,7 +67,7 @@ app.mount(
 
 
 def main(port: int, reload: bool) -> None:
-    uvicorn.run("qualibrate_app.app:app", port=port, reload=reload)
+    uvicorn.run("qualibrate.app.app:app", port=port, reload=reload)
 
 
 if __name__ == "__main__":

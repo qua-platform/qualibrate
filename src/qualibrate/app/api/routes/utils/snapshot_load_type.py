@@ -5,7 +5,7 @@ from typing import Annotated
 
 from fastapi import HTTPException, Query
 
-from qualibrate_app.api.core.domain.bases.snapshot import SnapshotLoadTypeFlag
+from qualibrate.app.api.core.domain.bases.snapshot import SnapshotLoadTypeFlag
 
 if sys.version_info >= (3, 11):
     from enum import StrEnum

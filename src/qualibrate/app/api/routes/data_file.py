@@ -3,17 +3,17 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path
 from qualibrate_config.models import QualibrateConfig, StorageType
 
-from qualibrate_app.api.core.domain.bases.node import NodeLoadType
-from qualibrate_app.api.core.domain.bases.storage import (
+from qualibrate.app.api.core.domain.bases.node import NodeLoadType
+from qualibrate.app.api.core.domain.bases.storage import (
     DataFileStorage,
     StorageLoadType,
     StorageLoadTypeToLoadTypeFlag,
 )
-from qualibrate_app.api.core.domain.local_storage.node import NodeLocalStorage
-from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
-from qualibrate_app.api.core.types import DocumentType
-from qualibrate_app.api.core.utils.request_utils import HTTPException422
-from qualibrate_app.config import (
+from qualibrate.app.api.core.domain.local_storage.node import NodeLocalStorage
+from qualibrate.app.api.core.domain.timeline_db.node import NodeTimelineDb
+from qualibrate.app.api.core.types import DocumentType
+from qualibrate.app.api.core.utils.request_utils import HTTPException422
+from qualibrate.app.config import (
     get_settings,
 )
 

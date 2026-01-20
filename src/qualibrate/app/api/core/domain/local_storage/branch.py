@@ -4,36 +4,36 @@ from pathlib import Path
 
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate_app.api.core.domain.bases.branch import (
+from qualibrate.app.api.core.domain.bases.branch import (
     BranchBase,
     BranchLoadType,
 )
-from qualibrate_app.api.core.domain.bases.node import NodeBase, NodeLoadType
-from qualibrate_app.api.core.domain.bases.snapshot import (
+from qualibrate.app.api.core.domain.bases.node import NodeBase, NodeLoadType
+from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadTypeFlag,
 )
-from qualibrate_app.api.core.domain.local_storage.node import NodeLocalStorage
-from qualibrate_app.api.core.domain.local_storage.snapshot import (
+from qualibrate.app.api.core.domain.local_storage.node import NodeLocalStorage
+from qualibrate.app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
 )
-from qualibrate_app.api.core.domain.local_storage.utils.local_path_id import (
+from qualibrate.app.api.core.domain.local_storage.utils.local_path_id import (
     IdToLocalPath,
 )
-from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
+from qualibrate.app.api.core.domain.local_storage.utils.node_utils import (
     find_nodes_ids_by_filter,
 )
-from qualibrate_app.api.core.models.branch import Branch as BranchModel
-from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.models.branch import Branch as BranchModel
+from qualibrate.app.api.core.models.snapshot import SnapshotSearchResult
+from qualibrate.app.api.core.types import (
     DocumentType,
     IdType,
     PageFilter,
     SearchWithIdFilter,
 )
-from qualibrate_app.api.core.utils import find_utils
-from qualibrate_app.api.core.utils.slice import get_page_slice
-from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.app.api.core.utils import find_utils
+from qualibrate.app.api.core.utils.slice import get_page_slice
+from qualibrate.app.api.exceptions.classes.storage import QFileNotFoundException
 
 __all__ = ["BranchLocalStorage"]
 

@@ -15,37 +15,37 @@ import requests
 from qualibrate_config.models import QualibrateConfig
 from requests import JSONDecodeError as RequestsJSONDecodeError
 
-from qualibrate_app.api.core.domain.bases.snapshot import (
+from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadTypeFlag,
 )
-from qualibrate_app.api.core.domain.local_storage.utils import (
+from qualibrate.app.api.core.domain.local_storage.utils import (
     snapshot_content as snapshot_content_utils,
 )
-from qualibrate_app.api.core.domain.local_storage.utils.local_path_id import (
+from qualibrate.app.api.core.domain.local_storage.utils.local_path_id import (
     IdToLocalPath,
 )
-from qualibrate_app.api.core.domain.local_storage.utils.node_utils import (
+from qualibrate.app.api.core.domain.local_storage.utils.node_utils import (
     find_nodes_ids_by_filter,
 )
-from qualibrate_app.api.core.models.snapshot import MachineSearchResults
-from qualibrate_app.api.core.schemas.state_updates import StateUpdates
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.models.snapshot import MachineSearchResults
+from qualibrate.app.api.core.schemas.state_updates import StateUpdates
+from qualibrate.app.api.core.types import (
     DocumentType,
     IdType,
     PageFilter,
     SearchWithIdFilter,
 )
-from qualibrate_app.api.core.utils.find_utils import get_subpath_value
-from qualibrate_app.api.core.utils.path.node import NodePath
-from qualibrate_app.api.core.utils.slice import get_page_slice
-from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
-from qualibrate_app.api.core.utils.types_parsing import TYPE_TO_STR
-from qualibrate_app.api.exceptions.classes.storage import (
+from qualibrate.app.api.core.utils.find_utils import get_subpath_value
+from qualibrate.app.api.core.utils.path.node import NodePath
+from qualibrate.app.api.core.utils.slice import get_page_slice
+from qualibrate.app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
+from qualibrate.app.api.core.utils.types_parsing import TYPE_TO_STR
+from qualibrate.app.api.exceptions.classes.storage import (
     QFileNotFoundException,
     QPathException,
 )
-from qualibrate_app.api.exceptions.classes.values import QValueException
+from qualibrate.app.api.exceptions.classes.values import QValueException
 
 __all__ = ["SnapshotLocalStorage"]
 

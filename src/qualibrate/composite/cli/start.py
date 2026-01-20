@@ -182,7 +182,7 @@ def start_command(
             os.environ.setdefault(attr_to_set, env_value_to_set)
 
     _set_module_env_name_and_value(
-        "qualibrate.app.backend.config.vars",
+        "qualibrate.app.config.vars",
         attr_to_set="CONFIG_PATH_ENV_NAME",
         env_value_to_set=config_path_str,
     )

@@ -3,28 +3,28 @@ from datetime import datetime
 
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate_app.api.core.domain.bases.branch import (
+from qualibrate.app.api.core.domain.bases.branch import (
     BranchBase,
     BranchLoadType,
 )
-from qualibrate_app.api.core.domain.bases.node import NodeBase, NodeLoadType
-from qualibrate_app.api.core.domain.bases.snapshot import (
+from qualibrate.app.api.core.domain.bases.node import NodeBase, NodeLoadType
+from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadTypeFlag,
 )
-from qualibrate_app.api.core.domain.timeline_db.node import NodeTimelineDb
-from qualibrate_app.api.core.domain.timeline_db.snapshot import (
+from qualibrate.app.api.core.domain.timeline_db.node import NodeTimelineDb
+from qualibrate.app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
-from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.models.snapshot import SnapshotSearchResult
+from qualibrate.app.api.core.types import (
     DocumentType,
     IdType,
     PageFilter,
     SearchWithIdFilter,
 )
-from qualibrate_app.api.core.utils.request_utils import request_with_db
-from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
+from qualibrate.app.api.core.utils.request_utils import request_with_db
+from qualibrate.app.api.exceptions.classes.timeline_db import QJsonDbException
 
 __all__ = ["BranchTimelineDb"]
 

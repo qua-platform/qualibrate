@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from qualibrate_app.api.routes import (
+from qualibrate.app.api.routes import (
     other_router,
     project_router,
     projects_router,

@@ -6,20 +6,20 @@ from qualibrate_config.models import (
     QualibrateConfig,
 )
 
-from qualibrate_app.api.core.domain.bases.snapshot import (
+from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadTypeFlag,
 )
-from qualibrate_app.api.core.models.snapshot import MachineSearchResults
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.models.snapshot import MachineSearchResults
+from qualibrate.app.api.core.types import (
     DocumentType,
     IdType,
     PageFilter,
 )
-from qualibrate_app.api.core.utils.find_utils import get_subpath_value
-from qualibrate_app.api.core.utils.request_utils import request_with_db
-from qualibrate_app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
-from qualibrate_app.api.exceptions.classes.timeline_db import QJsonDbException
+from qualibrate.app.api.core.utils.find_utils import get_subpath_value
+from qualibrate.app.api.core.utils.request_utils import request_with_db
+from qualibrate.app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
+from qualibrate.app.api.exceptions.classes.timeline_db import QJsonDbException
 
 __all__ = ["SnapshotTimelineDb"]
 

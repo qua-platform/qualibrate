@@ -50,7 +50,7 @@ def spawn_qualibrate_runner(app: FastAPI) -> None:
 
 def spawn_qualibrate_app(app: FastAPI) -> None:
     try:
-        from qualibrate.app.backend.app import app as qualibrate_app_app
+        from qualibrate.app.app import app as qualibrate_app_app
     except ImportError as ex:
         raise ImportError(
             "Can't import qualibrate_app instance. "

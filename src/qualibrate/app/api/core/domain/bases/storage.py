@@ -7,11 +7,11 @@ from typing import Any
 
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate.app.backend.api.core.domain.bases.i_dump import IDump
-from qualibrate.app.backend.api.core.domain.bases.load_type_flag import LoadTypeFlag
-from qualibrate.app.backend.api.core.models.storage import Storage as StorageModel
-from qualibrate.app.backend.api.exceptions.classes.storage import QFileNotFoundException
-from qualibrate.app.backend.api.exceptions.classes.values import QValueException
+from qualibrate.app.api.core.domain.bases.i_dump import IDump
+from qualibrate.app.api.core.domain.bases.load_type_flag import LoadTypeFlag
+from qualibrate.app.api.core.models.storage import Storage as StorageModel
+from qualibrate.app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.app.api.exceptions.classes.values import QValueException
 
 __all__ = [
     "DataFileStorage",

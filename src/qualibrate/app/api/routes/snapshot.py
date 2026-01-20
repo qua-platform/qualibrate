@@ -7,38 +7,38 @@ import requests
 from fastapi import APIRouter, Body, Cookie, Depends, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
 
-from qualibrate_app.api.core.domain.bases.snapshot import (
+from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadTypeFlag,
 )
-from qualibrate_app.api.core.domain.local_storage.snapshot import (
+from qualibrate.app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
     logger,
 )
-from qualibrate_app.api.core.domain.timeline_db.snapshot import (
+from qualibrate.app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
-from qualibrate_app.api.core.models.paged import PagedCollection
-from qualibrate_app.api.core.models.snapshot import (
+from qualibrate.app.api.core.models.paged import PagedCollection
+from qualibrate.app.api.core.models.snapshot import (
     MachineSearchResults,
     SimplifiedSnapshotWithMetadata,
 )
-from qualibrate_app.api.core.models.snapshot import Snapshot as SnapshotModel
-from qualibrate_app.api.core.schemas.state_updates import (
+from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
+from qualibrate.app.api.core.schemas.state_updates import (
     StateUpdateRequestItems,
 )
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.types import (
     IdType,
     PageFilter,
 )
-from qualibrate_app.api.core.utils.request_utils import get_runner_config
-from qualibrate_app.api.core.utils.types_parsing import types_conversion
-from qualibrate_app.api.dependencies.search import get_search_path
-from qualibrate_app.api.routes.utils.dependencies import (
+from qualibrate.app.api.core.utils.request_utils import get_runner_config
+from qualibrate.app.api.core.utils.types_parsing import types_conversion
+from qualibrate.app.api.dependencies.search import get_search_path
+from qualibrate.app.api.routes.utils.dependencies import (
     get_page_filter,
     get_snapshot_load_type_flag,
 )
-from qualibrate_app.config import (
+from qualibrate.app.config import (
     get_settings,
 )
 
