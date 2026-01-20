@@ -1,12 +1,12 @@
 import pytest
 
-from qualibrate_app.api.core.domain.local_storage.root import RootLocalStorage
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.domain.local_storage.root import RootLocalStorage
+from qualibrate.app.api.core.types import (
     PageFilter,
     SearchFilter,
     SearchWithIdFilter,
 )
-from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.app.api.exceptions.classes.storage import QFileNotFoundException
 
 
 class TestLocalStorageRoot:
@@ -17,7 +17,7 @@ class TestLocalStorageRoot:
     def test__get_latest_node_id_node_not_found(self, mocker, settings):
         patched_find_latest = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.root"
+                "qualibrate.app.api.core.domain.local_storage.root"
                 ".find_nodes_ids_by_filter"
             ),
             return_value=iter([]),
@@ -35,7 +35,7 @@ class TestLocalStorageRoot:
     def test__get_latest_node_id_valid(self, mocker, settings):
         patched_find_latest = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.root"
+                "qualibrate.app.api.core.domain.local_storage.root"
                 ".find_nodes_ids_by_filter"
             ),
             return_value=iter([1]),
@@ -53,7 +53,7 @@ class TestLocalStorageRoot:
         )
         patched_snapshot = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.root"
+                "qualibrate.app.api.core.domain.local_storage.root"
                 ".SnapshotLocalStorage"
             ),
             return_value="snapshot_1",
@@ -68,7 +68,7 @@ class TestLocalStorageRoot:
         )
         patched_snapshot = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.root"
+                "qualibrate.app.api.core.domain.local_storage.root"
                 ".SnapshotLocalStorage"
             ),
             return_value="snapshot_2",
@@ -83,7 +83,7 @@ class TestLocalStorageRoot:
         )
         patched_snapshot = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.root"
+                "qualibrate.app.api.core.domain.local_storage.root"
                 ".NodeLocalStorage"
             ),
             return_value="node_1",
@@ -98,7 +98,7 @@ class TestLocalStorageRoot:
         )
         patched_snapshot = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.root"
+                "qualibrate.app.api.core.domain.local_storage.root"
                 ".NodeLocalStorage"
             ),
             return_value="node_2",
@@ -124,7 +124,7 @@ class TestLocalStorageRoot:
 
         patched_branch = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.root"
+                "qualibrate.app.api.core.domain.local_storage.root"
                 ".BranchLocalStorage"
             ),
             return_value=_Branch(),
@@ -138,7 +138,7 @@ class TestLocalStorageRoot:
 
     def test_search_snapshots_data(self, mocker, settings):
         branch = mocker.patch(
-            "qualibrate_app.api.core.domain.local_storage.root.BranchLocalStorage"
+            "qualibrate.app.api.core.domain.local_storage.root.BranchLocalStorage"
         )
         search_filter = SearchWithIdFilter()
         pages_filter = PageFilter()

@@ -8,9 +8,7 @@ from qualibrate_config.core.project.path import get_project_path
 from qualibrate_config.models import QualibrateConfig
 from qualibrate_config.models.qualibrate import QualibrateTopLevelConfig
 from qualibrate_config.models.storage_type import StorageType
-
-from qualibrate_app.config import get_config_path, get_settings
-
+from qualibrate.app.config import get_config_path, get_settings
 
 @pytest.fixture
 def settings(
@@ -71,11 +69,11 @@ def client_custom_settings(
     project_path.mkdir(parents=True)
     (project_path / "config.toml").touch()
     mocker.patch(
-        "qualibrate_app.config.resolvers.get_config_path",
+        "qualibrate.app.config.resolvers.get_config_path",
         return_value=settings_path_filled,
     )
 
-    from qualibrate_app.app import app
+    from qualibrate.app.app import app
 
     client = TestClient(app)
 

@@ -1,11 +1,11 @@
 import pytest
 
-from qualibrate_app.api.core.domain.local_storage.utils import (  # noqa: E501
+from qualibrate.app.api.core.domain.local_storage.utils import (  # noqa: E501
     local_path_id,
     project_local_path_id,
 )
-from qualibrate_app.api.core.utils.singleton import Singleton
-from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.app.api.core.utils.singleton import Singleton
+from qualibrate.app.api.exceptions.classes.storage import QFileNotFoundException
 
 
 class TestIdToLocalPath:
@@ -17,7 +17,7 @@ class TestIdToLocalPath:
 
     def test_get_project_manager_create_new(self, mocker):
         patched_id2plp = mocker.patch(
-            "qualibrate_app.api.core.domain.local_storage.utils.local_path_id.IdToProjectLocalPath",
+            "qualibrate.app.api.core.domain.local_storage.utils.local_path_id.IdToProjectLocalPath",
             autospec=True,
         )
         id2plp = self.id2lp.get_project_manager("project", "path")
@@ -26,7 +26,7 @@ class TestIdToLocalPath:
 
     def test_get_project_manager_existing(self, mocker):
         id2plp = mocker.patch(
-            "qualibrate_app.api.core.domain.local_storage.utils.local_path_id."
+            "qualibrate.app.api.core.domain.local_storage.utils.local_path_id."
             "IdToProjectLocalPath",
         )
         self.id2lp._project_to_manager["project2"] = "plp_proj2"

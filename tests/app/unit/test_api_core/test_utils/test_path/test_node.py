@@ -3,8 +3,8 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from qualibrate_app.api.core.utils.path.node import NodePath
-from qualibrate_app.api.core.utils.path.node_date import NodesDatePath
+from qualibrate.app.api.core.utils.path.node import NodePath
+from qualibrate.app.api.core.utils.path.node_date import NodesDatePath
 
 
 class TestNodePath:

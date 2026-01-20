@@ -4,10 +4,10 @@ from unittest.mock import PropertyMock, call
 
 import pytest
 
-from qualibrate_app.api.core.domain.bases.storage import StorageLoadTypeFlag
-from qualibrate_app.api.core.domain.local_storage.utils import snapshot_content
-from qualibrate_app.api.core.utils.path.node import NodePath
-from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.app.api.core.domain.bases.storage import StorageLoadTypeFlag
+from qualibrate.app.api.core.domain.local_storage.utils import snapshot_content
+from qualibrate.app.api.core.utils.path.node import NodePath
+from qualibrate.app.api.exceptions.classes.storage import QFileNotFoundException
 
 
 @pytest.fixture
@@ -21,7 +21,7 @@ def test_read_minified_node_content_node_info_filled(mocker, settings):
     dt = datetime.now().astimezone()
     patched_get_id_local_path = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.IdToLocalPath.get_path"
         ),
         side_effect=[1, 2],
@@ -74,7 +74,7 @@ def test_read_minified_node_content_node_info_empty_valid_id_file_exists(
     node_file.touch()
     patched_get_id_local_path = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.IdToLocalPath.get_path"
         ),
         return_value=1,
@@ -119,7 +119,7 @@ def test_read_minified_node_content_node_info_empty_no_id_no_file(
     node_file = snapshot_path / "node_file.json"
     patched_get_id_local_path = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.IdToLocalPath.get_path"
         ),
     )
@@ -164,7 +164,7 @@ def test_read_metadata_node_content_node_info_filled(settings):
 
 def test_read_metadata_node_content_node_info_not_filled(mocker, settings):
     mocker.patch(
-        "qualibrate_app.api.core.utils.path.node.NodePath.name",
+        "qualibrate.app.api.core.utils.path.node.NodePath.name",
         new_callable=PropertyMock,
         return_value="node_name",
     )
@@ -235,7 +235,7 @@ def test_update_active_machine_path_file(mocker, tmp_path, settings):
     path.write_text("{}")
     mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.get_quam_state_path"
         ),
         return_value=path,
@@ -250,7 +250,7 @@ def test_update_active_machine_path_dir(mocker, tmp_path, settings):
     (directory / "state.json").write_text(json.dumps({"x": 1}))
     mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.get_quam_state_path"
         ),
         return_value=directory,
@@ -280,7 +280,7 @@ def test_load_snapshot_metadata_from_node_content(
     snapshot_info = {"id": 1}
     mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.read_metadata_node_content"
         ),
         return_value={"foo": "bar"},
@@ -313,14 +313,14 @@ def test_load_snapshot_data_without_refs_from_node_content(
 def test_load_snapshot_data_machine_no_machine_key(mocker):
     patched_get_data_node_path = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.get_data_node_path"
         ),
         return_value=None,
     )
     patched_read_quam_content = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.read_quam_content"
         ),
     )
@@ -341,14 +341,14 @@ def test_load_snapshot_data_machine_no_machine_key(mocker):
 def test_load_snapshot_data_machine_from_node_content(mocker, settings):
     patched_get_data_node_path = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.get_data_node_path"
         ),
         return_value="quam_path",
     )
     patched_read_quam_content = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.read_quam_content"
         ),
         return_value={"machine": "..."},
@@ -371,7 +371,7 @@ def test_load_snapshot_data_results_from_node_content(
     fake_storage.data = {"some": "results"}
     dfs_patch = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.DataFileStorage"
         ),
         return_value=fake_storage,
@@ -394,7 +394,7 @@ def test_load_snapshot_data_results_with_imgs_from_node_content(
     fake_storage.data = {"imgs": [1, 2, 3]}
     dfs_patch = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "snapshot_content.DataFileStorage"
         ),
         return_value=fake_storage,
@@ -422,7 +422,7 @@ def test_default_snapshot_content_updater_patches_exists(
         )
     )
     mocker.patch(
-        "qualibrate_app.api.core.domain.local_storage.utils.snapshot_content."
+        "qualibrate.app.api.core.domain.local_storage.utils.snapshot_content."
         "update_active_machine_path"
     )
     result = snapshot_content.default_snapshot_content_updater(
@@ -444,7 +444,7 @@ def test_default_snapshot_content_updater_adds_patch_key(
     quam_file.write_text("{}")
     node_file.write_text(json.dumps({"data": {"quam": "quam.json"}}))
     mocker.patch(
-        "qualibrate_app.api.core.domain.local_storage.utils.snapshot_content."
+        "qualibrate.app.api.core.domain.local_storage.utils.snapshot_content."
         "update_active_machine_path"
     )
     result = snapshot_content.default_snapshot_content_updater(

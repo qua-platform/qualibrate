@@ -168,6 +168,7 @@ qualibrate_static/
 
 # Local context files for AI assistants
 CLAUDE_CONTEXT.md
+CONVERSATION_SUMMARY.md
 
 # Frontend / Node.js
 node_modules/

@@ -3,8 +3,8 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from qualibrate_app.api.core.domain.local_storage.utils import node_utils
-from qualibrate_app.api.core.utils.path.node import NodePath
+from qualibrate.app.api.core.domain.local_storage.utils import node_utils
+from qualibrate.app.api.core.utils.path.node import NodePath
 
 
 def test_find_latest_node_data_exists(mocker):
@@ -32,7 +32,7 @@ def test_find_latest_node_id_node_specified(mocker, id_res, ret_val):
     )
     mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils.node_utils"
+            "qualibrate.app.api.core.domain.local_storage.utils.node_utils"
             ".find_latest_node"
         ),
         return_value=node_path,
@@ -43,7 +43,7 @@ def test_find_latest_node_id_node_specified(mocker, id_res, ret_val):
 def test_find_latest_node_id_node_unspecified(mocker):
     mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils.node_utils"
+            "qualibrate.app.api.core.domain.local_storage.utils.node_utils"
             ".find_latest_node"
         ),
         return_value=None,
@@ -61,7 +61,7 @@ def test_find_latest_node_id_node_unspecified(mocker):
 # ):
 #     mocker.patch(
 #         (
-#             "qualibrate_app.api.core.domain.local_storage.utils.node_utils"
+#             "qualibrate.app.api.core.domain.local_storage.utils.node_utils"
 #             ".get_node_id_name_time"
 #         ),
 #         side_effect=[(i, None, None) for i in range(4, 0, -1)],

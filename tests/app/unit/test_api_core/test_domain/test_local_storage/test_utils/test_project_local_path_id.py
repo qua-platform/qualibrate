@@ -4,10 +4,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from qualibrate_app.api.core.domain.local_storage.utils import (
+from qualibrate.app.api.core.domain.local_storage.utils import (
     project_local_path_id,
 )
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.types import (
     SearchWithIdFilter,
 )
 
@@ -40,7 +40,7 @@ class TestIdToProjectLocalPath:
     @pytest.fixture
     def instance_with_node(self, fake_node, mocker, tmp_path):
         mocker.patch(
-            "qualibrate_app.api.core.domain.local_storage.utils.project_local_path_id.NodePath",
+            "qualibrate.app.api.core.domain.local_storage.utils.project_local_path_id.NodePath",
             return_value=fake_node,
         )
         inst = project_local_path_id.IdToProjectLocalPath("test", tmp_path)
@@ -73,7 +73,7 @@ class TestIdToProjectLocalPath:
             node_dir.mkdir(parents=True)
         patched_glob = mocker.patch("pathlib.Path.glob", return_value=node_dirs)
         patched_node_path = mocker.patch(
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "project_local_path_id.NodePath",
             side_effect=lambda p: p,
         )
@@ -87,7 +87,7 @@ class TestIdToProjectLocalPath:
     def test__fill_date_today_no_dir(self, mocker):
         patched_date = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.utils."
+                "qualibrate.app.api.core.domain.local_storage.utils."
                 "project_local_path_id.date"
             ),
             wraps=date,
@@ -122,14 +122,14 @@ class TestIdToProjectLocalPath:
             SimpleNamespace(id=4, node_name="a", date=date.today()),
         ]
         patched_node_path = mocker.patch(
-            "qualibrate_app.api.core.domain.local_storage.utils."
+            "qualibrate.app.api.core.domain.local_storage.utils."
             "project_local_path_id.NodePath",
             side_effect=nodes,
         )
         patched_add_node = mocker.patch.object(self.id2plp, "_add_node")
         patched_date = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.utils."
+                "qualibrate.app.api.core.domain.local_storage.utils."
                 "project_local_path_id.date"
             ),
             wraps=date,

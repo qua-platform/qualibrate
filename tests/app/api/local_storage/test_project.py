@@ -10,7 +10,7 @@ from qualibrate_config.models import QualibrateConfig
 from qualibrate_config.vars import QUALIBRATE_CONFIG_KEY
 
 from qualibrate.app.api.core.models.project import Project
-from qualibrate_app.config import get_config_path
+from qualibrate.app.config import get_config_path
 
 if sys.version_info < (3, 11):
     import tomli as tomllib

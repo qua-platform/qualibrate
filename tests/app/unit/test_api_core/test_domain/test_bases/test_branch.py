@@ -4,14 +4,14 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
-from qualibrate_app.api.core.domain.bases.branch import (
+from qualibrate.app.api.core.domain.bases.branch import (
     BranchBase,
     BranchLoadType,
 )
-from qualibrate_app.api.core.domain.bases.node import NodeBase
-from qualibrate_app.api.core.domain.bases.snapshot import SnapshotBase
-from qualibrate_app.api.core.models.snapshot import SnapshotSearchResult
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.domain.bases.node import NodeBase
+from qualibrate.app.api.core.domain.bases.snapshot import SnapshotBase
+from qualibrate.app.api.core.models.snapshot import SnapshotSearchResult
+from qualibrate.app.api.core.types import (
     IdType,
     PageFilter,
     SearchWithIdFilter,

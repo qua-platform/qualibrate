@@ -1,8 +1,8 @@
 from unittest.mock import PropertyMock
 
-from qualibrate_app.api.core.domain.local_storage.utils import filters
-from qualibrate_app.api.core.utils.path.node import NodePath
-from qualibrate_app.api.core.utils.path.node_date import NodesDatePath
+from qualibrate.app.api.core.domain.local_storage.utils import filters
+from qualibrate.app.api.core.utils.path.node import NodePath
+from qualibrate.app.api.core.utils.path.node_date import NodesDatePath
 
 
 def test_date_less_or_eq():

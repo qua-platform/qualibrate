@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from qualibrate_app.api.core.utils.path import common
-from qualibrate_app.api.exceptions.classes.storage import (
+from qualibrate.app.api.core.utils.path import common
+from qualibrate.app.api.exceptions.classes.storage import (
     QRelativeNotSubpathException,
 )
 

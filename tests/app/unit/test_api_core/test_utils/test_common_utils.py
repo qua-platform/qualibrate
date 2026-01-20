@@ -1,7 +1,7 @@
 import pytest
 
-from qualibrate_app.api.core.utils.common_utils import id_type_str
-from qualibrate_app.api.exceptions.classes.types import QInvalidIdTypeException
+from qualibrate.app.api.core.utils.common_utils import id_type_str
+from qualibrate.app.api.exceptions.classes.types import QInvalidIdTypeException
 
 
 def test_id_type_str_func_arg_valid():

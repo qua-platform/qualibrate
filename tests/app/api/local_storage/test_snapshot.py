@@ -3,8 +3,8 @@ import json
 import jsonpointer
 import pytest
 
-import tests.api.local_storage._utils as _utils_test
-from qualibrate_app.api.routes.utils.snapshot_load_type import (
+import tests.app.api.local_storage._utils as _utils_test
+from qualibrate.app.api.routes.utils.snapshot_load_type import (
     SnapshotLoadTypeStr,
 )
 
@@ -316,7 +316,7 @@ def test_snapshot_update_entries(
     quam_state_path.mkdir()
     mocker.patch(
         (
-            "qualibrate_app.api.core.domain.local_storage.utils"
+            "qualibrate.app.api.core.domain.local_storage.utils"
             ".snapshot_content.get_quam_state_path"
         ),
         return_value=quam_state_path,

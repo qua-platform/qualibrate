@@ -6,13 +6,13 @@ from unittest.mock import PropertyMock
 import pytest
 from pydantic import ValidationError
 
-from qualibrate_app.api.core.domain.bases.snapshot import (
+from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadType,
     SnapshotLoadTypeFlag,
 )
-from qualibrate_app.api.core.models.snapshot import Snapshot
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.models.snapshot import Snapshot
+from qualibrate.app.api.core.types import (
     DocumentSequenceType,
     IdType,
     PageFilter,
@@ -148,7 +148,7 @@ def test_search_recursive_data_filled(mocker, load, settings):
     )
     search_pathed = mocker.patch(
         (
-            "qualibrate_app.api.core.domain.bases.snapshot"
+            "qualibrate.app.api.core.domain.bases.snapshot"
             ".get_subpath_value_on_any_depth"
         ),
         return_value=[{}],
@@ -180,7 +180,7 @@ def test_search_recursive_data_none(mocker, load, settings):
         return_value=None,
     )
     search_pathed = mocker.patch(
-        "qualibrate_app.api.core.domain.bases.snapshot"
+        "qualibrate.app.api.core.domain.bases.snapshot"
         ".get_subpath_value_on_any_depth",
     )
     assert s.search_recursive("target_key", load) is None

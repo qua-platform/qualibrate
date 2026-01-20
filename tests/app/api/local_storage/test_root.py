@@ -2,8 +2,8 @@ from datetime import date, datetime
 
 import pytest
 
-import tests.api.local_storage._utils as _utils_test
-from qualibrate_app.api.routes.utils.snapshot_load_type import (
+import tests.app.api.local_storage._utils as _utils_test
+from qualibrate.app.api.routes.utils.snapshot_load_type import (
     SnapshotLoadTypeStr,
 )
 

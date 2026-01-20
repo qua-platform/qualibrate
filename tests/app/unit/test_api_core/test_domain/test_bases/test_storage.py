@@ -5,13 +5,13 @@ from unittest.mock import PropertyMock
 
 import pytest
 
-from qualibrate_app.api.core.domain.bases.storage import (
+from qualibrate.app.api.core.domain.bases.storage import (
     DataFileStorage,
     StorageLoadTypeFlag,
     _storage_loader_from_flag,
 )
-from qualibrate_app.api.exceptions.classes.storage import QFileNotFoundException
-from qualibrate_app.api.exceptions.classes.values import QValueException
+from qualibrate.app.api.exceptions.classes.storage import QFileNotFoundException
+from qualibrate.app.api.exceptions.classes.values import QValueException
 
 
 def test_possible_data_file_names():
@@ -72,7 +72,7 @@ class TestDataFileStorage:
             return_value=StorageLoadTypeFlag.Full,
         )
         patched_parse_data = mocker.patch(
-            "qualibrate_app.api.core.domain.bases."
+            "qualibrate.app.api.core.domain.bases."
             "storage._storage_loader_from_flag"
         )
         assert self.dfs.load_from_flag(load_type) is None
@@ -87,7 +87,7 @@ class TestDataFileStorage:
         )
         mocker.patch.object(self.dfs, "_get_filename", return_value=None)
         patched_parse_data = mocker.patch(
-            "qualibrate_app.api.core.domain.bases."
+            "qualibrate.app.api.core.domain.bases."
             "storage._storage_loader_from_flag"
         )
         assert self.dfs.load_from_flag(StorageLoadTypeFlag.Full) is None
@@ -102,7 +102,7 @@ class TestDataFileStorage:
         )
         mocker.patch.object(self.dfs, "_get_filename", return_value="data.json")
         patched_parse_data = mocker.patch(
-            "qualibrate_app.api.core.domain.bases."
+            "qualibrate.app.api.core.domain.bases."
             "storage._storage_loader_from_flag"
         )
         assert self.dfs.load_from_flag(StorageLoadTypeFlag.Full) is None
@@ -224,7 +224,7 @@ class TestDataFileStorage:
     def test__storage_loader_from_flag_reference_ignore(self, mocker):
         data_file = self.node_abs_path / "data.json"
         patched_load_data_png_images = mocker.patch(
-            "qualibrate_app.api.core.domain.bases.storage.load_data_png_images_parse"
+            "qualibrate.app.api.core.domain.bases.storage.load_data_png_images_parse"
         )
         mocker.patch("pathlib.Path.is_file", return_value=True)
         data_file.write_text(json.dumps({"path": "./file.png"}))

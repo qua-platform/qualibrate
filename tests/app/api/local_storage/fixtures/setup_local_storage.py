@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from qualibrate_app.api.core.domain.local_storage.utils.local_path_id import (
+from qualibrate.app.api.core.domain.local_storage.utils.local_path_id import (
     IdToLocalPath,
 )
 

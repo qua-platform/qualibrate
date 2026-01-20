@@ -1,9 +1,9 @@
 import pytest
 
-from qualibrate_app.api.core.domain.local_storage.branch import (
+from qualibrate.app.api.core.domain.local_storage.branch import (
     BranchLocalStorage,
 )
-from qualibrate_app.api.core.types import (
+from qualibrate.app.api.core.types import (
     PageFilter,
     SearchWithIdFilter,
 )
@@ -23,35 +23,35 @@ class TestLocalStorageBranch:
         )
         patched_find_ids = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.branch"
+                "qualibrate.app.api.core.domain.local_storage.branch"
                 ".find_nodes_ids_by_filter"
             ),
             return_value=suited_snapshot_ids,
         )
         patched_snapshot = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.branch"
+                "qualibrate.app.api.core.domain.local_storage.branch"
                 ".SnapshotLocalStorage"
             ),
             side_effect=lambda _id, settings: _id,
         )
         patched_get_slice = mocker.patch(
             (
-                "qualibrate_app.api.core.domain.local_storage.branch"
+                "qualibrate.app.api.core.domain.local_storage.branch"
                 ".get_page_slice"
             ),
             side_effect=lambda snapshots, page_filter: list(snapshots),
         )
         patched_find_asc = mocker.patch(
             (
-                "qualibrate_app.api.core.utils.find_utils"
+                "qualibrate.app.api.core.utils.find_utils"
                 ".search_snapshots_data_with_filter_ascending"
             ),
             side_effect=lambda snapshots, *args: snapshots,
         )
         patched_find_desc = mocker.patch(
             (
-                "qualibrate_app.api.core.utils.find_utils"
+                "qualibrate.app.api.core.utils.find_utils"
                 ".search_snapshots_data_with_filter_descending"
             ),
             side_effect=lambda snapshots, *args: snapshots,

@@ -1,6 +1,6 @@
 import pytest
 
-from qualibrate_app.api.core.utils import types_parsing
+from qualibrate.app.api.core.utils import types_parsing
 
 
 @pytest.mark.parametrize(
@@ -135,7 +135,7 @@ def test__parse_list_no_item_type():
 def test__parse_list_with_item_type(mocker):
     lst = ["1", "2", "a"]
     patched = mocker.patch(
-        "qualibrate_app.api.core.utils.types_parsing.parse_typed_list",
+        "qualibrate.app.api.core.utils.types_parsing.parse_typed_list",
         return_value="value",
     )
     assert types_parsing._parse_list(lst, int) == "value"
@@ -145,7 +145,7 @@ def test__parse_list_with_item_type(mocker):
 def test_parse_list_list(mocker):
     lst = ["1", "2", "a"]
     patched = mocker.patch(
-        "qualibrate_app.api.core.utils.types_parsing._parse_list",
+        "qualibrate.app.api.core.utils.types_parsing._parse_list",
         return_value="value",
     )
     assert types_parsing.parse_list(lst, int) == "value"
@@ -167,7 +167,7 @@ def test_parse_list_str(mocker, brackets, join):
         f"{'[' if brackets else ''}{join.join(lst)}{']' if brackets else ''}"
     )
     patched = mocker.patch(
-        "qualibrate_app.api.core.utils.types_parsing._parse_list",
+        "qualibrate.app.api.core.utils.types_parsing._parse_list",
         return_value="value",
     )
     assert types_parsing.parse_list(in_str, int) == "value"
@@ -177,7 +177,7 @@ def test_parse_list_str(mocker, brackets, join):
 @pytest.mark.parametrize("data", (1, False, 1.1, b"aaa"))
 def test_parse_list_other_types(mocker, data):
     patched = mocker.patch(
-        "qualibrate_app.api.core.utils.types_parsing._parse_list",
+        "qualibrate.app.api.core.utils.types_parsing._parse_list",
         return_value="value",
     )
     assert types_parsing.parse_list(data, int) == data
