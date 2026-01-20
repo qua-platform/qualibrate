@@ -6,8 +6,8 @@ import pytest
 from pydantic import BaseModel
 from qualang_tools.results import DataHandler
 
-from qualibrate.models.outcome import Outcome
-from qualibrate.storage.local_storage_manager import LocalStorageManager, logger
+from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.storage.local_storage_manager import LocalStorageManager, logger
 
 
 class Parameters(BaseModel):
@@ -41,7 +41,7 @@ def data_handler_path(tmp_path):
 @pytest.fixture
 def mock_data_handler(mocker, data_handler_path):
     data_handler = mocker.patch(
-        "qualibrate.storage.local_storage_manager.DataHandler",
+        "qualibrate.core.storage.local_storage_manager.DataHandler",
         spec=DataHandler,
     )
     data_handler.return_value.path = data_handler_path

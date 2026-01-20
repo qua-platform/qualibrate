@@ -15,8 +15,8 @@ Features demonstrated:
 """
 from typing import ClassVar
 
-from qualibrate import QualibrationGraph, QualibrationLibrary, GraphParameters
-from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
+from qualibrate.core import QualibrationGraph, QualibrationLibrary, GraphParameters
+from qualibrate.core.orchestration.basic_orchestrator import BasicOrchestrator
 
 
 class Parameters(GraphParameters):

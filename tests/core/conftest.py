@@ -7,7 +7,7 @@ import tomli_w
 from pydantic import Field
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate import NodeParameters, QualibrationNode
+from qualibrate.core import NodeParameters, QualibrationNode
 
 
 @pytest.fixture
@@ -22,7 +22,7 @@ def qualibrate_config(
         {"log_folder": log_folder, "storage": {"location": storage_folder}}
     )
     mocker.patch(
-        "qualibrate.utils.logger_m.get_qualibrate_config", return_value=config
+        "qualibrate.core.utils.logger_m.get_qualibrate_config", return_value=config
     )
     yield config
 
@@ -31,7 +31,7 @@ def qualibrate_config(
 def qualibrate_config_path(mocker, tmp_path):
     conf_path = tmp_path / "config.toml"
     mocker.patch(
-        "qualibrate.utils.logger_m.get_qualibrate_config_path",
+        "qualibrate.core.utils.logger_m.get_qualibrate_config_path",
         return_value=conf_path,
     )
     yield conf_path
@@ -46,9 +46,9 @@ def qualibrate_config_from_path(qualibrate_config_path, qualibrate_config):
 
 @pytest.fixture
 def qualibrate_config_and_path_mocked(mocker, qualibrate_config_from_path):
-    mocker.patch("qualibrate.qualibration_node.get_qualibrate_config_path")
+    mocker.patch("qualibrate.core.qualibration_node.get_qualibrate_config_path")
     mocker.patch(
-        "qualibrate.qualibration_node.get_qualibrate_config",
+        "qualibrate.core.qualibration_node.get_qualibrate_config",
         return_value=qualibrate_config_from_path,
     )
 
@@ -147,7 +147,7 @@ def action_that_raises():
 def non_interactive_mode(mocker):
     """Mock is_interactive to return False (non-interactive mode)."""
     mocker.patch(
-        "qualibrate.runnables.run_action.action.is_interactive",
+         "qualibrate.core.runnables.run_action.action.is_interactive",
         return_value=False,
     )
     yield
@@ -166,15 +166,15 @@ def mock_action_manager():
 @pytest.fixture
 def action_manager(mocker):
     """Provide a real ActionManager instance with required patches."""
-    from qualibrate.runnables.run_action.action_manager import ActionManager
+    from qualibrate.core.runnables.run_action.action_manager import ActionManager
 
-    mocker.patch("qualibrate.runnables.run_action.action_manager.inspect.stack")
+    mocker.patch( "qualibrate.core.runnables.run_action.action_manager.inspect.stack")
     mocker.patch(
-        "qualibrate.runnables.run_action.action_manager"
+         "qualibrate.core.runnables.run_action.action_manager"
         ".get_frame_for_keeping_names_from_manager"
     )
     mocker.patch(
-        "qualibrate.runnables.run_action.action_manager"
+         "qualibrate.core.runnables.run_action.action_manager"
         ".get_defined_in_frame_names",
         return_value=set(),
     )

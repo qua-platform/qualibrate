@@ -1,7 +1,7 @@
 from pydantic import Field
 
-from qualibrate import NodeParameters, QualibrationNode
-from qualibrate.models.outcome import Outcome
+from qualibrate.core import NodeParameters, QualibrationNode
+from qualibrate.core.models.outcome import Outcome
 
 
 class Parameters(NodeParameters):

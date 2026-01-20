@@ -3,17 +3,17 @@ from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 
-from qualibrate import QualibrationNode
-from qualibrate.models.node_status import ElementRunStatus
-from qualibrate.models.operational_condition import (
+from qualibrate.core import QualibrationNode
+from qualibrate.core.models.node_status import ElementRunStatus
+from qualibrate.core.models.operational_condition import (
     LoopCondition,
     OperationalCondition,
 )
-from qualibrate.models.outcome import Outcome
-from qualibrate.models.run_summary.node import NodeRunSummary
-from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
-from qualibrate.parameters import GraphParameters, RunnableParameters
-from qualibrate.qualibration_graph import QualibrationGraph
+from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.models.run_summary.node import NodeRunSummary
+from qualibrate.core.orchestration.basic_orchestrator import BasicOrchestrator
+from qualibrate.core.parameters import GraphParameters, RunnableParameters
+from qualibrate.core.qualibration_graph import QualibrationGraph
 
 
 class TestBasicOrchestrator:
@@ -39,7 +39,7 @@ class TestBasicOrchestrator:
         # Mock the nx_graph property
         mocker.patch(
             (
-                "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator"
+                "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator"
                 ".nx_graph"
             ),
             new_callable=PropertyMock,
@@ -103,7 +103,7 @@ class TestBasicOrchestrator:
         orchestrator._graph = "graph"
         mock_nx_graph = mocker.patch(
             (
-                "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator"
+                "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator"
                 ".nx_graph"
             ),
             new_callable=PropertyMock,
@@ -133,7 +133,7 @@ class TestBasicOrchestrator:
         # Patch the nx_graph property and set predecessors
         mock_nx_graph = mocker.patch(
             (
-                "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator"
+                "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator"
                 ".nx_graph"
             ),
             new_callable=PropertyMock,
@@ -149,7 +149,7 @@ class TestBasicOrchestrator:
 
     def test_traverse_graph_logs_info(self, mocker):
         mock_logger = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.logger"
+            "qualibrate.core.orchestration.basic_orchestrator.logger"
         )
         orchestrator = BasicOrchestrator()
         mock_graph = MagicMock()
@@ -180,7 +180,7 @@ class TestBasicOrchestrator:
 
         mock_node = MagicMock()
         mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
         )
 
         result = orchestrator._get_in_targets_for_element(mock_node)
@@ -196,7 +196,7 @@ class TestBasicOrchestrator:
         mock_pred = MagicMock()
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.predecessors.return_value = [mock_pred]
@@ -222,7 +222,7 @@ class TestBasicOrchestrator:
         mock_pred2 = MagicMock()
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.predecessors.return_value = [
@@ -252,7 +252,7 @@ class TestBasicOrchestrator:
         mock_pred = MagicMock()
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=mocker.PropertyMock,
         )
         mock_nx_graph.return_value.predecessors.return_value = [mock_pred]
@@ -289,7 +289,7 @@ class TestBasicOrchestrator:
         mock_pred2 = MagicMock()
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=mocker.PropertyMock,
         )
         mock_nx_graph.return_value.predecessors.return_value = [
@@ -338,7 +338,7 @@ class TestBasicOrchestrator:
         mock_node.run_summary = mock_summary
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.successors.return_value = [mock_successor]
@@ -375,7 +375,7 @@ class TestBasicOrchestrator:
         mock_node.run_summary = mock_summary
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.successors.return_value = [mock_successor]
@@ -410,7 +410,7 @@ class TestBasicOrchestrator:
         mock_node.run_summary = mock_summary
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration."
+            "qualibrate.core.orchestration."
             "basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
@@ -483,7 +483,7 @@ class TestBasicOrchestrator:
         mock_node.run_summary = mock_summary
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator."
+            "qualibrate.core.orchestration.basic_orchestrator."
             "BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
@@ -598,7 +598,7 @@ class TestBasicOrchestrator:
         }
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=mocker.PropertyMock,
         )
         mock_nx_graph.return_value.nodes = {
@@ -1254,7 +1254,7 @@ def test_execute_condition_with_function():
 
 def test_execute_condition_with_generator():
     """Test _execute_condition with a generator condition"""
-    from qualibrate.models.operational_condition import OperationalCondition
+    from qualibrate.core.models.operational_condition import OperationalCondition
 
     orchestrator = BasicOrchestrator()
 
@@ -1302,7 +1302,7 @@ def test_set_out_targets_with_operational_condition_on_failure(mocker):
     mock_node.run_summary = mock_summary
 
     mock_nx_graph = mocker.patch(
-        "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+        "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
         new_callable=PropertyMock,
     )
     mock_nx_graph.return_value.successors.return_value = [
@@ -1433,7 +1433,7 @@ def test_get_next_element_skips_already_finished_node(mocker):
 
     # Mock nx_graph
     mock_nx_graph = mocker.patch(
-        "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+        "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
         new_callable=PropertyMock,
     )
     mock_nx_graph.return_value.pred = {
@@ -1468,7 +1468,7 @@ def test_get_next_element_skips_node_with_unfinished_predecessors(mocker):
 
     # Mock nx_graph
     mock_nx_graph = mocker.patch(
-        "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+        "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
         new_callable=PropertyMock,
     )
     mock_nx_graph.return_value.pred = {mock_node: [mock_pred1, mock_pred2]}
@@ -1524,7 +1524,7 @@ def test_set_out_targets_with_empty_operational_condition_on_failure(mocker):
     mock_node.run_summary = mock_summary
 
     mock_nx_graph = mocker.patch(
-        "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+        "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
         new_callable=PropertyMock,
     )
     mock_nx_graph.return_value.successors.return_value = [
@@ -1581,7 +1581,7 @@ def test_get_next_element_returns_node_when_all_predecessors_finished(mocker):
     orchestrator._execution_queue.put(mock_node)
 
     mock_nx_graph = mocker.patch(
-        "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+        "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
         new_callable=PropertyMock,
     )
     mock_nx_graph.return_value.pred = {mock_node: [mock_pred1, mock_pred2]}
@@ -1603,7 +1603,7 @@ def test_get_next_element_returns_node_when_all_predecessors_finished(mocker):
 
 def test_execute_condition_with_generator_that_returns_false():
     """Test generator condition that filters out all targets"""
-    from qualibrate.models.operational_condition import OperationalCondition
+    from qualibrate.core.models.operational_condition import OperationalCondition
 
     orchestrator = BasicOrchestrator()
     mock_element = MagicMock()
@@ -1625,7 +1625,7 @@ def test_set_out_targets_multiple_failed_edges_with_different_conditions(
     mocker,
 ):
     """Test routing to multiple failed edges with different conditions"""
-    from qualibrate.models.operational_condition import OperationalCondition
+    from qualibrate.core.models.operational_condition import OperationalCondition
 
     orchestrator = BasicOrchestrator()
 
@@ -1646,7 +1646,7 @@ def test_set_out_targets_multiple_failed_edges_with_different_conditions(
     mock_node.run_summary = mock_summary
 
     mock_nx_graph = mocker.patch(
-        "qualibrate.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
+        "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
         new_callable=PropertyMock,
     )
     mock_nx_graph.return_value.successors.return_value = [

@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from qualibrate import NodeParameters, QualibrationNode
+from qualibrate.core import NodeParameters, QualibrationNode
 
 
 class Parameters(NodeParameters):

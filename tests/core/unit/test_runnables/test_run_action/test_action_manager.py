@@ -6,8 +6,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from qualibrate.runnables.run_action.action import Action
-from qualibrate.runnables.run_action.action_manager import ActionManager
+from qualibrate.core.runnables.run_action.action import Action
+from qualibrate.core.runnables.run_action.action_manager import ActionManager
 
 
 class TestActionManagerInit:
@@ -33,14 +33,14 @@ class TestActionManagerInit:
 
         with (
             patch(
-                "qualibrate.runnables.run_action.action_manager.inspect.stack"
+                 "qualibrate.core.runnables.run_action.action_manager.inspect.stack"
             ),
             patch(
-                "qualibrate.runnables.run_action.action_manager"
+                 "qualibrate.core.runnables.run_action.action_manager"
                 ".get_frame_for_keeping_names_from_manager"
             ),
             patch(
-                "qualibrate.runnables.run_action.action_manager"
+                 "qualibrate.core.runnables.run_action.action_manager"
                 ".get_defined_in_frame_names",
                 return_value=test_names,
             ),

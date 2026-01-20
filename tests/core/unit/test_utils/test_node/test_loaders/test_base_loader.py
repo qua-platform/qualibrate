@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from qualibrate.utils.node.loaders.base_loader import BaseLoader
+from qualibrate.core.utils.node.loaders.base_loader import BaseLoader
 
 
 class DummyLoader(BaseLoader):

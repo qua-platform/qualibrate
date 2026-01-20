@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from pydantic import Field
 from quam.components import *
 
-from qualibrate import NodeParameters, QualibrationNode
+from qualibrate.core import NodeParameters, QualibrationNode
 
 
 class Parameters(NodeParameters):

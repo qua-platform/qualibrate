@@ -15,7 +15,7 @@ Expected behavior with qubits=["q1", "q2", "q3", "q4"]:
 """
 from typing import ClassVar
 
-from qualibrate import QualibrationGraph, QualibrationLibrary, QualibrationNode, GraphParameters
+from qualibrate.core import QualibrationGraph, QualibrationLibrary, QualibrationNode, GraphParameters
 
 class Parameters(GraphParameters):
     targets_name: ClassVar[str] = "qubits"

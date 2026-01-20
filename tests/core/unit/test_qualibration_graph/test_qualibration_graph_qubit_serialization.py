@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from qualibrate import (
+from qualibrate.core import (
     GraphParameters,
     NodeParameters,
     QualibrationGraph,

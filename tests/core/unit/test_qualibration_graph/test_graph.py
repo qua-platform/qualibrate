@@ -5,13 +5,13 @@ from unittest.mock import MagicMock
 import networkx as nx
 import pytest
 
-from qualibrate import QualibrationGraph, QualibrationNode
-from qualibrate.models.node_status import ElementRunStatus
-from qualibrate.models.operational_condition import OperationalCondition
-from qualibrate.models.outcome import Outcome
-from qualibrate.models.run_mode import RunModes
-from qualibrate.parameters import GraphParameters
-from qualibrate.utils.exceptions import CyclicGraphError, StopInspection
+from qualibrate.core import QualibrationGraph, QualibrationNode
+from qualibrate.core.models.node_status import ElementRunStatus
+from qualibrate.core.models.operational_condition import OperationalCondition
+from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.models.run_mode import RunModes
+from qualibrate.core.parameters import GraphParameters
+from qualibrate.core.utils.exceptions import CyclicGraphError, StopInspection
 
 
 class TestQualibrationGraph:
@@ -31,7 +31,7 @@ class TestQualibrationGraph:
         mock_nx_graph = MagicMock()
         mock_nx_graph.has_edge.return_value = False
         mocker.patch(
-            "qualibrate.qualibration_graph.nx.DiGraph",
+            "qualibrate.core.qualibration_graph.nx.DiGraph",
             return_value=mock_nx_graph,
         )
         graph = QualibrationGraph(
@@ -64,15 +64,15 @@ class TestQualibrationGraph:
             nodes[node_name] = node
 
         mocked_add_node_by_name = mocker.patch(
-            "qualibrate.qualibration_graph.QualibrationGraph"
+            "qualibrate.core.qualibration_graph.QualibrationGraph"
             "._add_element_to_nx_by_name",
         )
         mocked_get_qnode_or_error = mocker.patch(
-            "qualibrate.qualibration_graph.QualibrationGraph"
+            "qualibrate.core.qualibration_graph.QualibrationGraph"
             "._get_element_or_error"
         )
         mocked_validate_graph_acyclic = mocker.patch(
-            "qualibrate.qualibration_graph.QualibrationGraph."
+            "qualibrate.core.qualibration_graph.QualibrationGraph."
             "_validate_graph_acyclic",
         )
 
@@ -183,7 +183,7 @@ class TestQualibrationGraph:
             orchestrator=mock_orchestrator,
         )
         mock_nx_set_node_attributes = mocker.patch(
-            "qualibrate.qualibration_graph.nx.set_node_attributes"
+            "qualibrate.core.qualibration_graph.nx.set_node_attributes"
         )
 
         graph.cleanup()
@@ -196,7 +196,7 @@ class TestQualibrationGraph:
         connectivity = [("node1", "node2")]
 
         mock_get_node_attributes = mocker.patch(
-            "qualibrate.qualibration_graph.nx.get_node_attributes",
+            "qualibrate.core.qualibration_graph.nx.get_node_attributes",
             return_value={
                 "node1": ElementRunStatus.finished,
                 "node2": ElementRunStatus.pending,
@@ -229,7 +229,7 @@ class TestQualibrationGraph:
         )
 
         # Mock datetime
-        mock_datetime = mocker.patch("qualibrate.qualibration_graph.datetime")
+        mock_datetime = mocker.patch("qualibrate.core.qualibration_graph.datetime")
         mock_datetime.now.return_value = datetime(2020, 1, 1)
 
         # Mock orchestrator.traverse_graph

@@ -1,14 +1,14 @@
 import pytest
 from pydantic import Field
 
-from qualibrate.parameters import (
+from qualibrate.core.parameters import (
     ExecutionParameters,
     GraphElementsParameters,
     GraphParameters,
     NodeParameters,
     RunnableParameters,
 )
-from qualibrate.utils.type_protocols import TargetType
+from qualibrate.core.utils.type_protocols import TargetType
 
 
 class Node1(NodeParameters):
@@ -177,7 +177,7 @@ class TestExecutionParameters:
 
     def test_serialize_with_none_parameters_class(self, mocker):
         mock_model_fields = mocker.patch(
-            "qualibrate.parameters.ExecutionParameters.model_fields"
+            "qualibrate.core.parameters.ExecutionParameters.model_fields"
         )
         mock_model_fields.__getitem__.return_value = mocker.MagicMock(
             annotation=None
@@ -190,7 +190,7 @@ class TestExecutionParameters:
 
     def test_serialize_none_parameters_class(self, mocker):
         mock_model_fields = mocker.patch(
-            "qualibrate.parameters.ExecutionParameters.model_fields"
+            "qualibrate.core.parameters.ExecutionParameters.model_fields"
         )
         mock_model_fields.__getitem__.return_value = mocker.MagicMock(
             annotation=RunnableParameters
@@ -200,7 +200,7 @@ class TestExecutionParameters:
             RuntimeError,
             match=(
                 "Graph parameters class should be subclass of "
-                "qualibrate.parameters.GraphParameters"
+                "qualibrate.core.parameters.GraphParameters"
             ),
         ):
             ExecutionParameters.serialize()

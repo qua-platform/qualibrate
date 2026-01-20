@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from qualibrate.utils.node.loaders.json_loader import JSONLoader
+from qualibrate.core.utils.node.loaders.json_loader import JSONLoader
 
 
 @pytest.fixture

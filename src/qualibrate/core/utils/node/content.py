@@ -444,7 +444,7 @@ def load_parameters(
         use_standard_collections=True,
         use_generic_container_types=True,
         class_name=class_name,
-        base_class="qualibrate.parameters.NodeParameters",
+        base_class="qualibrate.core.parameters.NodeParameters",
         additional_imports=["datetime.datetime", "pydantic.ConfigDict"],
         dump_resolve_reference_action=(
             DATA_MODEL_TYPES.dump_resolve_reference_action

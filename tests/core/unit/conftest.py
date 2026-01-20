@@ -2,13 +2,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from qualibrate import QualibrationGraph, QualibrationNode
-from qualibrate.q_runnnable import QRunnable
+from qualibrate.core import QualibrationGraph, QualibrationNode
+from qualibrate.core.q_runnnable import QRunnable
 
 
 @pytest.fixture
 def mock_logger(mocker):
-    return mocker.patch("qualibrate.qualibration_graph.logger")
+    return mocker.patch("qualibrate.core.qualibration_graph.logger")
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def mock_library(mocker):
 @pytest.fixture
 def mock_orchestrator(mocker):
     return mocker.patch(
-        "qualibrate.orchestration.basic_orchestrator.QualibrationOrchestrator"
+        "qualibrate.core.orchestration.basic_orchestrator.QualibrationOrchestrator"
     )
 
 
@@ -43,7 +43,7 @@ def pre_setup_graph_nodes():
 @pytest.fixture
 def mocked__validate_no_elements_from_library(mocker):
     return mocker.patch(
-        "qualibrate.qualibration_graph.QualibrationGraph"
+        "qualibrate.core.qualibration_graph.QualibrationGraph"
         "._validate_no_elements_from_library"
     )
 
@@ -56,7 +56,7 @@ def pre_setup_graph_parameters_build(
         QRunnable, "build_parameters_class_from_instance"
     )
     mocked_build_full_parameters = mocker.patch(
-        "qualibrate.qualibration_graph.QualibrationGraph"
+        "qualibrate.core.qualibration_graph.QualibrationGraph"
         "._build_parameters_class"
     )
     return (
@@ -71,7 +71,7 @@ def pre_setup_graph_init(
     mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
 ):
     mocked_add_nodes_and_connections = mocker.patch(
-        "qualibrate.qualibration_graph.QualibrationGraph."
+        "qualibrate.core.qualibration_graph.QualibrationGraph."
         "_add_nodes_and_connections_to_nx",
     )
     (

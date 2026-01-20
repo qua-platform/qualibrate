@@ -1,5 +1,5 @@
-from qualibrate.parameters import NodeParameters
-from qualibrate.q_runnnable import QRunnable
+from qualibrate.core.parameters import NodeParameters
+from qualibrate.core.q_runnnable import QRunnable
 
 
 class Parameters(NodeParameters):

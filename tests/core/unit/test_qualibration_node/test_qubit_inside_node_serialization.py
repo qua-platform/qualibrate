@@ -3,8 +3,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from qualibrate import NodeParameters
-from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.core import NodeParameters
+from qualibrate.core.qualibration_node import QualibrationNode
 
 
 class MockQubit:

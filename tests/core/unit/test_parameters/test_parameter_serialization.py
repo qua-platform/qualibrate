@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from qualibrate.parameters import RunnableParameters
+from qualibrate.core.parameters import RunnableParameters
 
 
 def test_parameters_empty_serialization():

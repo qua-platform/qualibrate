@@ -3,7 +3,7 @@ from enum import Enum
 import pytest
 from pydantic import ValidationError
 
-from qualibrate.parameters import GraphParameters, NodeParameters
+from qualibrate.core.parameters import GraphParameters, NodeParameters
 
 
 class Color(Enum):

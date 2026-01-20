@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 import numpy as np
 import pytest
 
-from qualibrate.utils.node.loaders.numpy_array_loader import NumpyArrayLoader
+from qualibrate.core.utils.node.loaders.numpy_array_loader import NumpyArrayLoader
 
 
 @pytest.fixture

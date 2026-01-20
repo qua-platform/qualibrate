@@ -1,14 +1,14 @@
 from typing import ClassVar, TypeAlias
 
-from qualibrate import (
+from qualibrate.core import (
     GraphParameters,
     QualibrationGraph,
     QualibrationLibrary,
     logger,
 )
-from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
-from qualibrate.parameters import RunnableParameters
-from qualibrate.q_runnnable import QRunnable
+from qualibrate.core.orchestration.basic_orchestrator import BasicOrchestrator
+from qualibrate.core.parameters import RunnableParameters
+from qualibrate.core.q_runnnable import QRunnable
 
 GraphElementType: TypeAlias = QRunnable[RunnableParameters, RunnableParameters]
 

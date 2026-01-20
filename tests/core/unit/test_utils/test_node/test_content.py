@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 
-from qualibrate import NodeParameters
-from qualibrate.utils.node import content
+from qualibrate.core import NodeParameters
+from qualibrate.core.utils.node import content
 
 
 def test_load_parameters_without_build():

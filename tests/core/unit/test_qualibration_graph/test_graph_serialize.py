@@ -1,15 +1,15 @@
 from collections.abc import Sequence
 from typing import Any
 
-from qualibrate.models.node_status import ElementRunStatus
-from qualibrate.orchestration.qualibration_orchestrator import (
+from qualibrate.core.models.node_status import ElementRunStatus
+from qualibrate.core.orchestration.qualibration_orchestrator import (
     QualibrationOrchestrator,
 )
-from qualibrate.parameters import (
+from qualibrate.core.parameters import (
     GraphParameters,
 )
-from qualibrate.qualibration_graph import QualibrationGraph
-from qualibrate.qualibration_library import QualibrationLibrary
+from qualibrate.core.qualibration_graph import QualibrationGraph
+from qualibrate.core.qualibration_library import QualibrationLibrary
 
 
 class Orchestrator(QualibrationOrchestrator):
@@ -35,7 +35,7 @@ def test_serialize_with_no_nested_graphs(
         "description": "some description",
         "orchestrator": {
             "__class__": (
-                "tests.unit.test_qualibration_graph.test_graph_serialize"
+                "tests.core.unit.test_qualibration_graph.test_graph_serialize"
                 ".Orchestrator"
             ),
             "parameters": {},

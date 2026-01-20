@@ -1,4 +1,4 @@
-from qualibrate import QualibrationGraph, QualibrationLibrary
+from qualibrate.core import QualibrationGraph, QualibrationLibrary
 
 library = QualibrationLibrary.get_active_library()
 USED_NODE = "test_node"

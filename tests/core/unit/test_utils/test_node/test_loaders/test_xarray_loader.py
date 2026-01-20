@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from qualibrate.utils.node.loaders.xarray_loader import XarrayLoader
+from qualibrate.core.utils.node.loaders.xarray_loader import XarrayLoader
 
 XARRAY_AVAILABLE = find_spec("xarray") is not None
 
@@ -58,7 +58,7 @@ def test_load_nonexistent_file():
 
 def test_load_with_xarray_unavailable(monkeypatch):
     monkeypatch.setattr(
-        "qualibrate.utils.node.loaders.xarray_loader.find_spec", lambda _: None
+        "qualibrate.core.utils.node.loaders.xarray_loader.find_spec", lambda _: None
     )
     loader = XarrayLoader()
     result = loader.load(Path("dummy.h5"))

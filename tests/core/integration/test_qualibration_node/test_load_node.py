@@ -11,8 +11,8 @@ from matplotlib import pyplot as plt
 from PIL import Image, ImageChops
 from quam.components import BasicQuam, SingleChannel
 
-from qualibrate.parameters import NodeParameters
-from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.core.parameters import NodeParameters
+from qualibrate.core.qualibration_node import QualibrationNode
 
 
 @pytest.fixture
@@ -77,7 +77,7 @@ def state_path(mocker, tmp_path):
     state_path = tmp_path / "state_path"
     state_path.mkdir()
     mocker.patch(
-        "qualibrate.qualibration_node.get_quam_state_path",
+        "qualibrate.core.qualibration_node.get_quam_state_path",
         return_value=state_path,
     )
 
@@ -88,7 +88,7 @@ def node_for_dump(
     state_path,
     qualibrate_config_and_path_mocked,
 ):
-    mocker.patch("qualibrate.qualibration_node.logger")
+    mocker.patch("qualibrate.core.qualibration_node.logger")
 
     class Parameters(NodeParameters):
         resonator: str

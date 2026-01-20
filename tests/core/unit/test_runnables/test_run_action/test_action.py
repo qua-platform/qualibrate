@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from qualibrate.runnables.run_action.action import Action
+from qualibrate.core.runnables.run_action.action import Action
 
 
 class TestActionNameProperty:
@@ -244,7 +244,7 @@ class TestExecuteRunActionNonInteractive:
 
         action = Action(simple_action_function, mock_action_manager)
         with patch(
-            "qualibrate.runnables.run_action.action.get_frame_to_update_from_action"
+             "qualibrate.core.runnables.run_action.action.get_frame_to_update_from_action"
         ) as mock_get_frame:
             result = action.execute_run_action(mock_node)
 

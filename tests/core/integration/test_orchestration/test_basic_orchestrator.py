@@ -5,21 +5,21 @@ from unittest.mock import MagicMock
 import pytest
 from pydantic import Field
 
-from qualibrate import QualibrationNode
-from qualibrate.models.execution_history import (
+from qualibrate.core import QualibrationNode
+from qualibrate.core.models.execution_history import (
     ExecutionHistoryItem,
     ItemData,
     ItemMetadata,
 )
-from qualibrate.models.node_status import ElementRunStatus
-from qualibrate.models.operational_condition import OperationalCondition
-from qualibrate.models.outcome import Outcome
-from qualibrate.models.run_summary.node import NodeRunSummary
-from qualibrate.models.run_summary.run_error import RunError
-from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
-from qualibrate.parameters import GraphParameters, RunnableParameters
-from qualibrate.qualibration_graph import QualibrationGraph
-from qualibrate.qualibration_library import QualibrationLibrary
+from qualibrate.core.models.node_status import ElementRunStatus
+from qualibrate.core.models.operational_condition import OperationalCondition
+from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.models.run_summary.node import NodeRunSummary
+from qualibrate.core.models.run_summary.run_error import RunError
+from qualibrate.core.orchestration.basic_orchestrator import BasicOrchestrator
+from qualibrate.core.parameters import GraphParameters, RunnableParameters
+from qualibrate.core.qualibration_graph import QualibrationGraph
+from qualibrate.core.qualibration_library import QualibrationLibrary
 
 
 @pytest.fixture
@@ -539,7 +539,7 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
           ├─[FAILED w/ timeout cond]──> node3_timeout_handler
           └─[FAILED w/ hw cond]───────> node4_hw_handler
     """
-    from qualibrate.models.operational_condition import OperationalCondition
+    from qualibrate.core.models.operational_condition import OperationalCondition
 
     orchestrator = BasicOrchestrator(skip_failed=False)
 

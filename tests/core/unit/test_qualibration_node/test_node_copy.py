@@ -1,8 +1,8 @@
 import pytest
 from pydantic import Field
 
-from qualibrate.parameters import NodeParameters
-from qualibrate.qualibration_node import QualibrationNode
+from qualibrate.core.parameters import NodeParameters
+from qualibrate.core.qualibration_node import QualibrationNode
 
 
 @pytest.fixture

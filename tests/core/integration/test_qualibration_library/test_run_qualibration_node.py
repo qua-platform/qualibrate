@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from qualibrate import QualibrationLibrary
+from qualibrate.core import QualibrationLibrary
 
 
 def test_library_scan(tmp_path):
@@ -14,7 +14,7 @@ def test_run_calibration_node_from_library(
 ):
     folder = Path(__file__).parents[1] / "example_calibration_scripts"
     library = QualibrationLibrary(library_folder=folder)
-    mocked = mocker.patch("qualibrate.qualibration_node.QualibrationNode.save")
+    mocked = mocker.patch("qualibrate.core.qualibration_node.QualibrationNode.save")
     node = library.nodes.get_nocopy("basic_node")
     library.run_node("basic_node", node.parameters_class())
     mocked.assert_called_once()

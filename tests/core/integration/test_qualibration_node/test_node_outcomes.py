@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from qualibrate.models.outcome import Outcome
-from qualibrate.qualibration_node import QualibrationNode
-from qualibrate.utils.exceptions import StopInspection
+from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.qualibration_node import QualibrationNode
+from qualibrate.core.utils.exceptions import StopInspection
 
 
 def test_node_outcomes(qualibrate_config_and_path_mocked):
@@ -13,7 +13,7 @@ def test_node_outcomes(qualibrate_config_and_path_mocked):
         QualibrationNode.modes.inspection = True
         with pytest.raises(StopInspection):
             importlib.import_module(
-                "tests.integration.example_calibration_scripts."
+                "tests.core.integration.example_calibration_scripts."
                 "1_node_with_partial_outcomes"
             )
         nodes = {}

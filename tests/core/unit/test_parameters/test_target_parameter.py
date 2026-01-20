@@ -3,8 +3,8 @@ from typing import ClassVar
 import pytest
 from pydantic import ValidationError
 
-from qualibrate.parameters import TargetParameter
-from qualibrate.utils.type_protocols import TargetType
+from qualibrate.core.parameters import TargetParameter
+from qualibrate.core.utils.type_protocols import TargetType
 
 
 class TestTargetParameter:
@@ -36,7 +36,7 @@ class TestTargetParameter:
         assert instance.other_field == "value"
 
     def test_prepare_targets_with_both_fields(self, mocker):
-        logger_mock = mocker.patch("qualibrate.parameters.logger")
+        logger_mock = mocker.patch("qualibrate.core.parameters.logger")
         instance = TestTargetParameter.SampleTargetParameter(
             targets=["1", "2", "3"], test_targets=["4", "5", "6"]
         )

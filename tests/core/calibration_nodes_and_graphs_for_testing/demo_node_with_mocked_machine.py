@@ -1,6 +1,6 @@
 from enum import Enum
 
-from qualibrate import NodeParameters, QualibrationNode
+from qualibrate.core import NodeParameters, QualibrationNode
 
 
 class FakeGateFidelity:

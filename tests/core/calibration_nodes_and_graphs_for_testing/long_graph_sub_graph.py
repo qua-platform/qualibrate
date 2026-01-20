@@ -1,6 +1,6 @@
 from typing import ClassVar
 
-from qualibrate import GraphParameters, QualibrationGraph, QualibrationLibrary
+from qualibrate.core import GraphParameters, QualibrationGraph, QualibrationLibrary
 
 library = QualibrationLibrary.get_active_library()
 USED_NODE = "test_node_mocked_machine"

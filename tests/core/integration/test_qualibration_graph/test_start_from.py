@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 from pydantic import Field
 
-from qualibrate import GraphParameters, QualibrationGraph, QualibrationLibrary
-from qualibrate.orchestration.basic_orchestrator import BasicOrchestrator
+from qualibrate.core import GraphParameters, QualibrationGraph, QualibrationLibrary
+from qualibrate.core.orchestration.basic_orchestrator import BasicOrchestrator
 
 
 @pytest.fixture
@@ -13,9 +13,9 @@ def qualibration_lib(
     mocker,
     qualibrate_config_from_path,
 ) -> Generator[QualibrationLibrary, None, None]:
-    mocker.patch("qualibrate.qualibration_node.get_qualibrate_config_path")
+    mocker.patch("qualibrate.core.qualibration_node.get_qualibrate_config_path")
     mocker.patch(
-        "qualibrate.qualibration_node.get_qualibrate_config",
+        "qualibrate.core.qualibration_node.get_qualibrate_config",
         return_value=qualibrate_config_from_path,
     )
     cal_path = Path(__file__).parent / "nested_graph"

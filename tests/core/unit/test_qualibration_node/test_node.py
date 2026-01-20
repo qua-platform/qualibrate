@@ -5,28 +5,28 @@ from unittest.mock import MagicMock, PropertyMock
 import pytest
 from pydantic import Field
 
-from qualibrate import NodeParameters, QualibrationNode
-from qualibrate.models.outcome import Outcome
-from qualibrate.models.run_mode import RunModes
-from qualibrate.models.run_summary.run_error import RunError
-from qualibrate.q_runnnable import QRunnable
-from qualibrate.qualibration_node import NodeCreateParametersType
-from qualibrate.storage.local_storage_manager import LocalStorageManager
-from qualibrate.utils.exceptions import StopInspection
+from qualibrate.core import NodeParameters, QualibrationNode
+from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.models.run_mode import RunModes
+from qualibrate.core.models.run_summary.run_error import RunError
+from qualibrate.core.q_runnnable import QRunnable
+from qualibrate.core.qualibration_node import NodeCreateParametersType
+from qualibrate.core.storage.local_storage_manager import LocalStorageManager
+from qualibrate.core.utils.exceptions import StopInspection
 
 
 class TestQualibrationNode:
     @pytest.fixture
     def mock_logger(self, mocker):
-        return mocker.patch("qualibrate.qualibration_node.logger")
+        return mocker.patch("qualibrate.core.qualibration_node.logger")
 
     @pytest.fixture
     def mock_run_modes_ctx(self, mocker):
-        return mocker.patch("qualibrate.qualibration_node.run_modes_ctx")
+        return mocker.patch("qualibrate.core.qualibration_node.run_modes_ctx")
 
     @pytest.fixture
     def mock_matplotlib(self, mocker):
-        return mocker.patch("qualibrate.qualibration_node.matplotlib")
+        return mocker.patch("qualibrate.core.qualibration_node.matplotlib")
 
     def test_init_without_parameters(
         self,
@@ -167,10 +167,10 @@ class TestQualibrationNode:
 
     def test__validate_passed_parameters_options_with_none(self, mocker):
         mocked_create_model = mocker.patch(
-            "qualibrate.qualibration_node.create_model"
+            "qualibrate.core.qualibration_node.create_model"
         )
         params = mocker.patch(
-            "qualibrate.qualibration_node.NodeParameters",
+            "qualibrate.core.qualibration_node.NodeParameters",
             __name__="a",
             __doc__="str",
             __module__="module",
@@ -337,7 +337,7 @@ class TestQualibrationNode:
         )
 
         # Mock datetime
-        mock_datetime = mocker.patch("qualibrate.qualibration_node.datetime")
+        mock_datetime = mocker.patch("qualibrate.core.qualibration_node.datetime")
         mock_datetime.now.return_value = datetime(2020, 1, 1)
 
         # Mock run_node_file
@@ -387,7 +387,7 @@ class TestQualibrationNode:
         )
 
         # Mock datetime
-        mock_datetime = mocker.patch("qualibrate.qualibration_node.datetime")
+        mock_datetime = mocker.patch("qualibrate.core.qualibration_node.datetime")
         mock_datetime.now.return_value = datetime(2020, 1, 1)
 
         # Mock run_node_file to raise exception
@@ -419,7 +419,7 @@ class TestQualibrationNode:
         node = QualibrationNode(name="test_node")
         node_filepath = Path("test_node.py")
         mock_import_from_path = mocker.patch(
-            "qualibrate.qualibration_node.import_from_path"
+            "qualibrate.core.qualibration_node.import_from_path"
         )
         mock_matplotlib.get_backend.return_value = "tkagg"
 
@@ -434,7 +434,7 @@ class TestQualibrationNode:
     @pytest.fixture
     def node_active_node_self(self, mocker):
         mocker.patch(
-            "qualibrate.qualibration_node.QualibrationNode._get_storage_manager"
+            "qualibrate.core.qualibration_node.QualibrationNode._get_storage_manager"
         )
         node = QualibrationNode(name="test_node")
         node.__class__.active_node = node
@@ -475,7 +475,7 @@ class TestQualibrationNode:
         mock_path = MagicMock()
         mock_path.iterdir.return_value = [Path("node1.py"), Path("node2.py")]
         mocker.patch(
-            "qualibrate.qualibration_node.file_is_calibration_node_instance",
+            "qualibrate.core.qualibration_node.file_is_calibration_node_instance",
             return_value=True,
         )
         mock_scan_node_file = mocker.patch.object(
@@ -492,7 +492,7 @@ class TestQualibrationNode:
         file = Path("node.py")
         nodes = {}
         mock_import_from_path = mocker.patch(
-            "qualibrate.qualibration_node.import_from_path",
+            "qualibrate.core.qualibration_node.import_from_path",
             side_effect=StopInspection(instance=MagicMock()),
         )
 

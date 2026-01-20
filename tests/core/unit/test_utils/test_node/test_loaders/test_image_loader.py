@@ -4,7 +4,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
-from qualibrate.utils.node.loaders.image_loader import ImageLoader
+from qualibrate.core.utils.node.loaders.image_loader import ImageLoader
 
 PIL_AVAILABLE = find_spec("PIL") is not None
 
@@ -46,7 +46,7 @@ def test_load_nonexistent_file():
 
 def test_load_with_pil_unavailable(monkeypatch):
     monkeypatch.setattr(
-        "qualibrate.utils.node.loaders.image_loader.find_spec", lambda _: None
+        "qualibrate.core.utils.node.loaders.image_loader.find_spec", lambda _: None
     )
     loader = ImageLoader()
     result = loader.load(Path("dummy.png"))

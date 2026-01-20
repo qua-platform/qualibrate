@@ -5,14 +5,14 @@ from typing import Any
 import pytest
 from pydantic import Field
 
-from qualibrate.orchestration.qualibration_orchestrator import (
+from qualibrate.core.orchestration.qualibration_orchestrator import (
     QualibrationOrchestrator,
 )
-from qualibrate.parameters import (
+from qualibrate.core.parameters import (
     GraphParameters,
 )
-from qualibrate.qualibration_graph import QualibrationGraph
-from qualibrate.qualibration_library import QualibrationLibrary
+from qualibrate.core.qualibration_graph import QualibrationGraph
+from qualibrate.core.qualibration_library import QualibrationLibrary
 
 
 @pytest.fixture
@@ -20,9 +20,9 @@ def qualibration_lib(
     mocker,
     qualibrate_config_from_path,
 ) -> Generator[QualibrationLibrary, None, None]:
-    mocker.patch("qualibrate.qualibration_node.get_qualibrate_config_path")
+    mocker.patch("qualibrate.core.qualibration_node.get_qualibrate_config_path")
     mocker.patch(
-        "qualibrate.qualibration_node.get_qualibrate_config",
+        "qualibrate.core.qualibration_node.get_qualibrate_config",
         return_value=qualibrate_config_from_path,
     )
     cal_path = Path(__file__).parent / "simple_calibrations"
