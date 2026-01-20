@@ -16,10 +16,10 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
-from qualibrate import QualibrationLibrary
+from qualibrate.core import QualibrationLibrary
 
-from qualibrate_runner.config.models import RunStatusEnum, State
-from qualibrate_runner.core.run_job import run_node
+from qualibrate.runner.config.models import RunStatusEnum, State
+from qualibrate.runner.core.run_job import run_node
 
 
 class TestSimpleNodeExecution:

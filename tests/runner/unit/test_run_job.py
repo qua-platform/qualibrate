@@ -11,10 +11,10 @@ import pytest
 from fastapi import HTTPException
 from pydantic import ValidationError
 
-from qualibrate_runner.config.models import State
-from qualibrate_runner.core.models.common import StateUpdate
-from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
-from qualibrate_runner.core.run_job import (
+from qualibrate.runner.config.models import State
+from qualibrate.runner.core.models.common import StateUpdate
+from qualibrate.runner.core.models.enums import RunnableType, RunStatusEnum
+from qualibrate.runner.core.run_job import (
     get_active_library_or_error,
     run_node,
     run_workflow,
@@ -95,7 +95,7 @@ class TestValidateInputParameters:
 class TestGetActiveLibraryOrError:
     """Tests for get_active_library_or_error function."""
 
-    @patch("qualibrate_runner.core.run_job.QualibrationLibrary")
+    @patch("qualibrate.runner.core.run_job.QualibrationLibrary")
     def test_returns_library_when_exists(
         self, mock_lib_class: Mock, mock_library: Mock
     ) -> None:
@@ -107,7 +107,7 @@ class TestGetActiveLibraryOrError:
         mock_lib_class.get_active_library.assert_called_once_with(create=False)
         assert result is mock_library
 
-    @patch("qualibrate_runner.core.run_job.QualibrationLibrary")
+    @patch("qualibrate.runner.core.run_job.QualibrationLibrary")
     def test_raises_exception_when_no_library(
         self, mock_lib_class: Mock
     ) -> None:
@@ -305,7 +305,7 @@ class TestRunNodeErrorPath:
 class TestRunWorkflowHappyPath:
     """Tests for run_workflow function - happy path scenarios."""
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_retrieves_fresh_workflow_from_library(
         self,
         mock_get_library: Mock,
@@ -339,7 +339,7 @@ class TestRunWorkflowHappyPath:
         mock_get_library.assert_called_once()
         fresh_workflow.run.assert_called_once()
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_creates_last_run_with_graph_type(
         self,
         mock_get_library: Mock,
@@ -371,7 +371,7 @@ class TestRunWorkflowHappyPath:
         assert last_run_during_execution is not None
         assert last_run_during_execution.runnable_type == RunnableType.GRAPH
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_validates_parameters_with_full_parameters_class(
         self,
         mock_get_library: Mock,
@@ -398,7 +398,7 @@ class TestRunWorkflowHappyPath:
             **input_params
         )
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_splits_parameters_into_nodes_and_params(
         self,
         mock_get_library: Mock,
@@ -430,7 +430,7 @@ class TestRunWorkflowHappyPath:
             nodes={"node1": {"amplitude": 0.5}}, frequency=5.0e9
         )
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_updates_state_with_finished_status(
         self,
         mock_get_library: Mock,
@@ -458,7 +458,7 @@ class TestRunWorkflowHappyPath:
 class TestRunWorkflowErrorPath:
     """Tests for run_workflow function - error scenarios."""
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_library_not_found_raises_exception(
         self, mock_get_library: Mock, mock_workflow: Mock, fresh_state: State
     ) -> None:
@@ -471,7 +471,7 @@ class TestRunWorkflowErrorPath:
         assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_workflow_not_in_library_raises_exception(
         self,
         mock_get_library: Mock,
@@ -489,7 +489,7 @@ class TestRunWorkflowErrorPath:
         assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_parameter_validation_errors_raise_exception(
         self,
         mock_get_library: Mock,
@@ -520,7 +520,7 @@ class TestRunWorkflowErrorPath:
         assert fresh_state.last_run is not None
         assert fresh_state.last_run.status == RunStatusEnum.ERROR
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_runtime_errors_captured_and_reraised(
         self,
         mock_get_library: Mock,
@@ -546,7 +546,7 @@ class TestRunWorkflowErrorPath:
         assert fresh_state.last_run.error is not None
         assert fresh_state.last_run.error.error_class == "RuntimeError"
 
-    @patch("qualibrate_runner.core.run_job.get_active_library_or_error")
+    @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_state_updated_even_on_error(
         self,
         mock_get_library: Mock,

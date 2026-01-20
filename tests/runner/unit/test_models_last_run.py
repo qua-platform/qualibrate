@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
-from qualibrate_runner.core.models.last_run import LastRun
+from qualibrate.runner.core.models.enums import RunnableType, RunStatusEnum
+from qualibrate.runner.core.models.last_run import LastRun
 
 
 class TestLastRunDuration:

@@ -7,7 +7,7 @@ during calibration execution.
 
 from __future__ import annotations
 
-from qualibrate_runner.core.models.common import RunError, StateUpdate
+from qualibrate.runner.core.models.common import RunError, StateUpdate
 
 
 class TestRunError:

@@ -13,12 +13,12 @@ from typing import Any, cast
 from unittest.mock import Mock, create_autospec
 
 import pytest
-from qualibrate import QualibrationGraph, QualibrationLibrary, QualibrationNode
+from qualibrate.core import QualibrationGraph, QualibrationLibrary, QualibrationNode
 
-from qualibrate_runner.config.models import State
-from qualibrate_runner.core.models.common import RunError, StateUpdate
-from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
-from qualibrate_runner.core.models.last_run import LastRun
+from qualibrate.runner.config.models import State
+from qualibrate.runner.core.models.common import RunError, StateUpdate
+from qualibrate.runner.core.models.enums import RunnableType, RunStatusEnum
+from qualibrate.runner.core.models.last_run import LastRun
 
 
 @pytest.fixture

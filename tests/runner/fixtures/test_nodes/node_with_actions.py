@@ -16,9 +16,9 @@ import xarray as xr
 from pydantic import Field
 from qualang_tools.results import progress_counter
 from qualang_tools.units import unit
-from qualibrate import NodeParameters, QualibrationNode
+from qualibrate.core import NodeParameters, QualibrationNode
 
-from tests.fixtures.test_helpers import XarrayDataFetcher
+from tests.runner.fixtures.test_helpers import XarrayDataFetcher
 
 
 class Parameters(NodeParameters):

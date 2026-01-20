@@ -12,10 +12,10 @@ from unittest.mock import Mock
 
 import pytest
 
-from qualibrate_runner.config.models import State
-from qualibrate_runner.core.models.common import RunError
-from qualibrate_runner.core.models.enums import RunnableType, RunStatusEnum
-from qualibrate_runner.core.models.last_run import LastRun
+from qualibrate.runner.config.models import State
+from qualibrate.runner.core.models.common import RunError
+from qualibrate.runner.core.models.enums import RunnableType, RunStatusEnum
+from qualibrate.runner.core.models.last_run import LastRun
 
 
 class TestStateCreation:

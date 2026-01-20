@@ -8,7 +8,7 @@ that is called from an action, ensuring the full call chain is captured.
 from typing import Any
 
 from pydantic import Field
-from qualibrate import NodeParameters, QualibrationNode
+from qualibrate.core import NodeParameters, QualibrationNode
 
 
 class Parameters(NodeParameters):
