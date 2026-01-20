@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from click.testing import CliRunner
 
-from qualibrate_composite.cli.start import _setup_demo_on_first_run, start_command
+from qualibrate.composite.cli.start import _setup_demo_on_first_run, start_command
 
 
 @pytest.fixture
@@ -57,7 +57,7 @@ class TestSetupDemoOnFirstRun:
     def test_demo_calibrations_are_copied(self, temp_config_path, mock_qualibrate_examples):
         """Test that demo calibrations are copied to the correct location."""
         with patch(
-            "qualibrate_composite.cli.start.importlib.import_module"
+            "qualibrate.composite.cli.start.importlib.import_module"
         ) as mock_import:
             mock_module = MagicMock()
             mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
@@ -69,7 +69,7 @@ class TestSetupDemoOnFirstRun:
                 {"qualibrate_examples": mock_module},
             ):
                 with patch(
-                    "qualibrate_composite.cli.start.importlib.import_module",
+                    "qualibrate.composite.cli.start.importlib.import_module",
                     return_value=mock_module,
                 ):
                     _setup_demo_on_first_run(temp_config_path)
@@ -87,14 +87,14 @@ class TestSetupDemoOnFirstRun:
     def test_demo_state_is_copied(self, temp_config_path, mock_qualibrate_examples):
         """Test that demo state files are copied to the correct location."""
         with patch(
-            "qualibrate_composite.cli.start.importlib.import_module"
+            "qualibrate.composite.cli.start.importlib.import_module"
         ) as mock_import:
             mock_module = MagicMock()
             mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
             mock_import.return_value = mock_module
 
             with patch(
-                "qualibrate_composite.cli.start.importlib.import_module",
+                "qualibrate.composite.cli.start.importlib.import_module",
                 return_value=mock_module,
             ):
                 _setup_demo_on_first_run(temp_config_path)
@@ -110,14 +110,14 @@ class TestSetupDemoOnFirstRun:
     ):
         """Test that demo_project config is created with correct overrides."""
         with patch(
-            "qualibrate_composite.cli.start.importlib.import_module"
+            "qualibrate.composite.cli.start.importlib.import_module"
         ) as mock_import:
             mock_module = MagicMock()
             mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
             mock_import.return_value = mock_module
 
             with patch(
-                "qualibrate_composite.cli.start.importlib.import_module",
+                "qualibrate.composite.cli.start.importlib.import_module",
                 return_value=mock_module,
             ):
                 _setup_demo_on_first_run(temp_config_path)
@@ -143,14 +143,14 @@ class TestSetupDemoOnFirstRun:
     ):
         """Test that running setup twice doesn't cause errors."""
         with patch(
-            "qualibrate_composite.cli.start.importlib.import_module"
+            "qualibrate.composite.cli.start.importlib.import_module"
         ) as mock_import:
             mock_module = MagicMock()
             mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
             mock_import.return_value = mock_module
 
             with patch(
-                "qualibrate_composite.cli.start.importlib.import_module",
+                "qualibrate.composite.cli.start.importlib.import_module",
                 return_value=mock_module,
             ):
                 # Run setup twice
@@ -176,7 +176,7 @@ class TestSetupDemoOnFirstRun:
     ):
         """Test graceful handling when qualibrate_examples is not available."""
         with patch(
-            "qualibrate_composite.cli.start.importlib.import_module",
+            "qualibrate.composite.cli.start.importlib.import_module",
             side_effect=ImportError("qualibrate_examples not found"),
         ):
             # Should not raise an error
@@ -191,14 +191,14 @@ class TestSetupDemoOnFirstRun:
         shutil.rmtree(calibrations_dir)
 
         with patch(
-            "qualibrate_composite.cli.start.importlib.import_module"
+            "qualibrate.composite.cli.start.importlib.import_module"
         ) as mock_import:
             mock_module = MagicMock()
             mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
             mock_import.return_value = mock_module
 
             with patch(
-                "qualibrate_composite.cli.start.importlib.import_module",
+                "qualibrate.composite.cli.start.importlib.import_module",
                 return_value=mock_module,
             ):
                 # Should not raise an error
@@ -209,18 +209,18 @@ class TestSetupDemoOnFirstRun:
     ):
         """Test graceful handling of permission errors during file operations."""
         with patch(
-            "qualibrate_composite.cli.start.shutil.copytree",
+            "qualibrate.composite.cli.start.shutil.copytree",
             side_effect=PermissionError("Access denied"),
         ):
             with patch(
-                "qualibrate_composite.cli.start.importlib.import_module"
+                "qualibrate.composite.cli.start.importlib.import_module"
             ) as mock_import:
                 mock_module = MagicMock()
                 mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
                 mock_import.return_value = mock_module
 
                 with patch(
-                    "qualibrate_composite.cli.start.importlib.import_module",
+                    "qualibrate.composite.cli.start.importlib.import_module",
                     return_value=mock_module,
                 ):
                     # Should not raise an error
@@ -239,11 +239,11 @@ class TestFirstRunDetection:
 
         # Mock config_vars.DEFAULT_CONFIG_FILEPATH to match our temp path
         with patch(
-            "qualibrate_composite.cli.start.config_vars.DEFAULT_CONFIG_FILEPATH",
+            "qualibrate.composite.cli.start.config_vars.DEFAULT_CONFIG_FILEPATH",
             temp_config_path,
         ):
             with patch(
-                "qualibrate_composite.cli.start.config_command"
+                "qualibrate.composite.cli.start.config_command"
             ) as mock_config_cmd:
                 def create_config(*args, **kwargs):
                     """Side effect to create config file."""
@@ -253,12 +253,12 @@ class TestFirstRunDetection:
                 mock_config_cmd.side_effect = create_config
 
                 with patch(
-                    "qualibrate_composite.cli.start._setup_demo_on_first_run"
+                    "qualibrate.composite.cli.start._setup_demo_on_first_run"
                 ) as mock_demo_setup:
                     # Patch the app loading to prevent actual import
                     with patch.dict(
                         "sys.modules",
-                        {"qualibrate_composite.app": MagicMock()},
+                        {"qualibrate.composite.app": MagicMock()},
                     ):
                         runner = CliRunner()
                         # Use mix_stderr=False to see errors more clearly
@@ -280,18 +280,18 @@ class TestFirstRunDetection:
         temp_config_path.write_text("[qualibrate]\nversion = 5\n")
 
         with patch(
-            "qualibrate_composite.cli.start.config_vars.DEFAULT_CONFIG_FILEPATH",
+            "qualibrate.composite.cli.start.config_vars.DEFAULT_CONFIG_FILEPATH",
             temp_config_path,
         ):
             with patch(
-                "qualibrate_composite.cli.start.config_command"
+                "qualibrate.composite.cli.start.config_command"
             ) as mock_config_cmd:
                 with patch(
-                    "qualibrate_composite.cli.start._setup_demo_on_first_run"
+                    "qualibrate.composite.cli.start._setup_demo_on_first_run"
                 ) as mock_demo_setup:
                     with patch.dict(
                         "sys.modules",
-                        {"qualibrate_composite.app": MagicMock()},
+                        {"qualibrate.composite.app": MagicMock()},
                     ):
                         runner = CliRunner()
                         result = runner.invoke(
