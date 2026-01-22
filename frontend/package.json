@@ -21,7 +21,7 @@
     "lint:style": "stylelint -f verbose src/**/*.scss",
     "lint:fix": "npm run lint:code -- --fix && npm run lint:style -- --fix",
     "start:local": "cross-env API_URL=http://localhost/ npm run start",
-    "prepare": "cd ../qualibrate/app && husky frontend/.husky",
+    "prepare": "cd ../src/qualibrate/app && husky frontend/.husky",
     "format": "prettier --write src public package.json",
     "test": "DEBUG_TESTS=false vitest run",
     "test:unit": "DEBUG_TESTS=false vitest run",
