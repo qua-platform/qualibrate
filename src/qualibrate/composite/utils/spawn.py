@@ -62,6 +62,10 @@ def spawn_qualibrate_app(app: FastAPI) -> None:
 
 
 def validate_runner_version_for_app() -> None:
+    # In monorepo, runner and app are always the same version (part of same package)
+    # No version check needed
+    logging.info("Skipping version check - runner and app are part of unified qualibrate package")
+    return
     existing_version = Version(metadata.version("qualibrate-runner"))
     requirements_str = metadata.requires("qualibrate")
     if requirements_str is None:
