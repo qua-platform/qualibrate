@@ -7,10 +7,9 @@ repository = "https://github.com/qua-platform/qualibrate"
 readme = "README.md"
 
 # PACKAGES: Defines what gets installed when users do "pip install qualibrate"
-# Single unified package containing core, runner, app, and composite as subpackages
 packages = [
     { include = "qualibrate", from = "src" },  # Main package with core/runner/app/composite subpackages
-#    { include = "qualibrate_examples" }        # Examples (at root)
+    { include = "qualibrate_examples" }        # Examples (at root)
 ]
 
 # NOTE: qualibrate_static/ will be inside src/qualibrate/app/ after flattening
