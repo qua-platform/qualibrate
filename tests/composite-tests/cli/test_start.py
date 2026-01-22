@@ -1,5 +1,6 @@
 """Tests for the start command and demo setup functionality."""
 
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -9,6 +10,15 @@ import pytest
 from click.testing import CliRunner
 
 from qualibrate.composite.cli.start import _setup_demo_on_first_run, start_command
+
+
+@pytest.fixture(autouse=True)
+def cleanup_env_vars():
+    """Clean up QUALIBRATE_CONFIG_FILE env var after each test to prevent pollution."""
+    yield
+    # Cleanup after test
+    if "QUALIBRATE_CONFIG_FILE" in os.environ:
+        del os.environ["QUALIBRATE_CONFIG_FILE"]
 
 
 @pytest.fixture
@@ -38,8 +48,8 @@ def mock_qualibrate_examples(tmp_path):
     )
     (calibrations_dir / "02_demo_rabi.py").write_text("# Demo calibration 2")
 
-    # Create demo_state directory with dummy files
-    demo_state_dir = examples_dir / "demo_state"
+    # Create demo_quam_state directory with dummy files
+    demo_state_dir = examples_dir / "demo_quam_state"
     demo_state_dir.mkdir()
     (demo_state_dir / "state.json").write_text('{"dummy": "state"}')
     (demo_state_dir / "qua_config.json").write_text('{"dummy": "config"}')
@@ -56,120 +66,102 @@ class TestSetupDemoOnFirstRun:
 
     def test_demo_calibrations_are_copied(self, temp_config_path, mock_qualibrate_examples):
         """Test that demo calibrations are copied to the correct location."""
-        with patch(
-            "qualibrate.composite.cli.start.importlib.import_module"
-        ) as mock_import:
-            mock_module = MagicMock()
-            mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
-            mock_import.return_value = mock_module
+        mock_module = MagicMock()
+        mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
 
-            # Patch the import to return our mock module
-            with patch.dict(
-                "sys.modules",
-                {"qualibrate_examples": mock_module},
-            ):
-                with patch(
-                    "qualibrate.composite.cli.start.importlib.import_module",
-                    return_value=mock_module,
-                ):
-                    _setup_demo_on_first_run(temp_config_path)
+        # Patch sys.modules to make the import work
+        with patch.dict(
+            "sys.modules",
+            {"qualibrate_examples": mock_module},
+        ):
+            _setup_demo_on_first_run(temp_config_path)
 
-            # Check that demo_calibrations directory was created
-            demo_calibrations_dest = (
-                temp_config_path.parent / "demo_calibrations"
-            )
-            assert demo_calibrations_dest.exists()
-            assert (
-                demo_calibrations_dest / "01_demo_qubit_spectroscopy.py"
-            ).exists()
-            assert (demo_calibrations_dest / "02_demo_rabi.py").exists()
+        # Check that demo_calibrations directory was created
+        demo_calibrations_dest = (
+            temp_config_path.parent / "demo_calibrations"
+        )
+        assert demo_calibrations_dest.exists()
+        assert (
+            demo_calibrations_dest / "01_demo_qubit_spectroscopy.py"
+        ).exists()
+        assert (demo_calibrations_dest / "02_demo_rabi.py").exists()
 
     def test_demo_state_is_copied(self, temp_config_path, mock_qualibrate_examples):
         """Test that demo state files are copied to the correct location."""
-        with patch(
-            "qualibrate.composite.cli.start.importlib.import_module"
-        ) as mock_import:
-            mock_module = MagicMock()
-            mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
-            mock_import.return_value = mock_module
+        mock_module = MagicMock()
+        mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
 
-            with patch(
-                "qualibrate.composite.cli.start.importlib.import_module",
-                return_value=mock_module,
-            ):
-                _setup_demo_on_first_run(temp_config_path)
+        # Mock both qualibrate_examples and quam packages
+        with patch.dict(
+            "sys.modules",
+            {
+                "qualibrate_examples": mock_module,
+                "quam": MagicMock(),
+            },
+        ):
+            _setup_demo_on_first_run(temp_config_path)
 
-            # Check that demo_state directory was created
-            demo_state_dest = temp_config_path.parent / "demo_state"
-            assert demo_state_dest.exists()
-            assert (demo_state_dest / "state.json").exists()
-            assert (demo_state_dest / "qua_config.json").exists()
+        # Check that demo_quam_state directory was created
+        demo_state_dest = temp_config_path.parent / "demo_quam_state"
+        assert demo_state_dest.exists()
+        assert (demo_state_dest / "state.json").exists()
+        assert (demo_state_dest / "qua_config.json").exists()
 
     def test_demo_project_config_is_created(
         self, temp_config_path, mock_qualibrate_examples
     ):
         """Test that demo_project config is created with correct overrides."""
-        with patch(
-            "qualibrate.composite.cli.start.importlib.import_module"
-        ) as mock_import:
-            mock_module = MagicMock()
-            mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
-            mock_import.return_value = mock_module
+        mock_module = MagicMock()
+        mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
 
-            with patch(
-                "qualibrate.composite.cli.start.importlib.import_module",
-                return_value=mock_module,
-            ):
-                _setup_demo_on_first_run(temp_config_path)
+        with patch.dict(
+            "sys.modules",
+            {"qualibrate_examples": mock_module},
+        ):
+            _setup_demo_on_first_run(temp_config_path)
 
-            # Check that demo_project config was created
-            demo_project_config = (
-                temp_config_path.parent
-                / "projects"
-                / "demo_project"
-                / "config.toml"
-            )
-            assert demo_project_config.exists()
+        # Check that demo_project config was created
+        demo_project_config = (
+            temp_config_path.parent
+            / "projects"
+            / "demo_project"
+            / "config.toml"
+        )
+        assert demo_project_config.exists()
 
-            # Verify config content
-            config_content = demo_project_config.read_text()
-            assert "calibration_library" in config_content
-            assert "demo_calibrations" in config_content
-            assert "demo_state" in config_content
-            assert "state_path" in config_content
+        # Verify config content
+        config_content = demo_project_config.read_text()
+        assert "calibration_library" in config_content
+        assert "demo_calibrations" in config_content
 
     def test_setup_is_idempotent(
         self, temp_config_path, mock_qualibrate_examples
     ):
         """Test that running setup twice doesn't cause errors."""
-        with patch(
-            "qualibrate.composite.cli.start.importlib.import_module"
-        ) as mock_import:
-            mock_module = MagicMock()
-            mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
-            mock_import.return_value = mock_module
+        mock_module = MagicMock()
+        mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
 
-            with patch(
-                "qualibrate.composite.cli.start.importlib.import_module",
-                return_value=mock_module,
-            ):
-                # Run setup twice
-                _setup_demo_on_first_run(temp_config_path)
-                _setup_demo_on_first_run(temp_config_path)
+        with patch.dict(
+            "sys.modules",
+            {"qualibrate_examples": mock_module},
+        ):
+            # Run setup twice
+            _setup_demo_on_first_run(temp_config_path)
+            _setup_demo_on_first_run(temp_config_path)
 
-            # Verify everything still exists and is correct
-            demo_calibrations_dest = (
-                temp_config_path.parent / "demo_calibrations"
-            )
-            assert demo_calibrations_dest.exists()
+        # Verify everything still exists and is correct
+        demo_calibrations_dest = (
+            temp_config_path.parent / "demo_calibrations"
+        )
+        assert demo_calibrations_dest.exists()
 
-            demo_project_config = (
-                temp_config_path.parent
-                / "projects"
-                / "demo_project"
-                / "config.toml"
-            )
-            assert demo_project_config.exists()
+        demo_project_config = (
+            temp_config_path.parent
+            / "projects"
+            / "demo_project"
+            / "config.toml"
+        )
+        assert demo_project_config.exists()
 
     def test_handles_missing_qualibrate_examples_package(
         self, temp_config_path
@@ -190,41 +182,33 @@ class TestSetupDemoOnFirstRun:
         calibrations_dir = mock_qualibrate_examples / "calibrations"
         shutil.rmtree(calibrations_dir)
 
-        with patch(
-            "qualibrate.composite.cli.start.importlib.import_module"
-        ) as mock_import:
-            mock_module = MagicMock()
-            mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
-            mock_import.return_value = mock_module
+        mock_module = MagicMock()
+        mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
 
-            with patch(
-                "qualibrate.composite.cli.start.importlib.import_module",
-                return_value=mock_module,
-            ):
-                # Should not raise an error
-                _setup_demo_on_first_run(temp_config_path)
+        with patch.dict(
+            "sys.modules",
+            {"qualibrate_examples": mock_module},
+        ):
+            # Should not raise an error
+            _setup_demo_on_first_run(temp_config_path)
 
     def test_handles_permission_errors_gracefully(
         self, temp_config_path, mock_qualibrate_examples
     ):
         """Test graceful handling of permission errors during file operations."""
+        mock_module = MagicMock()
+        mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
+
         with patch(
             "qualibrate.composite.cli.start.shutil.copytree",
             side_effect=PermissionError("Access denied"),
         ):
-            with patch(
-                "qualibrate.composite.cli.start.importlib.import_module"
-            ) as mock_import:
-                mock_module = MagicMock()
-                mock_module.__file__ = str(mock_qualibrate_examples / "__init__.py")
-                mock_import.return_value = mock_module
-
-                with patch(
-                    "qualibrate.composite.cli.start.importlib.import_module",
-                    return_value=mock_module,
-                ):
-                    # Should not raise an error
-                    _setup_demo_on_first_run(temp_config_path)
+            with patch.dict(
+                "sys.modules",
+                {"qualibrate_examples": mock_module},
+            ):
+                # Should not raise an error
+                _setup_demo_on_first_run(temp_config_path)
 
 
 class TestFirstRunDetection:
@@ -253,23 +237,27 @@ class TestFirstRunDetection:
                 mock_config_cmd.side_effect = create_config
 
                 with patch(
-                    "qualibrate.composite.cli.start._setup_demo_on_first_run"
-                ) as mock_demo_setup:
-                    # Patch the app loading to prevent actual import
-                    with patch.dict(
-                        "sys.modules",
-                        {"qualibrate.composite.app": MagicMock()},
-                    ):
-                        runner = CliRunner()
-                        # Use mix_stderr=False to see errors more clearly
-                        result = runner.invoke(
-                            start_command,
-                            ["--config-path", str(temp_config_path)],
-                            catch_exceptions=False,
-                        )
+                    "qualibrate.composite.cli.start._projects_folder_exist",
+                    return_value=False,
+                ):
+                    with patch(
+                        "qualibrate.composite.cli.start._setup_demo_on_first_run"
+                    ) as mock_demo_setup:
+                        # Patch the app loading to prevent actual import
+                        with patch.dict(
+                            "sys.modules",
+                            {"qualibrate.composite.app": MagicMock()},
+                        ):
+                            runner = CliRunner()
+                            # Use mix_stderr=False to see errors more clearly
+                            result = runner.invoke(
+                                start_command,
+                                ["--config-path", str(temp_config_path)],
+                                catch_exceptions=False,
+                            )
 
-                # Demo setup should have been called for first run
-                mock_demo_setup.assert_called_once()
+                        # Demo setup should have been called for first run
+                        mock_demo_setup.assert_called_once()
 
     def test_first_run_condition_false_when_config_exists(
         self, temp_config_path
