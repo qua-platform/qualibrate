@@ -1,0 +1,20 @@
+.wrapper {
+  font-family: var(--font-family), serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  display: flex;
+  text-align: center;
+  align-self: center;
+  justify-content: center;
+
+  button,
+  div {
+    color: var(--grey);
+  }
+
+  svg {
+    color: #2ccbe5;
+  }
+}

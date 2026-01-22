@@ -1,0 +1,93 @@
+
+.createProjectPanel {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--popup-background);
+  padding: 24px;
+  gap: 12px;
+  width: 300px;
+  box-shadow: 0 4px 10px var(--popup-shadow);
+}
+
+.header {
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--white);
+  opacity: 0.8;
+  margin-bottom: 8px;
+  font-family: Roboto, sans-serif;
+}
+
+label {
+  font-family: Roboto, sans-serif;
+  font-size: 14px;
+  color: var(--grey-highlight);
+  margin-top: 6px;
+  display: block;
+
+  &.error {
+    color: var(--error);
+  }
+}
+
+.errorMessage {
+  color: var(--error);
+  font-size: 9px;
+  font-family: Roboto, sans-serif;
+}
+
+input {
+  background-color: var(--input-background);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px;
+  color: var(--white);
+  font-size: 14px;
+
+  &::placeholder {
+    color: var(--grey-highlight-light);
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+  }
+}
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 20px;
+  gap: 16px;
+}
+
+.button {
+  width: 136px;
+  height: 34px;
+  border-radius: 999px;
+  padding: 8px 46px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.cancel {
+  @extend .button;
+
+  background: transparent;
+  color: var(--status-color-running);
+  border: 1px solid var(--blue-button-hover);
+
+  &:hover {
+    background: var(--blue-button-hover-light);
+  }
+}
+
+.create {
+  @extend .button;
+
+  background: var(--blue-button-active);
+  color: var(--white);
+  border: none;
+
+  &:hover {
+    background: var(--blue-button-active-light);
+  }
+}
+  

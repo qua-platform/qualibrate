@@ -1,0 +1,35 @@
+{
+    "created_at": "2026-01-20T15:05:58+02:00",
+    "metadata": {
+        "description": null,
+        "run_start": "2026-01-20T15:05:58.839+02:00",
+        "run_end": "2026-01-20T15:05:58.840+02:00",
+        "name": "basic_node",
+        "data_path": "2026-01-20/#1_basic_node_150558"
+    },
+    "data": {
+        "parameters": {
+            "model": {
+                "qubits": []
+            },
+            "schema": {
+                "additionalProperties": false,
+                "properties": {
+                    "qubits": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Qubits",
+                        "type": "array"
+                    }
+                },
+                "title": "Parameters",
+                "type": "object"
+            }
+        },
+        "outcomes": {},
+        "quam": "./quam_state"
+    },
+    "id": 1,
+    "parents": []
+}

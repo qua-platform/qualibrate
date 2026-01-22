@@ -1,0 +1,14 @@
+.splash {
+  border-top: 1px solid var(--border-color);
+  overflow: scroll;
+  margin-left: 70px;
+  margin-right: 70px;
+}
+
+.splashNoProject {
+  padding-top: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
+}

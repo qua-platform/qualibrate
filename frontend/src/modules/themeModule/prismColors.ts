@@ -1,0 +1,37 @@
+import { Colors } from "./themeHelper";
+
+const prismColors: Colors = {
+  "--code-highlight-comment-color": { light: "#008000", dark: "#6272a4" },
+  "--code-highlight-prolog-color": { light: "#008000", dark: "#cfcfc2" },
+  "--code-highlight-doctype-color": { light: "#008000", dark: "#6272a4" },
+  "--code-highlight-cdata-color": { light: "#008000", dark: "#6272a4" },
+  "--code-highlight-tag-color": { light: "#c92c2c", dark: "#dc68aa" },
+  "--code-highlight-entity-color": { light: "#a67f59", dark: "#8be9fd" },
+  "--code-highlight-atrule-color": { light: "#00f", dark: "#62ef75" },
+  "--code-highlight-url-color": { light: "#a67f59", dark: "#66d9ef" },
+  "--code-highlight-selector-color": { light: "#2f9c0a", dark: "#cfcfc2" },
+  "--code-highlight-string-color": { light: "#2f9c0a", dark: "#f1fa8c" },
+  "--code-highlight-property-color": { light: "#c92c2c", dark: "#ffb86c" },
+  "--code-highlight-important-color": { light: "#e90", dark: "#ff79c6" },
+  "--code-highlight-punctuation-color": { light: "#5f6364", dark: "#e6db74" },
+  "--code-highlight-number-color": { light: "#c92c2c", dark: "#bd93f9" },
+  "--code-highlight-function-color": { light: "#2f9c0a", dark: "#50fa7b" },
+  "--code-highlight-class-name-color": { light: "#00f", dark: "#ffb86c" },
+  "--code-highlight-keyword-color": { light: "#00f", dark: "#ff79c6" },
+  "--code-highlight-boolean-color": { light: "#c92c2c", dark: "#ffb86c" },
+  "--code-highlight-operator-color": { light: "#a67f59", dark: "#8be9fd" },
+  "--code-highlight-char-color": { light: "#2f9c0a", dark: "#ff879d" },
+  "--code-highlight-regex-color": { light: "#e90", dark: "#50fa7b" },
+  "--code-highlight-variable-color": { light: "#a67f59", dark: "#50fa7b" },
+  "--code-highlight-constant-color": { light: "#c92c2c", dark: "#ffb86c" },
+  "--code-highlight-symbol-color": { light: "#c92c2c", dark: "#ffb86c" },
+  "--code-highlight-function-name-color": { light: "#c92c2c", dark: "#ffb86c" },
+  "--code-highlight-builtin-color": { light: "#2f9c0a", dark: "#ff79c6" },
+  "--code-highlight-attr-name-color": { light: "#2f9c0a", dark: "#cfcfc2" },
+  "--code-highlight-attr-value-color": { light: "#00f", dark: "#7ec699" },
+  "--code-highlight-inserted-color": { light: "#2f9c0a", dark: "#7ec699" },
+  "--code-highlight-deleted-color": { light: "#c92c2c", dark: "#e2777a" },
+  "--code-highlight-namespace-color": { light: "#c92c2c", dark: "#e2777a" },
+};
+
+export default prismColors;

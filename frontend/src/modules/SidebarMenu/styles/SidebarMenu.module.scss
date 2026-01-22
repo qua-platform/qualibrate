@@ -1,0 +1,70 @@
+@use "../../../styles/variables";
+@use "../../../styles/base";
+
+.container {
+  position: relative;
+  width: variables.$sidebar_collapsed_width;
+  height: 100vh;
+}
+
+.sidebarMenu {
+  top: 0;
+  left: 0;
+  width: variables.$sidebar_collapsed_width;
+  height: 100vh;
+  box-sizing: border-box;
+  padding-top: variables.$sidebar_padding;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: space-between;
+  background: var(--menu-background);
+  border-right: 1px solid var(--border-color);
+  transition: width ease-in-out 0.1s;
+
+  &.opened {
+    width: variables.$sidebar_full_width;
+  }
+}
+
+.collapsed {
+  width: 70px;
+}
+
+.expanded {
+  width: 200px;
+}
+
+.qualibrateLogo {
+  padding-left: variables.$sidebar_padding;
+  height: 50px;
+  margin-bottom: 50px;
+
+  @media screen and (height <= 700px) {
+    margin-bottom: 10px;
+  }
+}
+
+.menuContent {
+  @include base.yScroll();
+
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menuBottomContent,
+.menuUpperContent {
+  display: flex;
+  flex-direction: column;
+
+  @include base.colGap(15px);
+}
+
+.themeToggleContainer {
+  margin-top: auto;
+  margin-bottom: 10px;
+}

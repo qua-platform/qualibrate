@@ -1,0 +1,12 @@
+{
+    "channels": {
+        "ch1": {
+            "opx_output": [
+                "con1",
+                1
+            ],
+            "__class__": "CustomChannel"
+        }
+    },
+    "__class__": "quam.components.basic_quam.BasicQuam"
+}

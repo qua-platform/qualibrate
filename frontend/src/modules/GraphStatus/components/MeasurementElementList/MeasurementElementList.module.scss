@@ -1,0 +1,7 @@
+.wrapper {
+  height: calc(100% - 11px);
+  background-color: var(--background-color);
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  overflow: auto;
+}

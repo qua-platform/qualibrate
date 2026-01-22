@@ -1,0 +1,2 @@
+class QualibrateException(Exception):
+    pass
