@@ -6,7 +6,7 @@
 .DS_Store 
 .DS_*
 *.log
-logs
+/logs
 **/*.backup.*
 **/*.back.*
 test-results/
