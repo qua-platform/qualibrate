@@ -43,9 +43,7 @@ StorageLoadTypeToLoadTypeFlag = {
 }
 
 
-def load_data_png_images_parse(
-    content: dict[str, Any], node_path: Path
-) -> dict[str, Any]:
+def load_data_png_images_parse(content: dict[str, Any], node_path: Path) -> dict[str, Any]:
     for key, value in content.items():
         if isinstance(value, str) and Path(value).suffix == ".png":
             img_path = (node_path / value).resolve()
@@ -53,12 +51,7 @@ def load_data_png_images_parse(
                 continue
             img_data = img_path.read_bytes()
             # TODO: dynamic compute MIME type
-            content[key] = {
-                value: (
-                    "data:image/png;base64,"
-                    f"{b64encode(img_data).decode('utf-8')}"
-                )
-            }
+            content[key] = {value: (f"data:image/png;base64,{b64encode(img_data).decode('utf-8')}")}
         if isinstance(value, dict):
             content[key] = load_data_png_images_parse(value, node_path)
     return content
@@ -94,11 +87,7 @@ def _storage_loader_from_flag(
     if load_type == StorageLoadTypeFlag.DataFileWithoutRefs:
         return content
     for lt in StorageLoadTypeFlag.__members__.values():
-        if (
-            load_type.is_set(lt)
-            and lt <= load_type
-            and (loader := LOADERS.get(lt))
-        ):
+        if load_type.is_set(lt) and lt <= load_type and (loader := LOADERS.get(lt)):
             loader(content, snapshot_path)
     return content
 
@@ -140,9 +129,7 @@ class DataFileStorage(IDump):
         data_file = self._get_filename()
         if data_file is None:
             return
-        self._data = _storage_loader_from_flag(
-            self._path, data_file, load_type_flag, self._data
-        )
+        self._data = _storage_loader_from_flag(self._path, data_file, load_type_flag, self._data)
         self._load_type_flag |= load_type_flag
 
     def exists(self) -> bool:
@@ -158,7 +145,4 @@ class DataFileStorage(IDump):
         return StorageModel(path=self.path, data=self.data)
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}"
-            f"(path={self.path!r}, load_type={self.load_type_flag!r})"
-        )
+        return f"{self.__class__.__name__}(path={self.path!r}, load_type={self.load_type_flag!r})"

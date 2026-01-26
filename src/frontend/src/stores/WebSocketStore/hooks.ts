@@ -5,13 +5,14 @@ import {
   handleShowConnectionErrorDialog,
   setConnectionLostSeconds,
   setHistory,
+  setSnapshotInfo,
 } from "./actions";
 import { useRootDispatch } from "../index";
 import { useSelector } from "react-redux";
 import { getConnectionLostAt, getShowConnectionErrorDialog } from "./selectors";
 import { setAllMeasurements } from "../GraphStores/GraphStatus";
-import { HistoryType, RunStatusType } from "./WebSocketStore";
-import { WS_EXECUTION_HISTORY, WS_GET_STATUS } from "../../services/webSocketRoutes";
+import { HistoryType, RunStatusType, SnapshotType } from "./WebSocketStore";
+import { WS_EXECUTION_HISTORY, WS_GET_STATUS, WS_SNAPSHOT_INFO } from "../../services/webSocketRoutes";
 import WebSocketService from "../../services/WebSocketService";
 
 export const useInitWebSocket = () => {
@@ -21,6 +22,7 @@ export const useInitWebSocket = () => {
 
   const runStatusWS = useRef<WebSocketService<RunStatusType> | null>(null);
   const historyWS = useRef<WebSocketService<HistoryType> | null>(null);
+  const snapshotInfoWS = useRef<WebSocketService<SnapshotType> | null>(null);
 
   const flattenHistory = (history: HistoryType) => {
     if (!history?.items) return [];
@@ -61,6 +63,7 @@ export const useInitWebSocket = () => {
     const host = process.env.WS_BASE_URL || location;
     const runStatusUrl = `${protocol}://${host}${WS_GET_STATUS}`;
     const historyUrl = `${protocol}://${host}${WS_EXECUTION_HISTORY}`;
+    const snapshotInfoUrl = `${protocol}://${host}${WS_SNAPSHOT_INFO}`;
 
     runStatusWS.current = new WebSocketService<RunStatusType>(
       runStatusUrl,
@@ -74,12 +77,21 @@ export const useInitWebSocket = () => {
       () => dispatch(handleHideConnectionErrorDialog()),
       () => dispatch(handleShowConnectionErrorDialog())
     );
+    snapshotInfoWS.current = new WebSocketService<SnapshotType>(
+      snapshotInfoUrl,
+      (snapshotInfo) => dispatch(setSnapshotInfo(snapshotInfo)),
+      () => dispatch(handleHideConnectionErrorDialog()),
+      () => dispatch(handleShowConnectionErrorDialog())
+    );
 
     if (runStatusWS.current && !runStatusWS.current.isConnected()) {
       runStatusWS.current.connect();
     }
     if (historyWS.current && !historyWS.current.isConnected()) {
       historyWS.current.connect();
+    }
+    if (snapshotInfoWS.current && !snapshotInfoWS.current.isConnected()) {
+      snapshotInfoWS.current.connect();
     }
 
     // Cleanup function: disconnect WebSockets when component unmounts
@@ -91,15 +103,20 @@ export const useInitWebSocket = () => {
       if (historyWS.current && historyWS.current.isConnected()) {
         historyWS.current.disconnect();
       }
+      if (snapshotInfoWS.current && snapshotInfoWS.current.isConnected()) {
+        snapshotInfoWS.current.disconnect();
+      }
     };
   }, []);
 
   // Methods for sending data through WebSocket.
   const sendRunStatus = (data: RunStatusType) => runStatusWS.current?.send(data);
   const sendHistory = (data: HistoryType) => historyWS.current?.send(data);
+  const sendSnapshotInfo = (data: SnapshotType) => snapshotInfoWS.current?.send(data);
 
   return {
     sendRunStatus,
     sendHistory,
+    sendSnapshotInfo,
   };
 };

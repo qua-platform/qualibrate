@@ -4,9 +4,11 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 from qualibrate.app.api.__main__ import api_router
+from qualibrate.app.api.core.lifespan import app_lifespan
 from qualibrate.app.api.exceptions.classes.base import QualibrateException
 from qualibrate.app.api.exceptions.handler import qualibrate_exception_handler
 from qualibrate.app.api.middleware.process_time import ProcessTimeMiddleware
+from qualibrate.app.api.sockets import base_ws_router
 from qualibrate.app.config.resolvers import (
     get_config_path,
     get_default_static_files_path,
@@ -20,6 +22,7 @@ except ImportError:
 
 
 app = FastAPI(
+    lifespan=app_lifespan,
     title="Qualibrate",
     openapi_url="/app_openapi.json",
     docs_url="/app_docs",
@@ -44,20 +47,15 @@ app.add_middleware(
 app.add_middleware(ProcessTimeMiddleware)
 
 app.include_router(api_router, prefix="/api")
+app.include_router(base_ws_router, prefix="/ws")
 
 static_files_path = (
     _settings.app.static_site_files
-    if (
-        _settings is not None
-        and _settings.app is not None
-        and _settings.app.static_site_files is not None
-    )
+    if (_settings is not None and _settings.app is not None and _settings.app.static_site_files is not None)
     else get_default_static_files_path()
 )
 if static_files_path is None or not static_files_path.is_dir():
-    raise RuntimeError(
-        "No static files found in config.toml or default location"
-    )
+    raise RuntimeError("No static files found in config.toml or default location")
 # Directory should exist
 app.mount(
     "/",

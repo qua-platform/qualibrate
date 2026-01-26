@@ -1,6 +1,6 @@
 import { RootDispatch, RootState } from "../index";
 import { SnapshotsSlice } from "./SnapshotsStore";
-import { getAllSnapshots, getSecondId, getSelectedSnapshotId, getTrackLatestSidePanel, getTrackPreviousSnapshot } from "./selectors";
+import { getPageNumber, getSecondId, getSelectedSnapshotId, getTrackLatestSidePanel, getTrackPreviousSnapshot } from "./selectors";
 import { fetchAllSnapshots, fetchSnapshotDiff, fetchSnapshotJsonData, fetchSnapshotResults } from "./utils";
 
 export const {
@@ -19,7 +19,6 @@ export const {
   setResult,
   setFirstId,
   setSecondId,
-  setReset,
 } = SnapshotsSlice.actions;
 
 export const fetchOneSnapshot = (snapshotId: number, snapshotId2?: number, updateResult = true, fetchUpdate = false) =>
@@ -47,15 +46,15 @@ export const fetchOneSnapshot = (snapshotId: number, snapshotId2?: number, updat
     }
   };
 
-export const fetchGitgraphSnapshots = (firstTime: boolean, page: number) =>
+export const fetchGitgraphSnapshots = (firstTime: boolean) =>
   async (dispatch: RootDispatch, getState: () => RootState) => {
     const trackLatestSidePanel = getTrackLatestSidePanel(getState());
     const trackPreviousSnapshot = getTrackPreviousSnapshot(getState());
     const secondId = getSecondId(getState());
     const selectedSnapshotId = getSelectedSnapshotId(getState());
+    const page = getPageNumber(getState());
 
     const resAllSnapshots = await fetchAllSnapshots(page);
-    dispatch(setAllSnapshots([]));
     if (resAllSnapshots && resAllSnapshots?.isOk) {
       const items = resAllSnapshots.result?.items;
       dispatch(setTotalPages(resAllSnapshots.result?.total_pages ?? 1));
@@ -78,29 +77,8 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, page: number) =>
         } else {
           if (selectedSnapshotId) {
             dispatch(fetchOneSnapshot(selectedSnapshotId));
-            dispatch(setReset(false));
           }
         }
-      }
-    }
-  };
-
-// -----------------------------------------------------------
-// PERIODICAL FETCH ALL SNAPSHOTS
-export const intervalFetch = (page: number) =>
-  async (dispatch: RootDispatch, getState: () => RootState) => {
-    const allSnapshots = getAllSnapshots(getState());
-    const resAllSnapshots = await fetchAllSnapshots(page);
-    if (resAllSnapshots) {
-      dispatch(setTotalPages(resAllSnapshots.result?.total_pages as number));
-      dispatch(setPageNumber(resAllSnapshots.result?.page as number));
-      const newMaxId = resAllSnapshots.result?.items[0]?.id;
-      const odlMaxId = allSnapshots ? allSnapshots[0]?.id : 0;
-      console.log(`Max snapshot ID - previous=${odlMaxId}, latest=${newMaxId}`);
-      if (newMaxId !== odlMaxId! && resAllSnapshots.result?.items?.length !== 0) {
-        dispatch(setReset(true));
-      } else {
-        dispatch(setReset(false));
       }
     }
   };

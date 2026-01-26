@@ -68,15 +68,7 @@ class IdToProjectLocalPath:
             self._add_node(node_path)
 
     def _get_suited_ids_by_name_part(self, name_part: str) -> set[IdType]:
-        return set(
-            chain.from_iterable(
-                [
-                    ids
-                    for name, ids in self._name2id.items()
-                    if name_part in name
-                ]
-            )
-        )
+        return set(chain.from_iterable([ids for name, ids in self._name2id.items() if name_part in name]))
 
     def _get_suited_ids_by_date(
         self,
@@ -87,15 +79,7 @@ class IdToProjectLocalPath:
         date_end = date_end or date.max
         if date_start > date_end:
             return set()
-        return set(
-            chain.from_iterable(
-                [
-                    ids
-                    for dt, ids in self._date2id.items()
-                    if date_start <= dt <= date_end
-                ]
-            )
-        )
+        return set(chain.from_iterable([ids for dt, ids in self._date2id.items() if date_start <= dt <= date_end]))
 
     def _get_suited_ids_by_id_range(
         self,
@@ -123,11 +107,7 @@ class IdToProjectLocalPath:
         self._fill_date()
         if filters is None:
             return self._get_suited_ids_by_id_range()
-        if (
-            filters.min_node_id
-            and filters.max_node_id
-            and filters.min_node_id > filters.max_node_id
-        ):
+        if filters.min_node_id and filters.max_node_id and filters.min_node_id > filters.max_node_id:
             return set()
         allowed_ids: set[IdType] | None = None
         if filters.name_part:
@@ -135,16 +115,12 @@ class IdToProjectLocalPath:
         if allowed_ids is not None and len(allowed_ids) == 0:
             return set()
         if filters.min_date or filters.max_date:
-            suited_ids_by_date = self._get_suited_ids_by_date(
-                filters.min_date, filters.max_date
-            )
+            suited_ids_by_date = self._get_suited_ids_by_date(filters.min_date, filters.max_date)
             if allowed_ids is not None:
                 allowed_ids &= suited_ids_by_date
             else:
                 allowed_ids = suited_ids_by_date
-        suited_ids_by_range = self._get_suited_ids_by_id_range(
-            filters.id, filters.min_node_id, filters.max_node_id
-        )
+        suited_ids_by_range = self._get_suited_ids_by_id_range(filters.id, filters.min_node_id, filters.max_node_id)
         if allowed_ids is not None:
             allowed_ids &= suited_ids_by_range
         else:
