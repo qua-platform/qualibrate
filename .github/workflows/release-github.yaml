@@ -24,11 +24,9 @@ jobs:
       - name: Create release notes
         run: |
           cat > notes.md <<- EOM
-          Individual release notes can be found in the respective packages.
-          
-          Qualibrate App package version: $(poetry show qualibrate-app | awk '/version/ { print $3 }')
-          Qualibrate Runner package version: $(poetry show qualibrate-runner | awk '/version/ { print $3 }')
-          Qualibrate Core package version: $(poetry show qualibrate-core | awk '/version/ { print $3 }')
+          Qualibrate monorepo release.
+
+          Package version: $(poetry version -s)
           EOM
       - name: Create release
         env:
