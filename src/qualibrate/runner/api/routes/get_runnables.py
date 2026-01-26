@@ -2,8 +2,8 @@ from collections.abc import Mapping
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
-from qualibrate.core.runnables.runnable_collection import RunnableCollection
 
+from qualibrate.core.runnables.runnable_collection import RunnableCollection
 from qualibrate.runner.api.dependencies import get_graph_nocopy as get_qgraph
 from qualibrate.runner.api.dependencies import get_graphs as get_qgraphs
 from qualibrate.runner.api.dependencies import (
@@ -21,10 +21,7 @@ get_runnables_router = APIRouter()
 def get_nodes(
     nodes: Annotated[RunnableCollection[str, QNodeType], Depends(get_qnodes)],
 ) -> Mapping[str, Any]:
-    return {
-        node_name: node.serialize(exclude_targets=False)
-        for node_name, node in nodes.items_nocopy()
-    }
+    return {node_name: node.serialize(exclude_targets=False) for node_name, node in nodes.items_nocopy()}
 
 
 @get_runnables_router.get("/get_graphs")

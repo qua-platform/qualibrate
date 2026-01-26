@@ -13,8 +13,8 @@ from typing import Any, cast
 from unittest.mock import Mock, create_autospec
 
 import pytest
-from qualibrate.core import QualibrationGraph, QualibrationLibrary, QualibrationNode
 
+from qualibrate.core import QualibrationGraph, QualibrationLibrary, QualibrationNode
 from qualibrate.runner.config.models import State
 from qualibrate.runner.core.models.common import RunError, StateUpdate
 from qualibrate.runner.core.models.enums import RunnableType, RunStatusEnum
@@ -37,10 +37,8 @@ def later_datetime() -> datetime:
 def sample_traceback() -> list[str]:
     """Provide a sample traceback as list of strings."""
     return [
-        '  File "/path/to/node.py", line 42, in run\n'
-        "    result = self.process_data()\n",
-        '  File "/path/to/node.py", line 55, in process_data\n'
-        '    raise ValueError("Invalid data")\n',
+        '  File "/path/to/node.py", line 42, in run\n    result = self.process_data()\n',
+        '  File "/path/to/node.py", line 55, in process_data\n    raise ValueError("Invalid data")\n',
     ]
 
 
@@ -80,9 +78,7 @@ def sample_last_run_running(aware_datetime: datetime) -> LastRun:
 
 
 @pytest.fixture
-def sample_last_run_finished(
-    aware_datetime: datetime, later_datetime: datetime
-) -> LastRun:
+def sample_last_run_finished(aware_datetime: datetime, later_datetime: datetime) -> LastRun:
     """Provide a LastRun instance with FINISHED status."""
     return LastRun(
         status=RunStatusEnum.FINISHED,
@@ -241,8 +237,6 @@ def test_library() -> QualibrationLibrary[Any, Any]:
 
     # Create library with set_active=False to avoid interfering with
     # other tests
-    library: QualibrationLibrary[Any, Any] = QualibrationLibrary(
-        library_folder=test_nodes_path, set_active=False
-    )
+    library: QualibrationLibrary[Any, Any] = QualibrationLibrary(library_folder=test_nodes_path, set_active=False)
 
     return library

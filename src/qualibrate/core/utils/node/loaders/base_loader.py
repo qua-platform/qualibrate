@@ -29,9 +29,7 @@ class BaseLoader(ABC):
     @classmethod
     def validate_file_exists(cls, file_path: Path) -> None:
         if not file_path.is_file():
-            raise FileNotFoundError(
-                f"Can't load file '{file_path}' by loader {cls.__name__}"
-            )
+            raise FileNotFoundError(f"Can't load file '{file_path}' by loader {cls.__name__}")
 
     @abstractmethod
     def load(self, path: Path, **kwargs: Any) -> Any:

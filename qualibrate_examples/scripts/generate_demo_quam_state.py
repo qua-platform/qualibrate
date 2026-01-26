@@ -9,16 +9,15 @@ Usage:
 
 The state will be saved to: qualibrate_examples/demo_quam_state/
 """
+
 from pathlib import Path
-import json
 
 from quam.examples.superconducting_qubits.generate_superconducting_quam import (
     create_quam_superconducting_referenced,
 )
-from quam.examples.superconducting_qubits.components import Quam
 
 
-def main():
+def main() -> None:
     """Generate and save demo QUAM state."""
     # Get the package directory
     package_dir = Path(__file__).parent.parent
@@ -34,7 +33,7 @@ def main():
     quam.save(state_dir, content_mapping={"wiring": "wiring.json"})
 
     print("Demo state created successfully!")
-    print(f"\nState files:")
+    print("\nState files:")
     print(f"  - {state_dir / 'state.json'}")
     print(f"  - {state_dir / 'wiring.json'}")
     print("\nTo load the state in your calibration:")

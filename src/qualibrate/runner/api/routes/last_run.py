@@ -1,9 +1,9 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+
 from qualibrate import QualibrationGraph
 from qualibrate.core.models.execution_history import ExecutionHistory
-
 from qualibrate.runner.api.dependencies import get_state
 from qualibrate.runner.api.utils import get_model_docstring
 from qualibrate.runner.config import State

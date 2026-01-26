@@ -11,6 +11,4 @@ __all__ = ["NodeLocalStorage"]
 
 class NodeLocalStorage(NodeBase):
     def __init__(self, node_id: IdType, settings: QualibrateConfig):
-        super().__init__(
-            node_id, SnapshotLocalStorage(node_id, settings=settings), settings
-        )
+        super().__init__(node_id, SnapshotLocalStorage(node_id, settings=settings), settings)

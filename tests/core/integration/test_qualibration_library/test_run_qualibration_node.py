@@ -9,9 +9,7 @@ def test_library_scan(tmp_path):
     assert list(library.nodes) == ["basic_node", "node_part_outcome"]
 
 
-def test_run_calibration_node_from_library(
-    tmp_path, mocker, qualibrate_config_and_path_mocked
-):
+def test_run_calibration_node_from_library(tmp_path, mocker, qualibrate_config_and_path_mocked):
     folder = Path(__file__).parents[1] / "example_calibration_scripts"
     library = QualibrationLibrary(library_folder=folder)
     mocked = mocker.patch("qualibrate.core.qualibration_node.QualibrationNode.save")

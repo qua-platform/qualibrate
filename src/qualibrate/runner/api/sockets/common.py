@@ -19,9 +19,7 @@ common_ws_router = APIRouter()
 async def run_status_subscribe(
     websocket: WebSocket,
     *,
-    manager: Annotated[
-        SocketConnectionManagerList, Depends(get_run_status_socket_manager)
-    ],
+    manager: Annotated[SocketConnectionManagerList, Depends(get_run_status_socket_manager)],
 ) -> None:
     await manager.connect(websocket)
     try:

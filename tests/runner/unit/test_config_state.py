@@ -28,9 +28,7 @@ class TestStateCreation:
         assert state.last_run is None
         assert state.run_item is None
 
-    def test_create_with_last_run(
-        self, sample_last_run_running: LastRun
-    ) -> None:
+    def test_create_with_last_run(self, sample_last_run_running: LastRun) -> None:
         """Test creating State with a LastRun."""
         state = State(last_run=sample_last_run_running)
         assert state.last_run is not None
@@ -41,23 +39,17 @@ class TestStateCreation:
 class TestIsRunningProperty:
     """Tests for the is_running property."""
 
-    def test_not_running_when_finished(
-        self, sample_last_run_finished: LastRun
-    ) -> None:
+    def test_not_running_when_finished(self, sample_last_run_finished: LastRun) -> None:
         """Test is_running is False when status is FINISHED."""
         state = State(last_run=sample_last_run_finished)
         assert state.is_running is False
 
-    def test_not_running_when_error(
-        self, sample_last_run_error: LastRun
-    ) -> None:
+    def test_not_running_when_error(self, sample_last_run_error: LastRun) -> None:
         """Test is_running is False when status is ERROR."""
         state = State(last_run=sample_last_run_error)
         assert state.is_running is False
 
-    def test_is_running_changes_with_status(
-        self, aware_datetime: datetime, mock_node: Mock
-    ) -> None:
+    def test_is_running_changes_with_status(self, aware_datetime: datetime, mock_node: Mock) -> None:
         """Test is_running property changes as status changes."""
         state = State()
 
@@ -94,9 +86,7 @@ class TestIsRunningProperty:
 class TestClearMethod:
     """Tests for the clear() method."""
 
-    def test_clear_finished_state(
-        self, sample_last_run_finished: LastRun, mock_node: Mock
-    ) -> None:
+    def test_clear_finished_state(self, sample_last_run_finished: LastRun, mock_node: Mock) -> None:
         """Test clearing state after finished execution."""
         state = State.model_construct(
             last_run=sample_last_run_finished,
@@ -110,9 +100,7 @@ class TestClearMethod:
         assert state.last_run is None
         assert state.run_item is None
 
-    def test_clear_error_state(
-        self, sample_last_run_error: LastRun, mock_node: Mock
-    ) -> None:
+    def test_clear_error_state(self, sample_last_run_error: LastRun, mock_node: Mock) -> None:
         """Test clearing state after error."""
         state = State.model_construct(
             last_run=sample_last_run_error,
@@ -126,9 +114,7 @@ class TestClearMethod:
         assert state.last_run is None
         assert state.run_item is None
 
-    def test_clear_while_running_raises_error(
-        self, sample_last_run_running: LastRun, mock_node: Mock
-    ) -> None:
+    def test_clear_while_running_raises_error(self, sample_last_run_running: LastRun, mock_node: Mock) -> None:
         """Test that clearing while running raises RuntimeError."""
         state = State.model_construct(
             last_run=sample_last_run_running,
@@ -137,9 +123,7 @@ class TestClearMethod:
         )
 
         # Should raise RuntimeError
-        with pytest.raises(
-            RuntimeError, match="Can't clear while item is running"
-        ):
+        with pytest.raises(RuntimeError, match="Can't clear while item is running"):
             state.clear()
 
         # State should be unchanged
@@ -150,9 +134,7 @@ class TestClearMethod:
 class TestStateLifecycle:
     """Tests for the typical State lifecycle during execution."""
 
-    def test_full_execution_lifecycle_success(
-        self, aware_datetime: datetime, mock_node: Mock
-    ) -> None:
+    def test_full_execution_lifecycle_success(self, aware_datetime: datetime, mock_node: Mock) -> None:
         """Test state through full successful execution lifecycle."""
         state = State()
 
@@ -237,9 +219,7 @@ class TestStateLifecycle:
         assert state.last_run is None
         assert state.run_item is None
 
-    def test_multiple_sequential_executions(
-        self, aware_datetime: datetime, mock_node: Mock
-    ) -> None:
+    def test_multiple_sequential_executions(self, aware_datetime: datetime, mock_node: Mock) -> None:
         """Test state through multiple sequential executions."""
         state = State()
 

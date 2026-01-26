@@ -20,13 +20,8 @@ class TestSnapshotLocalStorage:
     def test_load_valid(self, mocker):
         self.snapshot._load_type_flag = SnapshotLoadTypeFlag.Empty
         self.snapshot.content = {"a": "b"}
-        mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot"
-            ".IdToLocalPath.get_path_or_raise"
-        )
-        snapshot_loader_patched = mocker.patch.object(
-            self.snapshot, "_snapshot_loader", return_value={"a": "b"}
-        )
+        mocker.patch("qualibrate.app.api.core.domain.local_storage.snapshot.IdToLocalPath.get_path_or_raise")
+        snapshot_loader_patched = mocker.patch.object(self.snapshot, "_snapshot_loader", return_value={"a": "b"})
         self.snapshot.load_from_flag(SnapshotLoadTypeFlag.Minified)
         snapshot_loader_patched.assert_called_once()
         assert self.snapshot.content == {"a": "b"}
@@ -34,8 +29,7 @@ class TestSnapshotLocalStorage:
     def test_load_state_already_loaded(self, mocker):
         self.snapshot._load_type_flag = SnapshotLoadTypeFlag.Minified
         get_or_raise_patched = mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot"
-            ".IdToLocalPath.get_path_or_raise"
+            "qualibrate.app.api.core.domain.local_storage.snapshot.IdToLocalPath.get_path_or_raise"
         )
         self.snapshot.load_from_flag(SnapshotLoadTypeFlag.Minified)
         get_or_raise_patched.assert_not_called()
@@ -66,14 +60,11 @@ class TestSnapshotLocalStorage:
             return_value=None,
         )
         search_patched = mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot"
-            ".get_subpath_value",
+            "qualibrate.app.api.core.domain.local_storage.snapshot.get_subpath_value",
         )
         assert self.snapshot.search([], load) is None
         if load:
-            load_patched.assert_called_once_with(
-                SnapshotLoadTypeFlag.DataWithMachine
-            )
+            load_patched.assert_called_once_with(SnapshotLoadTypeFlag.DataWithMachine)
         else:
             load_patched.assert_not_called()
         search_patched.assert_not_called()
@@ -90,17 +81,12 @@ class TestSnapshotLocalStorage:
             return_value=data,
         )
         search_patched = mocker.patch(
-            (
-                "qualibrate.app.api.core.domain.local_storage.snapshot"
-                ".get_subpath_value"
-            ),
+            ("qualibrate.app.api.core.domain.local_storage.snapshot.get_subpath_value"),
             return_value=[{}],
         )
         assert self.snapshot.search(search_path, load) == [{}]
         if load:
-            load_patched.assert_called_once_with(
-                SnapshotLoadTypeFlag.DataWithMachine
-            )
+            load_patched.assert_called_once_with(SnapshotLoadTypeFlag.DataWithMachine)
         else:
             load_patched.assert_not_called()
         search_patched.assert_called_once_with(data["quam"], search_path)
@@ -108,39 +94,29 @@ class TestSnapshotLocalStorage:
     def test_get_latest_snapshots_one(self, mocker, settings):
         load_patched = mocker.patch.object(self.snapshot, "load_from_flag")
         patched_id2lp = mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot."
-            "IdToLocalPath",
+            "qualibrate.app.api.core.domain.local_storage.snapshot.IdToLocalPath",
         )
-        id2plp_len = (
-            patched_id2lp.return_value.get_project_manager.return_value.__len__
-        )
+        id2plp_len = patched_id2lp.return_value.get_project_manager.return_value.__len__
         id2plp_len.return_value = 3
-        find_n_latest_patched = mocker.patch.object(
-            self.snapshot, "_get_latest_snapshots_ids", return_value=[]
+        find_n_latest_patched = mocker.patch.object(self.snapshot, "_get_latest_snapshots_ids", return_value=[])
+        assert self.snapshot.get_latest_snapshots(pages_filter=PageFilter(page=1, per_page=1), descending=True) == (
+            3,
+            [self.snapshot],
         )
-        assert self.snapshot.get_latest_snapshots(
-            pages_filter=PageFilter(page=1, per_page=1), descending=True
-        ) == (3, [self.snapshot])
         load_patched.assert_called_once_with(SnapshotLoadTypeFlag.Metadata)
         id2plp_len.assert_called_once_with()
         find_n_latest_patched.assert_not_called()
 
     def test_get_latest_snapshots_more(self, mocker, settings):
         load_patched = mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot"
-            ".SnapshotLocalStorage.load_from_flag"
+            "qualibrate.app.api.core.domain.local_storage.snapshot.SnapshotLocalStorage.load_from_flag"
         )
         patched_id2lp = mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot."
-            "IdToLocalPath",
+            "qualibrate.app.api.core.domain.local_storage.snapshot.IdToLocalPath",
         )
-        id2plp_len = (
-            patched_id2lp.return_value.get_project_manager.return_value.__len__
-        )
+        id2plp_len = patched_id2lp.return_value.get_project_manager.return_value.__len__
         id2plp_len.return_value = 3
-        find_n_latest_patched = mocker.patch.object(
-            self.snapshot, "_get_latest_snapshots_ids", return_value=[2]
-        )
+        find_n_latest_patched = mocker.patch.object(self.snapshot, "_get_latest_snapshots_ids", return_value=[2])
         total, snapshots_hist = self.snapshot.get_latest_snapshots(
             pages_filter=PageFilter(page=1, per_page=2), descending=True
         )
@@ -165,8 +141,7 @@ class TestSnapshotLocalStorage:
 
     def test_compare_by_id_same_snapshot(self, mocker):
         load_patched = mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot"
-            ".SnapshotLocalStorage.load_from_flag"
+            "qualibrate.app.api.core.domain.local_storage.snapshot.SnapshotLocalStorage.load_from_flag"
         )
         with pytest.raises(QValueException) as ex:
             self.snapshot.compare_by_id(3)
@@ -176,37 +151,25 @@ class TestSnapshotLocalStorage:
 
     def test_compare_by_id_current_data_is_empty(self, mocker):
         load_patched = mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot"
-            ".SnapshotLocalStorage.load_from_flag"
+            "qualibrate.app.api.core.domain.local_storage.snapshot.SnapshotLocalStorage.load_from_flag"
         )
         mocker.patch(
-            (
-                "qualibrate.app.api.core.domain.local_storage.snapshot"
-                ".SnapshotLocalStorage.data"
-            ),
+            ("qualibrate.app.api.core.domain.local_storage.snapshot.SnapshotLocalStorage.data"),
             new_callable=PropertyMock,
             return_value=None,
         )
         with pytest.raises(QValueException) as ex:
             self.snapshot.compare_by_id(2)
         assert ex.type == QValueException
-        assert ex.value.args == (
-            f"Can't load data of snapshot {self.snapshot._id}",
-        )
-        load_patched.assert_called_once_with(
-            SnapshotLoadTypeFlag.DataWithMachine
-        )
+        assert ex.value.args == (f"Can't load data of snapshot {self.snapshot._id}",)
+        load_patched.assert_called_once_with(SnapshotLoadTypeFlag.DataWithMachine)
 
     def test_compare_by_id_other_data_is_empty(self, mocker):
         load_patched = mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot"
-            ".SnapshotLocalStorage.load_from_flag"
+            "qualibrate.app.api.core.domain.local_storage.snapshot.SnapshotLocalStorage.load_from_flag"
         )
         mocker.patch(
-            (
-                "qualibrate.app.api.core.domain.local_storage.snapshot"
-                ".SnapshotLocalStorage.data"
-            ),
+            ("qualibrate.app.api.core.domain.local_storage.snapshot.SnapshotLocalStorage.data"),
             new_callable=PropertyMock,
             side_effect=[{"quam": {}}, None, None],
         )
@@ -214,37 +177,24 @@ class TestSnapshotLocalStorage:
             self.snapshot.compare_by_id(2)
         assert ex.type == QValueException
         assert ex.value.args == ("Can't load data of snapshot 2",)
-        load_patched.assert_has_calls(
-            [call(SnapshotLoadTypeFlag.DataWithMachine)] * 2
-        )
+        load_patched.assert_has_calls([call(SnapshotLoadTypeFlag.DataWithMachine)] * 2)
 
     def test_compare_by_id_valid(self, mocker):
         load_patched = mocker.patch(
-            "qualibrate.app.api.core.domain.local_storage.snapshot"
-            ".SnapshotLocalStorage.load_from_flag"
+            "qualibrate.app.api.core.domain.local_storage.snapshot.SnapshotLocalStorage.load_from_flag"
         )
         mocker.patch(
-            (
-                "qualibrate.app.api.core.domain.local_storage.snapshot"
-                ".SnapshotLocalStorage.data"
-            ),
+            ("qualibrate.app.api.core.domain.local_storage.snapshot.SnapshotLocalStorage.data"),
             new_callable=PropertyMock,
             side_effect=[{"quam": {"a": "b"}}, {"quam": {"c": "d"}}],
         )
-        make_patch_patched = mocker.patch(
-            "jsonpatch.make_patch", return_value=[{"diff": "a"}]
-        )
+        make_patch_patched = mocker.patch("jsonpatch.make_patch", return_value=[{"diff": "a"}])
         p2m_patched = mocker.patch(
-            (
-                "qualibrate.app.api.core.domain.local_storage.snapshot"
-                ".jsonpatch_to_mapping"
-            ),
+            ("qualibrate.app.api.core.domain.local_storage.snapshot.jsonpatch_to_mapping"),
             return_value={"d": "x"},
         )
         assert self.snapshot.compare_by_id(2) == {"d": "x"}
-        load_patched.assert_has_calls(
-            [call(SnapshotLoadTypeFlag.DataWithMachine)] * 2
-        )
+        load_patched.assert_has_calls([call(SnapshotLoadTypeFlag.DataWithMachine)] * 2)
         make_patch_patched.assert_called_once_with({"a": "b"}, {"c": "d"})
         p2m_patched.assert_called_once_with({"a": "b"}, [{"diff": "a"}])
 
@@ -257,9 +207,7 @@ class TestSnapshotLocalStorage:
             return_value=None,
         )
         assert self.snapshot.update_entry({}) is False
-        load_patched.assert_called_once_with(
-            SnapshotLoadTypeFlag.DataWithMachine
-        )
+        load_patched.assert_called_once_with(SnapshotLoadTypeFlag.DataWithMachine)
 
     def test_update_entry_valid_data(self, mocker):
         load_patched = mocker.patch.object(self.snapshot, "load_from_flag")
@@ -291,6 +239,4 @@ class TestSnapshotLocalStorage:
             _check_new_values,
         )
         assert self.snapshot.update_entry({"#/a": "x", "#/d/g": 4}) is True
-        load_patched.assert_called_once_with(
-            SnapshotLoadTypeFlag.DataWithMachine
-        )
+        load_patched.assert_called_once_with(SnapshotLoadTypeFlag.DataWithMachine)

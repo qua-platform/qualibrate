@@ -122,9 +122,7 @@ class QualibrationGraph(
         parameters: GraphCreateParametersType,
         nodes: Mapping[str, GraphElementTypeVar] | None = None,
         connectivity: Sequence[tuple[str, str]] | None = None,
-        orchestrator: (
-            "QualibrationOrchestrator[GraphElementTypeVar] | None"
-        ) = None,
+        orchestrator: ("QualibrationOrchestrator[GraphElementTypeVar] | None") = None,
         description: str | None = None,
         *,
         modes: RunModes | None = None,
@@ -136,17 +134,12 @@ class QualibrationGraph(
         self._connectivity: dict[tuple[str, str], dict[str, Any]]
         if finalize:
             if nodes is None or connectivity is None:
-                raise RuntimeError(
-                    "Nodes and connectivity must be defined on graph "
-                    "instantiation."
-                )
+                raise RuntimeError("Nodes and connectivity must be defined on graph instantiation.")
             self._elements = dict(nodes)
             self._connectivity = {
                 connectivity: {
                     QualibrationGraph.RUN_SCENARIO_FIELD: Outcome.SUCCESSFUL,
-                    QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition[
-                        GraphElementTypeVar
-                    ](),
+                    QualibrationGraph.OPERATIONAL_CONDITION_FIELD: OperationalCondition[GraphElementTypeVar](),
                 }
                 for connectivity in connectivity
             }
@@ -154,9 +147,7 @@ class QualibrationGraph(
             self._elements = {}
             self._connectivity = {}
         self._graph: nx.DiGraph[GraphElementTypeVar] = nx.DiGraph()
-        self._loop_conditions: dict[str, LoopCondition[GraphElementTypeVar]] = (
-            defaultdict(LoopCondition)
-        )
+        self._loop_conditions: dict[str, LoopCondition[GraphElementTypeVar]] = defaultdict(LoopCondition)
         if orchestrator is None:
             from qualibrate.core.orchestration.basic_orchestrator import (
                 BasicOrchestrator,
@@ -184,9 +175,7 @@ class QualibrationGraph(
         self._full_parameters = self._full_parameters_class()
         self._finalized = True
         if self.modes.inspection:
-            raise StopInspection(
-                "Graph instantiated in inspection mode", instance=self
-            )
+            raise StopInspection("Graph instantiated in inspection mode", instance=self)
 
     @property
     def _nodes(self) -> Mapping[str, GraphElementTypeVar]:
@@ -204,9 +193,7 @@ class QualibrationGraph(
     @ensure_finalized
     def full_parameters(self) -> GraphRunParametersType:
         if self._full_parameters is None:
-            raise RuntimeError(
-                "Finalized graph has no full parameters instance"
-            )
+            raise RuntimeError("Finalized graph has no full parameters instance")
         return self._full_parameters
 
     def __copy__(self) -> Self:
@@ -242,9 +229,7 @@ class QualibrationGraph(
 
         # Copy mutable attributes
         new_graph._parameters = self.parameters.model_copy()
-        new_graph._elements = {
-            name: element.copy(name) for name, element in self._elements.items()
-        }
+        new_graph._elements = {name: element.copy(name) for name, element in self._elements.items()}
         new_graph._connectivity = copy.deepcopy(self._connectivity)
         new_graph._loop_conditions = copy.deepcopy(self._loop_conditions)
 
@@ -252,20 +237,13 @@ class QualibrationGraph(
         new_graph._graph = nx.DiGraph()
         new_graph._graph.add_nodes_from(new_graph._elements.values())
         for source, destination in self._connectivity:
-            if (
-                source in new_graph._elements
-                and destination in new_graph._elements
-            ):
+            if source in new_graph._elements and destination in new_graph._elements:
                 new_graph._graph.add_edge(
                     new_graph._elements[source],
                     new_graph._elements[destination],
-                    scenario=self._connectivity[(source, destination)][
-                        QualibrationGraph.RUN_SCENARIO_FIELD
-                    ],
+                    scenario=self._connectivity[(source, destination)][QualibrationGraph.RUN_SCENARIO_FIELD],
                     operational_condition=copy.deepcopy(
-                        self._connectivity[(source, destination)][
-                            QualibrationGraph.OPERATIONAL_CONDITION_FIELD
-                        ]
+                        self._connectivity[(source, destination)][QualibrationGraph.OPERATIONAL_CONDITION_FIELD]
                     ),
                 )
 
@@ -278,9 +256,7 @@ class QualibrationGraph(
         # copy runnable items
         new_graph._state_updates = copy.deepcopy(self._state_updates)
         new_graph.outcomes = copy.deepcopy(self.outcomes)
-        new_graph.run_summary = (
-            self.run_summary.model_copy(deep=True) if self.run_summary else None
-        )
+        new_graph.run_summary = self.run_summary.model_copy(deep=True) if self.run_summary else None
 
         return new_graph
 
@@ -294,18 +270,13 @@ class QualibrationGraph(
             cycle = nx.find_cycle(self._graph, orientation="original")
         except nx.NetworkXNoCycle:
             return
-        node_names = tuple(
-            [cycle[0][0].name, *[edge[1].name for edge in cycle]]
-        )
+        node_names = tuple([cycle[0][0].name, *[edge[1].name for edge in cycle]])
         raise CyclicGraphError(
             f"Detected cycle in graph {self.name}: {node_names}",
         )
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}: {self.name} "
-            f"(mode: {self.modes}; parameters: {self.full_parameters})"
-        )
+        return f"{self.__class__.__name__}: {self.name} (mode: {self.modes}; parameters: {self.full_parameters})"
 
     def _add_nodes_and_connections_to_nx(self) -> None:
         """
@@ -339,11 +310,7 @@ class QualibrationGraph(
                 source_element = self._get_element_or_error(source)
                 destination_element = self._get_element_or_error(destination)
             except ValueError as ex:
-                issued_element_name = (
-                    ex.args[1]
-                    if len(ex.args) > 1
-                    else f"{source} or {destination}"
-                )
+                issued_element_name = ex.args[1] if len(ex.args) > 1 else f"{source} or {destination}"
                 raise ValueError(
                     f'Error creating QualibrationGraph "{self.name}": Could '
                     f"not add connection ({source}, {destination})"
@@ -364,9 +331,7 @@ class QualibrationGraph(
                     source_element,
                     destination_element,
                     scenario=edge_data[self.RUN_SCENARIO_FIELD],
-                    operational_condition=edge_data[
-                        self.OPERATIONAL_CONDITION_FIELD
-                    ],
+                    operational_condition=edge_data[self.OPERATIONAL_CONDITION_FIELD],
                 )
 
         # Validate that all nodes with connections have at least one success path
@@ -396,9 +361,7 @@ class QualibrationGraph(
         lib_node_ids = set(id(node) for node in library.nodes.values_nocopy())
 
         if len(node_ids.intersection(lib_node_ids)) > 0:
-            raise RuntimeError(
-                "Some nodes weren't copied before adding to graph"
-            )
+            raise RuntimeError("Some nodes weren't copied before adding to graph")
 
     @staticmethod
     def _validate_elements_names_mapping(
@@ -422,18 +385,13 @@ class QualibrationGraph(
         for name, element in elements.items():
             if name != element.name:
                 element = element.copy(name)
-                logger.warning(
-                    f"{element} has to be copied due to conflicting name "
-                    f"({name})"
-                )
+                logger.warning(f"{element} has to be copied due to conflicting name ({name})")
             new_elements[name] = element
         return new_elements
 
     # TODO: logic commonly same with node so need to move to
     @classmethod
-    def scan_folder_for_instances(
-        cls, path: Path
-    ) -> RunnableCollection[str, QGraphBaseType]:
+    def scan_folder_for_instances(cls, path: Path) -> RunnableCollection[str, QGraphBaseType]:
         """
         Scans a folder for graph instances and returns them.
 
@@ -473,9 +431,7 @@ class QualibrationGraph(
         return RunnableCollection(graphs)
 
     @classmethod
-    def scan_graph_file(
-        cls, file: Path, graphs: dict[str, QGraphBaseType]
-    ) -> None:
+    def scan_graph_file(cls, file: Path, graphs: dict[str, QGraphBaseType]) -> None:
         """
         Scans a graph file and adds its instance to the given dictionary.
 
@@ -518,9 +474,7 @@ class QualibrationGraph(
                 graph.
         """
         if graph.name in graphs:
-            logger.warning(
-                f'Graph "{graph.name}" already exists in library, overwriting'
-            )
+            logger.warning(f'Graph "{graph.name}" already exists in library, overwriting')
 
         graphs[graph.name] = graph
 
@@ -539,9 +493,7 @@ class QualibrationGraph(
         )
         for element in self._elements.values():
             element.cleanup()
-        nx.remove_edge_attributes(
-            self._graph, self.__class__.EDGE_TARGETS_FIELD
-        )
+        nx.remove_edge_attributes(self._graph, self.__class__.EDGE_TARGETS_FIELD)
         self._orchestrator.cleanup()
 
     def completed_count(self) -> int:
@@ -558,9 +510,7 @@ class QualibrationGraph(
             sum(
                 map(
                     lambda status: status != ElementRunStatus.pending,
-                    nx.get_node_attributes(
-                        self._graph, self.ELEMENT_STATUS_FIELD
-                    ).values(),
+                    nx.get_node_attributes(self._graph, self.ELEMENT_STATUS_FIELD).values(),
                 )
             )
         )
@@ -579,9 +529,7 @@ class QualibrationGraph(
     def active_node_name(self) -> str | None:
         return node.name if (node := self.active_node) is not None else None
 
-    def _get_all_nodes_parameters(
-        self, elements_parameters: Mapping[str, Any]
-    ) -> Mapping[str, Any]:
+    def _get_all_nodes_parameters(self, elements_parameters: Mapping[str, Any]) -> Mapping[str, Any]:
         """
         Retrieves parameters for all elements, providing defaults if
         unspecified.
@@ -597,28 +545,17 @@ class QualibrationGraph(
             Mapping[str, Any]: A dictionary containing parameters for all nodes,
             ensuring that each node has a corresponding entry.
         """
-        nodes_class = self.full_parameters_class.model_fields[
-            "nodes"
-        ].annotation
+        nodes_class = self.full_parameters_class.model_fields["nodes"].annotation
         return {
-            name: elements_parameters.get(name, {})
-            for name in cast(GraphElementsParameters, nodes_class).model_fields
+            name: elements_parameters.get(name, {}) for name in cast(GraphElementsParameters, nodes_class).model_fields
         }
 
-    def _mark_nodes_as_skipped(
-        self, start_from: GraphElementTypeVar | str
-    ) -> None:
-        start_node = (
-            self._elements[start_from]
-            if isinstance(start_from, str)
-            else start_from
-        )
+    def _mark_nodes_as_skipped(self, start_from: GraphElementTypeVar | str) -> None:
+        start_node = self._elements[start_from] if isinstance(start_from, str) else start_from
         bfs_tree = nx.bfs_tree(self._graph, start_node)
         difference = set(self._graph.nodes).difference(set(bfs_tree.nodes))
         for node in difference:
-            self._graph.nodes[node][self.__class__.ELEMENT_STATUS_FIELD] = (
-                ElementRunStatus.skipped
-            )
+            self._graph.nodes[node][self.__class__.ELEMENT_STATUS_FIELD] = ElementRunStatus.skipped
 
     def _run(
         self,
@@ -646,9 +583,7 @@ class QualibrationGraph(
         self._full_parameters = self.full_parameters_class.model_validate(
             {"parameters": self.parameters, "nodes": nodes}
         )
-        targets = self._initial_targets = (
-            self.full_parameters.parameters.targets or []
-        )
+        targets = self._initial_targets = self.full_parameters.parameters.targets or []
         nodes_parameters_model = self.full_parameters.nodes
         for node_name in nodes_parameters_model.model_fields_set:
             node_parameters_model = getattr(nodes_parameters_model, node_name)
@@ -702,16 +637,8 @@ class QualibrationGraph(
             outcomes=self.outcomes,
             initial_targets=self._initial_targets,
             error=run_error,
-            successful_targets=[
-                name
-                for name, status in self.outcomes.items()
-                if status == Outcome.SUCCESSFUL
-            ],
-            failed_targets=[
-                name
-                for name, status in self.outcomes.items()
-                if status == Outcome.FAILED
-            ],
+            successful_targets=[name for name, status in self.outcomes.items() if status == Outcome.SUCCESSFUL],
+            failed_targets=[name for name, status in self.outcomes.items() if status == Outcome.FAILED],
             state_updates=self.state_updates,
         )
         logger.debug(f"Graph run summary {self.run_summary}")
@@ -749,9 +676,7 @@ class QualibrationGraph(
         Raises:
             RunError: If any error occurs during graph execution.
         """
-        logger.info(
-            f"Run graph {self.name} with parameters: {passed_parameters}"
-        )
+        logger.info(f"Run graph {self.name} with parameters: {passed_parameters}")
         self.run_start = datetime.now().astimezone()
         run_error: RunError | None = None
         if nodes is None:
@@ -788,14 +713,10 @@ class QualibrationGraph(
         """
         element = self._elements.get(element_name)
         if element is None:
-            raise ValueError(
-                f"Unknown element with name {element_name}", element_name
-            )
+            raise ValueError(f"Unknown element with name {element_name}", element_name)
         return element
 
-    def _add_element_to_nx_by_name(
-        self, element_name: str
-    ) -> GraphElementTypeVar:
+    def _add_element_to_nx_by_name(self, element_name: str) -> GraphElementTypeVar:
         """
         Adds a graph element to the graph by name, if not already present.
 
@@ -855,9 +776,7 @@ class QualibrationGraph(
     def serialize_graph_representation(self) -> Mapping[str, Any]:
         flow_dict = defaultdict(list)
 
-        nx_data = dict(
-            self.__class__.nx_graph_export(self._graph, node_names_only=True)
-        )
+        nx_data = dict(self.__class__.nx_graph_export(self._graph, node_names_only=True))
 
         nodes_raw = nx_data.pop("nodes")
         adj_raw = nx_data.pop("adjacency")
@@ -870,9 +789,7 @@ class QualibrationGraph(
             loop_data: dict[str, Any] = {}
 
             if isinstance(element, QualibrationGraph):
-                subgraph_data["subgraph"] = (
-                    element.serialize_graph_representation()
-                )
+                subgraph_data["subgraph"] = element.serialize_graph_representation()
 
             flow_dict["nodes"].append(
                 {
@@ -895,10 +812,8 @@ class QualibrationGraph(
                 # the same as for a scenario
                 target_name = adj["id"]
 
-                condition_name, condition_content = (
-                    self._get_operational_condition_signature_and_content(
-                        adj[QualibrationGraph.OPERATIONAL_CONDITION_FIELD]
-                    )
+                condition_name, condition_content = self._get_operational_condition_signature_and_content(
+                    adj[QualibrationGraph.OPERATIONAL_CONDITION_FIELD]
                 )
 
                 operational_condition_data: dict[str, bool | str] = {}
@@ -931,9 +846,7 @@ class QualibrationGraph(
                 )
 
             if node_name in self._loop_conditions:
-                flow_dict["edges"].append(
-                    self._add_loop_to_edge(node_name=node_name)
-                )
+                flow_dict["edges"].append(self._add_loop_to_edge(node_name=node_name))
 
         return dict(flow_dict)
 
@@ -941,12 +854,8 @@ class QualibrationGraph(
         if node_name not in self._loop_conditions:
             raise KeyError(f"Loop condition not found for node {node_name}")
 
-        node_conditions: LoopCondition[GraphElementTypeVar] = (
-            self._loop_conditions[node_name]
-        )
-        label, content = self._get_operational_condition_signature_and_content(
-            node_conditions
-        )
+        node_conditions: LoopCondition[GraphElementTypeVar] = self._loop_conditions[node_name]
+        label, content = self._get_operational_condition_signature_and_content(node_conditions)
         data: dict[str, Any] = {"loop": {}}
         if label and content:
             data["loop"]["label"] = label
@@ -962,33 +871,22 @@ class QualibrationGraph(
 
     def _get_machine_metadata(self) -> Mapping[str, Any] | None:
         if not self._elements:
-            logger.warning(
-                f"Graph {self.name} has no elements hence cant extract machine metadata"
-            )
+            logger.warning(f"Graph {self.name} has no elements hence cant extract machine metadata")
             return None
 
         machines_metadata = [
-            metadata
-            for element in self._elements.values()
-            if (metadata := element._get_machine_metadata())
+            metadata for element in self._elements.values() if (metadata := element._get_machine_metadata())
         ]
 
         if not machines_metadata:
-            logger.debug(
-                f"No elements with usable machine metadata in graph {self.name}"
-            )
+            logger.debug(f"No elements with usable machine metadata in graph {self.name}")
             return None
 
         first = machines_metadata[0]
-        if all(
-            machine_metadata == first
-            for machine_metadata in machines_metadata[1:]
-        ):
+        if all(machine_metadata == first for machine_metadata in machines_metadata[1:]):
             return first
 
-        logger.warning(
-            f"Not all machines have the same metadata hence cant choose one in graph {self.name}"
-        )
+        logger.warning(f"Not all machines have the same metadata hence cant choose one in graph {self.name}")
         return None
 
     def __serialize_data(self, /, **kwargs: Any) -> Mapping[str, Any]:
@@ -1010,24 +908,16 @@ class QualibrationGraph(
         data = dict(super().serialize())
         cytoscape = bool(kwargs.get("cytoscape", False))
         parameters = self.full_parameters_class.serialize(**kwargs)
-        nx_data: dict[str, Any] = dict(
-            self.__class__.nx_graph_export(self._graph, node_names_only=True)
-        )
+        nx_data: dict[str, Any] = dict(self.__class__.nx_graph_export(self._graph, node_names_only=True))
         data.update(
             {
                 "parameters": parameters["parameters"],
-                "orchestrator": (
-                    self._orchestrator.serialize()
-                    if self._orchestrator is not None
-                    else None
-                ),
+                "orchestrator": (self._orchestrator.serialize() if self._orchestrator is not None else None),
             }
         )
         nodes = {}
         connectivity = []
-        for node, adjacency in zip(
-            nx_data.pop("nodes"), nx_data.pop("adjacency"), strict=False
-        ):
+        for node, adjacency in zip(nx_data.pop("nodes"), nx_data.pop("adjacency"), strict=False):
             node_id = node["id"]
             nodes[node_id] = node
             element = self._elements[node_id]
@@ -1091,9 +981,7 @@ class QualibrationGraph(
         name: str,
         *,
         parameters: GraphCreateParametersType | None = None,
-        orchestrator: (
-            "QualibrationOrchestrator[GraphElementTypeVar] | None"
-        ) = None,
+        orchestrator: ("QualibrationOrchestrator[GraphElementTypeVar] | None") = None,
     ) -> "QualibrationGraph[GraphElementTypeVar]":
         """
         Create an empty graph instance ready to be used as a context manager.
@@ -1111,9 +999,7 @@ class QualibrationGraph(
     def __enter__(self) -> Self:
         self._building = True
         modes = run_modes_ctx.get() or RunModes()
-        self.__run_context_token = run_modes_ctx.set(
-            modes.model_copy(update={"inspection": False})
-        )
+        self.__run_context_token = run_modes_ctx.set(modes.model_copy(update={"inspection": False}))
         return self
 
     def __exit__(
@@ -1146,15 +1032,9 @@ class QualibrationGraph(
         if lib is None:
             lib = self._get_library()
         if node in lib.nodes.values_nocopy():
-            raise ValueError(
-                f"Node '{key}' is generic from library. "
-                f"Please create copy of it before adding it."
-            )
+            raise ValueError(f"Node '{key}' is generic from library. Please create copy of it before adding it.")
         if node in self._elements.values():
-            raise ValueError(
-                f"Node '{key}' already exists. "
-                f"You need to create a copy if you want to add same."
-            )
+            raise ValueError(f"Node '{key}' already exists. You need to create a copy if you want to add same.")
         self._elements[key] = node
 
     @ensure_not_finalized
@@ -1167,9 +1047,7 @@ class QualibrationGraph(
         if isinstance(x, str):
             return x
         x_id = id(x)
-        element = next(
-            filter(lambda i: id(i[1]) == x_id, self._elements.items()), None
-        )
+        element = next(filter(lambda i: id(i[1]) == x_id, self._elements.items()), None)
         return element[0] if element else x.name
 
     @ensure_not_finalized
@@ -1192,9 +1070,7 @@ class QualibrationGraph(
         on: (
             Callable[
                 [],
-                Generator[
-                    bool, tuple[GraphElementTypeVar, TargetType] | None, None
-                ],
+                Generator[bool, tuple[GraphElementTypeVar, TargetType] | None, None],
             ]
             | Callable[[GraphElementTypeVar, TargetType], bool]
             | None
@@ -1205,13 +1081,9 @@ class QualibrationGraph(
             if isgeneratorfunction(on):
                 on_generator = on
             else:
-                on_function = cast(
-                    Callable[[GraphElementTypeVar, TargetType], bool], on
-                )
-        operational_condition: OperationalCondition[GraphElementTypeVar] = (
-            OperationalCondition(
-                on_function=on_function, on_generator=on_generator
-            )
+                on_function = cast(Callable[[GraphElementTypeVar, TargetType], bool], on)
+        operational_condition: OperationalCondition[GraphElementTypeVar] = OperationalCondition(
+            on_function=on_function, on_generator=on_generator
         )
         self._connect(
             src=src,
@@ -1227,15 +1099,12 @@ class QualibrationGraph(
         src: str | GraphElementTypeVar,
         dst: str | GraphElementTypeVar,
         run_scenario: Outcome,
-        operational_condition: OperationalCondition[GraphElementTypeVar]
-        | None = None,
+        operational_condition: OperationalCondition[GraphElementTypeVar] | None = None,
     ) -> None:
         s = self._resolve_element_name(src)
         d = self._resolve_element_name(dst)
         if s not in self._elements or d not in self._elements:
-            raise KeyError(
-                f"Both '{s}' and '{d}' must be added before connecting."
-            )
+            raise KeyError(f"Both '{s}' and '{d}' must be added before connecting.")
         edge = (s, d)
         if edge in self._connectivity:
             raise ValueError(f"Edge '{edge}' already exists.")
@@ -1246,9 +1115,7 @@ class QualibrationGraph(
             else OperationalCondition(),
         }
 
-    def _get_validated_element_name(
-        self, element: str | GraphElementTypeVar
-    ) -> str:
+    def _get_validated_element_name(self, element: str | GraphElementTypeVar) -> str:
         element_name = element if isinstance(element, str) else element.name
         if element_name not in self._elements:
             raise KeyError(f"Element with name '{element}' not found.")
@@ -1263,9 +1130,7 @@ class QualibrationGraph(
         on: (
             Callable[
                 [],
-                Generator[
-                    bool, tuple[GraphElementTypeVar, TargetType] | None, None
-                ],
+                Generator[bool, tuple[GraphElementTypeVar, TargetType] | None, None],
             ]
             | Callable[[GraphElementTypeVar, TargetType], bool]
             | None
@@ -1273,9 +1138,7 @@ class QualibrationGraph(
         max_iterations: int | None = None,
     ) -> None:
         if on is None and max_iterations is None:
-            raise ValueError(
-                "Either 'on' or 'max_iterations' must be specified (or both)."
-            )
+            raise ValueError("Either 'on' or 'max_iterations' must be specified (or both).")
         element_name = self._get_validated_element_name(element)
         conditions = self._loop_conditions
         if max_iterations is not None:
@@ -1284,13 +1147,9 @@ class QualibrationGraph(
             if isgeneratorfunction(on):
                 conditions[element_name].on_generator = on
             else:
-                conditions[element_name].on_function = cast(
-                    Callable[[GraphElementTypeVar, TargetType], bool], on
-                )
+                conditions[element_name].on_function = cast(Callable[[GraphElementTypeVar, TargetType], bool], on)
 
-    def _loop_on_failure(
-        self, element: str | GraphElementTypeVar, max_iterations: int
-    ) -> None:
+    def _loop_on_failure(self, element: str | GraphElementTypeVar, max_iterations: int) -> None:
         """protected for internal use"""
         element_name = self._get_validated_element_name(element)
         conditions = self._loop_conditions[element_name]

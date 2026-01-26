@@ -19,9 +19,7 @@ except ImportError:
     json_timeline_db_app = None
 
 
-app = FastAPI(
-    title="Qualibrate", lifespan=app_lifespan, root_path=get_root_path()
-)
+app = FastAPI(title="Qualibrate", lifespan=app_lifespan, root_path=get_root_path())
 _settings = get_settings(get_config_path())
 cors_origins = get_cors_origin()
 

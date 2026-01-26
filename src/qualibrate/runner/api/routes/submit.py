@@ -59,10 +59,7 @@ def _recursive_clear_node_parameters(
     if "nodes" in parameters and "parameters" in parameters:
         return {
             "parameters": parameters["parameters"],
-            "nodes": {
-                name: _recursive_clear_node_parameters(params)
-                for name, params in parameters["nodes"].items()
-            },
+            "nodes": {name: _recursive_clear_node_parameters(params) for name, params in parameters["nodes"].items()},
         }
     if "parameters" in parameters:
         return dict(parameters["parameters"])
@@ -77,9 +74,7 @@ def clear_input_parameters(
 
 @submit_router.post("/node")
 def submit_node_run(
-    input_parameters: Annotated[
-        Mapping[str, Any], Depends(clear_input_parameters)
-    ],
+    input_parameters: Annotated[Mapping[str, Any], Depends(clear_input_parameters)],
     state: Annotated[State, Depends(get_state)],
     node: Annotated[QNodeType, Depends(get_qnode_copy)],
     background_tasks: BackgroundTasks,
@@ -89,18 +84,14 @@ def submit_node_run(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Already running",
         )
-    validate_input_parameters(
-        cast(type[BaseModel], node.parameters_class), input_parameters
-    )
+    validate_input_parameters(cast(type[BaseModel], node.parameters_class), input_parameters)
     background_tasks.add_task(run_node, node, input_parameters, state)
     return f"Node job {node.name} is submitted"
 
 
 @submit_router.post("/workflow")
 def submit_workflow_run(
-    input_parameters: Annotated[
-        Mapping[str, Any], Depends(clear_input_parameters)
-    ],
+    input_parameters: Annotated[Mapping[str, Any], Depends(clear_input_parameters)],
     state: Annotated[State, Depends(get_state)],
     graph: Annotated[QGraphType, Depends(get_qgraph)],
     background_tasks: BackgroundTasks,

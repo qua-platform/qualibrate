@@ -31,9 +31,7 @@ class TestCreateParameters:
         other_param: str = "test"
         color: Color = Color.RED
 
-    @pytest.mark.parametrize(
-        "parameters_class", [SampleNodeParameters, SampleGraphParameters]
-    )
+    @pytest.mark.parametrize("parameters_class", [SampleNodeParameters, SampleGraphParameters])
     def test_forbid_extra_parameters(self, parameters_class):
         with pytest.raises(ValidationError) as ex:
             parameters_class.model_validate({"invalid_key": None})
@@ -47,9 +45,7 @@ class TestCreateParameters:
     def test_graph_targets_name(self):
         assert GraphParameters.targets_name == "qubits"
 
-    @pytest.mark.parametrize(
-        "parameters_class", [SampleNodeParameters, SampleGraphParameters]
-    )
+    @pytest.mark.parametrize("parameters_class", [SampleNodeParameters, SampleGraphParameters])
     def test_serialize_include_targets(self, parameters_class):
         assert parameters_class.serialize(exclude_targets=False) == {
             "qubits": {
@@ -69,9 +65,7 @@ class TestCreateParameters:
             },
         }
 
-    @pytest.mark.parametrize(
-        "parameters_class", [SampleNodeParameters, SampleGraphParameters]
-    )
+    @pytest.mark.parametrize("parameters_class", [SampleNodeParameters, SampleGraphParameters])
     def test_serialize_exclude_targets(self, parameters_class):
         assert parameters_class.serialize(exclude_targets=True) == {
             "other_param": {
@@ -82,9 +76,7 @@ class TestCreateParameters:
             }
         }
 
-    @pytest.mark.parametrize(
-        "parameters_class", [SampleNodeParameters, SampleGraphParameters]
-    )
+    @pytest.mark.parametrize("parameters_class", [SampleNodeParameters, SampleGraphParameters])
     def test_serialize_no_exclude_param(self, parameters_class):
         assert parameters_class.serialize() == {
             "qubits": {

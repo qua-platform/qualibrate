@@ -47,17 +47,11 @@ app.include_router(api_router, prefix="/api")
 
 static_files_path = (
     _settings.app.static_site_files
-    if (
-        _settings is not None
-        and _settings.app is not None
-        and _settings.app.static_site_files is not None
-    )
+    if (_settings is not None and _settings.app is not None and _settings.app.static_site_files is not None)
     else get_default_static_files_path()
 )
 if static_files_path is None or not static_files_path.is_dir():
-    raise RuntimeError(
-        "No static files found in config.toml or default location"
-    )
+    raise RuntimeError("No static files found in config.toml or default location")
 # Directory should exist
 app.mount(
     "/",

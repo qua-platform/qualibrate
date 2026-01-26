@@ -32,9 +32,7 @@ def _read_calibration_file(file: Path) -> str:
         return file.read_text(encoding="utf-8")
 
 
-def file_is_calibration_node_instance(
-    file: Path, klass: str = "QualibrationNode"
-) -> bool:
+def file_is_calibration_node_instance(file: Path, klass: str = "QualibrationNode") -> bool:
     if not file.is_file() or file.suffix != ".py":
         return False
     contents = _read_calibration_file(file)
@@ -45,16 +43,10 @@ def file_is_calibration_graph_instance(file: Path, klass: str) -> bool:
     if not file.is_file() or file.suffix != ".py":
         return False
     contents = _read_calibration_file(file)
-    return (
-        f"{klass}(" in contents
-        or f"{klass}[" in contents
-        or f"{klass}.build(" in contents
-    )
+    return f"{klass}(" in contents or f"{klass}[" in contents or f"{klass}.build(" in contents
 
 
-run_modes_ctx: ContextVar[RunModes | None] = ContextVar(
-    "run_modes", default=None
-)
+run_modes_ctx: ContextVar[RunModes | None] = ContextVar("run_modes", default=None)
 
 
 class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
@@ -79,9 +71,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         modes: RunModes | None = None,
     ):
         self.name = name
-        self.parameters_class = self.build_parameters_class_from_instance(
-            parameters, True
-        )
+        self.parameters_class = self.build_parameters_class_from_instance(parameters, True)
         self._parameters = self.parameters_class()
         self.description = description
 
@@ -124,10 +114,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
         Returns:
             A new parameter class type.
         """
-        fields = {
-            name: copy(field)
-            for name, field in parameters.__class__.model_fields.items()
-        }
+        fields = {name: copy(field) for name, field in parameters.__class__.model_fields.items()}
         for param_name, param_value in parameters.model_dump().items():
             fields[param_name].default = param_value
         klass = parameters.__class__
@@ -213,9 +200,7 @@ class QRunnable(ABC, Generic[CreateParametersType, RunParametersType]):
 
     @classmethod
     @abstractmethod
-    def scan_folder_for_instances(
-        cls, path: Path
-    ) -> dict[str, "QRunnable[CreateParametersType, RunParametersType]"]:
+    def scan_folder_for_instances(cls, path: Path) -> dict[str, "QRunnable[CreateParametersType, RunParametersType]"]:
         """
         Scans a folder for runnable instances.
 

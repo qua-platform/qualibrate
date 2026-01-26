@@ -185,9 +185,7 @@ class Action:
 
             # Check which variables would overwrite pre-existing names
             # predefined_names captured when ActionManager was created
-            already_defined = set(result.keys()).intersection(
-                self.manager.predefined_names
-            )
+            already_defined = set(result.keys()).intersection(self.manager.predefined_names)
 
             # Warn about variables that won't be injected (already exist)
             if already_defined:
@@ -199,9 +197,7 @@ class Action:
             # Inject only new variables (not already defined) into the
             # caller's scope. This makes them available as local variables
             # in the interactive session
-            frame_to_update.f_locals.update(
-                {k: v for k, v in result.items() if k not in already_defined}
-            )
+            frame_to_update.f_locals.update({k: v for k, v in result.items() if k not in already_defined})
 
             self.manager.current_action = None
             return result

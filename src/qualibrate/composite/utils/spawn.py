@@ -28,10 +28,7 @@ def spawn_qualibrate_runner(app: FastAPI) -> None:
     try:
         from qualibrate.runner.app import app as runner_app
     except ImportError as ex:
-        raise ImportError(
-            "Can't import qualibrate_runner instance. "
-            "Check that you have installed it."
-        ) from ex
+        raise ImportError("Can't import qualibrate_runner instance. Check that you have installed it.") from ex
     logging.getLogger("uvicorn.access").addFilter(
         EndpointFilter(
             excluded_endpoints_starts=(
@@ -52,10 +49,7 @@ def spawn_qualibrate_app(app: FastAPI) -> None:
     try:
         from qualibrate.app.app import app as qualibrate_app_app
     except ImportError as ex:
-        raise ImportError(
-            "Can't import qualibrate_app instance. "
-            "Check that you have installed it."
-        ) from ex
+        raise ImportError("Can't import qualibrate_app instance. Check that you have installed it.") from ex
 
     qualibrate_app_app.add_middleware(QualibrateAppAuthMiddleware)
     app.mount("/", qualibrate_app_app, name="qualibrate_app")
@@ -71,9 +65,7 @@ def validate_runner_version_for_app() -> None:
     if requirements_str is None:
         raise RuntimeError("There are no defined qualibrate dependencies.")
     requirements = map(Requirement, requirements_str)
-    filtered_runner = filter(
-        lambda r: r.name == "qualibrate-runner", requirements
-    )
+    filtered_runner = filter(lambda r: r.name == "qualibrate-runner", requirements)
     requirement: Requirement | None = next(filtered_runner, None)
     if requirement is None:
         logging.warning(
@@ -83,14 +75,9 @@ def validate_runner_version_for_app() -> None:
         )
         return
     requirement_version_lst = list(iter(requirement.specifier))
-    if (
-        len(requirement_version_lst) != 1
-        or not requirement_version_lst[0].operator == "=="
-    ):
+    if len(requirement_version_lst) != 1 or not requirement_version_lst[0].operator == "==":
         raise RuntimeError(
-            "Invalid required qualibrate-runner version format. "
-            f"Your: {requirement.specifier}. "
-            "Expected '==X.Y.Z'."
+            f"Invalid required qualibrate-runner version format. Your: {requirement.specifier}. Expected '==X.Y.Z'."
         )
     dep_version = Version(requirement_version_lst[0].version)
     if (
@@ -110,21 +97,14 @@ def validate_runner_version_for_app() -> None:
 
 def spawn_qua_dashboards(app: FastAPI) -> None:
     if find_spec("qua_dashboards") is None:
-        logging.warning(
-            "qua_dashboards is not installed so the dashboards server "
-            "is not started"
-        )
+        logging.warning("qua_dashboards is not installed so the dashboards server is not started")
         return
     path_prefix = app.root_path + "/dashboards"
-    logging.getLogger("uvicorn.access").addFilter(
-        EndpointFilter(excluded_endpoints_starts=(path_prefix,))
-    )
+    logging.getLogger("uvicorn.access").addFilter(EndpointFilter(excluded_endpoints_starts=(path_prefix,)))
     try:
         from qua_dashboards.app import create_app as qua_dashboard_create_app
 
-        qua_dashboard_app = qua_dashboard_create_app(
-            f"{path_prefix.rstrip('/')}/"
-        )
+        qua_dashboard_app = qua_dashboard_create_app(f"{path_prefix.rstrip('/')}/")
     except Exception as ex:
         logging.exception("Can't import qua_dashboards", exc_info=ex)
         return

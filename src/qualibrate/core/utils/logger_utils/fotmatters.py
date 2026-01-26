@@ -16,9 +16,7 @@ LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 class QualibrateFormatter(logging.Formatter):
     formatter = logging.Formatter(LOG_FORMAT)
 
-    def __init__(
-        self, *args: Any, default_msec_format: str = "%s,%03d", **kwargs: Any
-    ) -> None:
+    def __init__(self, *args: Any, default_msec_format: str = "%s,%03d", **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.formatter.default_msec_format = default_msec_format
 
@@ -44,9 +42,7 @@ class ConsoleFormatter(QualibrateFormatter):
         logging.ERROR: red + LOG_FORMAT + reset,
         logging.CRITICAL: bold_red + LOG_FORMAT + reset,
     }
-    FORMATTERS = {
-        level: logging.Formatter(format) for level, format in FORMATS.items()
-    }
+    FORMATTERS = {level: logging.Formatter(format) for level, format in FORMATS.items()}
 
     def format(self, record: logging.LogRecord) -> str:
         log_fmtr = self.FORMATTERS.get(record.levelno, self.formatter)

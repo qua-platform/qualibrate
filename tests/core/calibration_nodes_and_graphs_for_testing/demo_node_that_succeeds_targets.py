@@ -9,9 +9,7 @@ class Parameters(NodeParameters):
     float_value: float = 1.0
 
 
-node = QualibrationNode(
-    "demo_node_that_succeeds_targets", parameters=Parameters()
-)
+node = QualibrationNode("demo_node_that_succeeds_targets", parameters=Parameters())
 
 
 @node.run_action()

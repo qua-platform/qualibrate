@@ -23,9 +23,7 @@ def test_project_list(
     local_storage_path: Path,
     settings_path_filled: Path,
 ):
-    other_project_path = get_project_path(
-        settings_path_filled.parent, "other_project"
-    )
+    other_project_path = get_project_path(settings_path_filled.parent, "other_project")
     create_project(
         settings_path_filled,
         "other_project",
@@ -52,12 +50,8 @@ def test_project_create(
     client_custom_settings: TestClient,
     local_storage_path: Path,
 ):
-    assert list(local_storage_path.iterdir()) == [
-        local_storage_path / "project"
-    ]
-    response = client_custom_settings.post(
-        "/api/project/create", params={"project_name": "new_project"}
-    )
+    assert list(local_storage_path.iterdir()) == [local_storage_path / "project"]
+    response = client_custom_settings.post("/api/project/create", params={"project_name": "new_project"})
     assert response.status_code == 201
     project = response.json()
     assert project["name"] == "new_project"
@@ -70,9 +64,7 @@ def test_project_active_get_no_active(
     settings: QualibrateConfig,
     settings_path_filled: Path,
 ):
-    project_path = get_project_path(
-        settings_path_filled.parent, settings.project
-    )
+    project_path = get_project_path(settings_path_filled.parent, settings.project)
     shutil.rmtree(project_path)
     response = client_custom_settings.get("/api/project/active")
     assert response.status_code == 200
@@ -91,13 +83,9 @@ def test_project_active_set_same(
     settings: QualibrateConfig,
 ):
     config_path = tmp_path / "config.toml"
-    client_custom_settings.app.dependency_overrides[get_config_path] = (
-        lambda: config_path
-    )
+    client_custom_settings.app.dependency_overrides[get_config_path] = lambda: config_path
     assert settings.project == "project"
-    response = client_custom_settings.post(
-        "/api/project/active", json="project"
-    )
+    response = client_custom_settings.post("/api/project/active", json="project")
     assert response.status_code == 200
     assert response.json() == "project"
     assert settings.project == "project"
@@ -112,14 +100,10 @@ def test_project_active_set_other(
 ):
     create_project(settings_path, "new_project", None, None, None)
     new_project = "new_project"
-    client_custom_settings.app.dependency_overrides[get_config_path] = (
-        lambda: settings_path
-    )
+    client_custom_settings.app.dependency_overrides[get_config_path] = lambda: settings_path
     (local_storage_path / new_project).mkdir()
     assert settings.project == "project"
-    response = client_custom_settings.post(
-        "/api/project/active", json="new_project"
-    )
+    response = client_custom_settings.post("/api/project/active", json="new_project")
     assert response.status_code == 200
     with settings_path.open("rb") as f:
         updated_settings = tomllib.load(f)

@@ -12,9 +12,7 @@ class OperationalCondition(BaseModel, Generic[GraphElementTypeVar]):
     on_generator: (
         Callable[
             [],
-            Generator[
-                bool, tuple[GraphElementTypeVar, TargetType] | None, None
-            ],
+            Generator[bool, tuple[GraphElementTypeVar, TargetType] | None, None],
         ]
         | None
     ) = None

@@ -21,19 +21,12 @@ from qualibrate.core.utils.logger_utils.fotmatters import (
 )
 from qualibrate.core.utils.logger_utils.handlers import InMemoryLogHandler
 
-_SysExcInfoType = (
-    tuple[type[BaseException], BaseException, TracebackType | None]
-    | tuple[None, None, None]
-)
+_SysExcInfoType = tuple[type[BaseException], BaseException, TracebackType | None] | tuple[None, None, None]
 
 _ExcInfoType = bool | _SysExcInfoType | BaseException | None
 _ArgsType = tuple[object, ...] | Mapping[str, object]
-LOG_LEVEL_NAMES_TYPE = Literal[
-    "debug", "info", "warning", "error", "exception", "critical", "fatal"
-]
-ALLOWED_LOG_LEVEL_NAMES: tuple[LOG_LEVEL_NAMES_TYPE, ...] = get_args(
-    LOG_LEVEL_NAMES_TYPE
-)
+LOG_LEVEL_NAMES_TYPE = Literal["debug", "info", "warning", "error", "exception", "critical", "fatal"]
+ALLOWED_LOG_LEVEL_NAMES: tuple[LOG_LEVEL_NAMES_TYPE, ...] = get_args(LOG_LEVEL_NAMES_TYPE)
 
 __all__ = [
     "logger",

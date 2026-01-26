@@ -17,9 +17,7 @@ __all__ = ["get_config_path", "get_settings", "get_cl_settings"]
 def get_config_path() -> Path:
     return get_config_file(
         config_path=os.environ.get(config_vars.CONFIG_PATH_ENV_NAME),
-        default_config_specific_filename=(
-            config_vars.DEFAULT_QUALIBRATE_RUNNER_CONFIG_FILENAME
-        ),
+        default_config_specific_filename=(config_vars.DEFAULT_QUALIBRATE_RUNNER_CONFIG_FILENAME),
         raise_not_exists=True,
     )
 

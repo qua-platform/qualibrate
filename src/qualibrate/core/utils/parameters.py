@@ -21,20 +21,14 @@ def recursive_properties_solver(
         structures.
     """
     for name, structure in properties.items():
-        if (
-            "allOf" in structure
-            and len(structure["allOf"]) == 1
-            and isinstance(structure["allOf"][0], Mapping)
-        ):
+        if "allOf" in structure and len(structure["allOf"]) == 1 and isinstance(structure["allOf"][0], Mapping):
             structure.update(structure.pop("allOf")[0])
         if "$ref" in structure:
             resolved = resolve_pointer(schema, structure["$ref"][1:])
             # for objects, object json schema has propertieskey
             # then they are handled
             if "properties" in resolved:
-                properties[name] = recursive_properties_solver(
-                    resolved["properties"], schema
-                )
+                properties[name] = recursive_properties_solver(resolved["properties"], schema)
             else:
                 # for objects like enums, enums don't have properties key,
                 # but they have ref so they also need to be handled

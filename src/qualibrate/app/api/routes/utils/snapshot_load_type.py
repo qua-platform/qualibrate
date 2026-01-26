@@ -35,17 +35,13 @@ def _parse_snapshot_load_type(
     try:
         return SnapshotLoadTypeFlag[name]
     except KeyError:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid load type '{name}'"
-        ) from None
+        raise HTTPException(status_code=400, detail=f"Invalid load type '{name}'") from None
 
 
 def parse_load_type_flag(
     load_type_flag: Annotated[
         list[SnapshotLoadTypeStr] | None,
-        Query(
-            description="Bitwise flags specifying which snapshot parts to load."
-        ),
+        Query(description="Bitwise flags specifying which snapshot parts to load."),
     ] = None,
 ) -> SnapshotLoadTypeFlag:
     if load_type_flag is None:

@@ -8,12 +8,12 @@ from qualibrate_config.core.project.path import get_project_path
 from qualibrate_config.models import QualibrateConfig
 from qualibrate_config.models.qualibrate import QualibrateTopLevelConfig
 from qualibrate_config.models.storage_type import StorageType
+
 from qualibrate.app.config import get_config_path, get_settings
 
+
 @pytest.fixture
-def settings(
-    tmp_path: Path, default_local_storage_project: Path
-) -> Generator[QualibrateConfig, None, None]:
+def settings(tmp_path: Path, default_local_storage_project: Path) -> Generator[QualibrateConfig, None, None]:
     static = tmp_path / "static"
     static.mkdir()
     top = QualibrateTopLevelConfig(
@@ -63,9 +63,7 @@ def client_custom_settings(
     settings_path_filled: Path,
 ) -> Generator[TestClient, None, None]:
     get_config_path.cache_clear()
-    project_path = get_project_path(
-        settings_path_filled.parent, settings.project
-    )
+    project_path = get_project_path(settings_path_filled.parent, settings.project)
     project_path.mkdir(parents=True)
     (project_path / "config.toml").touch()
     mocker.patch(

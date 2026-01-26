@@ -59,9 +59,7 @@ def _get_snapshot_instance(
 @snapshot_router.get("/")
 def get(
     *,
-    load_type_flag: Annotated[
-        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
-    ],
+    load_type_flag: Annotated[SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)],
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
 ) -> SnapshotModel:
     snapshot.load_from_flag(load_type_flag)
@@ -93,10 +91,7 @@ def get_history(
         pages_filter=page_filter,
         descending=descending,
     )
-    history_dumped = [
-        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
-        for snapshot in history
-    ]
+    history_dumped = [SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump()) for snapshot in history]
     return PagedCollection[SimplifiedSnapshotWithMetadata](
         page=page_filter.page,
         per_page=page_filter.per_page,
@@ -128,15 +123,9 @@ def update_entry(
     ],
     value: Annotated[Any, Body()],
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
-    qualibrate_token: Annotated[
-        str | None, Cookie(alias="Qualibrate-Token")
-    ] = None,
+    qualibrate_token: Annotated[str | None, Cookie(alias="Qualibrate-Token")] = None,
 ) -> bool:
-    cookies = (
-        {"Qualibrate-Token": qualibrate_token}
-        if qualibrate_token is not None
-        else {}
-    )
+    cookies = {"Qualibrate-Token": qualibrate_token} if qualibrate_token is not None else {}
     type_ = snapshot.extract_state_update_type(data_path, cookies=cookies)
     if type_ is not None:
         value = types_conversion(value, type_)
@@ -163,9 +152,7 @@ def update_entries(
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
     state_updates: StateUpdateRequestItems,
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
-    qualibrate_token: Annotated[
-        str | None, Cookie(alias="Qualibrate-Token")
-    ] = None,
+    qualibrate_token: Annotated[str | None, Cookie(alias="Qualibrate-Token")] = None,
 ) -> bool:
     """
     Updates entries in a snapshot based on provided state updates.
@@ -175,18 +162,10 @@ def update_entries(
     the updates to the snapshot. If the update is successful, it attempts to
     record the state updates with the runner.
     """
-    cookies = (
-        {"Qualibrate-Token": qualibrate_token}
-        if qualibrate_token is not None
-        else {}
-    )
-    types = snapshot.extract_state_update_types(
-        [item.data_path for item in state_updates.items], cookies=cookies
-    )
+    cookies = {"Qualibrate-Token": qualibrate_token} if qualibrate_token is not None else {}
+    types = snapshot.extract_state_update_types([item.data_path for item in state_updates.items], cookies=cookies)
     values = {
-        item.data_path: types_conversion(
-            item.value, cast(Mapping[str, Any], types[item.data_path])
-        )
+        item.data_path: types_conversion(item.value, cast(Mapping[str, Any], types[item.data_path]))
         for item in state_updates.items
         if types.get(item.data_path) is not None
     }
@@ -200,9 +179,7 @@ def update_entries(
         for data_path in values:
             with contextlib.suppress(requests.exceptions.ConnectionError):
                 requests.post(
-                    urljoin(
-                        runner_config.address_with_root, "record_state_update"
-                    ),
+                    urljoin(runner_config.address_with_root, "record_state_update"),
                     params={"key": data_path},
                     cookies=cookies,
                     timeout=runner_config.timeout,

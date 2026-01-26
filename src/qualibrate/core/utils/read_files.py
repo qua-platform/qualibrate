@@ -34,9 +34,7 @@ def import_from_path_importlib(module_name: str, file_path: Path) -> ModuleType:
     return module
 
 
-def import_from_path_exec(
-    module_name: str, file_path: Path, encoding: str = "utf-8"
-) -> ModuleType:
+def import_from_path_exec(module_name: str, file_path: Path, encoding: str = "utf-8") -> ModuleType:
     """Import a module from a file with enforced UTF-8 encoding."""
     source = file_path.read_text(encoding=encoding)
     module = ModuleType(module_name)

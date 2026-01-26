@@ -45,11 +45,7 @@ def get_output_logs(
     Return core logs within specified time range but
     with amount not greater than `num_entries`
     """
-    logs_getter = (
-        get_logs_from_qualibrate_files
-        if parse_files
-        else get_logs_from_qualibrate_in_memory_storage
-    )
+    logs_getter = get_logs_from_qualibrate_files if parse_files else get_logs_from_qualibrate_in_memory_storage
     logs = logs_getter(
         after=after,
         before=before,
@@ -64,9 +60,7 @@ def get_output_logs(
 @others_router.post(
     "/stop",
     description="Stop a currently running workflow or node.",
-    response_description=(
-        "True if a running item was stopped successfully, False otherwise."
-    ),
+    response_description=("True if a running item was stopped successfully, False otherwise."),
 )
 def stop_running(
     state: Annotated[State, Depends(get_state)],
@@ -93,10 +87,7 @@ def state_updated(
     state: Annotated[State, Depends(get_state)],
     key: str,
 ) -> LastRun | None:
-    if (
-        state.last_run is None
-        or state.last_run.status != RunStatusEnum.FINISHED
-    ):
+    if state.last_run is None or state.last_run.status != RunStatusEnum.FINISHED:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Node not executed or finished unsuccessful.",

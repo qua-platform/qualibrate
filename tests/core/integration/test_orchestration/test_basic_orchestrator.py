@@ -33,22 +33,14 @@ def qualibration_lib(
 @pytest.fixture
 def graph_params() -> GraphParameters:
     class GP(GraphParameters):
-        qubits: list[str] = Field(
-            default_factory=lambda: ["q1", "q2", "q3", "q4"]
-        )
+        qubits: list[str] = Field(default_factory=lambda: ["q1", "q2", "q3", "q4"])
         retries: int = 2
 
     return GP()
 
 
-def test_run_sequence_no_error(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
-    nodes = {
-        k: v
-        for k, v in qualibration_lib.nodes.items()
-        if k in ("first_node", "second_node", "third_node")
-    }
+def test_run_sequence_no_error(qualibration_lib: QualibrationLibrary, graph_params: GraphParameters):
+    nodes = {k: v for k, v in qualibration_lib.nodes.items() if k in ("first_node", "second_node", "third_node")}
 
     g = QualibrationGraph(
         "graph_name",
@@ -96,20 +88,12 @@ def test_run_sequence_no_error(
                 error=None,
             ),
         )
-        for item, outcomes in zip(
-            execution_history, expected_outcomes, strict=False
-        )
+        for item, outcomes in zip(execution_history, expected_outcomes, strict=False)
     ]
 
 
-def test_run_sequence_with_error(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
-    nodes = {
-        k: v
-        for k, v in qualibration_lib.nodes.items()
-        if k in ("first_node", "forth_node")
-    }
+def test_run_sequence_with_error(qualibration_lib: QualibrationLibrary, graph_params: GraphParameters):
+    nodes = {k: v for k, v in qualibration_lib.nodes.items() if k in ("first_node", "forth_node")}
 
     g = QualibrationGraph(
         "graph_name",
@@ -247,8 +231,7 @@ def test_traverse_graph_with_conditional_failed_edge_filters_targets():
 
     # Operational condition: only retry if error_type is "retriable"
     retry_condition = OperationalCondition(
-        on_function=lambda node, target: node.results[target]["error_type"]
-        == "retriable"
+        on_function=lambda node, target: node.results[target]["error_type"] == "retriable"
     )
 
     # Add edges
@@ -336,18 +319,9 @@ def test_traverse_graph_with_conditional_failed_edge_filters_targets():
     assert set(execution_log[2][1]) == {"q3", "q4"}
 
     # Verify all nodes finished
-    assert (
-        nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD]
-        == ElementRunStatus.finished
-    )
-    assert (
-        nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD]
-        == ElementRunStatus.finished
-    )
-    assert (
-        nx_graph.nodes[node3_retry][QualibrationGraph.ELEMENT_STATUS_FIELD]
-        == ElementRunStatus.finished
-    )
+    assert nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
+    assert nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
+    assert nx_graph.nodes[node3_retry][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
 
 
 def test_traverse_graph_with_generator_condition_on_failed_edge():
@@ -514,18 +488,9 @@ def test_traverse_graph_with_generator_condition_on_failed_edge():
     assert set(execution_log[2][1]) == {"q2", "q4"}
 
     # Verify all nodes finished
-    assert (
-        nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD]
-        == ElementRunStatus.finished
-    )
-    assert (
-        nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD]
-        == ElementRunStatus.finished
-    )
-    assert (
-        nx_graph.nodes[node3_retry][QualibrationGraph.ELEMENT_STATUS_FIELD]
-        == ElementRunStatus.finished
-    )
+    assert nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
+    assert nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
+    assert nx_graph.nodes[node3_retry][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
 
 
 def test_traverse_graph_multiple_failed_edges_different_conditions():
@@ -610,12 +575,8 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
         nx_graph.add_node(node, status=ElementRunStatus.pending, retries=0)
 
     # Conditions for different error types
-    timeout_condition = OperationalCondition(
-        on_function=lambda n, t: n.results[t]["error"] == "timeout"
-    )
-    hw_condition = OperationalCondition(
-        on_function=lambda n, t: n.results[t]["error"] == "hardware"
-    )
+    timeout_condition = OperationalCondition(on_function=lambda n, t: n.results[t]["error"] == "timeout")
+    hw_condition = OperationalCondition(on_function=lambda n, t: n.results[t]["error"] == "hardware")
 
     # Add edges
     nx_graph.add_edge(
@@ -718,7 +679,4 @@ def test_traverse_graph_multiple_failed_edges_different_conditions():
 
     # Verify all nodes finished
     for node in [node1, node2_success, node3_timeout, node4_hw]:
-        assert (
-            nx_graph.nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD]
-            == ElementRunStatus.finished
-        )
+        assert nx_graph.nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished

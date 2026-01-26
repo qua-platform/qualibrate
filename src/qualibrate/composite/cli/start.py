@@ -52,9 +52,7 @@ def _setup_demo_on_first_run(config_path: Path) -> None:
                 shutil.copytree(calibrations_src, demo_calibrations_dest)
                 click.echo(f"Copied demo calibrations to {demo_calibrations_dest}")
             else:
-                click.echo(
-                    f"Warning: Demo calibrations not found at {calibrations_src}"
-                )
+                click.echo(f"Warning: Demo calibrations not found at {calibrations_src}")
 
         # Create or update demo_project config with calibration_library override
         demo_project_config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -64,7 +62,7 @@ def _setup_demo_on_first_run(config_path: Path) -> None:
 folder = "{demo_calibrations_dest}"
 """
         try:
-            import quam
+            import quam  # noqa: F401, I001
 
             demo_state_dest = qualibrate_path / "demo_quam_state"
             demo_state_src = examples_path / "demo_quam_state"
@@ -81,17 +79,13 @@ folder = "{demo_calibrations_dest}"
 state_path = "{demo_state_dest}"
 """
         except ImportError:
-            click.echo(
-                "Warning: quam package not found. Skipping demo quam state setup."
-            )
+            click.echo("Warning: quam package not found. Skipping demo quam state setup.")
 
         demo_project_config_path.write_text(demo_config_content)
         click.echo(f"Created demo project config at {demo_project_config_path}")
 
     except ImportError:
-        click.echo(
-            "Warning: qualibrate_examples package not found. Skipping demo setup."
-        )
+        click.echo("Warning: qualibrate_examples package not found. Skipping demo setup.")
     except Exception as e:
         click.echo(f"Warning: Error during demo setup: {e}")
 
@@ -143,9 +137,7 @@ def start_command(
     cors_origin: list[str],
     root_path: str,
 ) -> None:
-    is_first_run = (
-        not config_path.exists() and config_path == config_vars.DEFAULT_CONFIG_FILEPATH
-    )
+    is_first_run = not config_path.exists() and config_path == config_vars.DEFAULT_CONFIG_FILEPATH
 
     if is_first_run:
         click.echo(f"No config found. Auto-creating config at {config_path}")
@@ -164,9 +156,7 @@ def start_command(
     os.environ.setdefault(composite_vars.CONFIG_PATH_ENV_NAME, config_path_str)
     os.environ.setdefault(composite_vars.ROOT_PATH_ENV_NAME, root_path)
     if len(cors_origin) != 0:
-        os.environ.setdefault(
-            composite_vars.CORS_ORIGINS_ENV_NAME, ",".join(cors_origin)
-        )
+        os.environ.setdefault(composite_vars.CORS_ORIGINS_ENV_NAME, ",".join(cors_origin))
 
     def _set_module_env_name_and_value(
         module_path: str,

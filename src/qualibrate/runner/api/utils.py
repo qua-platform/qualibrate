@@ -11,11 +11,6 @@ def get_model_docstring(model: type[BaseModel]) -> str:
 
 **Fields**:
 ```
-{
-        next_line.join(
-            f"{name}: {info.description}"
-            for name, info in model.model_fields.items()
-        )
-    }
+{next_line.join(f"{name}: {info.description}" for name, info in model.model_fields.items())}
 ```
 """

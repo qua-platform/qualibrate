@@ -23,9 +23,7 @@ class RunnableCollection(dict[_KT, _VT]):
             return copy(super().get(key))
         return default
 
-    def get_nocopy(
-        self, key: _KT, /, default: _T | None = None
-    ) -> _T | _VT | None:
+    def get_nocopy(self, key: _KT, /, default: _T | None = None) -> _T | _VT | None:
         return super().get(key, default)
 
     def items(self) -> "dict_items[_KT, _VT]":

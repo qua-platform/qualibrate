@@ -42,9 +42,7 @@ class TestQualibrationNode:
         )
 
         # Mock the superclass __init__
-        mock_super_init = mocker.patch.object(
-            QRunnable, "__init__", return_value=None
-        )
+        mock_super_init = mocker.patch.object(QRunnable, "__init__", return_value=None)
 
         # Mock _warn_if_external_and_interactive_mpl
         mock_warn_if_external = mocker.patch.object(
@@ -87,9 +85,7 @@ class TestQualibrationNode:
 
         # Create an instance with inspection mode
         modes = RunModes(inspection=True)
-        with pytest.raises(
-            StopInspection, match="Node instantiated in inspection mode"
-        ) as ex:
+        with pytest.raises(StopInspection, match="Node instantiated in inspection mode") as ex:
             QualibrationNode(name="test_node", modes=modes)
 
         assert isinstance(ex.value.instance, QualibrationNode)
@@ -117,9 +113,7 @@ class TestQualibrationNode:
         # Should return the passed parameters
         assert result == parameters
 
-    def test__validate_passed_parameters_options_with_invalid_parameters_class(
-        self, mock_logger
-    ):
+    def test__validate_passed_parameters_options_with_invalid_parameters_class(self, mock_logger):
         class Parameters:
             pass
 
@@ -128,9 +122,7 @@ class TestQualibrationNode:
                 name="test_node", parameters=None, parameters_class=Parameters
             )
 
-    def test__validate_passed_parameters_options_with_parameters_class(
-        self, mock_logger
-    ):
+    def test__validate_passed_parameters_options_with_parameters_class(self, mock_logger):
         class Parameters(NodeParameters):
             val: int = 1
 
@@ -143,13 +135,10 @@ class TestQualibrationNode:
         assert isinstance(result, Parameters)
         assert result.val == 1
         mock_logger.warning.assert_called_once_with(
-            "parameters_class argument is deprecated. Please use "
-            "parameters argument for initializing node 'test_node'."
+            "parameters_class argument is deprecated. Please use parameters argument for initializing node 'test_node'."
         )
 
-    def test__validate_passed_parameters_options_with_both_parameters_and_class(
-        self, mock_logger
-    ):
+    def test__validate_passed_parameters_options_with_both_parameters_and_class(self, mock_logger):
         parameters = MagicMock(spec=NodeParameters)
         parameters_class = MagicMock()
 
@@ -161,26 +150,19 @@ class TestQualibrationNode:
         )
         assert result == parameters
         mock_logger.warning.assert_called_once_with(
-            "Passed both parameters and parameters_class to the node "
-            "'test_node'. Please use only parameters argument"
+            "Passed both parameters and parameters_class to the node 'test_node'. Please use only parameters argument"
         )
 
     def test__validate_passed_parameters_options_with_none(self, mocker):
-        mocked_create_model = mocker.patch(
-            "qualibrate.core.qualibration_node.create_model"
-        )
+        mocked_create_model = mocker.patch("qualibrate.core.qualibration_node.create_model")
         params = mocker.patch(
             "qualibrate.core.qualibration_node.NodeParameters",
             __name__="a",
             __doc__="str",
             __module__="module",
         )
-        QualibrationNode._validate_passed_parameters_options(
-            name="test_node", parameters=None, parameters_class=None
-        )
-        mocked_create_model.assert_called_once_with(
-            "a", __doc__="str", __base__=params, __module__="module"
-        )
+        QualibrationNode._validate_passed_parameters_options(name="test_node", parameters=None, parameters_class=None)
+        mocked_create_model.assert_called_once_with("a", __doc__="str", __base__=params, __module__="module")
 
     def test__validate_passed_parameters_options_parameters_class_instantiation_failure(  # noqa: E501
         self, mock_logger
@@ -233,8 +215,7 @@ class TestQualibrationNode:
         node._warn_if_external_and_interactive_mpl()
         mock_matplotlib.use.assert_called_with("agg")
         mock_logger.warning.assert_called_with(
-            "Using interactive matplotlib backend 'tkagg' in "
-            "external mode. The backend is changed to 'agg'."
+            "Using interactive matplotlib backend 'tkagg' in external mode. The backend is changed to 'agg'."
         )
 
     def test__warn_if_external_and_interactive_mpl_non_interactive(
@@ -268,9 +249,7 @@ class TestQualibrationNode:
         node.storage_manager = None
         assert node.snapshot_idx is None
 
-    def test_save_with_storage_manager(
-        self, mocker, qualibrate_config_and_path_mocked
-    ):
+    def test_save_with_storage_manager(self, mocker, qualibrate_config_and_path_mocked):
         node = QualibrationNode(name="test_node")
         manager = MagicMock(spec=LocalStorageManager)
         mocker.patch.object(node, "_get_storage_manager", return_value=manager)
@@ -283,9 +262,7 @@ class TestQualibrationNode:
         qualibrate_config_and_path_mocked,
     ):
         class P(NodeCreateParametersType):
-            qubits: list[str] = Field(
-                default_factory=lambda: ["target1", "target2", "target3"]
-            )
+            qubits: list[str] = Field(default_factory=lambda: ["target1", "target2", "target3"])
 
         node = QualibrationNode(name="test_node")
         last_executed_node = MagicMock()
@@ -295,9 +272,7 @@ class TestQualibrationNode:
         parameters = P()
 
         last_executed_node.outcomes = {"target1": "successful"}
-        mocker.patch.object(
-            node.__class__, "parameters", PropertyMock(return_value=parameters)
-        )
+        mocker.patch.object(node.__class__, "parameters", PropertyMock(return_value=parameters))
         node.run_start = created_at
 
         run_summary = node._post_run(
@@ -326,15 +301,11 @@ class TestQualibrationNode:
         qualibrate_config_and_path_mocked,
     ):
         class P(NodeCreateParametersType):
-            qubits: list[str] = Field(
-                default_factory=lambda: ["target1", "target2"]
-            )
+            qubits: list[str] = Field(default_factory=lambda: ["target1", "target2"])
 
         node = QualibrationNode(name="test_node")
         node.filepath = Path("test_path")
-        mocker.patch.object(
-            node.__class__, "parameters", PropertyMock(return_value=P())
-        )
+        mocker.patch.object(node.__class__, "parameters", PropertyMock(return_value=P()))
 
         # Mock datetime
         mock_datetime = mocker.patch("qualibrate.core.qualibration_node.datetime")
@@ -344,9 +315,7 @@ class TestQualibrationNode:
         mock_run_node_file = mocker.patch.object(node, "run_node_file")
 
         # Mock _post_run
-        mock_post_run = mocker.patch.object(
-            node, "_post_run", return_value="run_summary"
-        )
+        mock_post_run = mocker.patch.object(node, "_post_run", return_value="run_summary")
 
         # Call run
         run_summary = node.run()
@@ -363,9 +332,7 @@ class TestQualibrationNode:
         node = QualibrationNode(name="test_node")
         node.filepath = None
 
-        with pytest.raises(
-            RuntimeError, match="Node test_node file path was not provided"
-        ):
+        with pytest.raises(RuntimeError, match="Node test_node file path was not provided"):
             node.run()
 
     def test_run_exception(
@@ -376,29 +343,21 @@ class TestQualibrationNode:
         qualibrate_config_and_path_mocked,
     ):
         class P(NodeCreateParametersType):
-            qubits: list[str] = Field(
-                default_factory=lambda: ["target1", "target2"]
-            )
+            qubits: list[str] = Field(default_factory=lambda: ["target1", "target2"])
 
         node = QualibrationNode(name="test_node")
         node.filepath = Path("test_path")
-        mocker.patch.object(
-            node.__class__, "parameters", PropertyMock(return_value=P())
-        )
+        mocker.patch.object(node.__class__, "parameters", PropertyMock(return_value=P()))
 
         # Mock datetime
         mock_datetime = mocker.patch("qualibrate.core.qualibration_node.datetime")
         mock_datetime.now.return_value = datetime(2020, 1, 1)
 
         # Mock run_node_file to raise exception
-        mocker.patch.object(
-            node, "run_node_file", side_effect=Exception("Test error")
-        )
+        mocker.patch.object(node, "run_node_file", side_effect=Exception("Test error"))
 
         # Mock _post_run
-        mock_post_run = mocker.patch.object(
-            node, "_post_run", return_value="run_summary"
-        )
+        mock_post_run = mocker.patch.object(node, "_post_run", return_value="run_summary")
 
         # Call run and expect exception
         with pytest.raises(Exception, match="Test error"):
@@ -418,24 +377,18 @@ class TestQualibrationNode:
     ):
         node = QualibrationNode(name="test_node")
         node_filepath = Path("test_node.py")
-        mock_import_from_path = mocker.patch(
-            "qualibrate.core.qualibration_node.import_from_path"
-        )
+        mock_import_from_path = mocker.patch("qualibrate.core.qualibration_node.import_from_path")
         mock_matplotlib.get_backend.return_value = "tkagg"
 
         node.run_node_file(node_filepath)
 
         mock_matplotlib.use.assert_any_call("agg")
         mock_matplotlib.use.assert_any_call("tkagg")
-        mock_import_from_path.assert_called_with(
-            "_node_test_node", node_filepath
-        )
+        mock_import_from_path.assert_called_with("_node_test_node", node_filepath)
 
     @pytest.fixture
     def node_active_node_self(self, mocker):
-        mocker.patch(
-            "qualibrate.core.qualibration_node.QualibrationNode._get_storage_manager"
-        )
+        mocker.patch("qualibrate.core.qualibration_node.QualibrationNode._get_storage_manager")
         node = QualibrationNode(name="test_node")
         node.__class__.active_node = node
         yield node
@@ -478,9 +431,7 @@ class TestQualibrationNode:
             "qualibrate.core.qualibration_node.file_is_calibration_node_instance",
             return_value=True,
         )
-        mock_scan_node_file = mocker.patch.object(
-            QualibrationNode, "scan_node_file"
-        )
+        mock_scan_node_file = mocker.patch.object(QualibrationNode, "scan_node_file")
 
         QualibrationNode.scan_folder_for_instances(mock_path)
 
@@ -520,7 +471,5 @@ class TestQualibrationNode:
         QualibrationNode.add_node(node, nodes)
 
         # Assertions
-        mock_logger.warning.assert_called_with(
-            'Node "test_node" already exists in library, overwriting'
-        )
+        mock_logger.warning.assert_called_with('Node "test_node" already exists in library, overwriting')
         assert nodes["test_node"] == node

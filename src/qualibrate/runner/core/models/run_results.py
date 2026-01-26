@@ -5,9 +5,9 @@ from collections.abc import Mapping
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
+
 from qualibrate.core.models.outcome import Outcome
 from qualibrate.core.utils.type_protocols import TargetType
-
 from qualibrate.runner.core.models.common import RunError
 
 

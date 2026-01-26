@@ -36,9 +36,7 @@ def test_load_from_id_class_empty(
     empty_node_dir: Path,
     qualibrate_config_and_path_mocked,
 ):
-    loaded_node = QualibrationNode.load_from_id(
-        1, base_path=empty_nodes_dump_folder
-    )
+    loaded_node = QualibrationNode.load_from_id(1, base_path=empty_nodes_dump_folder)
     assert loaded_node is not None
     assert isinstance(loaded_node.parameters, NodeParameters)
     assert loaded_node.parameters.__class__.model_fields == {}
@@ -65,9 +63,7 @@ def test_load_from_id_class_filled(
         "list_bool": [True, False],
     }
     assert loaded_node.machine == {
-        "channels": {
-            "ch1": {"opx_output": ["con1", 1], "__class__": "CustomChannel"}
-        },
+        "channels": {"ch1": {"opx_output": ["con1", 1], "__class__": "CustomChannel"}},
         "__class__": "quam.components.basic_quam.BasicQuam",
     }
 
@@ -106,27 +102,17 @@ def node_for_dump(
 
     node.machine = BasicQuam(
         channels={
-            "ch1": SingleChannel(
-                opx_output=("con1", 1), intermediate_frequency=100e6
-            ),
-            "ch2": SingleChannel(
-                opx_output=("con1", 2), intermediate_frequency=80e6
-            ),
+            "ch1": SingleChannel(opx_output=("con1", 1), intermediate_frequency=100e6),
+            "ch2": SingleChannel(opx_output=("con1", 2), intermediate_frequency=80e6),
         }
     )
     fig, ax = plt.subplots()
     xvals = np.linspace(-10, 10, node.parameters.sampling_points)
     offset = np.random.rand() * 3
     gaussian = np.exp(-((xvals + offset) ** 2))
-    noise = node.parameters.noise_factor * np.random.rand(
-        node.parameters.sampling_points
-    )
+    noise = node.parameters.noise_factor * np.random.rand(node.parameters.sampling_points)
     yvals = gaussian + noise
-    arr = xr.Dataset(
-        data_vars={
-            "signal": xr.DataArray(yvals, dims=["freq"], coords={"freq": xvals})
-        }
-    )
+    arr = xr.Dataset(data_vars={"signal": xr.DataArray(yvals, dims=["freq"], coords={"freq": xvals})})
 
     ax.plot(xvals, yvals)
     ax.set_xlabel("Frequency shift (Hz)")
@@ -145,9 +131,7 @@ def test_save_and_load(mocker, tmp_path, node_for_dump, qualibrate_config):
     assert node_for_dump.storage_manager is not None
     assert isinstance(node_for_dump.storage_manager.snapshot_idx, int)
     with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", category=UserWarning, module="quam.core.quam_classes"
-        )
+        warnings.filterwarnings("ignore", category=UserWarning, module="quam.core.quam_classes")
         restored_node = QualibrationNode.load_from_id(
             node_for_dump.storage_manager.snapshot_idx,
             base_path=qualibrate_config.storage.location,
@@ -158,9 +142,7 @@ def test_save_and_load(mocker, tmp_path, node_for_dump, qualibrate_config):
     assert asdict(restored_node.machine) == asdict(node_for_dump.machine)
     restored_results = restored_node.results
     assert restored_node.results.keys() == copied_results.keys()
-    assert (
-        restored_results["frequency_shift"] == copied_results["frequency_shift"]
-    )
+    assert restored_results["frequency_shift"] == copied_results["frequency_shift"]
     assert restored_results["arr"].equals(copied_results["arr"])
     assert (
         ImageChops.difference(
@@ -173,8 +155,6 @@ def test_save_and_load(mocker, tmp_path, node_for_dump, qualibrate_config):
 
 def _fig_to_pil(fig: plt.Figure) -> Image:
     buf = io.BytesIO()  # Create an in-memory bytes buffer
-    fig.savefig(
-        buf, format="png", bbox_inches="tight"
-    )  # Save figure as PNG to buffer
+    fig.savefig(buf, format="png", bbox_inches="tight")  # Save figure as PNG to buffer
     buf.seek(0)  # Move cursor to the beginning of buffer
     return Image.open(buf)  # Open buffer as an image using PIL

@@ -4,9 +4,9 @@ from qualibrate.core import (
     NodeParameters,
     NodesParameters,
     QualibrationGraph,
-    QualibrationNode,
     QualibrationLibrary,
-    logger
+    QualibrationNode,
+    logger,
 )
 
 __all__ = [

@@ -8,9 +8,7 @@ class TestNodesDatePath:
     def test_date(self, mocker):
         node_date = NodesDatePath("/path/2024-04-27")
         dt = datetime(2024, 4, 27, 0, 0, 0)
-        mocker.patch.object(
-            node_date, "datetime", new_callable=PropertyMock, return_value=dt
-        )
+        mocker.patch.object(node_date, "datetime", new_callable=PropertyMock, return_value=dt)
 
     def test_datetime(self):
         node_date = NodesDatePath("/path/2024-04-27")
