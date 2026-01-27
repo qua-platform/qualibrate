@@ -27,6 +27,25 @@ jobs:
       - name: Install python deps
         run: poetry install --with dev --with test
 
+      - name: Create qualibrate config for tests
+        run: |
+          mkdir -p ~/.qualibrate
+          cat > ~/.qualibrate/config.toml << 'EOF'
+          [qualibrate]
+          version = 5
+          project = "test"
+          log_folder = "/tmp/qualibrate/logs"
+          
+          [qualibrate.storage]
+          type = "local_storage"
+          location = "/tmp/qualibrate/data"
+          
+          [qualibrate.calibration_library]
+          folder = "/tmp/qualibrate/calibrations"
+          resolver = "qualibrate.QualibrationLibrary"
+          EOF
+
+
       - name: Check python package typing
         run: poetry run poe type
 
