@@ -7,7 +7,7 @@ This example demonstrates:
   beats a target value.
 """
 
-from qualibrate import (
+from qualibrate.core import (
     GraphParameters,
     QualibrationGraph,
     QualibrationLibrary,

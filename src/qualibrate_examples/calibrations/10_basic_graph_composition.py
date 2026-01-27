@@ -8,7 +8,7 @@ This example demonstrates:
 - Connecting nodes and subgraphs.
 """
 
-from qualibrate import GraphParameters, QualibrationGraph, QualibrationLibrary
+from qualibrate.core import GraphParameters, QualibrationGraph, QualibrationLibrary
 
 # Get the active library of pre-defined calibration nodes
 library = QualibrationLibrary.get_active_library()
