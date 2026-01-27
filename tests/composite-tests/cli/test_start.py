@@ -248,6 +248,7 @@ class TestFirstRunDetection:
         ):
             with (
                 patch("qualibrate.composite.cli.start._setup_demo_on_first_run") as mock_demo_setup,
+                patch("qualibrate.composite.cli.start._projects_folder_exist", return_value=True),
                 patch.dict(
                     "sys.modules",
                     {"qualibrate.composite.app": MagicMock()},
