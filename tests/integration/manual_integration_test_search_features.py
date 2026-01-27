@@ -3,7 +3,6 @@ import json
 import time
 
 import requests
-
 # manual test for ui and app backend
 BASE_URL = "http://localhost:8001/api"
 
