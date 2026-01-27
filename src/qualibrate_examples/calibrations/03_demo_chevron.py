@@ -7,7 +7,7 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 
-from qualibrate import NodeParameters, QualibrationNode
+from qualibrate.core import NodeParameters, QualibrationNode
 
 
 # %% Parameters

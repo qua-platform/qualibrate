@@ -7,7 +7,7 @@ This example demonstrates:
 - A combination of sequential execution, branching, and looping.
 """
 
-from qualibrate import GraphParameters, QualibrationGraph, QualibrationLibrary
+from qualibrate.core import GraphParameters, QualibrationGraph, QualibrationLibrary
 
 # Get the active library of pre-defined calibration nodes
 library = QualibrationLibrary.get_active_library()
