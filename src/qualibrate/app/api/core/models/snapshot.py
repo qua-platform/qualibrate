@@ -1,10 +1,25 @@
 from collections.abc import Sequence
-from typing import Annotated, Any
+from enum import Enum
+from typing import Annotated, Any, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
 
 from qualibrate.app.api.core.models.base import ModelWithIdCreatedAt
 from qualibrate.app.api.core.types import IdType
+
+
+class ExecutionType(str, Enum):
+    """Type of execution for a snapshot - either a single node or a workflow."""
+
+    node = "node"
+    workflow = "workflow"
+
+
+class QubitOutcome(BaseModel):
+    """Outcome status for a single qubit/target in a workflow."""
+
+    status: Literal["success", "failure"]
+    failed_on: str | None = None
 
 
 class SimplifiedSnapshot(ModelWithIdCreatedAt):
@@ -59,3 +74,48 @@ class MachineSearchResults(BaseModel):
 class SnapshotSearchResult(MachineSearchResults):
     snapshot: SimplifiedSnapshot
     value: Any = None
+
+
+class SnapshotHistoryMetadata(SnapshotMetadata):
+    """Extended metadata for snapshot history items with workflow-specific fields."""
+
+    type_of_execution: ExecutionType = ExecutionType.node
+    children: list[IdType] | None = None
+    workflow_parent_id: IdType | None = None
+
+
+class SnapshotHistoryItem(ModelWithIdCreatedAt):
+    """A snapshot item in the history response, supporting nested workflows.
+
+    For nodes:
+        - type_of_execution = "node"
+        - items = None
+        - outcomes, nodes_completed, etc. = None
+
+    For workflows:
+        - type_of_execution = "workflow"
+        - items = list of child SnapshotHistoryItem
+        - outcomes = aggregated outcomes from all children
+        - nodes_completed, nodes_total, qubits_completed, qubits_total populated
+    """
+
+    parents: list[IdType]
+    metadata: SnapshotHistoryMetadata
+    type_of_execution: ExecutionType = ExecutionType.node
+
+    # Workflow-only fields: nested items
+    items: list["SnapshotHistoryItem"] | None = None
+
+    # Workflow aggregate statistics
+    outcomes: dict[str, QubitOutcome] | None = None
+    nodes_completed: int | None = None
+    nodes_total: int | None = None
+    qubits_completed: int | None = None
+    qubits_total: int | None = None
+
+    # Optional tags
+    tags: list[str] | None = None
+
+
+# Enable forward reference resolution for recursive model
+SnapshotHistoryItem.model_rebuild()

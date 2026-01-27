@@ -16,7 +16,11 @@ from qualibrate.app.api.core.models.branch import Branch as BranchModel
 from qualibrate.app.api.core.models.node import Node as NodeModel
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
+    ExecutionType,
+    QubitOutcome,
     SimplifiedSnapshotWithMetadata,
+    SnapshotHistoryItem,
+    SnapshotHistoryMetadata,
     SnapshotSearchResult,
 )
 from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
@@ -75,6 +79,232 @@ def _get_sort_key(
         priority = STATUS_SORT_PRIORITY.get(status, len(STATUS_SORT_PRIORITY))
         return (priority, status or "")
     return (0, snapshot.id)
+
+
+def _convert_to_history_item(
+    snapshot: SimplifiedSnapshotWithMetadata,
+) -> SnapshotHistoryItem:
+    """Convert a SimplifiedSnapshotWithMetadata to a SnapshotHistoryItem."""
+    # Get type_of_execution from metadata or default to "node"
+    metadata_dict = snapshot.metadata.model_dump()
+    type_of_execution_str = metadata_dict.get("type_of_execution", "node")
+    try:
+        type_of_execution = ExecutionType(type_of_execution_str)
+    except ValueError:
+        type_of_execution = ExecutionType.node
+
+    # Get children and workflow_parent_id from metadata
+    children = metadata_dict.get("children")
+    workflow_parent_id = metadata_dict.get("workflow_parent_id")
+
+    # Create extended metadata
+    history_metadata = SnapshotHistoryMetadata(
+        **metadata_dict,
+        type_of_execution=type_of_execution,
+        children=children,
+        workflow_parent_id=workflow_parent_id,
+    )
+
+    return SnapshotHistoryItem(
+        id=snapshot.id,
+        created_at=snapshot.created_at,
+        parents=snapshot.parents,
+        metadata=history_metadata,
+        type_of_execution=type_of_execution,
+    )
+
+
+def _build_snapshot_tree(
+    snapshots: list[SimplifiedSnapshotWithMetadata],
+) -> list[SnapshotHistoryItem]:
+    """Build a nested tree structure from a flat list of snapshots.
+
+    Args:
+        snapshots: Flat list of snapshots with metadata containing
+            type_of_execution and children fields.
+
+    Returns:
+        List of top-level SnapshotHistoryItem with nested items for workflows.
+    """
+    # Convert all snapshots to history items and index by ID
+    items_by_id: dict[IdType, SnapshotHistoryItem] = {}
+    for snapshot in snapshots:
+        item = _convert_to_history_item(snapshot)
+        items_by_id[item.id] = item
+
+    # Build the tree by linking children to parents
+    child_ids: set[IdType] = set()
+    for item in items_by_id.values():
+        if item.type_of_execution == ExecutionType.workflow:
+            children_ids = item.metadata.children or []
+            children_items = []
+            for child_id in children_ids:
+                if child_id in items_by_id:
+                    children_items.append(items_by_id[child_id])
+                    child_ids.add(child_id)
+            if children_items:
+                item.items = children_items
+                # Compute aggregated statistics
+                _compute_workflow_aggregates(item)
+
+    # Return only top-level items (not children of other items in this result)
+    top_level_items = [
+        item for item_id, item in items_by_id.items() if item_id not in child_ids
+    ]
+
+    return top_level_items
+
+
+def _compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
+    """Compute aggregated statistics for a workflow from its children.
+
+    Populates:
+        - outcomes: merged outcomes with failure tracking
+        - nodes_completed: count of successful nodes
+        - nodes_total: total node count (including nested)
+        - qubits_completed: count of successful qubits
+        - qubits_total: total qubit count
+    """
+    if workflow.items is None:
+        return
+
+    merged_outcomes: dict[str, QubitOutcome] = {}
+    nodes_completed = 0
+    nodes_total = 0
+
+    def _process_item(
+        item: SnapshotHistoryItem, depth: int = 0
+    ) -> dict[str, QubitOutcome]:
+        """Recursively process an item and collect outcomes."""
+        nonlocal nodes_completed, nodes_total
+        item_outcomes: dict[str, QubitOutcome] = {}
+
+        if item.type_of_execution == ExecutionType.workflow:
+            # For nested workflows, process their children
+            if item.items:
+                for child in item.items:
+                    child_outcomes = _process_item(child, depth + 1)
+                    # Merge child outcomes
+                    for qubit, outcome in child_outcomes.items():
+                        if qubit not in item_outcomes:
+                            item_outcomes[qubit] = outcome
+                        elif outcome.status == "failure":
+                            # Keep the first failure
+                            if item_outcomes[qubit].status != "failure":
+                                item_outcomes[qubit] = outcome
+            # Count this workflow as a node
+            nodes_total += 1
+            # Workflow is successful if more than half its nodes succeeded
+            if item.nodes_completed is not None and item.nodes_total is not None:
+                if item.nodes_completed > item.nodes_total / 2:
+                    nodes_completed += 1
+        else:
+            # For nodes, count and extract outcomes from metadata
+            nodes_total += 1
+            status = item.metadata.status if item.metadata else None
+            if status in ("finished", "success"):
+                nodes_completed += 1
+
+            # Try to get outcomes from data if available
+            # Note: outcomes are typically in data.outcomes, but in history
+            # we may not have full data. Use status as proxy.
+            name = item.metadata.name if item.metadata else f"node_{item.id}"
+
+            # Create outcome based on node status
+            if status in ("finished", "success"):
+                item_outcomes[f"node_{item.id}"] = QubitOutcome(status="success")
+            elif status in ("error", "failure"):
+                item_outcomes[f"node_{item.id}"] = QubitOutcome(
+                    status="failure", failed_on=name
+                )
+
+        return item_outcomes
+
+    # Process all children
+    for child in workflow.items:
+        child_outcomes = _process_item(child)
+        for qubit, outcome in child_outcomes.items():
+            if qubit not in merged_outcomes:
+                merged_outcomes[qubit] = outcome
+            elif outcome.status == "failure":
+                # Keep the first failure
+                if merged_outcomes[qubit].status != "failure":
+                    merged_outcomes[qubit] = outcome
+
+    # Set computed fields
+    workflow.outcomes = merged_outcomes if merged_outcomes else None
+    workflow.nodes_completed = nodes_completed
+    workflow.nodes_total = nodes_total
+    workflow.qubits_completed = sum(
+        1 for o in merged_outcomes.values() if o.status == "success"
+    )
+    workflow.qubits_total = len(merged_outcomes)
+
+
+def _count_nested_items(items: list[SnapshotHistoryItem]) -> int:
+    """Count total items including nested children."""
+    count = 0
+    for item in items:
+        count += 1
+        if item.items:
+            count += _count_nested_items(item.items)
+    return count
+
+
+def _paginate_nested_items(
+    items: list[SnapshotHistoryItem],
+    page: int,
+    per_page: int,
+) -> tuple[list[SnapshotHistoryItem], int]:
+    """Paginate nested items counting all items including nested.
+
+    Returns:
+        Tuple of (paginated items, total count)
+    """
+    # Flatten items for counting and pagination
+    flat_items: list[SnapshotHistoryItem] = []
+
+    def _flatten(item_list: list[SnapshotHistoryItem]) -> None:
+        for item in item_list:
+            flat_items.append(item)
+            if item.items:
+                _flatten(item.items)
+
+    _flatten(items)
+
+    total = len(flat_items)
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    # Get the paginated flat items
+    paginated_flat = flat_items[start:end]
+
+    # For the response, we need to return the original tree structure
+    # but only including items that appear in the paginated slice
+    paginated_ids = {item.id for item in paginated_flat}
+
+    def _filter_tree(
+        item_list: list[SnapshotHistoryItem],
+    ) -> list[SnapshotHistoryItem]:
+        result = []
+        for item in item_list:
+            if item.id in paginated_ids:
+                # Include this item
+                new_item = item.model_copy(deep=True)
+                if new_item.items:
+                    new_item.items = _filter_tree(new_item.items)
+                result.append(new_item)
+            elif item.items:
+                # Check if any children are in paginated set
+                filtered_children = _filter_tree(item.items)
+                if filtered_children:
+                    new_item = item.model_copy(deep=True)
+                    new_item.items = filtered_children
+                    result.append(new_item)
+        return result
+
+    result_items = _filter_tree(items)
+    return result_items, total
 
 
 @root_router.get("/branch", summary="Get branch by name")
@@ -426,18 +656,40 @@ def get_snapshots_history(
             )
         ),
     ] = None,
+    grouped: Annotated[
+        bool,
+        Query(
+            description=(
+                "When true, returns a nested structure with workflows "
+                "containing their child nodes in an 'items' array. "
+                "Workflows include aggregated statistics (outcomes, "
+                "nodes_completed, etc.). When false (default), returns "
+                "a flat list for backward compatibility."
+            )
+        ),
+    ] = False,
     search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
     root: Annotated[RootBase, Depends(_get_root_instance)],
-) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
+) -> PagedCollection[SimplifiedSnapshotWithMetadata] | PagedCollection[
+    SnapshotHistoryItem
+]:
     """List snapshots history.
 
     Returns a paginated list of snapshots for the storage. Order is controlled
     by the `descending` flag. Optionally filter by date range, name, or node ID.
     Use the `sort` parameter to sort by name, date, or status.
 
+    When `grouped=true`, returns a nested structure where workflows contain
+    their child nodes in an 'items' array, with aggregated statistics including:
+    - `type_of_execution`: "node" or "workflow"
+    - `items`: nested child snapshots (for workflows)
+    - `outcomes`: aggregated qubit outcomes with failure tracking
+    - `nodes_completed` / `nodes_total`: node success counts
+    - `qubits_completed` / `qubits_total`: qubit success counts
+
     ### Examples
 
-    #### 1) Basic pagination
+    #### 1) Basic pagination (flat)
     **Request:** `/root/snapshots_history?page=1&per_page=3`
 
     **Response:**
@@ -451,35 +703,55 @@ def get_snapshots_history(
         {
           "created_at": "2025-08-22T12:16:42+03:00",
           "id": 367,
-          "parents": [
-            366
-          ],
-          "metadata": {
-            "name": "wf_node1",
-            ...,
-          }
+          "parents": [366],
+          "metadata": {"name": "wf_node1", ...}
+        },
+        ...
+      ],
+      "has_next_page": true,
+      "total_pages": 45
+    }
+    ```
+
+    #### 2) Grouped/nested structure
+    **Request:** `/root/snapshots_history?page=1&per_page=3&grouped=true`
+
+    **Response:**
+
+    ```json
+    {
+      "page": 1,
+      "per_page": 3,
+      "total_items": 135,
+      "items": [
+        {
+          "type_of_execution": "node",
+          "created_at": "2025-08-22T12:16:42+03:00",
+          "id": 168,
+          "parents": [167],
+          "metadata": {"name": "07_demo_rb", "status": "failure", ...}
         },
         {
+          "type_of_execution": "workflow",
+          "items": [
+            {
+              "type_of_execution": "node",
+              "id": 169,
+              "metadata": {"name": "graph_node1", "status": "success", ...}
+            }
+          ],
           "created_at": "2025-08-22T10:54:07+03:00",
-          "id": 366,
-          "parents": [
-            365
-          ],
-          "metadata": {
-            "name": "test_cal",
-            ...,
-          }
-        },
-        {
-          "created_at": "2025-08-21T14:12:28+03:00",
-          "id": 365,
-          "parents": [
-            364
-          ],
-          "metadata": {
-            "name": "test_cal",
-            ...,
-          }
+          "id": 165,
+          "parents": [174],
+          "metadata": {"name": "10_basic_graph", "status": "failure", ...},
+          "outcomes": {
+            "q1": {"status": "failure", "failed_on": "graph_node1"},
+            "q2": {"status": "success"}
+          },
+          "nodes_completed": 1,
+          "nodes_total": 2,
+          "qubits_completed": 1,
+          "qubits_total": 2
         }
       ],
       "has_next_page": true,
@@ -487,18 +759,11 @@ def get_snapshots_history(
     }
     ```
 
-    #### 2) Filter by date range
+    #### 3) Filter by date range
     **Request:**
     `/root/snapshots_history?page=1&per_page=100&min_date=2025-08-21&max_date=2025-08-22`
 
     Returns snapshots created between 2025-08-21 and 2025-08-22 (inclusive).
-
-    #### 3) Filter by name substring and date
-    **Request:**
-    `/root/snapshots_history?page=1&per_page=50&name_part=test_cal&min_date=2025-08-01`
-
-    Returns snapshots with name containing "test_cal" created on or after
-    2025-08-01.
 
     #### 4) Filter by exact name
     **Request:**
@@ -531,31 +796,63 @@ def get_snapshots_history(
             ),
         )
 
-    if sort is not None:
-        # When sorting is requested, we need to fetch ALL matching snapshots
-        # first, sort them, then apply pagination manually.
-        # This ensures correct sorting across the entire result set.
+    # For grouped mode or sorting, we need to fetch all snapshots first
+    if grouped or sort is not None:
         all_pages_filter = PageFilter(page=1, per_page=999999)
         _, all_snapshots = root.get_latest_snapshots(
             pages_filter=all_pages_filter,
             search_filter=SearchWithIdFilter(**search_filters.model_dump()),
-            descending=False,  # We'll handle sorting ourselves
+            descending=False,  # We'll handle sorting/pagination ourselves
         )
         all_dumped = [
             SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
             for snapshot in all_snapshots
         ]
-        # Sort all snapshots by the requested field
-        all_dumped_sorted = sorted(
-            all_dumped,
-            key=lambda s: _get_sort_key(s, sort, descending),
-            reverse=descending,
-        )
-        # Apply pagination to the sorted results
-        snapshots_dumped = list(get_page_slice(all_dumped_sorted, page_filter))
-        total = len(all_dumped_sorted)
+
+        if sort is not None:
+            # Sort all snapshots by the requested field
+            all_dumped = sorted(
+                all_dumped,
+                key=lambda s: _get_sort_key(s, sort, descending),
+                reverse=descending,
+            )
+        elif descending:
+            # Apply descending order if not sorting
+            all_dumped = list(reversed(all_dumped))
+
+        if grouped:
+            # Build nested tree structure
+            tree_items = _build_snapshot_tree(all_dumped)
+
+            # Sort tree items by created_at
+            tree_items.sort(
+                key=lambda x: x.created_at or x.id, reverse=descending
+            )
+
+            # Paginate the nested items (counting all items including nested)
+            paginated_items, total = _paginate_nested_items(
+                tree_items, page_filter.page, page_filter.per_page
+            )
+
+            return PagedCollection[SnapshotHistoryItem](
+                page=page_filter.page,
+                per_page=page_filter.per_page,
+                total_items=total,
+                items=paginated_items,
+            )
+        else:
+            # Flat mode with sorting - apply pagination
+            snapshots_dumped = list(get_page_slice(all_dumped, page_filter))
+            total = len(all_dumped)
+
+            return PagedCollection[SimplifiedSnapshotWithMetadata](
+                page=page_filter.page,
+                per_page=page_filter.per_page,
+                total_items=total,
+                items=snapshots_dumped,
+            )
     else:
-        # Original flow without sorting
+        # Original flow without sorting or grouping
         total, snapshots = root.get_latest_snapshots(
             pages_filter=page_filter,
             search_filter=SearchWithIdFilter(**search_filters.model_dump()),
@@ -566,12 +863,12 @@ def get_snapshots_history(
             for snapshot in snapshots
         ]
 
-    return PagedCollection[SimplifiedSnapshotWithMetadata](
-        page=page_filter.page,
-        per_page=page_filter.per_page,
-        total_items=total,
-        items=snapshots_dumped,
-    )
+        return PagedCollection[SimplifiedSnapshotWithMetadata](
+            page=page_filter.page,
+            per_page=page_filter.per_page,
+            total_items=total,
+            items=snapshots_dumped,
+        )
 
 
 @root_router.get(
