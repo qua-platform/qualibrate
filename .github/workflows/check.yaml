@@ -56,4 +56,6 @@ jobs:
         run: poetry run poe format
 
       - name: Run tests
+        env:
+          QUALIBRATE_CONFIG_FILE: /home/runner/.qualibrate/config.toml
         run: poetry run pytest
