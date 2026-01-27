@@ -132,11 +132,21 @@ def find_n_latest_nodes_ids(
         (_validate_date_range, (min_node_date, max_node_date)),
     ]
     node_filters = [(_validate_node_id, (node_id_min_val, node_id_max_val))]
-    name_pattern = (
-        f"#*{search_filter.name_part}*"
-        if search_filter is not None and search_filter.name_part is not None
-        else "#*"
-    )
+    # Build glob pattern for node name matching.
+    # Node directory naming convention: #<id>_<name>_<timestamp>
+    # Pattern examples:
+    #   - "#*" matches any node
+    #   - "#*_<name>_*" matches exact name (underscore-delimited)
+    #   - "#*<name_part>*" matches partial name (substring anywhere)
+    if search_filter is not None:
+        if search_filter.name is not None:
+            name_pattern = f"#*_{search_filter.name}_*"
+        elif search_filter.name_part is not None:
+            name_pattern = f"#*{search_filter.name_part}*"
+        else:
+            name_pattern = "#*"
+    else:
+        name_pattern = "#*"
     next_ = None
     for node_date in sorted(
         filter(

@@ -35,6 +35,10 @@ def get_page_filter(
 
 
 def get_search_filter(
+    name: Annotated[
+        str | None,
+        Query(description="Exact snapshot name to match."),
+    ] = None,
     name_part: Annotated[
         str | None,
         Query(description="Substring to match within snapshot name."),
@@ -57,11 +61,12 @@ def get_search_filter(
     ] = None,
 ) -> SearchFilter:
     return SearchFilter(
+        name=name,
+        name_part=name_part,
         min_node_id=min_node_id,
         max_node_id=max_node_id,
         min_date=min_date,
         max_date=max_date,
-        name_part=name_part,
     )
 
 
