@@ -59,6 +59,15 @@ def get_search_filter(
         date | None,
         Query(description="Latest snapshot date (inclusive)."),
     ] = None,
+    tag_name: Annotated[
+        list[str] | None,
+        Query(
+            description=(
+                "Filter by tag names. Snapshots must have ALL specified tags "
+                "(AND logic). Can specify multiple: ?tag_name=t1&tag_name=t2"
+            )
+        ),
+    ] = None,
 ) -> SearchFilter:
     return SearchFilter(
         name=name,
@@ -67,6 +76,7 @@ def get_search_filter(
         max_node_id=max_node_id,
         min_date=min_date,
         max_date=max_date,
+        tags=tag_name,
     )
 
 

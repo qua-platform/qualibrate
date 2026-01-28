@@ -44,6 +44,7 @@ class SnapshotMetadata(BaseModel):
 
 class SimplifiedSnapshotWithMetadata(SimplifiedSnapshot):
     metadata: SnapshotMetadata
+    tags: list[str] | None = None
 
 
 class SnapshotData(BaseModel):

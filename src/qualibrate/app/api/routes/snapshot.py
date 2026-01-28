@@ -18,6 +18,7 @@ from qualibrate.app.api.core.domain.local_storage.snapshot import (
 from qualibrate.app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
+from qualibrate.app.api.core.domain.local_storage.tag_registry import TagRegistry
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
     MachineSearchResults,
@@ -27,6 +28,7 @@ from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate.app.api.core.schemas.state_updates import (
     StateUpdateRequestItems,
 )
+from qualibrate.app.api.core.schemas.tag import TagNameRequest, TagsAssignRequest
 from qualibrate.app.api.core.types import (
     IdType,
     PageFilter,
@@ -287,3 +289,93 @@ def search_recursive(
     entire snapshot structure.
     """
     return snapshot.search_recursive(target_key, load=True)
+
+
+# --- Tag Management Endpoints ---
+
+
+def _get_tag_registry(
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
+) -> TagRegistry:
+    """Get the tag registry instance for the current project."""
+    return TagRegistry(settings=settings)
+
+
+@snapshot_router.get(
+    "/tags",
+    summary="Get tags assigned to this snapshot",
+    response_model=list[str],
+)
+def get_snapshot_tags(
+    snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+) -> list[str]:
+    """
+    Get the list of tags assigned to this snapshot.
+
+    ### Example
+
+    **Request:** `GET /api/snapshot/123/tags`
+
+    **Response:**
+    ```json
+    ["calibration", "rabi", "benchmarking"]
+    ```
+    """
+    return snapshot.get_tags()
+
+
+@snapshot_router.post(
+    "/tags",
+    summary="Assign tags to this snapshot",
+    response_model=bool,
+)
+def assign_snapshot_tags(
+    snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+    request: Annotated[TagsAssignRequest, Body()],
+    tag_registry: Annotated[TagRegistry, Depends(_get_tag_registry)],
+) -> bool:
+    """
+    Assign tags to this snapshot.
+
+    This replaces any existing tags with the provided list.
+    Any tags that don't exist in the global registry will be auto-created.
+
+    ### Example
+
+    **Request:**
+    ```json
+    {"tags": ["calibration", "rabi", "quick-check"]}
+    ```
+
+    **Response:** `true` or `false`
+    """
+    # Ensure all tags exist in the global registry
+    tag_registry.ensure_tags_exist(request.tags)
+
+    return snapshot.set_tags(request.tags)
+
+
+@snapshot_router.post(
+    "/tag/remove",
+    summary="Remove a tag from this snapshot",
+    response_model=bool,
+)
+def remove_snapshot_tag(
+    snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+    request: Annotated[TagNameRequest, Body()],
+) -> bool:
+    """
+    Remove a specific tag from this snapshot.
+
+    If the tag is not assigned to this snapshot, returns True.
+
+    ### Example
+
+    **Request:**
+    ```json
+    {"name": "calibration"}
+    ```
+
+    **Response:** `true` or `false`
+    """
+    return snapshot.remove_tag(request.name)

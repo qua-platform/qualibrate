@@ -41,6 +41,9 @@ from qualibrate.app.api.core.utils.path.node import NodePath
 from qualibrate.app.api.core.utils.slice import get_page_slice
 from qualibrate.app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.app.api.core.utils.types_parsing import TYPE_TO_STR
+from qualibrate.app.api.core.domain.local_storage.utils.snapshot_content import (
+    get_node_filepath,
+)
 from qualibrate.app.api.exceptions.classes.storage import (
     QFileNotFoundException,
     QPathException,
@@ -554,3 +557,134 @@ class SnapshotLocalStorage(SnapshotBase):
             raise QPathException("Unknown path to update") from ex
         except OSError:
             return False
+
+    # --- Tag Management Methods ---
+
+    def _load_node_json(self) -> dict[str, Any] | None:
+        """Load the raw node.json content.
+
+        Returns:
+            The parsed node.json content, or None if load fails.
+        """
+        try:
+            node_filepath = get_node_filepath(self.node_path)
+            if not node_filepath.is_file():
+                return None
+            with node_filepath.open("r") as f:
+                return dict(json.load(f))
+        except (json.JSONDecodeError, OSError) as ex:
+            logger.exception(f"Failed to load node.json for snapshot {self._id}", exc_info=ex)
+            return None
+
+    def _save_node_json(self, content: dict[str, Any]) -> bool:
+        """Save content to the node.json file.
+
+        Args:
+            content: The content to save.
+
+        Returns:
+            True if save succeeded, False otherwise.
+        """
+        try:
+            node_filepath = get_node_filepath(self.node_path)
+            with node_filepath.open("w") as f:
+                json.dump(content, f, indent=4, default=str)
+            return True
+        except OSError as ex:
+            logger.exception(f"Failed to save node.json for snapshot {self._id}", exc_info=ex)
+            return False
+
+    def get_tags(self) -> list[str]:
+        """Get the tags assigned to this snapshot.
+
+        Returns:
+            List of tag names, or empty list if no tags.
+        """
+        # First try from loaded metadata
+        if self.metadata is not None:
+            tags = self.metadata.get("tags", [])
+            if isinstance(tags, list):
+                return [t for t in tags if isinstance(t, str)]
+
+        # Fall back to reading from node.json
+        node_content = self._load_node_json()
+        if node_content is None:
+            return []
+
+        metadata = node_content.get("metadata", {})
+        tags = metadata.get("tags", [])
+        if isinstance(tags, list):
+            return [t for t in tags if isinstance(t, str)]
+        return []
+
+    def set_tags(self, tags: list[str]) -> bool:
+        """Set the tags for this snapshot (replaces existing tags).
+
+        Args:
+            tags: List of tag names to set.
+
+        Returns:
+            True if tags were set successfully, False otherwise.
+        """
+        # Filter out empty strings and duplicates
+        clean_tags = list(dict.fromkeys(t.strip() for t in tags if t and t.strip()))
+
+        node_content = self._load_node_json()
+        if node_content is None:
+            return False
+
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+
+        node_content["metadata"]["tags"] = clean_tags
+
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["tags"] = clean_tags
+            return True
+        return False
+
+    def add_tag(self, tag: str) -> bool:
+        """Add a tag to this snapshot.
+
+        Args:
+            tag: The tag name to add.
+
+        Returns:
+            True if tag was added (or already exists), False on error.
+        """
+        if not tag or not tag.strip():
+            return False
+
+        tag = tag.strip()
+        current_tags = self.get_tags()
+
+        if tag in current_tags:
+            # Already has this tag
+            return True
+
+        current_tags.append(tag)
+        return self.set_tags(current_tags)
+
+    def remove_tag(self, tag: str) -> bool:
+        """Remove a tag from this snapshot.
+
+        Args:
+            tag: The tag name to remove.
+
+        Returns:
+            True if tag was removed (or didn't exist), False on error.
+        """
+        if not tag or not tag.strip():
+            return False
+
+        tag = tag.strip()
+        current_tags = self.get_tags()
+
+        if tag not in current_tags:
+            # Doesn't have this tag
+            return True
+
+        current_tags.remove(tag)
+        return self.set_tags(current_tags)

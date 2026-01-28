@@ -171,3 +171,41 @@ class SnapshotTimelineDb(SnapshotBase):
         **kwargs: Mapping[str, Any],
     ) -> Mapping[str, Mapping[str, Any] | None]:
         return {}
+
+    # --- Tag Management Methods (not implemented for TimelineDb) ---
+
+    def get_tags(self) -> list[str]:
+        """Get the tags assigned to this snapshot.
+
+        Note: Tag management is not yet implemented for TimelineDb storage.
+        """
+        # Try to get tags from metadata if loaded
+        if self.metadata is not None:
+            tags = self.metadata.get("tags", [])
+            if isinstance(tags, list):
+                return [t for t in tags if isinstance(t, str)]
+        return []
+
+    def set_tags(self, tags: list[str]) -> bool:
+        """Set the tags for this snapshot.
+
+        Note: Tag management is not yet implemented for TimelineDb storage.
+        """
+        # TODO: Implement tag persistence for TimelineDb
+        return False
+
+    def add_tag(self, tag: str) -> bool:
+        """Add a tag to this snapshot.
+
+        Note: Tag management is not yet implemented for TimelineDb storage.
+        """
+        # TODO: Implement tag persistence for TimelineDb
+        return False
+
+    def remove_tag(self, tag: str) -> bool:
+        """Remove a tag from this snapshot.
+
+        Note: Tag management is not yet implemented for TimelineDb storage.
+        """
+        # TODO: Implement tag persistence for TimelineDb
+        return False
