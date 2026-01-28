@@ -23,7 +23,7 @@ export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onCh
 const InputField = (props: InputProps) => {
   const {
     name = "",
-    value,
+    value = "",
     onChange,
     typeOfField,
     className,

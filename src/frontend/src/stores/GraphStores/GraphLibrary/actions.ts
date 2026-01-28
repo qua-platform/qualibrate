@@ -120,7 +120,7 @@ export const submitWorkflow = () => async (dispatch: RootDispatch, getState: () 
     if (!params) return transformedParams;
 
     for (const key in params) {
-      transformedParams = { ...transformedParams, [key]: params[key].default };
+      transformedParams = { ...transformedParams, [key]: params[key].value };
     }
     return transformedParams;
   };
@@ -168,7 +168,7 @@ export const submitWorkflow = () => async (dispatch: RootDispatch, getState: () 
   }
 };
 
-export const setGraphNodeParameter = (paramKey: string, newValue: boolean | number | string | string[], nodeId?: string) =>
+export const setGraphNodeParameter = (paramKey: string, newValue: boolean | number | string | string[] | undefined, nodeId?: string) =>
   (dispatch: RootDispatch, getState: () => RootState) => {
     const subgraphBreadcrumbs = getSubgraphBreadcrumbs(getState());
     const selectedWorkflowName = getSelectedWorkflowName(getState());

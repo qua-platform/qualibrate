@@ -73,6 +73,16 @@ export const graphLibrarySlice = createSlice({
   reducers: {
     setAllGraphs: (state, action) => {
       state.allGraphs = action.payload;
+
+      const applyDefaultValue = (workflow?: GraphMap) =>
+        Object.values(workflow || {}).map(graph => {
+          Object.values(graph.parameters || {}).map(parameter =>
+            parameter.value = parameter.default
+          );
+          graph.nodes && applyDefaultValue(graph.nodes);
+        });
+
+      applyDefaultValue(state.allGraphs);
     },
     setSelectedWorkflowName: (state, action) => {
       state.selectedWorkflowName = action.payload;
@@ -94,7 +104,7 @@ export const graphLibrarySlice = createSlice({
     },
     setNodeParameter: (state, action: PayloadAction<{
       paramKey: string
-      newValue: boolean | number | string | string[]
+      newValue: boolean | number | string | string[] | undefined
       nodeId?: string
       selectedWorkflowName?: string
       subgraphBreadcrumbs: string[]
@@ -114,7 +124,7 @@ export const graphLibrarySlice = createSlice({
       }
 
       if (graph.parameters)
-        graph.parameters[paramKey].default = newValue;
+        graph.parameters[paramKey].value = newValue;
     },
     setErrorObject: (state, action) => {
       state.errorObject = action.payload;

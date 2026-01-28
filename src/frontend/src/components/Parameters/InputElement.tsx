@@ -21,7 +21,7 @@ const ParameterSelector = ({
   const subgraphBreadcrumbs = useSelector(getSubgraphBreadcrumbs);
   const selectedWorkflowName = useSelector(getSelectedWorkflowName);
 
-  const handleChange = (newValue: string | number | boolean) => {
+  const handleChange = (newValue: string | number | boolean | undefined) => {
     dispatch(setNodeParameter({
       paramKey: parameterKey,
       newValue,
@@ -35,8 +35,8 @@ const ParameterSelector = ({
     case "boolean":
       return (
         <Checkbox
-          checked={parameter.default as boolean}
-          onClick={() => handleChange(!parameter.default)}
+          checked={parameter.value as boolean}
+          onClick={() => handleChange(!parameter.value)}
           inputProps={{ "aria-label": "controlled" }}
         />
       );
@@ -44,7 +44,7 @@ const ParameterSelector = ({
       return (
         <InputField
           placeholder={parameterKey}
-          value={parameter.default ? parameter.default.toString() : ""}
+          value={parameter.value ? parameter.value.toString() : ""}
           onChange={handleChange}
         />
       );
