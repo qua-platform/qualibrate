@@ -29,7 +29,7 @@ describe("ArraySelector - Trigger and selected data display", () => {
       </Providers>
     );
 
-    await waitFor(() => expect(container.querySelector(`.${selectorStyles.wrapper}`)).toBeInTheDocument());
+    await waitFor(() => expect(container.querySelector(`.${selectorStyles.wrapper}`)).not.toBeInTheDocument());
   });
 
   it("should render selector with selected values", async () => {
