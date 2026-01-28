@@ -24,6 +24,6 @@ const MainLayout = ({ children }: Props) => {
       <WebSocketConnectionErrorDialog />
     </div>
   );
-}
+};
 
 export default MainLayout;
