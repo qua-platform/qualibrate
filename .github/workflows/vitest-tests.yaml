@@ -23,17 +23,17 @@ jobs:
       - uses: actions/cache@v4
         id: frontend-cache-id
         with:
-          path: qualibrate-app/frontend/node_modules
-          key: npm-${{ hashFiles('qualibrate-app/frontend/**/package-lock.json') }}
+          path: qualibrate/src/frontend/node_modules
+          key: npm-${{ hashFiles('qualibrate/src/frontend/**/package-lock.json') }}
           restore-keys: npm-
 
       # Step 4: Install frontend dependencies
       - name: Install npm dependencies
         if: steps.frontend-cache-id.outputs.cache-hit != 'true'
-        working-directory: qualibrate-app/frontend
+        working-directory: src/frontend
         run: npm ci
 
       # Step 5: Run Vitest unit tests
       - name: Run Vitest Tests
-        working-directory: qualibrate-app/frontend
+        working-directory: src/frontend
         run: npm test

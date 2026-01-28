@@ -27,9 +27,9 @@ jobs:
 
     - name: Install npm deps
       if: steps.frontend-cache-id.outputs.cache-hit != 'true'
-      working-directory: frontend
+      working-directory: src/frontend
       run: npm ci
 
     - name: Run linter
-      working-directory: frontend
+      working-directory: src/frontend
       run: npm run lint
