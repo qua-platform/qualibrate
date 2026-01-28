@@ -25,7 +25,6 @@ python = "^3.10,<3.13"
 
 # Core dependencies (from qualibrate-core)
 pydantic = "^2.11.9"              # Using higher version from composite (was ^2.9.2 in core)
-qualang-tools = { version = ">=0.20.0", python = ">=3.10,<3.13" }
 networkx = "~3.4.2"               # Max version with Python 3.10 support
 jsonpointer = "^3.0.0"
 jsonpatch = "^1.33"
@@ -47,7 +46,6 @@ tomli-w = "^1.0.0"
 # Additional dependencies
 requests = "^2.32.4"              # From app
 websockets = "^15.0.1"            # From runner
-quam = "^0.4.2"                   # From runner (used by runner and tests)
 a2wsgi = "^1.10.8"                # From composite (for WSGI middleware)
 qualibrate-config = "^0.1.8,<0.2.0"  # Using version range (was pinned to 0.1.8 in composite)
 
@@ -79,7 +77,8 @@ pytest = "^8.4.2"
 pytest-mock = "^3.15.1"
 
 # Test-specific dependencies (from core)
-quam = { version = "^0.4.2", python = ">=3.10,<3.13" }  # Also in runtime, but needed for tests
+qualang-tools = { version = ">=0.20.0", python = ">=3.10,<3.13" }  # Only needed for tests
+quam = { version = "^0.4.2", python = ">=3.10,<3.13" }  # Only needed for tests
 xarray = "~2025.6.1"              # Using higher version from core (runner had ^2024.1.0)
 pillow = "^11.0.0"                # From core
 # setuptools = "^75.1.0"          # Was required for qm -> betterproto -> pkg_resources
