@@ -32,7 +32,20 @@ def _setup_log_broadcasting() -> None:
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
     _setup_log_broadcasting()
-    await asyncio.gather(run_status(), execution_history())
-    yield
-    # Clean up: remove the broadcast callback
-    logger.in_memory_handler.set_broadcast_callback(None)
+    # Start periodic tasks and capture task references
+    run_status_task, execution_history_task = await asyncio.gather(
+        run_status(), execution_history()
+    )
+    try:
+        yield
+    finally:
+        # Clean up: remove the broadcast callback
+        logger.in_memory_handler.set_broadcast_callback(None)
+        # Cancel periodic tasks on shutdown
+        run_status_task.cancel()
+        execution_history_task.cancel()
+        for task in (run_status_task, execution_history_task):
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass

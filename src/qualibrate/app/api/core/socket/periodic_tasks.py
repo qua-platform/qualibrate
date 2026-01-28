@@ -7,6 +7,7 @@ from fastapi.concurrency import run_in_threadpool
 
 NoArgsNoReturnFuncT: TypeAlias = Callable[[], None]
 NoArgsNoReturnAsyncFuncT: TypeAlias = Callable[[], Coroutine[Any, Any, None]]
+NoArgsTaskReturnAsyncFuncT: TypeAlias = Callable[[], Coroutine[Any, Any, asyncio.Task[None]]]
 ExcArgNoReturnFuncT: TypeAlias = Callable[[Exception], None]
 ExcArgNoReturnAsyncFuncT: TypeAlias = Callable[[Exception], Coroutine[Any, Any, None]]
 NoArgsNoReturnAnyFuncT: TypeAlias = NoArgsNoReturnFuncT | NoArgsNoReturnAsyncFuncT
@@ -35,7 +36,7 @@ def repeat_every(
     *,
     seconds: float,
     on_exception: Callable[[Exception], None] | None = None,
-) -> Callable[[NoArgsNoReturnAnyFuncT], NoArgsNoReturnAsyncFuncT]:
+) -> Callable[[NoArgsNoReturnAnyFuncT], NoArgsTaskReturnAsyncFuncT]:
     """
     This function returns a decorator that modifies a function so it is
     periodically re-executed after its first call.
@@ -48,16 +49,21 @@ def repeat_every(
     on_exception: Optional[Callable[[Exception], None]] (default None)
         A function to call when an exception is raised by the decorated
         function.
+
+    Returns
+    -------
+    The decorated function returns an asyncio.Task that can be used to
+    track or cancel the periodic execution.
     """
 
-    def decorator(func: NoArgsNoReturnAnyFuncT) -> NoArgsNoReturnAsyncFuncT:
+    def decorator(func: NoArgsNoReturnAnyFuncT) -> NoArgsTaskReturnAsyncFuncT:
         """
         Converts the decorated function into a repeated,
         periodically-called version of itself.
         """
 
         @wraps(func)
-        async def wrapped() -> None:
+        async def wrapped() -> asyncio.Task[None]:
             async def loop() -> None:
                 while True:
                     try:
@@ -66,7 +72,7 @@ def repeat_every(
                         await _handle_exc(exc, on_exception)
                     await asyncio.sleep(seconds)
 
-            asyncio.ensure_future(loop())
+            return asyncio.create_task(loop())
 
         return wrapped
 

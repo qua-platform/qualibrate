@@ -11,5 +11,14 @@ __all__ = ["app_lifespan"]
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
-    await asyncio.gather(update_snapshot_history_required())
-    yield
+    # Start periodic tasks and capture task references
+    snapshot_history_task = await update_snapshot_history_required()
+    try:
+        yield
+    finally:
+        # Cancel periodic tasks on shutdown
+        snapshot_history_task.cancel()
+        try:
+            await snapshot_history_task
+        except asyncio.CancelledError:
+            pass
