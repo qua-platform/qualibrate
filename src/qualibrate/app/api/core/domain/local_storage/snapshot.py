@@ -1,7 +1,7 @@
 import json
 import logging
 from collections.abc import Mapping, MutableMapping, Sequence
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import (
     Any,
@@ -688,3 +688,167 @@ class SnapshotLocalStorage(SnapshotBase):
 
         current_tags.remove(tag)
         return self.set_tags(current_tags)
+
+    # --- Comment Management Methods ---
+
+    def _get_comments_list(
+        self, node_content: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
+        """Get comments list from node content or load from file.
+
+        Args:
+            node_content: Pre-loaded node content, or None to load from file.
+
+        Returns:
+            List of comment dictionaries.
+        """
+        if node_content is None:
+            node_content = self._load_node_json()
+        if node_content is None:
+            return []
+
+        metadata = node_content.get("metadata", {})
+        comments = metadata.get("comments", [])
+        if isinstance(comments, list):
+            return [c for c in comments if isinstance(c, dict)]
+        return []
+
+    def _next_comment_id(self, comments: list[dict[str, Any]]) -> int:
+        """Generate the next comment ID.
+
+        Args:
+            comments: Existing comments list.
+
+        Returns:
+            The next available ID.
+        """
+        if not comments:
+            return 1
+        return max(c.get("id", 0) for c in comments) + 1
+
+    def get_comments(self) -> list[dict[str, Any]]:
+        """Get all comments for this snapshot.
+
+        Returns:
+            List of comment dictionaries with id, value, and created_at fields.
+        """
+        # First try from loaded metadata
+        if self.metadata is not None:
+            comments = self.metadata.get("comments", [])
+            if isinstance(comments, list):
+                return [c for c in comments if isinstance(c, dict)]
+
+        # Fall back to reading from node.json
+        return self._get_comments_list()
+
+    def create_comment(self, value: str) -> dict[str, Any] | None:
+        """Create a new comment on this snapshot.
+
+        Args:
+            value: The comment text.
+
+        Returns:
+            The created comment dict with id, value, created_at, or None on error.
+        """
+        if not value or not value.strip():
+            return None
+
+        value = value.strip()
+        node_content = self._load_node_json()
+        if node_content is None:
+            return None
+
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+
+        comments = self._get_comments_list(node_content)
+        new_comment = {
+            "id": self._next_comment_id(comments),
+            "value": value,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        comments.append(new_comment)
+        node_content["metadata"]["comments"] = comments
+
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["comments"] = comments
+            return new_comment
+        return None
+
+    def update_comment(self, comment_id: int, value: str) -> bool:
+        """Update an existing comment.
+
+        Args:
+            comment_id: The ID of the comment to update.
+            value: The new comment text.
+
+        Returns:
+            True if comment was updated, False if not found or on error.
+        """
+        if not value or not value.strip():
+            return False
+
+        value = value.strip()
+        node_content = self._load_node_json()
+        if node_content is None:
+            return False
+
+        comments = self._get_comments_list(node_content)
+
+        # Find the comment to update
+        comment_found = False
+        for comment in comments:
+            if comment.get("id") == comment_id:
+                comment["value"] = value
+                comment_found = True
+                break
+
+        if not comment_found:
+            return False
+
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+        node_content["metadata"]["comments"] = comments
+
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["comments"] = comments
+            return True
+        return False
+
+    def remove_comment(self, comment_id: int) -> bool:
+        """Remove a comment from this snapshot.
+
+        Args:
+            comment_id: The ID of the comment to remove.
+
+        Returns:
+            True if comment was removed (or didn't exist), False on error.
+        """
+        node_content = self._load_node_json()
+        if node_content is None:
+            return False
+
+        comments = self._get_comments_list(node_content)
+        original_count = len(comments)
+
+        # Filter out the comment with the given ID
+        comments = [c for c in comments if c.get("id") != comment_id]
+
+        # If nothing changed, the comment didn't exist - return True (idempotent)
+        if len(comments) == original_count:
+            return True
+
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+        node_content["metadata"]["comments"] = comments
+
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["comments"] = comments
+            return True
+        return False

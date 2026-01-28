@@ -28,6 +28,12 @@ from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate.app.api.core.schemas.state_updates import (
     StateUpdateRequestItems,
 )
+from qualibrate.app.api.core.schemas.comment import (
+    Comment,
+    CommentCreateRequest,
+    CommentRemoveRequest,
+    CommentUpdateRequest,
+)
 from qualibrate.app.api.core.schemas.tag import TagNameRequest, TagsAssignRequest
 from qualibrate.app.api.core.types import (
     IdType,
@@ -379,3 +385,143 @@ def remove_snapshot_tag(
     **Response:** `true` or `false`
     """
     return snapshot.remove_tag(request.name)
+
+
+# --- Comment Management Endpoints ---
+
+
+@snapshot_router.post(
+    "/comment/create",
+    summary="Create a new comment for this snapshot",
+    response_model=Comment,
+    responses={
+        200: {"description": "Comment created successfully"},
+        400: {"description": "Invalid comment value or creation failed"},
+    },
+)
+def create_comment(
+    snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+    request: Annotated[CommentCreateRequest, Body()],
+) -> Comment | None:
+    """
+    Create a new comment for this snapshot.
+
+    ### Example
+
+    **Request:**
+    ```json
+    {"value": "Some random comment"}
+    ```
+
+    **Response:**
+    ```json
+    {
+      "id": 1,
+      "value": "Some random comment",
+      "createdAt": "2026-01-27T10:00:00+00:00"
+    }
+    ```
+    """
+    comment = snapshot.create_comment(request.value)
+    if comment is None:
+        return None
+    return Comment(
+        id=comment["id"],
+        value=comment["value"],
+        createdAt=comment["created_at"],
+    )
+
+
+@snapshot_router.post(
+    "/comment/update",
+    summary="Update an existing comment",
+    response_model=bool,
+)
+def update_comment(
+    snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+    request: Annotated[CommentUpdateRequest, Body()],
+) -> bool:
+    """
+    Update an existing comment for this snapshot.
+
+    ### Example
+
+    **Request:**
+    ```json
+    {
+      "id": 1,
+      "value": "Some random comment UPDATED"
+    }
+    ```
+
+    **Response:** `true` or `false`
+    """
+    return snapshot.update_comment(request.id, request.value)
+
+
+@snapshot_router.get(
+    "/comments",
+    summary="Get all comments for this snapshot",
+    response_model=list[Comment],
+)
+def get_comments(
+    snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+) -> list[Comment]:
+    """
+    Get all comments for this snapshot.
+
+    ### Example
+
+    **Request:** `GET /api/snapshot/123/comments`
+
+    **Response:**
+    ```json
+    [
+      {
+        "id": 1,
+        "value": "Some random comment",
+        "createdAt": "2026-01-27T10:00:00+00:00"
+      },
+      {
+        "id": 2,
+        "value": "Some random comment 2",
+        "createdAt": "2026-01-27T11:00:00+00:00"
+      }
+    ]
+    ```
+    """
+    comments = snapshot.get_comments()
+    return [
+        Comment(
+            id=c["id"],
+            value=c["value"],
+            createdAt=c["created_at"],
+        )
+        for c in comments
+    ]
+
+
+@snapshot_router.post(
+    "/comment/remove",
+    summary="Remove a comment from this snapshot",
+    response_model=bool,
+)
+def remove_comment(
+    snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+    request: Annotated[CommentRemoveRequest, Body()],
+) -> bool:
+    """
+    Remove a specific comment from this snapshot.
+
+    If the comment does not exist, returns True (idempotent behavior).
+
+    ### Example
+
+    **Request:**
+    ```json
+    {"id": 13}
+    ```
+
+    **Response:** `true` or `false`
+    """
+    return snapshot.remove_comment(request.id)

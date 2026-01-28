@@ -250,6 +250,54 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         """
         pass
 
+    # --- Comment Management Methods ---
+
+    @abstractmethod
+    def get_comments(self) -> list[dict[str, Any]]:
+        """Get all comments for this snapshot.
+
+        Returns:
+            List of comment dictionaries with id, value, and created_at fields.
+        """
+        pass
+
+    @abstractmethod
+    def create_comment(self, value: str) -> dict[str, Any] | None:
+        """Create a new comment on this snapshot.
+
+        Args:
+            value: The comment text.
+
+        Returns:
+            The created comment dict with id, value, created_at, or None on error.
+        """
+        pass
+
+    @abstractmethod
+    def update_comment(self, comment_id: int, value: str) -> bool:
+        """Update an existing comment.
+
+        Args:
+            comment_id: The ID of the comment to update.
+            value: The new comment text.
+
+        Returns:
+            True if comment was updated, False if not found or on error.
+        """
+        pass
+
+    @abstractmethod
+    def remove_comment(self, comment_id: int) -> bool:
+        """Remove a comment from this snapshot.
+
+        Args:
+            comment_id: The ID of the comment to remove.
+
+        Returns:
+            True if comment was removed (or didn't exist), False on error.
+        """
+        pass
+
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}"
