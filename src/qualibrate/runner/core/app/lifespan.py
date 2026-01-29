@@ -1,6 +1,7 @@
 import asyncio
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import Any
 
 from fastapi import FastAPI
@@ -21,7 +22,11 @@ def _setup_log_broadcasting() -> None:
         # Schedule the async broadcast from the sync emit() call
         try:
             loop = asyncio.get_running_loop()
-            loop.create_task(manager.broadcast(log_entry))
+            # Convert datetime to ISO string for JSON serialization
+            json_safe_entry = log_entry.copy()
+            if isinstance(json_safe_entry.get("asctime"), datetime):
+                json_safe_entry["asctime"] = json_safe_entry["asctime"].isoformat()
+            loop.create_task(manager.broadcast(json_safe_entry))
         except RuntimeError:
             # No running event loop (e.g., during tests or non-async context)
             pass

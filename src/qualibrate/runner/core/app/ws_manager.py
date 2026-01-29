@@ -18,8 +18,14 @@ class SocketConnectionManagerList:
             self.active_connections.remove(websocket)
 
     async def broadcast(self, message: Any) -> None:
+        disconnected: list[WebSocket] = []
         for connection in self.active_connections:
-            await connection.send_json(message)
+            try:
+                await connection.send_json(message)
+            except Exception:
+                disconnected.append(connection)
+        for conn in disconnected:
+            self.disconnect(conn)
 
     @property
     def any_subscriber(self) -> bool:
@@ -38,13 +44,20 @@ class SocketConnectionManagerMapping(Generic[KT]):
         self.active_connections[key].append(websocket)
 
     def disconnect(self, key: KT, websocket: WebSocket) -> None:
-        self.active_connections[key].remove(websocket)
+        if key in self.active_connections and websocket in self.active_connections[key]:
+            self.active_connections[key].remove(websocket)
 
     async def broadcast(self, key: KT, message: Any) -> None:
         if not self.any_subscriber_for(key):
             return
+        disconnected: list[WebSocket] = []
         for connection in self.active_connections[key]:
-            await connection.send_json(message)
+            try:
+                await connection.send_json(message)
+            except Exception:
+                disconnected.append(connection)
+        for conn in disconnected:
+            self.disconnect(key, conn)
 
     @property
     def any_subscriber(self) -> bool:
