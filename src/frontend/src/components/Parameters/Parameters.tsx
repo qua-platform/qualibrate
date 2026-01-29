@@ -19,8 +19,8 @@ interface IProps {
   getInputElement: (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => React.JSX.Element;
 }
 
-export type ParameterTypes = "boolean" | "number" | "integer" | "array" | "string";
-export type ParamaterValue = string | boolean | number | string[];
+export type ParameterTypes = "boolean" | "number" | "integer" | "array" | "string" | "null";
+export type ParamaterValue = string | boolean | number | string[] | undefined;
 export type QubitMetadata = { active: boolean; fidelity: number; }
 export type QubitMetadataList = Record<string, QubitMetadata>
 export interface SingleParameter {
@@ -28,9 +28,10 @@ export interface SingleParameter {
   name?: string;
   parameters?: InputParameter;
   default?: ParamaterValue;
+  value?: ParamaterValue;
   items?: { type: string };
   enum?: string[]
-  metadata?: QubitMetadataList;
+  metadata?: QubitMetadataList | null;
   options?: {
     id: string;
     title: string;
@@ -40,6 +41,9 @@ export interface SingleParameter {
   }[];
   title: string;
   type: ParameterTypes;
+  anyOf?: Array<{
+    type: ParameterTypes
+  }>
   is_targets: boolean;
   description?: string | null;
 }

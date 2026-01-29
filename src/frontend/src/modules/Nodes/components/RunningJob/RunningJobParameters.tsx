@@ -18,7 +18,7 @@ export const RunningJobParameters: React.FC = () => {
               <div key={key} className={styles.parameterValues} data-testid={`parameter-item-${key}`}>
                 <div className={styles.parameterLabel} data-testid={`parameter-label-${key}`}
                 >{parameter.title}:</div>
-                <div className={styles.parameterValue} data-testid={`parameter-value-${key}`}>{parameter.default?.toString()}</div>
+                <div className={styles.parameterValue} data-testid={`parameter-value-${key}`}>{parameter.value?.toString()}</div>
               </div>
             ))
           }

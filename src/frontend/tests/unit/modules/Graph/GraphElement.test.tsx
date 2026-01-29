@@ -121,7 +121,6 @@ describe("GraphElement - Parameter Management", () => {
     });
     //TODO: mock WebSocket event
     mockStore.dispatch(setSelectedWorkflowName("test_workflow"));
-    mockStore.dispatch(setAllGraphs({ test_workflow: mockGraph }));
 
     render(
       <Providers>
@@ -163,7 +162,7 @@ describe("GraphElement - Parameter Management", () => {
     // Verify setAllGraphs was called with updated parameters
     await waitFor(() => {
       expect(getAllGraphs(mockStore.getState())?.test_workflow.parameters?.frequency)
-          .toHaveProperty("default", "6.5");
+          .toHaveProperty("value", "6.5");
     });
   });
 

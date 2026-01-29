@@ -149,7 +149,7 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
    * (title, type, description). Triggers a full NodesContext state update,
    * causing re-render of all consumers.
    */
-  const updateParameter = (paramKey: string, newValue: boolean | number | string | string[], isValid: boolean) => {
+  const updateParameter = (paramKey: string, newValue: boolean | number | string | string[] | undefined, isValid: boolean) => {
     handleSetError(paramKey, isValid);
     dispatch(setNodeParameter({ nodeKey, paramKey, newValue }));
   };
