@@ -1,7 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
+from starlette.routing import Mount
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from qualibrate.app.api.__main__ import api_router
 from qualibrate.app.api.core.lifespan import app_lifespan
@@ -19,6 +22,20 @@ try:
     from json_timeline_database.app import app as json_timeline_db_app
 except ImportError:
     json_timeline_db_app = None
+
+
+class StaticFilesHTTPOnly(StaticFiles):
+    """StaticFiles that only handles HTTP requests, not WebSocket."""
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] == "websocket":
+            # For WebSocket requests, raise HTTPException to signal we don't handle this
+            # This allows Starlette to properly propagate to other handlers
+            raise HTTPException(status_code=404)
+        if scope["type"] != "http":
+            # For other non-HTTP types (like lifespan), just return
+            return
+        await super().__call__(scope, receive, send)
 
 
 app = FastAPI(
@@ -56,10 +73,10 @@ static_files_path = (
 )
 if static_files_path is None or not static_files_path.is_dir():
     raise RuntimeError("No static files found in config.toml or default location")
-# Directory should exist
+# Directory should exist - use custom class that skips WebSocket requests
 app.mount(
     "/",
-    StaticFiles(directory=static_files_path, html=True),
+    StaticFilesHTTPOnly(directory=static_files_path, html=True),
     name="static",
 )
 
