@@ -96,7 +96,9 @@ class TestBroadcastLogFunction:
         from qualibrate.runner.core.app.lifespan import _setup_log_broadcasting
         from qualibrate.core.utils.logger_m import logger
 
-        _setup_log_broadcasting()
+        # Get the running event loop and pass it to setup
+        loop = asyncio.get_running_loop()
+        _setup_log_broadcasting(loop)
 
         # Create a log entry with datetime (as would come from InMemoryLogHandler)
         log_entry = {
@@ -146,7 +148,8 @@ class TestBroadcastLogFunction:
         from qualibrate.runner.core.app.lifespan import _setup_log_broadcasting
         from qualibrate.core.utils.logger_m import logger
 
-        _setup_log_broadcasting()
+        loop = asyncio.get_running_loop()
+        _setup_log_broadcasting(loop)
 
         # Log entry without asctime
         log_entry = {
@@ -184,7 +187,8 @@ class TestBroadcastLogFunction:
         from qualibrate.runner.core.app.lifespan import _setup_log_broadcasting
         from qualibrate.core.utils.logger_m import logger
 
-        _setup_log_broadcasting()
+        loop = asyncio.get_running_loop()
+        _setup_log_broadcasting(loop)
 
         # Log entry with asctime already as string
         log_entry = {

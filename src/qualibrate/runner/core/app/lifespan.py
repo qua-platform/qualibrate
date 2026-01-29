@@ -13,22 +13,32 @@ from qualibrate.runner.core.app.ws_managers import get_output_logs_socket_manage
 __all__ = ["app_lifespan"]
 
 
-def _setup_log_broadcasting() -> None:
-    """Wire up the logger to broadcast logs via WebSocket."""
+def _setup_log_broadcasting(loop: asyncio.AbstractEventLoop) -> None:
+    """Wire up the logger to broadcast logs via WebSocket.
+    
+    Args:
+        loop: The event loop to use for scheduling broadcasts.
+              Must be passed because node.run() executes synchronously
+              and asyncio.get_running_loop() won't work from sync context.
+    """
     manager = get_output_logs_socket_manager()
     handler = logger.in_memory_handler
 
     def broadcast_log(log_entry: dict[str, Any]) -> None:
         # Schedule the async broadcast from the sync emit() call
+        # Use run_coroutine_threadsafe since we might be called from sync context
+        # while the event loop is blocked (e.g., during node.run())
         try:
-            loop = asyncio.get_running_loop()
             # Convert datetime to ISO string for JSON serialization
             json_safe_entry = log_entry.copy()
             if isinstance(json_safe_entry.get("asctime"), datetime):
                 json_safe_entry["asctime"] = json_safe_entry["asctime"].isoformat()
-            loop.create_task(manager.broadcast(json_safe_entry))
-        except RuntimeError:
-            # No running event loop (e.g., during tests or non-async context)
+            num_connections = len(manager.active_connections)
+            if num_connections > 0:
+                # Use run_coroutine_threadsafe to schedule on the saved event loop
+                asyncio.run_coroutine_threadsafe(manager.broadcast(json_safe_entry), loop)
+        except Exception as e:
+            # Log errors but don't crash the logging system
             pass
 
     handler.set_broadcast_callback(broadcast_log)
@@ -36,7 +46,9 @@ def _setup_log_broadcasting() -> None:
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
-    _setup_log_broadcasting()
+    # Get the running event loop to pass to sync broadcast callback
+    loop = asyncio.get_running_loop()
+    _setup_log_broadcasting(loop)
     # Start periodic tasks and capture task references
     run_status_task, execution_history_task = await asyncio.gather(
         run_status(), execution_history()
