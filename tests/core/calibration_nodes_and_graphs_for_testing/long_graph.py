@@ -18,9 +18,7 @@ with QualibrationGraph.build(
 ) as graph:
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node_1"))
     for i in range(2, 5):
-        graph.add_node(
-            library.nodes.get_nocopy(USED_NODE).copy(name=f"node_{i}")
-        )
+        graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name=f"node_{i}"))
         graph.connect(src=f"node_{i - 1}", dst=f"node_{i}")
 
 if __name__ == "__main__":

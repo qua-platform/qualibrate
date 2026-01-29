@@ -27,9 +27,7 @@ class TestBasicOrchestrator:
 
         # Mock _graph and queue size
         mocker.patch.object(orchestrator, "_graph", create=True)
-        mocker.patch.object(
-            orchestrator._execution_queue, "qsize", return_value=0
-        )
+        mocker.patch.object(orchestrator._execution_queue, "qsize", return_value=0)
 
         assert orchestrator._is_execution_finished() is True
 
@@ -38,10 +36,7 @@ class TestBasicOrchestrator:
         orchestrator._graph = mocker.Mock()
         # Mock the nx_graph property
         mocker.patch(
-            (
-                "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator"
-                ".nx_graph"
-            ),
+            ("qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph"),
             new_callable=PropertyMock,
         )
         # Mock pending node statuses
@@ -51,9 +46,7 @@ class TestBasicOrchestrator:
         }
         orchestrator.targets = ["t1"]
         mocker.patch("networkx.get_node_attributes", return_value=mock_status)
-        mocker.patch.object(
-            orchestrator._execution_queue, "qsize", return_value=1
-        )
+        mocker.patch.object(orchestrator._execution_queue, "qsize", return_value=1)
 
         assert orchestrator._is_execution_finished() is False
 
@@ -102,19 +95,12 @@ class TestBasicOrchestrator:
         orchestrator = BasicOrchestrator()
         orchestrator._graph = "graph"
         mock_nx_graph = mocker.patch(
-            (
-                "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator"
-                ".nx_graph"
-            ),
+            ("qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph"),
             new_callable=PropertyMock,
         )
         mock_node = MagicMock()
         mock_nx_graph.return_value.nodes = {
-            mock_node: {
-                QualibrationGraph.ELEMENT_STATUS_FIELD: (
-                    ElementRunStatus.finished
-                )
-            }
+            mock_node: {QualibrationGraph.ELEMENT_STATUS_FIELD: (ElementRunStatus.finished)}
         }
         assert orchestrator.check_node_finished(mock_node) is True
 
@@ -132,25 +118,18 @@ class TestBasicOrchestrator:
 
         # Patch the nx_graph property and set predecessors
         mock_nx_graph = mocker.patch(
-            (
-                "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator"
-                ".nx_graph"
-            ),
+            ("qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph"),
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.pred = {mock_node: []}
 
         # Mock check_node_finished to always return True
-        mocker.patch.object(
-            orchestrator, "check_node_finished", side_effect=[False, True]
-        )
+        mocker.patch.object(orchestrator, "check_node_finished", side_effect=[False, True])
 
         assert orchestrator.get_next_element() == mock_node
 
     def test_traverse_graph_logs_info(self, mocker):
-        mock_logger = mocker.patch(
-            "qualibrate.core.orchestration.basic_orchestrator.logger"
-        )
+        mock_logger = mocker.patch("qualibrate.core.orchestration.basic_orchestrator.logger")
         orchestrator = BasicOrchestrator()
         mock_graph = MagicMock()
         mock_graph.name = "test_graph"
@@ -158,18 +137,14 @@ class TestBasicOrchestrator:
 
         # Call the method and check logger
         orchestrator.traverse_graph(mock_graph, targets)
-        mock_logger.info.assert_called_with(
-            f"Traverse graph {mock_graph.name} with targets {targets}"
-        )
+        mock_logger.info.assert_called_with(f"Traverse graph {mock_graph.name} with targets {targets}")
 
     def test_traverse_graph_raises_error_if_no_parameters(self):
         orchestrator = BasicOrchestrator()
         mock_graph = MagicMock()
         mock_graph.full_parameters = None
 
-        with pytest.raises(
-            RuntimeError, match="Execution graph parameters not specified"
-        ):
+        with pytest.raises(RuntimeError, match="Execution graph parameters not specified"):
             orchestrator.traverse_graph(mock_graph, [])
 
     def test_get_in_targets_no_predecessors(self, mocker):
@@ -201,18 +176,14 @@ class TestBasicOrchestrator:
         )
         mock_nx_graph.return_value.predecessors.return_value = [mock_pred]
         mock_nx_graph.return_value.edges = {
-            (mock_pred, mock_node): {
-                QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2"]
-            }
+            (mock_pred, mock_node): {QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2"]}
         }
 
         result = orchestrator._get_in_targets_for_element(mock_node)
 
         assert set(result) == {"q1", "q2"}
 
-    def test_get_in_targets_intersection_with_multiple_predecessors(
-        self, mocker
-    ):
+    def test_get_in_targets_intersection_with_multiple_predecessors(self, mocker):
         """Test that _get_in_targets computes intersection of targets
         from multiple predecessors"""
         orchestrator = BasicOrchestrator()
@@ -230,12 +201,8 @@ class TestBasicOrchestrator:
             mock_pred2,
         ]
         mock_nx_graph.return_value.edges = {
-            (mock_pred1, mock_node): {
-                QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2", "q3"]
-            },
-            (mock_pred2, mock_node): {
-                QualibrationGraph.EDGE_TARGETS_FIELD: ["q2", "q3", "q4"]
-            },
+            (mock_pred1, mock_node): {QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2", "q3"]},
+            (mock_pred2, mock_node): {QualibrationGraph.EDGE_TARGETS_FIELD: ["q2", "q3", "q4"]},
         }
 
         result = orchestrator._get_in_targets_for_element(mock_node)
@@ -257,9 +224,7 @@ class TestBasicOrchestrator:
         )
         mock_nx_graph.return_value.predecessors.return_value = [mock_pred]
         mock_nx_graph.return_value.edges = {
-            (mock_pred, mock_node): {
-                QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2"]
-            }
+            (mock_pred, mock_node): {QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2"]}
         }
         # Mock loop targets on the node itself
         mock_nx_graph.return_value.nodes = {
@@ -267,9 +232,7 @@ class TestBasicOrchestrator:
                 QualibrationGraph.LOOP_TARGETS_FIELD: ["q3", "q4"],
                 QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
             },
-            mock_pred: {
-                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished
-            },
+            mock_pred: {QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished},
         }
 
         result = orchestrator._get_in_targets_for_element(mock_node)
@@ -277,9 +240,7 @@ class TestBasicOrchestrator:
         # Should include both edge targets (q1, q2) AND loop targets (q3, q4)
         assert set(result) == {"q1", "q2", "q3", "q4"}
 
-    def test_get_in_targets_with_loop_targets_and_multiple_predecessors(
-        self, mocker
-    ):
+    def test_get_in_targets_with_loop_targets_and_multiple_predecessors(self, mocker):
         """Test that loop targets are added to the intersection
         of predecessor targets"""
         orchestrator = BasicOrchestrator()
@@ -297,12 +258,8 @@ class TestBasicOrchestrator:
             mock_pred2,
         ]
         mock_nx_graph.return_value.edges = {
-            (mock_pred1, mock_node): {
-                QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2", "q3"]
-            },
-            (mock_pred2, mock_node): {
-                QualibrationGraph.EDGE_TARGETS_FIELD: ["q2", "q3", "q4"]
-            },
+            (mock_pred1, mock_node): {QualibrationGraph.EDGE_TARGETS_FIELD: ["q1", "q2", "q3"]},
+            (mock_pred2, mock_node): {QualibrationGraph.EDGE_TARGETS_FIELD: ["q2", "q3", "q4"]},
         }
         # Mock loop targets
         mock_nx_graph.return_value.nodes = {
@@ -310,12 +267,8 @@ class TestBasicOrchestrator:
                 QualibrationGraph.LOOP_TARGETS_FIELD: ["q5"],
                 QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.pending,
             },
-            mock_pred1: {
-                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished
-            },
-            mock_pred2: {
-                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished
-            },
+            mock_pred1: {QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished},
+            mock_pred2: {QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.finished},
         }
 
         result = orchestrator._get_in_targets_for_element(mock_node)
@@ -342,9 +295,7 @@ class TestBasicOrchestrator:
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.successors.return_value = [mock_successor]
-        mock_nx_graph.return_value.__getitem__.return_value = {
-            mock_successor: {"scenario": Outcome.SUCCESSFUL}
-        }
+        mock_nx_graph.return_value.__getitem__.return_value = {mock_successor: {"scenario": Outcome.SUCCESSFUL}}
 
         mock_edges = MagicMock()
         mock_edges.__getitem__.return_value = {"scenario": Outcome.SUCCESSFUL}
@@ -355,9 +306,11 @@ class TestBasicOrchestrator:
         orchestrator._set_out_targets_for_element(mock_node)
 
         # Should use initial_targets when skip_failed=False
-        assert mock_nx_graph.return_value.edges[(mock_node, mock_successor)][
-            QualibrationGraph.EDGE_TARGETS_FIELD
-        ] == ["q1", "q2", "q3"]
+        assert mock_nx_graph.return_value.edges[(mock_node, mock_successor)][QualibrationGraph.EDGE_TARGETS_FIELD] == [
+            "q1",
+            "q2",
+            "q3",
+        ]
 
     def test_set_out_targets_all_successful_skip_failed_enabled(self, mocker):
         """Test _set_out_targets with successful targets
@@ -379,9 +332,7 @@ class TestBasicOrchestrator:
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.successors.return_value = [mock_successor]
-        mock_nx_graph.return_value.__getitem__.return_value = {
-            mock_successor: {"scenario": Outcome.SUCCESSFUL}
-        }
+        mock_nx_graph.return_value.__getitem__.return_value = {mock_successor: {"scenario": Outcome.SUCCESSFUL}}
 
         mock_edges.__getitem__.return_value = {"scenario": Outcome.SUCCESSFUL}
         mock_nx_graph.return_value.edges = mock_edges
@@ -391,9 +342,10 @@ class TestBasicOrchestrator:
         orchestrator._set_out_targets_for_element(mock_node)
 
         # Should use successful_targets when skip_failed=True
-        assert mock_nx_graph.return_value.edges[(mock_node, mock_successor)][
-            QualibrationGraph.EDGE_TARGETS_FIELD
-        ] == ["q1", "q2"]
+        assert mock_nx_graph.return_value.edges[(mock_node, mock_successor)][QualibrationGraph.EDGE_TARGETS_FIELD] == [
+            "q1",
+            "q2",
+        ]
 
     def test_set_out_targets_with_failed_successor(self, mocker):
         """Test _set_out_targets routes failed targets to FAILED edge"""
@@ -410,8 +362,7 @@ class TestBasicOrchestrator:
         mock_node.run_summary = mock_summary
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.core.orchestration."
-            "basic_orchestrator.BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.successors.return_value = [
@@ -483,8 +434,7 @@ class TestBasicOrchestrator:
         mock_node.run_summary = mock_summary
 
         mock_nx_graph = mocker.patch(
-            "qualibrate.core.orchestration.basic_orchestrator."
-            "BasicOrchestrator.nx_graph",
+            "qualibrate.core.orchestration.basic_orchestrator.BasicOrchestrator.nx_graph",
             new_callable=PropertyMock,
         )
         mock_nx_graph.return_value.successors.return_value = [
@@ -536,9 +486,7 @@ class TestBasicOrchestrator:
 
         orchestrator._graph = mock_graph
 
-        iteration_generator = orchestrator._is_loop_iteration_needed(
-            mock_element
-        )
+        iteration_generator = orchestrator._is_loop_iteration_needed(mock_element)
 
         # First yield should be True (initial execution)
         assert next(iteration_generator) is True
@@ -554,15 +502,11 @@ class TestBasicOrchestrator:
 
         mock_graph = MagicMock()
         max_iterations = 3
-        mock_graph._loop_conditions = {
-            "test_element": LoopCondition(max_iterations=max_iterations)
-        }
+        mock_graph._loop_conditions = {"test_element": LoopCondition(max_iterations=max_iterations)}
 
         orchestrator._graph = mock_graph
 
-        iteration_generator = orchestrator._is_loop_iteration_needed(
-            mock_element
-        )
+        iteration_generator = orchestrator._is_loop_iteration_needed(mock_element)
 
         # First yield - initial execution
         assert next(iteration_generator) is True
@@ -572,9 +516,7 @@ class TestBasicOrchestrator:
 
         assert iteration_generator.send(None) is False
 
-    def test_is_loop_iteration_needed_on_function_with_reuse_targets(
-        self, mocker
-    ):
+    def test_is_loop_iteration_needed_on_function_with_reuse_targets(self, mocker):
         """Test loop with on_function that filters targets for re-execution"""
         orchestrator = BasicOrchestrator()
         mock_element = MagicMock()
@@ -592,9 +534,7 @@ class TestBasicOrchestrator:
         max_iterations = 5
         mock_graph = MagicMock()
         mock_graph._loop_conditions = {
-            "test_element": LoopCondition(
-                on_function=filter_func, max_iterations=max_iterations
-            )
+            "test_element": LoopCondition(on_function=filter_func, max_iterations=max_iterations)
         }
 
         mock_nx_graph = mocker.patch(
@@ -602,16 +542,12 @@ class TestBasicOrchestrator:
             new_callable=mocker.PropertyMock,
         )
         mock_nx_graph.return_value.nodes = {
-            mock_element: {
-                QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.pending
-            }
+            mock_element: {QualibrationGraph.ELEMENT_STATUS_FIELD: ElementRunStatus.pending}
         }
 
         orchestrator._graph = mock_graph
 
-        iteration_generator = orchestrator._is_loop_iteration_needed(
-            mock_element
-        )
+        iteration_generator = orchestrator._is_loop_iteration_needed(mock_element)
 
         # Initial execution
         assert next(iteration_generator) is True
@@ -620,9 +556,7 @@ class TestBasicOrchestrator:
         assert iteration_generator.send(None) is True
 
         # Check that loop targets were set
-        assert mock_nx_graph.return_value.nodes[mock_element][
-            QualibrationGraph.LOOP_TARGETS_FIELD
-        ] == ["q1", "q2"]
+        assert mock_nx_graph.return_value.nodes[mock_element][QualibrationGraph.LOOP_TARGETS_FIELD] == ["q1", "q2"]
 
     def test_is_loop_iteration_needed_on_function_no_reuse_targets(self):
         """Test loop stops when on_function filters out all targets"""
@@ -639,15 +573,11 @@ class TestBasicOrchestrator:
             return False
 
         mock_graph = MagicMock()
-        mock_graph._loop_conditions = {
-            "test_element": LoopCondition(on_function=filter_func)
-        }
+        mock_graph._loop_conditions = {"test_element": LoopCondition(on_function=filter_func)}
 
         orchestrator._graph = mock_graph
 
-        iteration_generator = orchestrator._is_loop_iteration_needed(
-            mock_element
-        )
+        iteration_generator = orchestrator._is_loop_iteration_needed(mock_element)
 
         # Initial execution
         assert next(iteration_generator) is True
@@ -677,15 +607,11 @@ class TestBasicOrchestrator:
                     yield False
 
         mock_graph = MagicMock()
-        mock_graph._loop_conditions = {
-            "test_element": LoopCondition(on_generator=generator_func)
-        }
+        mock_graph._loop_conditions = {"test_element": LoopCondition(on_generator=generator_func)}
 
         orchestrator._graph = mock_graph
 
-        iteration_generator = orchestrator._is_loop_iteration_needed(
-            mock_element
-        )
+        iteration_generator = orchestrator._is_loop_iteration_needed(mock_element)
 
         # Initial execution
         assert next(iteration_generator) is True
@@ -738,11 +664,7 @@ class TestBasicOrchestrator:
         def should_retry(element, target):
             return target in element.run_summary.failed_targets
 
-        mock_graph._loop_conditions = {
-            "looping_node": LoopCondition(
-                on_function=should_retry, max_iterations=5
-            )
-        }
+        mock_graph._loop_conditions = {"looping_node": LoopCondition(on_function=should_retry, max_iterations=5)}
 
         # Setup parameters
         mock_params = MagicMock()
@@ -766,10 +688,7 @@ class TestBasicOrchestrator:
         assert execution_count[0] == 2
 
         # Final status should be finished
-        assert (
-            nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD]
-            == ElementRunStatus.finished
-        )
+        assert nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
 
     def test_traverse_graph_with_success_and_failure_paths(self, mocker):
         """
@@ -861,12 +780,8 @@ class TestBasicOrchestrator:
 
         # Add nodes with initial status
         nx_graph.add_node(node1, status=ElementRunStatus.pending, retries=0)
-        nx_graph.add_node(
-            node2_success, status=ElementRunStatus.pending, retries=0
-        )
-        nx_graph.add_node(
-            node3_failure, status=ElementRunStatus.pending, retries=0
-        )
+        nx_graph.add_node(node2_success, status=ElementRunStatus.pending, retries=0)
+        nx_graph.add_node(node3_failure, status=ElementRunStatus.pending, retries=0)
 
         # Add edges with scenarios
         nx_graph.add_edge(
@@ -917,22 +832,9 @@ class TestBasicOrchestrator:
         assert set(received_targets["node3_failure"]) == {"q3"}
 
         # Verify all nodes were executed
-        assert (
-            nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD]
-            == ElementRunStatus.finished
-        )
-        assert (
-            nx_graph.nodes[node2_success][
-                QualibrationGraph.ELEMENT_STATUS_FIELD
-            ]
-            == ElementRunStatus.finished
-        )
-        assert (
-            nx_graph.nodes[node3_failure][
-                QualibrationGraph.ELEMENT_STATUS_FIELD
-            ]
-            == ElementRunStatus.finished
-        )
+        assert nx_graph.nodes[node1][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
+        assert nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
+        assert nx_graph.nodes[node3_failure][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
 
     def test_traverse_graph_all_targets_succeed_no_failure_path(self, mocker):
         """
@@ -1011,12 +913,8 @@ class TestBasicOrchestrator:
         nx_graph = nx.DiGraph()
 
         nx_graph.add_node(node1, status=ElementRunStatus.pending, retries=0)
-        nx_graph.add_node(
-            node2_success, status=ElementRunStatus.pending, retries=0
-        )
-        nx_graph.add_node(
-            node3_failure, status=ElementRunStatus.pending, retries=0
-        )
+        nx_graph.add_node(node2_success, status=ElementRunStatus.pending, retries=0)
+        nx_graph.add_node(node3_failure, status=ElementRunStatus.pending, retries=0)
 
         nx_graph.add_edge(
             node1,
@@ -1048,9 +946,7 @@ class TestBasicOrchestrator:
             execution_order.append("node3_failure")
             return node2_summary
             # This should never be called
-            raise AssertionError(
-                "node3_failure should not be executed when no targets failed"
-            )
+            raise AssertionError("node3_failure should not be executed when no targets failed")
 
         node1.run = node1_run
         node2_success.run = node2_run
@@ -1063,12 +959,7 @@ class TestBasicOrchestrator:
         assert execution_order == ["node1", "node2_success"]
 
         # Verify node3_failure was NOT executed (still pending)
-        assert (
-            nx_graph.nodes[node3_failure][
-                QualibrationGraph.ELEMENT_STATUS_FIELD
-            ]
-            == ElementRunStatus.pending
-        )
+        assert nx_graph.nodes[node3_failure][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.pending
 
     def test_traverse_graph_success_path_with_no_targets_is_skipped(self):
         """
@@ -1147,12 +1038,8 @@ class TestBasicOrchestrator:
         nx_graph = nx.DiGraph()
 
         nx_graph.add_node(node1, status=ElementRunStatus.pending, retries=0)
-        nx_graph.add_node(
-            node2_success, status=ElementRunStatus.pending, retries=0
-        )
-        nx_graph.add_node(
-            node3_failure, status=ElementRunStatus.pending, retries=0
-        )
+        nx_graph.add_node(node2_success, status=ElementRunStatus.pending, retries=0)
+        nx_graph.add_node(node3_failure, status=ElementRunStatus.pending, retries=0)
 
         nx_graph.add_edge(
             node1,
@@ -1191,18 +1078,8 @@ class TestBasicOrchestrator:
 
         # Only node1 and node3_failure should have run
         assert execution_order == ["node1", "node3_failure"]
-        assert (
-            nx_graph.nodes[node2_success][
-                QualibrationGraph.ELEMENT_STATUS_FIELD
-            ]
-            == ElementRunStatus.pending
-        )
-        assert (
-            nx_graph.nodes[node3_failure][
-                QualibrationGraph.ELEMENT_STATUS_FIELD
-            ]
-            == ElementRunStatus.finished
-        )
+        assert nx_graph.nodes[node2_success][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.pending
+        assert nx_graph.nodes[node3_failure][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.finished
 
 
 def test_execute_condition_with_lambda_function():
@@ -1218,9 +1095,7 @@ def test_execute_condition_with_lambda_function():
     }
 
     # Condition: filter targets where value > 8
-    condition = OperationalCondition(
-        on_function=lambda el, target: el.results[target]["value"] > 8
-    )
+    condition = OperationalCondition(on_function=lambda el, target: el.results[target]["value"] > 8)
 
     targets = ["q1", "q2", "q3"]
     result = orchestrator._execute_condition(condition, mock_element, targets)
@@ -1311,10 +1186,7 @@ def test_set_out_targets_with_operational_condition_on_failure(mocker):
     ]
 
     # Operational condition: only route targets with error_count <= 3
-    op_condition = OperationalCondition(
-        on_function=lambda node, target: node.results[target]["error_count"]
-        <= 3
-    )
+    op_condition = OperationalCondition(on_function=lambda node, target: node.results[target]["error_count"] <= 3)
 
     mock_edges = MagicMock()
 
@@ -1350,9 +1222,7 @@ def test_set_out_targets_with_operational_condition_on_failure(mocker):
     assert failure_edge_data[QualibrationGraph.EDGE_TARGETS_FIELD] == ["q3"]
 
 
-def test_connect_on_failure_with_condition_lambda_function(
-    pre_setup_graph_init, mock_library
-):
+def test_connect_on_failure_with_condition_lambda_function(pre_setup_graph_init, mock_library):
     """Test that connect_on_failure() with condition function works correctly"""
     (nodes, _, _, _) = pre_setup_graph_init
 
@@ -1361,29 +1231,17 @@ def test_connect_on_failure_with_condition_lambda_function(
         parameters=GraphParameters(),
     ) as graph:
         graph.add_nodes(nodes["node1"], nodes["node2"])
-        graph.connect_on_failure(
-            "node1", "node2", on=lambda element, target: True
-        )
+        graph.connect_on_failure("node1", "node2", on=lambda element, target: True)
 
     # Check connectivity
     assert ("node1", "node2") in graph._connectivity
+    assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.FAILED
     assert (
-        graph._connectivity[("node1", "node2")][
-            QualibrationGraph.RUN_SCENARIO_FIELD
-        ]
-        == Outcome.FAILED
-    )
-    assert (
-        graph._connectivity[("node1", "node2")][
-            QualibrationGraph.OPERATIONAL_CONDITION_FIELD
-        ].on_function
-        is not None
+        graph._connectivity[("node1", "node2")][QualibrationGraph.OPERATIONAL_CONDITION_FIELD].on_function is not None
     )
 
 
-def test_connect_on_failure_with_condition_generator(
-    pre_setup_graph_init, mock_library
-):
+def test_connect_on_failure_with_condition_generator(pre_setup_graph_init, mock_library):
     """Test that connect_on_failure() with
     generator condition works correctly"""
     (nodes, _, _, _) = pre_setup_graph_init
@@ -1402,17 +1260,9 @@ def test_connect_on_failure_with_condition_generator(
 
     # Check connectivity
     assert ("node1", "node2") in graph._connectivity
+    assert graph._connectivity[("node1", "node2")][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.FAILED
     assert (
-        graph._connectivity[("node1", "node2")][
-            QualibrationGraph.RUN_SCENARIO_FIELD
-        ]
-        == Outcome.FAILED
-    )
-    assert (
-        graph._connectivity[("node1", "node2")][
-            QualibrationGraph.OPERATIONAL_CONDITION_FIELD
-        ].on_generator
-        is not None
+        graph._connectivity[("node1", "node2")][QualibrationGraph.OPERATIONAL_CONDITION_FIELD].on_generator is not None
     )
 
 
@@ -1426,9 +1276,7 @@ def test_get_next_element_skips_already_finished_node(mocker):
 
     # Simulate duplicate: add finished node twice, then pending node
     orchestrator._execution_queue.put(mock_finished_node)
-    orchestrator._execution_queue.put(
-        mock_finished_node
-    )  # Duplicate! (intentionally)
+    orchestrator._execution_queue.put(mock_finished_node)  # Duplicate! (intentionally)
     orchestrator._execution_queue.put(mock_pending_node)
 
     # Mock nx_graph
@@ -1445,9 +1293,7 @@ def test_get_next_element_skips_already_finished_node(mocker):
     def check_finished(node):
         return node == mock_finished_node
 
-    mocker.patch.object(
-        orchestrator, "check_node_finished", side_effect=check_finished
-    )
+    mocker.patch.object(orchestrator, "check_node_finished", side_effect=check_finished)
 
     # Should skip both instances of finished_node and return pending_node
     result = orchestrator.get_next_element()
@@ -1478,9 +1324,7 @@ def test_get_next_element_skips_node_with_unfinished_predecessors(mocker):
     def check_finished(node):
         return node == mock_pred1
 
-    mocker.patch.object(
-        orchestrator, "check_node_finished", side_effect=check_finished
-    )
+    mocker.patch.object(orchestrator, "check_node_finished", side_effect=check_finished)
 
     # Should return None because pred2 is not finished
     result = orchestrator.get_next_element()
@@ -1589,9 +1433,7 @@ def test_get_next_element_returns_node_when_all_predecessors_finished(mocker):
     def check_finished(node):
         return node != mock_node
 
-    mocker.patch.object(
-        orchestrator, "check_node_finished", side_effect=check_finished
-    )
+    mocker.patch.object(orchestrator, "check_node_finished", side_effect=check_finished)
 
     # Should return the node because ALL predecessors are finished
     result = orchestrator.get_next_element()
@@ -1657,12 +1499,10 @@ def test_set_out_targets_multiple_failed_edges_with_different_conditions(
 
     # Different conditions for different error types
     timeout_condition = OperationalCondition(
-        on_function=lambda node, target: node.results[target]["error_type"]
-        == "timeout"
+        on_function=lambda node, target: node.results[target]["error_type"] == "timeout"
     )
     calibration_condition = OperationalCondition(
-        on_function=lambda node, target: node.results[target]["error_type"]
-        == "calibration"
+        on_function=lambda node, target: node.results[target]["error_type"] == "calibration"
     )
 
     mock_edges = MagicMock()
@@ -1725,17 +1565,11 @@ class TestFillFinalOutcomes:
 
     def test_all_targets_successful(self, mocker):
         """All targets reach leaves and succeed."""
-        leaf1 = self.make_node(
-            {"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL}
-        )
-        leaf2 = self.make_node(
-            {"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL}
-        )
+        leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL})
+        leaf2 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL})
 
         # Patch the nx_graph property
-        mock_nx_graph = mocker.patch.object(
-            self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock
-        )
+        mock_nx_graph = mocker.patch.object(self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock)
 
         mock_graph = MagicMock()
         mock_graph.succ = {leaf1: [], leaf2: []}
@@ -1752,14 +1586,10 @@ class TestFillFinalOutcomes:
     def test_some_targets_fail(self, mocker):
         """Some targets fail on at least one leaf node."""
         leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.FAILED})
-        leaf2 = self.make_node(
-            {"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL}
-        )
+        leaf2 = self.make_node({"t1": Outcome.SUCCESSFUL, "t2": Outcome.SUCCESSFUL})
 
         # Patch the nx_graph property
-        mock_nx_graph = mocker.patch.object(
-            self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock
-        )
+        mock_nx_graph = mocker.patch.object(self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock)
 
         mock_graph = MagicMock()
         mock_graph.succ = {leaf1: [], leaf2: []}
@@ -1779,9 +1609,7 @@ class TestFillFinalOutcomes:
         """Target missing from leaf outcomes defaults to SUCCESSFUL."""
         leaf1 = self.make_node({"t1": Outcome.SUCCESSFUL})
 
-        mock_nx_graph = mocker.patch.object(
-            self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock
-        )
+        mock_nx_graph = mocker.patch.object(self.orchestrator.__class__, "nx_graph", new_callable=PropertyMock)
 
         mock_graph = MagicMock()
         mock_graph.succ = {leaf1: []}

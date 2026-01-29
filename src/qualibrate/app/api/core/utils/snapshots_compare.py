@@ -8,9 +8,7 @@ class _Placeholder:
     pass
 
 
-def jsonpatch_to_mapping(
-    old: Mapping[str, Any], patch: Sequence[Mapping[str, Any]]
-) -> Mapping[str, Mapping[str, Any]]:
+def jsonpatch_to_mapping(old: Mapping[str, Any], patch: Sequence[Mapping[str, Any]]) -> Mapping[str, Mapping[str, Any]]:
     diff: dict[str, dict[str, Any]] = {}
     for item in patch:
         op = item["op"]

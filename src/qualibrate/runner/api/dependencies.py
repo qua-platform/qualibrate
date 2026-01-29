@@ -3,9 +3,9 @@ from functools import cache
 from typing import Annotated, cast
 
 from fastapi import Depends, HTTPException
-from qualibrate.core.runnables.runnable_collection import RunnableCollection
 from qualibrate_config.models import CalibrationLibraryConfig
 
+from qualibrate.core.runnables.runnable_collection import RunnableCollection
 from qualibrate.runner.config import State, get_cl_settings
 from qualibrate.runner.core.types import QGraphType, QLibraryType, QNodeType
 
@@ -72,7 +72,5 @@ def get_graph_nocopy(
 ) -> QGraphType:
     graph = graphs.get_nocopy(name)
     if graph is None:
-        raise HTTPException(
-            status_code=422, detail=f"Unknown graph name {name}"
-        )
+        raise HTTPException(status_code=422, detail=f"Unknown graph name {name}")
     return graph

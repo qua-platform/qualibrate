@@ -38,9 +38,7 @@ class SnapshotTimelineDb(SnapshotBase):
         if self.load_type_flag.is_set(load_type_flag):
             return None
         fields: list[str] | None = ["id", "_id", "parents", "created_at"]
-        if fields is not None and load_type_flag.is_set(
-            SnapshotLoadTypeFlag.Metadata
-        ):
+        if fields is not None and load_type_flag.is_set(SnapshotLoadTypeFlag.Metadata):
             fields.append("metadata")
         elif load_type_flag.is_set(SnapshotLoadTypeFlag.DataWithoutRefs):
             fields = None
@@ -88,12 +86,7 @@ class SnapshotTimelineDb(SnapshotBase):
         load: bool = False,
     ) -> Sequence[MachineSearchResults] | None:
         """Make search in current instance of Snapshot."""
-        if (
-            not self._load_type_flag.is_set(
-                SnapshotLoadTypeFlag.DataWithMachine
-            )
-            and not load
-        ):
+        if not self._load_type_flag.is_set(SnapshotLoadTypeFlag.DataWithMachine) and not load:
             return None
         self.load_from_flag(SnapshotLoadTypeFlag.DataWithMachine)
         data = self.data
@@ -122,17 +115,10 @@ class SnapshotTimelineDb(SnapshotBase):
 
         return (
             cast(int, data["total"]),
-            [
-                SnapshotTimelineDb(
-                    int(snapshot["id"]), snapshot, settings=self._settings
-                )
-                for snapshot in data["items"]
-            ],
+            [SnapshotTimelineDb(int(snapshot["id"]), snapshot, settings=self._settings) for snapshot in data["items"]],
         )
 
-    def compare_by_id(
-        self, other_snapshot_int: int
-    ) -> Mapping[str, Mapping[str, Any]]:
+    def compare_by_id(self, other_snapshot_int: int) -> Mapping[str, Mapping[str, Any]]:
         if self.id == other_snapshot_int:
             return {}
         timeline_db_config = self.timeline_db_config
@@ -150,9 +136,7 @@ class SnapshotTimelineDb(SnapshotBase):
         patch = result.get("patch")
         if patch is None:
             return {}
-        return jsonpatch_to_mapping(
-            original, cast(Sequence[Mapping[str, Any]], patch)
-        )
+        return jsonpatch_to_mapping(original, cast(Sequence[Mapping[str, Any]], patch))
 
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         # TODO: update timeline db snapshot entry

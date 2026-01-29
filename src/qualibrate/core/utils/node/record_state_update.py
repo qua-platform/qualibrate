@@ -94,17 +94,13 @@ def update_machine_attribute(
     old_value: Any,
 ) -> str | int:
     if string_reference is None:
-        raise RuntimeError(
-            "QUAM is not installed, skipping state update recording"
-        )
+        raise RuntimeError("QUAM is not installed, skipping state update recording")
     ref_path, str_key = string_reference.split_reference(quam_path)
     try:
         key = int(str_key)
     except ValueError:
         key = str_key
-    referenced_value = string_reference.get_referenced_value(
-        machine, ref_path, root=machine.get_root()
-    )
+    referenced_value = string_reference.get_referenced_value(machine, ref_path, root=machine.get_root())
     if isinstance(referenced_value, (list, UserList)) and isinstance(key, int):
         referenced_value[key] = old_value
         return key
@@ -129,19 +125,13 @@ def update_node_machine(
     if string_reference is None:
         logger.warning("QUAM is not installed, skipping state update recording")
         return
-    patches: jsonpatch.JsonPatch = jsonpatch.make_patch(
-        original_dict, updated_dict
-    )
+    patches: jsonpatch.JsonPatch = jsonpatch.make_patch(original_dict, updated_dict)
     for patch in patches.patch:
-        if patch["op"] != "replace" or not isinstance(
-            patch["value"], ValueTypeToRecord
-        ):
+        if patch["op"] != "replace" or not isinstance(patch["value"], ValueTypeToRecord):
             continue
         path_ptr = jsonpointer.JsonPointer(patch["path"])
         try:
-            old_value = jsonpointer.resolve_pointer(
-                original_dict, path_ptr.path
-            )
+            old_value = jsonpointer.resolve_pointer(original_dict, path_ptr.path)
         except jsonpointer.JsonPointerException as ex:
             logger.exception(ex)
             continue

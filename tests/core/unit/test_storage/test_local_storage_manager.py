@@ -72,9 +72,7 @@ def test_initialization():
     assert manager.snapshot_idx is None
 
 
-def test_save_node_without_machine(
-    mocker, mock_data_handler, mock_generate, local_manager_root
-):
+def test_save_node_without_machine(mocker, mock_data_handler, mock_generate, local_manager_root):
     node = DummyNode()
     mock_logger = mocker.patch.object(logger, "info")
 
@@ -115,9 +113,7 @@ def test_save_node_with_machine_object_no_act_m_path(
         {"q1": Outcome.SUCCESSFUL.value, "q2": Outcome.FAILED.value},
     ],
 )
-def test_save_node_outcomes(
-    mocker, mock_data_handler, mock_generate, local_manager_root, outcomes
-):
+def test_save_node_outcomes(mocker, mock_data_handler, mock_generate, local_manager_root, outcomes):
     node = DummyNode(outcomes=outcomes)
     mock_logger = mocker.patch.object(logger, "info")
 

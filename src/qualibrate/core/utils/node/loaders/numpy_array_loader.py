@@ -20,9 +20,7 @@ class NumpyArrayLoader(BaseLoader):
     file_extensions = (".npy", ".npz")
 
     def __init__(self) -> None:
-        self.filepath_to_array: dict[
-            Path, np.ndarray[Any, np.dtype[Any]] | NpzFile
-        ] = {}
+        self.filepath_to_array: dict[Path, np.ndarray[Any, np.dtype[Any]] | NpzFile] = {}
 
     def load(self, path: Path, **kwargs: Any) -> Any:
         """
@@ -50,8 +48,5 @@ class NumpyArrayLoader(BaseLoader):
         if subref is None:
             return file_content
         if not isinstance(file_content, NpzFile):
-            raise ValueError(
-                f"Loaded file {path} is not representation of "
-                f"multiple NumPy arrays"
-            )
+            raise ValueError(f"Loaded file {path} is not representation of multiple NumPy arrays")
         return file_content.get(subref)

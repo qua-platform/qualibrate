@@ -21,10 +21,10 @@ from typing import Any, cast
 
 from fastapi import HTTPException, status
 from pydantic import BaseModel, ValidationError
+
 from qualibrate.core.models.run_summary.graph import GraphRunSummary
 from qualibrate.core.models.run_summary.node import NodeRunSummary
 from qualibrate.core.qualibration_library import QualibrationLibrary
-
 from qualibrate.runner.config import State
 from qualibrate.runner.core.models.common import RunError
 from qualibrate.runner.core.models.enums import RunnableType, RunStatusEnum
@@ -149,14 +149,8 @@ def run_node(
         run_error = RunError(
             error_class=ex.__class__.__name__,
             message=str(ex),
-            details_headline=getattr(
-                run_summary_error, "details_headline", None
-            )
-            if run_summary_error
-            else None,
-            details=getattr(run_summary_error, "details", None)
-            if run_summary_error
-            else None,
+            details_headline=getattr(run_summary_error, "details_headline", None) if run_summary_error else None,
+            details=getattr(run_summary_error, "details", None) if run_summary_error else None,
             traceback=traceback.format_tb(ex.__traceback__),
         )
         # Re-raise to allow caller to handle the error
@@ -257,9 +251,7 @@ def run_workflow(
         # Validate and structure input parameters
         # full_parameters_class expects: {parameters: {...}, nodes: {...}}
         # where 'parameters' are workflow-level and 'nodes' are per-node
-        input_parameters = workflow.full_parameters_class(
-            **passed_input_parameters
-        )
+        input_parameters = workflow.full_parameters_class(**passed_input_parameters)
 
         # Execute the workflow DAG
         # Nodes are executed in dependency order determined by the DAG

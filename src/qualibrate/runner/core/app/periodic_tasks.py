@@ -22,9 +22,7 @@ async def _handle_func(func: NoArgsNoReturnAnyFuncT) -> None:
         await run_in_threadpool(func)
 
 
-async def _handle_exc(
-    exc: Exception, on_exception: ExcArgNoReturnAnyFuncT | None
-) -> None:
+async def _handle_exc(exc: Exception, on_exception: ExcArgNoReturnAnyFuncT | None) -> None:
     if on_exception is None:
         return
     if asyncio.iscoroutinefunction(on_exception):

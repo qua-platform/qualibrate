@@ -17,9 +17,9 @@ from datetime import datetime
 from typing import Annotated, Any
 
 from pydantic import AwareDatetime, BaseModel, Field, computed_field
+
 from qualibrate.core.models.run_summary.graph import GraphRunSummary
 from qualibrate.core.models.run_summary.node import NodeRunSummary
-
 from qualibrate.runner.core.models.common import RunError, StateUpdate
 from qualibrate.runner.core.models.enums import RunnableType, RunStatusEnum
 
@@ -42,15 +42,10 @@ class LastRun(BaseModel):
     status: Annotated[
         RunStatusEnum,
         Field(
-            description=(
-                "The status of the run. "
-                f"Possible options: {tuple(v.value for v in RunStatusEnum)}."
-            ),
+            description=(f"The status of the run. Possible options: {tuple(v.value for v in RunStatusEnum)}."),
         ),
     ]
-    started_at: Annotated[
-        AwareDatetime, Field(..., description="The start time of the run.")
-    ]
+    started_at: Annotated[AwareDatetime, Field(..., description="The start time of the run.")]
     completed_at: Annotated[
         AwareDatetime | None,
         Field(description="The completion time of the run."),
@@ -60,10 +55,7 @@ class LastRun(BaseModel):
     runnable_type: Annotated[
         RunnableType,
         Field(
-            description=(
-                "The type of the runnable entity."
-                f"Possible options: {tuple(v.value for v in RunnableType)}."
-            ),
+            description=(f"The type of the runnable entity.Possible options: {tuple(v.value for v in RunnableType)}."),
         ),
     ]
     passed_parameters: Annotated[
@@ -76,9 +68,7 @@ class LastRun(BaseModel):
     run_result: Annotated[
         NodeRunSummary | GraphRunSummary | None,
         Field(
-            description=(
-                "The result of the run. Can be result of node or graph."
-            ),
+            description=("The result of the run. Can be result of node or graph."),
         ),
     ] = None
     # Here is not using Annotated because of mypy issue.

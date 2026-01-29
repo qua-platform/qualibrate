@@ -18,9 +18,7 @@ class StateUpdates(BaseModel):
 
 
 class StateUpdateRequestItem(BaseModel):
-    data_path: str = Field(
-        min_length=3, pattern="^#/.*", examples=["#/qubits/q0/frequency"]
-    )
+    data_path: str = Field(min_length=3, pattern="^#/.*", examples=["#/qubits/q0/frequency"])
     value: Any
 
 

@@ -13,15 +13,11 @@ from qualibrate.core.qualibration_library import QualibrationLibrary
 
 
 class Orchestrator(QualibrationOrchestrator):
-    def traverse_graph(
-        self, graph: QualibrationGraph, targets: Sequence[Any]
-    ) -> None:
+    def traverse_graph(self, graph: QualibrationGraph, targets: Sequence[Any]) -> None:
         pass
 
 
-def test_serialize_with_no_nested_graphs(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
+def test_serialize_with_no_nested_graphs(qualibration_lib: QualibrationLibrary, graph_params: GraphParameters):
     g = QualibrationGraph(
         "name",
         graph_params,
@@ -34,10 +30,7 @@ def test_serialize_with_no_nested_graphs(
         "name": "name",
         "description": "some description",
         "orchestrator": {
-            "__class__": (
-                "tests.core.unit.test_qualibration_graph.test_graph_serialize"
-                ".Orchestrator"
-            ),
+            "__class__": ("tests.core.unit.test_qualibration_graph.test_graph_serialize.Orchestrator"),
             "parameters": {},
         },
         "nodes": {
@@ -126,9 +119,7 @@ def test_serialize_with_no_nested_graphs(
     }
 
 
-def test_serialize_with_nested_graphs(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
+def test_serialize_with_nested_graphs(qualibration_lib: QualibrationLibrary, graph_params: GraphParameters):
     g = qualibration_lib.graphs["workflow_top"]
 
     assert g.serialize_graph_representation() == {
@@ -253,9 +244,7 @@ def test_serialize_graph_with_operational_condition_and_loop(
     assert len(serialized["edges"]) == 4
 
     # Find node (the one with loop)
-    node_data = next(
-        n for n in serialized["nodes"] if n["data"]["label"] == "node"
-    )
+    node_data = next(n for n in serialized["nodes"] if n["data"]["label"] == "node")
     node_name = node_data["name"]
 
     # Find edges
@@ -273,46 +262,26 @@ def test_serialize_graph_with_operational_condition_and_loop(
     assert "max_iterations" in loop_edge["data"]["loop"]
 
     # Find success edge (node -> node4)
-    node4_data = next(
-        n for n in serialized["nodes"] if n["data"]["label"] == "node4"
-    )
+    node4_data = next(n for n in serialized["nodes"] if n["data"]["label"] == "node4")
     node4_name = node4_data["name"]
-    success_edge = next(
-        e
-        for e in edges
-        if e["source"] == node_name and e["target"] == node4_name
-    )
+    success_edge = next(e for e in edges if e["source"] == node_name and e["target"] == node4_name)
     assert success_edge["data"]["connect_on"] is True  # Success path
 
     # Find failure edges with conditions
-    node2_data = next(
-        n for n in serialized["nodes"] if n["data"]["label"] == "node2"
-    )
+    node2_data = next(n for n in serialized["nodes"] if n["data"]["label"] == "node2")
     node2_name = node2_data["name"]
-    node2_edge = next(
-        e
-        for e in edges
-        if e["source"] == node_name and e["target"] == node2_name
-    )
+    node2_edge = next(e for e in edges if e["source"] == node_name and e["target"] == node2_name)
     assert node2_edge["data"]["connect_on"] is False  # Failure path
     assert "condition" in node2_edge["data"]
     assert node2_edge["data"]["condition"]["label"] == "<lambda>"
     assert "description" in node2_edge["data"]["condition"]
 
-    node3_data = next(
-        n for n in serialized["nodes"] if n["data"]["label"] == "node3"
-    )
+    node3_data = next(n for n in serialized["nodes"] if n["data"]["label"] == "node3")
     node3_name = node3_data["name"]
-    node3_edge = next(
-        e
-        for e in edges
-        if e["source"] == node_name and e["target"] == node3_name
-    )
+    node3_edge = next(e for e in edges if e["source"] == node_name and e["target"] == node3_name)
     assert node3_edge["data"]["connect_on"] is False  # Failure path
     assert "label" in node3_edge["data"]["condition"]
-    assert (
-        node3_edge["data"]["condition"]["label"] == "<lambda>"
-    )  # Lambda function
+    assert node3_edge["data"]["condition"]["label"] == "<lambda>"  # Lambda function
 
 
 def test_serialize_graph_with_multiple_operational_conditions(
@@ -327,12 +296,8 @@ def test_serialize_graph_with_multiple_operational_conditions(
 
     # Count edges by type (excluding self-loop)
     non_loop_edges = [e for e in edges if e["source"] != e["target"]]
-    success_edges = [
-        e for e in non_loop_edges if e["data"]["connect_on"] is True
-    ]
-    failure_edges = [
-        e for e in non_loop_edges if e["data"]["connect_on"] is False
-    ]
+    success_edges = [e for e in non_loop_edges if e["data"]["connect_on"] is True]
+    failure_edges = [e for e in non_loop_edges if e["data"]["connect_on"] is False]
 
     assert len(success_edges) == 1
     assert len(failure_edges) == 2

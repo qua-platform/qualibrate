@@ -9,17 +9,13 @@ from qualibrate.app.api.routes.utils.snapshot_load_type import (
 
 
 @pytest.mark.parametrize("load_type", (0, 1))
-def test_root_get_branch_load_type(
-    client_custom_settings, default_local_storage_project, load_type
-):
+def test_root_get_branch_load_type(client_custom_settings, default_local_storage_project, load_type):
     response = client_custom_settings.get(
         "/api/root/branch",
         params={"branch_name": "main", "load_type": load_type},
     )
     assert response.status_code == 200
-    created_at = datetime.fromtimestamp(
-        default_local_storage_project.stat().st_mtime
-    ).astimezone()
+    created_at = datetime.fromtimestamp(default_local_storage_project.stat().st_mtime).astimezone()
     assert response.json() == {
         "created_at": created_at.isoformat(timespec="seconds"),
         "id": 1,
@@ -28,14 +24,10 @@ def test_root_get_branch_load_type(
     }
 
 
-def test_root_get_branch_default(
-    client_custom_settings, default_local_storage_project
-):
+def test_root_get_branch_default(client_custom_settings, default_local_storage_project):
     response = client_custom_settings.get("/api/root/branch")
     assert response.status_code == 200
-    created_at = datetime.fromtimestamp(
-        default_local_storage_project.stat().st_mtime
-    ).astimezone()
+    created_at = datetime.fromtimestamp(default_local_storage_project.stat().st_mtime).astimezone()
     assert response.json() == {
         "created_at": created_at.isoformat(timespec="seconds"),
         "id": 1,
@@ -44,13 +36,9 @@ def test_root_get_branch_default(
     }
 
 
-def test_root_get_snapshot_default(
-    client_custom_settings, default_local_storage_project, snapshots_history
-):
+def test_root_get_snapshot_default(client_custom_settings, default_local_storage_project, snapshots_history):
     snapshot_id = 3
-    response = client_custom_settings.get(
-        "/api/root/snapshot", params={"id": snapshot_id}
-    )
+    response = client_custom_settings.get("/api/root/snapshot", params={"id": snapshot_id})
     snapshot = snapshots_history[len(snapshots_history) - snapshot_id]
     snapshot = _utils_test.update_snapshot_minified_response(snapshot)
     assert response.status_code == 200
@@ -206,9 +194,7 @@ def test_root_get_snapshot_load_type_flag(
     assert response.json() == snapshot
 
 
-def test_root_get_latest_snapshot_default(
-    client_custom_settings, default_local_storage_project, snapshots_history
-):
+def test_root_get_latest_snapshot_default(client_custom_settings, default_local_storage_project, snapshots_history):
     response = client_custom_settings.get("/api/root/snapshot/latest")
     snapshot = snapshots_history[0]
     snapshot = _utils_test.update_snapshot_minified_response(snapshot)
@@ -266,9 +252,7 @@ def test_root_get_latest_snapshot_load_type(
     load_type,
     to_update,
 ):
-    response = client_custom_settings.get(
-        "/api/root/snapshot/latest", params={"load_type": load_type}
-    )
+    response = client_custom_settings.get("/api/root/snapshot/latest", params={"load_type": load_type})
     snapshot = snapshots_history[0]
     snapshot.update(to_update)
     assert response.status_code == 200
@@ -369,9 +353,7 @@ def test_root_get_node_default(
     dfss_history,
 ):
     node_id = 3
-    response = client_custom_settings.get(
-        "/api/root/node", params={"id": node_id}
-    )
+    response = client_custom_settings.get("/api/root/node", params={"id": node_id})
     snapshot = snapshots_history[len(dfss_history) - node_id]
     dfs = dfss_history[len(dfss_history) - node_id]
     assert response.status_code == 200
@@ -430,9 +412,7 @@ def test_root_get_latest_node_load_type(
     load_type,
     dfs,
 ):
-    response = client_custom_settings.get(
-        "/api/root/node/latest", params={"load_type": load_type}
-    )
+    response = client_custom_settings.get("/api/root/node/latest", params={"load_type": load_type})
     assert response.status_code == 200
     assert response.json() == {
         "id": 9,
@@ -441,9 +421,7 @@ def test_root_get_latest_node_load_type(
     }
 
 
-def test_root_snapshots_history_default(
-    client_custom_settings, snapshots_history
-):
+def test_root_snapshots_history_default(client_custom_settings, snapshots_history):
     response = client_custom_settings.get("/api/root/snapshots_history")
     assert response.status_code == 200
     assert response.json() == {
@@ -456,12 +434,8 @@ def test_root_snapshots_history_default(
     }
 
 
-def test_root_snapshots_history_ascending(
-    client_custom_settings, snapshots_history
-):
-    response = client_custom_settings.get(
-        "/api/root/snapshots_history", params={"descending": False}
-    )
+def test_root_snapshots_history_ascending(client_custom_settings, snapshots_history):
+    response = client_custom_settings.get("/api/root/snapshots_history", params={"descending": False})
     assert response.status_code == 200
     assert response.json() == {
         "page": 1,
@@ -473,9 +447,7 @@ def test_root_snapshots_history_ascending(
     }
 
 
-def test_root_snapshots_history_ascending_paged(
-    client_custom_settings, snapshots_history
-):
+def test_root_snapshots_history_ascending_paged(client_custom_settings, snapshots_history):
     response = client_custom_settings.get(
         "/api/root/snapshots_history",
         params={"descending": False, "page": 2, "per_page": 2},
@@ -528,9 +500,7 @@ def test_root_snapshots_history_paged(
     }
 
 
-def test_root_nodes_history_default_args(
-    client_custom_settings, snapshots_history, dfss_history
-):
+def test_root_nodes_history_default_args(client_custom_settings, snapshots_history, dfss_history):
     response = client_custom_settings.get("/api/root/nodes_history")
     assert response.status_code == 200
     assert response.json() == {
@@ -541,19 +511,13 @@ def test_root_nodes_history_default_args(
         "has_next_page": False,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-            for snapshot, dfs in zip(
-                snapshots_history, dfss_history, strict=False
-            )
+            for snapshot, dfs in zip(snapshots_history, dfss_history, strict=False)
         ],
     }
 
 
-def test_root_nodes_history_ascending(
-    client_custom_settings, snapshots_history, dfss_history
-):
-    response = client_custom_settings.get(
-        "/api/root/nodes_history", params={"descending": False}
-    )
+def test_root_nodes_history_ascending(client_custom_settings, snapshots_history, dfss_history):
+    response = client_custom_settings.get("/api/root/nodes_history", params={"descending": False})
     assert response.status_code == 200
     assert response.json() == {
         "page": 1,
@@ -563,16 +527,12 @@ def test_root_nodes_history_ascending(
         "has_next_page": False,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-            for snapshot, dfs in zip(
-                snapshots_history[::-1], dfss_history[::-1], strict=False
-            )
+            for snapshot, dfs in zip(snapshots_history[::-1], dfss_history[::-1], strict=False)
         ],
     }
 
 
-def test_root_nodes_history_ascending_paged(
-    client_custom_settings, snapshots_history, dfss_history
-):
+def test_root_nodes_history_ascending_paged(client_custom_settings, snapshots_history, dfss_history):
     response = client_custom_settings.get(
         "/api/root/nodes_history",
         params={"descending": False, "page": 2, "per_page": 2},
@@ -642,10 +602,7 @@ def test_root_nodes_history_paged(
 
 
 @pytest.mark.parametrize(
-    (
-        "filter_no_change, descending, page, per_page, has_next_page, "
-        "search_filters, expected_range"
-    ),
+    ("filter_no_change, descending, page, per_page, has_next_page, search_filters, expected_range"),
     [
         (False, True, 2, 3, True, {}, range(3, 6)),
         (True, True, 2, 3, True, {}, range(3, 6)),

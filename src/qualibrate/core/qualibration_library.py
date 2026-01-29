@@ -22,9 +22,7 @@ from qualibrate.core.utils.type_protocols import MachineProtocol
 __all__ = ["QualibrationLibrary"]
 
 
-NodeTypeVar = TypeVar(
-    "NodeTypeVar", bound=QualibrationNode[NodeParameters, MachineProtocol]
-)
+NodeTypeVar = TypeVar("NodeTypeVar", bound=QualibrationNode[NodeParameters, MachineProtocol])
 
 
 class QualibrationLibrary(Generic[NodeTypeVar, GraphElementTypeVar]):
@@ -48,17 +46,11 @@ class QualibrationLibrary(Generic[NodeTypeVar, GraphElementTypeVar]):
             Calls `_scan()` if `library_folder` is provided.
     """
 
-    active_library: Optional[
-        "QualibrationLibrary[NodeTypeVar, GraphElementTypeVar]"
-    ] = None
+    active_library: Optional["QualibrationLibrary[NodeTypeVar, GraphElementTypeVar]"] = None
 
-    def __init__(
-        self, library_folder: Path | None = None, set_active: bool = True
-    ):
+    def __init__(self, library_folder: Path | None = None, set_active: bool = True):
         self.nodes: RunnableCollection[str, NodeTypeVar] = RunnableCollection()
-        self.graphs: RunnableCollection[
-            str, QualibrationGraph[GraphElementTypeVar]
-        ] = RunnableCollection()
+        self.graphs: RunnableCollection[str, QualibrationGraph[GraphElementTypeVar]] = RunnableCollection()
         self._library_folder = library_folder
 
         if set_active:
@@ -150,18 +142,10 @@ class QualibrationLibrary(Generic[NodeTypeVar, GraphElementTypeVar]):
             A dictionary containing serialized data.
         """
         return {
-            "__class__": (
-                f"{self.__class__.__module__}.{self.__class__.__name__}"
-            ),
-            "folder": (
-                str(self._library_folder)
-                if self._library_folder is not None
-                else None
-            ),
+            "__class__": (f"{self.__class__.__module__}.{self.__class__.__name__}"),
+            "folder": (str(self._library_folder) if self._library_folder is not None else None),
             "nodes": [node.serialize() for node in self.nodes.values_nocopy()],
-            "graphs": [
-                graph.serialize() for graph in self.graphs.values_nocopy()
-            ],
+            "graphs": [graph.serialize() for graph in self.graphs.values_nocopy()],
         }
 
     def get_nodes(self) -> RunnableCollection[str, NodeTypeVar]:
@@ -184,9 +168,7 @@ class QualibrationLibrary(Generic[NodeTypeVar, GraphElementTypeVar]):
         """
         return self.graphs
 
-    def run_node(
-        self, node_name: str, input_parameters: NodeParameters
-    ) -> NodeRunSummary:
+    def run_node(self, node_name: str, input_parameters: NodeParameters) -> NodeRunSummary:
         """
         Runs a specified node with the given parameters.
 
@@ -208,9 +190,7 @@ class QualibrationLibrary(Generic[NodeTypeVar, GraphElementTypeVar]):
         run_summary = node.run(**input_parameters.model_dump())
         return cast(NodeRunSummary, run_summary)
 
-    def run_graph(
-        self, graph_name: str, input_parameters: ExecutionParameters
-    ) -> GraphRunSummary:
+    def run_graph(self, graph_name: str, input_parameters: ExecutionParameters) -> GraphRunSummary:
         """
         Runs a specified graph with the given execution parameters.
 

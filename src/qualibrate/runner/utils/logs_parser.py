@@ -7,9 +7,10 @@ from itertools import islice
 from pathlib import Path
 from typing import Any, TextIO, cast
 
+from qualibrate_config.models import QualibrateConfig
+
 from qualibrate.core.utils.logger_m import LazyInitLogger, logger
 from qualibrate.core.utils.logger_utils.filters import filter_log_date
-from qualibrate_config.models import QualibrateConfig
 
 __all__ = [
     "parse_log_line",
@@ -21,9 +22,7 @@ __all__ = [
 default_asctime_log_format = "%Y-%m-%d %H:%M:%S,%f"
 
 
-def parse_log_line(
-    line: str, previous_msg: dict[str, Any] | None = None
-) -> dict[str, Any]:
+def parse_log_line(line: str, previous_msg: dict[str, Any] | None = None) -> dict[str, Any]:
     # JSON format
     if line.startswith("{"):
         try:
@@ -32,9 +31,7 @@ def parse_log_line(
             logging.exception(f"Can't parse line {line}", exc_info=ex)
             return {}
         if "asctime" in data:
-            data["asctime"] = datetime.strptime(
-                data["asctime"], default_asctime_log_format
-            )
+            data["asctime"] = datetime.strptime(data["asctime"], default_asctime_log_format)
         return data
     # old default-string-format
     parts = line.split(" - ", maxsplit=3)
@@ -79,9 +76,7 @@ def get_logs_from_qualibrate_files(
     filter_log_date_range = partial(filter_log_date, after=after, before=before)
     for log_file in sorted(q_log_files):
         with open(log_file) as f:
-            filtered = list(
-                filter(filter_log_date_range, parse_log_line_with_previous(f))
-            )
+            filtered = list(filter(filter_log_date_range, parse_log_line_with_previous(f)))
             lines_date_filtered = reversed(filtered)
             file_logs = islice(lines_date_filtered, num_entries - len(out_logs))
             out_logs.extend(file_logs)
@@ -97,6 +92,4 @@ def get_logs_from_qualibrate_in_memory_storage(
     *,
     config: QualibrateConfig,
 ) -> list[dict[str, Any]]:
-    return cast(LazyInitLogger, logger).in_memory_handler.get_logs(
-        after, before, num_entries
-    )
+    return cast(LazyInitLogger, logger).in_memory_handler.get_logs(after, before, num_entries)

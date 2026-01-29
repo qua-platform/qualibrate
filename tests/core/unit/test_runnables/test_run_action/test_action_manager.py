@@ -32,16 +32,10 @@ class TestActionManagerInit:
         test_names = {"x", "y", "print", "len"}
 
         with (
+            patch("qualibrate.core.runnables.run_action.action_manager.inspect.stack"),
+            patch("qualibrate.core.runnables.run_action.action_manager.get_frame_for_keeping_names_from_manager"),
             patch(
-                 "qualibrate.core.runnables.run_action.action_manager.inspect.stack"
-            ),
-            patch(
-                 "qualibrate.core.runnables.run_action.action_manager"
-                ".get_frame_for_keeping_names_from_manager"
-            ),
-            patch(
-                 "qualibrate.core.runnables.run_action.action_manager"
-                ".get_defined_in_frame_names",
+                "qualibrate.core.runnables.run_action.action_manager.get_defined_in_frame_names",
                 return_value=test_names,
             ),
         ):
@@ -96,9 +90,7 @@ class TestSkipActionsProperty:
         with pytest.raises(TypeError, match="Invalid value.*for skip_actions"):
             action_manager.skip_actions = 123  # Invalid type
 
-    def test_set_skip_actions_list_with_non_strings_raises(
-        self, action_manager
-    ):
+    def test_set_skip_actions_list_with_non_strings_raises(self, action_manager):
         """Test that list with non-string items raises TypeError."""
         with pytest.raises(TypeError, match="Invalid value.*for skip_actions"):
             action_manager.skip_actions = ["action1", 123, "action2"]
@@ -133,9 +125,7 @@ class TestRunAction:
         action.execute_run_action = Mock(return_value={"result": "success"})
         return action
 
-    def test_run_action_executes_found_action(
-        self, action_manager, mock_node, mock_action
-    ):
+    def test_run_action_executes_found_action(self, action_manager, mock_node, mock_action):
         """Test that run_action executes a registered action."""
         action_manager.actions["test_action"] = mock_action
 
@@ -150,17 +140,13 @@ class TestRunAction:
 
         assert result is None
 
-    def test_run_action_not_found_logs_warning(
-        self, action_manager, mock_node, caplog
-    ):
+    def test_run_action_not_found_logs_warning(self, action_manager, mock_node, caplog):
         """Test that missing action logs a warning."""
         action_manager.run_action("nonexistent", mock_node)
 
         assert "Can't run action nonexistent" in caplog.text
 
-    def test_run_action_respects_skip_all(
-        self, action_manager, mock_node, mock_action
-    ):
+    def test_run_action_respects_skip_all(self, action_manager, mock_node, mock_action):
         """Test that skip_actions=True skips all actions."""
         action_manager.actions["test_action"] = mock_action
         action_manager.skip_actions = True
@@ -170,9 +156,7 @@ class TestRunAction:
         mock_action.execute_run_action.assert_not_called()
         assert result is None
 
-    def test_run_action_respects_skip_specific(
-        self, action_manager, mock_node, mock_action
-    ):
+    def test_run_action_respects_skip_specific(self, action_manager, mock_node, mock_action):
         """Test that skip_actions with list skips specific actions."""
         action_manager.actions["action1"] = mock_action
         action_manager.actions["action2"] = Mock(spec=Action)
@@ -185,25 +169,17 @@ class TestRunAction:
 
         # action2 should run
         action_manager.run_action("action2", mock_node)
-        action_manager.actions[
-            "action2"
-        ].execute_run_action.assert_called_once()
+        action_manager.actions["action2"].execute_run_action.assert_called_once()
 
-    def test_run_action_with_args_kwargs(
-        self, action_manager, mock_node, mock_action
-    ):
+    def test_run_action_with_args_kwargs(self, action_manager, mock_node, mock_action):
         """Test that run_action passes args and kwargs to action."""
         action_manager.actions["test_action"] = mock_action
 
         action_manager.run_action("test_action", mock_node, "arg1", key="value")
 
-        mock_action.execute_run_action.assert_called_once_with(
-            mock_node, "arg1", key="value"
-        )
+        mock_action.execute_run_action.assert_called_once_with(mock_node, "arg1", key="value")
 
-    def test_run_action_skip_logs_info(
-        self, action_manager, mock_node, mock_action, caplog
-    ):
+    def test_run_action_skip_logs_info(self, action_manager, mock_node, mock_action, caplog):
         """Test that skipped action logs info message."""
         action_manager.actions["test_action"] = mock_action
         action_manager.skip_actions = True
@@ -216,9 +192,7 @@ class TestRunAction:
 class TestRegisterAction:
     """Tests for the register_action decorator."""
 
-    def test_register_without_parentheses_registers_action(
-        self, action_manager, mock_node, non_interactive_mode
-    ):
+    def test_register_without_parentheses_registers_action(self, action_manager, mock_node, non_interactive_mode):
         """Test @decorator syntax registers the action."""
         mock_node._action_manager = action_manager
 
@@ -229,9 +203,7 @@ class TestRegisterAction:
         assert "test_action" in action_manager.actions
         assert isinstance(action_manager.actions["test_action"], Action)
 
-    def test_register_without_parentheses_executes_immediately(
-        self, action_manager, mock_node, non_interactive_mode
-    ):
+    def test_register_without_parentheses_executes_immediately(self, action_manager, mock_node, non_interactive_mode):
         """Test @decorator syntax executes action immediately."""
         mock_node._action_manager = action_manager
         execution_count = {"count": 0}
@@ -244,9 +216,7 @@ class TestRegisterAction:
         # Action should have executed once during registration
         assert execution_count["count"] == 1
 
-    def test_register_with_skip_if_false_executes(
-        self, action_manager, mock_node, non_interactive_mode
-    ):
+    def test_register_with_skip_if_false_executes(self, action_manager, mock_node, non_interactive_mode):
         """Test @decorator(skip_if=False) executes immediately."""
         mock_node._action_manager = action_manager
         execution_count = {"count": 0}
@@ -258,9 +228,7 @@ class TestRegisterAction:
 
         assert execution_count["count"] == 1
 
-    def test_register_with_skip_if_true_does_not_execute(
-        self, action_manager, mock_node, non_interactive_mode
-    ):
+    def test_register_with_skip_if_true_does_not_execute(self, action_manager, mock_node, non_interactive_mode):
         """Test @decorator(skip_if=True) does NOT execute immediately."""
         mock_node._action_manager = action_manager
         execution_count = {"count": 0}
@@ -274,9 +242,7 @@ class TestRegisterAction:
         assert "test_action" in action_manager.actions
         assert execution_count["count"] == 0
 
-    def test_register_returns_callable_wrapper(
-        self, action_manager, mock_node, non_interactive_mode
-    ):
+    def test_register_returns_callable_wrapper(self, action_manager, mock_node, non_interactive_mode):
         """Test that register_action returns a callable wrapper."""
         mock_node._action_manager = action_manager
 
@@ -286,9 +252,7 @@ class TestRegisterAction:
 
         assert callable(test_action)
 
-    def test_wrapper_can_be_called_again(
-        self, action_manager, mock_node, non_interactive_mode
-    ):
+    def test_wrapper_can_be_called_again(self, action_manager, mock_node, non_interactive_mode):
         """Test that the wrapper function can be called multiple times."""
         mock_node._action_manager = action_manager
         execution_count = {"count": 0}
@@ -311,9 +275,7 @@ class TestRegisterAction:
         assert execution_count["count"] == 3
         assert result == {"value": 3}
 
-    def test_wrapper_preserves_function_metadata(
-        self, action_manager, mock_node, non_interactive_mode
-    ):
+    def test_wrapper_preserves_function_metadata(self, action_manager, mock_node, non_interactive_mode):
         """Test that wrapper preserves original function metadata."""
         mock_node._action_manager = action_manager
 
@@ -325,9 +287,7 @@ class TestRegisterAction:
         assert test_action.__name__ == "test_action"
         assert test_action.__doc__ == "Test docstring."
 
-    def test_multiple_actions_registered_sequentially(
-        self, action_manager, mock_node, non_interactive_mode
-    ):
+    def test_multiple_actions_registered_sequentially(self, action_manager, mock_node, non_interactive_mode):
         """Test registering multiple actions in sequence."""
         mock_node._action_manager = action_manager
 
@@ -348,9 +308,7 @@ class TestRegisterAction:
         assert "action2" in action_manager.actions
         assert "action3" in action_manager.actions
 
-    def test_register_action_with_node_namespace_update(
-        self, action_manager, mock_node, non_interactive_mode
-    ):
+    def test_register_action_with_node_namespace_update(self, action_manager, mock_node, non_interactive_mode):
         """Test that action updates node.namespace when returning dict."""
         mock_node._action_manager = action_manager
 

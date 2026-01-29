@@ -18,16 +18,10 @@ class Parameters(NodeParameters):
 node = QualibrationNode(
     name="test_cal",
     parameters=Parameters(),
-    description=(
-        "Test calibration that wait a few seconds, then plots random data."
-    ),
+    description=("Test calibration that wait a few seconds, then plots random data."),
 )
 machine = node.machine = BasicQuam(
-    channels={
-        "ch1": SingleChannel(
-            opx_output=("con1", 1), intermediate_frequency=100e6
-        )
-    }
+    channels={"ch1": SingleChannel(opx_output=("con1", 1), intermediate_frequency=100e6)}
 )
 
 node.parameters = Parameters()

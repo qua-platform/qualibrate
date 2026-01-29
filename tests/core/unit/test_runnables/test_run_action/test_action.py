@@ -12,9 +12,7 @@ from qualibrate.core.runnables.run_action.action import Action
 class TestActionNameProperty:
     """Tests for the name property."""
 
-    def test_name_returns_function_name(
-        self, simple_action_function, mock_action_manager
-    ):
+    def test_name_returns_function_name(self, simple_action_function, mock_action_manager):
         """Test that name property returns function.__name__."""
         action = Action(simple_action_function, mock_action_manager)
 
@@ -57,18 +55,14 @@ class TestRunAndUpdateNamespace:
 
         assert executed["called"] is True
 
-    def test_returns_function_result(
-        self, mock_action_manager, mock_node, simple_action_function
-    ):
+    def test_returns_function_result(self, mock_action_manager, mock_node, simple_action_function):
         """Test that method returns the function's return value."""
         action = Action(simple_action_function, mock_action_manager)
         result = action._run_and_update_namespace(mock_node)
 
         assert result == {"result": "success", "value": 42}
 
-    def test_updates_namespace_with_dict_return(
-        self, mock_action_manager, mock_node, action_with_dict_return
-    ):
+    def test_updates_namespace_with_dict_return(self, mock_action_manager, mock_node, action_with_dict_return):
         """Test that dict returns update node.namespace."""
 
         action = Action(action_with_dict_return, mock_action_manager)
@@ -76,9 +70,7 @@ class TestRunAndUpdateNamespace:
 
         assert mock_node.namespace == {"x": 1, "y": 2, "z": 3}
 
-    def test_no_namespace_update_with_none_return(
-        self, mock_action_manager, mock_node, action_with_no_return
-    ):
+    def test_no_namespace_update_with_none_return(self, mock_action_manager, mock_node, action_with_no_return):
         """Test that no return doesn't update namespace."""
         action = Action(action_with_no_return, mock_action_manager)
         action._run_and_update_namespace(mock_node)
@@ -116,15 +108,11 @@ class TestRunAndUpdateNamespace:
             return {"result": "success"}
 
         action = Action(test_func, mock_action_manager)
-        action._run_and_update_namespace(
-            mock_node, key1="value1", key2="value2"
-        )
+        action._run_and_update_namespace(mock_node, key1="value1", key2="value2")
 
         assert received_kwargs == {"key1": "value1", "key2": "value2"}
 
-    def test_namespace_accumulates_across_actions(
-        self, mock_action_manager, mock_node
-    ):
+    def test_namespace_accumulates_across_actions(self, mock_action_manager, mock_node):
         """Test that namespace accumulates values from multiple actions."""
 
         def action1(node):
@@ -141,9 +129,7 @@ class TestRunAndUpdateNamespace:
 
         assert mock_node.namespace == {"a": 1, "b": 2, "c": 3, "d": 4}
 
-    def test_later_action_can_overwrite_namespace_values(
-        self, mock_action_manager, mock_node
-    ):
+    def test_later_action_can_overwrite_namespace_values(self, mock_action_manager, mock_node):
         """Test that later actions can overwrite earlier namespace values."""
 
         def action1(node):
@@ -175,9 +161,7 @@ class TestExecuteRunActionNonInteractive:
         current_action_during_execution = []
 
         def tracking_func(node):
-            current_action_during_execution.append(
-                mock_action_manager.current_action
-            )
+            current_action_during_execution.append(mock_action_manager.current_action)
             return {"result": "success"}
 
         action = Action(tracking_func, mock_action_manager)
@@ -203,9 +187,7 @@ class TestExecuteRunActionNonInteractive:
         # Should have been cleared (set to None)
         assert mock_node.action_label is None
 
-    def test_calls_run_and_update_namespace(
-        self, mock_action_manager, mock_node, non_interactive_mode
-    ):
+    def test_calls_run_and_update_namespace(self, mock_action_manager, mock_node, non_interactive_mode):
         """Test that execute_run_action calls _run_and_update_namespace."""
 
         def test_func(node):
@@ -243,9 +225,7 @@ class TestExecuteRunActionNonInteractive:
         # so no frame manipulation should occur
 
         action = Action(simple_action_function, mock_action_manager)
-        with patch(
-             "qualibrate.core.runnables.run_action.action.get_frame_to_update_from_action"
-        ) as mock_get_frame:
+        with patch("qualibrate.core.runnables.run_action.action.get_frame_to_update_from_action") as mock_get_frame:
             result = action.execute_run_action(mock_node)
 
             # get_frame_to_update_from_action should NOT be called
@@ -324,9 +304,7 @@ class TestExecuteRunActionNonInteractive:
 class TestActionIntegration:
     """Integration tests for Action with ActionManager."""
 
-    def test_multiple_actions_share_namespace(
-        self, mock_action_manager, mock_node, non_interactive_mode
-    ):
+    def test_multiple_actions_share_namespace(self, mock_action_manager, mock_node, non_interactive_mode):
         """Test that multiple actions can share the namespace."""
 
         def action1(node):
@@ -349,9 +327,7 @@ class TestActionIntegration:
             "sum": 6,
         }
 
-    def test_action_tracking_across_multiple_executions(
-        self, mock_action_manager, mock_node, non_interactive_mode
-    ):
+    def test_action_tracking_across_multiple_executions(self, mock_action_manager, mock_node, non_interactive_mode):
         """Test that current_action tracking works across multiple actions."""
 
         def action1(node):

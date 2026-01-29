@@ -48,12 +48,7 @@ class SocketConnectionManagerMapping(Generic[KT]):
 
     @property
     def any_subscriber(self) -> bool:
-        return len(self.active_connections) > 0 and any(
-            map(len, self.active_connections.values())
-        )
+        return len(self.active_connections) > 0 and any(map(len, self.active_connections.values()))
 
     def any_subscriber_for(self, key: KT) -> bool:
-        return (
-            key in self.active_connections
-            and len(self.active_connections[key]) > 0
-        )
+        return key in self.active_connections and len(self.active_connections[key]) > 0

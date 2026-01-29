@@ -8,8 +8,8 @@ readme = "README.md"
 
 # PACKAGES: Defines what gets installed when users do "pip install qualibrate"
 packages = [
-    { include = "qualibrate", from = "src" },  # Main package with core/runner/app/composite subpackages
-    { include = "qualibrate_examples" }        # Examples (at root)
+    { include = "qualibrate", from = "src" },  # Main package
+    { include = "qualibrate_examples", from = "src" }        # Examples
 ]
 
 # NOTE: qualibrate_static/ will be inside src/qualibrate/app/ after flattening
@@ -24,7 +24,7 @@ packages = [
 python = "^3.10,<3.13"
 
 # Core dependencies (from qualibrate-core)
-pydantic = "^2.11.9"              # Using higher version from composite (was ^2.9.2 in core)
+pydantic = ">=2.11.9,<2.12.0"     # Pin to <2.12.0 due to breaking changes in 2.12.0+
 qualang-tools = { version = ">=0.20.0", python = ">=3.10,<3.13" }
 networkx = "~3.4.2"               # Max version with Python 3.10 support
 jsonpointer = "^3.0.0"
@@ -47,7 +47,6 @@ tomli-w = "^1.0.0"
 # Additional dependencies
 requests = "^2.32.4"              # From app
 websockets = "^15.0.1"            # From runner
-quam = "^0.4.2"                   # From runner (used by runner and tests)
 a2wsgi = "^1.10.8"                # From composite (for WSGI middleware)
 qualibrate-config = "^0.1.8,<0.2.0"  # Using version range (was pinned to 0.1.8 in composite)
 
@@ -79,7 +78,7 @@ pytest = "^8.4.2"
 pytest-mock = "^3.15.1"
 
 # Test-specific dependencies (from core)
-quam = { version = "^0.4.2", python = ">=3.10,<3.13" }  # Also in runtime, but needed for tests
+quam = { version = "^0.4.2", python = ">=3.10,<3.13" }  # Only needed for tests
 xarray = "~2025.6.1"              # Using higher version from core (runner had ^2024.1.0)
 pillow = "^11.0.0"                # From core
 # setuptools = "^75.1.0"          # Was required for qm -> betterproto -> pkg_resources
@@ -134,6 +133,8 @@ qualibrate-app = "qualibrate.app.__main__:main"          # App server (can run s
 python_version = "3.10"
 strict = true                      # Enable all strict type checking
 warn_return_any = true
+mypy_path = "src"
+explicit_package_bases = true
 exclude = ["tests", "calibrations"]  # Don't type-check tests or calibration scripts
 plugins = ['pydantic.mypy']        # Enable Pydantic plugin for better type inference
 

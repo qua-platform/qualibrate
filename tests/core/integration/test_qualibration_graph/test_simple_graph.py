@@ -40,15 +40,11 @@ def graph_params() -> GraphParameters:
 
 
 class Orchestrator(QualibrationOrchestrator):
-    def traverse_graph(
-        self, graph: QualibrationGraph, targets: Sequence[Any]
-    ) -> None:
+    def traverse_graph(self, graph: QualibrationGraph, targets: Sequence[Any]) -> None:
         pass
 
 
-def test_run_sequence(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
+def test_run_sequence(qualibration_lib: QualibrationLibrary, graph_params: GraphParameters):
     g = QualibrationGraph(
         "graph_name",
         graph_params,
@@ -66,9 +62,7 @@ def test_run_sequence(
     )
 
 
-def test_run_multi_predecessors(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
+def test_run_multi_predecessors(qualibration_lib: QualibrationLibrary, graph_params: GraphParameters):
     g = QualibrationGraph(
         "graph_name",
         graph_params,
@@ -100,9 +94,7 @@ def test_run_multi_predecessors(
     )
 
 
-def test_run_multi_nodes_instances(
-    qualibration_lib: QualibrationLibrary, graph_params: GraphParameters
-):
+def test_run_multi_nodes_instances(qualibration_lib: QualibrationLibrary, graph_params: GraphParameters):
     test_node_1 = qualibration_lib.nodes["test_node"]
     one_more_node = qualibration_lib.nodes["one_more_node"]
     test_cal = qualibration_lib.nodes["test_cal"]

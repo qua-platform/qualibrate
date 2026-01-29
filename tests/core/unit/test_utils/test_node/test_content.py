@@ -36,9 +36,7 @@ def test_load_parameters_with_build():
         node_id,
         True,
     )
-    assert (
-        loaded_parameters.__class__.__name__ == f"LoadedNode{node_id}Parameters"
-    )
+    assert loaded_parameters.__class__.__name__ == f"LoadedNode{node_id}Parameters"
     assert parameters.model_dump() == loaded_parameters.model_dump()
 
     failed = {}

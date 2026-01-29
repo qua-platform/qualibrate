@@ -35,12 +35,8 @@ with QualibrationGraph.build(
         name="subg2",
         parameters=Parameters(qubits_1="q3"),
     ) as subg2:
-        subg2.add_node(
-            library.nodes.get_nocopy("test_node").copy(name="node_4")
-        )
-        subg2.add_node(
-            library.nodes.get_nocopy("test_node").copy(name="node_5")
-        )
+        subg2.add_node(library.nodes.get_nocopy("test_node").copy(name="node_4"))
+        subg2.add_node(library.nodes.get_nocopy("test_node").copy(name="node_5"))
         subg2.connect(src="node_4", dst="node_5")
 
     # Connecting elements

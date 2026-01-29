@@ -1,8 +1,10 @@
 # %% Preamble
-import requests
 import json
 import time
-#manual test for ui and app backend
+
+import requests
+
+# manual test for ui and app backend
 BASE_URL = "http://localhost:8001/api"
 
 
@@ -31,9 +33,7 @@ def execute_request(endpoint, params=None, title="", description=""):
         else:
             items = [data]
 
-        print(
-            f"\nStatus: {response.status_code} OK | Time: {duration_ms:.2f}ms | Results: {len(items)}"
-        )
+        print(f"\nStatus: {response.status_code} OK | Time: {duration_ms:.2f}ms | Results: {len(items)}")
         print(json.dumps(items[:3], indent=2))
         if len(items) > 3:
             print(f"... and {len(items) - 3} more items.")
@@ -50,7 +50,7 @@ def get_example_snapshot_id():
     try:
         items = resp.json().get("items", [])
         return items[0]["id"] if items else None
-    except:
+    except Exception:
         return None
 
 

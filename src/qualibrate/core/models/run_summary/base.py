@@ -37,7 +37,5 @@ class BaseRunSummary(BaseModel):
         return round((self.completed_at - self.created_at).total_seconds(), 3)
 
     @field_serializer("parameters")
-    def serialize_parameters(
-        self, parameters: RunnableParameters
-    ) -> Mapping[str, Any]:
+    def serialize_parameters(self, parameters: RunnableParameters) -> Mapping[str, Any]:
         return parameters.model_dump(serialize_as_any=True)

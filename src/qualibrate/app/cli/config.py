@@ -32,9 +32,7 @@ def get_config(config_path: Path) -> tuple[dict[str, Any], Path]:
     return {}, config_file
 
 
-def _config_from_sources(
-    ctx: click.Context, from_file: dict[str, Any]
-) -> dict[str, Any]:
+def _config_from_sources(ctx: click.Context, from_file: dict[str, Any]) -> dict[str, Any]:
     qualibrate_mapping = {k: k for k in ("static_site_files",)}
     timeline_db_mapping = {
         "timeline_db_address": "address",
@@ -50,16 +48,9 @@ def _config_from_sources(
             if not_default_arg or qualibrate_mapping[arg_key] not in from_file:
                 from_file[qualibrate_mapping[arg_key]] = arg_value
         elif arg_key in timeline_db_mapping:
-            if not_default_arg or (
-                timeline_db_mapping[arg_key] not in from_file["timeline_db"]
-            ):
-                from_file["timeline_db"][timeline_db_mapping[arg_key]] = (
-                    arg_value
-                )
-        elif arg_key in runner_mapping and (
-            not_default_arg
-            or (runner_mapping[arg_key] not in from_file["runner"])
-        ):
+            if not_default_arg or (timeline_db_mapping[arg_key] not in from_file["timeline_db"]):
+                from_file["timeline_db"][timeline_db_mapping[arg_key]] = arg_value
+        elif arg_key in runner_mapping and (not_default_arg or (runner_mapping[arg_key] not in from_file["runner"])):
             from_file["runner"][runner_mapping[arg_key]] = arg_value
     return from_file
 
@@ -71,9 +62,7 @@ def _print_config(data: Mapping[str, Any], depth: int = 0) -> None:
         max_key_len = 1
     click.echo(
         os.linesep.join(
-            f"{' ' * 4 * depth}{f'{k} :':<{max_key_len + 3}} {v}"
-            for k, v in data.items()
-            if not isinstance(v, Mapping)
+            f"{' ' * 4 * depth}{f'{k} :':<{max_key_len + 3}} {v}" for k, v in data.items() if not isinstance(v, Mapping)
         )
     )
     mappings = filter(lambda x: isinstance(x[1], Mapping), data.items())
@@ -101,10 +90,7 @@ def _confirm(
     if not confirmed:
         click.echo(
             click.style(
-                (
-                    "The configuration has not been confirmed. "
-                    "Rerun config script."
-                ),
+                ("The configuration has not been confirmed. Rerun config script."),
                 fg="yellow",
             )
         )

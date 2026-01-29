@@ -10,9 +10,7 @@ from qualibrate.core.utils.node.loaders.json_loader import JSONLoader
 @pytest.fixture
 def sample_json_file():
     data = {"key": "value", "number": 42}
-    with NamedTemporaryFile(
-        delete=False, mode="w", suffix=".json"
-    ) as temp_file:
+    with NamedTemporaryFile(delete=False, mode="w", suffix=".json") as temp_file:
         json.dump(data, temp_file)
         temp_file_path = Path(temp_file.name)
     yield temp_file_path
@@ -21,9 +19,7 @@ def sample_json_file():
 
 @pytest.fixture
 def invalid_json_file():
-    with NamedTemporaryFile(
-        delete=False, mode="w", suffix=".json"
-    ) as temp_file:
+    with NamedTemporaryFile(delete=False, mode="w", suffix=".json") as temp_file:
         temp_file.write("{invalid: json}")  # Invalid JSON format
         temp_file_path = Path(temp_file.name)
     yield temp_file_path

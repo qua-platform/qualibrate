@@ -16,9 +16,7 @@ from qualibrate.runner.core.models.last_run import LastRun
 class TestLastRunDuration:
     """Tests for the run_duration computed field."""
 
-    def test_duration_for_completed_run(
-        self, aware_datetime: datetime, later_datetime: datetime
-    ) -> None:
+    def test_duration_for_completed_run(self, aware_datetime: datetime, later_datetime: datetime) -> None:
         """Test run_duration calculation for completed run."""
         # later_datetime is 5.5 seconds after aware_datetime
         last_run = LastRun(
@@ -51,9 +49,7 @@ class TestLastRunDuration:
         # Duration should be positive and small (less than 1 second)
         assert 0 < last_run.run_duration < 1.0  # type: ignore[operator]
 
-    def test_duration_for_very_short_run(
-        self, aware_datetime: datetime
-    ) -> None:
+    def test_duration_for_very_short_run(self, aware_datetime: datetime) -> None:
         """Test duration for very short execution (milliseconds)."""
         completed = aware_datetime + timedelta(milliseconds=150)
 
@@ -117,9 +113,7 @@ class TestLastRunDuration:
 class TestLastRunSerialization:
     """Tests for LastRun serialization and deserialization."""
 
-    def test_serialize_running_node(
-        self, sample_last_run_running: LastRun
-    ) -> None:
+    def test_serialize_running_node(self, sample_last_run_running: LastRun) -> None:
         """Test serializing a running node to dict."""
         data = sample_last_run_running.model_dump()
 
@@ -131,9 +125,7 @@ class TestLastRunSerialization:
         assert data["run_result"] is None
         assert data["error"] is None
 
-    def test_serialize_finished_node(
-        self, sample_last_run_finished: LastRun
-    ) -> None:
+    def test_serialize_finished_node(self, sample_last_run_finished: LastRun) -> None:
         """Test serializing a finished node to dict."""
         data = sample_last_run_finished.model_dump()
 
@@ -176,9 +168,7 @@ class TestLastRunSerialization:
 class TestLastRunEdgeCases:
     """Tests for edge cases and special scenarios."""
 
-    def test_node_vs_graph_runnable_types(
-        self, aware_datetime: datetime
-    ) -> None:
+    def test_node_vs_graph_runnable_types(self, aware_datetime: datetime) -> None:
         """Test both NODE and GRAPH runnable types."""
         node_run = LastRun(
             status=RunStatusEnum.RUNNING,

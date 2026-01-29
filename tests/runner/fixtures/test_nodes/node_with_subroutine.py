@@ -8,6 +8,7 @@ that is called from an action, ensuring the full call chain is captured.
 from typing import Any
 
 from pydantic import Field
+
 from qualibrate.core import NodeParameters, QualibrationNode
 
 
@@ -63,9 +64,7 @@ def another_helper(value: float, message: str) -> float:
 def prepare_data(node: QualibrationNode[Parameters, Any]) -> dict[str, Any]:
     """Generate measurement data based on parameters."""
     # Simple data generation without errors
-    data = [
-        node.parameters.amplitude * i for i in range(node.parameters.num_points)
-    ]
+    data = [node.parameters.amplitude * i for i in range(node.parameters.num_points)]
     return {"data": data, "data_length": len(data)}
 
 
@@ -79,9 +78,7 @@ def process_with_subroutine(
     when trigger_subroutine_error is True.
     """
     # Call the helper function - error will occur inside it
-    result = helper_function(
-        node.parameters.amplitude, node.parameters.num_points
-    )
+    result = helper_function(node.parameters.amplitude, node.parameters.num_points)
     return {"processed": result}
 
 

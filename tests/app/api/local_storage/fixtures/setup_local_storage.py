@@ -13,9 +13,7 @@ from qualibrate.app.api.core.domain.local_storage.utils.local_path_id import (
 
 def _setup_local_storage_project(project_path: Path) -> Path:
     project_path.mkdir(parents=True)
-    for i, node_date in enumerate(
-        (date(2024, 4, 25), date(2024, 4, 26), date(2024, 4, 27))
-    ):
+    for i, node_date in enumerate((date(2024, 4, 25), date(2024, 4, 26), date(2024, 4, 27))):
         node_date_str = node_date.isoformat()
         date_dir = project_path / node_date_str
         date_dir.mkdir()
@@ -40,9 +38,7 @@ def _setup_local_storage_project(project_path: Path) -> Path:
                 )
             ).replace(tzinfo=timezone(timedelta(seconds=10800)))  # 3 hours
 
-            run_start = (created_at - timedelta(seconds=duration)).isoformat(
-                timespec="seconds"
-            )
+            run_start = (created_at - timedelta(seconds=duration)).isoformat(timespec="seconds")
             run_end = created_at.isoformat(timespec="seconds")
             if node_id == 4:
                 # old snapshot where the run_start and run_end not specified
@@ -67,13 +63,9 @@ def _setup_local_storage_project(project_path: Path) -> Path:
                 )
             )
             snapshot_file = node_dir / "state.json"
-            snapshot_file.write_text(
-                json.dumps({"quam": {"node": node_id}, "info": "snapshot"})
-            )
+            snapshot_file.write_text(json.dumps({"quam": {"node": node_id}, "info": "snapshot"}))
             out_file = node_dir / "data.json"
-            out_file.write_text(
-                json.dumps({"info": "out data", "result": f"node_{node_id}"})
-            )
+            out_file.write_text(json.dumps({"info": "out data", "result": f"node_{node_id}"}))
     return project_path
 
 
@@ -92,9 +84,7 @@ def default_local_storage_project(
 
 
 @pytest.fixture
-def local_storage_project_with_name(
-    tmp_path: Path, request: pytest.FixtureRequest
-) -> Generator[Path, None, None]:
+def local_storage_project_with_name(tmp_path: Path, request: pytest.FixtureRequest) -> Generator[Path, None, None]:
     project_path = tmp_path / "local_storage" / request.param
     yield _setup_local_storage_project(project_path)
     IdToLocalPath()._project_to_manager.clear()

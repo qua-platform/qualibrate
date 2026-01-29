@@ -231,10 +231,7 @@ def _registered_without_args(stack: list[inspect.FrameInfo]) -> bool | None:
     wrapper_frame = stack[1].frame
     wrapper_code = wrapper_frame.f_code
 
-    if (
-        wrapper_code.co_name != "wrapper"
-        or not wrapper_code.co_filename.endswith("action_manager.py")
-    ):
+    if wrapper_code.co_name != "wrapper" or not wrapper_code.co_filename.endswith("action_manager.py"):
         # Unexpected stack structure - fail safely
         logger.warning("Can't correctly parse stack trace")
         return None
@@ -245,7 +242,4 @@ def _registered_without_args(stack: list[inspect.FrameInfo]) -> bool | None:
 
     # If stack[3] is register_action in action_manager.py, decorator was used
     # WITHOUT parentheses (immediate execution path is longer/deeper)
-    return (
-        action_call_code.co_filename.endswith("action_manager.py")
-        and action_call_code.co_name == "register_action"
-    )
+    return action_call_code.co_filename.endswith("action_manager.py") and action_call_code.co_name == "register_action"

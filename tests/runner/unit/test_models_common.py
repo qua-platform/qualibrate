@@ -36,9 +36,7 @@ class TestRunError:
         assert error.message == "Something went wrong"
         assert error.traceback == sample_traceback
 
-    def test_serialization_with_optional_fields(
-        self, sample_traceback: list[str]
-    ) -> None:
+    def test_serialization_with_optional_fields(self, sample_traceback: list[str]) -> None:
         """Test serialization includes optional fields when present."""
         error = RunError(
             error_class="RuntimeError",
@@ -54,9 +52,7 @@ class TestRunError:
         assert "details" in serialized
         assert serialized["details"] == "Check the logs for more information"
 
-    def test_deserialization_with_optional_fields(
-        self, sample_traceback: list[str]
-    ) -> None:
+    def test_deserialization_with_optional_fields(self, sample_traceback: list[str]) -> None:
         """Test deserialization with optional fields."""
         data = {
             "error_class": "ValueError",
@@ -70,9 +66,7 @@ class TestRunError:
         assert error.details_headline == "Test Headline"
         assert error.details == "Test Details"
 
-    def test_deserialization_without_optional_fields(
-        self, sample_traceback: list[str]
-    ) -> None:
+    def test_deserialization_without_optional_fields(self, sample_traceback: list[str]) -> None:
         """Test deserialization without optional fields."""
         data = {
             "error_class": "ValueError",

@@ -130,9 +130,7 @@ def get_latest_node(
 def get_snapshot_by_id(
     *,
     id: Annotated[IdType, Query(description="Snapshot identifier.")],
-    load_type_flag: Annotated[
-        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
-    ],
+    load_type_flag: Annotated[SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)],
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> SnapshotModel:
     """
@@ -186,9 +184,7 @@ then plots random data.",
 @root_router.get("/snapshot/latest", summary="Get latest snapshot")
 def get_latest_snapshot(
     *,
-    load_type_flag: Annotated[
-        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
-    ],
+    load_type_flag: Annotated[SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)],
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> SnapshotModel:
     """Get latest snapshot.
@@ -231,11 +227,7 @@ def get_snapshot_filtered(
     search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
     descending: Annotated[
         bool,
-        Query(
-            description=(
-                "When true, prefer the newest match; otherwise the oldest."
-            )
-        ),
+        Query(description=("When true, prefer the newest match; otherwise the oldest.")),
     ] = True,
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> SnapshotModel | None:
@@ -450,10 +442,7 @@ def get_snapshots_history(
         pages_filter=page_filter,
         descending=descending,
     )
-    snapshots_dumped = [
-        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
-        for snapshot in snapshots
-    ]
+    snapshots_dumped = [SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump()) for snapshot in snapshots]
     return PagedCollection[SimplifiedSnapshotWithMetadata](
         page=page_filter.page,
         per_page=page_filter.per_page,
@@ -573,10 +562,7 @@ def get_snapshots_filtered(
         search_filter=SearchWithIdFilter(**search_filters.model_dump()),
         descending=descending,
     )
-    snapshots_dumped = [
-        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
-        for snapshot in snapshots
-    ]
+    snapshots_dumped = [SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump()) for snapshot in snapshots]
     return PagedCollection[SimplifiedSnapshotWithMetadata](
         page=page_filter.page,
         per_page=page_filter.per_page,
@@ -610,9 +596,7 @@ def get_nodes_history(
     root: Annotated[RootBase, Depends(_get_root_instance)],
 ) -> PagedCollection[NodeModel]:
     """[Deprecated] List nodes history (paged)."""
-    total, nodes = root.get_latest_nodes(
-        pages_filter=page_filter, descending=descending
-    )
+    total, nodes = root.get_latest_nodes(pages_filter=page_filter, descending=descending)
     nodes_dumped = [node.dump() for node in nodes]
     return PagedCollection[NodeModel](
         page=page_filter.page,
@@ -641,9 +625,7 @@ def search_snapshot(
 )
 def search_snapshot_data(
     *,
-    search_filters: Annotated[
-        SearchWithIdFilter, Depends(get_search_with_id_filter)
-    ],
+    search_filters: Annotated[SearchWithIdFilter, Depends(get_search_with_id_filter)],
     data_path: Annotated[Sequence[str | int], Depends(get_search_path)],
     descending: Annotated[
         bool,
@@ -712,14 +694,10 @@ def search_snapshot_data(
     ```
     Returns 13 operation lengths instead of just 1.
     """
-    return root.search_snapshot(
-        search_filters, data_path, descending=descending
-    )
+    return root.search_snapshot(search_filters, data_path, descending=descending)
 
 
-@root_router.get(
-    "/snapshots/search", summary="Track parameter changes across snapshots"
-)
+@root_router.get("/snapshots/search", summary="Track parameter changes across snapshots")
 def search_snapshots_data(
     *,
     data_path: Annotated[Sequence[str | int], Depends(get_search_path)],

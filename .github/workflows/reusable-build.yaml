@@ -24,6 +24,24 @@ jobs:
       - name: Install python deps
         run: poetry install
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: src/frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd src/frontend && npm ci
+
+      - name: Build frontend
+        run: cd src/frontend && npm run build
+
+      - name: Copy static files to package
+        run: |
+          mkdir -p src/qualibrate/app/qualibrate_static
+          cp -r src/frontend/dist/* src/qualibrate/app/qualibrate_static/
+
       - name: Build python package
         run: poetry build
 

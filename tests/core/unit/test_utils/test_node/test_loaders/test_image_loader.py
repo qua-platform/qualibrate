@@ -45,9 +45,7 @@ def test_load_nonexistent_file():
 
 
 def test_load_with_pil_unavailable(monkeypatch):
-    monkeypatch.setattr(
-        "qualibrate.core.utils.node.loaders.image_loader.find_spec", lambda _: None
-    )
+    monkeypatch.setattr("qualibrate.core.utils.node.loaders.image_loader.find_spec", lambda _: None)
     loader = ImageLoader()
     result = loader.load(Path("dummy.png"))
     assert result is None

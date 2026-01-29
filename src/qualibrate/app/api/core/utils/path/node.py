@@ -16,11 +16,7 @@ def _get_node_id_name_time(
     if len(parts) < 3:
         return None, node_path.stem, None
     id_str, *node_name, node_time_str = parts
-    node_id = (
-        int(id_str[1:])
-        if id_str.startswith("#") and id_str[1:].isnumeric()
-        else None
-    )
+    node_id = int(id_str[1:]) if id_str.startswith("#") and id_str[1:].isnumeric() else None
     if node_id is None:
         return None, node_path.stem, None
     node_name_str = "_".join(node_name)

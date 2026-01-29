@@ -48,9 +48,7 @@ from qualibrate.core.utils.logger_m import logger
 if TYPE_CHECKING:
     from qualibrate.core.qualibration_node import QualibrationNode
 
-ActionDecoratorType: TypeAlias = (
-    ActionCallableType | Callable[..., ActionCallableType]
-)
+ActionDecoratorType: TypeAlias = ActionCallableType | Callable[..., ActionCallableType]
 
 
 class ActionManager:
@@ -121,18 +119,13 @@ class ActionManager:
             self._skip_actions_names = set()  # Clear specific names
             return
 
-        if isinstance(to_skip, Sequence) and (
-            len(to_skip) == 0 or all(map(lambda x: isinstance(x, str), to_skip))
-        ):
+        if isinstance(to_skip, Sequence) and (len(to_skip) == 0 or all(map(lambda x: isinstance(x, str), to_skip))):
             # Sequence mode: skip specific named actions
             self._skip_actions = True  # Enable skipping
             self._skip_actions_names = set(to_skip)  # Store names to skip
             return
 
-        raise TypeError(
-            f"Invalid value {to_skip} for skip_actions. "
-            "Possible types: bool, Sequence[str]"
-        )
+        raise TypeError(f"Invalid value {to_skip} for skip_actions. Possible types: bool, Sequence[str]")
 
     def run_action(
         self,

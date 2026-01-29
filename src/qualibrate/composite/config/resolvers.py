@@ -40,12 +40,7 @@ def get_cors_origin() -> list[str]:
     cors_env = os.environ.get(CORS_ORIGINS_ENV_NAME)
     if cors_env is not None:
         return list(cors_env.split(","))
-    return list(
-        f"http://{host}:{port}"
-        for host, port in product(
-            ["localhost", "127.0.0.1"], [1234, 8000, 8001]
-        )
-    )
+    return list(f"http://{host}:{port}" for host, port in product(["localhost", "127.0.0.1"], [1234, 8000, 8001]))
 
 
 @lru_cache
