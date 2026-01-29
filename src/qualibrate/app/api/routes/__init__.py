@@ -6,6 +6,7 @@ from qualibrate.app.api.routes.others import other_router
 from qualibrate.app.api.routes.project import project_router, projects_router
 from qualibrate.app.api.routes.root import root_router
 from qualibrate.app.api.routes.snapshot import snapshot_router
+from qualibrate.app.api.routes.tag import tag_router
 
 __all__ = [
     "other_router",
@@ -20,3 +21,4 @@ storage_router.include_router(root_router)
 storage_router.include_router(branch_router)
 storage_router.include_router(data_file_router)
 storage_router.include_router(snapshot_router)
+storage_router.include_router(tag_router)

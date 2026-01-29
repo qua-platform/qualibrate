@@ -57,6 +57,32 @@ def _get_root_instance(
     return root_types[settings.storage.type](settings=settings)
 
 
+def _snapshot_to_simplified(
+    snapshot: Any,
+) -> SimplifiedSnapshotWithMetadata:
+    """Convert a snapshot to SimplifiedSnapshotWithMetadata with tags extracted.
+
+    Args:
+        snapshot: A snapshot instance with dump() method.
+
+    Returns:
+        SimplifiedSnapshotWithMetadata with tags populated from metadata.
+    """
+    dump = snapshot.dump().model_dump()
+
+    # Extract tags from metadata if present
+    tags = None
+    metadata = dump.get("metadata", {})
+    if metadata:
+        raw_tags = metadata.get("tags")
+        if isinstance(raw_tags, list):
+            tags = [t for t in raw_tags if isinstance(t, str)]
+            if not tags:
+                tags = None
+
+    return SimplifiedSnapshotWithMetadata(**dump, tags=tags)
+
+
 def _get_sort_key(
     snapshot: SimplifiedSnapshotWithMetadata,
     sort_field: SortField,
@@ -97,6 +123,16 @@ def _convert_to_history_item(
     children = metadata_dict.get("children")
     workflow_parent_id = metadata_dict.get("workflow_parent_id")
 
+    # Get tags from metadata
+    tags = metadata_dict.get("tags")
+    if tags is not None and not isinstance(tags, list):
+        tags = None
+    elif tags is not None:
+        # Filter to ensure all tags are strings
+        tags = [t for t in tags if isinstance(t, str)]
+        if not tags:
+            tags = None
+
     # Create extended metadata
     history_metadata = SnapshotHistoryMetadata(
         **metadata_dict,
@@ -111,6 +147,7 @@ def _convert_to_history_item(
         parents=snapshot.parents,
         metadata=history_metadata,
         type_of_execution=type_of_execution,
+        tags=tags,
     )
 
 
@@ -249,6 +286,37 @@ def _count_nested_items(items: list[SnapshotHistoryItem]) -> int:
         if item.items:
             count += _count_nested_items(item.items)
     return count
+
+
+def _filter_snapshots_by_tags(
+    snapshots: list[SimplifiedSnapshotWithMetadata],
+    required_tags: list[str],
+) -> list[SimplifiedSnapshotWithMetadata]:
+    """Filter snapshots to only those containing all required tags.
+
+    Args:
+        snapshots: List of snapshots to filter.
+        required_tags: List of tag names that must all be present.
+
+    Returns:
+        Filtered list of snapshots that have ALL required tags.
+    """
+    if not required_tags:
+        return snapshots
+
+    required_set = set(required_tags)
+    result = []
+    for snapshot in snapshots:
+        snapshot_tags = []
+        if snapshot.metadata:
+            # Get tags from metadata - handle both dict and object access
+            metadata_dict = snapshot.metadata.model_dump()
+            snapshot_tags = metadata_dict.get("tags", []) or []
+
+        if required_set.issubset(set(snapshot_tags)):
+            result.append(snapshot)
+
+    return result
 
 
 def _paginate_nested_items(
@@ -796,8 +864,12 @@ def get_snapshots_history(
             ),
         )
 
-    # For grouped mode or sorting, we need to fetch all snapshots first
-    if grouped or sort is not None:
+    # Check if we need to fetch all snapshots for post-filtering
+    # Tag filtering requires loading metadata, so we need to fetch all first
+    has_tag_filter = search_filters.tags is not None and len(search_filters.tags) > 0
+
+    # For grouped mode, sorting, or tag filtering, we need to fetch all snapshots
+    if grouped or sort is not None or has_tag_filter:
         all_pages_filter = PageFilter(page=1, per_page=999999)
         _, all_snapshots = root.get_latest_snapshots(
             pages_filter=all_pages_filter,
@@ -805,9 +877,15 @@ def get_snapshots_history(
             descending=False,  # We'll handle sorting/pagination ourselves
         )
         all_dumped = [
-            SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
+            _snapshot_to_simplified(snapshot)
             for snapshot in all_snapshots
         ]
+
+        # Apply tag filtering if specified
+        if has_tag_filter:
+            all_dumped = _filter_snapshots_by_tags(
+                all_dumped, search_filters.tags or []
+            )
 
         if sort is not None:
             # Sort all snapshots by the requested field
@@ -841,7 +919,7 @@ def get_snapshots_history(
                 items=paginated_items,
             )
         else:
-            # Flat mode with sorting - apply pagination
+            # Flat mode with sorting/filtering - apply pagination
             snapshots_dumped = list(get_page_slice(all_dumped, page_filter))
             total = len(all_dumped)
 
@@ -852,14 +930,14 @@ def get_snapshots_history(
                 items=snapshots_dumped,
             )
     else:
-        # Original flow without sorting or grouping
+        # Original flow without sorting, grouping, or tag filtering
         total, snapshots = root.get_latest_snapshots(
             pages_filter=page_filter,
             search_filter=SearchWithIdFilter(**search_filters.model_dump()),
             descending=descending,
         )
         snapshots_dumped = [
-            SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
+            _snapshot_to_simplified(snapshot)
             for snapshot in snapshots
         ]
 
@@ -983,7 +1061,7 @@ def get_snapshots_filtered(
         descending=descending,
     )
     snapshots_dumped = [
-        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
+        _snapshot_to_simplified(snapshot)
         for snapshot in snapshots
     ]
     return PagedCollection[SimplifiedSnapshotWithMetadata](

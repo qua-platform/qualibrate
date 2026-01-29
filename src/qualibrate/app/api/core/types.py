@@ -51,6 +51,7 @@ class SearchFilter(BaseModel):
     max_node_id: int | None = None
     min_date: date | None = None
     max_date: date | None = None
+    tags: list[str] | None = None  # Filter by tags (AND logic)
 
 
 class SearchWithIdFilter(SearchFilter):
