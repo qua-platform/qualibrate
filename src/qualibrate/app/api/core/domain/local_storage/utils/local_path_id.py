@@ -15,13 +15,9 @@ class IdToLocalPath(metaclass=Singleton):
     def __init__(self) -> None:
         self._project_to_manager: dict[str, IdToProjectLocalPath] = {}
 
-    def get_project_manager(
-        self, project: str, project_path: Path
-    ) -> IdToProjectLocalPath:
+    def get_project_manager(self, project: str, project_path: Path) -> IdToProjectLocalPath:
         if project not in self._project_to_manager:
-            self._project_to_manager[project] = IdToProjectLocalPath(
-                project, project_path
-            )
+            self._project_to_manager[project] = IdToProjectLocalPath(project, project_path)
         return self._project_to_manager[project]
 
     def get_path(
@@ -40,7 +36,5 @@ class IdToLocalPath(metaclass=Singleton):
     ) -> NodePath:
         path = self.get_path(project, id, project_path)
         if path is None:
-            raise QFileNotFoundException(
-                f"Node {id} of project '{project}' not found"
-            )
+            raise QFileNotFoundException(f"Node {id} of project '{project}' not found")
         return path

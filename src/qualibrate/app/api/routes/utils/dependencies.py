@@ -69,12 +69,7 @@ def get_search_with_id_filter(
     search_filter: Annotated[SearchFilter, Depends(get_search_filter)],
     id: Annotated[
         IdType | None,
-        Query(
-            description=(
-                "Exact snapshot ID to match (overrides name/date filters "
-                "if set)."
-            )
-        ),
+        Query(description=("Exact snapshot ID to match (overrides name/date filters if set).")),
     ] = None,
 ) -> SearchWithIdFilter:
     return SearchWithIdFilter(
@@ -84,15 +79,7 @@ def get_search_with_id_filter(
 
 
 def get_snapshot_load_type_flag(
-    load_type: Annotated[
-        SnapshotLoadType | None, Query(deprecated="use load_type_flag")
-    ] = None,
-    load_type_flag: Annotated[
-        SnapshotLoadTypeFlag, Depends(parse_load_type_flag)
-    ] = SnapshotLoadTypeFlag.Metadata,
+    load_type: Annotated[SnapshotLoadType | None, Query(deprecated="use load_type_flag")] = None,
+    load_type_flag: Annotated[SnapshotLoadTypeFlag, Depends(parse_load_type_flag)] = SnapshotLoadTypeFlag.Metadata,
 ) -> SnapshotLoadTypeFlag:
-    return (
-        load_type_flag
-        if load_type is None
-        else SnapshotLoadTypeToLoadTypeFlag[load_type]
-    )
+    return load_type_flag if load_type is None else SnapshotLoadTypeToLoadTypeFlag[load_type]

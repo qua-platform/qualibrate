@@ -9,6 +9,7 @@ from qualibrate.runner.core.app.ws_manager import (
 )
 from qualibrate.runner.core.app.ws_managers import (
     get_execution_history_socket_manager,
+    get_output_logs_socket_manager,
     get_run_status_socket_manager,
 )
 
@@ -47,3 +48,21 @@ async def workflow_execution_history_subscribe(
             await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(reverse, websocket)
+
+
+@common_ws_router.websocket("/output_logs")
+async def output_logs_subscribe(
+    websocket: WebSocket,
+    *,
+    manager: Annotated[SocketConnectionManagerList, Depends(get_output_logs_socket_manager)],
+) -> None:
+    """WebSocket endpoint for real-time log streaming.
+
+    Logs are pushed to subscribers as they are generated.
+    """
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)

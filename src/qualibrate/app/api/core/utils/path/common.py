@@ -6,9 +6,7 @@ from qualibrate.app.api.exceptions.classes.storage import (
 )
 
 
-def resolve_and_check_relative(
-    base_path: Path, subpath: os.PathLike[str]
-) -> Path:
+def resolve_and_check_relative(base_path: Path, subpath: os.PathLike[str]) -> Path:
     """
     Build full path from base path and subpath. Raise error if build path isn't
     subpath of base path.

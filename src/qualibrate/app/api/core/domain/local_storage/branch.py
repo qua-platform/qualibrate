@@ -51,9 +51,7 @@ class BranchLocalStorage(BranchBase):
 
     @property
     def created_at(self) -> datetime:
-        return datetime.fromtimestamp(
-            self._settings.storage.location.stat().st_mtime
-        ).astimezone()
+        return datetime.fromtimestamp(self._settings.storage.location.stat().st_mtime).astimezone()
 
     def load(self, load_type: BranchLoadType) -> None:
         pass
@@ -109,17 +107,10 @@ class BranchLocalStorage(BranchBase):
             search_filter=search_filter,
             descending=descending,
         )
-        snapshots = [
-            SnapshotLocalStorage(id, settings=self._settings)
-            for id in ids_paged
-        ]
+        snapshots = [SnapshotLocalStorage(id, settings=self._settings) for id in ids_paged]
         for snapshot in snapshots:
             snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
-        total = len(
-            IdToLocalPath().get_project_manager(
-                self._settings.project, storage_location
-            )
-        )
+        total = len(IdToLocalPath().get_project_manager(self._settings.project, storage_location))
         return total, snapshots
 
     def get_latest_nodes(
@@ -135,16 +126,10 @@ class BranchLocalStorage(BranchBase):
             search_filter=search_filter,
             descending=descending,
         )
-        nodes = [
-            NodeLocalStorage(id, settings=self._settings) for id in ids_paged
-        ]
+        nodes = [NodeLocalStorage(id, settings=self._settings) for id in ids_paged]
         for node in nodes:
             node.load(NodeLoadType.Full)
-        total = len(
-            IdToLocalPath().get_project_manager(
-                self._settings.project, storage_location
-            )
-        )
+        total = len(IdToLocalPath().get_project_manager(self._settings.project, storage_location))
         return total, nodes
 
     def dump(self) -> BranchModel:
@@ -171,19 +156,13 @@ class BranchLocalStorage(BranchBase):
             project_name=self._settings.project,
             descending=descending,
         )
-        snapshots = (
-            SnapshotLocalStorage(id, settings=self._settings) for id in ids
-        )
+        snapshots = (SnapshotLocalStorage(id, settings=self._settings) for id in ids)
         if descending:
-            snapshots_with_data = (
-                find_utils.search_snapshots_data_with_filter_descending(
-                    snapshots, data_path, filter_no_change
-                )
+            snapshots_with_data = find_utils.search_snapshots_data_with_filter_descending(
+                snapshots, data_path, filter_no_change
             )
         else:
-            snapshots_with_data = (
-                find_utils.search_snapshots_data_with_filter_ascending(
-                    snapshots, data_path, filter_no_change
-                )
+            snapshots_with_data = find_utils.search_snapshots_data_with_filter_ascending(
+                snapshots, data_path, filter_no_change
             )
         return 0, get_page_slice(snapshots_with_data, pages_filter)

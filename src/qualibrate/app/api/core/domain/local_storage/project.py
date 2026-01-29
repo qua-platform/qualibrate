@@ -24,9 +24,6 @@ class ProjectsManagerLocalStorage(ProjectsManagerBase):
 
     def list(self) -> Sequence[Project]:
         try:
-            return [
-                Project(**p.model_dump())
-                for p in verbose_list_projects(self._config_path).values()
-            ]
+            return [Project(**p.model_dump()) for p in verbose_list_projects(self._config_path).values()]
         except NotADirectoryError:
             return []

@@ -1,8 +1,9 @@
 export { default as WebSocketReducer } from "./WebSocketStore";
-export type { HistoryType, RunStatusType } from "./WebSocketStore";
+export type { HistoryType, RunStatusType, SnapshotType } from "./WebSocketStore";
 export {
   setRunStatus,
   setHistory,
+  setSnapshotInfo,
   setShowConnectionErrorDialog,
   setConnectionLostAt,
   setConnectionLostSeconds,
@@ -38,5 +39,6 @@ export {
   getRunStatusNodeId,
   getRunStatusNodeCurrentAction,
   getRunStatusNodeTimeRemaining,
+  getIsSnapshotUpdateRequired,
 } from "./selectors";
 export { useInitWebSocket } from "./hooks";

@@ -40,9 +40,7 @@ def _get_projects_manager(
         StorageType.local_storage: ProjectsManagerLocalStorage,
         StorageType.timeline_db: ProjectsManagerTimelineDb,
     }
-    return project_types[settings.storage.type](
-        settings=settings, config_path=config_path
-    )
+    return project_types[settings.storage.type](settings=settings, config_path=config_path)
 
 
 @project_router.post(
@@ -99,10 +97,7 @@ def create_project(
         Path | None,
         Body(
             ...,
-            description=(
-                "Optional path to an initial QUAM state JSON to seed the "
-                "project."
-            ),
+            description=("Optional path to an initial QUAM state JSON to seed the project."),
             examples=["/data/qualibrate/quam_state"],
         ),
     ] = None,
@@ -134,9 +129,7 @@ def create_project(
         calibration_library_folder=calibration_library_folder,
         quam_state_path=quam_state_path,
     )
-    project = next(
-        filter(lambda p: p.name == project_name, projects_manager.list()), None
-    )
+    project = next(filter(lambda p: p.name == project_name, projects_manager.list()), None)
     if project is None:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -171,9 +164,7 @@ def create_project(
     },
 )
 def get_active_project(
-    projects_manager: Annotated[
-        ProjectsManagerBase, Depends(_get_projects_manager)
-    ],
+    projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
 ) -> str | None:
     """Name of the active project. Can be `None` if active project isn't set."""
     return projects_manager.project
@@ -209,9 +200,7 @@ def set_active_project(
             min_length=1,
         ),
     ],
-    projects_manager: Annotated[
-        ProjectsManagerBase, Depends(_get_projects_manager)
-    ],
+    projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
     config_path: Annotated[Path, Depends(get_config_path)],
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> str:
@@ -228,24 +217,17 @@ def set_active_project(
     def notify_runner(q_settings: QualibrateConfig) -> None:
         if not q_settings.runner:
             return
-        settings_update_url = urljoin(
-            q_settings.runner.address_with_root, "refresh_settings"
-        )
+        settings_update_url = urljoin(q_settings.runner.address_with_root, "refresh_settings")
         try:
             requests.post(settings_update_url, timeout=5)
         except requests.exceptions.RequestException:
             logging.error(
-                "Failed to send refresh settings request "
-                f"to {settings_update_url}",
+                f"Failed to send refresh settings request to {settings_update_url}",
             )
 
     notify_runner(settings)
     new_settings = get_settings(config_path)
-    if (
-        settings.runner
-        and new_settings.runner
-        and new_settings.runner != settings.runner
-    ):
+    if settings.runner and new_settings.runner and new_settings.runner != settings.runner:
         notify_runner(new_settings)
     return active_project
 
@@ -265,18 +247,13 @@ def set_active_project(
                             "value": [
                                 {
                                     "name": "experiment_alpha",
-                                    "path": (
-                                        "/data/qualibrate/projects"
-                                        "/experiment_alpha"
-                                    ),
+                                    "path": ("/data/qualibrate/projects/experiment_alpha"),
                                     "created_at": "2025-08-01T10:00:00Z",
                                     "last_opened_at": "2025-09-01T15:30:00Z",
                                 },
                                 {
                                     "name": "my_project",
-                                    "path": (
-                                        "/data/qualibrate/projects/my_project"
-                                    ),
+                                    "path": ("/data/qualibrate/projects/my_project"),
                                     "created_at": "2025-07-15T09:12:00Z",
                                     "last_opened_at": "2025-08-20T18:05:00Z",
                                 },
@@ -289,9 +266,7 @@ def set_active_project(
     },
 )
 def get_projects_list(
-    projects_manager: Annotated[
-        ProjectsManagerBase, Depends(_get_projects_manager)
-    ],
+    projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
 ) -> Sequence[Project]:
     """List all projects available in the configured storage backend."""
     return projects_manager.list()

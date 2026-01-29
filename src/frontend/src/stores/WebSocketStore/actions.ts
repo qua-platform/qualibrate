@@ -7,6 +7,7 @@ import { RunStatusType, webSocketSlice } from "./WebSocketStore";
 export const {
   setRunStatus,
   setHistory,
+  setSnapshotInfo,
   setShowConnectionErrorDialog,
   setConnectionLostAt,
   setConnectionLostSeconds,

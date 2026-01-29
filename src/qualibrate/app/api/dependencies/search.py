@@ -45,7 +45,4 @@ def get_search_path(
     Returns:
         List of item subpaths
     """
-    return [
-        int(item) if item.isnumeric() else item
-        for item in check_path(data_path).split(".")
-    ]
+    return [int(item) if item.isnumeric() else item for item in check_path(data_path).split(".")]

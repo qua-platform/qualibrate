@@ -59,9 +59,7 @@ class RootLocalStorage(RootBase):
         search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
-        return BranchLocalStorage(
-            "main", settings=self._settings
-        ).get_latest_snapshots(
+        return BranchLocalStorage("main", settings=self._settings).get_latest_snapshots(
             pages_filter=pages_filter,
             search_filter=search_filter,
             descending=descending,
@@ -73,9 +71,7 @@ class RootLocalStorage(RootBase):
         search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
-        return BranchLocalStorage(
-            "main", settings=self._settings
-        ).get_latest_nodes(
+        return BranchLocalStorage("main", settings=self._settings).get_latest_nodes(
             pages_filter=pages_filter,
             search_filter=search_filter,
             descending=descending,
@@ -105,9 +101,7 @@ class RootLocalStorage(RootBase):
         filter_no_change: bool = True,
         descending: bool = False,
     ) -> tuple[int, Sequence[SnapshotSearchResult]]:
-        return BranchLocalStorage(
-            "main", settings=self._settings
-        ).search_snapshots_data(
+        return BranchLocalStorage("main", settings=self._settings).search_snapshots_data(
             search_filter=search_filter,
             pages_filter=pages_filter,
             data_path=data_path,

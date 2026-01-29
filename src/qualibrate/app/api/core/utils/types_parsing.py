@@ -11,9 +11,7 @@ BASIC_TYPE_CLS = type[bool] | type[int] | type[float] | type[str] | type[None]
 
 LIST_TYPES = list[bool] | list[int] | list[float] | list[str]
 VALUE_TYPES_WITHOUT_REC = BASIC_TYPES | LIST_TYPES
-INPUT_CONVERSION_TYPE = (
-    VALUE_TYPES_WITHOUT_REC | dict[str, "INPUT_CONVERSION_TYPE"]
-)
+INPUT_CONVERSION_TYPE = VALUE_TYPES_WITHOUT_REC | dict[str, "INPUT_CONVERSION_TYPE"]
 
 
 def parse_bool(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
@@ -58,9 +56,7 @@ def parse_int(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
     if isinstance(value, int):
         return value
     if isinstance(value, str):
-        if value.isdigit() or (
-            len(value) > 1 and value[0] == "-" and value[1:].isdigit()
-        ):
+        if value.isdigit() or (len(value) > 1 and value[0] == "-" and value[1:].isdigit()):
             return int(value)
         return value
     if isinstance(value, float):
@@ -108,10 +104,7 @@ def parse_str(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
     if (
         isinstance(value, str)
         and len(value) > 1
-        and (
-            (value.startswith('"') and value.endswith('"'))
-            or (value.startswith("'") and value.endswith("'"))
-        )
+        and ((value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")))
     ):
         return value[1:-1]
     return value
@@ -133,9 +126,7 @@ def parse_none(value: VALUE_TYPES_WITHOUT_REC) -> VALUE_TYPES_WITHOUT_REC:
     return value
 
 
-BASIC_PARSERS: Mapping[
-    BASIC_TYPE_CLS, Callable[[VALUE_TYPES_WITHOUT_REC], VALUE_TYPES_WITHOUT_REC]
-] = {
+BASIC_PARSERS: Mapping[BASIC_TYPE_CLS, Callable[[VALUE_TYPES_WITHOUT_REC], VALUE_TYPES_WITHOUT_REC]] = {
     int: parse_int,
     float: parse_float,
     bool: parse_bool,
@@ -258,9 +249,7 @@ def types_conversion(value: Any, expected_type: Mapping[str, Any]) -> Any:
         if type_ == "array":
             # array
             item_type: BASIC_TYPE_CLS | _MissingType = (
-                STR_TO_TYPE.get(expected_type["items"]["type"], _missing)
-                if "items" in expected_type
-                else _missing
+                STR_TO_TYPE.get(expected_type["items"]["type"], _missing) if "items" in expected_type else _missing
             )
             return parse_list(value, item_type)
         if type_ in STR_TO_TYPE:

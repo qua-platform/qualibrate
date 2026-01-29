@@ -23,15 +23,9 @@ def _get_subpath_value_wildcard(
 ) -> Sequence[MachineSearchResults]:
     if len(target_path) == 1:
         if isinstance(obj, Sequence):
-            return [
-                MachineSearchResults(key=current_path + [i], value=val)
-                for i, val in enumerate(obj)
-            ]
+            return [MachineSearchResults(key=current_path + [i], value=val) for i, val in enumerate(obj)]
         elif isinstance(obj, Mapping):
-            return [
-                MachineSearchResults(key=current_path + [key], value=val)
-                for key, val in obj.items()
-            ]
+            return [MachineSearchResults(key=current_path + [key], value=val) for key, val in obj.items()]
         else:
             return []
 
@@ -43,8 +37,7 @@ def _get_subpath_value_wildcard(
     )
     return list(
         chain.from_iterable(
-            get_subpath_value(value, target_path[1:], current_path + [idx])
-            for idx, value in iter_function(obj)
+            get_subpath_value(value, target_path[1:], current_path + [idx]) for idx, value in iter_function(obj)
         )
     )
 
@@ -66,9 +59,7 @@ def get_subpath_value_mapping(
     if len(target_path) == 1:
         return [MachineSearchResults(key=current_path + [key], value=obj[key])]
     else:
-        return get_subpath_value(
-            obj[key], target_path[1:], current_path + [key]
-        )
+        return get_subpath_value(obj[key], target_path[1:], current_path + [key])
 
 
 def get_subpath_value_sequence(
@@ -80,9 +71,7 @@ def get_subpath_value_sequence(
     if len(target_path) == 1:
         return [MachineSearchResults(key=current_path + [key], value=obj[key])]
     else:
-        return get_subpath_value(
-            obj[key], target_path[1:], current_path + [key]
-        )
+        return get_subpath_value(obj[key], target_path[1:], current_path + [key])
 
 
 def get_subpath_value(
@@ -101,12 +90,8 @@ def get_subpath_value(
     if not key_valid:
         return []
     if isinstance(obj, Mapping):
-        return get_subpath_value_mapping(
-            obj, target_path, current_path, cast(str, key)
-        )
-    return get_subpath_value_sequence(
-        obj, target_path, current_path, cast(int, key)
-    )
+        return get_subpath_value_mapping(obj, target_path, current_path, cast(str, key))
+    return get_subpath_value_sequence(obj, target_path, current_path, cast(int, key))
 
 
 def get_subpath_value_on_any_depth(
@@ -122,13 +107,9 @@ def get_subpath_value_on_any_depth(
     if isinstance(obj, Mapping):
         for k, v in obj.items():
             if k == key:
-                paths.append(
-                    MachineSearchResults(key=current_path + [k], value=v)
-                )
+                paths.append(MachineSearchResults(key=current_path + [k], value=v))
             else:
-                get_subpath_value_on_any_depth(
-                    v, key, current_path + [k], paths
-                )
+                get_subpath_value_on_any_depth(v, key, current_path + [k], paths)
     elif isinstance(obj, Sequence) and not isinstance(obj, str):
         for i, item in enumerate(obj):
             get_subpath_value_on_any_depth(item, key, current_path + [i], paths)
@@ -138,9 +119,7 @@ def get_subpath_value_on_any_depth(
 SnapshotType = TypeVar("SnapshotType", bound="SnapshotBase")
 
 
-def _get_search_results(
-    snapshot: SnapshotType, data_path: Sequence[str | int]
-) -> Sequence[MachineSearchResults]:
+def _get_search_results(snapshot: SnapshotType, data_path: Sequence[str | int]) -> Sequence[MachineSearchResults]:
     """Get all search results for a given data path.
 
     Args:
@@ -175,9 +154,7 @@ def search_snapshots_data_with_filter_ascending(
             if filter_no_change:
                 if previous_search_result != search_result:
                     previous_search_result = search_result
-                    yield _get_snapshot_search_result(
-                        snapshot, previous_search_result
-                    )
+                    yield _get_snapshot_search_result(snapshot, previous_search_result)
             else:
                 yield _get_snapshot_search_result(snapshot, search_result)
 
@@ -205,9 +182,7 @@ def search_snapshots_data_with_filter_descending(
         search_results = _get_search_results(snapshot, data_path)
         if previous_results != search_results:
             for search_result in previous_results:
-                yield _get_snapshot_search_result(
-                    previous_snapshot, search_result
-                )
+                yield _get_snapshot_search_result(previous_snapshot, search_result)
         previous_snapshot = snapshot
         previous_results = search_results
     for search_result in previous_results:

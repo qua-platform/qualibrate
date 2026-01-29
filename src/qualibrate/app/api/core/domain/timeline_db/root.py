@@ -50,9 +50,7 @@ class RootTimelineDb(RootBase):
         return parsed["total"], list(parsed["items"])
 
     def _get_latest_snapshot(self) -> DocumentType:
-        _, snapshots = self._get_latest_snapshots(
-            pages_filter=PageFilter(page=1, per_page=1), reverse=False
-        )
+        _, snapshots = self._get_latest_snapshots(pages_filter=PageFilter(page=1, per_page=1), reverse=False)
         if len(snapshots) != 1:
             raise QJsonDbException("Latest snapshot wasn't retrieved.")
         return snapshots[0]
@@ -89,10 +87,7 @@ class RootTimelineDb(RootBase):
             reverse=descending,
         )
         return total, [
-            SnapshotTimelineDb(
-                id=snapshot["id"], content=snapshot, settings=self._settings
-            )
-            for snapshot in snapshots
+            SnapshotTimelineDb(id=snapshot["id"], content=snapshot, settings=self._settings) for snapshot in snapshots
         ]
 
     def get_latest_nodes(

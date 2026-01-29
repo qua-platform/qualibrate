@@ -7,8 +7,7 @@ import cyKeys from "../../../../utils/cyKeys";
 import { NODES_KEY } from "../../../AppRoutes";
 import { useRootDispatch } from "../../../../stores";
 import { setActivePage } from "../../../../stores/NavigationStore";
-import { useSelector } from "react-redux";
-import { getReset, clearData } from "../../../../stores/SnapshotsStore";
+import { clearData, fetchGitgraphSnapshots } from "../../../../stores/SnapshotsStore";
 
 interface ProjectActionsProps {
   isCurrentProject: boolean;
@@ -18,15 +17,15 @@ interface ProjectActionsProps {
 
 const ProjectActions: React.FC<ProjectActionsProps> = ({ isCurrentProject, projectName, selectedProject }) => {
   const dispatch = useRootDispatch();
-  const reset = useSelector(getReset);
 
   const handleSubmit = useCallback(() => {
     if (!selectedProject) return;
 
     dispatch(selectActiveProject(selectedProject));
     dispatch(clearData());
+    dispatch(fetchGitgraphSnapshots(true));
     dispatch(setActivePage(NODES_KEY));
-  }, [ selectedProject, reset ]);
+  }, [ selectedProject ]);
 
   return (
     <div className={styles.pageActions}>

@@ -47,15 +47,7 @@ class SnapshotLoadTypeFlag(LoadTypeFlag):
     DataWithResults = DataWithoutRefs | 2**4
     DataWithResultsWithImgs = DataWithResults | 2**5
 
-    Full = (
-        2**9
-        | Empty
-        | Minified
-        | Metadata
-        | DataWithoutRefs
-        | DataWithMachine
-        | DataWithResults
-    )
+    Full = 2**9 | Empty | Minified | Metadata | DataWithoutRefs | DataWithMachine | DataWithResults
 
     def is_set(self, field: "SnapshotLoadTypeFlag") -> bool:
         return self._is_set(field)
@@ -93,9 +85,7 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         self._load_type_flag = self._load_type_flag_from_content(content)
         self.content = dict(content)
 
-    def _load_type_flag_from_content(
-        self, content: DocumentType
-    ) -> SnapshotLoadTypeFlag:
+    def _load_type_flag_from_content(self, content: DocumentType) -> SnapshotLoadTypeFlag:
         load_type_flag = SnapshotLoadTypeFlag.Empty
         if "id" in content:
             load_type_flag |= SnapshotLoadTypeFlag.Minified
@@ -105,9 +95,7 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
             load_type_flag |= SnapshotLoadTypeFlag.DataWithoutRefs
             if not isinstance(data, Mapping):
                 return load_type_flag
-            if isinstance(data.get("quam"), dict) or isinstance(
-                data.get("machine"), dict
-            ):
+            if isinstance(data.get("quam"), dict) or isinstance(data.get("machine"), dict):
                 load_type_flag |= SnapshotLoadTypeFlag.DataWithMachine
             if isinstance(data.get("results"), dict):
                 load_type_flag |= SnapshotLoadTypeFlag.DataWithResults
@@ -151,15 +139,8 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
     ) -> Sequence[MachineSearchResults] | None:
         pass
 
-    def search_recursive(
-        self, target_key: str, load: bool = False
-    ) -> Sequence[MachineSearchResults] | None:
-        if (
-            not self._load_type_flag.is_set(
-                SnapshotLoadTypeFlag.DataWithMachine
-            )
-            and not load
-        ):
+    def search_recursive(self, target_key: str, load: bool = False) -> Sequence[MachineSearchResults] | None:
+        if not self._load_type_flag.is_set(SnapshotLoadTypeFlag.DataWithMachine) and not load:
             return None
         self.load_from_flag(SnapshotLoadTypeFlag.DataWithMachine)
         # TODO: update logic; not use quam
@@ -175,9 +156,7 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         pass
 
     @abstractmethod
-    def compare_by_id(
-        self, other_snapshot_int: int
-    ) -> Mapping[str, Mapping[str, Any]]:
+    def compare_by_id(self, other_snapshot_int: int) -> Mapping[str, Mapping[str, Any]]:
         pass
 
     def dump(self) -> SnapshotModel:
@@ -204,7 +183,4 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
         pass
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}"
-            f"(id={self.id!r}, load_type={self.load_type_flag!r})"
-        )
+        return f"{self.__class__.__name__}(id={self.id!r}, load_type={self.load_type_flag!r})"

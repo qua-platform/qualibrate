@@ -1,0 +1,79 @@
+import asyncio
+from collections.abc import Callable, Coroutine
+from functools import wraps
+from typing import Any, TypeAlias
+
+from fastapi.concurrency import run_in_threadpool
+
+NoArgsNoReturnFuncT: TypeAlias = Callable[[], None]
+NoArgsNoReturnAsyncFuncT: TypeAlias = Callable[[], Coroutine[Any, Any, None]]
+NoArgsTaskReturnAsyncFuncT: TypeAlias = Callable[[], Coroutine[Any, Any, asyncio.Task[None]]]
+ExcArgNoReturnFuncT: TypeAlias = Callable[[Exception], None]
+ExcArgNoReturnAsyncFuncT: TypeAlias = Callable[[Exception], Coroutine[Any, Any, None]]
+NoArgsNoReturnAnyFuncT: TypeAlias = NoArgsNoReturnFuncT | NoArgsNoReturnAsyncFuncT
+ExcArgNoReturnAnyFuncT: TypeAlias = ExcArgNoReturnFuncT | ExcArgNoReturnAsyncFuncT
+
+__all__ = ["repeat_every"]
+
+
+async def _handle_func(func: NoArgsNoReturnAnyFuncT) -> None:
+    if asyncio.iscoroutinefunction(func):
+        await func()
+    else:
+        await run_in_threadpool(func)
+
+
+async def _handle_exc(exc: Exception, on_exception: ExcArgNoReturnAnyFuncT | None) -> None:
+    if on_exception is None:
+        return
+    if asyncio.iscoroutinefunction(on_exception):
+        await on_exception(exc)
+    else:
+        await run_in_threadpool(on_exception, exc)
+
+
+def repeat_every(
+    *,
+    seconds: float,
+    on_exception: Callable[[Exception], None] | None = None,
+) -> Callable[[NoArgsNoReturnAnyFuncT], NoArgsTaskReturnAsyncFuncT]:
+    """
+    This function returns a decorator that modifies a function so it is
+    periodically re-executed after its first call.
+    The function it decorates should accept no arguments and return nothing.
+
+    Parameters
+    ----------
+    seconds: float
+        The number of seconds to wait between repeated calls
+    on_exception: Optional[Callable[[Exception], None]] (default None)
+        A function to call when an exception is raised by the decorated
+        function.
+
+    Returns
+    -------
+    The decorated function returns an asyncio.Task that can be used to
+    track or cancel the periodic execution.
+    """
+
+    def decorator(func: NoArgsNoReturnAnyFuncT) -> NoArgsTaskReturnAsyncFuncT:
+        """
+        Converts the decorated function into a repeated,
+        periodically-called version of itself.
+        """
+
+        @wraps(func)
+        async def wrapped() -> asyncio.Task[None]:
+            async def loop() -> None:
+                while True:
+                    try:
+                        await _handle_func(func)
+                    except Exception as exc:
+                        await _handle_exc(exc, on_exception)
+                    await asyncio.sleep(seconds)
+
+            return asyncio.create_task(loop())
+
+        return wrapped
+
+    return decorator
