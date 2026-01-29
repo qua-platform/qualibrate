@@ -1,0 +1,42 @@
+.selectedFiltersRow {
+  padding-top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.activeDateFilter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #1c2128;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #c9d1d9;
+}
+
+.filterLabel {
+  color: #7d8590;
+  font-size: 11px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.removeFilter {
+  cursor: pointer;
+  color: #7d8590;
+  font-size: 14px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.removeFilter:hover {
+  color: #f85149;
+}

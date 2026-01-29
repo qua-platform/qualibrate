@@ -1,0 +1,157 @@
+.executionCard {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.executionCard:hover {
+  border-color: #58a6ff;
+  background: #1c2128;
+}
+
+.executionCard.selected {
+  border-color: #1f6feb;
+}
+
+.executionCard {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.executionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.executionHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.executionName {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  color: #c9d1d9;
+  text-overflow: ellipsis;
+  margin-right: 10px;
+}
+
+.executionStatus {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.statusRunning {
+  color: #f0883e;
+}
+
+.statusPending {
+  color: #3ebbf0;
+}
+
+.statusSuccess {
+  color: #3fb950;
+}
+
+.statusError {
+  color: #f85149;
+}
+
+.statusFailure {
+  color: #f85149;
+}
+
+.statusDotRunning {
+  background: #f0883e;
+}
+
+.statusDotPending {
+  background: #3ebbf0;
+}
+
+.statusDotSuccess {
+  background: #3fb950;
+}
+
+.statusDotError {
+  background: #f85149;
+}
+
+.statusDotFailure {
+  background: #f85149;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.executionMeta {
+  display: flex;
+  gap: 16px;
+  color: #7d8590;
+  font-size: 12px;
+}
+
+.executionMetaItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.executionMetaItemGraphCard {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.executionTypeBadge {
+  background: rgba(31, 111, 235, 0.2);
+  border: 1px solid #1f6feb;
+  color: #58a6ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  padding: 4px 6px 4px 10px;
+  gap: 1px;
+}
+
+.executionTypeBadge:hover {
+  background: rgba(31, 111, 235, 0.35);
+  border-color: #388bfd;
+  color: #79c0ff;
+  transform: translateX(2px);
+}
+
+.executionId {
+}

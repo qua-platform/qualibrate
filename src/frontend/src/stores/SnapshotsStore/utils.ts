@@ -1,4 +1,4 @@
-import { SnapshotsApi } from "./api/SnapshotsApi";
+import { SnapshotComment, SnapshotsApi, SnapshotSearchType } from "./api/SnapshotsApi";
 
 export const fetchSnapshotJsonData = (id: string) => {
   try {
@@ -27,11 +27,71 @@ export const fetchSnapshotDiff = (id2: string, id1: string) => {
   }
 };
 
-export const fetchAllSnapshots = (page: number) => {
+export const fetchAllSnapshots = (
+  page: number,
+  sortType: SnapshotSearchType = "name",
+  searchString?: string,
+  minDate?: string,
+  maxDate?: string
+) => {
   try {
-    return SnapshotsApi.fetchAllSnapshots(page);
+    return SnapshotsApi.fetchAllSnapshots(page, sortType, searchString, minDate, maxDate);
   } catch (e) {
     console.error(`Failed to fetch all snapshots (page=${page}):`, e);
+    return null;
+  }
+};
+
+export const fetchAllTags = () => {
+  try {
+    return SnapshotsApi.fetchAllTags();
+  } catch (e) {
+    console.error("Failed to fetch all snapshot tags:", e);
+    return null;
+  }
+};
+
+export const addTagsToSnapshot = (snapshotId: number, selectedTags: string[]) => {
+  try {
+    return SnapshotsApi.addTagsToSnapshot(snapshotId.toString(), selectedTags);
+  } catch (e) {
+    console.error("Failed to add/remove snapshot tags:", e);
+    return null;
+  }
+};
+
+export const addCommentToSnapshot = (snapshotId: number, commentText: string) => {
+  try {
+    return SnapshotsApi.addCommentToSnapshot(snapshotId.toString(), commentText);
+  } catch (e) {
+    console.error(`Failed to add new comment to snapshotId=:${snapshotId}`, e);
+    return undefined;
+  }
+};
+
+export const updateSnapshotComment = (snapshotId: number, comment: SnapshotComment) => {
+  try {
+    return SnapshotsApi.updateSnapshotComment(snapshotId.toString(), comment);
+  } catch (e) {
+    console.error(`Failed to update comment with commentId=${comment.id} for snapshotId=:${snapshotId}`, e);
+    return null;
+  }
+};
+
+export const fetchAllCommentsForSnapshot = (snapshotId: number) => {
+  try {
+    return SnapshotsApi.fetchAllCommentsForSnapshot(snapshotId.toString());
+  } catch (e) {
+    console.error(`Failed to fetch comments for snapshotId=:${snapshotId}`, e);
+    return null;
+  }
+};
+
+export const removeCommentFromSnapshot = (snapshotId: number, commentId: number) => {
+  try {
+    return SnapshotsApi.removeCommentFromSnapshot(snapshotId.toString(), commentId.toString());
+  } catch (e) {
+    console.error(`Failed to remove comment with commentId=${commentId} for snapshotId=:${snapshotId}`, e);
     return null;
   }
 };

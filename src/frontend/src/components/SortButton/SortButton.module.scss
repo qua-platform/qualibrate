@@ -1,0 +1,65 @@
+.wrapper {
+  position: relative;
+}
+
+.filterButton {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.filterButton:hover {
+  border-color: #58a6ff;
+  background: #1c2128;
+}
+
+.sortDropdown {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  min-width: 280px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: none;
+  padding: 12px;
+}
+
+.active {
+  display: block;
+}
+
+.sortOption {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #c9d1d9;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.sortOption:hover {
+  background: #21262d;
+}
+
+.selected {
+  background: #1c2128;
+  color: #58a6ff;
+}
+
+.selected::before {
+  content: "✓ ";
+  margin-right: 4px;
+}

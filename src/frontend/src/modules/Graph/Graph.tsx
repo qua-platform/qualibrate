@@ -24,46 +24,30 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import useGraphData from "./hooks";
-import componentTypes, { edgeOptions } from "./components";
-import { NodeWithData, EdgeWithData } from "../../stores/GraphStores/GraphLibrary";
+import componentTypes, {edgeOptions} from "./components";
+import {EdgeWithData, NodeWithData} from "../../stores/GraphStores/GraphLibrary";
 import EdgePopUp from "./components/EdgePopup/EdgePopUp";
-
 
 interface IProps {
   onNodeClick?: (name?: string) => void;
-  onSetSubgraphBreadcrumbs?: (key: string) => void
-  subgraphBreadcrumbs?: string[]
-  selectedWorkflowName?: string
-  selectedNodeNameInWorkflow?: string
+  onNodeSecondClick?: (key: string, isWorkflow?: boolean) => void;
+  subgraphBreadcrumbs?: string[];
+  selectedWorkflowName?: string;
+  selectedNodeNameInWorkflow?: string;
 }
 
-const backgroundColor = "#2b2c32";
+const backgroundColor = "#0d1117";
 
-const Graph = ({
-  onNodeClick,
-  selectedWorkflowName,
-  subgraphBreadcrumbs,
-  onSetSubgraphBreadcrumbs,
-  selectedNodeNameInWorkflow,
-}: IProps) => {
-  const {
-    nodes,
-    edges,
-    setNodes,
-    setEdges,
-    shouldResetView,
-    setShouldResetView,
-    selectNode,
-  } = useGraphData(
+const Graph = ({ onNodeClick, selectedWorkflowName, subgraphBreadcrumbs, onNodeSecondClick, selectedNodeNameInWorkflow }: IProps) => {
+  const { nodes, edges, setNodes, setEdges, shouldResetView, setShouldResetView, selectNode } = useGraphData(
     selectedWorkflowName,
-    subgraphBreadcrumbs,
+    subgraphBreadcrumbs
   );
   const { fitView } = useReactFlow();
   const [selectedEdge, setSelectedEdge] = useState<EdgeWithData | null>(null);
 
   const handleEdgeClick = useCallback((evt: MouseEvent, edge: EdgeWithData) => {
-    if (edge.data?.condition?.label || edge.data?.loop)
-      setSelectedEdge(edge);
+    if (edge.data?.condition?.label || edge.data?.loop) setSelectedEdge(edge);
   }, []);
 
   useLayoutEffect(() => {
@@ -93,9 +77,9 @@ const Graph = ({
     setSelectedEdge(null);
   };
 
-  const handleNodeClick = (_: React.MouseEvent, node: NodeWithData) => {
-    if (!!node.data.subgraph && node.selected) {
-      onSetSubgraphBreadcrumbs && onSetSubgraphBreadcrumbs(node.data.label);
+  const handleNodeClick = (_: MouseEvent, node: NodeWithData) => {
+    if (node.selected) {
+      onNodeSecondClick && onNodeSecondClick(node.data.label, !!node.data.subgraph);
       handleSelectNode(undefined);
     } else {
       handleSelectNode(node.data.label);
@@ -155,14 +139,14 @@ const Graph = ({
   );
 };
 
-export default ({ onNodeClick, selectedWorkflowName, subgraphBreadcrumbs, onSetSubgraphBreadcrumbs, selectedNodeNameInWorkflow }: IProps) => (
+export default ({ onNodeClick, selectedWorkflowName, subgraphBreadcrumbs, onNodeSecondClick, selectedNodeNameInWorkflow }: IProps) => (
   <ReactFlowProvider>
     <Graph
       onNodeClick={onNodeClick}
       selectedWorkflowName={selectedWorkflowName}
       selectedNodeNameInWorkflow={selectedNodeNameInWorkflow}
       subgraphBreadcrumbs={subgraphBreadcrumbs}
-      onSetSubgraphBreadcrumbs={onSetSubgraphBreadcrumbs}
+      onNodeSecondClick={onNodeSecondClick}
     />
   </ReactFlowProvider>
 );

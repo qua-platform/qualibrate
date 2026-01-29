@@ -31,3 +31,5 @@ export { default as StopButtonIcon } from "./StopButtonIcon";
 export { StopIcon } from "./StopIcon";
 export { UndoIcon } from "./UndoIcon";
 export { WorkflowPlaceHolderIcon } from "./WorkflowPlaceholderIcon";
+export { DateFilterIcon } from "./DateFilterIcon";
+export { default as SortIcon } from "./SortIcon";

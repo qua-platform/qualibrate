@@ -1,0 +1,27 @@
+.viewer {
+  display: flex;
+  flex-grow: 1;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  width: 100%;
+}
+
+.floatingRerunButton {
+  display: flex;
+  position: fixed;
+  bottom: 32px;
+  right: 52px;
+  padding: 14px 28px;
+  background: #238636;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}

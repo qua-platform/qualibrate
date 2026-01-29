@@ -1,13 +1,13 @@
-import { DataIcon, IconProps, ProjectIcon, NodeLibraryIcon, GraphLibraryIcon, GraphStatusIcon, HelpIcon } from "../../components";
+import { DataIcon, GraphLibraryIcon, GraphStatusIcon, HelpIcon, IconProps, NodeLibraryIcon, ProjectIcon } from "../../components";
 import React from "react";
 import cyKeys from "../../utils/cyKeys";
 import { Project } from "../Project";
 import { Nodes } from "../Nodes";
 import { GraphLibrary } from "../GraphLibrary";
 import { GraphStatus } from "../GraphStatus";
-import { Data } from "../Data";
+import Data from "../Data";
 
-export const DATA_KEY: ModuleKey = "data";
+export const DATA_KEY: ModuleKey = "execution-history";
 export const NODES_KEY: ModuleKey = "nodes";
 export const PROJECT_KEY: ModuleKey = "project";
 export const GRAPH_LIBRARY_KEY: ModuleKey = "graph-library";
@@ -20,7 +20,7 @@ export type ModuleKey =
   | "notebook"
   | "dashboard"
   | "project"
-  | "data"
+  | "execution-history"
   | "nodes"
   | "experiments"
   | "search"
@@ -36,7 +36,7 @@ export type ModuleKey =
 export type Module = {
   keyId: ModuleKey;
   path?: string;
-  Component?: () => React.ReactElement;
+  Component?: () => React.ReactElement | React.FC;
   menuItem?: {
     atBottom?: true;
     sideBarTitle?: string;
@@ -85,11 +85,11 @@ const ModulesRegistry: Array<Module> = [
   },
   {
     keyId: DATA_KEY,
-    path: "data",
+    path: "execution-history",
     Component: Data,
     menuItem: {
-      sideBarTitle: "Data",
-      title: "Data",
+      sideBarTitle: "Execution hist..",
+      title: "",
       icon: DataIcon,
       dataCy: cyKeys.DATA_TAB,
     },

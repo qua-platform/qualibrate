@@ -1,0 +1,139 @@
+
+.commentSection {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #21262d;
+}
+
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.commentItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.commentItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 20px;
+}
+
+.commentTimestamp {
+  font-size: 11px;
+  color: #7d8590;
+  line-height: 20px;
+}
+
+.commentItemAction {
+  gap: 4px;
+  align-items: center;
+  display: inline-flex;
+  min-width: 50px;
+  min-height: 20px;
+}
+
+.editCommentBtn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  color: #c9d1d9;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.deleteCommentBtn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  color: #c9d1d9;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.editCommentBtn:hover {
+  background: #30363d;
+  border-color: #58a6ff;
+}
+
+.commentItemAction:hover .editCommentBtn {
+  display: inline;
+}
+
+.deleteCommentBtn:hover {
+  background: #30363d;
+  border-color: #f85149;
+  color: #f85149;
+}
+
+.commentItemAction:hover .deleteCommentBtn {
+  display: inline;
+}
+
+.commentItemText {
+  font-size: 13px;
+  color: #c9d1d9;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin-bottom: 8px;
+}
+
+.commentLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.addCommentBtn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  color: #c9d1d9;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center !important;
+  justify-content: center;
+}
+
+.addCommentBtn:hover {
+  background: #30363d;
+  border-color: #58a6ff;
+}
+
+.noComment {
+  color: #7d8590;
+  font-style: italic;
+  font-size: 14px;
+}

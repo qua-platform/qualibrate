@@ -1,0 +1,146 @@
+.contentSidebar {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+  min-width: 240px;
+  max-width: 600px;
+  transition: width 0.3s ease, min-width 0.3s ease;
+}
+
+.contentSidebar.collapsed {
+  overflow: hidden;
+  width: 32px;
+  min-width: 32px;
+}
+
+.contentSidebar.collapsed .displayCard {
+  display: none;
+}
+
+.sidebarToggleArrow {
+  position: absolute;
+  left: -1;
+  top: 10px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-left: none;
+  border-top: none;
+  border-radius: 0 0 6px 0;
+  color: #7d8590;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+}
+
+.sidebarToggleArrow:hover {
+  background: #1c2128;
+  color: #c9d1d9;
+}
+
+.displayCard {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.displayCardTabs {
+  width: 50px;
+  background: #0d1117;
+  border-right: 1px solid #21262d;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.displayCardTab {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 20px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7d8590;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #21262d;
+  position: relative;
+  flex: 1;
+}
+
+.displayCardTab.active {
+  background: #161b22;
+  color: #58a6ff;
+}
+
+.displayCardTab.active::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #58a6ff;
+}
+
+.displayCardContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.displayCardPanel {
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.displayCardPanel.active {
+  display: flex;
+}
+
+.displayCardPanelBody {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.displayParam {
+  margin-bottom: 12px;
+}
+
+.displayParamLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7d8590;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.displayParamValue {
+  font-size: 14px;
+  color: #c9d1d9;
+  font-family: 'Courier New', monospace;
+  line-height: 1.5;
+}

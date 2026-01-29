@@ -1,0 +1,83 @@
+.modal {
+  background: #161b22 !important;
+  border-radius: 12px !important;
+  border: 1px solid #30363d;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 70%) !important;
+}
+
+.modalContent {
+  background: #161b22;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  padding: 20px;
+  border-bottom: 1px solid #21262d;
+}
+
+.modalHeader h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+.modalBody p {
+  color: #c9d1d9;
+  font-size: 14px;
+  line-height: 1.6;
+  display: flex;
+}
+
+.commentTextarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px 0 10px 10px;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #c9d1d9;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  resize: vertical;
+  outline: none;
+}
+
+.modalFooter {
+  padding: 16px 20px;
+  border-top: 1px solid #21262d;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modalBtn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modalBtnSecondary {
+  background: #21262d;
+  color: #c9d1d9;
+}
+
+.modalBtnPrimary {
+  background: #238636;
+  color: white;
+}
+
+.modalBtnDelete {
+  background: #da3633;
+}

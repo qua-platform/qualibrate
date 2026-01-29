@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useRootDispatch } from "../index";
-import { fetchGitgraphSnapshots, intervalFetch, setAllSnapshots } from "./actions";
+import { useRootDispatch } from "..";
+import { fetchGitgraphSnapshots, fetchSnapshotTags, intervalFetch, setAllSnapshots } from "./actions";
 import { useSelector } from "react-redux";
 import { getAllSnapshots, getPageNumber, getReset } from "./selectors";
 
@@ -13,6 +13,7 @@ export const useInitSnapshots = () => {
   useEffect(() => {
     dispatch(setAllSnapshots([]));
     dispatch(fetchGitgraphSnapshots(true, pageNumber));
+    dispatch(fetchSnapshotTags());
   }, [pageNumber]);
   // -----------------------------------------------------------
   // -----------------------------------------------------------

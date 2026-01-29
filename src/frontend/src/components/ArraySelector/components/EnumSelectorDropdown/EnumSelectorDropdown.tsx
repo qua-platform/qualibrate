@@ -1,7 +1,8 @@
-import React, { useState, useRef, useCallback, useMemo, ChangeEvent, useLayoutEffect, useEffect } from "react";
+import React, { useState, useRef, useCallback, useMemo, ChangeEvent, useEffect } from "react";
 import { classNames } from "../../../../utils/classnames";
 import styles from "./EnumSelectorDropdown.module.scss";
 import { getSearchStringIndex } from "../../utils";
+import useClickOutside from "../../../../utils/hooks/useClickOutside";
 
 type EnumSelectorDropdownProps = {
   open: boolean
@@ -21,14 +22,13 @@ const EnumSelectorDropdown = ({
   const [searchValue, setSearchValue] = useState("");
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const buttonRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useClickOutside(onClose);
 
   const filteredOptions = useMemo(
     () => options.filter(option => getSearchStringIndex(option, searchValue) !== -1),
     [value, options, searchValue]
   );
 
-  const handleEsc = (evt: KeyboardEvent) => evt.key === "Escape" && onClose();
   const handleEnterSearchValue = (evt: ChangeEvent<HTMLInputElement>) => setSearchValue(evt.target.value);
   const handleClearSearchValue = () => setSearchValue("");
   const handleSelect = useCallback((id: string) => {
@@ -36,23 +36,15 @@ const EnumSelectorDropdown = ({
     onClose();
   }, [value]);
 
-  useLayoutEffect(() => {
-    const handleClick = (evt: MouseEvent | TouchEvent) => {
-      if (buttonRef?.current && !buttonRef.current.contains(evt.target as Node)) {
-        onClose();
-      }
+  useEffect(() => {
+    const handleEsc = (evt: KeyboardEvent) => {
+      open && evt.key === "Escape" && onClose();
     };
 
-    if (open) {
-      window.addEventListener("mouseup", handleClick);
-      window.addEventListener("touchend", handleClick);
-      window.addEventListener("keydown", handleEsc);
-      return () => {
-        window.removeEventListener("mouseup", handleClick);
-        window.removeEventListener("touchend", handleClick);
-        window.removeEventListener("keydown", handleEsc);
-      };
-    }
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
   }, [open]);
 
   useEffect(() => {
