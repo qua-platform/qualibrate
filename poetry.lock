@@ -68,7 +68,7 @@ version = "2.0.0b7"
 description = "A better Protobuf / gRPC generator & library"
 optional = false
 python-versions = "<4.0,>=3.7"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "betterproto-2.0.0b7-py3-none-any.whl", hash = "sha256:401ab8055e2f814e77b9c88a74d0e1ae3d1e8a969cced6aeb1b59f71ad63fbd2"},
     {file = "betterproto-2.0.0b7.tar.gz", hash = "sha256:1b1458ca5278d519bcd62556a4c236f998a91d503f0f71c67b0b954747052af2"},
@@ -492,7 +492,7 @@ version = "2.50.0"
 description = "Collection of all Datadog Public endpoints"
 optional = false
 python-versions = ">=3.8"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "datadog_api_client-2.50.0-py3-none-any.whl", hash = "sha256:a053c2401f850e4cd801329892c2a7347c90cb19962b1910c70dfd430baa6f23"},
     {file = "datadog_api_client-2.50.0.tar.gz", hash = "sha256:0cbe681b1e66e8cddf4a29c6d76348e8f22a20c087fd5f85ccf7d55b9010c816"},
@@ -548,7 +548,7 @@ version = "4.48.3"
 description = "Dependency injection framework for Python"
 optional = false
 python-versions = ">=3.8"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "dependency_injector-4.48.3-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:37d5b962d9ba67f6536557dec3c83136cefd7a747bbe8ba53b158e34e050bae5"},
     {file = "dependency_injector-4.48.3-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:54aa2b8b8ff057555ab03ee98035eb41120d30f8ec220cf43aa3b117f6b9b1b1"},
@@ -739,7 +739,7 @@ version = "1.76.0"
 description = "HTTP/2-based RPC framework"
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "grpcio-1.76.0-cp310-cp310-linux_armv7l.whl", hash = "sha256:65a20de41e85648e00305c1bb09a3598f840422e522277641145a32d42dcefcc"},
     {file = "grpcio-1.76.0-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:40ad3afe81676fd9ec6d9d406eda00933f218038433980aa19d401490e46ecde"},
@@ -816,7 +816,7 @@ version = "0.4.5"
 description = "Pure-Python gRPC implementation for asyncio"
 optional = false
 python-versions = ">=3.7"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "grpclib-0.4.5.tar.gz", hash = "sha256:bf83ed55aca59497e168761d9555056efc54a8f865316c3b39becd007e9f9a73"},
 ]
@@ -846,7 +846,7 @@ version = "4.3.0"
 description = "Pure-Python HTTP/2 protocol implementation"
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "h2-4.3.0-py3-none-any.whl", hash = "sha256:c438f029a25f7945c69e0ccf0fb951dc3f73a5f6412981daee861431b70e2bdd"},
     {file = "h2-4.3.0.tar.gz", hash = "sha256:6c59efe4323fa18b47a632221a1888bd7fde6249819beda254aeca909f221bf1"},
@@ -862,7 +862,7 @@ version = "4.1.0"
 description = "Pure-Python HPACK header encoding"
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "hpack-4.1.0-py3-none-any.whl", hash = "sha256:157ac792668d995c657d93111f46b4535ed114f0c9c8d672271bbec7eae1b496"},
     {file = "hpack-4.1.0.tar.gz", hash = "sha256:ec5eca154f7056aa06f196a557655c5b009b382873ac8d1e66e79e87535f1dca"},
@@ -874,7 +874,7 @@ version = "1.0.9"
 description = "A minimal low-level HTTP client."
 optional = false
 python-versions = ">=3.8"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "httpcore-1.0.9-py3-none-any.whl", hash = "sha256:2d400746a40668fc9dec9810239072b40b4484b640a8c38fd654a024c7a1bf55"},
     {file = "httpcore-1.0.9.tar.gz", hash = "sha256:6e34463af53fd2ab5d807f399a9b45ea31c3dfa2276f15a2c3f00afff6e176e8"},
@@ -896,7 +896,7 @@ version = "0.28.1"
 description = "The next generation HTTP client."
 optional = false
 python-versions = ">=3.8"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "httpx-0.28.1-py3-none-any.whl", hash = "sha256:d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad"},
     {file = "httpx-0.28.1.tar.gz", hash = "sha256:75e98c5f16b0f35b567856f597f06ff2270a374470a5c2392242528e3e3e42fc"},
@@ -922,7 +922,7 @@ version = "6.1.0"
 description = "Pure-Python HTTP/2 framing"
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "hyperframe-6.1.0-py3-none-any.whl", hash = "sha256:b03380493a519fce58ea5af42e4a42317bf9bd425596f7a0835ffce80f1a42e5"},
     {file = "hyperframe-6.1.0.tar.gz", hash = "sha256:f630908a00854a7adeabd6382b43923a4c4cd4b821fcb527e6ab9e15382a3b08"},
@@ -1019,7 +1019,7 @@ version = "1.5.3"
 description = "Lightweight pipelining with Python functions"
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "joblib-1.5.3-py3-none-any.whl", hash = "sha256:5fc3c5039fc5ca8c0276333a188bbd59d6b7ab37fe6632daa76bc7f9ec18e713"},
     {file = "joblib-1.5.3.tar.gz", hash = "sha256:8561a3269e6801106863fd0d6d84bb737be9e7631e33aaed3fb9ce5953688da3"},
@@ -1355,7 +1355,7 @@ version = "3.23.3"
 description = "A lightweight library for converting complex datatypes to and from native Python datatypes."
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "marshmallow-3.23.3-py3-none-any.whl", hash = "sha256:20c0f8c613f68bcb45b2a0d3282e2f172575560170bf220d67aafb42717910e4"},
     {file = "marshmallow-3.23.3.tar.gz", hash = "sha256:d586c8685ebdb80bf754e1f96e3f305aaf30951f1fc69175b977453633467e76"},
@@ -1375,7 +1375,7 @@ version = "5.11"
 description = "An unofficial extension to Marshmallow to allow for polymorphic fields"
 optional = false
 python-versions = ">=3.5"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "marshmallow-polyfield-5.11.tar.gz", hash = "sha256:8075a9cc490da4af58b902b4a40a99882dd031adb7aaa96abd147a4fcd53415f"},
 ]
@@ -1480,7 +1480,7 @@ version = "6.7.1"
 description = "multidict implementation"
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "multidict-6.7.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:c93c3db7ea657dd4637d57e74ab73de31bccefe144d3d4ce370052035bc85fb5"},
     {file = "multidict-6.7.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:974e72a2474600827abaeda71af0c53d9ebbc3c2eb7da37b37d7829ae31232d8"},
@@ -2150,7 +2150,7 @@ version = "5.24.1"
 description = "An open-source, interactive data visualization library for Python"
 optional = false
 python-versions = ">=3.8"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "plotly-5.24.1-py3-none-any.whl", hash = "sha256:f67073a1e637eb0dc3e46324d9d51e2fe76e9727c892dde64ddf1e1b51f29089"},
     {file = "plotly-5.24.1.tar.gz", hash = "sha256:dbc8ac8339d248a4bcc36e08a5659bacfe1b079390b8953533f4eb22169b4bae"},
@@ -2202,7 +2202,7 @@ version = "6.33.4"
 description = ""
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "protobuf-6.33.4-cp310-abi3-win32.whl", hash = "sha256:918966612c8232fc6c24c78e1cd89784307f5814ad7506c308ee3cf86662850d"},
     {file = "protobuf-6.33.4-cp310-abi3-win_amd64.whl", hash = "sha256:8f11ffae31ec67fc2554c2ef891dcb561dae9a2a3ed941f9e134c2db06657dbc"},
@@ -2670,7 +2670,7 @@ version = "2.1.6"
 description = "SDK to control an Octave with QUA"
 optional = false
 python-versions = "<3.13,>=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "qm_octave-2.1.6-py3-none-any.whl", hash = "sha256:2e3df8085330ecf0eb1cc3dd661ebec7b3505959d0fabb3a2dc6175ec7c7cba3"},
     {file = "qm_octave-2.1.6.tar.gz", hash = "sha256:8a16e6a8c76b060bc2856020a3f54f2e6d936ffc24e2b7963376ce990a8110be"},
@@ -2688,7 +2688,7 @@ version = "1.2.4.1"
 description = "QUA language SDK to control a Quantum Computer"
 optional = false
 python-versions = "<3.13,>=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "qm_qua-1.2.4.1-py3-none-any.whl", hash = "sha256:d0541f158adb6053195fd3cd6d4ad3454d6f150d35f5778f7a0c242703bba835"},
     {file = "qm_qua-1.2.4.1.tar.gz", hash = "sha256:b87ac015efa3edb64ab251181d4746593f629937825dda1c423bcd40956ed736"},
@@ -2719,7 +2719,7 @@ version = "0.21.1"
 description = "The qualang_tools package includes various tools related to QUA programs in Python"
 optional = false
 python-versions = "<3.13,>=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "qualang_tools-0.21.1-py3-none-any.whl", hash = "sha256:5323a298ff5aa1a98a9686f1888450fb2b8dc0ee7a1891d62bf7d23a416f3e9c"},
     {file = "qualang_tools-0.21.1.tar.gz", hash = "sha256:098207389dcdbe9b0299b0a8da900eeaa258b9aa57e04ed0f7f2abea04ce39d4"},
@@ -2862,7 +2862,7 @@ version = "1.7.2"
 description = "A set of python modules for machine learning and data mining"
 optional = false
 python-versions = ">=3.10"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 markers = "python_version == \"3.10\""
 files = [
     {file = "scikit_learn-1.7.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:6b33579c10a3081d076ab403df4a4190da4f4432d443521674637677dc91e61f"},
@@ -2919,7 +2919,7 @@ version = "1.8.0"
 description = "A set of python modules for machine learning and data mining"
 optional = false
 python-versions = ">=3.11"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 markers = "python_version >= \"3.11\""
 files = [
     {file = "scikit_learn-1.8.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:146b4d36f800c013d267b29168813f7a03a43ecd2895d04861f1240b564421da"},
@@ -2982,7 +2982,7 @@ version = "1.15.3"
 description = "Fundamental algorithms for scientific computing in Python"
 optional = false
 python-versions = ">=3.10"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 markers = "python_version == \"3.10\""
 files = [
     {file = "scipy-1.15.3-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:a345928c86d535060c9c2b25e71e87c39ab2f22fc96e9636bd74d1dbf9de448c"},
@@ -3047,7 +3047,7 @@ version = "1.17.0"
 description = "Fundamental algorithms for scientific computing in Python"
 optional = false
 python-versions = ">=3.11"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 markers = "python_version >= \"3.11\""
 files = [
     {file = "scipy-1.17.0-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:2abd71643797bd8a106dff97894ff7869eeeb0af0f7a5ce02e4227c6a2e9d6fd"},
@@ -3158,7 +3158,7 @@ version = "9.1.2"
 description = "Retry code until it succeeds"
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "tenacity-9.1.2-py3-none-any.whl", hash = "sha256:f77bf36710d8b73a50b2dd155c97b870017ad21afe6ab300326b0371b3b05138"},
     {file = "tenacity-9.1.2.tar.gz", hash = "sha256:1169d376c297e7de388d18b4481760d478b0e99a777cad3a9c86e556f4b697cb"},
@@ -3174,7 +3174,7 @@ version = "3.6.0"
 description = "threadpoolctl"
 optional = false
 python-versions = ">=3.9"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "threadpoolctl-3.6.0-py3-none-any.whl", hash = "sha256:43a0b8fd5a2928500110039e43a5eed8480b918967083ea48dc3ab9f13c4a7fb"},
     {file = "threadpoolctl-3.6.0.tar.gz", hash = "sha256:8ab8b4aa3491d812b623328249fab5302a68d2d71745c8a4c719a2fcaba9f44e"},
@@ -3186,7 +3186,7 @@ version = "4.8.2"
 description = "TinyDB is a tiny, document oriented database optimized for your happiness :)"
 optional = false
 python-versions = "<4.0,>=3.8"
-groups = ["fe_test", "test"]
+groups = ["main", "fe_test", "test"]
 files = [
     {file = "tinydb-4.8.2-py3-none-any.whl", hash = "sha256:f97030ee5cbc91eeadd1d7af07ab0e48ceb04aa63d4a983adbaca4cba16e86c3"},
     {file = "tinydb-4.8.2.tar.gz", hash = "sha256:f7dfc39b8d7fda7a1ca62a8dbb449ffd340a117c1206b68c50b1a481fb95181d"},
@@ -3496,4 +3496,4 @@ json-timeline-db = []
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.13"
-content-hash = "fad8bcb29a67970a9e9976d92d57ff6db897ca8db4ab69c2fd706ad06bfc46ea"
+content-hash = "d01c7c2d584cb4e213962a892fc8885404b4d2e201cd5bde34334bfa032ca8f2"
