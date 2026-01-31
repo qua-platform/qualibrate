@@ -17,7 +17,7 @@ from pathlib import Path
 
 from qualibrate_config.models import StorageType
 
-from qualibrate.core.storage.local_storage_manager import ExecutionType
+from qualibrate.core.models.execution_type import ExecutionType
 
 
 def migrate_snapshot(node_json_path: Path, dry_run: bool = False) -> bool:
@@ -139,7 +139,7 @@ def main() -> int:
     data_path = args.data_path
     if data_path is None:
         try:
-            from qualibrate.core.utils.app_config.config_reference import (
+            from qualibrate_config.resolvers import (
                 get_qualibrate_config,
                 get_qualibrate_config_path,
             )

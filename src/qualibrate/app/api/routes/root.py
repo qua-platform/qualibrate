@@ -16,21 +16,16 @@ from qualibrate.app.api.core.models.branch import Branch as BranchModel
 from qualibrate.app.api.core.models.node import Node as NodeModel
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
-    ExecutionType,
-    QubitOutcome,
     SimplifiedSnapshotWithMetadata,
     SnapshotHistoryItem,
-    SnapshotHistoryMetadata,
     SnapshotSearchResult,
 )
 from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate.app.api.core.types import (
-    IdType,
     PageFilter,
     SearchFilter,
     SearchWithIdFilter,
     SortField,
-    STATUS_SORT_PRIORITY,
 )
 from qualibrate.app.api.core.utils.slice import get_page_slice
 from qualibrate.app.api.dependencies.search import get_search_path
@@ -40,9 +35,18 @@ from qualibrate.app.api.routes.utils.dependencies import (
     get_search_with_id_filter,
     get_snapshot_load_type_flag,
 )
+from qualibrate.app.api.routes.utils.snapshot_history import (
+    build_snapshot_tree,
+    paginate_nested_items,
+)
+from qualibrate.app.api.routes.utils.sorting import get_sort_key
 from qualibrate.app.config import (
     get_settings,
 )
+
+# Maximum page size for fetching all items when sorting/grouping is required.
+# This is needed because sorting and grouping require all items in memory.
+MAX_PAGE_SIZE_FOR_GROUPING = 100000
 
 root_router = APIRouter(prefix="/root", tags=["root"])
 
@@ -373,8 +377,6 @@ def _paginate_nested_items(
 
     result_items = _filter_tree(items)
     return result_items, total
-
-
 @root_router.get("/branch", summary="Get branch by name")
 def get_branch(
     *,
@@ -864,13 +866,15 @@ def get_snapshots_history(
             ),
         )
 
+    # For grouped mode or sorting, we need to fetch all snapshots first
+    # because sorting and tree-building require all items in memory.
     # Check if we need to fetch all snapshots for post-filtering
     # Tag filtering requires loading metadata, so we need to fetch all first
     has_tag_filter = search_filters.tags is not None and len(search_filters.tags) > 0
 
     # For grouped mode, sorting, or tag filtering, we need to fetch all snapshots
     if grouped or sort is not None or has_tag_filter:
-        all_pages_filter = PageFilter(page=1, per_page=999999)
+        all_pages_filter = PageFilter(page=1, per_page=MAX_PAGE_SIZE_FOR_GROUPING)
         _, all_snapshots = root.get_latest_snapshots(
             pages_filter=all_pages_filter,
             search_filter=SearchWithIdFilter(**search_filters.model_dump()),
@@ -891,7 +895,7 @@ def get_snapshots_history(
             # Sort all snapshots by the requested field
             all_dumped = sorted(
                 all_dumped,
-                key=lambda s: _get_sort_key(s, sort, descending),
+                key=lambda s: get_sort_key(s, sort, descending),
                 reverse=descending,
             )
         elif descending:
@@ -900,15 +904,33 @@ def get_snapshots_history(
 
         if grouped:
             # Build nested tree structure
-            tree_items = _build_snapshot_tree(all_dumped)
+            tree_items = build_snapshot_tree(all_dumped)
 
-            # Sort tree items by created_at
-            tree_items.sort(
-                key=lambda x: x.created_at or x.id, reverse=descending
-            )
+            # Sort tree items using the same sort logic as the request parameter.
+            # This fixes a bug where tree_items were always sorted by created_at
+            # regardless of the user's sort parameter.
+            if sort is not None:
+                tree_items.sort(
+                    key=lambda x: get_sort_key(
+                        SimplifiedSnapshotWithMetadata(
+                            id=x.id,
+                            created_at=x.created_at,
+                            parents=x.parents,
+                            metadata=x.metadata,
+                        ),
+                        sort,
+                        descending,
+                    ),
+                    reverse=descending,
+                )
+            else:
+                # Default: sort by created_at (date)
+                tree_items.sort(
+                    key=lambda x: x.created_at or x.id, reverse=descending
+                )
 
             # Paginate the nested items (counting all items including nested)
-            paginated_items, total = _paginate_nested_items(
+            paginated_items, total = paginate_nested_items(
                 tree_items, page_filter.page, page_filter.per_page
             )
 

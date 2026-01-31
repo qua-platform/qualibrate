@@ -1,7 +1,5 @@
 import importlib
-import json
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -12,7 +10,9 @@ from typing import (
 from packaging.version import Version
 from qualang_tools.results import DataHandler
 
+from qualibrate.core.models.execution_type import ExecutionType
 from qualibrate.core.models.outcome import Outcome
+from qualibrate.core.storage.snapshot_json_handler import SnapshotJsonHandler
 from qualibrate.core.storage.storage_manager import StorageManager
 from qualibrate.core.utils.logger_m import logger
 from qualibrate.core.utils.type_protocols import MachineProtocol
@@ -25,13 +25,6 @@ if TYPE_CHECKING:
 
 
 NodeTypeVar = TypeVar("NodeTypeVar", bound="QualibrationNode[Any, Any]")
-
-
-class ExecutionType(str, Enum):
-    """Type of execution for a snapshot."""
-
-    node = "node"
-    workflow = "workflow"
 
 
 class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
@@ -56,6 +49,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         self.data_handler = DataHandler(root_data_folder=root_data_folder)
         self.active_machine_path = active_machine_path
         self.snapshot_idx = None
+        self._json_handler = SnapshotJsonHandler(root_data_folder)
 
     def _clean_data_handler(self) -> None:
         self.data_handler.path = None
@@ -239,13 +233,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         Returns:
             Path to the node.json file, or None if not found.
         """
-        # Search for the snapshot directory using the ID pattern
-        pattern = f"*/#{snapshot_idx}_*"
-        matches = list(self.root_data_folder.glob(pattern))
-        if not matches:
-            logger.warning(f"Snapshot {snapshot_idx} not found in {self.root_data_folder}")
-            return None
-        return matches[0] / "node.json"
+        return self._json_handler.get_node_json_path(snapshot_idx)
 
     def _read_node_json(self, node_json_path: Path) -> dict[str, "Any"] | None:
         """Read and parse a node.json file.
@@ -256,15 +244,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         Returns:
             Parsed JSON content, or None if read fails.
         """
-        if not node_json_path.is_file():
-            logger.warning(f"node.json not found at {node_json_path}")
-            return None
-        try:
-            with node_json_path.open("r") as f:
-                return dict(json.load(f))
-        except json.JSONDecodeError as ex:
-            logger.exception(f"Failed to parse {node_json_path}", exc_info=ex)
-            return None
+        return self._json_handler.read_node_json(node_json_path)
 
     def _write_node_json(
         self, node_json_path: Path, content: dict[str, "Any"]
@@ -278,13 +258,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         Returns:
             True if write succeeded, False otherwise.
         """
-        try:
-            with node_json_path.open("w") as f:
-                json.dump(content, f, indent=2, default=str)
-            return True
-        except Exception as ex:
-            logger.exception(f"Failed to write {node_json_path}", exc_info=ex)
-            return False
+        return self._json_handler.write_node_json(node_json_path, content)
 
     def save_workflow_snapshot_start(
         self,
