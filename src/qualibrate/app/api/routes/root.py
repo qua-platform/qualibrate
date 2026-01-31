@@ -16,17 +16,23 @@ from qualibrate.app.api.core.models.branch import Branch as BranchModel
 from qualibrate.app.api.core.models.node import Node as NodeModel
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
+    ExecutionType,
+    QubitOutcome,
     SimplifiedSnapshotWithMetadata,
     SnapshotHistoryItem,
+    SnapshotHistoryMetadata,
     SnapshotSearchResult,
 )
 from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
 from qualibrate.app.api.core.types import (
+    IdType,
     PageFilter,
     SearchFilter,
     SearchWithIdFilter,
     SortField,
+    STATUS_SORT_PRIORITY,
 )
+from qualibrate.app.api.core.utils.common_utils import extract_tags_from_metadata
 from qualibrate.app.api.core.utils.slice import get_page_slice
 from qualibrate.app.api.dependencies.search import get_search_path
 from qualibrate.app.api.routes.utils.dependencies import (
@@ -73,16 +79,13 @@ def _snapshot_to_simplified(
         SimplifiedSnapshotWithMetadata with tags populated from metadata.
     """
     dump = snapshot.dump().model_dump()
-
-    # Extract tags from metadata if present
-    tags = None
     metadata = dump.get("metadata", {})
-    if metadata:
-        raw_tags = metadata.get("tags")
-        if isinstance(raw_tags, list):
-            tags = [t for t in raw_tags if isinstance(t, str)]
-            if not tags:
-                tags = None
+    tags = extract_tags_from_metadata(metadata)
+
+    # Remove tags from metadata to avoid duplication (tags are at top level)
+    if isinstance(metadata, dict) and "tags" in metadata:
+        metadata = {k: v for k, v in metadata.items() if k != "tags"}
+        dump["metadata"] = metadata
 
     return SimplifiedSnapshotWithMetadata(**dump, tags=tags)
 
@@ -127,19 +130,21 @@ def _convert_to_history_item(
     children = metadata_dict.get("children")
     workflow_parent_id = metadata_dict.get("workflow_parent_id")
 
-    # Get tags from metadata
-    tags = metadata_dict.get("tags")
-    if tags is not None and not isinstance(tags, list):
-        tags = None
-    elif tags is not None:
-        # Filter to ensure all tags are strings
-        tags = [t for t in tags if isinstance(t, str)]
-        if not tags:
-            tags = None
+    # Get tags from snapshot (already extracted) or from metadata as fallback
+    tags = snapshot.tags
+    if tags is None:
+        tags = extract_tags_from_metadata(metadata_dict)
+
+    # Remove fields that will be set explicitly to avoid duplicate kwargs
+    # Also remove tags to avoid duplication (tags are at top level of SnapshotHistoryItem)
+    fields_to_remove = {"type_of_execution", "children", "workflow_parent_id", "tags"}
+    clean_metadata_dict = {
+        k: v for k, v in metadata_dict.items() if k not in fields_to_remove
+    }
 
     # Create extended metadata
     history_metadata = SnapshotHistoryMetadata(
-        **metadata_dict,
+        **clean_metadata_dict,
         type_of_execution=type_of_execution,
         children=children,
         workflow_parent_id=workflow_parent_id,

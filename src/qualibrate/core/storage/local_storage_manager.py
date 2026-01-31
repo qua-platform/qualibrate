@@ -121,6 +121,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
                     .isoformat(timespec="milliseconds")
                 ),
                 "type_of_execution": ExecutionType.node.value,
+                "status": "finished",
             }
         )  # TODO directly access idx
         self.data_handler.save_data(

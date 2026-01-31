@@ -39,14 +39,23 @@ def convert_to_history_item(
     children = metadata_dict.get("children")
     workflow_parent_id = metadata_dict.get("workflow_parent_id")
 
+    # Get tags from snapshot (already extracted) or from metadata as fallback
+    tags = snapshot.tags
+    if tags is None:
+        raw_tags = metadata_dict.get("tags")
+        if isinstance(raw_tags, list):
+            tags = [t for t in raw_tags if isinstance(t, str)] or None
+
     # Remove fields that will be set explicitly to avoid duplicate kwargs
-    metadata_dict.pop("type_of_execution", None)
-    metadata_dict.pop("children", None)
-    metadata_dict.pop("workflow_parent_id", None)
+    # Also remove tags to avoid duplication (tags are at top level of SnapshotHistoryItem)
+    fields_to_remove = {"type_of_execution", "children", "workflow_parent_id", "tags"}
+    clean_metadata_dict = {
+        k: v for k, v in metadata_dict.items() if k not in fields_to_remove
+    }
 
     # Create extended metadata
     history_metadata = SnapshotHistoryMetadata(
-        **metadata_dict,
+        **clean_metadata_dict,
         type_of_execution=type_of_execution,
         children=children,
         workflow_parent_id=workflow_parent_id,
@@ -58,6 +67,7 @@ def convert_to_history_item(
         parents=snapshot.parents,
         metadata=history_metadata,
         type_of_execution=type_of_execution,
+        tags=tags,
     )
 
 

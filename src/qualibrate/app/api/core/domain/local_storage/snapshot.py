@@ -617,6 +617,37 @@ class SnapshotLocalStorage(SnapshotBase):
             return [t for t in tags if isinstance(t, str)]
         return []
 
+    def _write_tags(self, tags: list[str]) -> bool:
+        """Internal method to persist tags to node.json.
+
+        This is the core tag persistence logic used by set_tags, add_tag,
+        and remove_tag. Separating this allows the public set_tags method
+        to have its own validation without affecting internal operations.
+
+        Args:
+            tags: List of tag names to write (should already be cleaned).
+
+        Returns:
+            True if tags were written successfully, False otherwise.
+        """
+        node_content = self._load_node_json()
+        if node_content is None:
+            return False
+
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+
+        node_content["metadata"]["tags"] = tags
+
+        # Persist to disk and update in-memory cache
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["tags"] = tags
+            logger.info(f"Tags written for snapshot {self._id}: {tags}")
+            return True
+        return False
+
     def set_tags(self, tags: list[str]) -> bool:
         """Set the tags for this snapshot (replaces existing tags).
 
@@ -626,24 +657,10 @@ class SnapshotLocalStorage(SnapshotBase):
         Returns:
             True if tags were set successfully, False otherwise.
         """
+        logger.debug(f"Setting tags for snapshot {self._id}: {tags}")
         # Filter out empty strings and duplicates
         clean_tags = list(dict.fromkeys(t.strip() for t in tags if t and t.strip()))
-
-        node_content = self._load_node_json()
-        if node_content is None:
-            return False
-
-        if "metadata" not in node_content:
-            node_content["metadata"] = {}
-
-        node_content["metadata"]["tags"] = clean_tags
-
-        if self._save_node_json(node_content):
-            # Update in-memory content if loaded
-            if self.content.get("metadata") is not None:
-                self.content["metadata"]["tags"] = clean_tags
-            return True
-        return False
+        return self._write_tags(clean_tags)
 
     def add_tag(self, tag: str) -> bool:
         """Add a tag to this snapshot.
@@ -655,6 +672,7 @@ class SnapshotLocalStorage(SnapshotBase):
             True if tag was added (or already exists), False on error.
         """
         if not tag or not tag.strip():
+            logger.warning(f"Cannot add empty tag to snapshot {self._id}")
             return False
 
         tag = tag.strip()
@@ -662,10 +680,11 @@ class SnapshotLocalStorage(SnapshotBase):
 
         if tag in current_tags:
             # Already has this tag
+            logger.debug(f"Tag '{tag}' already exists on snapshot {self._id}")
             return True
 
         current_tags.append(tag)
-        return self.set_tags(current_tags)
+        return self._write_tags(current_tags)
 
     def remove_tag(self, tag: str) -> bool:
         """Remove a tag from this snapshot.
@@ -677,6 +696,7 @@ class SnapshotLocalStorage(SnapshotBase):
             True if tag was removed (or didn't exist), False on error.
         """
         if not tag or not tag.strip():
+            logger.warning(f"Cannot remove empty tag from snapshot {self._id}")
             return False
 
         tag = tag.strip()
@@ -684,10 +704,11 @@ class SnapshotLocalStorage(SnapshotBase):
 
         if tag not in current_tags:
             # Doesn't have this tag
+            logger.debug(f"Tag '{tag}' not found on snapshot {self._id}")
             return True
 
         current_tags.remove(tag)
-        return self.set_tags(current_tags)
+        return self._write_tags(current_tags)
 
     # --- Comment Management Methods ---
 
@@ -750,7 +771,9 @@ class SnapshotLocalStorage(SnapshotBase):
         Returns:
             The created comment dict with id, value, created_at, or None on error.
         """
+        logger.debug(f"Creating comment for snapshot {self._id}")
         if not value or not value.strip():
+            logger.warning(f"Cannot create empty comment on snapshot {self._id}")
             return None
 
         value = value.strip()
@@ -770,10 +793,14 @@ class SnapshotLocalStorage(SnapshotBase):
         comments.append(new_comment)
         node_content["metadata"]["comments"] = comments
 
+        # Persist to disk and update in-memory cache
         if self._save_node_json(node_content):
             # Update in-memory content if loaded
             if self.content.get("metadata") is not None:
                 self.content["metadata"]["comments"] = comments
+            logger.info(
+                f"Created comment (id={new_comment['id']}) for snapshot {self._id}"
+            )
             return new_comment
         return None
 
@@ -787,7 +814,12 @@ class SnapshotLocalStorage(SnapshotBase):
         Returns:
             True if comment was updated, False if not found or on error.
         """
+        logger.debug(f"Updating comment {comment_id} for snapshot {self._id}")
         if not value or not value.strip():
+            logger.warning(
+                f"Cannot update comment {comment_id} with empty value "
+                f"on snapshot {self._id}"
+            )
             return False
 
         value = value.strip()
@@ -806,16 +838,21 @@ class SnapshotLocalStorage(SnapshotBase):
                 break
 
         if not comment_found:
+            logger.warning(
+                f"Comment {comment_id} not found on snapshot {self._id}"
+            )
             return False
 
         if "metadata" not in node_content:
             node_content["metadata"] = {}
         node_content["metadata"]["comments"] = comments
 
+        # Persist to disk and update in-memory cache
         if self._save_node_json(node_content):
             # Update in-memory content if loaded
             if self.content.get("metadata") is not None:
                 self.content["metadata"]["comments"] = comments
+            logger.info(f"Updated comment {comment_id} for snapshot {self._id}")
             return True
         return False
 
@@ -828,6 +865,7 @@ class SnapshotLocalStorage(SnapshotBase):
         Returns:
             True if comment was removed (or didn't exist), False on error.
         """
+        logger.debug(f"Removing comment {comment_id} from snapshot {self._id}")
         node_content = self._load_node_json()
         if node_content is None:
             return False
@@ -840,15 +878,20 @@ class SnapshotLocalStorage(SnapshotBase):
 
         # If nothing changed, the comment didn't exist - return True (idempotent)
         if len(comments) == original_count:
+            logger.debug(
+                f"Comment {comment_id} not found on snapshot {self._id}"
+            )
             return True
 
         if "metadata" not in node_content:
             node_content["metadata"] = {}
         node_content["metadata"]["comments"] = comments
 
+        # Persist to disk and update in-memory cache
         if self._save_node_json(node_content):
             # Update in-memory content if loaded
             if self.content.get("metadata") is not None:
                 self.content["metadata"]["comments"] = comments
+            logger.info(f"Removed comment {comment_id} from snapshot {self._id}")
             return True
         return False

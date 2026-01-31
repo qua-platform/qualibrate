@@ -75,6 +75,7 @@ class TagRegistry:
         Returns:
             Sorted list of all tag names.
         """
+        logger.debug("Listing all registered tags")
         return sorted(self._load_tags())
 
     def create_tag(self, name: str) -> bool:
@@ -86,6 +87,7 @@ class TagRegistry:
         Returns:
             True if tag was created (or already exists), False on error.
         """
+        logger.debug(f"Creating global tag: {name}")
         if not name or not name.strip():
             logger.warning("Cannot create tag with empty name")
             return False
@@ -95,10 +97,14 @@ class TagRegistry:
 
         if name in tags:
             # Tag already exists, considered success
+            logger.debug(f"Tag '{name}' already exists in registry")
             return True
 
         tags.append(name)
-        return self._save_tags(tags)
+        if self._save_tags(tags):
+            logger.info(f"Created global tag: {name}")
+            return True
+        return False
 
     def remove_tag(self, name: str) -> bool:
         """Remove a tag from the registry.
@@ -112,6 +118,7 @@ class TagRegistry:
         Returns:
             True if tag was removed (or didn't exist), False on error.
         """
+        logger.debug(f"Removing global tag: {name}")
         if not name or not name.strip():
             logger.warning("Cannot remove tag with empty name")
             return False
@@ -121,13 +128,21 @@ class TagRegistry:
 
         if name not in tags:
             # Tag doesn't exist, considered success
+            logger.debug(f"Tag '{name}' not found in registry")
             return True
 
         tags.remove(name)
-        return self._save_tags(tags)
+        if self._save_tags(tags):
+            logger.info(f"Removed global tag: {name}")
+            return True
+        return False
 
     def ensure_tags_exist(self, tag_names: list[str]) -> bool:
         """Ensure all given tags exist in the registry, creating any missing ones.
+
+        This method checks the provided tag names and adds any that don't already
+        exist in the global registry. It's typically called when assigning tags
+        to a snapshot to auto-create missing tags.
 
         Args:
             tag_names: List of tag names to ensure exist.
@@ -135,18 +150,25 @@ class TagRegistry:
         Returns:
             True if all tags exist (or were created), False on error.
         """
+        logger.debug(f"Ensuring tags exist in registry: {tag_names}")
         if not tag_names:
             return True
 
         tags = self._load_tags()
         original_count = len(tags)
+        new_tags = []
 
         for name in tag_names:
             if name and name.strip() and name.strip() not in tags:
                 tags.append(name.strip())
+                new_tags.append(name.strip())
 
         if len(tags) == original_count:
             # No new tags to add
+            logger.debug("All tags already exist in registry")
             return True
 
-        return self._save_tags(tags)
+        if self._save_tags(tags):
+            logger.info(f"Auto-created missing tags in registry: {new_tags}")
+            return True
+        return False

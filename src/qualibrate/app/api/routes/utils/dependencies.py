@@ -37,7 +37,10 @@ def get_page_filter(
 def get_search_filter(
     snapshot_name: Annotated[
         str | None,
-        Query(description="Exact snapshot name to match."),
+        Query(
+            alias="name",
+            description="Exact snapshot name to match.",
+        ),
     ] = None,
     name_part: Annotated[
         str | None,
