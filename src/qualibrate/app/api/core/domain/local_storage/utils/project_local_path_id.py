@@ -67,6 +67,10 @@ class IdToProjectLocalPath:
         for node_path in to_add:
             self._add_node(node_path)
 
+    def _get_suited_ids_by_name(self, name: str) -> set[IdType]:
+        """Get IDs for snapshots with exact name match."""
+        return set(self._name2id.get(name, []))
+
     def _get_suited_ids_by_name_part(self, name_part: str) -> set[IdType]:
         return set(
             chain.from_iterable(
@@ -130,7 +134,9 @@ class IdToProjectLocalPath:
         ):
             return set()
         allowed_ids: set[IdType] | None = None
-        if filters.name_part:
+        if filters.name:
+            allowed_ids = self._get_suited_ids_by_name(filters.name)
+        elif filters.name_part:
             allowed_ids = self._get_suited_ids_by_name_part(filters.name_part)
         if allowed_ids is not None and len(allowed_ids) == 0:
             return set()

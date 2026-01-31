@@ -50,7 +50,7 @@ def get_example_snapshot_id():
     try:
         items = resp.json().get("items", [])
         return items[0]["id"] if items else None
-    except:
+    except Exception:
         return None
 
 
