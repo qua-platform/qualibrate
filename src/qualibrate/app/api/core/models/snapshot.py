@@ -9,7 +9,23 @@ from qualibrate.core.models.execution_type import ExecutionType
 
 
 class QubitOutcome(BaseModel):
-    """Outcome status for a single qubit/target in a workflow."""
+    """Outcome status for a single qubit/target in a workflow aggregate.
+
+    This model is used ONLY for aggregated workflow statistics in
+    SnapshotHistoryItem.outcomes. It provides failure tracking by
+    recording which node a qubit failed on.
+
+    Note: Raw outcomes stored in individual snapshot data (SnapshotData.outcomes)
+    use a simpler string format: {"q1": "successful", "q2": "failed"}
+    from the Outcome enum. The QubitOutcome model is computed at query time
+    when building workflow aggregates.
+
+    Attributes:
+        status: "success" or "failure" (note: different from Outcome enum which
+            uses "successful"/"failed")
+        failed_on: For failures, the name of the node where the qubit failed.
+            None for successful outcomes.
+    """
 
     status: Literal["success", "failure"]
     failed_on: str | None = None
@@ -41,6 +57,20 @@ class SimplifiedSnapshotWithMetadata(SimplifiedSnapshot):
 
 
 class SnapshotData(BaseModel):
+    """Data associated with a snapshot.
+
+    Attributes:
+        quam: QuAM machine state (alias: machine)
+        parameters: Calibration node parameters
+        results: Calibration results
+        outcomes: Raw outcomes for individual targets/qubits.
+            Format: {"q1": "successful", "q2": "failed"}
+            Values are from the Outcome enum ("successful"/"failed").
+
+            Note: This differs from SnapshotHistoryItem.outcomes which uses
+            the QubitOutcome model with status/failed_on for workflow aggregates.
+    """
+
     model_config = ConfigDict(extra="allow")
 
     quam: dict[str, Any] | None = None
@@ -89,8 +119,14 @@ class SnapshotHistoryItem(ModelWithIdCreatedAt):
     For workflows:
         - type_of_execution = "workflow"
         - items = list of child SnapshotHistoryItem
-        - outcomes = aggregated outcomes from all children
+        - outcomes = aggregated outcomes from all children (QubitOutcome format)
         - nodes_completed, nodes_total, qubits_completed, qubits_total populated
+
+    Outcomes Format Difference:
+        The `outcomes` field here uses QubitOutcome objects:
+            {"q1": {"status": "success"}, "q2": {"status": "failure", "failed_on": "cal_node"}}
+        This differs from raw snapshot data (SnapshotData.outcomes) which uses strings:
+            {"q1": "successful", "q2": "failed"}
     """
 
     parents: list[IdType]
@@ -100,7 +136,8 @@ class SnapshotHistoryItem(ModelWithIdCreatedAt):
     # Workflow-only fields: nested items
     items: list["SnapshotHistoryItem"] | None = None
 
-    # Workflow aggregate statistics
+    # Workflow aggregate statistics (only populated for workflows when grouped=true)
+    # Note: outcomes uses QubitOutcome format, NOT the raw string format from SnapshotData
     outcomes: dict[str, QubitOutcome] | None = None
     nodes_completed: int | None = None
     nodes_total: int | None = None

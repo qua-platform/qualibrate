@@ -658,9 +658,31 @@ class SnapshotLocalStorage(SnapshotBase):
             True if tags were set successfully, False otherwise.
         """
         logger.debug(f"Setting tags for snapshot {self._id}: {tags}")
+
+        # Early failure check: verify node.json can be loaded before doing
+        # the work of cleaning tags (efficiency improvement per review feedback)
+        node_content = self._load_node_json()
+        if node_content is None:
+            logger.warning(f"Cannot set tags - failed to load node.json for snapshot {self._id}")
+            return False
+
         # Filter out empty strings and duplicates
         clean_tags = list(dict.fromkeys(t.strip() for t in tags if t and t.strip()))
-        return self._write_tags(clean_tags)
+
+        # Now proceed with writing (pass pre-loaded content to avoid double load)
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+
+        node_content["metadata"]["tags"] = clean_tags
+
+        # Persist to disk and update in-memory cache
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["tags"] = clean_tags
+            logger.info(f"Tags set for snapshot {self._id}: {clean_tags}")
+            return True
+        return False
 
     def add_tag(self, tag: str) -> bool:
         """Add a tag to this snapshot.

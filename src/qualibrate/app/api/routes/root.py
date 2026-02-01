@@ -118,17 +118,28 @@ def _convert_to_history_item(
     snapshot: SimplifiedSnapshotWithMetadata,
 ) -> SnapshotHistoryItem:
     """Convert a SimplifiedSnapshotWithMetadata to a SnapshotHistoryItem."""
-    # Get type_of_execution from metadata or default to "node"
     metadata_dict = snapshot.metadata.model_dump()
-    type_of_execution_str = metadata_dict.get("type_of_execution", "node")
+
+    # Get children and workflow_parent_id from metadata (needed for detection)
+    children = metadata_dict.get("children")
+    workflow_parent_id = metadata_dict.get("workflow_parent_id")
+
+    # Get type_of_execution from metadata with on-the-fly detection for
+    # legacy snapshots that don't have this field set.
+    # If type_of_execution is missing, detect workflow by presence of
+    # non-empty children list (eliminates need for manual migration).
+    type_of_execution_str = metadata_dict.get("type_of_execution")
+    if type_of_execution_str is None:
+        # On-the-fly detection: if children exists and is non-empty, treat as workflow
+        if children and isinstance(children, list) and len(children) > 0:
+            type_of_execution_str = "workflow"
+        else:
+            type_of_execution_str = "node"
+
     try:
         type_of_execution = ExecutionType(type_of_execution_str)
     except ValueError:
         type_of_execution = ExecutionType.node
-
-    # Get children and workflow_parent_id from metadata
-    children = metadata_dict.get("children")
-    workflow_parent_id = metadata_dict.get("workflow_parent_id")
 
     # Get tags from snapshot (already extracted) or from metadata as fallback
     tags = snapshot.tags
@@ -382,6 +393,8 @@ def _paginate_nested_items(
 
     result_items = _filter_tree(items)
     return result_items, total
+
+
 @root_router.get("/branch", summary="Get branch by name")
 def get_branch(
     *,
