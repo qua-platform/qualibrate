@@ -1,8 +1,11 @@
+import logging
 from collections import defaultdict
 from collections.abc import Hashable
 from typing import Any, Generic, TypeVar
 
 from fastapi import WebSocket
+
+logger = logging.getLogger(__name__)
 
 
 class SocketConnectionManagerList:
@@ -22,7 +25,8 @@ class SocketConnectionManagerList:
         for connection in self.active_connections:
             try:
                 await connection.send_json(message)
-            except Exception:
+            except Exception as e:
+                logger.exception("Failed to send message to WebSocket connection: %s", e)
                 disconnected.append(connection)
         for conn in disconnected:
             self.disconnect(conn)
@@ -54,7 +58,8 @@ class SocketConnectionManagerMapping(Generic[KT]):
         for connection in self.active_connections[key]:
             try:
                 await connection.send_json(message)
-            except Exception:
+            except Exception as e:
+                logger.exception("Failed to send message to WebSocket connection for key %s: %s", key, e)
                 disconnected.append(connection)
         for conn in disconnected:
             self.disconnect(key, conn)
