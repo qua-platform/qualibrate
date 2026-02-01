@@ -49,6 +49,7 @@ export interface SnapshotMetadata {
   status?: string | null;
   type_of_execution: "node" | "workflow";
   tags?: string[];
+  children?: number[];
 }
 
 export interface ParameterStructure {
@@ -64,6 +65,7 @@ export interface SnapshotData {
     [key: string]: unknown;
   };
   quam?: { channels: { [key: string]: object } };
+  outcomes?: SnapshotOutcomesType;
 
   [key: string]: unknown;
 }

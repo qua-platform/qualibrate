@@ -22,9 +22,9 @@ export const {
   setPageNumber,
   setTotalPages,
   setAllSnapshots,
-  setSnapshotsSearchQuery,
+  setSnapshotsFilters,
   setSelectedWorkflow,
-  setSelectedNodeInWorkflowName,
+  setSelectedNodeInWorkflowId,
   setSubgraphForward,
   setSubgraphBack,
   setAllTags,
@@ -188,12 +188,12 @@ export const goBackOneLevel = () => (dispatch: RootDispatch, getState: () => Roo
     dispatch(setSelectedSnapshotId(allSnapshots[0].id));
     dispatch(fetchOneSnapshot(allSnapshots[0].id));
     dispatch(setSelectedSnapshot(allSnapshots[0]));
-    dispatch(setSelectedNodeInWorkflowName(allSnapshots[0].metadata.name));
+    dispatch(setSelectedNodeInWorkflowId(allSnapshots[0].id));
   } else {
     dispatch(setSelectedWorkflow(selectedWorkflow)); // hack for top navigation to refresh the redux
     dispatch(setSelectedSnapshotId(selectedWorkflow?.id));
     dispatch(setSelectedSnapshot(selectedWorkflow));
-    dispatch(setSelectedNodeInWorkflowName(selectedWorkflow?.metadata?.name));
+    dispatch(setSelectedNodeInWorkflowId(selectedWorkflow?.id));
   }
 };
 

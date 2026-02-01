@@ -1,5 +1,11 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { SnapshotData, SnapshotDTO } from "./api/SnapshotsApi";
+
+export enum SortType {
+  Name = "name",
+  Date = "date",
+  Status = "status",
+}
 
 export interface SnapshotsState {
   trackLatestSidePanel: boolean;
@@ -7,10 +13,15 @@ export interface SnapshotsState {
   totalPages: number;
   pageNumber: number;
   allSnapshots: SnapshotDTO[];
-  snapshotsSearchQuery: string;
+  snapshotsFilters: {
+    sortType: SortType,
+    searchString: string,
+    minDate?: string,
+    maxDate?: string,
+  };
   selectedSnapshot: SnapshotDTO | undefined;
   selectedWorkflow: SnapshotDTO | undefined;
-  selectedNodeInWorkflowName: string | undefined;
+  selectedNodeInWorkflowId: number | undefined;
   breadCrumbs: string[];
   allTags: string[];
   selectedSnapshotId: number | undefined;
@@ -31,10 +42,15 @@ const initialState: SnapshotsState = {
   totalPages: 0,
   pageNumber: 1,
   allSnapshots: [],
-  snapshotsSearchQuery: "",
+  snapshotsFilters: {
+    sortType: SortType.Name,
+    searchString: "",
+    minDate: "",
+    maxDate: "",
+  },
   selectedSnapshot: undefined,
   selectedWorkflow: undefined,
-  selectedNodeInWorkflowName: undefined,
+  selectedNodeInWorkflowId: undefined,
   breadCrumbs: [],
   allTags: [],
   selectedSnapshotId: undefined,
@@ -68,36 +84,8 @@ export const SnapshotsSlice = createSlice({
     setAllSnapshots: (state, action) => {
       state.allSnapshots = action.payload;
     },
-    setSnapshotsSearchQuery: (state, action: PayloadAction<{
-      pageLimit?: number
-      descending?: boolean,
-      sortType?: string,
-      searchString?: string,
-      minDate?: string,
-      maxDate?: string,
-    }>) => {
-      const {
-        pageLimit = 100,
-        descending = true,
-        sortType = "name",
-        searchString,
-        minDate,
-        maxDate,
-      } = action.payload;
-
-      const query = new URLSearchParams({
-        page: state.pageNumber.toString(),
-        per_page: pageLimit.toString(),
-        descending: descending ? "true" : "false",
-        sort: sortType,
-        grouped: "true",
-
-        ...(searchString && { name: searchString }),
-        ...(minDate && { min_date: minDate }),
-        ...(maxDate && { max_date: maxDate }),
-      });
-
-      state.snapshotsSearchQuery = query.toString();
+    setSnapshotsFilters: (state, action) => {
+      state.snapshotsFilters = action.payload;
     },
     setSelectedSnapshot: (state, action) => {
       state.selectedSnapshot = action.payload;
@@ -105,8 +93,8 @@ export const SnapshotsSlice = createSlice({
     setSelectedWorkflow: (state, action) => {
       state.selectedWorkflow = action.payload;
     },
-    setSelectedNodeInWorkflowName: (state, action) => {
-      state.selectedNodeInWorkflowName = action.payload;
+    setSelectedNodeInWorkflowId: (state, action) => {
+      state.selectedNodeInWorkflowId = action.payload;
     },
     setSubgraphForward: (state, action) => {
       state.breadCrumbs = [...state.breadCrumbs, action.payload];
@@ -139,7 +127,7 @@ export const SnapshotsSlice = createSlice({
       state.selectedSnapshotId = undefined;
       state.selectedSnapshot = undefined;
       state.selectedWorkflow = undefined;
-      state.selectedNodeInWorkflowName = undefined;
+      state.selectedNodeInWorkflowId = undefined;
       state.jsonData = undefined;
       state.result = undefined;
       state.diffData = undefined;

@@ -4,14 +4,9 @@ import { AppliedFilterLabel, DateFilter, SearchField, SortButton } from "../../.
 import SnapshotsTimeline from "../SnapshotsTimeline";
 import PaginationWrapper from "../Pagination/PaginationWrapper";
 import { useSelector } from "react-redux";
-import { getBreadCrumbs, getSelectedWorkflow, goBackOneLevel, setSnapshotsSearchQuery } from "../../../../stores/SnapshotsStore";
+import { getBreadCrumbs, getSelectedWorkflow, goBackOneLevel, setSnapshotsFilters } from "../../../../stores/SnapshotsStore";
 import { useRootDispatch } from "../../../../stores";
-
-export enum SortType {
-  Name = "name",
-  Date = "date",
-  Status = "status",
-}
+import { SortType } from "../../../../stores/SnapshotsStore/SnapshotsStore";
 
 const sortOptions = [
   {
@@ -46,7 +41,7 @@ const DataLeftPanel: React.FC = () => {
   }
 
   useEffect(() => {
-    dispatch(setSnapshotsSearchQuery({
+    dispatch(setSnapshotsFilters({
       sortType: selectedSortType,
       searchString: searchText,
       minDate: fromDate,

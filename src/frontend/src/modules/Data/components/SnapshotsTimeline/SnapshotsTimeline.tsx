@@ -3,30 +3,30 @@ import styles from "./SnapshotsTimeline.module.scss";
 import { useSelector } from "react-redux";
 import {
   fetchOneSnapshot,
-  getAllSnapshots,
   getSelectedSnapshot,
   getSelectedSnapshotId,
   getSelectedWorkflowForGraph,
   setClickedForSnapshotSelection,
-  setSelectedNodeInWorkflowName,
+  setSelectedNodeInWorkflowId,
   setSelectedSnapshot,
   setSelectedSnapshotId,
   SnapshotDTO,
 } from "../../../../stores/SnapshotsStore";
 import { useRootDispatch } from "../../../../stores";
 import ExecutionCard, { ManageTagsModal } from "../ExecutionCard";
+import { getExecutionHistorySnapshots } from "../../../../stores/SnapshotsStore/selectors";
 
 const SnapshotsTimeline: React.FC = () => {
   const dispatch = useRootDispatch();
-  const allSnapshots = useSelector(getAllSnapshots);
   const selectedSnapshotId = useSelector(getSelectedSnapshotId);
   const selectedSnapshot = useSelector(getSelectedSnapshot);
   const selectedWorkflowGraph = useSelector(getSelectedWorkflowForGraph);
+  const executionHistorySnapshots = useSelector(getExecutionHistorySnapshots);
   const [showTagsModal, setShowTagsModal] = useState(false);
 
   const handleOnClick = (snapshot: SnapshotDTO) => {
     dispatch(setSelectedSnapshotId(snapshot.id));
-    dispatch(setSelectedNodeInWorkflowName(snapshot?.metadata?.name));
+    dispatch(setSelectedNodeInWorkflowId(snapshot?.id));
     dispatch(setClickedForSnapshotSelection(true));
     dispatch(fetchOneSnapshot(snapshot.id));
     dispatch(setSelectedSnapshot(snapshot));
@@ -57,9 +57,9 @@ const SnapshotsTimeline: React.FC = () => {
           </>
         )}
       </div>
-      {(selectedWorkflowGraph?.items ?? allSnapshots)?.length > 0 && (
+      {executionHistorySnapshots && executionHistorySnapshots.length > 0 && (
         <div className={styles.wrapper}>
-          {(selectedWorkflowGraph?.items ?? allSnapshots).map((snapshot) => (
+          {executionHistorySnapshots.map((snapshot) => (
             <ExecutionCard
               key={snapshot.id}
               snapshot={snapshot}

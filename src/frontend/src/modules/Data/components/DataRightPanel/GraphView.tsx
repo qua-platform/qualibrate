@@ -6,7 +6,7 @@ import {
   getBreadCrumbs,
   getSelectedSnapshot,
   getSelectedWorkflow,
-  setSelectedNodeInWorkflowName,
+  setSelectedNodeInWorkflowId,
   setSelectedSnapshotInSnapshotList,
   setSelectedWorkflow,
   setSelectedWorkflowFromBreadcrumbs,
@@ -23,10 +23,12 @@ const GraphView: React.FC = () => {
   const breadCrumbs = useSelector(getBreadCrumbs);
 
   const handleOnNodeClick = (name?: string) => {
-    dispatch(setSelectedNodeInWorkflowName(name));
+    const id = selectedWorkflow?.items?.find(node => node.metadata.name === name)?.id;
+    if (id) dispatch(setSelectedNodeInWorkflowId(id));
   };
 
   const handleOnNodeSecondClick = (name: string, isWorkflow?: boolean) => {
+    const id = selectedWorkflow?.items?.find(node => node.metadata.name === name)?.id;
     if (isWorkflow) {
       if (breadCrumbs.length === 0) {
         dispatch(setSubgraphForward(selectedSnapshotWithWorkflowType?.metadata?.name));
@@ -36,7 +38,7 @@ const GraphView: React.FC = () => {
         // dispatch(setSelectedWorkflow(selectedSnapshotWithWorkflowType));
         dispatch(setSelectedWorkflowFromBreadcrumbs());
       }
-      dispatch(setSelectedNodeInWorkflowName(name));
+      if (id) dispatch(setSelectedNodeInWorkflowId(id));
       dispatch(setSelectedSnapshotInSnapshotList(name));
     } else {
       if (selectedWorkflow?.metadata?.name !== selectedSnapshotWithWorkflowType?.metadata?.name) {
@@ -44,7 +46,7 @@ const GraphView: React.FC = () => {
         dispatch(setSelectedWorkflow(selectedSnapshotWithWorkflowType));
       }
       dispatch(setSelectedSnapshotInSnapshotList(name));
-      dispatch(setSelectedNodeInWorkflowName(name));
+      if (id) dispatch(setSelectedNodeInWorkflowId(id));
     }
   };
 
@@ -91,7 +93,7 @@ const GraphView: React.FC = () => {
               </div>
 
               <div className={styles.qubitList}>
-                <QubitStatusList outcomes={selectedSnapshotWithWorkflowType?.outcomes} />
+                <QubitStatusList outcomes={selectedSnapshotWithWorkflowType?.data?.outcomes} />
               </div>
             </div>
           </div>

@@ -18,7 +18,23 @@ export const getPageNumber = createSelector(getSnapshotsState, (state) => state.
 
 export const getAllSnapshots = createSelector(getSnapshotsState, (state) => state.allSnapshots);
 
-export const getSnapshotsSearchQuery = createSelector(getSnapshotsState, (state) => state.snapshotsSearchQuery);
+export const getSnapshotsSearchQuery = createSelector(getSnapshotsState, getPageNumber, (state, pageNumber) => {
+  const { sortType, searchString, minDate, maxDate } = state.snapshotsFilters;
+
+  const query = new URLSearchParams({
+    page: pageNumber.toString(),
+    per_page: "100",
+    descending: "true",
+    sort: sortType,
+    grouped: "true",
+
+    ...(searchString && {name: searchString}),
+    ...(minDate && { min_date: minDate }),
+    ...(maxDate && { max_date: maxDate }),
+  });
+
+  return query.toString();
+});
 
 export const getSelectedSnapshot = createSelector(getSnapshotsState, (state) => state.selectedSnapshot);
 
@@ -26,7 +42,7 @@ export const getAllTags = createSelector(getSnapshotsState, (state) => state.all
 
 export const getSelectedWorkflow = createSelector(getSnapshotsState, (state) => state.selectedWorkflow);
 
-export const getSelectedNodeInWorkflowName = createSelector(getSnapshotsState, (state) => state.selectedNodeInWorkflowName);
+export const getSelectedNodeInWorkflowName = createSelector(getSnapshotsState, (state) => state.selectedNodeInWorkflowId);
 
 export const getBreadCrumbs = createSelector(getSnapshotsState, (state) => state.breadCrumbs);
 
@@ -42,6 +58,15 @@ const findByBreadcrumbs = (items: SnapshotDTO[], breadcrumbs: string[]): Snapsho
 export const getSelectedWorkflowForGraph = createSelector(getAllSnapshots, getBreadCrumbs, (allSnapshots = [], breadcrumbs = []) =>
   breadcrumbs.length ? findByBreadcrumbs(allSnapshots, breadcrumbs) : undefined
 );
+
+export const getExecutionHistorySnapshots = createSelector(getAllSnapshots, getSelectedWorkflowForGraph, (allSnapshots = [], selectedWorkflow) => {
+  if (!selectedWorkflow)
+    return allSnapshots;
+
+  return selectedWorkflow.metadata?.children
+    ? allSnapshots.filter(snapshot => selectedWorkflow.metadata.children!.includes(snapshot.id))
+    : undefined;
+});
 
 export const getSelectedSnapshotId = createSelector(getSnapshotsState, (state) => state.selectedSnapshotId);
 

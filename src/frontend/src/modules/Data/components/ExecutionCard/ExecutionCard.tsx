@@ -2,7 +2,7 @@ import React from "react";
 import {
   getSelectedNodeInWorkflowName,
   getSelectedWorkflow,
-  setSelectedNodeInWorkflowName,
+  setSelectedNodeInWorkflowId,
   setSelectedSnapshotId,
   setSelectedWorkflow,
   setSubgraphForward,
@@ -29,7 +29,7 @@ const ExecutionCard: React.FC<Props> = ({ snapshot, isSelected = true, handleOnC
   const selectedNodeInWorkflowName = useSelector(getSelectedNodeInWorkflowName);
   const selectedWorkflow = useSelector(getSelectedWorkflow);
 
-  const isHighlighted = snapshot.metadata.name === selectedNodeInWorkflowName || isSelected;
+  const isHighlighted = snapshot.id === selectedNodeInWorkflowName || isSelected;
 
   const statusClassMap: Record<string, string> = {
     running: styles.statusRunning,
@@ -58,7 +58,7 @@ const ExecutionCard: React.FC<Props> = ({ snapshot, isSelected = true, handleOnC
     dispatch(setSelectedSnapshotId(snapshot?.id));
     dispatch(setSelectedSnapshot(snapshot));
 
-    dispatch(setSelectedNodeInWorkflowName(snapshot?.metadata?.name));
+    dispatch(setSelectedNodeInWorkflowId(snapshot?.id));
     if (snapshot?.metadata?.name !== selectedWorkflow?.metadata?.name) {
       dispatch(setSubgraphForward(snapshot.metadata.name));
     }
