@@ -12,11 +12,9 @@ import {
   getTrackPreviousSnapshot,
 } from "./selectors";
 import { fetchAllSnapshots, fetchAllTags, fetchSnapshotDiff, fetchSnapshotJsonData, fetchSnapshotResults } from "./utils";
-import { MOCK_EXECUTION_HISTORY_ELEMENTS } from "../../../tests/unit/utils/mocks/execution_history";
-import { SnapshotDTO, SnapshotSearchType } from "./api/SnapshotsApi";
+import { SnapshotDTO } from "./api/SnapshotsApi";
 import { handleRunNode } from "../NodesStore";
 import { setSelectedWorkflowName, submitWorkflow } from "../GraphStores/GraphLibrary";
-import { NodeDTO } from "../../modules/Nodes";
 
 export const {
   setTrackLatestSidePanel,
@@ -24,6 +22,7 @@ export const {
   setPageNumber,
   setTotalPages,
   setAllSnapshots,
+  setSnapshotsSearchQuery,
   setSelectedWorkflow,
   setSelectedNodeInWorkflowName,
   setSubgraphForward,
@@ -69,15 +68,14 @@ export const fetchOneSnapshot =
     }
   };
 
-export const fetchGitgraphSnapshots =
-  (firstTime: boolean, page: number, sortType?: SnapshotSearchType, searchString?: string, minDate?: string, maxDate?: string) =>
+export const fetchGitgraphSnapshots = (firstTime: boolean, query: string) =>
   async (dispatch: RootDispatch, getState: () => RootState) => {
     const trackLatestSidePanel = getTrackLatestSidePanel(getState());
     const trackPreviousSnapshot = getTrackPreviousSnapshot(getState());
     const secondId = getSecondId(getState());
     const selectedSnapshotId = getSelectedSnapshotId(getState());
 
-    const resAllSnapshots = await fetchAllSnapshots(page, sortType, searchString, minDate, maxDate);
+    const resAllSnapshots = await fetchAllSnapshots(query);
     dispatch(setAllSnapshots([]));
     if (resAllSnapshots && resAllSnapshots?.isOk) {
       const items = resAllSnapshots.result?.items;
@@ -85,7 +83,6 @@ export const fetchGitgraphSnapshots =
       dispatch(setPageNumber(resAllSnapshots.result?.page ?? 1));
       dispatch(setAllSnapshots(resAllSnapshots.result?.items ?? []));
       // Uncomment this line to use MOCKS for Execution History page
-      dispatch(setAllSnapshots(MOCK_EXECUTION_HISTORY_ELEMENTS.items));
       let lastElId = 0;
       if (items) {
         lastElId = items.length > 0 ? items[0]?.id : 0;
@@ -114,31 +111,31 @@ export const fetchGitgraphSnapshots =
 export const fetchSnapshotTags = () => async (dispatch: RootDispatch, getState: () => RootState) => {
   const resAllSnapshotTags = await fetchAllTags();
   if (resAllSnapshotTags && resAllSnapshotTags?.isOk) {
-    dispatch(setAllTags(resAllSnapshotTags));
+    dispatch(setAllTags(resAllSnapshotTags.result));
   }
   // TODO Uncomment this code to use mocked data
-  dispatch(
-    setAllTags([
-      "resonance",
-      "characterization",
-      "calibration",
-      "rabi",
-      "relaxation",
-      "error",
-      "tomography",
-      "validation",
-      "benchmarking",
-      "multi-qubit",
-      "quick-check",
-    ])
-  );
+  // dispatch(
+  //   setAllTags([
+  //     "resonance",
+  //     "characterization",
+  //     "calibration",
+  //     "rabi",
+  //     "relaxation",
+  //     "error",
+  //     "tomography",
+  //     "validation",
+  //     "benchmarking",
+  //     "multi-qubit",
+  //     "quick-check",
+  //   ])
+  // );
 };
 
 // -----------------------------------------------------------
 // PERIODICAL FETCH ALL SNAPSHOTS
-export const intervalFetch = (page: number) => async (dispatch: RootDispatch, getState: () => RootState) => {
+export const intervalFetch = (query: string) => async (dispatch: RootDispatch, getState: () => RootState) => {
   const allSnapshots = getAllSnapshots(getState());
-  const resAllSnapshots = await fetchAllSnapshots(page);
+  const resAllSnapshots = await fetchAllSnapshots(query);
   if (resAllSnapshots) {
     dispatch(setTotalPages(resAllSnapshots.result?.total_pages as number));
     dispatch(setPageNumber(resAllSnapshots.result?.page as number));
@@ -247,7 +244,7 @@ export const runNodeOfSelectedSnapshot = () => (dispatch: RootDispatch, getState
   if (selectedSnapshot) {
     const nodeOfSnapshot = getSelectedSnapshotNode(state);
     if (nodeOfSnapshot) {
-      dispatch(handleRunNode(nodeOfSnapshot as NodeDTO));
+      dispatch(handleRunNode(nodeOfSnapshot));
     }
   }
 };

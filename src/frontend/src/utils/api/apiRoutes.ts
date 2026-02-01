@@ -1,36 +1,6 @@
 export const HOME_URL = "/";
 export const LOGIN_URL = "/login";
-export const ALL_SNAPSHOTS = ({
-  branchName = "main",
-  pageNumber = 1,
-  pageLimit = 100,
-  descending = true,
-  sortType = "name",
-  searchString,
-  minDate,
-  maxDate,
-}: {
-  branchName?: string;
-  pageNumber?: number;
-  pageLimit?: number;
-  descending?: boolean;
-  sortType?: string;
-  searchString?: string;
-  minDate?: string;
-  maxDate?: string;
-}) => {
-  const query = new URLSearchParams({
-    page: pageNumber.toString(),
-    per_page: pageLimit.toString(),
-    descending: descending ? "true" : "false",
-    sort: sortType,
-
-    ...(searchString && { name_part: searchString }),
-    ...(minDate && { min_date: minDate }),
-    ...(maxDate && { max_date: maxDate }),
-  });
-  return `api/branch/${branchName}/snapshots_history?${query.toString()}`;
-};
+export const ALL_SNAPSHOTS = (query: string = "", branchName: string = "main") => `api/branch/${branchName}/snapshots_history?${query}`;
 /***************************************** TAGS *****************************************/
 export const CREATE_NEW_TAG = () => "api/snapshot/tag/create";
 export const ALL_SNAPSHOT_TAGS = () => "api/snapshot/tags";

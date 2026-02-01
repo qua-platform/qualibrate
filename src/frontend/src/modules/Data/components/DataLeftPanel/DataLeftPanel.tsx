@@ -4,14 +4,36 @@ import { AppliedFilterLabel, DateFilter, SearchField, SortButton } from "../../.
 import SnapshotsTimeline from "../SnapshotsTimeline";
 import PaginationWrapper from "../Pagination/PaginationWrapper";
 import { useSelector } from "react-redux";
-import { getBreadCrumbs, getSelectedWorkflow, goBackOneLevel } from "../../../../stores/SnapshotsStore";
+import { getBreadCrumbs, getSelectedWorkflow, goBackOneLevel, setSnapshotsSearchQuery } from "../../../../stores/SnapshotsStore";
 import { useRootDispatch } from "../../../../stores";
+
+export enum SortType {
+  Name = "name",
+  Date = "date",
+  Status = "status",
+}
+
+const sortOptions = [
+  {
+    label: "Date (Newest first)",
+    value: SortType.Date
+  },
+  {
+    label: "Name (A-Z)",
+    value: SortType.Name
+  },
+  {
+    label: "Result (Success First)",
+    value: SortType.Status
+  },
+];
 
 const DataLeftPanel: React.FC = () => {
   const dispatch = useRootDispatch();
   const selectedWorkflow = useSelector(getSelectedWorkflow);
   const breadCrumbs = useSelector(getBreadCrumbs);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | undefined>(undefined);
+  const [selectedSortType, setSelectedSortType] = useState<SortType>(SortType.Date);
   const [searchText, setSearchText] = useState<string>("");
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
@@ -24,12 +46,18 @@ const DataLeftPanel: React.FC = () => {
   }
 
   useEffect(() => {
-    // TODO call API for snapshot search
-  }, [searchText, setSearchText]);
+    dispatch(setSnapshotsSearchQuery({
+      sortType: selectedSortType,
+      searchString: searchText,
+      minDate: fromDate,
+      maxDate: toDate,
+    }));
+  }, [selectedSortType, searchText, fromDate, toDate]);
 
   const handleOnDateFilterSelect = (dateFilterType?: string) => {
     setSelectedDateFilter(dateFilterType);
-    // TODO fetchSnapshots with sortType
+    setFromDate("");
+    setToDate("");
   };
 
   const handleOnDateFilterRemove = (filterName?: string) => {
@@ -41,12 +69,12 @@ const DataLeftPanel: React.FC = () => {
     }
   };
 
-  const handleOnSortSelect = (sortType: string) => {
-    // TODO fetchSnapshots with sortType
-  };
-
   const handleGoingBackOneLevel = () => {
     dispatch(goBackOneLevel());
+  };
+
+  const handleOnSortSelect = (sortType: SortType) => {
+    setSelectedSortType(sortType);
   };
 
   return (
@@ -70,7 +98,7 @@ const DataLeftPanel: React.FC = () => {
           <div className={styles.searchFilterContainer}>
             <SearchField placeholder="Search executions..." value={searchText} onChange={setSearchText} debounceMs={500} />
             <DateFilter from={fromDate} to={toDate} setFrom={setFromDate} setTo={setToDate} onSelect={handleOnDateFilterSelect} />
-            <SortButton key={"sortFilter"} onSelect={handleOnSortSelect} />
+            <SortButton key={"sortFilter"} options={sortOptions} onSelect={handleOnSortSelect} />
           </div>
           <div className={styles.searchFilterContainer}>
             {selectedDateFilter && <AppliedFilterLabel value={selectedDateFilter} onRemove={handleOnDateFilterRemove} label={"Date"} />}

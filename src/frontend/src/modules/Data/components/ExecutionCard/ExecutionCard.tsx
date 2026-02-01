@@ -50,7 +50,7 @@ const ExecutionCard: React.FC<Props> = ({ snapshot, isSelected = true, handleOnC
   const executionStatus = snapshot.metadata?.status ?? "finished";
   const runStart = snapshot.metadata?.run_start;
   const runDuration = snapshot.metadata?.run_duration ?? 0;
-  const isWorkflowType = snapshot.type_of_execution.toLocaleLowerCase() === "workflow";
+  const isWorkflowType = snapshot.metadata.type_of_execution?.toLocaleLowerCase() === "workflow";
 
   const handleOnGraphClick = (event: React.MouseEvent) => {
     event.stopPropagation();

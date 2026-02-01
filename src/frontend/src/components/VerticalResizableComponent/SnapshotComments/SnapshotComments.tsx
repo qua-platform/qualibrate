@@ -94,43 +94,43 @@ const SnapshotComments: React.FC = () => {
       setComments(response.result);
     }
     // TODO Uncomment this to use mocks
-    setComments([
-      {
-        id: 1,
-        value: "Comment 1",
-        createdAt: "2024-11-16 14:30:00",
-      },
-      {
-        id: 2,
-        value: "Comment 2",
-        createdAt: "2024-11-16 14:30:00",
-      },
-      {
-        id: 3,
-        value: "Comment 3",
-        createdAt: "2024-11-16 14:30:00",
-      },
-      {
-        id: 4,
-        value: "Comment 4",
-        createdAt: "2024-11-16 14:30:00",
-      },
-      {
-        id: 5,
-        value: "Comment 5",
-        createdAt: "2024-11-16 14:30:00",
-      },
-      {
-        id: 6,
-        value: "Comment 6",
-        createdAt: "2024-11-16 14:30:00",
-      },
-      {
-        id: 7,
-        value: "Comment 7",
-        createdAt: "2024-11-16 14:30:00",
-      },
-    ]);
+    // setComments([
+    //   {
+    //     id: 1,
+    //     value: "Comment 1",
+    //     createdAt: "2024-11-16 14:30:00",
+    //   },
+    //   {
+    //     id: 2,
+    //     value: "Comment 2",
+    //     createdAt: "2024-11-16 14:30:00",
+    //   },
+    //   {
+    //     id: 3,
+    //     value: "Comment 3",
+    //     createdAt: "2024-11-16 14:30:00",
+    //   },
+    //   {
+    //     id: 4,
+    //     value: "Comment 4",
+    //     createdAt: "2024-11-16 14:30:00",
+    //   },
+    //   {
+    //     id: 5,
+    //     value: "Comment 5",
+    //     createdAt: "2024-11-16 14:30:00",
+    //   },
+    //   {
+    //     id: 6,
+    //     value: "Comment 6",
+    //     createdAt: "2024-11-16 14:30:00",
+    //   },
+    //   {
+    //     id: 7,
+    //     value: "Comment 7",
+    //     createdAt: "2024-11-16 14:30:00",
+    //   },
+    // ]);
   }, [selectedSnapshotId]);
 
   useEffect(() => {

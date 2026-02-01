@@ -1,4 +1,4 @@
-import { SnapshotComment, SnapshotsApi, SnapshotSearchType } from "./api/SnapshotsApi";
+import { SnapshotComment, SnapshotsApi } from "./api/SnapshotsApi";
 
 export const fetchSnapshotJsonData = (id: string) => {
   try {
@@ -27,17 +27,11 @@ export const fetchSnapshotDiff = (id2: string, id1: string) => {
   }
 };
 
-export const fetchAllSnapshots = (
-  page: number,
-  sortType: SnapshotSearchType = "name",
-  searchString?: string,
-  minDate?: string,
-  maxDate?: string
-) => {
+export const fetchAllSnapshots = (query: string) => {
   try {
-    return SnapshotsApi.fetchAllSnapshots(page, sortType, searchString, minDate, maxDate);
+    return SnapshotsApi.fetchAllSnapshots(query);
   } catch (e) {
-    console.error(`Failed to fetch all snapshots (page=${page}):`, e);
+    console.error(`Failed to fetch all snapshots (${query}):`, e);
     return null;
   }
 };

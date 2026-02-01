@@ -47,6 +47,8 @@ export interface SnapshotMetadata {
   run_end?: string | null;
   run_duration?: number | null;
   status?: string | null;
+  type_of_execution: "node" | "workflow";
+  tags?: string[];
 }
 
 export interface ParameterStructure {
@@ -110,23 +112,9 @@ export class SnapshotsApi extends Api {
     return this.address + path;
   }
 
-  static fetchAllSnapshots(
-    pageNumber: number,
-    sortType: SnapshotSearchType = "name",
-    searchString?: string,
-    minDate?: string,
-    maxDate?: string
-  ): Promise<Res<SnapshotResult>> {
+  static fetchAllSnapshots(query: string): Promise<Res<SnapshotResult>> {
     return this._fetch(
-      this.api(
-        ALL_SNAPSHOTS({
-          pageNumber,
-          sortType,
-          searchString,
-          minDate,
-          maxDate,
-        })
-      ),
+      this.api(ALL_SNAPSHOTS(query)),
       API_METHODS.GET,
       {
         headers: BASIC_HEADERS,

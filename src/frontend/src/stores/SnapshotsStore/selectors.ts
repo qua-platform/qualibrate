@@ -1,6 +1,8 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "..";
-import { SnapshotDTO } from "./api/SnapshotsApi";
+import { SnapshotData, SnapshotDTO } from "./api/SnapshotsApi";
+import { NodeDTO } from "../../modules/Nodes";
+import { InputParameter } from "../../components";
 
 export const getSnapshotsState = (state: RootState) => state.snapshots;
 
@@ -16,11 +18,9 @@ export const getPageNumber = createSelector(getSnapshotsState, (state) => state.
 
 export const getAllSnapshots = createSelector(getSnapshotsState, (state) => state.allSnapshots);
 
-export const getSelectedSnapshot = createSelector(getSnapshotsState, (state) => state.selectedSnapshot);
+export const getSnapshotsSearchQuery = createSelector(getSnapshotsState, (state) => state.snapshotsSearchQuery);
 
-export const getSelectedSnapshotNode = createSelector(getSnapshotsState, getNodesState, (snapshotState, nodesState) =>
-  nodesState?.allNodes ? nodesState?.allNodes[snapshotState.selectedSnapshot?.metadata?.name ?? ""] : undefined
-);
+export const getSelectedSnapshot = createSelector(getSnapshotsState, (state) => state.selectedSnapshot);
 
 export const getAllTags = createSelector(getSnapshotsState, (state) => state.allTags);
 
@@ -62,3 +62,27 @@ export const getFirstId = createSelector(getSnapshotsState, (state) => state.fir
 export const getSecondId = createSelector(getSnapshotsState, (state) => state.secondId);
 
 export const getReset = createSelector(getSnapshotsState, (state) => state.reset);
+
+export const getSelectedSnapshotNode = createSelector(getSnapshotsState, getNodesState, getJsonData,
+  (snapshotState, nodesState, jsonData) => {
+    const node = nodesState?.allNodes ? nodesState?.allNodes[snapshotState.selectedSnapshot?.metadata?.name ?? ""] : undefined;
+    const model = (jsonData as SnapshotData).parameters?.model;
+
+    if (!node || !model) return undefined;
+
+    const newParameters: InputParameter = {};
+
+    Object.entries(node.parameters || {}).forEach(([key, param]) => {
+      const modelParamValue = model[key];
+      newParameters[key] = {
+        ...param,
+        default: modelParamValue || ""
+      };
+    });
+
+    return {
+      ...node,
+      parameters: newParameters,
+    } as NodeDTO;
+  }
+);

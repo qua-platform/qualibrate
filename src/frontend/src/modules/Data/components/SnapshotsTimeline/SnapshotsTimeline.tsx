@@ -70,7 +70,7 @@ const SnapshotsTimeline: React.FC = () => {
           ))}
         </div>
       )}
-      {showTagsModal && <ManageTagsModal currentSelectedTags={selectedSnapshot?.tags} handleOnClose={handleOnClose} />}
+      {showTagsModal && <ManageTagsModal currentSelectedTags={selectedSnapshot?.metadata?.tags || []} handleOnClose={handleOnClose} />}
     </>
   );
 };

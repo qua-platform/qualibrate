@@ -16,13 +16,13 @@ const DataRightPanel: React.FC = () => {
   const jsonData = useSelector(getJsonData);
   const breadcrumbs = useSelector(getBreadCrumbs);
 
-  const isSelectedSnapshotTypeOfWorkflow = selectedSnapshot?.type_of_execution?.toLocaleLowerCase() === "workflow";
+  const isSelectedSnapshotTypeOfWorkflow = selectedSnapshot?.metadata.type_of_execution?.toLocaleLowerCase() === "workflow";
   const showRunButton = selectedSnapshot && breadcrumbs.length === 0;
 
   const handleOnClickRunButton = () => {
-    if (selectedSnapshot?.type_of_execution === "node") {
+    if (selectedSnapshot?.metadata.type_of_execution === "node") {
       dispatch(runNodeOfSelectedSnapshot());
-    } else if (selectedSnapshot?.type_of_execution === "workflow") {
+    } else if (selectedSnapshot?.metadata.type_of_execution === "workflow") {
       // TODO FIX THIS
       dispatch(runWorkflowOfSelectedSnapshot());
     }

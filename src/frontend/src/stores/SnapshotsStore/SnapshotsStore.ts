@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SnapshotData, SnapshotDTO } from "./api/SnapshotsApi";
 
 export interface SnapshotsState {
@@ -7,6 +7,7 @@ export interface SnapshotsState {
   totalPages: number;
   pageNumber: number;
   allSnapshots: SnapshotDTO[];
+  snapshotsSearchQuery: string;
   selectedSnapshot: SnapshotDTO | undefined;
   selectedWorkflow: SnapshotDTO | undefined;
   selectedNodeInWorkflowName: string | undefined;
@@ -28,8 +29,9 @@ const initialState: SnapshotsState = {
   trackLatestSidePanel: true,
   trackPreviousSnapshot: true,
   totalPages: 0,
-  pageNumber: 0,
+  pageNumber: 1,
   allSnapshots: [],
+  snapshotsSearchQuery: "",
   selectedSnapshot: undefined,
   selectedWorkflow: undefined,
   selectedNodeInWorkflowName: undefined,
@@ -65,6 +67,37 @@ export const SnapshotsSlice = createSlice({
     },
     setAllSnapshots: (state, action) => {
       state.allSnapshots = action.payload;
+    },
+    setSnapshotsSearchQuery: (state, action: PayloadAction<{
+      pageLimit?: number
+      descending?: boolean,
+      sortType?: string,
+      searchString?: string,
+      minDate?: string,
+      maxDate?: string,
+    }>) => {
+      const {
+        pageLimit = 100,
+        descending = true,
+        sortType = "name",
+        searchString,
+        minDate,
+        maxDate,
+      } = action.payload;
+
+      const query = new URLSearchParams({
+        page: state.pageNumber.toString(),
+        per_page: pageLimit.toString(),
+        descending: descending ? "true" : "false",
+        sort: sortType,
+        grouped: "true",
+
+        ...(searchString && { name: searchString }),
+        ...(minDate && { min_date: minDate }),
+        ...(maxDate && { max_date: maxDate }),
+      });
+
+      state.snapshotsSearchQuery = query.toString();
     },
     setSelectedSnapshot: (state, action) => {
       state.selectedSnapshot = action.payload;

@@ -5,23 +5,26 @@ import styles from "./SortButton.module.scss";
 import { classNames } from "../../utils/classnames";
 import useClickOutside from "../../utils/hooks/useClickOutside";
 
-type Props = {
-  options?: string[];
-  onSelect: (type: string) => void;
+type IOption<T> = {
+  label: string
+  value: T
+}
+
+type Props<T> = {
+  options: IOption<T>[];
+  onSelect: (type: T) => void;
 };
 
-const defaultOptions = ["Date (Newest first)", "Name (A-Z)", "Result (Success First)"];
-
-const SortButton: React.FC<Props> = ({ options = defaultOptions, onSelect }) => {
+const SortButton = <T,>({ options, onSelect }: Props<T>) => {
   const [showOptions, setShowOptions] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<string>(options[0]);
+  const [selectedOption, setSelectedOption] = useState<T>(options[0].value);
   const ref = useClickOutside(() => setShowOptions(false));
 
   const onClickHandler = () => {
     setShowOptions(!showOptions);
   };
 
-  const selectOptionHandler = (option: string) => {
+  const selectOptionHandler = (option: T) => {
     setSelectedOption(option);
     setShowOptions(false);
     onSelect(option);
@@ -34,12 +37,12 @@ const SortButton: React.FC<Props> = ({ options = defaultOptions, onSelect }) => 
       <div className={classNames(styles.sortDropdown, showOptions && styles.active)} id="dateFilterDropdown" ref={ref}>
         {options.map((option) => (
           <div
-            key={option}
-            onClick={() => selectOptionHandler(option)}
-            className={classNames(styles.sortOption, selectedOption === option && styles.selected)}
+            key={option.value as string}
+            onClick={() => selectOptionHandler(option.value)}
+            className={classNames(styles.sortOption, selectedOption === option.value && styles.selected)}
             data-filter={option}
           >
-            {option}
+            {option.label}
           </div>
         ))}
       </div>

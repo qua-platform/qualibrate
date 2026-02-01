@@ -17,7 +17,7 @@ const TagsList: React.FC<Props> = ({ snapshot, handleOnAddTagClick }) => {
   const handleOnRemoveClick = (selectedTag: string) => {
     dispatch(setSelectedSnapshot(snapshot));
     if (snapshot) {
-      const newTagArray = snapshot?.tags?.filter((tag) => tag !== selectedTag) ?? [];
+      const newTagArray = snapshot?.metadata.tags?.filter((tag) => tag !== selectedTag) ?? [];
       dispatch(updateSnapshotTags(newTagArray));
       addTagsToSnapshot(snapshot.id, newTagArray);
     }
@@ -29,7 +29,7 @@ const TagsList: React.FC<Props> = ({ snapshot, handleOnAddTagClick }) => {
 
   return (
     <div className={styles.executionTags}>
-      {snapshot?.tags?.map((tag, index) => (
+      {snapshot?.metadata.tags?.map((tag, index) => (
         <div key={`${tag}${index}`} className={styles.tag}>
           <div className={styles.tagDot} />
           {tag}
