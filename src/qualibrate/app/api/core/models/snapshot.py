@@ -1,18 +1,11 @@
 from collections.abc import Sequence
-from enum import Enum
 from typing import Annotated, Any, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, computed_field
 
 from qualibrate.app.api.core.models.base import ModelWithIdCreatedAt
 from qualibrate.app.api.core.types import IdType
-
-
-class ExecutionType(str, Enum):
-    """Type of execution for a snapshot - either a single node or a workflow."""
-
-    node = "node"
-    workflow = "workflow"
+from qualibrate.core.models.execution_type import ExecutionType
 
 
 class QubitOutcome(BaseModel):

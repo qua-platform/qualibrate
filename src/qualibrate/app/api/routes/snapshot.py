@@ -4,7 +4,7 @@ from typing import Annotated, Any, cast
 from urllib.parse import urljoin
 
 import requests
-from fastapi import APIRouter, Body, Cookie, Depends, Path, Query
+from fastapi import APIRouter, Body, Cookie, Depends, HTTPException, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate.app.api.core.domain.bases.snapshot import (
@@ -402,7 +402,7 @@ def remove_snapshot_tag(
 def create_comment(
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
     request: Annotated[CommentCreateRequest, Body()],
-) -> Comment | None:
+) -> Comment:
     """
     Create a new comment for this snapshot.
 
@@ -424,7 +424,10 @@ def create_comment(
     """
     comment = snapshot.create_comment(request.value)
     if comment is None:
-        return None
+        raise HTTPException(
+            status_code=400,
+            detail="Failed to create comment. Please check the comment value.",
+        )
     return Comment(
         id=comment["id"],
         value=comment["value"],
@@ -436,6 +439,10 @@ def create_comment(
     "/comment/update",
     summary="Update an existing comment",
     response_model=bool,
+    responses={
+        200: {"description": "Comment updated successfully"},
+        404: {"description": "Comment not found"},
+    },
 )
 def update_comment(
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
@@ -456,7 +463,13 @@ def update_comment(
 
     **Response:** `true` or `false`
     """
-    return snapshot.update_comment(request.id, request.value)
+    result = snapshot.update_comment(request.id, request.value)
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Comment with id {request.id} not found or update failed.",
+        )
+    return result
 
 
 @snapshot_router.get(

@@ -255,7 +255,9 @@ def settings_with_statuses(
                 },
                 storage=dict(
                     type=StorageType.local_storage,
-                    location=local_storage_with_statuses.parent,
+                    # Use the full project path, not the parent
+                    # The app uses storage.location directly as the project path
+                    location=local_storage_with_statuses,
                 ),
                 runner=dict(
                     address="http://localhost:8001/execution/",

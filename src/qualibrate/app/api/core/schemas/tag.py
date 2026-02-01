@@ -24,7 +24,6 @@ class TagsAssignRequest(BaseModel):
 
     tags: list[str] = Field(
         ...,
-        min_length=1,
-        description="List of tag names to assign.",
-        examples=[["calibration", "rabi"], ["quick-check"]],
+        description="List of tag names to assign. Use empty list to clear all tags.",
+        examples=[["calibration", "rabi"], ["quick-check"], []],
     )

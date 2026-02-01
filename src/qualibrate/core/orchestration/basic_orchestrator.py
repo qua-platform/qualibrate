@@ -68,11 +68,12 @@ class BasicOrchestrator(
             return cast(LocalStorageManager[Any], self._workflow_storage_manager)
 
         # Import here to avoid circular imports
-        from qualibrate.core.utils.app_config.config_reference import (
+        from qualibrate_config.resolvers import (
             get_qualibrate_config,
             get_qualibrate_config_path,
         )
-        from qualibrate.core.utils.quam_state import get_quam_state_path
+
+        from qualibrate.core.config.resolvers import get_quam_state_path
 
         q_config_path = get_qualibrate_config_path()
         qs = get_qualibrate_config(q_config_path)
