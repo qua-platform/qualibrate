@@ -81,19 +81,32 @@ def _snapshot_to_simplified(
     Returns:
         SimplifiedSnapshotWithMetadata (or WithOutcomes variant) with tags populated.
     """
+    # Use raw content to preserve all metadata fields including type_of_execution
+    # and children. The dump().model_dump() chain can lose extra fields.
+    raw_content = snapshot.content
     dump = snapshot.dump().model_dump()
-    metadata = dump.get("metadata", {})
+
+    # Use raw metadata to preserve workflow-specific fields like type_of_execution, children
+    # that might be lost during Pydantic serialization
+    metadata = dict(raw_content.get("metadata", {}))
+
+    # Merge any computed fields from dump (like run_duration)
+    dump_metadata = dump.get("metadata", {})
+    if isinstance(dump_metadata, dict):
+        for key in ["run_duration"]:
+            if key in dump_metadata and key not in metadata:
+                metadata[key] = dump_metadata[key]
+
     tags = extract_tags_from_metadata(metadata)
 
     # Remove tags from metadata to avoid duplication (tags are at top level)
     if isinstance(metadata, dict) and "tags" in metadata:
         metadata = {k: v for k, v in metadata.items() if k != "tags"}
-        dump["metadata"] = metadata
 
     # Extract outcomes from data if available and requested
     outcomes = None
     if include_outcomes:
-        data = dump.get("data")
+        data = raw_content.get("data") or dump.get("data")
         if data and isinstance(data, dict):
             outcomes = data.get("outcomes")
 
@@ -102,12 +115,19 @@ def _snapshot_to_simplified(
             id=dump.get("id"),
             created_at=dump.get("created_at"),
             parents=dump.get("parents", []),
-            metadata=dump.get("metadata", {}),
+            metadata=metadata,
             tags=tags,
             outcomes=outcomes,
         )
 
-    return SimplifiedSnapshotWithMetadata(**dump, tags=tags)
+    # Build the result with raw metadata
+    return SimplifiedSnapshotWithMetadata(
+        id=dump.get("id"),
+        created_at=dump.get("created_at"),
+        parents=dump.get("parents", []),
+        metadata=metadata,
+        tags=tags,
+    )
 
 
 def _create_fetch_missing_children_callback(
