@@ -213,6 +213,14 @@ def build_snapshot_tree(
                 # Compute aggregated statistics
                 compute_workflow_aggregates(item)
 
+    # Also mark items with workflow_parent_id as children (they belong to a parent
+    # workflow and should not appear at top level, even if the parent isn't in
+    # the current result set - e.g., parent is still running or on another page)
+    for item in items_by_id.values():
+        workflow_parent_id = item.metadata.workflow_parent_id
+        if workflow_parent_id is not None:
+            child_ids.add(item.id)
+
     # Return only top-level items (not children of other items in this result)
     top_level_items = [
         item for item_id, item in items_by_id.items() if item_id not in child_ids
@@ -222,19 +230,26 @@ def build_snapshot_tree(
 
 
 def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
-    """Compute aggregated statistics for a workflow from its children.
+    """Compute aggregated statistics for a workflow from its direct children.
 
-    This function recursively processes nested workflows and populates:
+    This function processes a workflow's direct children and populates:
         - outcomes: merged outcomes with failure tracking (using actual qubit names)
-        - nodes_completed: count of successful nodes
-        - nodes_total: total node count (including nested)
+        - nodes_completed: count of successful direct children (subgraphs count as 1)
+        - nodes_total: count of direct children (subgraphs count as 1, not their internal nodes)
         - qubits_completed: count of successful qubits
         - qubits_total: total qubit count
 
+    IMPORTANT: Subgraphs (nested workflows) are counted as a SINGLE node, not as the
+    sum of their internal nodes. For example, if a workflow has:
+        - node1
+        - subgraph (with 5 internal nodes)
+        - node2
+    Then nodes_total = 3, not 3 + 5 = 8.
+
     The aggregation logic:
         - For nodes: status "finished" or "success" counts as completed
-        - For workflows: completed if more than half its nodes succeeded
-        - Outcomes track failures with the first failure taking precedence
+        - For subgraphs: completed if its own status is "finished" or "success"
+        - Outcomes are recursively collected from all nested nodes
         - Uses actual qubit names (q1, q2, etc.) from raw outcomes data
 
     Args:
@@ -247,18 +262,15 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
     nodes_completed = 0
     nodes_total = 0
 
-    def _process_item(
-        item: SnapshotHistoryItem, depth: int = 0
-    ) -> dict[str, QubitOutcome]:
-        """Recursively process an item and collect outcomes."""
-        nonlocal nodes_completed, nodes_total
+    def _collect_outcomes(item: SnapshotHistoryItem) -> dict[str, QubitOutcome]:
+        """Recursively collect outcomes from an item and its children."""
         item_outcomes: dict[str, QubitOutcome] = {}
 
         if item.type_of_execution == ExecutionType.workflow:
-            # For nested workflows, process their children first
+            # For nested workflows, recursively collect outcomes from children
             if item.items:
                 for child in item.items:
-                    child_outcomes = _process_item(child, depth + 1)
+                    child_outcomes = _collect_outcomes(child)
                     # Merge child outcomes
                     for qubit, outcome in child_outcomes.items():
                         if qubit not in item_outcomes:
@@ -275,27 +287,11 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                     1 for o in item_outcomes.values() if o.status == "success"
                 )
                 item.qubits_total = len(item_outcomes)
-
-            # Count this workflow as a node
-            nodes_total += 1
-            # Workflow is successful if more than half its nodes succeeded
-            if item.nodes_completed is not None and item.nodes_total is not None:
-                if item.nodes_completed > item.nodes_total / 2:
-                    nodes_completed += 1
         else:
-            # For nodes, count and extract outcomes from raw data
-            nodes_total += 1
-            status = item.metadata.status if item.metadata else None
-            if status in ("finished", "success"):
-                nodes_completed += 1
-
-            # Get node name for failure tracking
+            # For nodes, extract actual qubit outcomes from raw_outcomes
             name = item.metadata.name if item.metadata else f"node_{item.id}"
-
-            # Extract actual qubit outcomes from raw_outcomes (e.g., {"q1": "successful"})
             raw_outcomes = getattr(item, "_raw_outcomes", None)
             if raw_outcomes and isinstance(raw_outcomes, dict):
-                # Use actual qubit names from the outcomes
                 for qubit, outcome_value in raw_outcomes.items():
                     outcome_str = str(outcome_value).lower()
                     if outcome_str in ("successful", "success"):
@@ -304,17 +300,26 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                         item_outcomes[qubit] = QubitOutcome(
                             status="failure", failed_on=name
                         )
-            else:
-                # Fallback: no raw outcomes available, skip this node's outcomes
-                # This preserves the old behavior as a fallback but doesn't create
-                # synthetic qubit names
-                pass
 
         return item_outcomes
 
-    # Process all children
+    # Process DIRECT children only for node counting
+    # Subgraphs count as 1 node, not the sum of their internal nodes
     for child in workflow.items:
-        child_outcomes = _process_item(child)
+        # Count this direct child as 1 node (regardless of whether it's a node or subgraph)
+        nodes_total += 1
+
+        # Check if this direct child is completed
+        status = child.metadata.status if child.metadata else None
+        if status in ("finished", "success"):
+            nodes_completed += 1
+
+        # Recursively compute aggregates for nested workflows first
+        if child.type_of_execution == ExecutionType.workflow and child.items:
+            compute_workflow_aggregates(child)
+
+        # Collect outcomes (recursively for nested workflows)
+        child_outcomes = _collect_outcomes(child)
         for qubit, outcome in child_outcomes.items():
             if qubit not in merged_outcomes:
                 merged_outcomes[qubit] = outcome
