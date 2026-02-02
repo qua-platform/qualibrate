@@ -8,6 +8,27 @@ import { getBreadCrumbs, getSelectedWorkflow, goBackOneLevel, setSnapshotsFilter
 import { useRootDispatch } from "../../../../stores";
 import { SortType } from "../../../../stores/SnapshotsStore/SnapshotsStore";
 
+export enum DateOption {
+  Today = "Today",
+  LastWeek = "LastWeek",
+  LastMonth = "LastMonth",
+}
+
+const defaultOptions = [
+  {
+    label: "Today",
+    value: DateOption.Today,
+  },
+  {
+    label: "Last 7 days",
+    value: DateOption.LastWeek,
+  },
+  {
+    label: "Last 30 days",
+    value: DateOption.LastMonth,
+  },
+];
+
 const sortOptions = [
   {
     label: "Date (Newest first)",
@@ -49,10 +70,34 @@ const DataLeftPanel: React.FC = () => {
     }));
   }, [selectedSortType, searchText, fromDate, toDate]);
 
-  const handleOnDateFilterSelect = (dateFilterType?: string) => {
-    setSelectedDateFilter(dateFilterType);
-    setFromDate("");
-    setToDate("");
+  const handleOnDateFilterSelect = (dateFilterType?: { value: DateOption; label: string }) => {
+    setSelectedDateFilter(dateFilterType?.label);
+    const today = new Date();
+    const dateToString = (date: Date) => `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+
+    switch (dateFilterType?.value) {
+      case DateOption.Today: {
+        setFromDate(dateToString(today));
+        setToDate(dateToString(today));
+        break;
+      }
+      case DateOption.LastWeek: {
+        const weekBefore = new Date(today);
+        weekBefore.setDate(today.getDate() - 7);
+
+        setFromDate(dateToString(weekBefore));
+        setToDate(dateToString(today));
+        break;
+      }
+      case DateOption.LastMonth: {
+        const monthBefore = new Date(today);
+        monthBefore.setMonth(today.getMonth() - 1);
+
+        setFromDate(dateToString(monthBefore));
+        setToDate(dateToString(today));
+        break;
+      }
+    }
   };
 
   const handleOnDateFilterRemove = (filterName?: string) => {
@@ -70,6 +115,16 @@ const DataLeftPanel: React.FC = () => {
 
   const handleOnSortSelect = (sortType: SortType) => {
     setSelectedSortType(sortType);
+  };
+
+  const handleSetFrom = (from: string) => {
+    setSelectedDateFilter(undefined);
+    setFromDate(from);
+  };
+
+  const handleSetTo = (to: string) => {
+    setSelectedDateFilter(undefined);
+    setToDate(to);
   };
 
   return (
@@ -92,13 +147,13 @@ const DataLeftPanel: React.FC = () => {
           {!selectedWorkflow && <h2>Execution History</h2>}
           <div className={styles.searchFilterContainer}>
             <SearchField placeholder="Search executions..." value={searchText} onChange={setSearchText} debounceMs={500} />
-            <DateFilter from={fromDate} to={toDate} setFrom={setFromDate} setTo={setToDate} onSelect={handleOnDateFilterSelect} />
+            <DateFilter options={defaultOptions} from={fromDate} to={toDate} setFrom={handleSetFrom} setTo={handleSetTo} onSelect={handleOnDateFilterSelect} />
             <SortButton key={"sortFilter"} options={sortOptions} onSelect={handleOnSortSelect} />
           </div>
           <div className={styles.searchFilterContainer}>
             {selectedDateFilter && <AppliedFilterLabel value={selectedDateFilter} onRemove={handleOnDateFilterRemove} label={"Date"} />}
-            {fromDate && <AppliedFilterLabel value={fromDate} onRemove={() => handleOnDateFilterRemove("From")} label={"From"} />}
-            {toDate && <AppliedFilterLabel value={toDate} onRemove={() => handleOnDateFilterRemove("To")} label={"To"} />}
+            {!selectedDateFilter && fromDate && <AppliedFilterLabel value={fromDate} onRemove={() => handleOnDateFilterRemove("From")} label={"From"} />}
+            {!selectedDateFilter && toDate && <AppliedFilterLabel value={toDate} onRemove={() => handleOnDateFilterRemove("To")} label={"To"} />}
           </div>
         </div>
         <div className={styles.snapshotsWrapper}>

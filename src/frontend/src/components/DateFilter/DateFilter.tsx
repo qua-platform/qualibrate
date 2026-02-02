@@ -4,19 +4,21 @@ import { DateFilterIcon } from "../Icons";
 import styles from "./DateFilter.module.scss";
 import { classNames } from "../../utils/classnames";
 import useClickOutside from "../../utils/hooks/useClickOutside";
+import { DateOption } from "../../modules/Data/components/DataLeftPanel/DataLeftPanel";
 
 type Props = {
-  options?: string[];
+  options: {
+    label: string;
+    value: DateOption;
+  }[];
   from?: string;
   to?: string;
   setFrom?: (date: string) => void;
   setTo?: (date: string) => void;
-  onSelect?: (preset?: string) => void;
+  onSelect?: (preset?: { value: DateOption; label: string }) => void;
 };
 
-const defaultOptions = ["Today", "Last 7 days", "Last 30 days"];
-
-const DateFilter: React.FC<Props> = ({ options = defaultOptions, from, to, setFrom, setTo, onSelect }) => {
+const DateFilter: React.FC<Props> = ({ options, from, to, setFrom, setTo, onSelect }) => {
   const [showOptions, setShowOptions] = React.useState(false);
   const ref = useClickOutside(() => setShowOptions(false));
 
@@ -25,7 +27,7 @@ const DateFilter: React.FC<Props> = ({ options = defaultOptions, from, to, setFr
     setShowOptions(!showOptions);
   };
 
-  const selectPreset = (e: React.MouseEvent<HTMLDivElement>, option: string) => {
+  const selectPreset = (e: React.MouseEvent<HTMLDivElement>, option: { value: DateOption, label: string }) => {
     e.stopPropagation();
     setShowOptions(false);
     if (onSelect) onSelect(option);
@@ -55,8 +57,8 @@ const DateFilter: React.FC<Props> = ({ options = defaultOptions, from, to, setFr
       </div>
       <div className={classNames(styles.dateFilterDropdown, showOptions && styles.active)} ref={ref}>
         {options.map((option) => (
-          <div key={option} onClick={(e) => selectPreset(e, option)} className={styles.dateFilterOption} data-filter={option}>
-            {option}
+          <div key={option.value} onClick={(e) => selectPreset(e, option)} className={styles.dateFilterOption} data-filter={option}>
+            {option.label}
           </div>
         ))}
 

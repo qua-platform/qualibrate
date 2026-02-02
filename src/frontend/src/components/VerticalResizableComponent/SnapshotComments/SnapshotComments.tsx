@@ -43,8 +43,8 @@ const SnapshotComments: React.FC = () => {
       setComments((prev) => [...prev, newComment]);
     }
     // TODO Uncomment this to demo mocks
-    const newComment = { id: comments.length, value: commentText, createdAt: "2025-11-16 14:30:00" };
-    setComments((prev) => [...prev, newComment]);
+    // const newComment = { id: comments.length, value: commentText, createdAt: "2025-11-16 14:30:00" };
+    // setComments((prev) => [...prev, newComment]);
   };
 
   const handleOnEditNewComment = async (comment: SnapshotComment, commentText: string) => {
@@ -57,7 +57,7 @@ const SnapshotComments: React.FC = () => {
       setComments((prev) => prev.map((c) => (c.id === comment.id ? updatedComment : c)));
     }
     // TODO Uncomment this to demo mocks
-    setComments((prev) => prev.map((c) => (c.id === comment.id ? updatedComment : c)));
+    // setComments((prev) => prev.map((c) => (c.id === comment.id ? updatedComment : c)));
   };
 
   const handleOnRemoveCommentClick = async (comment: SnapshotComment) => {
@@ -69,7 +69,7 @@ const SnapshotComments: React.FC = () => {
       setComments((prev) => prev.filter((c) => c.id !== comment.id));
     }
     // TODO Uncomment this to demo mocks
-    setComments((prev) => prev.filter((c) => c.id !== comment.id));
+    // setComments((prev) => prev.filter((c) => c.id !== comment.id));
   };
 
   const handleOnDialogClose = () => {
@@ -156,17 +156,15 @@ const SnapshotComments: React.FC = () => {
             <div key={`${comment.id}-${index}`} className={styles.commentItem}>
               <div className={styles.commentItemHeader}>
                 <div className={styles.commentTimestamp}>{comment.createdAt}</div>
-                {/* 2024-11-16 14:30:00 */}
                 <div className={styles.commentItemAction}>
                   <button className={styles.editCommentBtn} onClick={() => handleOpenDialogOnClick("edit", comment)} title="Edit comment">
-                    {/* "openCommentModal('exec-001', 0)"*/}✎
+                    ✎
                   </button>
                   <button
                     className={styles.deleteCommentBtn}
                     onClick={() => handleOpenDialogOnClick("delete", comment)}
                     title="Delete comment"
                   >
-                    {/* "openDeleteCommentModal('exec-001', 0)"*/}
                     🗑
                   </button>
                 </div>

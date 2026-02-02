@@ -23,7 +23,6 @@ const DataRightPanel: React.FC = () => {
     if (selectedSnapshot?.metadata.type_of_execution === "node") {
       dispatch(runNodeOfSelectedSnapshot());
     } else if (selectedSnapshot?.metadata.type_of_execution === "workflow") {
-      // TODO FIX THIS
       dispatch(runWorkflowOfSelectedSnapshot());
     }
   };

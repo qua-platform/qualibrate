@@ -3,6 +3,7 @@ import { SnapshotsSlice } from "./SnapshotsStore";
 import {
   getAllSnapshots,
   getBreadCrumbs,
+  getJsonData,
   getSecondId,
   getSelectedSnapshot,
   getSelectedSnapshotId,
@@ -12,9 +13,12 @@ import {
   getTrackPreviousSnapshot,
 } from "./selectors";
 import { fetchAllSnapshots, fetchAllTags, fetchSnapshotDiff, fetchSnapshotJsonData, fetchSnapshotResults } from "./utils";
-import { SnapshotDTO } from "./api/SnapshotsApi";
+import { SnapshotData, SnapshotDTO } from "./api/SnapshotsApi";
 import { handleRunNode } from "../NodesStore";
-import { setSelectedWorkflowName, submitWorkflow } from "../GraphStores/GraphLibrary";
+import { GraphLibraryApi, setErrorObject, setLastRunActive } from "../GraphStores/GraphLibrary";
+import { setActivePage } from "../NavigationStore";
+import { GRAPH_STATUS_KEY } from "../../modules/AppRoutes";
+import { setTrackLatest } from "../GraphStores/GraphStatus";
 
 export const {
   setTrackLatestSidePanel,
@@ -249,11 +253,20 @@ export const runNodeOfSelectedSnapshot = () => (dispatch: RootDispatch, getState
   }
 };
 
-export const runWorkflowOfSelectedSnapshot = () => (dispatch: RootDispatch, getState: () => RootState) => {
+export const runWorkflowOfSelectedSnapshot = () => async (dispatch: RootDispatch, getState: () => RootState) => {
   const state = getState();
   const selectedSnapshot = getSelectedSnapshot(state);
-  if (selectedSnapshot) {
-    dispatch(setSelectedWorkflowName(selectedSnapshot.metadata?.name));
-    dispatch(submitWorkflow());
+  const jsonData = getJsonData(state) as SnapshotData;
+  if (selectedSnapshot?.metadata.name && jsonData) {
+    dispatch(setLastRunActive());
+
+    const response = await GraphLibraryApi.submitWorkflow(selectedSnapshot.metadata.name, jsonData.parameters?.model);
+    if (response.isOk) {
+      dispatch(setErrorObject(undefined)); // This is a bugfix - previously it didn't clear errorObject on success
+      dispatch(setActivePage(GRAPH_STATUS_KEY));
+      dispatch(setTrackLatest(true));
+    } else {
+      dispatch(setErrorObject(response.error));
+    }
   }
 };

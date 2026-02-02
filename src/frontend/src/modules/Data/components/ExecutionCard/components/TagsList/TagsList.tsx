@@ -4,6 +4,7 @@ import { SnapshotDTO } from "../../../../../../stores/SnapshotsStore";
 import { setSelectedSnapshot, updateSnapshotTags } from "../../../../../../stores/SnapshotsStore/actions";
 import { addTagsToSnapshot } from "../../../../../../stores/SnapshotsStore/utils";
 import { useRootDispatch } from "../../../../../../stores";
+import { stringToHexColor } from "./helpers";
 
 type Props = {
   snapshot?: SnapshotDTO;
@@ -31,7 +32,7 @@ const TagsList: React.FC<Props> = ({ snapshot, handleOnAddTagClick }) => {
     <div className={styles.executionTags}>
       {snapshot?.metadata.tags?.map((tag, index) => (
         <div key={`${tag}${index}`} className={styles.tag}>
-          <div className={styles.tagDot} />
+          <div className={styles.tagDot} style={{ background: stringToHexColor(tag) }} />
           {tag}
           <span className={styles.tagRemove} onClick={() => handleOnRemoveClick(tag)}>
             ×

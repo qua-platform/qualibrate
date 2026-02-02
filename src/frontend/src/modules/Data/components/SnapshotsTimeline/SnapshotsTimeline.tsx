@@ -7,6 +7,7 @@ import {
   getSelectedSnapshotId,
   getSelectedWorkflowForGraph,
   setClickedForSnapshotSelection,
+  setReset,
   setSelectedNodeInWorkflowId,
   setSelectedSnapshot,
   setSelectedSnapshotId,
@@ -38,6 +39,7 @@ const SnapshotsTimeline: React.FC = () => {
 
   const handleOnClose = () => {
     setShowTagsModal(false);
+    dispatch(setReset(true));
   };
 
   return (
