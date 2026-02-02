@@ -863,7 +863,7 @@ def search_snapshot_data(
     [
       {
         "key": ["channels", "ch1", "intermediate_frequency"],
-        "value": 100000000,
+        "value": 1000z00000,
         "snapshot": {
           "id": 366,
           "created_at": "2025-08-22T10:54:07+03:00",
