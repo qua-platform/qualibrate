@@ -4,6 +4,7 @@ import { Graph } from "../../../Graph";
 import { useSelector } from "react-redux";
 import {
   getBreadCrumbs,
+  getJsonData,
   getSelectedSnapshot,
   getSelectedWorkflow,
   setSelectedNodeInWorkflowId,
@@ -14,6 +15,7 @@ import {
 } from "../../../../stores/SnapshotsStore";
 import { useRootDispatch } from "../../../../stores";
 import QubitStatusList from "./QubitStatusList";
+import { SnapshotData } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
 
 const GraphView: React.FC = () => {
   const dispatch = useRootDispatch();
@@ -21,6 +23,7 @@ const GraphView: React.FC = () => {
   const selectedSnapshotWithWorkflowType = useSelector(getSelectedSnapshot);
   const selectedWorkflow = useSelector(getSelectedWorkflow);
   const breadCrumbs = useSelector(getBreadCrumbs);
+  const jsonData = useSelector(getJsonData) as SnapshotData;
 
   const handleOnNodeClick = (name?: string) => {
     const id = selectedWorkflow?.items?.find(node => node.metadata.name === name)?.id;
@@ -93,7 +96,7 @@ const GraphView: React.FC = () => {
               </div>
 
               <div className={styles.qubitList}>
-                <QubitStatusList outcomes={selectedSnapshotWithWorkflowType?.data?.outcomes} />
+                <QubitStatusList outcomes={jsonData?.outcomes} />
               </div>
             </div>
           </div>
