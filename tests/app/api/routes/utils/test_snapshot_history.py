@@ -627,3 +627,394 @@ class TestConvertToHistoryItemWithOutcomes:
         # Check that _raw_outcomes is attached (used during aggregation)
         assert hasattr(result, "_raw_outcomes")
         assert result._raw_outcomes == {"q1": "successful", "q2": "failed"}
+
+
+class TestMetadataPreservation:
+    """Tests for metadata field preservation through conversion.
+
+    These tests verify that workflow-specific fields like type_of_execution
+    and children are preserved correctly through the serialization chain.
+    """
+
+    def test_type_of_execution_preserved_in_metadata(self):
+        """Test that type_of_execution field is preserved in SnapshotMetadata."""
+        metadata_dict = {
+            "name": "test_workflow",
+            "status": "finished",
+            "type_of_execution": "workflow",
+            "children": [2, 3, 4],
+        }
+        metadata = SnapshotMetadata(**metadata_dict)
+
+        # Verify the field is accessible via model_dump
+        dumped = metadata.model_dump()
+        assert dumped.get("type_of_execution") == "workflow"
+        assert dumped.get("children") == [2, 3, 4]
+
+    def test_children_field_preserved_in_metadata(self):
+        """Test that children field is preserved as extra field."""
+        metadata = SnapshotMetadata(
+            name="workflow",
+            status="finished",
+        )
+        # Manually set children (simulating how Pydantic handles extra fields)
+        metadata.__pydantic_extra__ = {"children": [10, 20, 30], "type_of_execution": "workflow"}
+
+        dumped = metadata.model_dump()
+        assert dumped.get("children") == [10, 20, 30]
+
+    def test_workflow_parent_id_preserved(self):
+        """Test that workflow_parent_id field is preserved."""
+        metadata_dict = {
+            "name": "child_node",
+            "status": "finished",
+            "type_of_execution": "node",
+            "workflow_parent_id": 100,
+        }
+        metadata = SnapshotMetadata(**metadata_dict)
+
+        dumped = metadata.model_dump()
+        assert dumped.get("workflow_parent_id") == 100
+
+    def test_simplified_snapshot_preserves_metadata_fields(self):
+        """Test that SimplifiedSnapshotWithMetadata preserves extra metadata fields."""
+        snapshot = create_snapshot(
+            1,
+            name="nested_workflow",
+            type_of_execution="workflow",
+            children=[5, 6, 7],
+            workflow_parent_id=0,
+        )
+
+        # Verify fields are accessible
+        metadata_dict = snapshot.metadata.model_dump()
+        assert metadata_dict.get("type_of_execution") == "workflow"
+        assert metadata_dict.get("children") == [5, 6, 7]
+
+
+class TestNestedWorkflowScenario:
+    """Tests for the specific nested workflow scenario from 10_basic_graph_composition.
+
+    This simulates the structure:
+    - 10_basic_graph_composition (workflow)
+      - 02_demo_rabi (node)
+      - coherence_characterization (workflow)
+        - 05_demo_ramsey (node)
+        - 06_demo_t1 (node)
+      - 07_demo_randomized_benchmarking (node)
+    """
+
+    def test_nested_workflow_recognized_as_workflow(self):
+        """Test that nested workflow is correctly identified as workflow type."""
+        snapshots = [
+            create_snapshot(
+                1,
+                name="10_basic_graph_composition",
+                type_of_execution="workflow",
+                children=[2, 3, 6],
+            ),
+            create_snapshot(2, name="02_demo_rabi", workflow_parent_id=1, status="finished"),
+            create_snapshot(
+                3,
+                name="coherence_characterization",
+                type_of_execution="workflow",
+                children=[4, 5],
+                workflow_parent_id=1,
+            ),
+            create_snapshot(4, name="05_demo_ramsey", workflow_parent_id=3, status="finished"),
+            create_snapshot(5, name="06_demo_t1", workflow_parent_id=3, status="finished"),
+            create_snapshot(6, name="07_demo_randomized_benchmarking", workflow_parent_id=1, status="finished"),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+
+        # Verify structure
+        assert len(result) == 1
+        outer_workflow = result[0]
+        assert outer_workflow.type_of_execution == ExecutionType.workflow
+        assert len(outer_workflow.items) == 3
+
+        # Find the nested workflow
+        nested_workflow = None
+        for item in outer_workflow.items:
+            if item.metadata.name == "coherence_characterization":
+                nested_workflow = item
+                break
+
+        assert nested_workflow is not None
+        assert nested_workflow.type_of_execution == ExecutionType.workflow
+        assert nested_workflow.items is not None
+        assert len(nested_workflow.items) == 2
+
+    def test_nested_workflow_fetched_via_callback(self):
+        """Test that nested workflow children are fetched when not in initial query."""
+        # Initial query only returns the outer workflow
+        initial = [
+            create_snapshot(
+                1,
+                name="10_basic_graph_composition",
+                type_of_execution="workflow",
+                children=[2, 3, 6],
+            ),
+        ]
+
+        # All other snapshots need to be fetched
+        all_snapshots = {
+            2: create_snapshot(2, name="02_demo_rabi", workflow_parent_id=1, status="finished"),
+            3: create_snapshot(
+                3,
+                name="coherence_characterization",
+                type_of_execution="workflow",
+                children=[4, 5],
+                workflow_parent_id=1,
+            ),
+            4: create_snapshot(4, name="05_demo_ramsey", workflow_parent_id=3, status="finished"),
+            5: create_snapshot(5, name="06_demo_t1", workflow_parent_id=3, status="finished"),
+            6: create_snapshot(6, name="07_demo_randomized_benchmarking", workflow_parent_id=1, status="finished"),
+        }
+
+        fetch_calls = []
+
+        def fetch_callback(ids):
+            fetch_calls.append(set(ids))
+            return [all_snapshots[id] for id in ids if id in all_snapshots]
+
+        result = build_snapshot_tree(initial, fetch_missing_children=fetch_callback)
+
+        # Should have called fetch at least twice:
+        # 1. First to get children of outer workflow [2, 3, 6]
+        # 2. Second to get children of nested workflow [4, 5]
+        assert len(fetch_calls) >= 2
+        assert {2, 3, 6} in fetch_calls
+        assert {4, 5} in fetch_calls
+
+        # Verify complete structure
+        outer_workflow = result[0]
+        assert len(outer_workflow.items) == 3
+
+        nested_workflow = next(
+            item for item in outer_workflow.items
+            if item.metadata.name == "coherence_characterization"
+        )
+        assert nested_workflow.type_of_execution == ExecutionType.workflow
+        assert len(nested_workflow.items) == 2
+
+    def test_correct_node_counts_with_nested_workflow(self):
+        """Test that node counts are correct for nested workflows."""
+        snapshots = [
+            create_snapshot(
+                1,
+                name="10_basic_graph_composition",
+                type_of_execution="workflow",
+                children=[2, 3, 6],
+            ),
+            create_snapshot(2, name="02_demo_rabi", workflow_parent_id=1, status="finished"),
+            create_snapshot(
+                3,
+                name="coherence_characterization",
+                type_of_execution="workflow",
+                children=[4, 5],
+                workflow_parent_id=1,
+            ),
+            create_snapshot(4, name="05_demo_ramsey", workflow_parent_id=3, status="finished"),
+            create_snapshot(5, name="06_demo_t1", workflow_parent_id=3, status="finished"),
+            create_snapshot(6, name="07_demo_randomized_benchmarking", workflow_parent_id=1, status="finished"),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+        outer_workflow = result[0]
+
+        # Outer workflow should count: rabi(1) + coherence_char(1 workflow) + ramsey(1) + t1(1) + rb(1) = 5 total
+        # But the current logic counts nested workflow as 1 node, so:
+        # rabi + coherence_char_workflow + rb = 3 direct + ramsey + t1 from nested = 5 total
+        assert outer_workflow.nodes_total == 5
+        assert outer_workflow.nodes_completed == 5  # All finished
+
+    def test_outcomes_aggregation_with_nested_workflow(self):
+        """Test outcomes are correctly aggregated from nested workflow."""
+        snapshots = [
+            create_snapshot(
+                1,
+                name="10_basic_graph_composition",
+                type_of_execution="workflow",
+                children=[2, 3, 6],
+            ),
+            create_snapshot(
+                2,
+                name="02_demo_rabi",
+                workflow_parent_id=1,
+                status="finished",
+                outcomes={"q1": "successful", "q2": "successful"},
+            ),
+            create_snapshot(
+                3,
+                name="coherence_characterization",
+                type_of_execution="workflow",
+                children=[4, 5],
+                workflow_parent_id=1,
+            ),
+            create_snapshot(
+                4,
+                name="05_demo_ramsey",
+                workflow_parent_id=3,
+                status="finished",
+                outcomes={"q1": "successful", "q2": "failed"},
+            ),
+            create_snapshot(
+                5,
+                name="06_demo_t1",
+                workflow_parent_id=3,
+                status="error",
+                outcomes={"q1": "failed", "q3": "successful"},
+            ),
+            create_snapshot(
+                6,
+                name="07_demo_randomized_benchmarking",
+                workflow_parent_id=1,
+                status="finished",
+                outcomes={"q1": "successful", "q3": "successful"},
+            ),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+        outer_workflow = result[0]
+
+        # Check outcomes are aggregated
+        assert outer_workflow.outcomes is not None
+        # q1: successful in rabi, successful in ramsey, failed in t1, successful in rb
+        # First occurrence wins for success, first failure wins for failure
+        # q1 first appears as success in rabi, so success
+        assert outer_workflow.outcomes["q1"].status == "success"
+        # q2: successful in rabi, failed in ramsey -> first failure is ramsey
+        assert outer_workflow.outcomes["q2"].status == "failure"
+        assert outer_workflow.outcomes["q2"].failed_on == "05_demo_ramsey"
+        # q3: successful in t1 first, then successful in rb
+        assert outer_workflow.outcomes["q3"].status == "success"
+
+        # Check nested workflow has its own outcomes
+        nested_workflow = next(
+            item for item in outer_workflow.items
+            if item.metadata.name == "coherence_characterization"
+        )
+        assert nested_workflow.outcomes is not None
+
+    def test_nested_workflow_items_not_null(self):
+        """Test that nested workflow items field is properly populated."""
+        snapshots = [
+            create_snapshot(
+                1,
+                name="outer",
+                type_of_execution="workflow",
+                children=[2],
+            ),
+            create_snapshot(
+                2,
+                name="inner",
+                type_of_execution="workflow",
+                children=[3, 4],
+                workflow_parent_id=1,
+            ),
+            create_snapshot(3, name="leaf1", workflow_parent_id=2),
+            create_snapshot(4, name="leaf2", workflow_parent_id=2),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+
+        outer = result[0]
+        inner = outer.items[0]
+
+        # Inner workflow should have items, not null
+        assert inner.items is not None, "Nested workflow items should not be null"
+        assert len(inner.items) == 2
+        assert {item.id for item in inner.items} == {3, 4}
+
+
+class TestOnTheFlyWorkflowDetection:
+    """Tests for on-the-fly workflow detection when type_of_execution is not set."""
+
+    def test_detect_workflow_from_non_empty_children(self):
+        """Test workflow detection when type_of_execution is missing but children exist."""
+        # Create metadata without explicit type_of_execution
+        metadata_dict = {
+            "name": "implicit_workflow",
+            "status": "finished",
+            "children": [2, 3, 4],  # Has children but no type_of_execution
+        }
+        metadata = SnapshotMetadata(**metadata_dict)
+
+        snapshot = SimplifiedSnapshotWithMetadata(
+            id=1,
+            created_at=datetime.now(timezone.utc),
+            parents=[],
+            metadata=metadata,
+        )
+
+        result = convert_to_history_item(snapshot)
+
+        # Should be detected as workflow due to non-empty children
+        assert result.type_of_execution == ExecutionType.workflow
+
+    def test_detect_node_when_no_children(self):
+        """Test node detection when type_of_execution is missing and no children."""
+        metadata_dict = {
+            "name": "implicit_node",
+            "status": "finished",
+            # No children, no type_of_execution
+        }
+        metadata = SnapshotMetadata(**metadata_dict)
+
+        snapshot = SimplifiedSnapshotWithMetadata(
+            id=1,
+            created_at=datetime.now(timezone.utc),
+            parents=[],
+            metadata=metadata,
+        )
+
+        result = convert_to_history_item(snapshot)
+
+        # Should be detected as node
+        assert result.type_of_execution == ExecutionType.node
+
+    def test_detect_node_when_empty_children_list(self):
+        """Test node detection when children list is empty."""
+        metadata_dict = {
+            "name": "node_with_empty_children",
+            "status": "finished",
+            "children": [],  # Empty list
+        }
+        metadata = SnapshotMetadata(**metadata_dict)
+
+        snapshot = SimplifiedSnapshotWithMetadata(
+            id=1,
+            created_at=datetime.now(timezone.utc),
+            parents=[],
+            metadata=metadata,
+        )
+
+        result = convert_to_history_item(snapshot)
+
+        # Should be detected as node (empty children = not a workflow)
+        assert result.type_of_execution == ExecutionType.node
+
+    def test_explicit_type_takes_precedence(self):
+        """Test that explicit type_of_execution takes precedence over detection."""
+        # Workflow with explicit type but no children
+        metadata_dict = {
+            "name": "explicit_workflow",
+            "status": "finished",
+            "type_of_execution": "workflow",
+            "children": [],  # Empty, but type is explicit
+        }
+        metadata = SnapshotMetadata(**metadata_dict)
+
+        snapshot = SimplifiedSnapshotWithMetadata(
+            id=1,
+            created_at=datetime.now(timezone.utc),
+            parents=[],
+            metadata=metadata,
+        )
+
+        result = convert_to_history_item(snapshot)
+
+        # Should respect explicit type
+        assert result.type_of_execution == ExecutionType.workflow
