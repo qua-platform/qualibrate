@@ -216,6 +216,50 @@ class TestBuildSnapshotTree:
         assert len(result[0].items) == 1
         assert result[0].items[0].id == 2
 
+    def test_items_with_workflow_parent_id_filtered_from_top_level(self):
+        """Test that items with workflow_parent_id don't appear at top level.
+        
+        This handles the case where a child workflow is running but its parent
+        workflow hasn't finished yet (so the parent isn't in the result set).
+        """
+        # Child snapshots without their parent workflow in the list
+        snapshots = [
+            create_snapshot(
+                100,
+                name="coherence_characterization",
+                type_of_execution="workflow",
+                children=[101, 102],
+                workflow_parent_id=99,  # Parent 99 is NOT in the list
+            ),
+            create_snapshot(101, name="ramsey", workflow_parent_id=100),
+            create_snapshot(102, name="t1", workflow_parent_id=100),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+
+        # None of these should appear at top level because they all have
+        # workflow_parent_id set (meaning they belong to a parent workflow)
+        assert len(result) == 0, \
+            "Items with workflow_parent_id should not appear at top level"
+
+    def test_standalone_items_appear_at_top_level(self):
+        """Test that items without workflow_parent_id appear at top level."""
+        snapshots = [
+            create_snapshot(1, name="standalone_node"),  # No workflow_parent_id
+            create_snapshot(
+                2,
+                name="standalone_workflow",
+                type_of_execution="workflow",
+                children=[],  # No children, just standalone
+            ),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+
+        # Both should appear at top level
+        assert len(result) == 2
+        assert {item.id for item in result} == {1, 2}
+
 
 class TestComputeWorkflowAggregates:
     """Tests for compute_workflow_aggregates function."""
@@ -800,7 +844,10 @@ class TestNestedWorkflowScenario:
         assert len(nested_workflow.items) == 2
 
     def test_correct_node_counts_with_nested_workflow(self):
-        """Test that node counts are correct for nested workflows."""
+        """Test that node counts are correct for nested workflows.
+        
+        IMPORTANT: Subgraphs count as 1 node, NOT the sum of their internal nodes.
+        """
         snapshots = [
             create_snapshot(
                 1,
@@ -824,11 +871,21 @@ class TestNestedWorkflowScenario:
         result = build_snapshot_tree(snapshots)
         outer_workflow = result[0]
 
-        # Outer workflow should count: rabi(1) + coherence_char(1 workflow) + ramsey(1) + t1(1) + rb(1) = 5 total
-        # But the current logic counts nested workflow as 1 node, so:
-        # rabi + coherence_char_workflow + rb = 3 direct + ramsey + t1 from nested = 5 total
-        assert outer_workflow.nodes_total == 5
-        assert outer_workflow.nodes_completed == 5  # All finished
+        # Outer workflow has 3 DIRECT children:
+        # - rabi (node) = 1
+        # - coherence_characterization (subgraph = 1, NOT 1+2)
+        # - rb (node) = 1
+        # Total = 3, NOT 5
+        assert outer_workflow.nodes_total == 3
+        assert outer_workflow.nodes_completed == 3  # All finished
+        
+        # The nested workflow (coherence_characterization) has 2 direct children
+        nested_workflow = next(
+            item for item in outer_workflow.items
+            if item.metadata.name == "coherence_characterization"
+        )
+        assert nested_workflow.nodes_total == 2
+        assert nested_workflow.nodes_completed == 2
 
     def test_outcomes_aggregation_with_nested_workflow(self):
         """Test outcomes are correctly aggregated from nested workflow."""
@@ -1133,6 +1190,14 @@ class TestOnTheFlyWorkflowDetection:
         assert {item.id for item in nested_workflow.items} == {1304, 1305}
 
         # Verify node counts are correct
-        # Total nodes: rabi(1) + coherence_char(workflow=1) + ramsey(1) + t1(1) + rb(1) = 5
-        assert outer_workflow.nodes_total == 5
-        assert outer_workflow.nodes_completed == 5
+        # Subgraphs count as 1 node, so outer workflow has 3 direct children:
+        # - rabi (node) = 1
+        # - coherence_characterization (subgraph = 1)
+        # - rb (node) = 1
+        # Total = 3, NOT 5 (subgraphs don't count their internal nodes)
+        assert outer_workflow.nodes_total == 3
+        assert outer_workflow.nodes_completed == 3
+        
+        # Nested workflow has 2 direct children
+        assert nested_workflow.nodes_total == 2
+        assert nested_workflow.nodes_completed == 2
