@@ -115,6 +115,7 @@ class BranchLocalStorage(BranchBase):
         pages_filter: PageFilter,
         search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
+        include_outcomes: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         storage_location = self._settings.storage.location
         # Get total count of filtered items (before pagination)
@@ -131,8 +132,12 @@ class BranchLocalStorage(BranchBase):
             SnapshotLocalStorage(id, settings=self._settings)
             for id in ids_paged
         ]
+        # Load metadata, and optionally outcomes data for workflow aggregation
+        load_flag = SnapshotLoadTypeFlag.Metadata
+        if include_outcomes:
+            load_flag = load_flag | SnapshotLoadTypeFlag.DataWithoutRefs
         for snapshot in snapshots:
-            snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
+            snapshot.load_from_flag(load_flag)
         return total, snapshots
 
     def get_latest_nodes(

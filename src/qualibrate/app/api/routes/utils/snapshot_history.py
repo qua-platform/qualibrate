@@ -1,3 +1,6 @@
+from collections.abc import Callable
+from typing import Any
+
 from qualibrate.app.api.core.models.snapshot import (
     ExecutionType,
     QubitOutcome,
@@ -15,14 +18,22 @@ __all__ = [
     "paginate_nested_items",
 ]
 
+# Type alias for the callback function that fetches missing snapshots by IDs
+FetchMissingChildrenCallback = Callable[
+    [set[IdType]], list[SimplifiedSnapshotWithMetadata]
+]
+
 
 def convert_to_history_item(
     snapshot: SimplifiedSnapshotWithMetadata,
+    raw_outcomes: dict[str, Any] | None = None,
 ) -> SnapshotHistoryItem:
     """Convert a SimplifiedSnapshotWithMetadata to a SnapshotHistoryItem.
 
     Args:
         snapshot: The simplified snapshot with metadata to convert.
+        raw_outcomes: Optional raw outcomes dict from snapshot data (e.g., {"q1": "successful"}).
+            This is used during aggregation to track actual qubit outcomes.
 
     Returns:
         A SnapshotHistoryItem with extended metadata fields.
@@ -72,7 +83,7 @@ def convert_to_history_item(
         workflow_parent_id=workflow_parent_id,
     )
 
-    return SnapshotHistoryItem(
+    item = SnapshotHistoryItem(
         id=snapshot.id,
         created_at=snapshot.created_at,
         parents=snapshot.parents,
@@ -81,9 +92,57 @@ def convert_to_history_item(
         tags=tags,
     )
 
+    # Store raw outcomes as a private attribute for use during aggregation
+    # This allows compute_workflow_aggregates to access actual qubit outcomes
+    item._raw_outcomes = raw_outcomes  # type: ignore[attr-defined]
+
+    return item
+
+
+def _collect_all_child_ids(
+    snapshots: list[SimplifiedSnapshotWithMetadata],
+) -> set[IdType]:
+    """Collect all child IDs from workflow metadata.
+
+    Args:
+        snapshots: List of snapshots to scan for children.
+
+    Returns:
+        Set of all child IDs found in workflow metadata.
+    """
+    child_ids: set[IdType] = set()
+    for snapshot in snapshots:
+        metadata_dict = snapshot.metadata.model_dump()
+        children = metadata_dict.get("children")
+        if children and isinstance(children, list):
+            child_ids.update(children)
+    return child_ids
+
+
+def _get_raw_outcomes(snapshot: SimplifiedSnapshotWithMetadata) -> dict[str, Any] | None:
+    """Extract raw outcomes from a snapshot if available.
+
+    The outcomes are stored in the snapshot's data.outcomes field when
+    DataWithoutRefs flag is used during loading.
+
+    Args:
+        snapshot: The snapshot to extract outcomes from.
+
+    Returns:
+        Raw outcomes dict like {"q1": "successful", "q2": "failed"} or None.
+    """
+    # Check if snapshot has outcomes attribute (SimplifiedSnapshotWithMetadataAndOutcomes)
+    if hasattr(snapshot, "outcomes") and snapshot.outcomes is not None:
+        return snapshot.outcomes
+
+    # Also check metadata for outcomes (may be stored there in some cases)
+    metadata_dict = snapshot.metadata.model_dump()
+    return metadata_dict.get("outcomes")
+
 
 def build_snapshot_tree(
     snapshots: list[SimplifiedSnapshotWithMetadata],
+    fetch_missing_children: FetchMissingChildrenCallback | None = None,
 ) -> list[SnapshotHistoryItem]:
     """Build a nested tree structure from a flat list of snapshots.
 
@@ -94,14 +153,45 @@ def build_snapshot_tree(
     Args:
         snapshots: Flat list of snapshots with metadata containing
             type_of_execution and children fields.
+        fetch_missing_children: Optional callback to fetch child snapshots
+            that weren't included in the initial query. This ensures all
+            workflow children are present regardless of pagination.
 
     Returns:
         List of top-level SnapshotHistoryItem with nested items for workflows.
     """
+    # Build a mutable list that we can extend with fetched children
+    all_snapshots = list(snapshots)
+    snapshots_by_id: dict[IdType, SimplifiedSnapshotWithMetadata] = {
+        s.id: s for s in all_snapshots
+    }
+
+    # Recursively fetch missing children if callback is provided
+    if fetch_missing_children:
+        # Keep fetching until we have all children
+        iterations = 0
+        max_iterations = 100  # Safety limit to prevent infinite loops
+        while iterations < max_iterations:
+            all_child_ids = _collect_all_child_ids(all_snapshots)
+            missing_ids = all_child_ids - set(snapshots_by_id.keys())
+            if not missing_ids:
+                break
+            # Fetch missing children
+            missing_snapshots = fetch_missing_children(missing_ids)
+            if not missing_snapshots:
+                break
+            # Add to our collections
+            for s in missing_snapshots:
+                if s.id not in snapshots_by_id:
+                    snapshots_by_id[s.id] = s
+                    all_snapshots.append(s)
+            iterations += 1
+
     # Convert all snapshots to history items and index by ID
     items_by_id: dict[IdType, SnapshotHistoryItem] = {}
-    for snapshot in snapshots:
-        item = convert_to_history_item(snapshot)
+    for snapshot in all_snapshots:
+        raw_outcomes = _get_raw_outcomes(snapshot)
+        item = convert_to_history_item(snapshot, raw_outcomes)
         items_by_id[item.id] = item
 
     # Build the tree by linking children to parents
@@ -131,7 +221,7 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
     """Compute aggregated statistics for a workflow from its children.
 
     This function recursively processes nested workflows and populates:
-        - outcomes: merged outcomes with failure tracking
+        - outcomes: merged outcomes with failure tracking (using actual qubit names)
         - nodes_completed: count of successful nodes
         - nodes_total: total node count (including nested)
         - qubits_completed: count of successful qubits
@@ -141,6 +231,7 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
         - For nodes: status "finished" or "success" counts as completed
         - For workflows: completed if more than half its nodes succeeded
         - Outcomes track failures with the first failure taking precedence
+        - Uses actual qubit names (q1, q2, etc.) from raw outcomes data
 
     Args:
         workflow: The workflow item to compute aggregates for.
@@ -160,7 +251,7 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
         item_outcomes: dict[str, QubitOutcome] = {}
 
         if item.type_of_execution == ExecutionType.workflow:
-            # For nested workflows, process their children
+            # For nested workflows, process their children first
             if item.items:
                 for child in item.items:
                     child_outcomes = _process_item(child, depth + 1)
@@ -172,6 +263,15 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                             # Keep the first failure
                             if item_outcomes[qubit].status != "failure":
                                 item_outcomes[qubit] = outcome
+
+            # Store aggregated outcomes on the nested workflow
+            if item_outcomes:
+                item.outcomes = item_outcomes.copy()
+                item.qubits_completed = sum(
+                    1 for o in item_outcomes.values() if o.status == "success"
+                )
+                item.qubits_total = len(item_outcomes)
+
             # Count this workflow as a node
             nodes_total += 1
             # Workflow is successful if more than half its nodes succeeded
@@ -179,24 +279,32 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                 if item.nodes_completed > item.nodes_total / 2:
                     nodes_completed += 1
         else:
-            # For nodes, count and extract outcomes from metadata
+            # For nodes, count and extract outcomes from raw data
             nodes_total += 1
             status = item.metadata.status if item.metadata else None
             if status in ("finished", "success"):
                 nodes_completed += 1
 
-            # Try to get outcomes from data if available
-            # Note: outcomes are typically in data.outcomes, but in history
-            # we may not have full data. Use status as proxy.
+            # Get node name for failure tracking
             name = item.metadata.name if item.metadata else f"node_{item.id}"
 
-            # Create outcome based on node status
-            if status in ("finished", "success"):
-                item_outcomes[f"node_{item.id}"] = QubitOutcome(status="success")
-            elif status in ("error", "failure"):
-                item_outcomes[f"node_{item.id}"] = QubitOutcome(
-                    status="failure", failed_on=name
-                )
+            # Extract actual qubit outcomes from raw_outcomes (e.g., {"q1": "successful"})
+            raw_outcomes = getattr(item, "_raw_outcomes", None)
+            if raw_outcomes and isinstance(raw_outcomes, dict):
+                # Use actual qubit names from the outcomes
+                for qubit, outcome_value in raw_outcomes.items():
+                    outcome_str = str(outcome_value).lower()
+                    if outcome_str in ("successful", "success"):
+                        item_outcomes[qubit] = QubitOutcome(status="success")
+                    elif outcome_str in ("failed", "failure", "error"):
+                        item_outcomes[qubit] = QubitOutcome(
+                            status="failure", failed_on=name
+                        )
+            else:
+                # Fallback: no raw outcomes available, skip this node's outcomes
+                # This preserves the old behavior as a fallback but doesn't create
+                # synthetic qubit names
+                pass
 
         return item_outcomes
 

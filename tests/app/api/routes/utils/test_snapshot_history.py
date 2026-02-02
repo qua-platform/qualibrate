@@ -2,9 +2,11 @@ import importlib.util
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from qualibrate.app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
+    SimplifiedSnapshotWithMetadataAndOutcomes,
     SnapshotMetadata,
 )
 from qualibrate.core.models.execution_type import ExecutionType
@@ -41,8 +43,23 @@ def create_snapshot(
     workflow_parent_id: int = None,
     status: str = "finished",
     created_at: datetime = None,
+    outcomes: dict[str, Any] = None,
 ) -> SimplifiedSnapshotWithMetadata:
-    """Helper to create test snapshots."""
+    """Helper to create test snapshots.
+
+    Args:
+        id: Snapshot ID.
+        name: Snapshot name.
+        type_of_execution: "node" or "workflow".
+        children: List of child snapshot IDs (for workflows).
+        workflow_parent_id: Parent workflow ID (for child nodes).
+        status: Snapshot status ("finished", "error", etc.).
+        created_at: Creation timestamp.
+        outcomes: Raw outcomes dict like {"q1": "successful", "q2": "failed"}.
+
+    Returns:
+        SimplifiedSnapshotWithMetadata (or WithOutcomes variant if outcomes provided).
+    """
     metadata_dict = {
         "name": name,
         "status": status,
@@ -54,6 +71,15 @@ def create_snapshot(
         metadata_dict["workflow_parent_id"] = workflow_parent_id
 
     metadata = SnapshotMetadata(**metadata_dict)
+
+    if outcomes is not None:
+        return SimplifiedSnapshotWithMetadataAndOutcomes(
+            id=id,
+            created_at=created_at or datetime.now(timezone.utc),
+            parents=[id - 1] if id > 1 else [],
+            metadata=metadata,
+            outcomes=outcomes,
+        )
 
     return SimplifiedSnapshotWithMetadata(
         id=id,
@@ -340,3 +366,264 @@ class TestPaginateNestedItems:
         # Total should be 4 (workflow + 2 children + standalone)
         result, total = paginate_nested_items(tree, page=1, per_page=10)
         assert total == 4
+
+
+class TestFetchMissingChildrenCallback:
+    """Tests for fetch_missing_children callback in build_snapshot_tree."""
+
+    def test_build_tree_with_fetch_callback(self):
+        """Test that callback is called to fetch missing children."""
+        # Create workflow that references children not in initial list
+        initial_snapshots = [
+            create_snapshot(
+                1, name="workflow", type_of_execution="workflow", children=[2, 3]
+            ),
+        ]
+
+        # Simulate callback that returns missing children
+        missing_children = [
+            create_snapshot(2, name="child1", workflow_parent_id=1),
+            create_snapshot(3, name="child2", workflow_parent_id=1),
+        ]
+        callback_called = [False]
+        requested_ids = [set()]
+
+        def fetch_callback(ids):
+            callback_called[0] = True
+            requested_ids[0] = ids
+            return missing_children
+
+        result = build_snapshot_tree(initial_snapshots, fetch_missing_children=fetch_callback)
+
+        assert callback_called[0], "Callback should have been called"
+        assert requested_ids[0] == {2, 3}, "Should request IDs 2 and 3"
+        assert len(result) == 1
+        assert result[0].items is not None
+        assert len(result[0].items) == 2
+
+    def test_build_tree_without_callback(self):
+        """Test that missing children are skipped without callback."""
+        snapshots = [
+            create_snapshot(
+                1, name="workflow", type_of_execution="workflow", children=[2, 3, 99]
+            ),
+            create_snapshot(2, name="child1"),
+            create_snapshot(3, name="child2"),
+            # 99 is missing
+        ]
+
+        result = build_snapshot_tree(snapshots)
+
+        # Only children 2 and 3 should be included
+        assert len(result[0].items) == 2
+        assert {item.id for item in result[0].items} == {2, 3}
+
+    def test_recursive_fetch_for_nested_workflows(self):
+        """Test that callback recursively fetches children of nested workflows."""
+        initial = [
+            create_snapshot(
+                1, name="outer", type_of_execution="workflow", children=[2]
+            ),
+        ]
+
+        # First fetch returns inner workflow, second fetch returns its children
+        all_snapshots = {
+            2: create_snapshot(
+                2,
+                name="inner",
+                type_of_execution="workflow",
+                children=[3],
+                workflow_parent_id=1,
+            ),
+            3: create_snapshot(3, name="leaf", workflow_parent_id=2),
+        }
+
+        def fetch_callback(ids):
+            return [all_snapshots[id] for id in ids if id in all_snapshots]
+
+        result = build_snapshot_tree(initial, fetch_missing_children=fetch_callback)
+
+        # Should have complete nested structure
+        assert len(result) == 1
+        assert result[0].id == 1
+        assert result[0].items[0].id == 2
+        assert result[0].items[0].items[0].id == 3
+
+
+class TestOutcomesAggregation:
+    """Tests for actual qubit outcomes aggregation."""
+
+    def test_workflow_aggregates_actual_qubit_outcomes(self):
+        """Test that workflow aggregates actual qubit outcomes from children."""
+        snapshots = [
+            create_snapshot(
+                1,
+                name="workflow",
+                type_of_execution="workflow",
+                children=[2, 3],
+                status="finished",
+            ),
+            create_snapshot(
+                2,
+                name="node1",
+                status="finished",
+                outcomes={"q1": "successful", "q2": "successful"},
+            ),
+            create_snapshot(
+                3,
+                name="node2",
+                status="error",
+                outcomes={"q1": "successful", "q3": "failed"},
+            ),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+        workflow = result[0]
+
+        assert workflow.outcomes is not None
+        # q1: successful in both nodes
+        assert workflow.outcomes["q1"].status == "success"
+        # q2: successful (only in node1)
+        assert workflow.outcomes["q2"].status == "success"
+        # q3: failed in node2
+        assert workflow.outcomes["q3"].status == "failure"
+        assert workflow.outcomes["q3"].failed_on == "node2"
+
+    def test_failure_tracking_records_first_failure(self):
+        """Test that failed_on records the first node where qubit failed."""
+        snapshots = [
+            create_snapshot(
+                1,
+                type_of_execution="workflow",
+                children=[2, 3],
+            ),
+            create_snapshot(
+                2,
+                name="first_node",
+                status="error",
+                outcomes={"q1": "failed"},
+            ),
+            create_snapshot(
+                3,
+                name="second_node",
+                status="error",
+                outcomes={"q1": "failed"},  # Also failed, but first failure wins
+            ),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+        workflow = result[0]
+
+        assert workflow.outcomes["q1"].status == "failure"
+        assert workflow.outcomes["q1"].failed_on == "first_node"
+
+    def test_qubit_counts_from_actual_outcomes(self):
+        """Test that qubit counts are based on actual outcomes."""
+        snapshots = [
+            create_snapshot(
+                1,
+                type_of_execution="workflow",
+                children=[2],
+            ),
+            create_snapshot(
+                2,
+                name="node",
+                status="error",
+                outcomes={
+                    "q1": "successful",
+                    "q2": "successful",
+                    "q3": "failed",
+                    "q4": "failed",
+                },
+            ),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+        workflow = result[0]
+
+        assert workflow.qubits_completed == 2
+        assert workflow.qubits_total == 4
+
+    def test_nested_workflow_outcomes_aggregation(self):
+        """Test outcomes aggregation in nested workflows."""
+        snapshots = [
+            create_snapshot(
+                1,
+                name="outer",
+                type_of_execution="workflow",
+                children=[2],
+            ),
+            create_snapshot(
+                2,
+                name="inner",
+                type_of_execution="workflow",
+                children=[3, 4],
+                workflow_parent_id=1,
+            ),
+            create_snapshot(
+                3,
+                name="leaf1",
+                status="finished",
+                outcomes={"q1": "successful"},
+                workflow_parent_id=2,
+            ),
+            create_snapshot(
+                4,
+                name="leaf2",
+                status="error",
+                outcomes={"q1": "failed", "q2": "failed"},
+                workflow_parent_id=2,
+            ),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+        outer_workflow = result[0]
+        inner_workflow = outer_workflow.items[0]
+
+        # Inner workflow should have outcomes
+        assert inner_workflow.outcomes is not None
+        assert inner_workflow.outcomes["q1"].status == "success"  # First was success
+        assert inner_workflow.outcomes["q2"].status == "failure"
+        assert inner_workflow.outcomes["q2"].failed_on == "leaf2"
+
+        # Outer workflow should also have aggregated outcomes
+        assert outer_workflow.outcomes is not None
+        assert outer_workflow.outcomes["q1"].status == "success"
+
+    def test_workflow_without_outcomes_still_counts_nodes(self):
+        """Test that node counting works even without outcomes data."""
+        snapshots = [
+            create_snapshot(
+                1,
+                type_of_execution="workflow",
+                children=[2, 3],
+            ),
+            create_snapshot(2, name="node1", status="finished"),  # No outcomes
+            create_snapshot(3, name="node2", status="error"),  # No outcomes
+        ]
+
+        result = build_snapshot_tree(snapshots)
+        workflow = result[0]
+
+        assert workflow.nodes_completed == 1
+        assert workflow.nodes_total == 2
+        # No qubit outcomes since no outcomes data
+        assert workflow.qubits_total == 0
+
+
+class TestConvertToHistoryItemWithOutcomes:
+    """Tests for convert_to_history_item with raw outcomes."""
+
+    def test_convert_with_raw_outcomes(self):
+        """Test that raw outcomes are attached to the history item."""
+        snapshot = create_snapshot(
+            1,
+            name="test",
+            outcomes={"q1": "successful", "q2": "failed"},
+        )
+
+        result = convert_to_history_item(snapshot, raw_outcomes={"q1": "successful", "q2": "failed"})
+
+        # Check that _raw_outcomes is attached (used during aggregation)
+        assert hasattr(result, "_raw_outcomes")
+        assert result._raw_outcomes == {"q1": "successful", "q2": "failed"}

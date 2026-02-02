@@ -19,6 +19,7 @@ from qualibrate.app.api.core.models.snapshot import (
     ExecutionType,
     QubitOutcome,
     SimplifiedSnapshotWithMetadata,
+    SimplifiedSnapshotWithMetadataAndOutcomes,
     SnapshotHistoryItem,
     SnapshotHistoryMetadata,
     SnapshotSearchResult,
@@ -69,14 +70,16 @@ def _get_root_instance(
 
 def _snapshot_to_simplified(
     snapshot: Any,
+    include_outcomes: bool = False,
 ) -> SimplifiedSnapshotWithMetadata:
     """Convert a snapshot to SimplifiedSnapshotWithMetadata with tags extracted.
 
     Args:
         snapshot: A snapshot instance with dump() method.
+        include_outcomes: If True, include outcomes data for workflow aggregation.
 
     Returns:
-        SimplifiedSnapshotWithMetadata with tags populated from metadata.
+        SimplifiedSnapshotWithMetadata (or WithOutcomes variant) with tags populated.
     """
     dump = snapshot.dump().model_dump()
     metadata = dump.get("metadata", {})
@@ -87,7 +90,60 @@ def _snapshot_to_simplified(
         metadata = {k: v for k, v in metadata.items() if k != "tags"}
         dump["metadata"] = metadata
 
+    # Extract outcomes from data if available and requested
+    outcomes = None
+    if include_outcomes:
+        data = dump.get("data")
+        if data and isinstance(data, dict):
+            outcomes = data.get("outcomes")
+
+    if include_outcomes and outcomes is not None:
+        return SimplifiedSnapshotWithMetadataAndOutcomes(
+            id=dump.get("id"),
+            created_at=dump.get("created_at"),
+            parents=dump.get("parents", []),
+            metadata=dump.get("metadata", {}),
+            tags=tags,
+            outcomes=outcomes,
+        )
+
     return SimplifiedSnapshotWithMetadata(**dump, tags=tags)
+
+
+def _create_fetch_missing_children_callback(
+    root: RootBase,
+) -> callable:
+    """Create a callback function to fetch missing child snapshots.
+
+    This callback is used by build_snapshot_tree to fetch children that weren't
+    included in the initial query due to pagination.
+
+    Args:
+        root: The root storage instance.
+
+    Returns:
+        A callback function that takes a set of IDs and returns snapshots.
+    """
+
+    def fetch_missing_children(
+        missing_ids: set[IdType],
+    ) -> list[SimplifiedSnapshotWithMetadata]:
+        """Fetch snapshots by IDs that weren't in the initial query."""
+        result = []
+        for snapshot_id in missing_ids:
+            try:
+                snapshot = root.get_snapshot(snapshot_id)
+                # Load metadata and outcomes data
+                snapshot.load_from_flag(
+                    SnapshotLoadTypeFlag.Metadata | SnapshotLoadTypeFlag.DataWithoutRefs
+                )
+                result.append(_snapshot_to_simplified(snapshot, include_outcomes=True))
+            except Exception:
+                # Skip snapshots that can't be loaded (may have been deleted)
+                pass
+        return result
+
+    return fetch_missing_children
 
 
 def _get_sort_key(
@@ -893,13 +949,15 @@ def get_snapshots_history(
     # For grouped mode, sorting, or tag filtering, we need to fetch all snapshots
     if grouped or sort is not None or has_tag_filter:
         all_pages_filter = PageFilter(page=1, per_page=MAX_PAGE_SIZE_FOR_GROUPING)
+        # For grouped mode, include outcomes data for proper workflow aggregation
         _, all_snapshots = root.get_latest_snapshots(
             pages_filter=all_pages_filter,
             search_filter=SearchWithIdFilter(**search_filters.model_dump()),
             descending=False,  # We'll handle sorting/pagination ourselves
+            include_outcomes=grouped,  # Load outcomes when building workflow tree
         )
         all_dumped = [
-            _snapshot_to_simplified(snapshot)
+            _snapshot_to_simplified(snapshot, include_outcomes=grouped)
             for snapshot in all_snapshots
         ]
 
@@ -921,8 +979,11 @@ def get_snapshots_history(
             all_dumped = list(reversed(all_dumped))
 
         if grouped:
-            # Build nested tree structure
-            tree_items = build_snapshot_tree(all_dumped)
+            # Build nested tree structure with callback to fetch missing children
+            fetch_callback = _create_fetch_missing_children_callback(root)
+            tree_items = build_snapshot_tree(
+                all_dumped, fetch_missing_children=fetch_callback
+            )
 
             # Sort tree items using the same sort logic as the request parameter.
             # This fixes a bug where tree_items were always sorted by created_at
