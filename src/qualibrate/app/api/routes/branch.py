@@ -454,10 +454,36 @@ def get_snapshots_history(
         {
           "created_at": "2025-08-22T12:16:42+03:00",
           "id": 367,
-          "parents": [366],
-          "metadata": {"name": "wf_node1", ...}
+          "parents": [
+            366
+          ],
+          "metadata": {
+            "name": "wf_node1",
+            ...,
+          }
         },
-        ...
+        {
+          "created_at": "2025-08-22T10:54:07+03:00",
+          "id": 366,
+          "parents": [
+            365
+          ],
+          "metadata": {
+            "name": "test_cal",
+            ...,
+          }
+        },
+        {
+          "created_at": "2025-08-21T14:12:28+03:00",
+          "id": 365,
+          "parents": [
+            364
+          ],
+          "metadata": {
+            "name": "test_cal",
+            ...,
+          }
+        }
       ],
       "has_next_page": true,
       "total_pages": 45
