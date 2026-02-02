@@ -42,6 +42,7 @@ class RootBase(DomainWithConfigBase, ABC):
         pages_filter: PageFilter,
         search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
+        include_outcomes: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         pass
 

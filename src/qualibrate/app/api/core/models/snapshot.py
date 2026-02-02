@@ -56,6 +56,16 @@ class SimplifiedSnapshotWithMetadata(SimplifiedSnapshot):
     tags: list[str] | None = None
 
 
+class SimplifiedSnapshotWithMetadataAndOutcomes(SimplifiedSnapshotWithMetadata):
+    """Extended snapshot model that includes outcomes data for workflow aggregation.
+
+    This model is used when building workflow trees with grouped=true to enable
+    proper outcomes aggregation from child nodes.
+    """
+
+    outcomes: dict[str, Any] | None = None
+
+
 class SnapshotData(BaseModel):
     """Data associated with a snapshot.
 
