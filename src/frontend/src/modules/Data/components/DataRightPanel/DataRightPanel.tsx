@@ -8,13 +8,15 @@ import GraphView from "./GraphView";
 import { SnapshotData } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
 import { useRootDispatch } from "../../../../stores";
 import { runNodeOfSelectedSnapshot, runWorkflowOfSelectedSnapshot } from "../../../../stores/SnapshotsStore/actions";
+import { getRunStatusIsRunning } from "../../../../stores/WebSocketStore";
 
 const DataRightPanel: React.FC = () => {
   const dispatch = useRootDispatch();
   const result = useSelector(getResult);
   const selectedSnapshot = useSelector(getSelectedSnapshot);
-  const jsonData = useSelector(getJsonData);
+  const jsonData = useSelector(getJsonData) as SnapshotData;
   const breadcrumbs = useSelector(getBreadCrumbs);
+  const isNodeRunning = !!useSelector(getRunStatusIsRunning);
 
   const isSelectedSnapshotTypeOfWorkflow = selectedSnapshot?.metadata.type_of_execution?.toLocaleLowerCase() === "workflow";
   const showRunButton = selectedSnapshot && breadcrumbs.length === 0;
@@ -32,7 +34,7 @@ const DataRightPanel: React.FC = () => {
       <>
         <GraphView />
         {showRunButton && (
-          <button className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
+          <button disabled={isNodeRunning} className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
             ▶ Rerun
           </button>
         )}
@@ -45,12 +47,12 @@ const DataRightPanel: React.FC = () => {
       <VerticalResizableComponent
         tabData={{
           metadata: snapshotMetadataToParameters(selectedSnapshot?.metadata),
-          parameters: (jsonData as SnapshotData)?.parameters?.model ?? {},
+          parameters: jsonData?.parameters?.model ?? {},
         }}
       />
       {result && <JSONEditor title="RESULTS" jsonDataProp={result} height="100%" />}
       {showRunButton && (
-        <button className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
+        <button disabled={isNodeRunning} className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
           ▶ Rerun
         </button>
       )}

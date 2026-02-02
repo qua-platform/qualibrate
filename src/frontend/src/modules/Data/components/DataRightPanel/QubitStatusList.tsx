@@ -13,8 +13,7 @@ const QubitStatusList: React.FC<Props> = ({ outcomes }) => {
   return (
     <>
       {Object.entries(outcomes).map(([qubitName, data]) => {
-        const isFailure = false;
-        // const isFailure = data.status === "failure";
+        const isFailure = data === "failed";
 
         return (
           <div key={qubitName} className={styles.card}>

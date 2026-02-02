@@ -10,6 +10,7 @@ import {
   removeCommentFromSnapshot,
   updateSnapshotComment,
 } from "../../../stores/SnapshotsStore/utils";
+import { formatDateTime } from "../../../utils/formatDateTime";
 
 export type OnSaveHandlerProps = {
   mode: "add" | "edit" | "delete";
@@ -155,7 +156,7 @@ const SnapshotComments: React.FC = () => {
           {comments.map((comment, index) => (
             <div key={`${comment.id}-${index}`} className={styles.commentItem}>
               <div className={styles.commentItemHeader}>
-                <div className={styles.commentTimestamp}>{comment.createdAt}</div>
+                <div className={styles.commentTimestamp}>{formatDateTime(comment.createdAt)}</div>
                 <div className={styles.commentItemAction}>
                   <button className={styles.editCommentBtn} onClick={() => handleOpenDialogOnClick("edit", comment)} title="Edit comment">
                     ✎

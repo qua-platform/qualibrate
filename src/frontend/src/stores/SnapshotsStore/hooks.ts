@@ -14,7 +14,7 @@ export const useInitSnapshots = () => {
     dispatch(setAllSnapshots([]));
     dispatch(fetchGitgraphSnapshots(true, snapshotsSearchQuery));
     dispatch(fetchSnapshotTags());
-  }, [snapshotsSearchQuery]);
+  }, []);
   // -----------------------------------------------------------
   // -----------------------------------------------------------
 

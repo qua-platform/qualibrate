@@ -88,7 +88,7 @@ const ModulesRegistry: Array<Module> = [
     path: "execution-history",
     Component: Data,
     menuItem: {
-      sideBarTitle: "Execution hist..",
+      sideBarTitle: "History",
       title: "",
       icon: DataIcon,
       dataCy: cyKeys.DATA_TAB,

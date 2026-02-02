@@ -15,14 +15,14 @@ import {
 } from "../../../../stores/SnapshotsStore";
 import { useRootDispatch } from "../../../../stores";
 import ExecutionCard, { ManageTagsModal } from "../ExecutionCard";
-import { getExecutionHistorySnapshots } from "../../../../stores/SnapshotsStore/selectors";
+import { getAllSnapshots } from "../../../../stores/SnapshotsStore";
 
 const SnapshotsTimeline: React.FC = () => {
   const dispatch = useRootDispatch();
   const selectedSnapshotId = useSelector(getSelectedSnapshotId);
   const selectedSnapshot = useSelector(getSelectedSnapshot);
   const selectedWorkflowGraph = useSelector(getSelectedWorkflowForGraph);
-  const executionHistorySnapshots = useSelector(getExecutionHistorySnapshots);
+  const allSnapshots = useSelector(getAllSnapshots);
   const [showTagsModal, setShowTagsModal] = useState(false);
 
   const handleOnClick = (snapshot: SnapshotDTO) => {
@@ -59,9 +59,9 @@ const SnapshotsTimeline: React.FC = () => {
           </>
         )}
       </div>
-      {executionHistorySnapshots && executionHistorySnapshots.length > 0 && (
+      {(selectedWorkflowGraph?.items?.length || allSnapshots) && (
         <div className={styles.wrapper}>
-          {executionHistorySnapshots.map((snapshot) => (
+          {(selectedWorkflowGraph?.items || allSnapshots)?.map((snapshot) => (
             <ExecutionCard
               key={snapshot.id}
               snapshot={snapshot}
@@ -72,7 +72,7 @@ const SnapshotsTimeline: React.FC = () => {
           ))}
         </div>
       )}
-      {showTagsModal && <ManageTagsModal currentSelectedTags={selectedSnapshot?.metadata?.tags || []} handleOnClose={handleOnClose} />}
+      {showTagsModal && <ManageTagsModal currentSelectedTags={selectedSnapshot?.tags || []} handleOnClose={handleOnClose} />}
     </>
   );
 };

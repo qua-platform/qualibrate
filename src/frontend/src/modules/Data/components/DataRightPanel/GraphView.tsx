@@ -16,6 +16,7 @@ import {
 import { useRootDispatch } from "../../../../stores";
 import QubitStatusList from "./QubitStatusList";
 import { SnapshotData } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
+import { classNames } from "../../../../utils/classnames";
 
 const GraphView: React.FC = () => {
   const dispatch = useRootDispatch();
@@ -24,6 +25,11 @@ const GraphView: React.FC = () => {
   const selectedWorkflow = useSelector(getSelectedWorkflow);
   const breadCrumbs = useSelector(getBreadCrumbs);
   const jsonData = useSelector(getJsonData) as SnapshotData;
+
+  const nodesFailed = selectedSnapshotWithWorkflowType?.nodes_completed !== selectedSnapshotWithWorkflowType?.nodes_total;
+  const nodesSuccess = !nodesFailed && selectedSnapshotWithWorkflowType?.nodes_completed !== null;
+  const qubitsFailed = selectedSnapshotWithWorkflowType?.qubits_completed !== selectedSnapshotWithWorkflowType?.qubits_total;
+  const qubitsSuccess = !qubitsFailed && selectedSnapshotWithWorkflowType?.qubits_completed !== null;
 
   const handleOnNodeClick = (name?: string) => {
     const id = selectedWorkflow?.items?.find(node => node.metadata.name === name)?.id;
@@ -58,7 +64,7 @@ const GraphView: React.FC = () => {
       <div className={styles.contentMain}>
         <div className={styles.graphVisualization}>
           <div className={styles.graphExecSummary}>
-            <div className={`${styles.summaryStat} ${styles.error}`}>
+            <div className={classNames(styles.summaryStat, nodesFailed && styles.error, nodesSuccess && styles.success)}>
               <div className={styles.statLabel}>Nodes Completed</div>
               <div className={styles.statValue}>
                 {selectedSnapshotWithWorkflowType?.nodes_completed ?? "unavailable"}/
@@ -66,7 +72,7 @@ const GraphView: React.FC = () => {
               </div>
             </div>
 
-            <div className={`${styles.summaryStat} ${styles.error}`}>
+            <div className={classNames(styles.summaryStat, qubitsFailed && styles.error, qubitsSuccess && styles.success)}>
               <div className={styles.statLabel}>Qubits Success</div>
               <div className={styles.statValue}>
                 {selectedSnapshotWithWorkflowType?.qubits_completed ?? "unavailable"}/

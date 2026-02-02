@@ -13,6 +13,7 @@ export interface SnapshotsState {
     totalPages: number;
     pageNumber: number;
     allSnapshots: SnapshotDTO[];
+    isLoadingSnapshots: boolean;
     snapshotsFilters: {
         tags: string[],
         sortType: SortType,
@@ -43,9 +44,10 @@ const initialState: SnapshotsState = {
     totalPages: 0,
     pageNumber: 1,
     allSnapshots: [],
+    isLoadingSnapshots: false,
     snapshotsFilters: {
         tags: [],
-        sortType: SortType.Name,
+        sortType: SortType.Date,
         searchString: "",
         minDate: "",
         maxDate: "",
@@ -79,6 +81,7 @@ export const SnapshotsSlice = createSlice({
         },
         setPageNumber: (state, action) => {
             state.pageNumber = action.payload;
+            state.isLoadingSnapshots = true;
         },
         setTotalPages: (state, action) => {
             state.totalPages = action.payload;
@@ -86,8 +89,12 @@ export const SnapshotsSlice = createSlice({
         setAllSnapshots: (state, action) => {
             state.allSnapshots = action.payload;
         },
+        setIsLoadingSnapshots: (state, action) => {
+          state.isLoadingSnapshots = action.payload;
+        },
         setSnapshotsFilters: (state, action) => {
-            state.snapshotsFilters = action.payload;
+          state.snapshotsFilters = action.payload;
+          state.isLoadingSnapshots = true;
         },
         setSelectedSnapshot: (state, action) => {
             state.selectedSnapshot = action.payload;
@@ -133,6 +140,7 @@ export const SnapshotsSlice = createSlice({
             state.jsonData = undefined;
             state.result = undefined;
             state.diffData = undefined;
+            state.isLoadingSnapshots = false;
             state.reset = true;
         },
         setResult: (state, action) => {

@@ -4,6 +4,7 @@ import { classNames } from "../../utils/classnames";
 import { formatNames } from "../../utils/formatNames";
 import { ParameterStructure } from "../../stores/SnapshotsStore/api/SnapshotsApi";
 import SnapshotComments from "./SnapshotComments";
+import { formatDateTime } from "../../utils/formatDateTime";
 
 type Props = {
   tabNames?: string[];
@@ -24,6 +25,17 @@ const VerticalResizableComponent: React.FC<Props> = ({ tabNames = ["Metadata", "
   }, []);
   const detailsObject = tabData ? tabData[activeTabName.toLowerCase()] : {};
   const showComments = hasCommentSection && activeTabName.toLowerCase() === "metadata";
+
+  const formatParamValue = (key: string, value: string | number | string[] | null | undefined) => {
+    if (["run_end", "run_start"].includes(key))
+      return formatDateTime(value as string);
+
+    return value === null || value === undefined
+      ? "—"
+      : typeof value === "object"
+        ? JSON.stringify(value, null, 2)
+        : value;
+  };
 
   return (
     <div data-testid="vertical-component" className={classNames(styles.contentSidebar, !expanded && styles.collapsed)} id="contentSidebar">
@@ -56,11 +68,7 @@ const VerticalResizableComponent: React.FC<Props> = ({ tabNames = ["Metadata", "
                     <div className={styles.displayParam}>
                       <div className={styles.displayParamLabel}>{formatNames(keyValue)}</div>
                       <div className={styles.displayParamValue}>
-                        {detailValue === null || detailValue === undefined
-                          ? "—"
-                          : typeof detailValue === "object"
-                            ? JSON.stringify(detailValue, null, 2)
-                            : detailValue}
+                        {formatParamValue(keyValue, detailValue)}
                       </div>
                     </div>
                   </div>

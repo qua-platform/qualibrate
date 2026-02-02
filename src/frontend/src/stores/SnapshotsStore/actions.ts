@@ -26,6 +26,7 @@ export const {
   setPageNumber,
   setTotalPages,
   setAllSnapshots,
+  setIsLoadingSnapshots,
   setSnapshotsFilters,
   setSelectedWorkflow,
   setSelectedNodeInWorkflowId,
@@ -79,6 +80,7 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, query: string) =>
     const secondId = getSecondId(getState());
     const selectedSnapshotId = getSelectedSnapshotId(getState());
 
+    dispatch(setIsLoadingSnapshots(true));
     const resAllSnapshots = await fetchAllSnapshots(query);
     dispatch(setAllSnapshots([]));
     if (resAllSnapshots && resAllSnapshots?.isOk) {
@@ -86,6 +88,7 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, query: string) =>
       dispatch(setTotalPages(resAllSnapshots.result?.total_pages ?? 1));
       dispatch(setPageNumber(resAllSnapshots.result?.page ?? 1));
       dispatch(setAllSnapshots(resAllSnapshots.result?.items ?? []));
+      dispatch(setIsLoadingSnapshots(true));
       // Uncomment this line to use MOCKS for Execution History page
       let lastElId = 0;
       if (items) {
@@ -100,7 +103,8 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, query: string) =>
       if (firstTime) {
         if (items) {
           dispatch(setSelectedSnapshotId(lastElId));
-          // dispatch(setSelectedSnapshot(items.find((snapshot) => snapshot.id === lastElId)));
+          dispatch(setSelectedSnapshot(items.find((snapshot) => snapshot.id === lastElId)));
+          dispatch(setSelectedNodeInWorkflowId(lastElId));
           dispatch(fetchOneSnapshot(lastElId, lastElId - 1, true, true));
         } else {
           if (selectedSnapshotId) {

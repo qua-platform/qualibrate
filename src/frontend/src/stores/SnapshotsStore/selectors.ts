@@ -18,6 +18,8 @@ export const getPageNumber = createSelector(getSnapshotsState, (state) => state.
 
 export const getAllSnapshots = createSelector(getSnapshotsState, (state) => state.allSnapshots);
 
+export const getIsLoadingSnapshots = createSelector(getSnapshotsState, (state) => state.isLoadingSnapshots);
+
 export const getSnapshotsSearchQuery = createSelector(
     getSnapshotsState,
     getPageNumber,
@@ -72,15 +74,6 @@ const findByBreadcrumbs = (items: SnapshotDTO[], breadcrumbs: string[]): Snapsho
 export const getSelectedWorkflowForGraph = createSelector(getAllSnapshots, getBreadCrumbs, (allSnapshots = [], breadcrumbs = []) =>
     breadcrumbs.length ? findByBreadcrumbs(allSnapshots, breadcrumbs) : undefined
 );
-
-export const getExecutionHistorySnapshots = createSelector(getAllSnapshots, getSelectedWorkflowForGraph, (allSnapshots = [], selectedWorkflow) => {
-    if (!selectedWorkflow)
-        return allSnapshots;
-
-    return selectedWorkflow.metadata?.children
-        ? allSnapshots.filter(snapshot => selectedWorkflow.metadata.children!.includes(snapshot.id))
-        : undefined;
-});
 
 export const getSelectedSnapshotId = createSelector(getSnapshotsState, (state) => state.selectedSnapshotId);
 
