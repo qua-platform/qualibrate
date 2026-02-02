@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from typing import Annotated
 
@@ -17,6 +18,8 @@ from qualibrate.app.api.core.types import (
 from qualibrate.app.api.routes.utils.snapshot_load_type import (
     parse_load_type_flag,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def get_page_filter(
@@ -72,7 +75,7 @@ def get_search_filter(
         ),
     ] = None,
 ) -> SearchFilter:
-    return SearchFilter(
+    search_filter = SearchFilter(
         name=snapshot_name,
         name_part=name_part,
         min_node_id=min_node_id,
@@ -81,6 +84,12 @@ def get_search_filter(
         max_date=max_date,
         tags=tag_name,
     )
+    logger.debug(
+        f"Created SearchFilter: name={snapshot_name!r}, name_part={name_part!r}, "
+        f"min_node_id={min_node_id}, max_node_id={max_node_id}, "
+        f"min_date={min_date}, max_date={max_date}, tags={tag_name}"
+    )
+    return search_filter
 
 
 def get_search_with_id_filter(
