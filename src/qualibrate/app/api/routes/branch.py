@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate.app.api.core.domain.bases.branch import (
@@ -21,6 +21,7 @@ from qualibrate.app.api.core.models.node import Node as NodeModel
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
+    SnapshotHistoryItem,
     SnapshotSearchResult,
 )
 from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
@@ -29,14 +30,25 @@ from qualibrate.app.api.core.types import (
     PageFilter,
     SearchFilter,
     SearchWithIdFilter,
+    SortField,
 )
+from qualibrate.app.api.core.utils.slice import get_page_slice
 from qualibrate.app.api.dependencies.search import get_search_path
 from qualibrate.app.api.routes.utils.dependencies import (
     get_page_filter,
     get_search_filter,
     get_snapshot_load_type_flag,
 )
+from qualibrate.app.api.routes.utils.snapshot_history import (
+    build_snapshot_tree,
+    paginate_nested_items,
+)
+from qualibrate.app.api.routes.utils.sorting import get_sort_key
 from qualibrate.app.config import get_settings
+
+# Maximum page size for fetching all items when sorting/grouping is required.
+# This is needed because sorting and grouping require all items in memory.
+MAX_PAGE_SIZE_FOR_GROUPING = 100000
 
 branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
 
@@ -385,15 +397,51 @@ def get_snapshots_history(
             description="This field is ignored. Use `descending` instead.",
         ),
     ] = False,
+    sort: Annotated[
+        SortField | None,
+        Query(
+            description=(
+                "Field to sort by: 'name' (alphabetical), 'date' (creation "
+                "time), or 'status' (finished first, then skipped, pending, "
+                "running, error). Default sorts by date."
+            )
+        ),
+    ] = None,
+    grouped: Annotated[
+        bool,
+        Query(
+            description=(
+                "When true, returns a nested structure with workflows "
+                "containing their child nodes in an 'items' array. "
+                "Workflows include aggregated statistics (outcomes, "
+                "nodes_completed, etc.). When false (default), returns "
+                "a flat list for backward compatibility."
+            )
+        ),
+    ] = False,
+    search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
+) -> PagedCollection[SimplifiedSnapshotWithMetadata] | PagedCollection[
+    SnapshotHistoryItem
+]:
     """List snapshots history.
 
     Returns a paginated list of snapshots for the branch. Order is controlled
-    by the `descending` flag.
+    by the `descending` flag. Optionally filter by date range, name, or node ID.
+    Use the `sort` parameter to sort by name, date, or status.
+
+    When `grouped=true`, returns a nested structure where workflows contain
+    their child nodes in an 'items' array, with aggregated statistics including:
+    - `type_of_execution`: "node" or "workflow"
+    - `items`: nested child snapshots (for workflows)
+    - `outcomes`: aggregated qubit outcomes with failure tracking
+    - `nodes_completed` / `nodes_total`: node success counts
+    - `qubits_completed` / `qubits_total`: qubit success counts
 
     ### Examples
-    **Request:** `branch/init_project/snapshots_history?page=1&per_page=3`
+
+    #### 1) Basic pagination (flat)
+    **Request:** `/branch/main/snapshots_history?page=1&per_page=3`
 
     **Response:**
 
@@ -406,56 +454,138 @@ def get_snapshots_history(
         {
           "created_at": "2025-08-22T12:16:42+03:00",
           "id": 367,
-          "parents": [
-            366
-          ],
-          "metadata": {
-            "name": "wf_node1",
-            ...,
-          }
+          "parents": [366],
+          "metadata": {"name": "wf_node1", ...}
         },
-        {
-          "created_at": "2025-08-22T10:54:07+03:00",
-          "id": 366,
-          "parents": [
-            365
-          ],
-          "metadata": {
-            "name": "test_cal",
-            ...,
-          }
-        },
-        {
-          "created_at": "2025-08-21T14:12:28+03:00",
-          "id": 365,
-          "parents": [
-            364
-          ],
-          "metadata": {
-            "name": "test_cal",
-            ...,
-          }
-        }
+        ...
       ],
       "has_next_page": true,
       "total_pages": 45
     }
     ```
+
+    #### 2) Filter by date range
+    **Request:**
+    `/branch/main/snapshots_history?page=1&per_page=100&min_date=2025-08-21&max_date=2025-08-22`
+
+    Returns snapshots created between 2025-08-21 and 2025-08-22 (inclusive).
+
+    #### 3) Filter by exact name
+    **Request:**
+    `/branch/main/snapshots_history?page=1&per_page=100&name=test_cal`
+
+    Returns only snapshots with name exactly matching "test_cal".
+
+    #### 4) Sort by name (A-Z)
+    **Request:**
+    `/branch/main/snapshots_history?page=1&per_page=100&sort=name&descending=false`
+
+    Returns snapshots sorted alphabetically by name (A to Z).
+
+    **Note:** Cannot use both `name` (exact match) and `name_part` (substring
+    match) in the same request - this will return a 400 Bad Request error.
     """
-    total, snapshots = branch.get_latest_snapshots(
-        pages_filter=page_filter,
-        descending=descending,
-    )
-    snapshots_dumped = [
-        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
-        for snapshot in snapshots
-    ]
-    return PagedCollection[SimplifiedSnapshotWithMetadata](
-        page=page_filter.page,
-        per_page=page_filter.per_page,
-        total_items=total,
-        items=snapshots_dumped,
-    )
+    if search_filters.name is not None and search_filters.name_part is not None:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Cannot use both 'name' (exact match) and 'name_part' "
+                "(substring match) parameters together. Use only one."
+            ),
+        )
+
+    # For grouped mode or sorting, we need to fetch all snapshots first
+    # because sorting and tree-building require all items in memory.
+    if grouped or sort is not None:
+        all_pages_filter = PageFilter(page=1, per_page=MAX_PAGE_SIZE_FOR_GROUPING)
+        _, all_snapshots = branch.get_latest_snapshots(
+            pages_filter=all_pages_filter,
+            search_filter=SearchWithIdFilter(**search_filters.model_dump()),
+            descending=False,  # We'll handle sorting/pagination ourselves
+        )
+        all_dumped = [
+            SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
+            for snapshot in all_snapshots
+        ]
+
+        if sort is not None:
+            # Sort all snapshots by the requested field
+            all_dumped = sorted(
+                all_dumped,
+                key=lambda s: get_sort_key(s, sort, descending),
+                reverse=descending,
+            )
+        elif descending:
+            # Apply descending order if not sorting
+            all_dumped = list(reversed(all_dumped))
+
+        if grouped:
+            # Build nested tree structure
+            tree_items = build_snapshot_tree(all_dumped)
+
+            # Sort tree items using the same sort logic as the request parameter.
+            # This fixes a bug where tree_items were always sorted by created_at
+            # regardless of the user's sort parameter.
+            if sort is not None:
+                tree_items.sort(
+                    key=lambda x: get_sort_key(
+                        SimplifiedSnapshotWithMetadata(
+                            id=x.id,
+                            created_at=x.created_at,
+                            parents=x.parents,
+                            metadata=x.metadata,
+                        ),
+                        sort,
+                        descending,
+                    ),
+                    reverse=descending,
+                )
+            else:
+                # Default: sort by created_at (date)
+                tree_items.sort(
+                    key=lambda x: x.created_at or x.id, reverse=descending
+                )
+
+            # Paginate the nested items (counting all items including nested)
+            paginated_items, total = paginate_nested_items(
+                tree_items, page_filter.page, page_filter.per_page
+            )
+
+            return PagedCollection[SnapshotHistoryItem](
+                page=page_filter.page,
+                per_page=page_filter.per_page,
+                total_items=total,
+                items=paginated_items,
+            )
+        else:
+            # Flat mode with sorting - apply pagination
+            snapshots_dumped = list(get_page_slice(all_dumped, page_filter))
+            total = len(all_dumped)
+
+            return PagedCollection[SimplifiedSnapshotWithMetadata](
+                page=page_filter.page,
+                per_page=page_filter.per_page,
+                total_items=total,
+                items=snapshots_dumped,
+            )
+    else:
+        # Original flow without sorting or grouping
+        total, snapshots = branch.get_latest_snapshots(
+            pages_filter=page_filter,
+            search_filter=SearchWithIdFilter(**search_filters.model_dump()),
+            descending=descending,
+        )
+        snapshots_dumped = [
+            SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
+            for snapshot in snapshots
+        ]
+
+        return PagedCollection[SimplifiedSnapshotWithMetadata](
+            page=page_filter.page,
+            per_page=page_filter.per_page,
+            total_items=total,
+            items=snapshots_dumped,
+        )
 
 
 @branch_router.get(
