@@ -1,7 +1,10 @@
+import logging
 from collections.abc import Sequence
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+
+logger = logging.getLogger(__name__)
 from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate.app.api.core.domain.bases.branch import BranchLoadType
@@ -85,6 +88,16 @@ def _snapshot_to_simplified(
     # Use raw metadata to preserve workflow-specific fields like type_of_execution, children
     # that might be lost during Pydantic serialization
     metadata = dict(raw_content.get("metadata", {}))
+    
+    # Debug logging for workflow-related fields
+    snapshot_id = dump.get("id")
+    logger.debug(
+        f"_snapshot_to_simplified: id={snapshot_id}, "
+        f"name={metadata.get('name')}, "
+        f"type_of_execution={metadata.get('type_of_execution')}, "
+        f"children={metadata.get('children')}, "
+        f"workflow_parent_id={metadata.get('workflow_parent_id')}"
+    )
 
     # Merge any computed fields from dump (like run_duration)
     dump_metadata = dump.get("metadata", {})

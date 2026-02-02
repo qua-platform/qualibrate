@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Callable
 from typing import Any
 
@@ -9,6 +10,8 @@ from qualibrate.app.api.core.models.snapshot import (
     SnapshotHistoryMetadata,
 )
 from qualibrate.app.api.core.types import IdType
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "convert_to_history_item",
@@ -216,15 +219,28 @@ def build_snapshot_tree(
     # Also mark items with workflow_parent_id as children (they belong to a parent
     # workflow and should not appear at top level, even if the parent isn't in
     # the current result set - e.g., parent is still running or on another page)
+    items_with_parent = []
     for item in items_by_id.values():
         workflow_parent_id = item.metadata.workflow_parent_id
         if workflow_parent_id is not None:
             child_ids.add(item.id)
+            items_with_parent.append(
+                f"{item.id}({item.metadata.name})->parent:{workflow_parent_id}"
+            )
 
     # Return only top-level items (not children of other items in this result)
     top_level_items = [
         item for item_id, item in items_by_id.items() if item_id not in child_ids
     ]
+
+    # Log summary for troubleshooting
+    if items_with_parent:
+        logger.info(
+            f"build_snapshot_tree: {len(items_by_id)} items, "
+            f"{len(child_ids)} filtered as children, "
+            f"{len(top_level_items)} top-level. "
+            f"Items with workflow_parent_id: {items_with_parent}"
+        )
 
     return top_level_items
 

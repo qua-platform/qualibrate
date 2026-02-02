@@ -420,6 +420,9 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         if "metadata" not in content:
             content["metadata"] = {}
         content["metadata"]["workflow_parent_id"] = workflow_parent_id
-        content["metadata"]["type_of_execution"] = ExecutionType.node.value
+        # Only set type_of_execution to node if not already set
+        # (preserves workflow type for nested subgraphs)
+        if "type_of_execution" not in content["metadata"]:
+            content["metadata"]["type_of_execution"] = ExecutionType.node.value
 
         return self._write_node_json(node_json_path, content)
