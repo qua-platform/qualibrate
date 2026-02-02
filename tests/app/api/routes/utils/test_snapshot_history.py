@@ -996,8 +996,8 @@ class TestOnTheFlyWorkflowDetection:
         # Should be detected as node (empty children = not a workflow)
         assert result.type_of_execution == ExecutionType.node
 
-    def test_explicit_type_takes_precedence(self):
-        """Test that explicit type_of_execution takes precedence over detection."""
+    def test_explicit_type_takes_precedence_when_no_children(self):
+        """Test that explicit type_of_execution takes precedence when no children."""
         # Workflow with explicit type but no children
         metadata_dict = {
             "name": "explicit_workflow",
@@ -1016,5 +1016,123 @@ class TestOnTheFlyWorkflowDetection:
 
         result = convert_to_history_item(snapshot)
 
-        # Should respect explicit type
+        # Should respect explicit type when no children
         assert result.type_of_execution == ExecutionType.workflow
+
+    def test_children_override_incorrect_node_type(self):
+        """Test that having children overrides incorrect 'node' type (the bug fix).
+        
+        This tests the exact scenario from 10_basic_graph_composition where
+        coherence_characterization was saved with type_of_execution='node' 
+        but has children=[1304, 1305], so it should be treated as a workflow.
+        """
+        # Create metadata that incorrectly says "node" but has children
+        metadata_dict = {
+            "name": "coherence_characterization",
+            "status": "finished",
+            "type_of_execution": "node",  # Incorrectly set as node!
+            "children": [1304, 1305],      # But it HAS children!
+            "workflow_parent_id": 1301,
+        }
+        metadata = SnapshotMetadata(**metadata_dict)
+
+        snapshot = SimplifiedSnapshotWithMetadata(
+            id=1303,
+            created_at=datetime.now(timezone.utc),
+            parents=[1302],
+            metadata=metadata,
+        )
+
+        result = convert_to_history_item(snapshot)
+
+        # Should be detected as WORKFLOW because it has children,
+        # regardless of the incorrect "node" type in metadata
+        assert result.type_of_execution == ExecutionType.workflow
+        assert result.metadata.children == [1304, 1305]
+
+    def test_tree_building_with_incorrectly_typed_nested_workflow(self):
+        """Test full tree building with incorrectly typed nested workflow.
+        
+        This simulates the exact 10_basic_graph_composition bug where:
+        - coherence_characterization is saved as type_of_execution="node"
+        - But it has children [1304, 1305]
+        - The tree builder should detect it as a workflow and populate items
+        """
+        snapshots = [
+            create_snapshot(
+                1301,
+                name="10_basic_graph_composition",
+                type_of_execution="workflow",
+                children=[1302, 1303, 1306],
+            ),
+            create_snapshot(
+                1302,
+                name="02_demo_rabi",
+                type_of_execution="node",
+                workflow_parent_id=1301,
+                status="finished",
+            ),
+            # This is the problematic nested workflow - type says "node" but has children
+            create_snapshot(
+                1303,
+                name="coherence_characterization",
+                type_of_execution="node",  # BUG: incorrectly set as node
+                children=[1304, 1305],      # But it HAS children
+                workflow_parent_id=1301,
+                status="finished",
+            ),
+            create_snapshot(
+                1304,
+                name="05_demo_ramsey",
+                type_of_execution="node",
+                workflow_parent_id=1303,
+                status="finished",
+            ),
+            create_snapshot(
+                1305,
+                name="06_demo_t1",
+                type_of_execution="node",
+                workflow_parent_id=1303,
+                status="finished",
+            ),
+            create_snapshot(
+                1306,
+                name="07_demo_randomized_benchmarking",
+                type_of_execution="node",
+                workflow_parent_id=1301,
+                status="finished",
+            ),
+        ]
+
+        result = build_snapshot_tree(snapshots)
+
+        # Verify top-level structure
+        assert len(result) == 1
+        outer_workflow = result[0]
+        assert outer_workflow.id == 1301
+        assert outer_workflow.type_of_execution == ExecutionType.workflow
+        assert len(outer_workflow.items) == 3
+
+        # Find the nested workflow (coherence_characterization)
+        nested_workflow = None
+        for item in outer_workflow.items:
+            if item.id == 1303:
+                nested_workflow = item
+                break
+
+        # The key assertion: despite being stored as "node", it should be
+        # detected as workflow because it has children
+        assert nested_workflow is not None
+        assert nested_workflow.type_of_execution == ExecutionType.workflow, \
+            "coherence_characterization should be detected as workflow because it has children"
+        
+        # Its items should be populated with the children
+        assert nested_workflow.items is not None, \
+            "Nested workflow items should not be null"
+        assert len(nested_workflow.items) == 2
+        assert {item.id for item in nested_workflow.items} == {1304, 1305}
+
+        # Verify node counts are correct
+        # Total nodes: rabi(1) + coherence_char(workflow=1) + ramsey(1) + t1(1) + rb(1) = 5
+        assert outer_workflow.nodes_total == 5
+        assert outer_workflow.nodes_completed == 5

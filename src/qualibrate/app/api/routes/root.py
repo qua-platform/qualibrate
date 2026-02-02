@@ -200,17 +200,21 @@ def _convert_to_history_item(
     children = metadata_dict.get("children")
     workflow_parent_id = metadata_dict.get("workflow_parent_id")
 
-    # Get type_of_execution from metadata with on-the-fly detection for
-    # legacy snapshots that don't have this field set.
-    # If type_of_execution is missing, detect workflow by presence of
-    # non-empty children list (eliminates need for manual migration).
+    # Determine type_of_execution with robust detection logic.
+    # The presence of children is the ground truth for workflow detection,
+    # regardless of what type_of_execution says in metadata.
+    # This handles:
+    # 1. Legacy snapshots that don't have type_of_execution set
+    # 2. Nested subgraphs that were incorrectly saved as "node" but have children
+    has_children = children and isinstance(children, list) and len(children) > 0
     type_of_execution_str = metadata_dict.get("type_of_execution")
-    if type_of_execution_str is None:
-        # On-the-fly detection: if children exists and is non-empty, treat as workflow
-        if children and isinstance(children, list) and len(children) > 0:
-            type_of_execution_str = "workflow"
-        else:
-            type_of_execution_str = "node"
+    
+    if has_children:
+        # If snapshot has children, it's ALWAYS a workflow regardless of metadata
+        type_of_execution_str = "workflow"
+    elif type_of_execution_str is None:
+        # No children and no type set - default to node
+        type_of_execution_str = "node"
 
     try:
         type_of_execution = ExecutionType(type_of_execution_str)
