@@ -115,9 +115,30 @@ def _snapshot_to_simplified(
     # Extract outcomes from data if available and requested
     outcomes = None
     if include_outcomes:
-        data = raw_content.get("data") or dump.get("data")
+        # Try to get data from raw_content first (more reliable)
+        data = raw_content.get("data")
+        if data is None:
+            # Fall back to dump if raw_content doesn't have data
+            data = dump.get("data")
+            
         if data and isinstance(data, dict):
-            outcomes = data.get("outcomes")
+            raw_outcomes = data.get("outcomes")
+            # Outcomes might be an empty dict, which is falsy
+            # Only set if it has actual values
+            if raw_outcomes and isinstance(raw_outcomes, dict) and len(raw_outcomes) > 0:
+                outcomes = raw_outcomes
+                logger.info(
+                    f"Outcomes found: id={snapshot_id}, "
+                    f"name={metadata.get('name')}, outcomes={outcomes}"
+                )
+        else:
+            # Log when we expect outcomes but don't find data
+            type_of_exec = metadata.get('type_of_execution')
+            if type_of_exec == 'node':
+                logger.warning(
+                    f"No data for node snapshot: id={snapshot_id}, "
+                    f"name={metadata.get('name')}, raw_content_keys={list(raw_content.keys())}"
+                )
 
     if include_outcomes and outcomes is not None:
         return SimplifiedSnapshotWithMetadataAndOutcomes(
