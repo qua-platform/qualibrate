@@ -31,9 +31,9 @@ export const getSnapshotsSearchQuery = createSelector(
             descending: "true",
             sort: sortType,
             grouped: "true",
-            ...(searchString && {name: searchString}),
-            ...(minDate && {min_date: minDate}),
-            ...(maxDate && {max_date: maxDate}),
+            ...(searchString && {name_part: searchString}),
+            ...(minDate && { min_date: minDate }),
+            ...(maxDate && { max_date: maxDate }),
         };
 
         const tagParams =

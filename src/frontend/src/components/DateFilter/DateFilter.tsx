@@ -43,7 +43,7 @@ const DateFilter: React.FC<Props> = ({ options, from, to, setFrom, setTo, onSele
         year = year.slice(0, 4);
         e.preventDefault();
       }
-      value = `${year}-${month}-${day}`;
+      value = `${year}-${("0" + month).slice(-2)}-${("0" + day).slice(-2)}`;
     }
 
     if (type === "from" && setFrom) setFrom(value);

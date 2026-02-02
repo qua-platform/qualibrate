@@ -47,71 +47,82 @@ const sortOptions = [
 ];
 
 const DataLeftPanel: React.FC = () => {
-    const dispatch = useRootDispatch();
-    const selectedWorkflow = useSelector(getSelectedWorkflow);
-    const breadCrumbs = useSelector(getBreadCrumbs);
-    const [selectedDateFilter, setSelectedDateFilter] = useState<string | undefined>(undefined);
-    const [selectedSortType, setSelectedSortType] = useState<SortType>(SortType.Date);
-    const [searchText, setSearchText] = useState<string>("");
-    const [fromDate, setFromDate] = useState<string>("");
-    const [toDate, setToDate] = useState<string>("");
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const dispatch = useRootDispatch();
+  const selectedWorkflow = useSelector(getSelectedWorkflow);
+  const breadCrumbs = useSelector(getBreadCrumbs);
+  const [selectedDateFilter, setSelectedDateFilter] = useState<string | undefined>(undefined);
+  const [selectedSortType, setSelectedSortType] = useState<SortType>(SortType.Date);
+  const [searchText, setSearchText] = useState<string>("");
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-    let firstNavigationValue = undefined;
-    if (breadCrumbs.length === 1) {
-        firstNavigationValue = "← History";
-    } else if (breadCrumbs.length >= 2) {
-        firstNavigationValue = `← ${breadCrumbs[breadCrumbs.length - 2]}`;
+  let firstNavigationValue = undefined;
+  if (breadCrumbs.length === 1) {
+    firstNavigationValue = "← History";
+  } else if (breadCrumbs.length >= 2) {
+    firstNavigationValue = `← ${breadCrumbs[breadCrumbs.length - 2]}`;
+  }
+
+
+  const handleOnDateFilterSelect = (dateFilterType?: { value: DateOption; label: string }) => {
+    setSelectedDateFilter(dateFilterType?.label);
+    const today = new Date();
+    const dateToString = (date: Date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+
+      return `${year}-${("0" + month).slice(-2)}-${("0" + day).slice(-2)}`;
+    };
+
+    switch (dateFilterType?.value) {
+      case DateOption.Today: {
+        setFromDate(dateToString(today));
+        setToDate(dateToString(today));
+        break;
+      }
+      case DateOption.LastWeek: {
+        const weekBefore = new Date(today);
+        weekBefore.setDate(today.getDate() - 7);
+
+        setFromDate(dateToString(weekBefore));
+        setToDate(dateToString(today));
+        break;
+      }
+      case DateOption.LastMonth: {
+        const monthBefore = new Date(today);
+        monthBefore.setMonth(today.getMonth() - 1);
+
+        setFromDate(dateToString(monthBefore));
+        setToDate(dateToString(today));
+        break;
+      }
     }
+  };
 
-    useEffect(() => {
-        dispatch(setSnapshotsFilters({
-            tags: selectedTags,
-            sortType: selectedSortType,
-            searchString: searchText,
-            minDate: fromDate,
-            maxDate: toDate,
-        }));
-    }, [selectedSortType, searchText, fromDate, toDate, selectedTags]);
+  useEffect(() => {
+      dispatch(setSnapshotsFilters({
+          tags: selectedTags,
+          sortType: selectedSortType,
+          searchString: searchText,
+          minDate: fromDate,
+          maxDate: toDate,
+      }));
+  }, [selectedSortType, searchText, fromDate, toDate, selectedTags]);
 
-    const handleOnDateFilterSelect = (dateFilterType?: { value: DateOption; label: string }) => {
-        setSelectedDateFilter(dateFilterType?.label);
-        const today = new Date();
-        const dateToString = (date: Date) => `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+  const handleOnDateFilterRemove = (filterName?: string) => {
+    setSelectedDateFilter(undefined);
+    if (filterName === "From") {
+      setFromDate("");
+    } else if (filterName === "To") {
+      setToDate("");
+    } else {
+      setFromDate("");
+      setToDate("");
+    }
+  };
 
-        switch (dateFilterType?.value) {
-            case DateOption.Today: {
-                setFromDate(dateToString(today));
-                setToDate(dateToString(today));
-                break;
-            }
-            case DateOption.LastWeek: {
-                const weekBefore = new Date(today);
-                weekBefore.setDate(today.getDate() - 7);
-
-                setFromDate(dateToString(weekBefore));
-                setToDate(dateToString(today));
-                break;
-            }
-            case DateOption.LastMonth: {
-                const monthBefore = new Date(today);
-                monthBefore.setMonth(today.getMonth() - 1);
-
-                setFromDate(dateToString(monthBefore));
-                setToDate(dateToString(today));
-                break;
-            }
-        }
-    };
-
-    const handleOnDateFilterRemove = (filterName?: string) => {
-        setSelectedDateFilter(undefined);
-        if (filterName === "From") {
-            setFromDate("");
-        } else if (filterName === "To") {
-            setToDate("");
-        }
-    };
 
     const handleGoingBackOneLevel = () => {
         dispatch(goBackOneLevel());
