@@ -1,8 +1,8 @@
-import { createSelector } from "@reduxjs/toolkit";
-import { RootState } from "..";
-import { SnapshotData, SnapshotDTO } from "./api/SnapshotsApi";
-import { NodeDTO } from "../../modules/Nodes";
-import { InputParameter } from "../../components";
+import {createSelector} from "@reduxjs/toolkit";
+import {RootState} from "..";
+import {SnapshotData, SnapshotDTO} from "./api/SnapshotsApi";
+import {NodeDTO} from "../../modules/Nodes";
+import {InputParameter} from "../../components";
 
 export const getSnapshotsState = (state: RootState) => state.snapshots;
 
@@ -18,23 +18,37 @@ export const getPageNumber = createSelector(getSnapshotsState, (state) => state.
 
 export const getAllSnapshots = createSelector(getSnapshotsState, (state) => state.allSnapshots);
 
-export const getSnapshotsSearchQuery = createSelector(getSnapshotsState, getPageNumber, (state, pageNumber) => {
-  const { sortType, searchString, minDate, maxDate } = state.snapshotsFilters;
+export const getSnapshotsSearchQuery = createSelector(
+    getSnapshotsState,
+    getPageNumber,
+    (state, pageNumber) => {
+        const {tags, sortType, searchString, minDate, maxDate} =
+            state.snapshotsFilters;
 
-  const query = new URLSearchParams({
-    page: pageNumber.toString(),
-    per_page: "100",
-    descending: "true",
-    sort: sortType,
-    grouped: "true",
+        const baseParams = {
+            page: pageNumber.toString(),
+            per_page: "100",
+            descending: "true",
+            sort: sortType,
+            grouped: "true",
+            ...(searchString && {name: searchString}),
+            ...(minDate && {min_date: minDate}),
+            ...(maxDate && {max_date: maxDate}),
+        };
 
-    ...(searchString && {name: searchString}),
-    ...(minDate && { min_date: minDate }),
-    ...(maxDate && { max_date: maxDate }),
-  });
+        const tagParams =
+            tags?.reduce((acc, tag) => {
+                acc.push(["tag_name", tag]);
+                return acc;
+            }, [] as [string, string][]) ?? [];
 
-  return query.toString();
-});
+        return new URLSearchParams([
+            ...Object.entries(baseParams),
+            ...tagParams,
+        ]).toString();
+    }
+);
+
 
 export const getSelectedSnapshot = createSelector(getSnapshotsState, (state) => state.selectedSnapshot);
 
@@ -47,25 +61,25 @@ export const getSelectedNodeInWorkflowName = createSelector(getSnapshotsState, (
 export const getBreadCrumbs = createSelector(getSnapshotsState, (state) => state.breadCrumbs);
 
 const findByBreadcrumbs = (items: SnapshotDTO[], breadcrumbs: string[]): SnapshotDTO | undefined =>
-  breadcrumbs.reduce<SnapshotDTO | undefined>((current, name, index) => {
-    const source = index === 0 ? items : current?.type_of_execution === "workflow" ? current.items : undefined;
+    breadcrumbs.reduce<SnapshotDTO | undefined>((current, name, index) => {
+        const source = index === 0 ? items : current?.type_of_execution === "workflow" ? current.items : undefined;
 
-    if (!source) return undefined;
+        if (!source) return undefined;
 
-    return source.find((item: SnapshotDTO) => item.metadata?.name === name);
-  }, undefined);
+        return source.find((item: SnapshotDTO) => item.metadata?.name === name);
+    }, undefined);
 
 export const getSelectedWorkflowForGraph = createSelector(getAllSnapshots, getBreadCrumbs, (allSnapshots = [], breadcrumbs = []) =>
-  breadcrumbs.length ? findByBreadcrumbs(allSnapshots, breadcrumbs) : undefined
+    breadcrumbs.length ? findByBreadcrumbs(allSnapshots, breadcrumbs) : undefined
 );
 
 export const getExecutionHistorySnapshots = createSelector(getAllSnapshots, getSelectedWorkflowForGraph, (allSnapshots = [], selectedWorkflow) => {
-  if (!selectedWorkflow)
-    return allSnapshots;
+    if (!selectedWorkflow)
+        return allSnapshots;
 
-  return selectedWorkflow.metadata?.children
-    ? allSnapshots.filter(snapshot => selectedWorkflow.metadata.children!.includes(snapshot.id))
-    : undefined;
+    return selectedWorkflow.metadata?.children
+        ? allSnapshots.filter(snapshot => selectedWorkflow.metadata.children!.includes(snapshot.id))
+        : undefined;
 });
 
 export const getSelectedSnapshotId = createSelector(getSnapshotsState, (state) => state.selectedSnapshotId);
@@ -89,25 +103,25 @@ export const getSecondId = createSelector(getSnapshotsState, (state) => state.se
 export const getReset = createSelector(getSnapshotsState, (state) => state.reset);
 
 export const getSelectedSnapshotNode = createSelector(getSnapshotsState, getNodesState, getJsonData,
-  (snapshotState, nodesState, jsonData) => {
-    const node = nodesState?.allNodes ? nodesState?.allNodes[snapshotState.selectedSnapshot?.metadata?.name ?? ""] : undefined;
-    const model = (jsonData as SnapshotData).parameters?.model;
+    (snapshotState, nodesState, jsonData) => {
+        const node = nodesState?.allNodes ? nodesState?.allNodes[snapshotState.selectedSnapshot?.metadata?.name ?? ""] : undefined;
+        const model = (jsonData as SnapshotData).parameters?.model;
 
-    if (!node || !model) return undefined;
+        if (!node || !model) return undefined;
 
-    const newParameters: InputParameter = {};
+        const newParameters: InputParameter = {};
 
-    Object.entries(node.parameters || {}).forEach(([key, param]) => {
-      const modelParamValue = model[key];
-      newParameters[key] = {
-        ...param,
-        default: modelParamValue || ""
-      };
-    });
+        Object.entries(node.parameters || {}).forEach(([key, param]) => {
+            const modelParamValue = model[key];
+            newParameters[key] = {
+                ...param,
+                default: modelParamValue || ""
+            };
+        });
 
-    return {
-      ...node,
-      parameters: newParameters,
-    } as NodeDTO;
-  }
+        return {
+            ...node,
+            parameters: newParameters,
+        } as NodeDTO;
+    }
 );

@@ -1,6 +1,6 @@
 .selectedFiltersRow {
   padding-top: 8px;
-  display: flex;
+  display: contents;
   gap: 6px;
   flex-wrap: wrap;
   align-items: center;
@@ -16,6 +16,7 @@
   border-radius: 4px;
   font-size: 12px;
   color: #c9d1d9;
+  flex-wrap: nowrap;
 }
 
 .filterLabel {

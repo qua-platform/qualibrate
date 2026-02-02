@@ -118,21 +118,21 @@ export const fetchSnapshotTags = () => async (dispatch: RootDispatch, getState: 
     dispatch(setAllTags(resAllSnapshotTags.result));
   }
   // TODO Uncomment this code to use mocked data
-  // dispatch(
-  //   setAllTags([
-  //     "resonance",
-  //     "characterization",
-  //     "calibration",
-  //     "rabi",
-  //     "relaxation",
-  //     "error",
-  //     "tomography",
-  //     "validation",
-  //     "benchmarking",
-  //     "multi-qubit",
-  //     "quick-check",
-  //   ])
-  // );
+  dispatch(
+    setAllTags([
+      "resonance",
+      "characterization",
+      "calibration",
+      "rabi",
+      "relaxation",
+      "error",
+      "tomography",
+      "validation",
+      "benchmarking",
+      "multi-qubit",
+      "quick-check",
+    ])
+  );
 };
 
 // -----------------------------------------------------------

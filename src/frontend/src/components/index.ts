@@ -30,3 +30,4 @@ export { default as DateFilter } from "./DateFilter";
 export { default as SortButton } from "./SortButton";
 export { default as AppliedFilterLabel } from "./AppliedFilterLabel";
 export { default as VerticalResizableComponent } from "./VerticalResizableComponent";
+export { default as TagFilter } from "./TagFilter";

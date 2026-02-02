@@ -33,3 +33,4 @@ export { UndoIcon } from "./UndoIcon";
 export { WorkflowPlaceHolderIcon } from "./WorkflowPlaceholderIcon";
 export { DateFilterIcon } from "./DateFilterIcon";
 export { default as SortIcon } from "./SortIcon";
+export { default as TagFilterIcon } from "./TagFilterIcon";
