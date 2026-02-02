@@ -339,18 +339,17 @@ class BasicOrchestrator(
             parameters = cast(ExecutionParameters, parameters)
             element_parameters = parameters.parameters.model_dump()
             element_parameters["nodes"] = parameters.nodes.model_dump()
-            # Set the parent workflow ID for nested graphs
-            if (
-                isinstance(element_to_run, QualibrationGraph)
-                and element_to_run._orchestrator is not None
-                and self._workflow_snapshot_idx is not None
-            ):
-                nested_orch = cast(
-                    BasicOrchestrator[Any], element_to_run._orchestrator
-                )
-                nested_orch.set_workflow_parent_id(self._workflow_snapshot_idx)
-
         element_to_run.cleanup()
+
+        if (
+            isinstance(element_to_run, QualibrationGraph)
+            and element_to_run._orchestrator is not None
+            and self._workflow_snapshot_idx is not None
+        ):
+            nested_orch = cast(
+                BasicOrchestrator[Any], element_to_run._orchestrator
+            )
+            nested_orch.set_workflow_parent_id(self._workflow_snapshot_idx)
         logger.debug(
             f"Graph. Start running element {element_to_run} "
             f"with parameters {element_parameters}"
