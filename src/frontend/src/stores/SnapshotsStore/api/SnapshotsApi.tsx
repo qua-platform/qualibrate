@@ -73,14 +73,11 @@ export interface SnapshotData {
 export type SnapshotSearchType = "name" | "date" | "status";
 
 export type SnapshotOutcomesType = {
-  [qubitId: string]: string
+  [key: string]: {
+    status: string;
+    failed_on?: string;
+  };
 };
-// export type SnapshotOutcomesType = {
-//   [key: string]: {
-//     status: string;
-//     failed_on?: string;
-//   };
-// };
 
 export type SnapshotComment = {
   id: number;

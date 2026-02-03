@@ -13,7 +13,7 @@ const QubitStatusList: React.FC<Props> = ({ outcomes }) => {
   return (
     <>
       {Object.entries(outcomes).map(([qubitName, data]) => {
-        const isFailure = data === "failed";
+        const isFailure = data.status === "failure";
 
         return (
           <div key={qubitName} className={styles.card}>
@@ -22,16 +22,16 @@ const QubitStatusList: React.FC<Props> = ({ outcomes }) => {
 
               <div className={styles.status}>
                 <span className={`${styles.statusDot0} ${isFailure ? styles.failure : styles.success}`} />
-                <span className={`${styles.statusText} ${isFailure ? styles.failure : styles.success}`}>{data.toUpperCase()}</span>
+                <span className={`${styles.statusText} ${isFailure ? styles.failure : styles.success}`}>{data.status?.toUpperCase()}</span>
               </div>
             </div>
 
-            {/* {isFailure && data.failed_on && (
+            {isFailure && data.failed_on && (
               <div className={styles.failureInfo}>
                 <div className={styles.failureLabel}>Failed on</div>
                 <div className={styles.failureValue}>{data.failed_on}</div>
               </div>
-            )} */}
+            )}
           </div>
         );
       })}
