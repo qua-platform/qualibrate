@@ -13,7 +13,7 @@ from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotLoadTypeFlag,
 )
 from qualibrate.app.api.core.domain.local_storage.branch import (
-    BranchLocalStorage,
+    BranchLocalStorage
 )
 from qualibrate.app.api.core.domain.timeline_db.branch import BranchTimelineDb
 from qualibrate.app.api.core.models.branch import Branch as BranchModel
@@ -21,6 +21,7 @@ from qualibrate.app.api.core.models.node import Node as NodeModel
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
+    SimplifiedSnapshotWithOutcomes,
     SnapshotHistoryItem,
     SnapshotSearchResult,
 )
@@ -560,15 +561,24 @@ def get_snapshots_history(
     # For grouped mode, sorting, or tag filtering, we need to fetch all snapshots
     if grouped or sort is not None or has_tag_filter:
         all_pages_filter = PageFilter(page=1, per_page=MAX_PAGE_SIZE_FOR_GROUPING)
-        _, all_snapshots = branch.get_latest_snapshots(
+        _, all_snapshots = branch.get_latest_snapshots_with_outcomes(
             pages_filter=all_pages_filter,
             search_filter=SearchWithIdFilter(**search_filters.model_dump()),
             descending=False,  # We'll handle sorting/pagination ourselves
         )
-        all_dumped = [
-            SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
-            for snapshot in all_snapshots
-        ]
+        all_dumped = []
+        for snapshot in all_snapshots:
+            dumped = snapshot.dump()
+            # Extract outcomes from data if available
+            outcomes = None
+            if dumped.data and dumped.data.outcomes:
+                outcomes = dumped.data.outcomes
+            all_dumped.append(
+                SimplifiedSnapshotWithOutcomes(
+                    **dumped.model_dump(exclude={"data"}),
+                    outcomes=outcomes,
+                )
+            )
 
         # Apply tag filtering if specified
         if has_tag_filter:

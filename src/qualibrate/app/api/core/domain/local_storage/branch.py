@@ -135,6 +135,39 @@ class BranchLocalStorage(BranchBase):
             snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         return total, snapshots
 
+    def get_latest_snapshots_with_outcomes(
+        self,
+        pages_filter: PageFilter,
+        search_filter: SearchWithIdFilter | None = None,
+        descending: bool = False,
+    ) -> tuple[int, Sequence[SnapshotBase]]:
+        """Get latest snapshots with data.outcomes loaded for qubit counting.
+
+        This method loads snapshots with the DataWithoutRefs flag, which includes
+        outcomes data needed for accurate qubit counting in workflow aggregates,
+        without loading heavy fields like machine state and results.
+        """
+        storage_location = self._settings.storage.location
+        # Get total count of filtered items (before pagination)
+        filtered_ids = self._get_filtered_ids(storage_location, search_filter)
+        total = len(filtered_ids)
+
+        ids_paged = self._get_latest_snapshots_ids(
+            storage_location,
+            pages_filter=pages_filter,
+            search_filter=search_filter,
+            descending=descending,
+        )
+        snapshots = [
+            SnapshotLocalStorage(id, settings=self._settings)
+            for id in ids_paged
+        ]
+        for snapshot in snapshots:
+            snapshot.load_from_flag(
+                SnapshotLoadTypeFlag.Metadata | SnapshotLoadTypeFlag.DataWithoutRefs
+            )
+        return total, snapshots
+
     def get_latest_nodes(
         self,
         pages_filter: PageFilter,

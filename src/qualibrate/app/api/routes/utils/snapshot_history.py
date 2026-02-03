@@ -2,6 +2,7 @@ from qualibrate.app.api.core.models.snapshot import (
     ExecutionType,
     QubitOutcome,
     SimplifiedSnapshotWithMetadata,
+    SimplifiedSnapshotWithOutcomes,
     SnapshotHistoryItem,
     SnapshotHistoryMetadata,
 )
@@ -17,7 +18,7 @@ __all__ = [
 
 
 def convert_to_history_item(
-    snapshot: SimplifiedSnapshotWithMetadata,
+    snapshot: SimplifiedSnapshotWithMetadata | SimplifiedSnapshotWithOutcomes,
 ) -> SnapshotHistoryItem:
     """Convert a SimplifiedSnapshotWithMetadata to a SnapshotHistoryItem.
 
@@ -72,6 +73,21 @@ def convert_to_history_item(
         workflow_parent_id=workflow_parent_id,
     )
 
+    # Extract raw outcomes if available (for nodes with outcomes data)
+    # Convert raw outcomes format {"q1": "successful"} to QubitOutcome format
+    raw_outcomes = None
+    if hasattr(snapshot, "outcomes") and snapshot.outcomes:
+        raw_outcomes = {}
+        name = snapshot.metadata.name if snapshot.metadata else f"node_{snapshot.id}"
+        for qubit_name, outcome_value in snapshot.outcomes.items():
+            # Convert from Outcome enum values ("successful"/"failed") to QubitOutcome
+            if outcome_value in ("successful", "success"):
+                raw_outcomes[qubit_name] = QubitOutcome(status="success")
+            elif outcome_value in ("failed", "failure", "error"):
+                raw_outcomes[qubit_name] = QubitOutcome(
+                    status="failure", failed_on=name
+                )
+
     return SnapshotHistoryItem(
         id=snapshot.id,
         created_at=snapshot.created_at,
@@ -79,6 +95,7 @@ def convert_to_history_item(
         metadata=history_metadata,
         type_of_execution=type_of_execution,
         tags=tags,
+        outcomes=raw_outcomes,
     )
 
 
@@ -179,24 +196,26 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                 if item.nodes_completed > item.nodes_total / 2:
                     nodes_completed += 1
         else:
-            # For nodes, count and extract outcomes from metadata
+            # For nodes, count and extract outcomes
             nodes_total += 1
             status = item.metadata.status if item.metadata else None
             if status in ("finished", "success"):
                 nodes_completed += 1
 
-            # Try to get outcomes from data if available
-            # Note: outcomes are typically in data.outcomes, but in history
-            # we may not have full data. Use status as proxy.
-            name = item.metadata.name if item.metadata else f"node_{item.id}"
-
-            # Create outcome based on node status
-            if status in ("finished", "success"):
-                item_outcomes[f"node_{item.id}"] = QubitOutcome(status="success")
-            elif status in ("error", "failure"):
-                item_outcomes[f"node_{item.id}"] = QubitOutcome(
-                    status="failure", failed_on=name
-                )
+            # Use real outcomes if available (from data.outcomes)
+            if item.outcomes:
+                # Use the real qubit outcomes (e.g., {"q1": QubitOutcome, "q2": QubitOutcome})
+                for qubit_name, outcome in item.outcomes.items():
+                    item_outcomes[qubit_name] = outcome
+            else:
+                # Fallback: create outcome based on node status (legacy behavior)
+                name = item.metadata.name if item.metadata else f"node_{item.id}"
+                if status in ("finished", "success"):
+                    item_outcomes[f"node_{item.id}"] = QubitOutcome(status="success")
+                elif status in ("error", "failure"):
+                    item_outcomes[f"node_{item.id}"] = QubitOutcome(
+                        status="failure", failed_on=name
+                    )
 
         return item_outcomes
 

@@ -26,4 +26,12 @@ def node_runs_indication(node: QualibrationNode):
     node.log("node is running")
     node.outcomes["q1"] = "successful"
     node.outcomes["q2"] = Outcome.FAILED
+    node.outcomes["q3"] = Outcome.FAILED
+    node.outcomes["q4"] = Outcome.FAILED
+    # 3/0
+    # try:
+    #     4/0
+    # raise Exception
+    # except Exception:
+    node.save()
     return node.outcomes

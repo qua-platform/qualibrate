@@ -56,6 +56,15 @@ class SimplifiedSnapshotWithMetadata(SimplifiedSnapshot):
     tags: list[str] | None = None
 
 
+class SimplifiedSnapshotWithOutcomes(SimplifiedSnapshotWithMetadata):
+    """Extended snapshot model that includes outcomes data.
+
+    Used for workflow aggregation where we need access to qubit outcomes
+    to compute accurate qubit statistics.
+    """
+    outcomes: dict[str, Any] | None = None
+
+
 class SnapshotData(BaseModel):
     """Data associated with a snapshot.
 
