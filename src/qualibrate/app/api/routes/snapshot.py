@@ -164,6 +164,7 @@ def get(
     result = snapshot.dump()
 
     # For workflow snapshots (those with children), compute aggregated outcomes
+    # and put them in data.outcomes with failed_on tracking
     metadata = snapshot.content.get("metadata", {})
     children = metadata.get("children")
     if children and isinstance(children, list) and len(children) > 0:
@@ -171,10 +172,16 @@ def get(
             settings, metadata
         )
         if aggregated_outcomes:
-            result.aggregated_outcomes = aggregated_outcomes
+            # Put aggregated outcomes in data.outcomes
+            if result.data is None:
+                from qualibrate.app.api.core.models.snapshot import SnapshotData
+                result.data = SnapshotData()
+            result.data.outcomes = {
+                qubit: outcome.model_dump() for qubit, outcome in aggregated_outcomes.items()
+            }
             logger_local.debug(
-                f"Computed aggregated_outcomes for workflow {snapshot.id}: "
-                f"{aggregated_outcomes}"
+                f"Computed outcomes with failed_on for workflow {snapshot.id}: "
+                f"{result.data.outcomes}"
             )
 
     return result
