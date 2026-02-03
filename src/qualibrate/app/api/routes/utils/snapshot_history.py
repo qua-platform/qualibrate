@@ -54,11 +54,19 @@ def convert_to_history_item(
     # 1. Legacy snapshots that don't have type_of_execution set
     # 2. Nested subgraphs that were incorrectly saved as "node" but have children
     has_children = children and isinstance(children, list) and len(children) > 0
-    type_of_execution_str = metadata_dict.get("type_of_execution")
+    original_type = metadata_dict.get("type_of_execution")
+    type_of_execution_str = original_type
     
     if has_children:
         # If snapshot has children, it's ALWAYS a workflow regardless of metadata
         type_of_execution_str = "workflow"
+        if original_type != "workflow":
+            logger.info(
+                f"convert_to_history_item: Overriding type for id={snapshot.id}, "
+                f"name={metadata_dict.get('name')}, "
+                f"original_type={original_type} -> workflow, "
+                f"children={children}"
+            )
     elif type_of_execution_str is None:
         # No children and no type set - default to node
         type_of_execution_str = "node"
@@ -203,18 +211,35 @@ def build_snapshot_tree(
 
     # Build the tree by linking children to parents
     child_ids: set[IdType] = set()
+    workflows_processed = []
     for item in items_by_id.values():
         if item.type_of_execution == ExecutionType.workflow:
             children_ids = item.metadata.children or []
             children_items = []
+            missing_children = []
             for child_id in children_ids:
                 if child_id in items_by_id:
                     children_items.append(items_by_id[child_id])
                     child_ids.add(child_id)
+                else:
+                    missing_children.append(child_id)
             if children_items:
                 item.items = children_items
                 # Compute aggregated statistics
                 compute_workflow_aggregates(item)
+            workflows_processed.append(
+                f"{item.id}({item.metadata.name}): "
+                f"children_in_metadata={children_ids}, "
+                f"found={len(children_items)}, "
+                f"missing={missing_children}"
+            )
+    
+    # Log workflow processing for troubleshooting
+    if workflows_processed:
+        logger.info(
+            f"build_snapshot_tree: Processed {len(workflows_processed)} workflows: "
+            f"{workflows_processed}"
+        )
 
     # Also mark items with workflow_parent_id as children (they belong to a parent
     # workflow and should not appear at top level, even if the parent isn't in
