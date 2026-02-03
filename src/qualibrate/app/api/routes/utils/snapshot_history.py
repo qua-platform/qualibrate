@@ -376,11 +376,12 @@ def paginate_nested_items(
     page: int,
     per_page: int,
 ) -> tuple[list[SnapshotHistoryItem], int]:
-    """Paginate nested items counting all items including nested.
+    """Paginate top-level items, keeping nested children intact.
 
-    This function flattens the tree structure for counting and pagination
-    purposes, then filters the original tree to only include items that
-    appear in the paginated slice.
+    This function paginates on TOP-LEVEL items only. Each top-level item
+    includes all its nested children. This ensures that when you request
+    100 items per page, you get 100 top-level items (workflows and nodes),
+    with each workflow containing all its nested children.
 
     Note: Page numbers are 1-indexed (page 1 is the first page).
 
@@ -390,49 +391,14 @@ def paginate_nested_items(
         per_page: Number of items per page.
 
     Returns:
-        Tuple of (paginated items preserving tree structure, total count).
+        Tuple of (paginated top-level items with nested children, total top-level count).
     """
-    # Flatten items for counting and pagination
-    flat_items: list[SnapshotHistoryItem] = []
-
-    def _flatten(item_list: list[SnapshotHistoryItem]) -> None:
-        for item in item_list:
-            flat_items.append(item)
-            if item.items:
-                _flatten(item.items)
-
-    _flatten(items)
-
-    total = len(flat_items)
+    # Count only top-level items for pagination (not nested children)
+    total = len(items)
     start = (page - 1) * per_page
     end = start + per_page
 
-    # Get the paginated flat items
-    paginated_flat = flat_items[start:end]
+    # Slice the top-level items directly
+    paginated_items = items[start:end]
 
-    # For the response, we need to return the original tree structure
-    # but only including items that appear in the paginated slice
-    paginated_ids = {item.id for item in paginated_flat}
-
-    def _filter_tree(
-        item_list: list[SnapshotHistoryItem],
-    ) -> list[SnapshotHistoryItem]:
-        result = []
-        for item in item_list:
-            if item.id in paginated_ids:
-                # Include this item
-                new_item = item.model_copy(deep=True)
-                if new_item.items:
-                    new_item.items = _filter_tree(new_item.items)
-                result.append(new_item)
-            elif item.items:
-                # Check if any children are in paginated set
-                filtered_children = _filter_tree(item.items)
-                if filtered_children:
-                    new_item = item.model_copy(deep=True)
-                    new_item.items = filtered_children
-                    result.append(new_item)
-        return result
-
-    result_items = _filter_tree(items)
-    return result_items, total
+    return paginated_items, total

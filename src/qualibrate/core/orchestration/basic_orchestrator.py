@@ -341,15 +341,23 @@ class BasicOrchestrator(
             element_parameters["nodes"] = parameters.nodes.model_dump()
         element_to_run.cleanup()
 
-        if (
-            isinstance(element_to_run, QualibrationGraph)
-            and element_to_run._orchestrator is not None
-            and self._workflow_snapshot_idx is not None
-        ):
-            nested_orch = cast(
-                BasicOrchestrator[Any], element_to_run._orchestrator
-            )
-            nested_orch.set_workflow_parent_id(self._workflow_snapshot_idx)
+        # Set workflow_parent_id on the element BEFORE running it.
+        # This ensures the snapshot is created with the parent ID from the start,
+        # preventing nested items from appearing at the top level of history.
+        if self._workflow_snapshot_idx is not None:
+            if isinstance(element_to_run, QualibrationNode):
+                # For nodes, set the parent ID on the storage manager
+                element_to_run.set_workflow_parent_id(self._workflow_snapshot_idx)
+            elif (
+                isinstance(element_to_run, QualibrationGraph)
+                and element_to_run._orchestrator is not None
+            ):
+                # For nested graphs, set on the orchestrator
+                nested_orch = cast(
+                    BasicOrchestrator[Any], element_to_run._orchestrator
+                )
+                nested_orch.set_workflow_parent_id(self._workflow_snapshot_idx)
+
         logger.debug(
             f"Graph. Start running element {element_to_run} "
             f"with parameters {element_parameters}"
