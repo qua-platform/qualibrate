@@ -113,13 +113,17 @@ class BasicOrchestrator(
         Cleans up the orchestrator state.
 
         Clears the execution queue and calls the parent cleanup method.
+
+        Note: _workflow_parent_id is NOT reset here because it's set externally
+        by the parent orchestrator before this graph runs. Resetting it would
+        cause nested graphs/nodes to appear at the top level of history during
+        execution because their snapshots would be created without parent ID.
         """
         super().cleanup()
         with self._execution_queue.mutex:
             self._execution_queue.queue.clear()
-        # Reset workflow snapshot state
+        # Reset workflow snapshot state (but preserve _workflow_parent_id)
         self._workflow_snapshot_idx = None
-        self._workflow_parent_id = None
         self._children_ids = []
 
     @property
