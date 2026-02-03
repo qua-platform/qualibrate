@@ -237,18 +237,19 @@ then plots random data.",
         "outcomes": { "q1": "successful", "q2": "successful" },
         "quam": "./quam_state"
       },
-      "parents": [365],
-      "aggregated_outcomes": null
+      "parents": [365]
     }
     ```
 
-    For workflow snapshots with children, `aggregated_outcomes` will contain
+    For workflow snapshots with children, `data.outcomes` will contain
     outcomes aggregated from all child nodes with failure tracking:
     ```json
     {
-      "aggregated_outcomes": {
-        "q1": {"status": "success", "failed_on": null},
-        "q2": {"status": "failure", "failed_on": "resonator_spectroscopy"}
+      "data": {
+        "outcomes": {
+          "q1": {"status": "success", "failed_on": null},
+          "q2": {"status": "failure", "failed_on": "resonator_spectroscopy"}
+        }
       }
     }
     ```
@@ -258,6 +259,7 @@ then plots random data.",
     result = snapshot.dump()
 
     # For workflow snapshots (those with children), compute aggregated outcomes
+    # and put them in data.outcomes with failed_on tracking
     metadata = snapshot.content.get("metadata", {})
     children = metadata.get("children")
     if children and isinstance(children, list) and len(children) > 0:
@@ -265,10 +267,16 @@ then plots random data.",
             branch, metadata
         )
         if aggregated_outcomes:
-            result.aggregated_outcomes = aggregated_outcomes
+            # Put aggregated outcomes in data.outcomes
+            if result.data is None:
+                from qualibrate.app.api.core.models.snapshot import SnapshotData
+                result.data = SnapshotData()
+            result.data.outcomes = {
+                qubit: outcome.model_dump() for qubit, outcome in aggregated_outcomes.items()
+            }
             logger.debug(
-                f"Computed aggregated_outcomes for workflow {snapshot_id}: "
-                f"{aggregated_outcomes}"
+                f"Computed outcomes with failed_on for workflow {snapshot_id}: "
+                f"{result.data.outcomes}"
             )
 
     return result
@@ -307,8 +315,7 @@ def get_latest_snapshot(
             "data_path": "2025-08-22/#367_wf_node1_121642",
             "run_duration": 4.011
         },
-        "data": null,
-        "aggregated_outcomes": null
+        "data": null
     }
     ```
     """
@@ -317,6 +324,7 @@ def get_latest_snapshot(
     result = snapshot.dump()
 
     # For workflow snapshots (those with children), compute aggregated outcomes
+    # and put them in data.outcomes with failed_on tracking
     metadata = snapshot.content.get("metadata", {})
     children = metadata.get("children")
     if children and isinstance(children, list) and len(children) > 0:
@@ -324,7 +332,13 @@ def get_latest_snapshot(
             branch, metadata
         )
         if aggregated_outcomes:
-            result.aggregated_outcomes = aggregated_outcomes
+            # Put aggregated outcomes in data.outcomes
+            if result.data is None:
+                from qualibrate.app.api.core.models.snapshot import SnapshotData
+                result.data = SnapshotData()
+            result.data.outcomes = {
+                qubit: outcome.model_dump() for qubit, outcome in aggregated_outcomes.items()
+            }
 
     return result
 
