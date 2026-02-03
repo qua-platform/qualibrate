@@ -1,4 +1,5 @@
 import contextlib
+import logging
 from collections.abc import Mapping, Sequence
 from typing import Annotated, Any, cast
 from urllib.parse import urljoin
@@ -6,6 +7,8 @@ from urllib.parse import urljoin
 import requests
 from fastapi import APIRouter, Body, Cookie, Depends, HTTPException, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
+
+logger_local = logging.getLogger(__name__)
 
 from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotBase,
@@ -22,6 +25,7 @@ from qualibrate.app.api.core.domain.local_storage.tag_registry import TagRegistr
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
     MachineSearchResults,
+    QubitOutcome,
     SimplifiedSnapshotWithMetadata,
 )
 from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
@@ -64,6 +68,89 @@ def _get_snapshot_instance(
     return snapshot_types[settings.storage.type](id=id, settings=settings)
 
 
+def _compute_aggregated_outcomes_for_workflow(
+    settings: QualibrateConfig,
+    metadata: dict[str, Any],
+) -> dict[str, QubitOutcome] | None:
+    """Compute aggregated outcomes for a workflow snapshot.
+
+    For workflow snapshots that have children, this function recursively loads
+    all child snapshots and aggregates their outcomes with failure tracking.
+
+    Args:
+        settings: The qualibrate config to create snapshot instances.
+        metadata: The workflow snapshot's metadata containing 'children' list.
+
+    Returns:
+        Aggregated outcomes dict like {"q1": {"status": "success"},
+        "q2": {"status": "failure", "failed_on": "cal_node"}} or None
+        if no outcomes found.
+    """
+    children_ids = metadata.get("children")
+    if not children_ids or not isinstance(children_ids, list):
+        return None
+
+    aggregated_outcomes: dict[str, QubitOutcome] = {}
+
+    # Determine the snapshot class to use based on storage type
+    snapshot_types: dict[StorageType, type[SnapshotBase]] = {
+        StorageType.local_storage: SnapshotLocalStorage,
+        StorageType.timeline_db: SnapshotTimelineDb,
+    }
+    snapshot_class = snapshot_types.get(settings.storage.type)
+    if not snapshot_class:
+        return None
+
+    def _collect_outcomes_recursive(
+        snapshot_ids: list[IdType],
+    ) -> None:
+        """Recursively collect outcomes from snapshots and their children."""
+        for snapshot_id in snapshot_ids:
+            try:
+                child_snapshot = snapshot_class(id=snapshot_id, settings=settings)
+                child_snapshot.load_from_flag(
+                    SnapshotLoadTypeFlag.Metadata | SnapshotLoadTypeFlag.DataWithoutRefs
+                )
+                child_content = child_snapshot.content
+                child_metadata = child_content.get("metadata", {})
+                child_data = child_content.get("data", {})
+                node_name = child_metadata.get("name", f"node_{snapshot_id}")
+
+                # Check if this child has its own children (nested workflow)
+                child_children = child_metadata.get("children")
+                if child_children and isinstance(child_children, list):
+                    # Recursively collect from nested workflow
+                    _collect_outcomes_recursive(child_children)
+                else:
+                    # This is a leaf node - collect its outcomes
+                    if child_data and isinstance(child_data, dict):
+                        raw_outcomes = child_data.get("outcomes")
+                        if raw_outcomes and isinstance(raw_outcomes, dict):
+                            for qubit, outcome_value in raw_outcomes.items():
+                                outcome_str = str(outcome_value).lower()
+                                if outcome_str in ("successful", "success"):
+                                    if qubit not in aggregated_outcomes:
+                                        aggregated_outcomes[qubit] = QubitOutcome(
+                                            status="success"
+                                        )
+                                elif outcome_str in ("failed", "failure", "error"):
+                                    # Keep the first failure (the node that failed first)
+                                    if (
+                                        qubit not in aggregated_outcomes
+                                        or aggregated_outcomes[qubit].status != "failure"
+                                    ):
+                                        aggregated_outcomes[qubit] = QubitOutcome(
+                                            status="failure", failed_on=node_name
+                                        )
+            except Exception as e:
+                logger_local.warning(
+                    f"Failed to load child snapshot {snapshot_id}: {e}"
+                )
+
+    _collect_outcomes_recursive(children_ids)
+    return aggregated_outcomes if aggregated_outcomes else None
+
+
 @snapshot_router.get("/")
 def get(
     *,
@@ -71,9 +158,26 @@ def get(
         SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
     ],
     snapshot: Annotated[SnapshotBase, Depends(_get_snapshot_instance)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> SnapshotModel:
     snapshot.load_from_flag(load_type_flag)
-    return snapshot.dump()
+    result = snapshot.dump()
+
+    # For workflow snapshots (those with children), compute aggregated outcomes
+    metadata = snapshot.content.get("metadata", {})
+    children = metadata.get("children")
+    if children and isinstance(children, list) and len(children) > 0:
+        aggregated_outcomes = _compute_aggregated_outcomes_for_workflow(
+            settings, metadata
+        )
+        if aggregated_outcomes:
+            result.aggregated_outcomes = aggregated_outcomes
+            logger_local.debug(
+                f"Computed aggregated_outcomes for workflow {snapshot.id}: "
+                f"{aggregated_outcomes}"
+            )
+
+    return result
 
 
 @snapshot_router.get("/history")
