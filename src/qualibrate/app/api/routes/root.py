@@ -266,6 +266,11 @@ def _compute_aggregated_outcomes_for_workflow(
                 node_name = child_metadata.get("name", f"node_{snapshot_id}")
                 node_status = child_metadata.get("status", "")
 
+                logger.info(
+                    f"Processing child {snapshot_id}: name={node_name}, "
+                    f"status={node_status}, has_children={bool(child_metadata.get('children'))}"
+                )
+
                 # Check if this child has its own children (nested workflow)
                 child_children = child_metadata.get("children")
                 if child_children and isinstance(child_children, list):
@@ -273,39 +278,66 @@ def _compute_aggregated_outcomes_for_workflow(
                     _collect_outcomes_recursive(child_children)
                 else:
                     # This is a leaf node - collect its outcomes
-                    if child_data and isinstance(child_data, dict):
-                        raw_outcomes = child_data.get("outcomes")
-                        if raw_outcomes and isinstance(raw_outcomes, dict):
-                            # Check if the node itself has error status - this overrides
-                            # the individual outcomes because the node failed overall
-                            node_failed = node_status in ("error", "failed")
+                    node_failed = node_status in ("error", "failed")
+                    raw_outcomes = child_data.get("outcomes") if child_data else None
+                    
+                    logger.info(
+                        f"  Leaf node {snapshot_id}: node_failed={node_failed}, "
+                        f"raw_outcomes={raw_outcomes}"
+                    )
+                    
+                    if raw_outcomes and isinstance(raw_outcomes, dict):
+                        for qubit, outcome_value in raw_outcomes.items():
+                            outcome_str = str(outcome_value).lower()
                             
-                            for qubit, outcome_value in raw_outcomes.items():
-                                outcome_str = str(outcome_value).lower()
-                                
-                                # If node has error/failed status, mark all qubits as failed
-                                if node_failed:
-                                    if (
-                                        qubit not in aggregated_outcomes
-                                        or aggregated_outcomes[qubit].status != "failure"
-                                    ):
-                                        aggregated_outcomes[qubit] = QubitOutcome(
-                                            status="failure", failed_on=node_name
-                                        )
-                                elif outcome_str in ("successful", "success"):
-                                    if qubit not in aggregated_outcomes:
-                                        aggregated_outcomes[qubit] = QubitOutcome(
-                                            status="success"
-                                        )
-                                elif outcome_str in ("failed", "failure", "error"):
-                                    # Keep the first failure (the node that failed first)
-                                    if (
-                                        qubit not in aggregated_outcomes
-                                        or aggregated_outcomes[qubit].status != "failure"
-                                    ):
-                                        aggregated_outcomes[qubit] = QubitOutcome(
-                                            status="failure", failed_on=node_name
-                                        )
+                            # If node has error/failed status, mark all qubits as failed
+                            if node_failed:
+                                if (
+                                    qubit not in aggregated_outcomes
+                                    or aggregated_outcomes[qubit].status != "failure"
+                                ):
+                                    aggregated_outcomes[qubit] = QubitOutcome(
+                                        status="failure", failed_on=node_name
+                                    )
+                                    logger.info(
+                                        f"  Marking {qubit} as FAILED (node status={node_status}) "
+                                        f"on {node_name}"
+                                    )
+                            elif outcome_str in ("successful", "success"):
+                                if qubit not in aggregated_outcomes:
+                                    aggregated_outcomes[qubit] = QubitOutcome(
+                                        status="success"
+                                    )
+                            elif outcome_str in ("failed", "failure", "error"):
+                                # Keep the first failure (the node that failed first)
+                                if (
+                                    qubit not in aggregated_outcomes
+                                    or aggregated_outcomes[qubit].status != "failure"
+                                ):
+                                    aggregated_outcomes[qubit] = QubitOutcome(
+                                        status="failure", failed_on=node_name
+                                    )
+                                    logger.info(
+                                        f"  Marking {qubit} as FAILED (outcome={outcome_str}) "
+                                        f"on {node_name}"
+                                    )
+                    elif node_failed:
+                        # Node has error status but no outcomes recorded
+                        # This happens when a node throws an exception before recording outcomes
+                        # Mark ALL qubits we've seen so far as potentially failed on this node
+                        # if they were previously successful
+                        logger.info(
+                            f"  Node {node_name} has error status but no outcomes - "
+                            f"marking existing successful qubits as failed"
+                        )
+                        for qubit in list(aggregated_outcomes.keys()):
+                            if aggregated_outcomes[qubit].status == "success":
+                                aggregated_outcomes[qubit] = QubitOutcome(
+                                    status="failure", failed_on=node_name
+                                )
+                                logger.info(
+                                    f"  Overriding {qubit} to FAILED on {node_name}"
+                                )
             except Exception as e:
                 logger.warning(
                     f"Failed to load child snapshot {snapshot_id}: {e}"
