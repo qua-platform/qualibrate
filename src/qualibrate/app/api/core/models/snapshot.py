@@ -98,6 +98,9 @@ class Snapshot(SimplifiedSnapshot):
         SnapshotMetadata, Field(default_factory=SnapshotMetadata)
     ]
     data: SnapshotData | None = None
+    # Aggregated outcomes for workflow snapshots (populated when children are loaded)
+    # Format: {"q1": {"status": "success"}, "q2": {"status": "failure", "failed_on": "cal_node"}}
+    aggregated_outcomes: dict[str, QubitOutcome] | None = None
 
 
 class MachineSearchResults(BaseModel):
