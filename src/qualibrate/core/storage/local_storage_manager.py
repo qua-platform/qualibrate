@@ -50,6 +50,18 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         self.active_machine_path = active_machine_path
         self.snapshot_idx = None
         self._json_handler = SnapshotJsonHandler(root_data_folder)
+        self._workflow_parent_id: int | None = None
+
+    def set_workflow_parent_id(self, parent_id: int | None) -> None:
+        """Set the parent workflow ID for this node's snapshot.
+
+        When set, the node's snapshot will be created with workflow_parent_id
+        in its metadata, ensuring it doesn't appear at the top level of history.
+
+        Args:
+            parent_id: The snapshot ID of the parent workflow, or None.
+        """
+        self._workflow_parent_id = parent_id
 
     def _clean_data_handler(self) -> None:
         self.data_handler.path = None
@@ -110,20 +122,25 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         if relative_machine_path is not None:
             self.data_handler.node_data["quam"] = relative_machine_path
 
-        node_contents = self.data_handler.generate_node_contents(
-            metadata={
-                "description": node.description,
-                "run_start": node.run_start.isoformat(timespec="milliseconds"),
-                "run_end": (
-                    datetime.now()
-                    .astimezone()
-                    .astimezone()
-                    .isoformat(timespec="milliseconds")
-                ),
-                "type_of_execution": ExecutionType.node.value,
-                "status": "finished",
-            }
-        )  # TODO directly access idx
+        # Build metadata, including workflow_parent_id if this node is part of a workflow
+        metadata = {
+            "description": node.description,
+            "run_start": node.run_start.isoformat(timespec="milliseconds"),
+            "run_end": (
+                datetime.now()
+                .astimezone()
+                .astimezone()
+                .isoformat(timespec="milliseconds")
+            ),
+            "type_of_execution": ExecutionType.node.value,
+            "status": "finished",
+        }
+        # Include workflow_parent_id if set - this ensures the snapshot is created
+        # with the parent ID from the start, preventing it from appearing at top level
+        if self._workflow_parent_id is not None:
+            metadata["workflow_parent_id"] = self._workflow_parent_id
+
+        node_contents = self.data_handler.generate_node_contents(metadata=metadata)
         self.data_handler.save_data(
             data=node.results,
             name=node.name,

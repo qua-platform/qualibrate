@@ -396,7 +396,7 @@ class TestPaginateNestedItems:
         assert result == []
 
     def test_pagination_with_nested_items(self):
-        """Test pagination correctly counts nested items."""
+        """Test pagination counts only top-level items, not nested children."""
         # Create a workflow with 2 children
         snapshots = [
             create_snapshot(1, type_of_execution="workflow", children=[2, 3]),
@@ -407,9 +407,71 @@ class TestPaginateNestedItems:
 
         tree = build_snapshot_tree(snapshots)
 
-        # Total should be 4 (workflow + 2 children + standalone)
+        # Total should be 2 (workflow + standalone) - children are nested inside workflow
+        # and don't count as separate top-level items for pagination
         result, total = paginate_nested_items(tree, page=1, per_page=10)
-        assert total == 4
+        assert total == 2  # Only top-level items
+        assert len(result) == 2  # workflow and standalone
+        # Verify workflow has its children nested
+        workflow = next(item for item in result if item.id == 1)
+        assert workflow.items is not None
+        assert len(workflow.items) == 2
+
+    def test_per_page_returns_correct_top_level_count(self):
+        """Test that per_page returns exactly that many top-level items.
+
+        This tests the fix for the bug where requesting per_page=100 would
+        return fewer top-level items because nested children were being
+        counted towards the page limit.
+        """
+        # Create multiple workflows, each with children
+        snapshots = []
+        snapshot_id = 1
+        for i in range(10):  # 10 workflows
+            workflow_id = snapshot_id
+            child_ids = [snapshot_id + 1, snapshot_id + 2]
+            snapshots.append(
+                create_snapshot(
+                    workflow_id,
+                    name=f"workflow_{i}",
+                    type_of_execution="workflow",
+                    children=child_ids,
+                )
+            )
+            snapshots.append(
+                create_snapshot(
+                    child_ids[0],
+                    name=f"child_{i}_1",
+                    workflow_parent_id=workflow_id,
+                )
+            )
+            snapshots.append(
+                create_snapshot(
+                    child_ids[1],
+                    name=f"child_{i}_2",
+                    workflow_parent_id=workflow_id,
+                )
+            )
+            snapshot_id += 3
+
+        tree = build_snapshot_tree(snapshots)
+
+        # Request 5 items per page
+        result, total = paginate_nested_items(tree, page=1, per_page=5)
+
+        # Should get exactly 5 top-level workflows
+        assert total == 10  # Total top-level items
+        assert len(result) == 5  # Exactly 5 top-level items
+
+        # Each workflow should have its 2 children nested
+        for workflow in result:
+            assert workflow.items is not None
+            assert len(workflow.items) == 2
+
+        # Test page 2
+        result2, total2 = paginate_nested_items(tree, page=2, per_page=5)
+        assert total2 == 10
+        assert len(result2) == 5
 
 
 class TestFetchMissingChildrenCallback:
