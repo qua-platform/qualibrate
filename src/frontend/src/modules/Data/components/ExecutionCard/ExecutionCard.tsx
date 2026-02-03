@@ -34,20 +34,20 @@ const ExecutionCard: React.FC<Props> = ({ snapshot, isSelected = true, handleOnC
   const statusClassMap: Record<string, string> = {
     running: styles.statusRunning,
     pending: styles.statusPending,
-    success: styles.statusSuccess,
+    completed: styles.statusSuccess,
     failure: styles.statusFailure,
     error: styles.statusError,
   };
   const statusDotClassMap: Record<string, string> = {
     running: styles.statusDotRunning,
     pending: styles.statusDotPending,
-    success: styles.statusDotSuccess,
+    completed: styles.statusDotSuccess,
     failure: styles.statusDotFailure,
     error: styles.statusDotError,
   };
   const executionId = snapshot.id;
   const executionName = snapshot.metadata?.name;
-  const executionStatus = snapshot.metadata?.status ?? "finished";
+  const executionStatus = (snapshot.metadata?.status === "finished" || !snapshot.metadata?.status) ? "completed" : snapshot.metadata?.status;
   const runStart = snapshot.metadata?.run_start;
   const runDuration = snapshot.metadata?.run_duration ?? 0;
   const isWorkflowType = snapshot.metadata.type_of_execution?.toLocaleLowerCase() === "workflow";

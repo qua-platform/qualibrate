@@ -80,14 +80,17 @@ export const SnapshotsSlice = createSlice({
             state.trackPreviousSnapshot = action.payload;
         },
         setPageNumber: (state, action) => {
-            state.pageNumber = action.payload;
-            state.isLoadingSnapshots = true;
+            if (state.pageNumber !== action.payload) {
+              state.pageNumber = action.payload;
+              state.isLoadingSnapshots = true;
+            }
         },
         setTotalPages: (state, action) => {
             state.totalPages = action.payload;
         },
         setAllSnapshots: (state, action) => {
             state.allSnapshots = action.payload;
+            state.isLoadingSnapshots = false;
         },
         setIsLoadingSnapshots: (state, action) => {
           state.isLoadingSnapshots = action.payload;
@@ -154,6 +157,7 @@ export const SnapshotsSlice = createSlice({
         },
         setReset: (state, action) => {
             state.reset = action.payload;
+            state.isLoadingSnapshots = action.payload;
         },
     },
 });

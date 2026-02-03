@@ -82,13 +82,13 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, query: string) =>
 
     dispatch(setIsLoadingSnapshots(true));
     const resAllSnapshots = await fetchAllSnapshots(query);
+    dispatch(setIsLoadingSnapshots(false));
     dispatch(setAllSnapshots([]));
     if (resAllSnapshots && resAllSnapshots?.isOk) {
       const items = resAllSnapshots.result?.items;
       dispatch(setTotalPages(resAllSnapshots.result?.total_pages ?? 1));
       dispatch(setPageNumber(resAllSnapshots.result?.page ?? 1));
       dispatch(setAllSnapshots(resAllSnapshots.result?.items ?? []));
-      dispatch(setIsLoadingSnapshots(true));
       // Uncomment this line to use MOCKS for Execution History page
       let lastElId = 0;
       if (items) {
