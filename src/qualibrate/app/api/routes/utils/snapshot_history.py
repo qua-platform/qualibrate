@@ -271,27 +271,26 @@ def build_snapshot_tree(
 
 
 def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
-    """Compute aggregated statistics for a workflow from its direct children.
+    """Compute aggregated statistics for a workflow from all nested children.
 
-    This function processes a workflow's direct children and populates:
+    This function processes a workflow and all its nested children and populates:
         - outcomes: merged outcomes with failure tracking (using actual qubit names)
-        - nodes_completed: count of successful direct children (subgraphs count as 1)
-        - nodes_total: count of direct children (subgraphs count as 1, not their internal nodes)
+        - nodes_completed: count of successful snapshots (including nested)
+        - nodes_total: count of ALL snapshots (including subgraphs and their nested nodes)
         - qubits_completed: count of successful qubits
         - qubits_total: total qubit count
 
-    IMPORTANT: Subgraphs (nested workflows) are counted as a SINGLE node, not as the
-    sum of their internal nodes. For example, if a workflow has:
-        - node1
-        - subgraph (with 5 internal nodes)
-        - node2
-    Then nodes_total = 3, not 3 + 5 = 8.
+    Node counting rules:
+        - nodes_total counts EVERY snapshot including the subgraph AND all nodes inside it
+        - For example, if a workflow has:
+            - node1
+            - subgraph (with 2 internal nodes)
+            - node2
+          Then nodes_total = 5 (node1 + subgraph + 2 internal nodes + node2)
 
-    The aggregation logic:
+    Success determination:
         - For nodes: status "finished" or "success" counts as completed
-        - For subgraphs: completed if its own status is "finished" or "success"
-        - Outcomes are recursively collected from all nested nodes
-        - Uses actual qubit names (q1, q2, etc.) from raw outcomes data
+        - For subgraphs: successful if MORE THAN HALF of its children are successful
 
     Args:
         workflow: The workflow item to compute aggregates for.
@@ -300,8 +299,6 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
         return
 
     merged_outcomes: dict[str, QubitOutcome] = {}
-    nodes_completed = 0
-    nodes_total = 0
 
     def _collect_outcomes(item: SnapshotHistoryItem) -> dict[str, QubitOutcome]:
         """Recursively collect outcomes from an item and its children."""
@@ -344,22 +341,80 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
 
         return item_outcomes
 
-    # Process DIRECT children only for node counting
-    # Subgraphs count as 1 node, not the sum of their internal nodes
+    def _count_nodes_recursive(
+        item: SnapshotHistoryItem,
+    ) -> tuple[int, int]:
+        """Recursively count total nodes and completed nodes.
+
+        For subgraphs, success is determined by >50% of children being successful.
+
+        Returns:
+            Tuple of (nodes_total, nodes_completed) for this item and all nested.
+        """
+        if item.type_of_execution == ExecutionType.workflow and item.items:
+            # This is a subgraph - count it as 1 node plus all its nested children
+            child_total = 0
+            child_completed = 0
+
+            for child in item.items:
+                ct, cc = _count_nodes_recursive(child)
+                child_total += ct
+                child_completed += cc
+
+            # The subgraph itself counts as 1 node
+            total = 1 + child_total
+
+            # Subgraph is successful if >50% of its DIRECT children are successful
+            direct_children_count = len(item.items)
+            direct_successful = 0
+            for child in item.items:
+                child_status = child.metadata.status if child.metadata else None
+                if child_status in ("finished", "success"):
+                    direct_successful += 1
+                elif child.type_of_execution == ExecutionType.workflow:
+                    # For nested subgraphs, check their computed success
+                    # Use the >50% rule recursively
+                    if child.items:
+                        nested_direct = len(child.items)
+                        nested_success = sum(
+                            1
+                            for c in child.items
+                            if (c.metadata.status if c.metadata else None)
+                            in ("finished", "success")
+                        )
+                        if nested_success > nested_direct / 2:
+                            direct_successful += 1
+
+            # Subgraph counts as completed if >50% of direct children are successful
+            subgraph_completed = 1 if direct_successful > direct_children_count / 2 else 0
+            completed = subgraph_completed + child_completed
+
+            # Also set the subgraph's own nodes_total and nodes_completed
+            item.nodes_total = child_total
+            item.nodes_completed = child_completed
+
+            return total, completed
+        else:
+            # This is a regular node - count as 1
+            status = item.metadata.status if item.metadata else None
+            is_completed = 1 if status in ("finished", "success") else 0
+            return 1, is_completed
+
+    # First, recursively compute aggregates for all nested workflows
     for child in workflow.items:
-        # Count this direct child as 1 node (regardless of whether it's a node or subgraph)
-        nodes_total += 1
-
-        # Check if this direct child is completed
-        status = child.metadata.status if child.metadata else None
-        if status in ("finished", "success"):
-            nodes_completed += 1
-
-        # Recursively compute aggregates for nested workflows first
         if child.type_of_execution == ExecutionType.workflow and child.items:
             compute_workflow_aggregates(child)
 
-        # Collect outcomes (recursively for nested workflows)
+    # Count all nodes recursively
+    nodes_total = 0
+    nodes_completed = 0
+    for child in workflow.items:
+        ct, cc = _count_nodes_recursive(child)
+        nodes_total += ct
+        nodes_completed += cc
+
+    # Collect outcomes (recursively for nested workflows)
+    for child in workflow.items:
         child_outcomes = _collect_outcomes(child)
         for qubit, outcome in child_outcomes.items():
             if qubit not in merged_outcomes:
