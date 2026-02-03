@@ -115,6 +115,7 @@ def _compute_aggregated_outcomes_for_workflow(
                 child_metadata = child_content.get("metadata", {})
                 child_data = child_content.get("data", {})
                 node_name = child_metadata.get("name", f"node_{snapshot_id}")
+                node_status = child_metadata.get("status", "")
 
                 # Check if this child has its own children (nested workflow)
                 child_children = child_metadata.get("children")
@@ -126,9 +127,23 @@ def _compute_aggregated_outcomes_for_workflow(
                     if child_data and isinstance(child_data, dict):
                         raw_outcomes = child_data.get("outcomes")
                         if raw_outcomes and isinstance(raw_outcomes, dict):
+                            # Check if the node itself has error status - this overrides
+                            # the individual outcomes because the node failed overall
+                            node_failed = node_status in ("error", "failed")
+                            
                             for qubit, outcome_value in raw_outcomes.items():
                                 outcome_str = str(outcome_value).lower()
-                                if outcome_str in ("successful", "success"):
+                                
+                                # If node has error/failed status, mark all qubits as failed
+                                if node_failed:
+                                    if (
+                                        qubit not in aggregated_outcomes
+                                        or aggregated_outcomes[qubit].status != "failure"
+                                    ):
+                                        aggregated_outcomes[qubit] = QubitOutcome(
+                                            status="failure", failed_on=node_name
+                                        )
+                                elif outcome_str in ("successful", "success"):
                                     if qubit not in aggregated_outcomes:
                                         aggregated_outcomes[qubit] = QubitOutcome(
                                             status="success"
