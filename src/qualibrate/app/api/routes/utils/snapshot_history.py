@@ -362,7 +362,7 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                 child_completed += cc
 
             # The subgraph itself counts as 1 node
-            total = 1 + child_total
+            total = 1
 
             # Subgraph is successful if >50% of its DIRECT children are successful
             direct_children_count = len(item.items)
@@ -387,7 +387,7 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
 
             # Subgraph counts as completed if >50% of direct children are successful
             subgraph_completed = 1 if direct_successful > direct_children_count / 2 else 0
-            completed = subgraph_completed + child_completed
+            completed = subgraph_completed
 
             # Also set the subgraph's own nodes_total and nodes_completed
             item.nodes_total = child_total

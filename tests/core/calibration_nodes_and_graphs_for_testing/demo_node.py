@@ -24,6 +24,7 @@ node = QualibrationNode("test_node", parameters=Parameters())
 @node.run_action()
 def node_runs_indication(node: QualibrationNode):
     node.log("node is running")
-    node.outcomes["q1"] = "successful"
+    node.outcomes["q1"] = Outcome.SUCCESSFUL
     node.outcomes["q2"] = Outcome.FAILED
+    node.save()
     return node.outcomes
