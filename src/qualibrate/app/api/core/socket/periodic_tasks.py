@@ -1,17 +1,17 @@
 import asyncio
 from collections.abc import Callable, Coroutine
 from functools import wraps
-from typing import Any
+from typing import Any, TypeAlias
 
 from fastapi.concurrency import run_in_threadpool
 
-NoArgsNoReturnFuncT = Callable[[], None]
-NoArgsNoReturnAsyncFuncT = Callable[[], Coroutine[Any, Any, None]]
-NoArgsTaskReturnAsyncFuncT = Callable[[], Coroutine[Any, Any, asyncio.Task[None]]]
-ExcArgNoReturnFuncT = Callable[[Exception], None]
-ExcArgNoReturnAsyncFuncT = Callable[[Exception], Coroutine[Any, Any, None]]
-NoArgsNoReturnAnyFuncT = NoArgsNoReturnFuncT | NoArgsNoReturnAsyncFuncT
-ExcArgNoReturnAnyFuncT = ExcArgNoReturnFuncT | ExcArgNoReturnAsyncFuncT
+NoArgsNoReturnFuncT: TypeAlias = Callable[[], None]
+NoArgsNoReturnAsyncFuncT: TypeAlias = Callable[[], Coroutine[Any, Any, None]]
+NoArgsTaskReturnAsyncFuncT: TypeAlias = Callable[[], Coroutine[Any, Any, asyncio.Task[None]]]
+ExcArgNoReturnFuncT: TypeAlias = Callable[[Exception], None]
+ExcArgNoReturnAsyncFuncT: TypeAlias = Callable[[Exception], Coroutine[Any, Any, None]]
+NoArgsNoReturnAnyFuncT: TypeAlias = NoArgsNoReturnFuncT | NoArgsNoReturnAsyncFuncT
+ExcArgNoReturnAnyFuncT: TypeAlias = ExcArgNoReturnFuncT | ExcArgNoReturnAsyncFuncT
 
 __all__ = ["repeat_every"]
 
