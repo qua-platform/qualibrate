@@ -317,7 +317,18 @@ def load_snapshot_data_without_refs_from_node_content(
     settings: QualibrateConfig,
     snapshot_info: dict[str, Any],
 ) -> None:
+    import logging
+    logger = logging.getLogger(__name__)
+    
     data = dict(node_info.get("data", {}))
+    outcomes = data.get("outcomes")
+    
+    # Log outcomes for debugging
+    if outcomes and isinstance(outcomes, dict) and len(outcomes) > 0:
+        snapshot_id = node_info.get("id", "unknown")
+        name = node_info.get("metadata", {}).get("name", "unknown")
+        logger.info(f"Loading data with outcomes: id={snapshot_id}, name={name}, outcomes={outcomes}")
+    
     data.pop("quam", None)
     data.pop("machine", None)
     data.pop("results", None)

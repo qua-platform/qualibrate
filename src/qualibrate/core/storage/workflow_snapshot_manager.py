@@ -1,9 +1,3 @@
-"""Workflow snapshot lifecycle manager.
-
-This module provides a manager class for handling workflow snapshot
-operations, separating snapshot lifecycle concerns from orchestration logic.
-"""
-
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -215,6 +209,9 @@ class WorkflowSnapshotManager:
         if "metadata" not in content:
             content["metadata"] = {}
         content["metadata"]["workflow_parent_id"] = workflow_parent_id
-        content["metadata"]["type_of_execution"] = ExecutionType.node.value
+        # Only set type_of_execution to node if not already set
+        # (preserves workflow type for nested subgraphs)
+        if "type_of_execution" not in content["metadata"]:
+            content["metadata"]["type_of_execution"] = ExecutionType.node.value
 
         return self.json_handler.write_node_json(node_json_path, content)
