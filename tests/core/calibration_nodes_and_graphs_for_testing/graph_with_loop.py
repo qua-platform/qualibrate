@@ -15,18 +15,12 @@ with QualibrationGraph.build(
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node"))
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node2"))
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node3"))
-    # graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node4"))
-    # graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node5"))
-    # graph.add_node(library.nodes.get_nocopy("test_node222").copy(name="node6"))
-
-
-    # graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node3"))
-    # graph.loop(
-    #     "node",
-    #     max_iterations=10,
-    # )
+    graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node3"))
+    graph.loop(
+        "node",
+        max_iterations=10,
+    )
     graph.connect("node", "node2")
-    # graph.connect("node2", "node3")
 
 if __name__ == "__main__":
     result = graph.run()
