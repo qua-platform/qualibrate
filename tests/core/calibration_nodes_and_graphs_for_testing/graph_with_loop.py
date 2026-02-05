@@ -15,7 +15,6 @@ with QualibrationGraph.build(
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node"))
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node2"))
     graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node3"))
-    graph.add_node(library.nodes.get_nocopy(USED_NODE).copy(name="node3"))
     graph.loop(
         "node",
         max_iterations=10,
