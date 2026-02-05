@@ -17,18 +17,14 @@ from qualibrate.app.config import (
     get_settings,
 )
 
-data_file_router = APIRouter(
-    prefix="/data_file/{node_id}", tags=["data file"], deprecated=True
-)
+data_file_router = APIRouter(prefix="/data_file/{node_id}", tags=["data file"], deprecated=True)
 
 
 def _get_storage_instance(
     node_id: Annotated[int, Path()],
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> DataFileStorage:
-    node_types: dict[
-        StorageType, type[NodeLocalStorage] | type[NodeTimelineDb]
-    ] = {
+    node_types: dict[StorageType, type[NodeLocalStorage] | type[NodeTimelineDb]] = {
         StorageType.local_storage: NodeLocalStorage,
         StorageType.timeline_db: NodeTimelineDb,
     }

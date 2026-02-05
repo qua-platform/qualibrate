@@ -16,14 +16,13 @@ interface SnapshotsState {
   result: object | undefined;
   firstId: string;
   secondId: string;
-  reset: boolean;
 }
 
 const initialState: SnapshotsState = {
   trackLatestSidePanel: true,
   trackPreviousSnapshot: true,
   totalPages: 0,
-  pageNumber: 0,
+  pageNumber: 1,
   allSnapshots: [],
   selectedSnapshotId: undefined,
   latestSnapshotId: undefined,
@@ -34,7 +33,6 @@ const initialState: SnapshotsState = {
   result: {},
   firstId: "0",
   secondId: "0",
-  reset: false,
 };
 
 export const SnapshotsSlice = createSlice({
@@ -79,7 +77,6 @@ export const SnapshotsSlice = createSlice({
       state.jsonData = undefined;
       state.result = undefined;
       state.diffData = undefined;
-      state.reset = true;
     },
     setResult: (state, action) => {
       state.result = action.payload;
@@ -89,9 +86,6 @@ export const SnapshotsSlice = createSlice({
     },
     setSecondId: (state, action) => {
       state.secondId = action.payload;
-    },
-    setReset: (state, action) => {
-      state.reset = action.payload;
     },
   }
 });

@@ -48,9 +48,7 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
                 quam_state_path,
             )
         except ValueError as e:
-            raise QValueException(
-                f"Failed to create project '{project_name}'"
-            ) from e
+            raise QValueException(f"Failed to create project '{project_name}'") from e
         return project_name
 
     @abstractmethod

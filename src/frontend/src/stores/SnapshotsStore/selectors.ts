@@ -72,8 +72,3 @@ export const getSecondId = createSelector(
   getSnapshotsState,
   (state) => state.secondId
 );
-
-export const getReset = createSelector(
-  getSnapshotsState,
-  (state) => state.reset
-);
