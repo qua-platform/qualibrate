@@ -1,8 +1,11 @@
+import logging
 from collections.abc import Sequence
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
+
+logger = logging.getLogger(__name__)
 
 from qualibrate.app.api.core.domain.bases.branch import (
     BranchBase,
@@ -20,6 +23,7 @@ from qualibrate.app.api.core.models.branch import Branch as BranchModel
 from qualibrate.app.api.core.models.node import Node as NodeModel
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
+    QubitOutcome,
     SimplifiedSnapshotWithMetadata,
     SnapshotHistoryItem,
     SnapshotSearchResult,
@@ -100,6 +104,127 @@ def _get_branch_instance(
         StorageType.timeline_db: BranchTimelineDb,
     }
     return branch_types[settings.storage.type](name=name, settings=settings)
+
+
+def _compute_aggregated_outcomes_for_workflow(
+    branch: BranchBase,
+    metadata: dict[str, Any],
+) -> dict[str, QubitOutcome] | None:
+    """Compute aggregated outcomes for a workflow snapshot.
+
+    For workflow snapshots that have children, this function recursively loads
+    all child snapshots and aggregates their outcomes with failure tracking.
+
+    Args:
+        branch: The branch instance to load child snapshots.
+        metadata: The workflow snapshot's metadata containing 'children' list.
+
+    Returns:
+        Aggregated outcomes dict like {"q1": {"status": "success"},
+        "q2": {"status": "failure", "failed_on": "cal_node"}} or None
+        if no outcomes found.
+    """
+    children_ids = metadata.get("children")
+    if not children_ids or not isinstance(children_ids, list):
+        return None
+
+    aggregated_outcomes: dict[str, QubitOutcome] = {}
+
+    def _collect_outcomes_recursive(
+        snapshot_ids: list[IdType],
+    ) -> None:
+        """Recursively collect outcomes from snapshots and their children."""
+        for snapshot_id in snapshot_ids:
+            try:
+                child_snapshot = branch.get_snapshot(snapshot_id)
+                child_snapshot.load_from_flag(
+                    SnapshotLoadTypeFlag.Metadata | SnapshotLoadTypeFlag.DataWithoutRefs
+                )
+                child_content = child_snapshot.content
+                child_metadata = child_content.get("metadata", {})
+                child_data = child_content.get("data", {})
+                node_name = child_metadata.get("name", f"node_{snapshot_id}")
+                node_status = child_metadata.get("status", "")
+
+                logger.info(
+                    f"Processing child {snapshot_id}: name={node_name}, "
+                    f"status={node_status}, has_children={bool(child_metadata.get('children'))}"
+                )
+
+                # Check if this child has its own children (nested workflow)
+                child_children = child_metadata.get("children")
+                if child_children and isinstance(child_children, list):
+                    # Recursively collect from nested workflow
+                    _collect_outcomes_recursive(child_children)
+                else:
+                    # This is a leaf node - collect its outcomes
+                    node_failed = node_status in ("error", "failed")
+                    raw_outcomes = child_data.get("outcomes") if child_data else None
+                    
+                    logger.info(
+                        f"  Leaf node {snapshot_id}: node_failed={node_failed}, "
+                        f"raw_outcomes={raw_outcomes}"
+                    )
+                    
+                    if raw_outcomes and isinstance(raw_outcomes, dict):
+                        for qubit, outcome_value in raw_outcomes.items():
+                            outcome_str = str(outcome_value).lower()
+                            
+                            # If node has error/failed status, mark all qubits as failed
+                            if node_failed:
+                                if (
+                                    qubit not in aggregated_outcomes
+                                    or aggregated_outcomes[qubit].status != "failure"
+                                ):
+                                    aggregated_outcomes[qubit] = QubitOutcome(
+                                        status="failure", failed_on=node_name
+                                    )
+                                    logger.info(
+                                        f"  Marking {qubit} as FAILED (node status={node_status}) "
+                                        f"on {node_name}"
+                                    )
+                            elif outcome_str in ("successful", "success"):
+                                if qubit not in aggregated_outcomes:
+                                    aggregated_outcomes[qubit] = QubitOutcome(
+                                        status="success"
+                                    )
+                            elif outcome_str in ("failed", "failure", "error"):
+                                # Keep the first failure (the node that failed first)
+                                if (
+                                    qubit not in aggregated_outcomes
+                                    or aggregated_outcomes[qubit].status != "failure"
+                                ):
+                                    aggregated_outcomes[qubit] = QubitOutcome(
+                                        status="failure", failed_on=node_name
+                                    )
+                                    logger.info(
+                                        f"  Marking {qubit} as FAILED (outcome={outcome_str}) "
+                                        f"on {node_name}"
+                                    )
+                    elif node_failed:
+                        # Node has error status but no outcomes recorded
+                        # This happens when a node throws an exception before recording outcomes
+                        # Mark ALL qubits we've seen so far as potentially failed on this node
+                        # if they were previously successful
+                        logger.info(
+                            f"  Node {node_name} has error status but no outcomes - "
+                            f"marking existing successful qubits as failed"
+                        )
+                        for qubit in list(aggregated_outcomes.keys()):
+                            if aggregated_outcomes[qubit].status == "success":
+                                aggregated_outcomes[qubit] = QubitOutcome(
+                                    status="failure", failed_on=node_name
+                                )
+                                logger.info(
+                                    f"  Overriding {qubit} to FAILED on {node_name}"
+                                )
+            except Exception as e:
+                logger.warning(
+                    f"Failed to load child snapshot {snapshot_id}: {e}"
+                )
+
+    _collect_outcomes_recursive(children_ids)
+    return aggregated_outcomes if aggregated_outcomes else None
 
 
 @branch_router.get(
@@ -193,10 +318,46 @@ then plots random data.",
       "parents": [365]
     }
     ```
+
+    For workflow snapshots with children, `data.outcomes` will contain
+    outcomes aggregated from all child nodes with failure tracking:
+    ```json
+    {
+      "data": {
+        "outcomes": {
+          "q1": {"status": "success", "failed_on": null},
+          "q2": {"status": "failure", "failed_on": "resonator_spectroscopy"}
+        }
+      }
+    }
+    ```
     """
     snapshot = branch.get_snapshot(snapshot_id)
     snapshot.load_from_flag(load_type_flag)
-    return snapshot.dump()
+    result = snapshot.dump()
+
+    # For workflow snapshots (those with children), compute aggregated outcomes
+    # and put them in data.outcomes with failed_on tracking
+    metadata = snapshot.content.get("metadata", {})
+    children = metadata.get("children")
+    if children and isinstance(children, list) and len(children) > 0:
+        aggregated_outcomes = _compute_aggregated_outcomes_for_workflow(
+            branch, metadata
+        )
+        if aggregated_outcomes:
+            # Put aggregated outcomes in data.outcomes
+            if result.data is None:
+                from qualibrate.app.api.core.models.snapshot import SnapshotData
+                result.data = SnapshotData()
+            result.data.outcomes = {
+                qubit: outcome.model_dump() for qubit, outcome in aggregated_outcomes.items()
+            }
+            logger.debug(
+                f"Computed outcomes with failed_on for workflow {snapshot_id}: "
+                f"{result.data.outcomes}"
+            )
+
+    return result
 
 
 @branch_router.get("/snapshot/latest", summary="Get latest snapshot")
@@ -238,7 +399,26 @@ def get_latest_snapshot(
     """
     snapshot = branch.get_snapshot()
     snapshot.load_from_flag(load_type_flag)
-    return snapshot.dump()
+    result = snapshot.dump()
+
+    # For workflow snapshots (those with children), compute aggregated outcomes
+    # and put them in data.outcomes with failed_on tracking
+    metadata = snapshot.content.get("metadata", {})
+    children = metadata.get("children")
+    if children and isinstance(children, list) and len(children) > 0:
+        aggregated_outcomes = _compute_aggregated_outcomes_for_workflow(
+            branch, metadata
+        )
+        if aggregated_outcomes:
+            # Put aggregated outcomes in data.outcomes
+            if result.data is None:
+                from qualibrate.app.api.core.models.snapshot import SnapshotData
+                result.data = SnapshotData()
+            result.data.outcomes = {
+                qubit: outcome.model_dump() for qubit, outcome in aggregated_outcomes.items()
+            }
+
+    return result
 
 
 @branch_router.get("/snapshot/filter", summary="Get first matching snapshot")

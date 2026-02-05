@@ -1,5 +1,3 @@
-"""Tests for WorkflowSnapshotManager."""
-
 import json
 from unittest.mock import MagicMock
 
@@ -198,6 +196,33 @@ class TestWorkflowSnapshotManager:
         """Test setting parent for non-existent snapshot."""
         result = workflow_manager.set_snapshot_workflow_parent(999, 100)
         assert result is False
+
+    def test_set_snapshot_workflow_parent_preserves_workflow_type(
+        self, workflow_manager, create_snapshot
+    ):
+        """Test that setting parent preserves existing type_of_execution.
+        
+        When a nested subgraph workflow is tracked as a child, its type_of_execution
+        should remain 'workflow', not be overwritten to 'node'.
+        """
+        node_json_path = create_snapshot(101, {
+            "id": 101,
+            "metadata": {
+                "name": "nested_subgraph",
+                "type_of_execution": ExecutionType.workflow.value,
+                "children": [102, 103],
+            },
+            "data": {},
+        })
+
+        result = workflow_manager.set_snapshot_workflow_parent(101, 100)
+
+        assert result is True
+        with node_json_path.open() as f:
+            content = json.load(f)
+        assert content["metadata"]["workflow_parent_id"] == 100
+        # type_of_execution should be preserved as workflow, not overwritten to node
+        assert content["metadata"]["type_of_execution"] == ExecutionType.workflow.value
 
 
 class TestWorkflowSnapshotManagerIntegration:

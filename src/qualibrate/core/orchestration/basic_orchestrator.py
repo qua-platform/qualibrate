@@ -113,13 +113,17 @@ class BasicOrchestrator(
         Cleans up the orchestrator state.
 
         Clears the execution queue and calls the parent cleanup method.
+
+        Note: _workflow_parent_id is NOT reset here because it's set externally
+        by the parent orchestrator before this graph runs. Resetting it would
+        cause nested graphs/nodes to appear at the top level of history during
+        execution because their snapshots would be created without parent ID.
         """
         super().cleanup()
         with self._execution_queue.mutex:
             self._execution_queue.queue.clear()
-        # Reset workflow snapshot state
+        # Reset workflow snapshot state (but preserve _workflow_parent_id)
         self._workflow_snapshot_idx = None
-        self._workflow_parent_id = None
         self._children_ids = []
 
     @property
@@ -339,18 +343,25 @@ class BasicOrchestrator(
             parameters = cast(ExecutionParameters, parameters)
             element_parameters = parameters.parameters.model_dump()
             element_parameters["nodes"] = parameters.nodes.model_dump()
-            # Set the parent workflow ID for nested graphs
-            if (
+        element_to_run.cleanup()
+
+        # Set workflow_parent_id on the element BEFORE running it.
+        # This ensures the snapshot is created with the parent ID from the start,
+        # preventing nested items from appearing at the top level of history.
+        if self._workflow_snapshot_idx is not None:
+            if isinstance(element_to_run, QualibrationNode):
+                # For nodes, set the parent ID on the storage manager
+                element_to_run.set_workflow_parent_id(self._workflow_snapshot_idx)
+            elif (
                 isinstance(element_to_run, QualibrationGraph)
                 and element_to_run._orchestrator is not None
-                and self._workflow_snapshot_idx is not None
             ):
+                # For nested graphs, set on the orchestrator
                 nested_orch = cast(
                     BasicOrchestrator[Any], element_to_run._orchestrator
                 )
                 nested_orch.set_workflow_parent_id(self._workflow_snapshot_idx)
 
-        element_to_run.cleanup()
         logger.debug(
             f"Graph. Start running element {element_to_run} "
             f"with parameters {element_parameters}"
