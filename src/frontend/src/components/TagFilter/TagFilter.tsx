@@ -22,16 +22,16 @@ const TagFilter: React.FC<Props> = ({selectedTags, handleToggleTag}) => {
     };
 
     return (
-        <div data-testid="tag-button" className={styles.wrapper}>
-            <div className={styles.filterButton} id="tagFilterBtn" onClick={onClickHandler}>
+        <div data-testid="tag-filter" className={styles.wrapper}>
+            <div data-testid="tag-filter-icon-button" className={styles.filterButton} id="tagFilterBtn" onClick={onClickHandler}>
                 <TagFilterIcon width={16} height={16}/>
             </div>
-            <div className={classNames(styles.tagDropdown, showTags && styles.active)} id="dateFilterDropdown"
+            <div data-testid="tag-dropdown" className={classNames(styles.tagDropdown, showTags && styles.active)} id="dateFilterDropdown"
                  ref={ref}>
                 {allTags.map((tag) => {
                     const isTagSelected = selectedTags.includes(tag);
                     return (
-                        <TagOption tag={tag} handleToggleTag={handleToggleTag} isSelected={isTagSelected}/>
+                        <TagOption key={tag} tag={tag} handleToggleTag={handleToggleTag} isSelected={isTagSelected}/>
                     );
                 })}
             </div>

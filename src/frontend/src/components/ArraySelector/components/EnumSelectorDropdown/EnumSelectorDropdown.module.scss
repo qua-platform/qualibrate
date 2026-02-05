@@ -4,14 +4,13 @@
 
 .popup {
   box-sizing: border-box;
-  position: absolute;
-  // top: 20px;
-  width: 100%;
+  position: absolute;top
+  width: 100%;width
   display: flex;
   flex-direction: column;
   max-height: 200px;
-  // width: 160px;
-  padding: 5px;
+  // width: 160px;widthwidth
+  padding: 5px;padding
   border-radius: 6px;
   border: 2px solid var(--border-color);
   background-color: var(--popup-background);
@@ -88,7 +87,7 @@
 
       &.selected,
       &:hover {
-        background-color: rgba(255, 255, 255, 0.04);
+        background-color: rgb(255 255 255 / 4%);
         cursor: pointer;
       }
     }

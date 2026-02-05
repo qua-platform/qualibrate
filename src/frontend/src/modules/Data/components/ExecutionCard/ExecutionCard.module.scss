@@ -130,7 +130,7 @@
 }
 
 .executionTypeBadge {
-  background: rgba(31, 111, 235, 0.2);
+  background: rgb(31 111 235 / 20%);
   border: 1px solid #1f6feb;
   color: #58a6ff;
   font-size: 11px;
@@ -147,7 +147,7 @@
 }
 
 .executionTypeBadge:hover {
-  background: rgba(31, 111, 235, 0.35);
+  background: rgb(31 111 235 / 35%);
   border-color: #388bfd;
   color: #79c0ff;
   transform: translateX(2px);

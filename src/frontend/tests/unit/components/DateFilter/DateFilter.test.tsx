@@ -1,38 +1,58 @@
-import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { DateFilter } from "../../../../src/components";
+import {describe, expect, it, vi} from "vitest";
+import {fireEvent, render, screen} from "@testing-library/react";
+import {DateFilter} from "../../../../src/components";
+import {DateOption} from "../../../../src/components/DateFilter";
+
+const options = [
+    {label: "Today", value: DateOption.Today},
+    {label: "Last week", value: DateOption.LastWeek},
+    {label: "Last month", value: DateOption.LastMonth},
+];
 
 describe("DateFilter", () => {
-  it("calls onSelect when preset is clicked", () => {
-    const onSelect = vi.fn();
+    it("calls onSelect when preset is clicked", () => {
+        const onSelect = vi.fn();
 
-    render(<DateFilter onSelect={onSelect} />);
+        render(<DateFilter options={options} onSelect={onSelect}/>);
 
-    // open dropdown
-    fireEvent.click(screen.getByTestId("date-filter"));
+        fireEvent.click(screen.getByTestId("date-filter"));
+        fireEvent.click(screen.getByText("Today"));
 
-    const option = screen.getByText("Today");
-    fireEvent.click(option);
+        expect(onSelect).toHaveBeenCalledOnce();
+        expect(onSelect).toHaveBeenCalledWith({
+            label: "Today",
+            value: DateOption.Today,
+        });
+    });
 
-    expect(onSelect).toHaveBeenCalledOnce();
-    expect(onSelect).toHaveBeenCalledWith("Today");
-  });
+    it("calls setFrom and setTo on date change", () => {
+        const setFrom = vi.fn();
+        const setTo = vi.fn();
 
-  it("calls setFrom and setTo on date change", () => {
-    const setFrom = vi.fn();
-    const setTo = vi.fn();
+        render(
+            <DateFilter
+                options={options}
+                from=""
+                to=""
+                setFrom={setFrom}
+                setTo={setTo}
+            />
+        );
 
-    render(<DateFilter from="" to="" setFrom={setFrom} setTo={setTo} />);
+        fireEvent.click(screen.getByTestId("date-filter"));
 
-    fireEvent.click(screen.getByTestId("date-filter"));
+        const fromInput = screen.getByTestId(
+            "execution-history-date-filter-input-from"
+        ) as HTMLInputElement;
 
-    const fromInput = screen.getByTestId("execution-history-date-filter-input-from") as HTMLInputElement;
-    const toInput = screen.getByTestId("execution-history-date-filter-input-to") as HTMLInputElement;
+        const toInput = screen.getByTestId(
+            "execution-history-date-filter-input-to"
+        ) as HTMLInputElement;
 
-    fireEvent.change(fromInput, { target: { value: "2026-01-10" } });
-    fireEvent.change(toInput, { target: { value: "2026-01-15" } });
+        fireEvent.change(fromInput, {target: {value: "2026-01-10"}});
+        fireEvent.change(toInput, {target: {value: "2026-01-15"}});
 
-    expect(setFrom).toHaveBeenCalledWith("2026-01-10");
-    expect(setTo).toHaveBeenCalledWith("2026-01-15");
-  });
+        expect(setFrom).toHaveBeenCalledWith("2026-01-10");
+        expect(setTo).toHaveBeenCalledWith("2026-01-15");
+    });
 });

@@ -1,1 +1,2 @@
-export { default } from "./DateFilter";
+export {default} from "./DateFilter";
+export {DateOption} from "./DateFilter";

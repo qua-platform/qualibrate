@@ -12,8 +12,8 @@ type Props = {
 
 const TagOption: React.FC<Props> = ({tag, handleToggleTag, isSelected, showCheckbox = true}) => {
     return (
-        <div key={tag} className={styles.tagFilterOption} onClick={() => handleToggleTag(tag)} data-filter={tag}>
-            {showCheckbox && <div className={classNames(styles.tagFilterCheckbox, isSelected && styles.selected)}/>}
+        <div data-testid={`tag-option-${tag}`} className={styles.tagFilterOption} onClick={() => handleToggleTag(tag)} data-filter={tag}>
+            {showCheckbox && <div data-testid="tag-checkbox" className={classNames(styles.tagFilterCheckbox, isSelected && styles.selected)}/>}
             <div className={styles.tagFilterRow}>
                 <div className={styles.tagDot} style={{background: stringToHexColor(tag)}}/>
                 <div>{tag}</div>
