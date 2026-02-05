@@ -30,16 +30,12 @@ def test_supported_extensions():
 def test_validate_file_exists_called(mocker, h5_file):
     loader = XarrayLoader()
 
-    mock_validate = mocker.patch.object(
-        XarrayLoader, "validate_file_exists", autospec=True
-    )
+    mock_validate = mocker.patch.object(XarrayLoader, "validate_file_exists", autospec=True)
     loader.load(h5_file)
     mock_validate.assert_called_once_with(h5_file)
 
 
-@pytest.mark.skipif(
-    not XARRAY_AVAILABLE, reason="xarray library is not installed."
-)
+@pytest.mark.skipif(not XARRAY_AVAILABLE, reason="xarray library is not installed.")
 def test_load_valid_h5(h5_file):
     from xarray import Dataset
 
@@ -57,9 +53,7 @@ def test_load_nonexistent_file():
 
 
 def test_load_with_xarray_unavailable(monkeypatch):
-    monkeypatch.setattr(
-        "qualibrate.core.utils.node.loaders.xarray_loader.find_spec", lambda _: None
-    )
+    monkeypatch.setattr("qualibrate.core.utils.node.loaders.xarray_loader.find_spec", lambda _: None)
     loader = XarrayLoader()
     result = loader.load(Path("dummy.h5"))
     assert result is None

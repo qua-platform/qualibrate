@@ -17,9 +17,7 @@ def format_available_items(
     """Format a list of available items for error messages."""
     item_keys = list(items.keys()) if isinstance(items, dict) else list(items)
     if item_keys:
-        items_str = "'" + "', '".join(
-            str(item) for item in item_keys[:max_items]
-        )
+        items_str = "'" + "', '".join(str(item) for item in item_keys[:max_items])
         items_str += "', ..." if len(item_keys) > max_items else "'."
     else:
         items_str = "None."
@@ -52,9 +50,7 @@ class XarrayDataFetcher:
             return self.data[key]
         except KeyError as e:
             keys_list = format_available_items(self.data, item_type="keys")
-            raise KeyError(
-                f"Data key '{key}' not found in XarrayDataFetcher. {keys_list}"
-            ) from e
+            raise KeyError(f"Data key '{key}' not found in XarrayDataFetcher. {keys_list}") from e
 
     def __iter__(self) -> Iterator[Any]:
         """Make iterable - yields once for testing."""

@@ -5,9 +5,7 @@ from starlette.responses import JSONResponse, Response
 from qualibrate.app.api.exceptions.classes.base import QualibrateException
 
 
-async def qualibrate_exception_handler(
-    request: Request, exc: QualibrateException
-) -> Response:
+async def qualibrate_exception_handler(request: Request, exc: QualibrateException) -> Response:
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={"detail": str(exc)},

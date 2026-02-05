@@ -75,9 +75,7 @@ def read_minified_node_content(
         Minified content on node
     """
     node_id = node_info.get("id", snapshot_path.id or -1)
-    parents = node_info.get(
-        "parents", [node_id - 1] if node_id and node_id > 0 else []
-    )
+    parents = node_info.get("parents", [node_id - 1] if node_id and node_id > 0 else [])
     id_local_path = IdToLocalPath()
     project = settings.project
     user_storage = settings.storage.location
@@ -92,25 +90,17 @@ def read_minified_node_content(
         created_at = datetime.fromisoformat(created_at_str)
     else:
         if node_filepath.is_file():
-            created_at = datetime.fromtimestamp(
-                node_filepath.stat().st_mtime
-            ).astimezone()
+            created_at = datetime.fromtimestamp(node_filepath.stat().st_mtime).astimezone()
         else:
-            created_at = datetime.fromtimestamp(
-                node_filepath.parent.stat().st_mtime
-            ).astimezone()
+            created_at = datetime.fromtimestamp(node_filepath.parent.stat().st_mtime).astimezone()
     run_start_str = node_info.get("run_start")
     run_end_str = node_info.get("run_end")
     return {
         "id": node_id,
         "parents": parents,
         "created_at": created_at,
-        "run_start": (
-            datetime.fromisoformat(run_start_str) if run_start_str else None
-        ),
-        "run_end": (
-            datetime.fromisoformat(run_end_str) if run_end_str else None
-        ),
+        "run_start": (datetime.fromisoformat(run_start_str) if run_start_str else None),
+        "run_end": (datetime.fromisoformat(run_end_str) if run_end_str else None),
     }
 
 
@@ -143,9 +133,7 @@ def get_node_filepath(snapshot_path: NodePath) -> Path:
     return snapshot_path / "node.json"
 
 
-def get_data_node_path(
-    node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path
-) -> Path | None:
+def get_data_node_path(node_info: Mapping[str, Any], node_filepath: Path, snapshot_path: Path) -> Path | None:
     node_data = dict(node_info.get("data", {}))
     quam_relative_path = node_data.get("quam") or node_data.get("machine")
     if quam_relative_path is None:
@@ -193,14 +181,11 @@ def update_state_dir(
         update_state_file(state_file, new_state_content)
     if len(copied) > 0:
         logger.warning(
-            "Not all root items of the new quam state have been saved to the "
-            f"QUAM state directory {state_dir}."
+            f"Not all root items of the new quam state have been saved to the QUAM state directory {state_dir}."
         )
 
 
-def update_active_machine_path(
-    settings: QualibrateConfig, new_quam: Mapping[str, Any]
-) -> None:
+def update_active_machine_path(settings: QualibrateConfig, new_quam: Mapping[str, Any]) -> None:
     am_path = get_quam_state_path(settings)
     if not am_path:
         logger.info("No active machine path to update")
@@ -223,9 +208,7 @@ def read_quam_content(quam_path: Path) -> dict[str, Any]:
             with file.open() as f:
                 quam.update(json.load(f))
         except json.JSONDecodeError as e:
-            logger.exception(
-                f"Failed to json decode quam file: {file.name}", exc_info=e
-            )
+            logger.exception(f"Failed to json decode quam file: {file.name}", exc_info=e)
         except ValueError as e:
             logger.warning(f"Invalid quam file: {file.name}", exc_info=e)
     return quam
@@ -287,11 +270,7 @@ def load_minified_from_node_content(
     settings: QualibrateConfig,
     snapshot_info: dict[str, Any],
 ) -> None:
-    snapshot_info.update(
-        read_minified_node_content(
-            node_info, node_filepath, snapshot_path, settings
-        )
-    )
+    snapshot_info.update(read_minified_node_content(node_info, node_filepath, snapshot_path, settings))
 
 
 def load_snapshot_metadata_from_node_content(
@@ -373,25 +352,15 @@ def load_snapshot_data_results_with_imgs_from_node_content(
     snapshot_info["data"]["results"] = storage.data
 
 
-LOAD_SNAPSHOT_FLAG_FUNC_TYPE = Callable[
-    [Mapping[str, Any], Path, NodePath, QualibrateConfig, dict[str, Any]], None
-]
+LOAD_SNAPSHOT_FLAG_FUNC_TYPE = Callable[[Mapping[str, Any], Path, NodePath, QualibrateConfig, dict[str, Any]], None]
 LOADERS: dict[SnapshotLoadTypeFlag, LOAD_SNAPSHOT_FLAG_FUNC_TYPE] = {
     SnapshotLoadTypeFlag.Empty: lambda *args, **kwargs: None,
     SnapshotLoadTypeFlag.Minified: load_minified_from_node_content,
     SnapshotLoadTypeFlag.Metadata: load_snapshot_metadata_from_node_content,
-    SnapshotLoadTypeFlag.DataWithoutRefs: (
-        load_snapshot_data_without_refs_from_node_content
-    ),
-    SnapshotLoadTypeFlag.DataWithMachine: (
-        load_snapshot_data_machine_from_node_content
-    ),
-    SnapshotLoadTypeFlag.DataWithResults: (
-        load_snapshot_data_results_from_node_content
-    ),
-    SnapshotLoadTypeFlag.DataWithResultsWithImgs: (
-        load_snapshot_data_results_with_imgs_from_node_content
-    ),
+    SnapshotLoadTypeFlag.DataWithoutRefs: (load_snapshot_data_without_refs_from_node_content),
+    SnapshotLoadTypeFlag.DataWithMachine: (load_snapshot_data_machine_from_node_content),
+    SnapshotLoadTypeFlag.DataWithResults: (load_snapshot_data_results_from_node_content),
+    SnapshotLoadTypeFlag.DataWithResultsWithImgs: (load_snapshot_data_results_with_imgs_from_node_content),
 }
 
 
@@ -413,11 +382,7 @@ def default_snapshot_content_loader_from_flag(
     # TODO: Issue: Iterate over flag use only Minified value if qualibrate-app
     #  is part of qualibrate
     for lt in SnapshotLoadTypeFlag.__members__.values():
-        if (
-            load_type.is_set(lt)
-            and lt <= load_type
-            and (loader := LOADERS.get(lt))
-        ):
+        if load_type.is_set(lt) and lt <= load_type and (loader := LOADERS.get(lt)):
             loader(
                 node_info,
                 node_filepath,

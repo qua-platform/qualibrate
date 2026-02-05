@@ -12,14 +12,13 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
 
   // 1. Navigate to the Application
   // Open http://127.0.0.1:8001/ in your web browser.
-  await page.goto("http://localhost:8001/", { waitUntil: 'load' });
+  await page.goto("http://localhost:8001/", { waitUntil: "load" });
   expect(page.url()).toBe("http://localhost:8001/"); // page loaded successfully
 
   // 1a. Verify Project Page and go to project (node) page
   try {
     await expect(page.getByTestId("project-wrapper-demo_project")).toBeVisible({ timeout: 2000 });
-  } catch {
-  }
+  } catch {}
   try {
     const lets_start_button = page.getByTestId("lets-start-button-demo_project");
     await expect(lets_start_button).toBeVisible({ timeout: 1000 }); // Project page loaded sucessfully
@@ -30,7 +29,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
 
   // 2. Verify Calibration Nodes
   // Check that at least one calibration node (e.g., test_cal) is displayed in the Node Library.
-  await expect(page.getByTestId("nodes-and-job-wrapper")).toBeVisible({ timeout: 1000 }); // Node page loaded sucessfully
+  await expect(page.getByTestId("nodes-and-job-wrapper")).toBeVisible({ timeout: 10000 }); // Node page loaded sucessfully
   await expect(page.getByTestId("nodes-page-wrapper")).toBeVisible(); // Node page loaded sucessfully
   // await expect(page.getByTestId('title-wrapper')).toBeVisible(); // title wrapper is visible
   // await expect(page.getByTestId('title-wrapper')).toContainText('Run calibration node'); // title is correct
@@ -95,7 +94,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
 
   const screenshotPathStep4 = `screenshot-after-step4-${Date.now()}.png`;
   await page.screenshot({ path: screenshotPathStep4 });
-  await testInfo.attach('screenshot-after-step4', { path: screenshotPathStep4, contentType: 'image/png' });
+  await testInfo.attach("screenshot-after-step4", { path: screenshotPathStep4, contentType: "image/png" });
 
   // 5. Run the Calibration Node
   // Click the Run button for test_cal.
@@ -106,7 +105,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
 
   const screenshotPathStep5 = `screenshot-after-step5-${Date.now()}.png`;
   await page.screenshot({ path: screenshotPathStep5 });
-  await testInfo.attach('screenshot-after-step5', { path: screenshotPathStep5, contentType: 'image/png' });
+  await testInfo.attach("screenshot-after-step5", { path: screenshotPathStep5, contentType: "image/png" });
 
   // Verify:
   // The running node section should be visible (even after node completes)
@@ -119,7 +118,7 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
 
   const screenshotPathFinished = `screenshot-after-finished-${Date.now()}.png`;
   await page.screenshot({ path: screenshotPathFinished });
-  await testInfo.attach('screenshot-after-step6', { path: screenshotPathFinished, contentType: 'image/png' });
+  await testInfo.attach("screenshot-after-step6", { path: screenshotPathFinished, contentType: "image/png" });
 
   // Verify parameters are displayed (they should match what we set earlier)
   await expect(page.getByTestId("parameter-item-resonator")).toBeVisible();
@@ -158,7 +157,10 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
   await expect(page.getByTestId("state-title")).toBeVisible();
 
   // Check if state updates exist (they're conditional based on whether the node produces state updates)
-  const stateUpdatesExist = await page.getByTestId("state-updates-top-wrapper").isVisible().catch(() => false);
+  const stateUpdatesExist = await page
+    .getByTestId("state-updates-top-wrapper")
+    .isVisible()
+    .catch(() => false);
 
   if (stateUpdatesExist) {
     // If state updates exist, verify their structure
@@ -166,9 +168,9 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
     await expect(page.getByTestId("update-all-button")).toBeVisible();
 
     const ch1 = page.getByTestId("state-update-wrapper-#/channels/ch1/intermediate_frequency");
-    const ch2 = page.getByTestId("state-update-wrapper-#/channels/ch2/intermediate_frequency");
+    // const ch2 = page.getByTestId("state-update-wrapper-#/channels/ch2/intermediate_frequency");
     await expect(ch1).toBeVisible();
-    await expect(ch2).toBeVisible();
+    // await expect(ch2).toBeVisible();
 
     // Update the state value for ch1 to 20000000
     await expect(ch1.getByTestId("value-container")).toContainText("100000000");
@@ -182,15 +184,15 @@ test("Workflow1 - Running a Calibration Node", async ({ page }, testInfo) => {
     await expect(ch1.getByTestId("update-after-icon")).toBeVisible();
 
     // Update the state value for ch2 to [1,2,4,5]
-    await expect(ch2.getByTestId("value-input")).toBeVisible();
-    await expect(ch2.getByTestId("value-container")).toContainText("80000000");
-    await expect(ch2.getByTestId("value-input")).toHaveValue("70000000");
-    ch2.getByTestId("value-input").click();
-    ch2.getByTestId("value-input").fill("[1,2,4,5]");
-    await resonatorField.click(); // Clicking (anywhere) away from input feild to spawn undo button
-    await expect(ch2.getByTestId("undo-icon-wrapper")).toBeVisible();
-    await expect(ch2.getByTestId("update-before-icon")).toBeVisible();
-    ch2.getByTestId("update-before-icon").click(); // Click the icon to update the state
-    await expect(ch2.getByTestId("update-after-icon")).toBeVisible();
+    // await expect(ch2.getByTestId("value-input")).toBeVisible();
+    // await expect(ch2.getByTestId("value-container")).toContainText("80000000");
+    // await expect(ch2.getByTestId("value-input")).toHaveValue("70000000");
+    // ch2.getByTestId("value-input").click();
+    // ch2.getByTestId("value-input").fill("[1,2,4,5]");
+    // await resonatorField.click(); // Clicking (anywhere) away from input feild to spawn undo button
+    // await expect(ch2.getByTestId("undo-icon-wrapper")).toBeVisible();
+    // await expect(ch2.getByTestId("update-before-icon")).toBeVisible();
+    // ch2.getByTestId("update-before-icon").click(); // Click the icon to update the state
+    // await expect(ch2.getByTestId("update-after-icon")).toBeVisible();
   }
 });

@@ -1,0 +1,35 @@
+# This workflow is used for automatically running checks on adding commit to 
+# pull requests. There are 2 global types of check: frontend and backend.
+# Frontend checks include eslint and stylelint checks
+
+name: Frontend lint; type;
+
+on:
+  pull_request
+
+jobs:
+  frontend-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      id: node-setup
+      uses: actions/setup-node@v4
+      with:
+        node-version: "24.x"
+
+    - uses: actions/cache@v4
+      id: frontend-cache-id
+      with:
+        path: src/frontend/node_modules
+        key: npm-${{ hashFiles('src/frontend/**/package-lock.json') }}
+        restore-keys: npm-
+
+    - name: Install npm deps
+      if: steps.frontend-cache-id.outputs.cache-hit != 'true'
+      working-directory: src/frontend
+      run: npm ci
+
+    - name: Run linter
+      working-directory: src/frontend
+      run: npm run lint

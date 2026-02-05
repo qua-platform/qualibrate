@@ -9,9 +9,7 @@ class FakeGateFidelity:
 
 
 class FakeQubit:
-    def __init__(
-        self, name: str, gate_fidelity: FakeGateFidelity | None = None
-    ):
+    def __init__(self, name: str, gate_fidelity: FakeGateFidelity | None = None):
         self.name = name
         self.gate_fidelity = gate_fidelity
 
@@ -42,9 +40,7 @@ class Parameters(NodeParameters):
     random_color: Color = Color.BLUE
 
 
-node = QualibrationNode(
-    "test_node_mocked_machine", parameters=Parameters(), machine=FakeMachine()
-)
+node = QualibrationNode("test_node_mocked_machine", parameters=Parameters(), machine=FakeMachine())
 
 
 @node.run_action()

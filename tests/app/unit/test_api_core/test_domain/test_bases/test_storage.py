@@ -61,9 +61,7 @@ class TestDataFileStorage:
         self.dfs._load_type_flag = StorageLoadTypeFlag.Full
         assert self.dfs.load_type_flag == StorageLoadTypeFlag.Full
 
-    @pytest.mark.parametrize(
-        "load_type", [StorageLoadTypeFlag.Empty, StorageLoadTypeFlag.Full]
-    )
+    @pytest.mark.parametrize("load_type", [StorageLoadTypeFlag.Empty, StorageLoadTypeFlag.Full])
     def test_load_current_type_greater_or_eq(self, mocker, load_type):
         mocker.patch.object(
             self.dfs.__class__,
@@ -71,10 +69,7 @@ class TestDataFileStorage:
             new_callable=PropertyMock,
             return_value=StorageLoadTypeFlag.Full,
         )
-        patched_parse_data = mocker.patch(
-            "qualibrate.app.api.core.domain.bases."
-            "storage._storage_loader_from_flag"
-        )
+        patched_parse_data = mocker.patch("qualibrate.app.api.core.domain.bases.storage._storage_loader_from_flag")
         assert self.dfs.load_from_flag(load_type) is None
         patched_parse_data.assert_not_called()
 
@@ -86,10 +81,7 @@ class TestDataFileStorage:
             return_value=StorageLoadTypeFlag.Empty,
         )
         mocker.patch.object(self.dfs, "_get_filename", return_value=None)
-        patched_parse_data = mocker.patch(
-            "qualibrate.app.api.core.domain.bases."
-            "storage._storage_loader_from_flag"
-        )
+        patched_parse_data = mocker.patch("qualibrate.app.api.core.domain.bases.storage._storage_loader_from_flag")
         assert self.dfs.load_from_flag(StorageLoadTypeFlag.Full) is None
         patched_parse_data.assert_not_called()
 
@@ -101,14 +93,9 @@ class TestDataFileStorage:
             return_value=StorageLoadTypeFlag.Empty,
         )
         mocker.patch.object(self.dfs, "_get_filename", return_value="data.json")
-        patched_parse_data = mocker.patch(
-            "qualibrate.app.api.core.domain.bases."
-            "storage._storage_loader_from_flag"
-        )
+        patched_parse_data = mocker.patch("qualibrate.app.api.core.domain.bases.storage._storage_loader_from_flag")
         assert self.dfs.load_from_flag(StorageLoadTypeFlag.Full) is None
-        patched_parse_data.assert_called_once_with(
-            self.dfs._path, "data.json", StorageLoadTypeFlag.Full, None
-        )
+        patched_parse_data.assert_called_once_with(self.dfs._path, "data.json", StorageLoadTypeFlag.Full, None)
 
     def test_exists(self, mocker):
         patched_exists = mocker.patch("pathlib.Path.exists")
@@ -156,9 +143,7 @@ class TestDataFileStorage:
         data_file = self.node_abs_path / "data.json"
         data_file.touch()
         with pytest.raises(QValueException) as ex:
-            _storage_loader_from_flag(
-                self.node_abs_path, data_file, StorageLoadTypeFlag.Full
-            )
+            _storage_loader_from_flag(self.node_abs_path, data_file, StorageLoadTypeFlag.Full)
         assert ex.type == QValueException
         assert ex.value.args == ("Unexpected data format.",)
 
@@ -166,9 +151,7 @@ class TestDataFileStorage:
         data_file = self.node_abs_path / "data.json"
         data_file.write_text("[]")
         with pytest.raises(QValueException) as ex:
-            _storage_loader_from_flag(
-                self.node_abs_path, data_file, StorageLoadTypeFlag.Full
-            )
+            _storage_loader_from_flag(self.node_abs_path, data_file, StorageLoadTypeFlag.Full)
         assert ex.type == QValueException
         assert ex.value.args == ("Unexpected data format.",)
 
@@ -181,43 +164,32 @@ class TestDataFileStorage:
         )
         content = {"a": "b", "c": 2}
         data_file.write_text(json.dumps(content))
-        assert (
-            _storage_loader_from_flag(
-                self.node_abs_path, data_file, StorageLoadTypeFlag.Full
-            )
-            == content
-        )
+        assert _storage_loader_from_flag(self.node_abs_path, data_file, StorageLoadTypeFlag.Full) == content
         patched_suffix.assert_called_once()
         patched_resolve.assert_not_called()
 
-    def test__storage_loader_from_flag_reference_file_not_subpath_of_node(
-        self, mocker
-    ):
+    def test__storage_loader_from_flag_reference_file_not_subpath_of_node(self, mocker):
         data_file = self.node_abs_path / "data.json"
-        patched_is_relative = mocker.patch(
-            "pathlib.Path.is_relative_to", return_value=False
-        )
+        patched_is_relative = mocker.patch("pathlib.Path.is_relative_to", return_value=False)
         patched_read_bytes = mocker.patch("pathlib.Path.read_bytes")
         content = {"path": "../file.png"}
         data_file.write_text(json.dumps(content))
-        assert _storage_loader_from_flag(
-            self.node_abs_path, data_file, StorageLoadTypeFlag.Full
-        ) == {"path": "../file.png"}
+        assert _storage_loader_from_flag(self.node_abs_path, data_file, StorageLoadTypeFlag.Full) == {
+            "path": "../file.png"
+        }
         patched_is_relative.assert_called_once_with(self.node_abs_path)
         patched_read_bytes.assert_not_called()
 
     def test__storage_loader_from_flag_reference_file_not_exists(self, mocker):
         data_file = self.node_abs_path / "data.json"
-        patched_is_relative = mocker.patch(
-            "pathlib.Path.is_relative_to", return_value=True
-        )
+        patched_is_relative = mocker.patch("pathlib.Path.is_relative_to", return_value=True)
         mocker.patch("pathlib.Path.is_file", side_effect=[True, False])
         patched_read_bytes = mocker.patch("pathlib.Path.read_bytes")
         content = {"path": "./file.png"}
         data_file.write_text(json.dumps(content))
-        assert _storage_loader_from_flag(
-            self.node_abs_path, data_file, StorageLoadTypeFlag.Full
-        ) == {"path": "./file.png"}
+        assert _storage_loader_from_flag(self.node_abs_path, data_file, StorageLoadTypeFlag.Full) == {
+            "path": "./file.png"
+        }
         patched_is_relative.assert_called_once_with(self.node_abs_path)
         patched_read_bytes.assert_not_called()
 
@@ -239,20 +211,14 @@ class TestDataFileStorage:
         "load_type_flag",
         [StorageLoadTypeFlag.DataFileWithImgs, StorageLoadTypeFlag.Full],
     )
-    def test__storage_loader_from_flag_reference_read_valid(
-        self, mocker, load_type_flag
-    ):
+    def test__storage_loader_from_flag_reference_read_valid(self, mocker, load_type_flag):
         data_file = self.node_abs_path / "data.json"
-        patched_is_relative = mocker.patch(
-            "pathlib.Path.is_relative_to", return_value=True
-        )
+        patched_is_relative = mocker.patch("pathlib.Path.is_relative_to", return_value=True)
         mocker.patch("pathlib.Path.is_file", return_value=True)
-        patched_read_bytes = mocker.patch(
-            "pathlib.Path.read_bytes", return_value=b"img"
-        )
+        patched_read_bytes = mocker.patch("pathlib.Path.read_bytes", return_value=b"img")
         data_file.write_text(json.dumps({"path": "./file.png"}))
-        assert _storage_loader_from_flag(
-            self.node_abs_path, data_file, load_type_flag
-        ) == {"path": {"./file.png": "data:image/png;base64,aW1n"}}
+        assert _storage_loader_from_flag(self.node_abs_path, data_file, load_type_flag) == {
+            "path": {"./file.png": "data:image/png;base64,aW1n"}
+        }
         patched_is_relative.assert_called_once_with(self.node_abs_path)
         patched_read_bytes.assert_called_once()

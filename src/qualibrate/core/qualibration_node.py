@@ -117,11 +117,7 @@ def simplify_traceback(
 
     # Find ALL frames in the node file
     node_filepath_str = str(node_filepath)
-    node_frame_indices = [
-        idx
-        for idx, frame in enumerate(all_frames)
-        if frame.filename == node_filepath_str
-    ]
+    node_frame_indices = [idx for idx, frame in enumerate(all_frames) if frame.filename == node_filepath_str]
 
     if not node_frame_indices:
         # Node file not in traceback (error during framework code
@@ -132,8 +128,7 @@ def simplify_traceback(
     action_framework_indices = [
         idx
         for idx, frame in enumerate(all_frames)
-        if "action_manager.py" in frame.filename
-        or "action.py" in frame.filename
+        if "action_manager.py" in frame.filename or "action.py" in frame.filename
     ]
 
     if not action_framework_indices:
@@ -146,19 +141,13 @@ def simplify_traceback(
         # This is the entry point into user code (action function)
         last_framework_idx = max(action_framework_indices)
 
-        node_frames_after_framework = [
-            idx for idx in node_frame_indices if idx > last_framework_idx
-        ]
+        node_frames_after_framework = [idx for idx in node_frame_indices if idx > last_framework_idx]
 
         # Start from the first node frame after framework code
         # This captures the action function + all nested calls
         # Fallback: use first node frame
         # (unlikely edge case - shouldn't happen in normal execution)
-        start_idx = (
-            node_frames_after_framework[0]
-            if node_frames_after_framework
-            else node_frame_indices[0]
-        )
+        start_idx = node_frames_after_framework[0] if node_frames_after_framework else node_frame_indices[0]
 
     # Extract relevant frames from start point onwards
     relevant_frames = all_frames[start_idx:]
@@ -192,9 +181,7 @@ class QualibrationNode(
 
     active_node: Optional["QualibrationNode[ParametersType, Any]"] = None
 
-    def __new__(
-        cls, *args: Any, **kwargs: Any
-    ) -> "QualibrationNode[ParametersType, Any]":
+    def __new__(cls, *args: Any, **kwargs: Any) -> "QualibrationNode[ParametersType, Any]":
         if cls.active_node is not None:
             return cls.active_node
         return super().__new__(cls)
@@ -213,9 +200,7 @@ class QualibrationNode(
             return
         name = name or self.__class__._get_name_from_stack_frame()
         logger.info(f"Creating node {name}")
-        parameters = self.__class__._validate_passed_parameters_options(
-            name, parameters, parameters_class
-        )
+        parameters = self.__class__._validate_passed_parameters_options(name, parameters, parameters_class)
         super().__init__(
             name,
             parameters,
@@ -232,9 +217,7 @@ class QualibrationNode(
         self._action_manager = ActionManager()
         self.namespace: dict[str, Any] = {}
         if self.modes.inspection:
-            raise StopInspection(
-                "Node instantiated in inspection mode", instance=self
-            )
+            raise StopInspection("Node instantiated in inspection mode", instance=self)
         self._post_init()
 
     @staticmethod
@@ -280,9 +263,7 @@ class QualibrationNode(
         Raises:
             ValueError: If parameters class instantiation fails.
         """
-        params_type_error = ValueError(
-            "Node parameters must be of type NodeParameters"
-        )
+        params_type_error = ValueError("Node parameters must be of type NodeParameters")
         if parameters is not None:
             if not isinstance(parameters, NodeParameters):
                 raise params_type_error
@@ -293,10 +274,7 @@ class QualibrationNode(
                 )
             return parameters
         if parameters_class is None:
-            fields = {
-                name: copy.copy(field)
-                for name, field in NodeParameters.model_fields.items()
-            }
+            fields = {name: copy.copy(field) for name, field in NodeParameters.model_fields.items()}
             # Create subclass of NodeParameters. It's needed because otherwise
             # there will be an issue with type checking of subclasses.
             # For example: NodeRunSummary.parameters
@@ -305,24 +283,18 @@ class QualibrationNode(
                 __doc__=NodeParameters.__doc__,
                 __base__=NodeParameters,
                 __module__=NodeParameters.__module__,
-                **{
-                    name: (info.annotation, info)
-                    for name, info in fields.items()
-                },
+                **{name: (info.annotation, info) for name, info in fields.items()},
             )
             return cast(ParametersType, new_model())
         logger.warning(
-            "parameters_class argument is deprecated. Please use "
-            f"parameters argument for initializing node '{name}'."
+            f"parameters_class argument is deprecated. Please use parameters argument for initializing node '{name}'."
         )
         if not issubclass(parameters_class, NodeParameters):
             raise params_type_error
         try:
             return parameters_class()
         except ValidationError as e:
-            raise ValueError(
-                f"Can't instantiate parameters class of node '{name}'"
-            ) from e
+            raise ValueError(f"Can't instantiate parameters class of node '{name}'") from e
 
     @property
     def action_label(self) -> str | None:
@@ -341,9 +313,7 @@ class QualibrationNode(
     @machine.setter
     def machine(self, value: NodeMachineType | None) -> None:
         self._machine = value
-        self._machine_metadata: Mapping[str, Any] | None = (
-            None  # invalidate cache
-        )
+        self._machine_metadata: Mapping[str, Any] | None = None  # invalidate cache
 
     def __copy__(self) -> Self:
         """
@@ -392,32 +362,21 @@ class QualibrationNode(
         Raises:
             ValueError: If the name provided is not a string.
         """
-        logger.info(
-            f"Copying node with name {self.name} with parameters "
-            f"{name = }, {node_parameters = }"
-        )
+        logger.info(f"Copying node with name {self.name} with parameters {name = }, {node_parameters = }")
         if name is not None and not isinstance(name, str):
-            raise ValueError(
-                f"{self.__class__.__name__} should have a string name"
-            )
+            raise ValueError(f"{self.__class__.__name__} should have a string name")
         instance = self.__copy__()
         if name is not None:
             instance.name = name
-        instance._parameters = instance.parameters_class.model_validate(
-            node_parameters
-        )
+        instance._parameters = instance.parameters_class.model_validate(node_parameters)
         # Base class is inherited from user passed model so don't use passed
         # class as base for copied parameters class
-        instance.parameters_class = self.build_parameters_class_from_instance(
-            instance._parameters
-        )
+        instance.parameters_class = self.build_parameters_class_from_instance(instance._parameters)
         return instance
 
     def set_parameters(self, **parameters: Any) -> None:
         self._parameters = self.parameters_class.model_validate(parameters)
-        self.parameters_class = self.build_parameters_class_from_instance(
-            self._parameters
-        )
+        self.parameters_class = self.build_parameters_class_from_instance(self._parameters)
 
     def _warn_if_external_and_interactive_mpl(self) -> None:
         """
@@ -444,10 +403,7 @@ class QualibrationNode(
         return f"{self.__class__.__name__}: {self.name}"
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}: {self.name} "
-            f"(mode: {self.modes}; parameters: {self.parameters})"
-        )
+        return f"{self.__class__.__name__}: {self.name} (mode: {self.modes}; parameters: {self.parameters})"
 
     @property
     def snapshot_idx(self) -> int | None:
@@ -556,9 +512,7 @@ class QualibrationNode(
             base_path = qs.storage.location
         node_dir = get_node_dir_path(node_id, base_path)
         if node_dir is None:
-            logger.error(
-                f"Node directory with id {node_id} wasn't found in {base_path}"
-            )
+            logger.error(f"Node directory with id {node_id} wasn't found in {base_path}")
             return None
         node_content = read_node_content(node_dir, node_id, base_path)
         if node_content is not None:
@@ -572,16 +526,12 @@ class QualibrationNode(
                 self.machine = quam_machine
             if parameters is not None:
                 if build_params_class:
-                    self.parameters_class = cast(
-                        ParametersType, parameters
-                    ).__class__
+                    self.parameters_class = cast(ParametersType, parameters).__class__
                     self._parameters = cast(ParametersType, parameters)
                 else:
                     self._parameters = cast(
                         ParametersType,
-                        self.parameters.model_construct(
-                            **cast(Mapping[str, Any], parameters)
-                        ),
+                        self.parameters.model_construct(**cast(Mapping[str, Any], parameters)),
                     )
 
         data = read_node_data(node_dir, node_id, base_path, custom_loaders)
@@ -617,9 +567,7 @@ class QualibrationNode(
             loading fails.
         """
         instance: QualibrationNode[ParametersType, NodeMachineType] = (
-            caller(name=f"loaded_from_id_{node_id}")
-            if isinstance(caller, type)
-            else caller
+            caller(name=f"loaded_from_id_{node_id}") if isinstance(caller, type) else caller
         )
         return instance._load_from_id(
             node_id=node_id,
@@ -640,17 +588,13 @@ class QualibrationNode(
             ):
                 metadata = {}
                 qubits = self.machine.qubits.keys()
-                active_qubits = {
-                    qubit.name for qubit in self.machine.active_qubits
-                }
+                active_qubits = {qubit.name for qubit in self.machine.active_qubits}
 
                 # Build metadata for each qubit
                 for qubit in qubits:
                     qubit_info = self.machine.qubits[qubit]
                     gate_fidelity = None
-                    if hasattr(qubit_info, "gate_fidelity") and hasattr(
-                        qubit_info.gate_fidelity, "averaged"
-                    ):
+                    if hasattr(qubit_info, "gate_fidelity") and hasattr(qubit_info.gate_fidelity, "averaged"):
                         gate_fidelity = qubit_info.gate_fidelity.averaged
                     metadata[qubit] = {
                         "active": qubit in active_qubits,
@@ -685,11 +629,7 @@ class QualibrationNode(
 
         metadata = self._get_machine_metadata()
 
-        if (
-            "parameters" in data
-            and "qubits" in data["parameters"]
-            and metadata is not None
-        ):
+        if "parameters" in data and "qubits" in data["parameters"] and metadata is not None:
             data["parameters"]["qubits"]["metadata"] = metadata
 
         return data
@@ -722,12 +662,8 @@ class QualibrationNode(
         self._action_manager.current_action = None
         if self.parameters is not None and (targets := self.parameters.targets):
             lost_targets_outcomes = set(targets) - set(outcomes.keys())
-            outcomes.update(
-                {target: Outcome.SUCCESSFUL for target in lost_targets_outcomes}
-            )
-        self.outcomes = {
-            name: Outcome(outcome) for name, outcome in outcomes.items()
-        }
+            outcomes.update({target: Outcome.SUCCESSFUL for target in lost_targets_outcomes})
+        self.outcomes = {name: Outcome(outcome) for name, outcome in outcomes.items()}
         self.run_summary = NodeRunSummary(
             name=self.name,
             description=self.description,
@@ -737,16 +673,8 @@ class QualibrationNode(
             parameters=parameters,
             outcomes=self.outcomes,
             error=run_error,
-            successful_targets=[
-                name
-                for name, status in self.outcomes.items()
-                if status == Outcome.SUCCESSFUL
-            ],
-            failed_targets=[
-                name
-                for name, status in self.outcomes.items()
-                if status == Outcome.FAILED
-            ],
+            successful_targets=[name for name, status in self.outcomes.items() if status == Outcome.SUCCESSFUL],
+            failed_targets=[name for name, status in self.outcomes.items() if status == Outcome.FAILED],
             state_updates=self.state_updates,
         )
         logger.debug(f"Node run summary {self.run_summary}")
@@ -779,11 +707,7 @@ class QualibrationNode(
             all_frames = traceback.extract_tb(tb)
             node_filepath_str = str(self.filepath)
 
-            node_frame_indices = [
-                idx
-                for idx, frame in enumerate(all_frames)
-                if frame.filename == node_filepath_str
-            ]
+            node_frame_indices = [idx for idx, frame in enumerate(all_frames) if frame.filename == node_filepath_str]
 
             if not node_frame_indices:
                 return None
@@ -809,11 +733,7 @@ class QualibrationNode(
             for i in range(start_line, end_line):
                 line_num = i + 1
                 line_text = lines[i].rstrip()
-                marker = (
-                    "  # <- Error occurred here"
-                    if line_num == error_lineno
-                    else ""
-                )
+                marker = "  # <- Error occurred here" if line_num == error_lineno else ""
                 snippet_lines.append(f"{line_num:4d}: {line_text}{marker}")
 
             return "\n".join(snippet_lines)
@@ -845,16 +765,10 @@ class QualibrationNode(
             # Determine if it's in node body or during initialization
             # If we have any actions registered, it's likely in the body
             # Otherwise, it's during initialization
-            location = (
-                "node initialization (outside of actions)"
-                if self._action_manager.actions
-                else "node body"
-            )
+            location = "node initialization (outside of actions)" if self._action_manager.actions else "node body"
             return f"Failure in {location}"
 
-    def _generate_error_details(
-        self, ex: Exception, simplified_tb: list[str]
-    ) -> str:
+    def _generate_error_details(self, ex: Exception, simplified_tb: list[str]) -> str:
         """
         Generate detailed error context including action history,
         source snippet, and simplified traceback.
@@ -946,22 +860,16 @@ class QualibrationNode(
             RuntimeError: Raised if the node filepath is not provided, or
                 execution
         """
-        logger.info(
-            f"Run node {self.name} with parameters: {passed_parameters}"
-        )
+        logger.info(f"Run node {self.name} with parameters: {passed_parameters}")
         self._fraction_complete = 0
         if self.filepath is None:
             ex = RuntimeError(f"Node {self.name} file path was not provided")
             logger.exception("", exc_info=ex)
             raise ex
-        params_dict = (
-            self.parameters.model_dump() if self.parameters is not None else {}
-        )
+        params_dict = self.parameters.model_dump() if self.parameters is not None else {}
         params_dict.update(passed_parameters)
         parameters = self.parameters.model_validate(params_dict)
-        initial_targets = (
-            copy.copy(parameters.targets) if parameters.targets else []
-        )
+        initial_targets = copy.copy(parameters.targets) if parameters.targets else []
         self.run_start = datetime.now().astimezone()
         run_error: RunError | None = None
 
@@ -970,9 +878,7 @@ class QualibrationNode(
                 "Run modes context is already set to %s",
                 run_modes_ctx.get(),
             )
-        new_run_modes = RunModes(
-            external=True, interactive=interactive, inspection=False
-        )
+        new_run_modes = RunModes(external=True, interactive=interactive, inspection=False)
         run_modes_token = run_modes_ctx.set(new_run_modes)
         modes = self.modes.model_copy()
         try:
@@ -1035,9 +941,7 @@ class QualibrationNode(
         try:
             plt.close("all")
             matplotlib.use("agg")
-            _module = import_from_path(
-                get_module_name(node_filepath), node_filepath
-            )
+            _module = import_from_path(get_module_name(node_filepath), node_filepath)
         finally:
             matplotlib.use(mpl_backend)
 
@@ -1067,9 +971,7 @@ class QualibrationNode(
         return True
 
     @contextmanager
-    def record_state_updates(
-        self, interactive_only: bool = True
-    ) -> Generator[None, None, None]:
+    def record_state_updates(self, interactive_only: bool = True) -> Generator[None, None, None]:
         """
         Records state updates for the node during execution.
 
@@ -1142,10 +1044,7 @@ class QualibrationNode(
                 try:
                     cls.scan_node_file(file, nodes)
                 except Exception as e:
-                    logger.warning(
-                        "An error occurred on scanning node file "
-                        f"{file.name}.\nError: {type(e)}: {e}"
-                    )
+                    logger.warning(f"An error occurred on scanning node file {file.name}.\nError: {type(e)}: {e}")
 
         finally:
             run_modes_ctx.reset(run_modes_token)
@@ -1198,9 +1097,7 @@ class QualibrationNode(
             nodes: dictionary to store nodes.
         """
         if node.name in nodes:
-            logger.warning(
-                f'Node "{node.name}" already exists in library, overwriting'
-            )
+            logger.warning(f'Node "{node.name}" already exists in library, overwriting')
 
         nodes[node.name] = node
 

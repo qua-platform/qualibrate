@@ -28,23 +28,18 @@ class QuamLoader(JSONLoader):
             return QuamRoot.load(path)
         except Exception as ex:
             logger.exception(
-                "QuamRoot wasn't successfully loaded from reference "
-                f"{path}. Returning raw json",
+                f"QuamRoot wasn't successfully loaded from reference {path}. Returning raw json",
                 exc_info=ex,
             )
             if path.is_file():
                 if self.__class__.is_loader_support_extension(path.suffix):
                     return super().load(path)
-                logger.error(
-                    f"Can't load file from reference {path}. Unsupported type."
-                )
+                logger.error(f"Can't load file from reference {path}. Unsupported type.")
                 return {}
             quam = {}
             for file in path.glob("*.json"):
                 try:
                     quam.update(super().load(file))
                 except ValueError as e:
-                    logger.warning(
-                        f"Can't parse quam file: {file.name}", exc_info=e
-                    )
+                    logger.warning(f"Can't parse quam file: {file.name}", exc_info=e)
             return quam

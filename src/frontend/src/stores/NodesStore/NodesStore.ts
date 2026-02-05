@@ -109,11 +109,16 @@ export const nodesSlice = createSlice({
     },
     setAllNodes: (state, action) => {
       state.allNodes = action.payload;
+      Object.values(state.allNodes || {}).map((node) =>
+        Object.values(node.parameters || {}).map(parameter =>
+          parameter.value = parameter.default
+        )
+      );
     },
     setNodeParameter: (state, action) => {
       const { nodeKey, paramKey, newValue } = action.payload;
       if (state.allNodes && state.allNodes[nodeKey].parameters)
-        state.allNodes[nodeKey].parameters[paramKey].default = newValue;
+        state.allNodes[nodeKey].parameters[paramKey].value = newValue;
     },
     setIsNodeRunning: (state, action) => {
       state.isNodeRunning = action.payload;

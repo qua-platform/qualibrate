@@ -71,9 +71,7 @@ class TargetParameter(BaseModel):
                 f"targets name) fields. `{cls.targets_name}` will be ignored."
             )
             logger.warning(msg)
-        targets = types_conversion(
-            targets, cls.model_json_schema()["properties"].get(cls.targets_name)
-        )
+        targets = types_conversion(targets, cls.model_json_schema()["properties"].get(cls.targets_name))
         return {**data, cls.targets_name: targets}
 
     @model_validator(mode="after")
@@ -86,10 +84,7 @@ class TargetParameter(BaseModel):
 
     @property
     def targets(self) -> list[TargetType] | None:
-        if (
-            self.targets_name is None
-            or self.targets_name not in self.__class__.model_fields
-        ):
+        if self.targets_name is None or self.targets_name not in self.__class__.model_fields:
             return None
         return cast(list[TargetType], getattr(self, self.targets_name))
 
@@ -98,10 +93,7 @@ class TargetParameter(BaseModel):
         if self.targets_name is None:
             return
         if self.targets_name not in self.__class__.model_fields:
-            raise TargetsFieldNotExist(
-                f"Targets name ({self.targets_name}) specified but field does "
-                "not exist"
-            )
+            raise TargetsFieldNotExist(f"Targets name ({self.targets_name}) specified but field does not exist")
         if not isinstance(new_targets, Sequence):
             raise ValueError(f"Targets must be an iterable of {TargetType}")
         setattr(self, self.targets_name, new_targets)
@@ -113,25 +105,16 @@ class TargetParameter(BaseModel):
         exclude_targets: bool = False,
     ) -> Mapping[str, Any]:
         if exclude_targets:
-            return {
-                k: {**v, "is_targets": False}
-                for k, v in parameters.items()
-                if k != cls.targets_name
-            }
+            return {k: {**v, "is_targets": False} for k, v in parameters.items() if k != cls.targets_name}
         else:
-            return {
-                k: {**v, "is_targets": k == cls.targets_name}
-                for k, v in parameters.items()
-            }
+            return {k: {**v, "is_targets": k == cls.targets_name} for k, v in parameters.items()}
 
 
 class NodeParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[str | None] = "qubits"
 
     @classmethod
-    def serialize(
-        cls, exclude_targets: bool = False, **kwargs: Any
-    ) -> Mapping[str, Any]:
+    def serialize(cls, exclude_targets: bool = False, **kwargs: Any) -> Mapping[str, Any]:
         return cls.serialize_targets(super().serialize(), exclude_targets)
 
 
@@ -147,9 +130,7 @@ class GraphParameters(RunnableParameters, TargetParameter):
     targets_name: ClassVar[str | None] = "qubits"
 
     @classmethod
-    def serialize(
-        cls, exclude_targets: bool = False, **kwargs: Any
-    ) -> Mapping[str, Any]:
+    def serialize(cls, exclude_targets: bool = False, **kwargs: Any) -> Mapping[str, Any]:
         return cls.serialize_targets(super().serialize(), exclude_targets)
 
 
@@ -159,43 +140,28 @@ class OrchestratorParameters(RunnableParameters):
 
 class ExecutionParameters(RunnableParameters):
     parameters: GraphParameters = Field(default_factory=GraphParameters)
-    nodes: GraphElementsParameters = Field(
-        default_factory=GraphElementsParameters
-    )
+    nodes: GraphElementsParameters = Field(default_factory=GraphElementsParameters)
 
     @classmethod
     def serialize(cls, **kwargs: Any) -> Mapping[str, Any]:
         serialized = super().serialize()
         updated_serialized = {}
         if len(serialized) > 2:
-            updated_serialized = {
-                k: v
-                for k, v in serialized.items()
-                if k not in ("parameters", "nodes")
-            }
+            updated_serialized = {k: v for k, v in serialized.items() if k not in ("parameters", "nodes")}
         exclude_targets = kwargs.get("exclude_targets")
-        exclude_parameters_targets = (
-            exclude_targets if exclude_targets is not None else False
-        )
-        exclude_nodes_targets = (
-            exclude_targets if exclude_targets is not None else True
-        )
+        exclude_parameters_targets = exclude_targets if exclude_targets is not None else False
+        exclude_nodes_targets = exclude_targets if exclude_targets is not None else True
         parameters_class = cls.model_fields["parameters"].annotation
         if parameters_class is None:
             raise RuntimeError("Graph parameters class can't be none")
         if not issubclass(parameters_class, GraphParameters):
-            raise RuntimeError(
-                "Graph parameters class should be subclass of "
-                f"{get_full_class_path(GraphParameters)}"
-            )
+            raise RuntimeError(f"Graph parameters class should be subclass of {get_full_class_path(GraphParameters)}")
 
         updated_serialized["parameters"] = parameters_class.serialize_targets(
             serialized["parameters"], exclude_targets=exclude_parameters_targets
         )
         updated_serialized["nodes"] = {
-            node_name: NodeParameters.serialize_targets(
-                params, exclude_targets=exclude_nodes_targets
-            )
+            node_name: NodeParameters.serialize_targets(params, exclude_targets=exclude_nodes_targets)
             for node_name, params in serialized["nodes"].items()
         }
 

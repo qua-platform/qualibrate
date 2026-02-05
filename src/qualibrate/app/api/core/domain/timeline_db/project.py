@@ -24,9 +24,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
 
     def _active_project_setter(self, value: str) -> None:
         if not self._check_db_project_exists(value):
-            raise QJsonDbException(
-                f"Can't check if project {value} exists in timeline DB."
-            )
+            raise QJsonDbException(f"Can't check if project {value} exists in timeline DB.")
         self._settings.project = value
 
     def create(
@@ -57,9 +55,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
 
     def list(self) -> Sequence[Project]:
         response = requests.get(
-            urljoin(
-                self._settings.timeline_db.address_with_root, "database/list"
-            ),
+            urljoin(self._settings.timeline_db.address_with_root, "database/list"),
             timeout=self._settings.timeline_db.timeout,
         )
         if response.status_code != 200:

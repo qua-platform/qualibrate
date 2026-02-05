@@ -96,6 +96,27 @@ export type HistoryType = {
 };
 
 /**
+ * Real-time info about latest executed and latest saved snapshot id and a flag that indicates whether snapshots array
+ * should be updated or not (by doing API request to the BE).
+ *
+ * @property saved_id - id of the last saved snapshot
+ * @property latest_id - id of the last executed node
+ * @property update_required -  flag that indicates if all snapshot array should be updated (because of the new ones)
+ *
+ * @remarks
+ * Pushed via `/execution/ws/workflow_execution_history` WebSocket endpoint.
+ * Used by timeline components to display calibration history and trends.
+ *
+ * @see Data for previous executed nodes details
+ *
+ */
+export type SnapshotType = {
+  saved_id: number;
+  latest_id: number;
+  update_required: boolean;
+};
+
+/**
  * WebSocket redux state interface providing real-time calibration data and operations.
  *
  * Provides access to two WebSocket streams (runStatus and history)
@@ -104,6 +125,7 @@ export type HistoryType = {
 interface WebSocketState {
   runStatus: RunStatusType | null;
   history: HistoryType | null;
+  snapshotInfo: SnapshotType | null;
   showConnectionErrorDialog: boolean;
   connectionLostAt: number | null;
   connectionLostSeconds: number;
@@ -112,6 +134,7 @@ interface WebSocketState {
 const initialState: WebSocketState = {
   runStatus: null,
   history: null,
+  snapshotInfo: null,
   showConnectionErrorDialog: false,
   connectionLostAt: null,
   connectionLostSeconds: 0,
@@ -126,6 +149,9 @@ export const webSocketSlice = createSlice({
     },
     setHistory: (state, action) => {
       state.history = action.payload;
+    },
+    setSnapshotInfo: (state, action) => {
+      state.snapshotInfo = action.payload;
     },
     setShowConnectionErrorDialog: (state, action) => {
       state.showConnectionErrorDialog = action.payload;

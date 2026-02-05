@@ -29,10 +29,8 @@ export {
   setResult,
   setFirstId,
   setSecondId,
-  setReset,
   fetchOneSnapshot,
   fetchGitgraphSnapshots,
-  intervalFetch,
 } from "./actions";
 export {
   getSnapshotsState,
@@ -60,6 +58,5 @@ export {
   getResult,
   getFirstId,
   getSecondId,
-  getReset,
 } from "./selectors";
 export { useInitSnapshots } from "./hooks";

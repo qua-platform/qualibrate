@@ -8,9 +8,7 @@ from qualibrate.app.api.core.utils.path.node import NodePath
 
 
 def test_find_latest_node_data_exists(mocker):
-    mocker.patch.object(
-        NodePath, "id", new_callable=PropertyMock, side_effect=[1, 5, None, 3]
-    )
+    mocker.patch.object(NodePath, "id", new_callable=PropertyMock, side_effect=[1, 5, None, 3])
     glob_res = iter(["#1", "#5_", "#name", "#3"])
     mocker.patch("pathlib.Path.glob", return_value=glob_res)
     assert node_utils.find_latest_node(Path("/some_path")) == NodePath("#5_")
@@ -31,10 +29,7 @@ def test_find_latest_node_id_node_specified(mocker, id_res, ret_val):
         return_value=id_res,
     )
     mocker.patch(
-        (
-            "qualibrate.app.api.core.domain.local_storage.utils.node_utils"
-            ".find_latest_node"
-        ),
+        ("qualibrate.app.api.core.domain.local_storage.utils.node_utils.find_latest_node"),
         return_value=node_path,
     )
     assert node_utils.find_latest_node_id(Path("/some_path")) == ret_val
@@ -42,10 +37,7 @@ def test_find_latest_node_id_node_specified(mocker, id_res, ret_val):
 
 def test_find_latest_node_id_node_unspecified(mocker):
     mocker.patch(
-        (
-            "qualibrate.app.api.core.domain.local_storage.utils.node_utils"
-            ".find_latest_node"
-        ),
+        ("qualibrate.app.api.core.domain.local_storage.utils.node_utils.find_latest_node"),
         return_value=None,
     )
     assert node_utils.find_latest_node_id(Path("/some_path")) == -1

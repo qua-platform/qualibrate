@@ -13,7 +13,4 @@ node = QualibrationNode(
     parameters=Parameters(),
 )
 
-node.outcomes = {
-    t: Outcome.SUCCESSFUL if t.endswith("s") else Outcome.FAILED
-    for t in node.parameters.targets
-}
+node.outcomes = {t: Outcome.SUCCESSFUL if t.endswith("s") else Outcome.FAILED for t in node.parameters.targets}

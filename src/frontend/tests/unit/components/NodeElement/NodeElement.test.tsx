@@ -122,6 +122,7 @@ describe("NodeElement - Execution", () => {
     parameters: {
       resonator: {
         default: "q1.resonator",
+        value: "q1.resonator",
         title: "Resonator",
         type: "string" as ParameterTypes,
         is_targets: false

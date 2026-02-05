@@ -26,9 +26,7 @@ def mock_library(mocker):
 
 @pytest.fixture
 def mock_orchestrator(mocker):
-    return mocker.patch(
-        "qualibrate.core.orchestration.basic_orchestrator.QualibrationOrchestrator"
-    )
+    return mocker.patch("qualibrate.core.orchestration.basic_orchestrator.QualibrationOrchestrator")
 
 
 @pytest.fixture
@@ -42,22 +40,14 @@ def pre_setup_graph_nodes():
 
 @pytest.fixture
 def mocked__validate_no_elements_from_library(mocker):
-    return mocker.patch(
-        "qualibrate.core.qualibration_graph.QualibrationGraph"
-        "._validate_no_elements_from_library"
-    )
+    return mocker.patch("qualibrate.core.qualibration_graph.QualibrationGraph._validate_no_elements_from_library")
 
 
 @pytest.fixture
-def pre_setup_graph_parameters_build(
-    mocker, mocked__validate_no_elements_from_library
-):
-    mocked_build_base_parameters = mocker.patch.object(
-        QRunnable, "build_parameters_class_from_instance"
-    )
+def pre_setup_graph_parameters_build(mocker, mocked__validate_no_elements_from_library):
+    mocked_build_base_parameters = mocker.patch.object(QRunnable, "build_parameters_class_from_instance")
     mocked_build_full_parameters = mocker.patch(
-        "qualibrate.core.qualibration_graph.QualibrationGraph"
-        "._build_parameters_class"
+        "qualibrate.core.qualibration_graph.QualibrationGraph._build_parameters_class"
     )
     return (
         mocked_build_base_parameters,
@@ -67,12 +57,9 @@ def pre_setup_graph_parameters_build(
 
 
 @pytest.fixture
-def pre_setup_graph_init(
-    mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build
-):
+def pre_setup_graph_init(mocker, pre_setup_graph_nodes, pre_setup_graph_parameters_build):
     mocked_add_nodes_and_connections = mocker.patch(
-        "qualibrate.core.qualibration_graph.QualibrationGraph."
-        "_add_nodes_and_connections_to_nx",
+        "qualibrate.core.qualibration_graph.QualibrationGraph._add_nodes_and_connections_to_nx",
     )
     (
         mocked_build_base_parameters,

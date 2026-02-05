@@ -7,6 +7,7 @@ from fastapi.concurrency import run_in_threadpool
 
 NoArgsNoReturnFuncT = Callable[[], None]
 NoArgsNoReturnAsyncFuncT = Callable[[], Coroutine[Any, Any, None]]
+NoArgsTaskReturnAsyncFuncT = Callable[[], Coroutine[Any, Any, asyncio.Task[None]]]
 ExcArgNoReturnFuncT = Callable[[Exception], None]
 ExcArgNoReturnAsyncFuncT = Callable[[Exception], Coroutine[Any, Any, None]]
 NoArgsNoReturnAnyFuncT = NoArgsNoReturnFuncT | NoArgsNoReturnAsyncFuncT
@@ -22,9 +23,7 @@ async def _handle_func(func: NoArgsNoReturnAnyFuncT) -> None:
         await run_in_threadpool(func)
 
 
-async def _handle_exc(
-    exc: Exception, on_exception: ExcArgNoReturnAnyFuncT | None
-) -> None:
+async def _handle_exc(exc: Exception, on_exception: ExcArgNoReturnAnyFuncT | None) -> None:
     if on_exception is None:
         return
     if asyncio.iscoroutinefunction(on_exception):
@@ -37,7 +36,7 @@ def repeat_every(
     *,
     seconds: float,
     on_exception: Callable[[Exception], None] | None = None,
-) -> Callable[[NoArgsNoReturnAnyFuncT], NoArgsNoReturnAsyncFuncT]:
+) -> Callable[[NoArgsNoReturnAnyFuncT], NoArgsTaskReturnAsyncFuncT]:
     """
     This function returns a decorator that modifies a function so it is
     periodically re-executed after its first call.
@@ -50,16 +49,21 @@ def repeat_every(
     on_exception: Optional[Callable[[Exception], None]] (default None)
         A function to call when an exception is raised by the decorated
         function.
+
+    Returns
+    -------
+    The decorated function returns an asyncio.Task that can be used to
+    track or cancel the periodic execution.
     """
 
-    def decorator(func: NoArgsNoReturnAnyFuncT) -> NoArgsNoReturnAsyncFuncT:
+    def decorator(func: NoArgsNoReturnAnyFuncT) -> NoArgsTaskReturnAsyncFuncT:
         """
         Converts the decorated function into a repeated,
         periodically-called version of itself.
         """
 
         @wraps(func)
-        async def wrapped() -> None:
+        async def wrapped() -> asyncio.Task[None]:
             async def loop() -> None:
                 while True:
                     try:
@@ -68,7 +72,7 @@ def repeat_every(
                         await _handle_exc(exc, on_exception)
                     await asyncio.sleep(seconds)
 
-            asyncio.ensure_future(loop())
+            return asyncio.create_task(loop())
 
         return wrapped
 

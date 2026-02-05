@@ -10,6 +10,7 @@ before any actions are executed.
 """
 
 from pydantic import Field
+
 from qualibrate.core import NodeParameters, QualibrationNode
 
 
@@ -50,9 +51,7 @@ if node.parameters.should_fail:
         raise ValueError(error_msg)
 
 # This code only runs if we didn't fail above
-data = [
-    node.parameters.amplitude * i for i in range(node.parameters.num_points)
-]
+data = [node.parameters.amplitude * i for i in range(node.parameters.num_points)]
 node.results = {
     "data": data,
     "length": len(data),

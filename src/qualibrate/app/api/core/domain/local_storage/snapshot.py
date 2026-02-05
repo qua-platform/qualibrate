@@ -154,9 +154,7 @@ class SnapshotLocalStorage(SnapshotBase):
         """
         return self.content.get("parents")
 
-    def search(
-        self, search_path: Sequence[str | int], load: bool = False
-    ) -> Sequence[MachineSearchResults] | None:
+    def search(self, search_path: Sequence[str | int], load: bool = False) -> Sequence[MachineSearchResults] | None:
         """
         Searches for a value in the snapshot data at a specified path.
 
@@ -203,34 +201,25 @@ class SnapshotLocalStorage(SnapshotBase):
             Total number of snapshots and a sequence of the latest snapshots.
         """
         storage_location = self._settings.storage.location
-        project_path_manager = IdToLocalPath().get_project_manager(
-            self._settings.project, storage_location
-        )
+        project_path_manager = IdToLocalPath().get_project_manager(self._settings.project, storage_location)
         total = len(project_path_manager)
         self.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         if descending and pages_filter.page == 1 and pages_filter.per_page == 1:
             return total, [self]
         ids_paged = self._get_latest_snapshots_ids(
             storage_location,
-            pages_filter=PageFilter(
-                page=pages_filter.page, per_page=pages_filter.per_page
-            ),
+            pages_filter=PageFilter(page=pages_filter.page, per_page=pages_filter.per_page),
             search_filter=SearchWithIdFilter(
                 max_node_id=(self.id or project_path_manager.max_id) - 1,
             ),
             descending=descending,
         )
-        snapshots = [
-            SnapshotLocalStorage(id, settings=self._settings)
-            for id in ids_paged
-        ]
+        snapshots = [SnapshotLocalStorage(id, settings=self._settings) for id in ids_paged]
         for snapshot in snapshots:
             snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
         return total, [self, *snapshots]
 
-    def compare_by_id(
-        self, other_snapshot_id: int
-    ) -> Mapping[str, Mapping[str, Any]]:
+    def compare_by_id(self, other_snapshot_id: int) -> Mapping[str, Mapping[str, Any]]:
         """
         Compares the current snapshot with another snapshot by ID.
 
@@ -251,19 +240,13 @@ class SnapshotLocalStorage(SnapshotBase):
         this_data = (self.data or {}).get("quam")
         if this_data is None:
             raise QValueException(f"Can't load data of snapshot {self._id}")
-        other_snapshot = SnapshotLocalStorage(
-            other_snapshot_id, settings=self._settings
-        )
+        other_snapshot = SnapshotLocalStorage(other_snapshot_id, settings=self._settings)
         other_snapshot.load_from_flag(SnapshotLoadTypeFlag.DataWithMachine)
         # TODO: update logic; not use quam directly
         other_data = (other_snapshot.data or {}).get("quam")
         if other_data is None:
-            raise QValueException(
-                f"Can't load data of snapshot {other_snapshot_id}"
-            )
-        return jsonpatch_to_mapping(
-            this_data, jsonpatch.make_patch(dict(this_data), dict(other_data))
-        )
+            raise QValueException(f"Can't load data of snapshot {other_snapshot_id}")
+        return jsonpatch_to_mapping(this_data, jsonpatch.make_patch(dict(this_data), dict(other_data)))
 
     @staticmethod
     def _conversion_type_from_value(value: Any) -> Mapping[str, Any]:
@@ -305,9 +288,7 @@ class SnapshotLocalStorage(SnapshotBase):
             logger.warning("Runner config is not set")
             return None
         try:
-            cookies = cast(
-                MutableMapping[str, str] | None, kwargs.get("cookies")
-            )
+            cookies = cast(MutableMapping[str, str] | None, kwargs.get("cookies"))
             last_run_response = requests.get(
                 urljoin(self._settings.runner.address_with_root, "last_run/"),
                 cookies=cookies,
@@ -369,12 +350,7 @@ class SnapshotLocalStorage(SnapshotBase):
             state_updates = self.get_state_updates_from_runner(**kwargs)
         if state_updates is None:
             return {}
-        return {
-            path: self._extract_state_update_type_from_runner(
-                path, state_updates
-            )
-            for path in paths
-        }
+        return {path: self._extract_state_update_type_from_runner(path, state_updates) for path in paths}
 
     def get_quam_state(
         self,
@@ -395,9 +371,7 @@ class SnapshotLocalStorage(SnapshotBase):
         if not quam_state_file.is_file():
             return None
         try:
-            return cast(
-                Mapping[str, Any], json.loads(quam_state_file.read_text())
-            )
+            return cast(Mapping[str, Any], json.loads(quam_state_file.read_text()))
         except json.JSONDecodeError:
             return None
 
@@ -442,12 +416,7 @@ class SnapshotLocalStorage(SnapshotBase):
             quam_state = self.get_quam_state()
         if quam_state is None:
             return None
-        return {
-            path: self._extract_state_update_type_from_quam_state(
-                path, quam_state
-            )
-            for path in paths
-        }
+        return {path: self._extract_state_update_type_from_quam_state(path, quam_state) for path in paths}
 
     def _saved_data_quam_path(self, path: str) -> str:
         parts = path.split("/", maxsplit=1)
@@ -471,9 +440,7 @@ class SnapshotLocalStorage(SnapshotBase):
         Returns:
             The type mapping for the state update, or None if not found.
         """
-        _type = self._extract_state_update_type_from_runner(
-            path, None, **kwargs
-        )
+        _type = self._extract_state_update_type_from_runner(path, None, **kwargs)
         if _type is not None:
             return _type
         return self._extract_state_update_type_from_quam_state(path)
@@ -494,9 +461,7 @@ class SnapshotLocalStorage(SnapshotBase):
         Returns:
             A mapping of paths to their respective state update types.
         """
-        types = self.extract_state_update_types_from_runner(
-            paths, None, **kwargs
-        )
+        types = self.extract_state_update_types_from_runner(paths, None, **kwargs)
         if len(types):
             return types
         return self.extract_state_update_types_from_quam_state(paths) or {}
@@ -515,22 +480,15 @@ class SnapshotLocalStorage(SnapshotBase):
             QPathException: If an unknown path is encountered during the update.
         """
         if not self.load_type_flag.is_set(SnapshotLoadTypeFlag.DataWithMachine):
-            self.load_from_flag(
-                self.load_type_flag | SnapshotLoadTypeFlag.DataWithMachine
-            )
+            self.load_from_flag(self.load_type_flag | SnapshotLoadTypeFlag.DataWithMachine)
         data = self.data
         if data is None or not isinstance(data.get("quam"), Mapping):
             return False
         # override update paths with quam prefix
         updates = {self._saved_data_quam_path(k): v for k, v in updates.items()}
 
-        path_values = {
-            path: jsonpointer.resolve_pointer(data, path[1:], None)
-            for path in updates
-        }
-        replace_updates = filter(
-            lambda k: path_values[k] is not None, updates.keys()
-        )
+        path_values = {path: jsonpointer.resolve_pointer(data, path[1:], None) for path in updates}
+        replace_updates = filter(lambda k: path_values[k] is not None, updates.keys())
         add_updates = filter(lambda k: path_values[k] is None, updates.keys())
         replace_patch_operations = [
             {
@@ -541,17 +499,12 @@ class SnapshotLocalStorage(SnapshotBase):
             }
             for path in replace_updates
         ]
-        add_patch_operations = [
-            {"op": "add", "path": path[1:], "value": updates[path]}
-            for path in add_updates
-        ]
+        add_patch_operations = [{"op": "add", "path": path[1:], "value": updates[path]} for path in add_updates]
         patch_operations = add_patch_operations + replace_patch_operations
         patch = jsonpatch.JsonPatch(patch_operations)
         try:
             new_data = patch.apply(dict(data))
-            res = self._snapshot_updater(
-                self.node_path, new_data, patch_operations, self._settings
-            )
+            res = self._snapshot_updater(self.node_path, new_data, patch_operations, self._settings)
             return res
         except jsonpatch.JsonPatchException as ex:
             raise QPathException("Unknown path to update") from ex

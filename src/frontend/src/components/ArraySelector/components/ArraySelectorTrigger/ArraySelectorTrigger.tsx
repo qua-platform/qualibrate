@@ -10,7 +10,7 @@ const ArraySelectorTrigger = ({
   onClick,
   icon,
 }: {
-  value: string[] | string;
+  value?: string[] | string;
   disabled: boolean
   onClick: () => void
   icon?: React.ReactNode
@@ -24,7 +24,9 @@ const ArraySelectorTrigger = ({
         ? value.slice(0, MAX_SHOWN_VALUES).join(", ")
         : value
       }
-      <span className={styles.counter}>{(value.length > MAX_SHOWN_VALUES) ? `+${(value.length - MAX_SHOWN_VALUES)}` : ""}</span>
+      {value && <span className={styles.counter}>
+        {(value.length > MAX_SHOWN_VALUES) ? `+${(value.length - MAX_SHOWN_VALUES)}` : ""}
+      </span>}
     </span>
     {!disabled && icon}
   </div>

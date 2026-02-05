@@ -21,17 +21,12 @@ class RunnerAuthMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self._settings = get_settings(get_config_path())
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         if (
             request.url.path.endswith("/docs")
             or request.url.path.endswith("/openapi.json")
             or self._settings.password is None
-            or (
-                request.cookies.get("Qualibrate-Token")
-                == encoded_password(self._settings.password)
-            )
+            or (request.cookies.get("Qualibrate-Token") == encoded_password(self._settings.password))
         ):
             return await call_next(request)
         response = JSONResponse(
@@ -50,16 +45,11 @@ class QualibrateAppAuthMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self._settings = get_settings(get_config_path())
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         if (
             not request.url.path.startswith("/api")  # only for api
             or self._settings.password is None
-            or (
-                request.cookies.get("Qualibrate-Token")
-                == encoded_password(self._settings.password)
-            )
+            or (request.cookies.get("Qualibrate-Token") == encoded_password(self._settings.password))
         ):
             return await call_next(request)
         return JSONResponse(

@@ -25,9 +25,7 @@ from qualibrate.runner.core.run_job import (
 class TestValidateInputParameters:
     """Tests for validate_input_parameters function."""
 
-    def test_valid_parameters_pass_validation(
-        self, sample_parameters_class: type[Any]
-    ) -> None:
+    def test_valid_parameters_pass_validation(self, sample_parameters_class: type[Any]) -> None:
         """Test that valid parameters pass validation."""
         params = {"amplitude": 0.5, "frequency": 5.0e9, "num_averages": 100}
 
@@ -37,9 +35,7 @@ class TestValidateInputParameters:
         assert result.frequency == 5.0e9  # type: ignore[attr-defined]
         assert result.num_averages == 100  # type: ignore[attr-defined]
 
-    def test_valid_parameters_with_defaults(
-        self, sample_parameters_class: type[Any]
-    ) -> None:
+    def test_valid_parameters_with_defaults(self, sample_parameters_class: type[Any]) -> None:
         """Test that validation works with default values."""
         params = {"amplitude": 0.5, "frequency": 5.0e9}
 
@@ -49,9 +45,7 @@ class TestValidateInputParameters:
         assert result.frequency == 5.0e9  # type: ignore[attr-defined]
         assert result.num_averages == 100  # type: ignore[attr-defined]  # Default value
 
-    def test_invalid_parameter_raises_http_exception(
-        self, sample_parameters_class: type[Any]
-    ) -> None:
+    def test_invalid_parameter_raises_http_exception(self, sample_parameters_class: type[Any]) -> None:
         """Test that invalid parameters raise HTTPException with 422 status."""
         params = {"amplitude": 1.5, "frequency": 5.0e9}  # amplitude > 1.0
 
@@ -61,9 +55,7 @@ class TestValidateInputParameters:
         assert exc_info.value.status_code == 422
         assert exc_info.value.detail is not None
 
-    def test_missing_required_field_raises_http_exception(
-        self, sample_parameters_class: type[Any]
-    ) -> None:
+    def test_missing_required_field_raises_http_exception(self, sample_parameters_class: type[Any]) -> None:
         """Test that missing required field raises HTTPException."""
         params = {"amplitude": 0.5}  # Missing required 'frequency'
 
@@ -75,9 +67,7 @@ class TestValidateInputParameters:
         errors = exc_info.value.detail
         assert any("frequency" in str(error).lower() for error in errors)
 
-    def test_type_coercion_works(
-        self, sample_parameters_class: type[Any]
-    ) -> None:
+    def test_type_coercion_works(self, sample_parameters_class: type[Any]) -> None:
         """Test that Pydantic type coercion works as expected."""
         params = {
             "amplitude": "0.5",  # String that can be coerced to float
@@ -96,9 +86,7 @@ class TestGetActiveLibraryOrError:
     """Tests for get_active_library_or_error function."""
 
     @patch("qualibrate.runner.core.run_job.QualibrationLibrary")
-    def test_returns_library_when_exists(
-        self, mock_lib_class: Mock, mock_library: Mock
-    ) -> None:
+    def test_returns_library_when_exists(self, mock_lib_class: Mock, mock_library: Mock) -> None:
         """Test that function returns library when one exists."""
         mock_lib_class.get_active_library.return_value = mock_library
 
@@ -108,13 +96,9 @@ class TestGetActiveLibraryOrError:
         assert result is mock_library
 
     @patch("qualibrate.runner.core.run_job.QualibrationLibrary")
-    def test_raises_exception_when_no_library(
-        self, mock_lib_class: Mock
-    ) -> None:
+    def test_raises_exception_when_no_library(self, mock_lib_class: Mock) -> None:
         """Test that function raises exception when no library exists."""
-        mock_lib_class.get_active_library.side_effect = RuntimeError(
-            "No active library"
-        )
+        mock_lib_class.get_active_library.side_effect = RuntimeError("No active library")
 
         with pytest.raises(RuntimeError, match="No active library"):
             get_active_library_or_error()
@@ -125,9 +109,7 @@ class TestGetActiveLibraryOrError:
 class TestRunNodeHappyPath:
     """Tests for run_node function - happy path scenarios."""
 
-    def test_sets_run_item_to_node(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_sets_run_item_to_node(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that state.run_item is set to the node."""
         mock_node.run = Mock(return_value=None)
 
@@ -135,9 +117,7 @@ class TestRunNodeHappyPath:
 
         assert fresh_state.run_item is mock_node
 
-    def test_creates_last_run_with_running_status(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_creates_last_run_with_running_status(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that initial LastRun has RUNNING status."""
         # Track state during execution
         last_run_during_execution = None
@@ -155,9 +135,7 @@ class TestRunNodeHappyPath:
         assert last_run_during_execution.status == RunStatusEnum.RUNNING
         assert last_run_during_execution.name == "test_node"
 
-    def test_updates_state_with_finished_status(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_updates_state_with_finished_status(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that final state has FINISHED status on success."""
         mock_node.run = Mock(return_value=None)
 
@@ -167,9 +145,7 @@ class TestRunNodeHappyPath:
         assert fresh_state.last_run.status == RunStatusEnum.FINISHED
         assert fresh_state.last_run.error is None
 
-    def test_captures_snapshot_idx(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_captures_snapshot_idx(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that snapshot_idx is captured from node."""
         mock_node.run = Mock(return_value=None)
         mock_node.snapshot_idx = 42
@@ -179,9 +155,7 @@ class TestRunNodeHappyPath:
         assert fresh_state.last_run is not None
         assert fresh_state.last_run.idx == 42
 
-    def test_captures_run_summary(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_captures_run_summary(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that run_summary is captured from node."""
         mock_node.run = Mock(return_value=None)
         # run_summary is None by default in fixture
@@ -209,9 +183,7 @@ class TestRunNodeHappyPath:
         assert fresh_state.last_run is not None
         assert fresh_state.last_run.state_updates == state_updates
 
-    def test_sets_completed_at_timestamp(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_sets_completed_at_timestamp(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that completed_at is set after execution."""
         mock_node.run = Mock(return_value=None)
 
@@ -219,17 +191,13 @@ class TestRunNodeHappyPath:
 
         assert fresh_state.last_run is not None
         assert fresh_state.last_run.completed_at is not None
-        assert (
-            fresh_state.last_run.completed_at > fresh_state.last_run.started_at
-        )
+        assert fresh_state.last_run.completed_at > fresh_state.last_run.started_at
 
 
 class TestRunNodeErrorPath:
     """Tests for run_node function - error scenarios."""
 
-    def test_captures_exception_in_state(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_captures_exception_in_state(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that exceptions are captured in state.last_run.error."""
         mock_node.run = Mock(side_effect=ValueError("Test error"))
 
@@ -242,9 +210,7 @@ class TestRunNodeErrorPath:
         assert fresh_state.last_run.error.error_class == "ValueError"
         assert fresh_state.last_run.error.message == "Test error"
 
-    def test_captures_traceback(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_captures_traceback(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that full traceback is captured."""
         mock_node.run = Mock(side_effect=RuntimeError("Node failed"))
 
@@ -255,14 +221,9 @@ class TestRunNodeErrorPath:
         assert fresh_state.last_run.error is not None
         assert len(fresh_state.last_run.error.traceback) > 0
         # Traceback should be a list of strings
-        assert all(
-            isinstance(line, str)
-            for line in fresh_state.last_run.error.traceback
-        )
+        assert all(isinstance(line, str) for line in fresh_state.last_run.error.traceback)
 
-    def test_re_raises_original_exception(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_re_raises_original_exception(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that the original exception is re-raised."""
         original_error = ValueError("Original error")
         mock_node.run = Mock(side_effect=original_error)
@@ -273,9 +234,7 @@ class TestRunNodeErrorPath:
         # Should be the same exception object
         assert exc_info.value is original_error
 
-    def test_state_updated_even_on_error(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_state_updated_even_on_error(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that state is updated in finally block even on error."""
         mock_node.run = Mock(side_effect=RuntimeError("Error"))
 
@@ -288,9 +247,7 @@ class TestRunNodeErrorPath:
         assert fresh_state.last_run.completed_at is not None
         assert fresh_state.last_run.name == "test_node"
 
-    def test_snapshot_idx_negative_one_on_error(
-        self, mock_node: Mock, fresh_state: State
-    ) -> None:
+    def test_snapshot_idx_negative_one_on_error(self, mock_node: Mock, fresh_state: State) -> None:
         """Test that snapshot_idx remains -1 on error."""
         mock_node.run = Mock(side_effect=ValueError("Error"))
         mock_node.snapshot_idx = 42  # Should not be used on error
@@ -331,9 +288,7 @@ class TestRunWorkflowHappyPath:
 
         mock_library.graphs["test_workflow"] = fresh_workflow
 
-        run_workflow(
-            mock_workflow, {"parameters": {"frequency": 5.0e9}}, fresh_state
-        )
+        run_workflow(mock_workflow, {"parameters": {"frequency": 5.0e9}}, fresh_state)
 
         # Should retrieve fresh workflow from library
         mock_get_library.assert_called_once()
@@ -394,9 +349,7 @@ class TestRunWorkflowHappyPath:
         run_workflow(mock_workflow, input_params, fresh_state)
 
         # Should call full_parameters_class with input parameters
-        mock_workflow.full_parameters_class.assert_called_once_with(
-            **input_params
-        )
+        mock_workflow.full_parameters_class.assert_called_once_with(**input_params)
 
     @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_splits_parameters_into_nodes_and_params(
@@ -412,9 +365,7 @@ class TestRunWorkflowHappyPath:
         # Setup workflow
         mock_workflow.run = Mock(return_value=None)
         mock_params = Mock()
-        mock_params.nodes.model_dump.return_value = {
-            "node1": {"amplitude": 0.5}
-        }
+        mock_params.nodes.model_dump.return_value = {"node1": {"amplitude": 0.5}}
         mock_params.parameters.model_dump.return_value = {"frequency": 5.0e9}
         mock_workflow.full_parameters_class.return_value = mock_params
 
@@ -426,9 +377,7 @@ class TestRunWorkflowHappyPath:
         run_workflow(mock_workflow, input_params, fresh_state)
 
         # Should call workflow.run with separated params
-        mock_workflow.run.assert_called_once_with(
-            nodes={"node1": {"amplitude": 0.5}}, frequency=5.0e9
-        )
+        mock_workflow.run.assert_called_once_with(nodes={"node1": {"amplitude": 0.5}}, frequency=5.0e9)
 
     @patch("qualibrate.runner.core.run_job.get_active_library_or_error")
     def test_updates_state_with_finished_status(
@@ -501,17 +450,15 @@ class TestRunWorkflowErrorPath:
         mock_get_library.return_value = mock_library
 
         # Setup workflow to raise validation error
-        mock_workflow.full_parameters_class.side_effect = (
-            ValidationError.from_exception_data(
-                "test",
-                [
-                    {
-                        "type": "missing",
-                        "loc": ("frequency",),
-                        "input": {},
-                    }
-                ],
-            )
+        mock_workflow.full_parameters_class.side_effect = ValidationError.from_exception_data(
+            "test",
+            [
+                {
+                    "type": "missing",
+                    "loc": ("frequency",),
+                    "input": {},
+                }
+            ],
         )
 
         with pytest.raises(ValidationError):

@@ -17,15 +17,10 @@ class RunStatusBase(BaseModel):
     status: Annotated[
         RunStatusEnum,
         Field(
-            description=(
-                "The status of the node run. "
-                f"Possible options: {tuple(v.value for v in RunStatusEnum)}."
-            ),
+            description=(f"The status of the node run. Possible options: {tuple(v.value for v in RunStatusEnum)}."),
         ),
     ]
-    run_start: Annotated[
-        AwareDatetime, Field(description="The start time of the run.")
-    ]
+    run_start: Annotated[AwareDatetime, Field(description="The start time of the run.")]
     run_end: Annotated[
         AwareDatetime | None,
         Field(description="The completion time of the run."),
@@ -38,15 +33,11 @@ class RunStatusBase(BaseModel):
     @computed_field(description="Duration of the run in seconds.")
     def run_duration(self) -> float:
         duration = (
-            self.run_end - self.run_start
-            if self.run_end is not None
-            else datetime.now().astimezone() - self.run_start
+            self.run_end - self.run_start if self.run_end is not None else datetime.now().astimezone() - self.run_start
         )
         return round(duration.total_seconds(), 3)
 
-    def _time_remaining(
-        self, percentage_complete: float, run_start: AwareDatetime
-    ) -> float | None:
+    def _time_remaining(self, percentage_complete: float, run_start: AwareDatetime) -> float | None:
         if self.status in (RunStatusEnum.PENDING, RunStatusEnum.ERROR):
             return None
         if percentage_complete == 0:

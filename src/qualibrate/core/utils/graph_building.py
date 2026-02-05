@@ -33,14 +33,9 @@ def ensure_finalized(
     """Decorator to block method calls beforw finalize()."""
 
     @wraps(fn)
-    def wrapper(
-        self: "QualibrationGraph[Any]", *args: P.args, **kwargs: P.kwargs
-    ) -> R:
+    def wrapper(self: "QualibrationGraph[Any]", *args: P.args, **kwargs: P.kwargs) -> R:
         if not self._finalized:
-            raise RuntimeError(
-                f"Cannot call {fn.__name__}() because the graph isn't finalized"
-                " yet."
-            )
+            raise RuntimeError(f"Cannot call {fn.__name__}() because the graph isn't finalized yet.")
         return fn(self, *args, **kwargs)
 
     return cast(Callable[Concatenate["QualibrationGraph[Any]", P], R], wrapper)
@@ -52,14 +47,9 @@ def ensure_not_finalized(
     """Decorator to block method calls after finalize()."""
 
     @wraps(fn)
-    def wrapper(
-        self: "QualibrationGraph[Any]", *args: P.args, **kwargs: P.kwargs
-    ) -> R:
+    def wrapper(self: "QualibrationGraph[Any]", *args: P.args, **kwargs: P.kwargs) -> R:
         if self._finalized:
-            raise RuntimeError(
-                f"Cannot call {fn.__name__}() because the graph is already "
-                "finalized."
-            )
+            raise RuntimeError(f"Cannot call {fn.__name__}() because the graph is already finalized.")
         return fn(self, *args, **kwargs)
 
     return cast(Callable[Concatenate["QualibrationGraph[Any]", P], R], wrapper)
@@ -71,14 +61,9 @@ def ensure_building(
     """Decorator to allow method calls only during build phase."""
 
     @wraps(fn)
-    def wrapper(
-        self: "QualibrationGraph[Any]", *args: P.args, **kwargs: P.kwargs
-    ) -> R:
+    def wrapper(self: "QualibrationGraph[Any]", *args: P.args, **kwargs: P.kwargs) -> R:
         if not getattr(self, "_building", False):
-            raise RuntimeError(
-                f"Cannot call {fn.__name__}() because the graph is not in "
-                "build mode."
-            )
+            raise RuntimeError(f"Cannot call {fn.__name__}() because the graph is not in build mode.")
         return fn(self, *args, **kwargs)
 
     return cast(Callable[Concatenate["QualibrationGraph[Any]", P], R], wrapper)
@@ -86,9 +71,7 @@ def ensure_building(
 
 class GraphExportMixin(Generic[GraphElementTypeVar]):
     @staticmethod
-    def nx_graph_export(
-        graph: "nx.DiGraph[GraphElementTypeVar]", node_names_only: bool = False
-    ) -> Mapping[str, Any]:
+    def nx_graph_export(graph: "nx.DiGraph[GraphElementTypeVar]", node_names_only: bool = False) -> Mapping[str, Any]:
         """
         Exports the graph as a networkx adjacency list.
 
@@ -105,9 +88,7 @@ class GraphExportMixin(Generic[GraphElementTypeVar]):
         for key in ("multigraph", "directed", "graph"):
             data.pop(key)
         if node_names_only:
-            for node, adjacency in zip(
-                data["nodes"], data["adjacency"], strict=False
-            ):
+            for node, adjacency in zip(data["nodes"], data["adjacency"], strict=False):
                 node["id"] = node["id"].name
                 for adj in adjacency:
                     adj["id"] = adj["id"].name

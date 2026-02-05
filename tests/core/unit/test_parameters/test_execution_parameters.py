@@ -12,16 +12,12 @@ from qualibrate.core.utils.type_protocols import TargetType
 
 
 class Node1(NodeParameters):
-    qubits: list[TargetType] | None = Field(
-        default_factory=lambda: ["a", "b", "c"]
-    )
+    qubits: list[TargetType] | None = Field(default_factory=lambda: ["a", "b", "c"])
     int_value: int = 1
 
 
 class Node2(NodeParameters):
-    qubits: list[TargetType] | None = Field(
-        default_factory=lambda: ["d", "e", "f"]
-    )
+    qubits: list[TargetType] | None = Field(default_factory=lambda: ["d", "e", "f"])
     float_value: float = 2.0
 
 
@@ -176,31 +172,18 @@ class TestExecutionParameters:
         }
 
     def test_serialize_with_none_parameters_class(self, mocker):
-        mock_model_fields = mocker.patch(
-            "qualibrate.core.parameters.ExecutionParameters.model_fields"
-        )
-        mock_model_fields.__getitem__.return_value = mocker.MagicMock(
-            annotation=None
-        )
+        mock_model_fields = mocker.patch("qualibrate.core.parameters.ExecutionParameters.model_fields")
+        mock_model_fields.__getitem__.return_value = mocker.MagicMock(annotation=None)
 
-        with pytest.raises(
-            RuntimeError, match="Graph parameters class can't be none"
-        ):
+        with pytest.raises(RuntimeError, match="Graph parameters class can't be none"):
             ExecutionParameters.serialize()
 
     def test_serialize_none_parameters_class(self, mocker):
-        mock_model_fields = mocker.patch(
-            "qualibrate.core.parameters.ExecutionParameters.model_fields"
-        )
-        mock_model_fields.__getitem__.return_value = mocker.MagicMock(
-            annotation=RunnableParameters
-        )
+        mock_model_fields = mocker.patch("qualibrate.core.parameters.ExecutionParameters.model_fields")
+        mock_model_fields.__getitem__.return_value = mocker.MagicMock(annotation=RunnableParameters)
 
         with pytest.raises(
             RuntimeError,
-            match=(
-                "Graph parameters class should be subclass of "
-                "qualibrate.core.parameters.GraphParameters"
-            ),
+            match=("Graph parameters class should be subclass of qualibrate.core.parameters.GraphParameters"),
         ):
             ExecutionParameters.serialize()

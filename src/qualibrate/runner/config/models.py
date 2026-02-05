@@ -47,10 +47,7 @@ class State(BaseModel):
 
     @property
     def is_running(self) -> bool:
-        return (
-            self.last_run is not None
-            and self.last_run.status == RunStatusEnum.RUNNING
-        )
+        return self.last_run is not None and self.last_run.status == RunStatusEnum.RUNNING
 
     def clear(self) -> None:
         """
@@ -64,10 +61,7 @@ class State(BaseModel):
                 is RUNNING). You must wait for the job to complete or error
                 before clearing state.
         """
-        if (
-            self.last_run is not None
-            and self.last_run.status == RunStatusEnum.RUNNING
-        ):
+        if self.last_run is not None and self.last_run.status == RunStatusEnum.RUNNING:
             raise RuntimeError("Can't clear while item is running")
         self.last_run = None
         self.run_item = None

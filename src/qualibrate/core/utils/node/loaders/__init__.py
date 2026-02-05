@@ -27,6 +27,4 @@ DEFAULT_LOADERS = [
     XarrayLoader,
 ]
 
-SUPPORTED_EXTENSIONS = set(
-    chain.from_iterable(loader.file_extensions for loader in DEFAULT_LOADERS)
-)
+SUPPORTED_EXTENSIONS = set(chain.from_iterable(loader.file_extensions for loader in DEFAULT_LOADERS))

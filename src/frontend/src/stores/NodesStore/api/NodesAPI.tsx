@@ -30,7 +30,7 @@ export class NodesApi extends Api {
   static submitNodeParameters(
     nodeName: string,
     inputParameter: {
-      [key: string]: string | number | boolean | null | string[];
+      [key: string]: string | number | boolean | null | string[] | undefined;
     }
   ): Promise<Res<void>> {
     return this._fetch(this.api(SUBMIT_NODE_RUN()), API_METHODS.POST, {

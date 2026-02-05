@@ -102,10 +102,7 @@ def test_context_manager_creation(qualibration_lib: QualibrationLibrary):
     exec_history = external_g._orchestrator.get_execution_history()
     hi = exec_history.items
     assert len(hi) == 2
-    assert all(
-        i.elements_history is not None and len(i.elements_history.items) == 2
-        for i in hi
-    )
+    assert all(i.elements_history is not None and len(i.elements_history.items) == 2 for i in hi)
     s_ends = {"s_s": Outcome.SUCCESSFUL, "f_s": Outcome.SUCCESSFUL}
     int_g0_h = hi[0].elements_history.items
     int_g1_h = hi[1].elements_history.items

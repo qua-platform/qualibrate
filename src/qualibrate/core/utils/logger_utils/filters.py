@@ -15,9 +15,7 @@ def filter_log_date(
     asctime = log_line["asctime"]
     if not isinstance(asctime, datetime):
         return False
-    return (after is None or asctime >= after) and (
-        before is None or asctime <= before
-    )
+    return (after is None or asctime >= after) and (before is None or asctime <= before)
 
 
 class UserLogFilter(logging.Filter):

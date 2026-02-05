@@ -163,9 +163,7 @@ def test_parse_list_list(mocker):
 )
 def test_parse_list_str(mocker, brackets, join):
     lst = ["1", "2", "a"]
-    in_str = (
-        f"{'[' if brackets else ''}{join.join(lst)}{']' if brackets else ''}"
-    )
+    in_str = f"{'[' if brackets else ''}{join.join(lst)}{']' if brackets else ''}"
     patched = mocker.patch(
         "qualibrate.app.api.core.utils.types_parsing._parse_list",
         return_value="value",

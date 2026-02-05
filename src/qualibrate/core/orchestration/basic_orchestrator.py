@@ -33,9 +33,7 @@ if TYPE_CHECKING:
 __all__ = ["BasicOrchestrator"]
 
 
-class BasicOrchestrator(
-    QualibrationOrchestrator[GraphElementTypeVar], Generic[GraphElementTypeVar]
-):
+class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[GraphElementTypeVar]):
     """
     A basic orchestrator that manages the execution of nodes in a graph.
     This orchestrator firstly run nodes without predecessors. And then just
@@ -102,9 +100,7 @@ class BasicOrchestrator(
         return all(
             map(
                 lambda status: status != ElementRunStatus.pending,
-                nx.get_node_attributes(
-                    self.nx_graph, QualibrationGraph.ELEMENT_STATUS_FIELD
-                ).values(),
+                nx.get_node_attributes(self.nx_graph, QualibrationGraph.ELEMENT_STATUS_FIELD).values(),
             )
         )
 
@@ -176,17 +172,11 @@ class BasicOrchestrator(
             if self.check_node_finished(element_to_run):
                 continue
 
-            if all(
-                map(
-                    self.check_node_finished, self.nx_graph.pred[element_to_run]
-                )
-            ):
+            if all(map(self.check_node_finished, self.nx_graph.pred[element_to_run])):
                 return element_to_run
         return None
 
-    def _get_in_targets_for_element(
-        self, element: GraphElementTypeVar
-    ) -> Sequence[TargetType]:
+    def _get_in_targets_for_element(self, element: GraphElementTypeVar) -> Sequence[TargetType]:
         """
         Retrieves the list of input targets for a given graph element.
 
@@ -205,34 +195,20 @@ class BasicOrchestrator(
         """
         nx_graph = self.nx_graph
 
-        loop_targets = set(
-            nx_graph.nodes[element].get(
-                QualibrationGraph.LOOP_TARGETS_FIELD, []
-            )
-        )
+        loop_targets = set(nx_graph.nodes[element].get(QualibrationGraph.LOOP_TARGETS_FIELD, []))
 
         predecessors = nx_graph.predecessors(element)
         if all(
-            (
-                nx_graph.nodes[predecessor][
-                    QualibrationGraph.ELEMENT_STATUS_FIELD
-                ]
-                == ElementRunStatus.skipped
-            )
+            (nx_graph.nodes[predecessor][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.skipped)
             for predecessor in predecessors
         ):
             initial = set(self.initial_targets or [])
             return list(initial.union(loop_targets))
 
         targets_lst = [
-            set(
-                nx_graph.edges[pred, element].get(
-                    QualibrationGraph.EDGE_TARGETS_FIELD, []
-                )
-            )
+            set(nx_graph.edges[pred, element].get(QualibrationGraph.EDGE_TARGETS_FIELD, []))
             for pred in list(nx_graph.predecessors(element))
-            if nx_graph.nodes[pred][QualibrationGraph.ELEMENT_STATUS_FIELD]
-            != ElementRunStatus.skipped
+            if nx_graph.nodes[pred][QualibrationGraph.ELEMENT_STATUS_FIELD] != ElementRunStatus.skipped
         ]
         targets = set.intersection(*targets_lst).union(loop_targets)
         return list(targets)
@@ -258,17 +234,12 @@ class BasicOrchestrator(
         """
         summary = element.run_summary
         if summary is None:
-            raise RuntimeError(
-                f"Can't set out targets of {element} without run summary"
-            )
+            raise RuntimeError(f"Can't set out targets of {element} without run summary")
 
         # self.nx_graph.edges[element, successor]["operational_condition"]
         # is of type OperationalCondition
         has_on_failed_successors = any(
-            self.nx_graph.edges[element, successor][
-                QualibrationGraph.RUN_SCENARIO_FIELD
-            ]
-            == Outcome.FAILED
+            self.nx_graph.edges[element, successor][QualibrationGraph.RUN_SCENARIO_FIELD] == Outcome.FAILED
             for successor in self.nx_graph.successors(element)
         )
         successful_out_targets: Sequence[TargetType]
@@ -276,33 +247,23 @@ class BasicOrchestrator(
             successful_out_targets = summary.successful_targets
             failed_out_targets = summary.failed_targets
             for successor in self.nx_graph.successors(element):
-                self.nx_graph.edges[element, successor][
-                    QualibrationGraph.EDGE_TARGETS_FIELD
-                ] = (
+                self.nx_graph.edges[element, successor][QualibrationGraph.EDGE_TARGETS_FIELD] = (
                     successful_out_targets
-                    if self.nx_graph.edges[element, successor][
-                        QualibrationGraph.RUN_SCENARIO_FIELD
-                    ]
+                    if self.nx_graph.edges[element, successor][QualibrationGraph.RUN_SCENARIO_FIELD]
                     == Outcome.SUCCESSFUL
                     else self._execute_condition(
-                        self.nx_graph.edges[element, successor][
-                            QualibrationGraph.OPERATIONAL_CONDITION_FIELD
-                        ],
+                        self.nx_graph.edges[element, successor][QualibrationGraph.OPERATIONAL_CONDITION_FIELD],
                         element,
                         failed_out_targets,
                     )
                 )
         else:
             successful_out_targets = (
-                summary.successful_targets
-                if self._parameters.skip_failed
-                else summary.initial_targets
+                summary.successful_targets if self._parameters.skip_failed else summary.initial_targets
             )
 
             for successor in self.nx_graph.successors(element):
-                self.nx_graph.edges[element, successor][
-                    QualibrationGraph.EDGE_TARGETS_FIELD
-                ] = successful_out_targets
+                self.nx_graph.edges[element, successor][QualibrationGraph.EDGE_TARGETS_FIELD] = successful_out_targets
 
     def _execute_condition(
         self,
@@ -315,17 +276,9 @@ class BasicOrchestrator(
             # priming the generator, we need to get to the point
             # where the generator expects out two variables
             executed_condition.send(None)
-            return [
-                target
-                for target in targets
-                if executed_condition.send((element, target))
-            ]
+            return [target for target in targets if executed_condition.send((element, target))]
         elif operational_condition.on_function is not None:
-            return [
-                target
-                for target in targets
-                if operational_condition.on_function(element, target)
-            ]
+            return [target for target in targets if operational_condition.on_function(element, target)]
         # No condition specified, return all targets
         return targets
 
@@ -366,11 +319,10 @@ class BasicOrchestrator(
             f"Graph. Start running element {element_to_run} "
             f"with parameters {element_parameters}"
         )
+
         return element_to_run.run(interactive=False, **element_parameters)
 
-    def _is_loop_iteration_needed(
-        self, element_to_run: GraphElementTypeVar
-    ) -> Generator[bool]:
+    def _is_loop_iteration_needed(self, element_to_run: GraphElementTypeVar) -> Generator[bool]:
         yield True
         graph = self.q_graph
         nx_graph = self.nx_graph
@@ -379,9 +331,7 @@ class BasicOrchestrator(
             yield False
             return
         i = 1
-        g_condition = (
-            conditions.on_generator() if conditions.on_generator else None
-        )
+        g_condition = conditions.on_generator() if conditions.on_generator else None
         if g_condition is not None:
             g_condition.send(None)
         max_iterations = conditions.max_iterations
@@ -391,50 +341,27 @@ class BasicOrchestrator(
                 return
             if (
                 conditions.on_failure
-                and nx_graph.nodes[element_to_run][
-                    QualibrationGraph.ELEMENT_STATUS_FIELD
-                ]
-                == ElementRunStatus.error
+                and nx_graph.nodes[element_to_run][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.error
             ):
                 i += 1
                 yield True
             elif filter_f := conditions.on_function:
-                initial_t = (
-                    element_to_run.run_summary.initial_targets
-                    if element_to_run.run_summary
-                    else []
-                )
-                reuse_t = [
-                    target
-                    for target in initial_t
-                    if filter_f(element_to_run, target)
-                ]
+                initial_t = element_to_run.run_summary.initial_targets if element_to_run.run_summary else []
+                reuse_t = [target for target in initial_t if filter_f(element_to_run, target)]
                 if len(reuse_t) > 0:
                     i += 1
-                    nx_graph.nodes[element_to_run][
-                        QualibrationGraph.LOOP_TARGETS_FIELD
-                    ] = reuse_t
+                    nx_graph.nodes[element_to_run][QualibrationGraph.LOOP_TARGETS_FIELD] = reuse_t
                     yield True
                 else:
                     yield False
                     return
             elif g_condition is not None:
-                initial_t = (
-                    element_to_run.run_summary.initial_targets
-                    if element_to_run.run_summary
-                    else []
-                )
+                initial_t = element_to_run.run_summary.initial_targets if element_to_run.run_summary else []
                 try:
-                    reuse_t = [
-                        target
-                        for target in initial_t
-                        if g_condition.send((element_to_run, target))
-                    ]
+                    reuse_t = [target for target in initial_t if g_condition.send((element_to_run, target))]
                     if len(reuse_t) > 0:
                         i += 1
-                        nx_graph.nodes[element_to_run][
-                            QualibrationGraph.LOOP_TARGETS_FIELD
-                        ] = reuse_t
+                        nx_graph.nodes[element_to_run][QualibrationGraph.LOOP_TARGETS_FIELD] = reuse_t
                         yield True
                     else:
                         yield False
@@ -448,29 +375,21 @@ class BasicOrchestrator(
                 yield False
                 return
 
-    def _run_element_loop_if_defined(
-        self, element_to_run: GraphElementTypeVar
-    ) -> None:
+    def _run_element_loop_if_defined(self, element_to_run: GraphElementTypeVar) -> None:
         graph = self.q_graph
         nodes_parameters = graph.full_parameters.nodes
-        element_to_run_parameters = getattr(
-            nodes_parameters, element_to_run.name
-        )
+        element_to_run_parameters = getattr(nodes_parameters, element_to_run.name)
         run_start = datetime.now().astimezone()
         run_error: RunError | None = None
         try:
             self._active_element = element_to_run
             element_results = None
-            loop_needed_generator = self._is_loop_iteration_needed(
-                element_to_run
-            )
+            loop_needed_generator = self._is_loop_iteration_needed(element_to_run)
             exc_info = None
             while loop_needed_generator.send(None):
                 try:
                     logger.info(f"Run {element_to_run} in loop iteration")
-                    element_results = self._execute_loop_iteration(
-                        element_to_run, element_to_run_parameters
-                    )
+                    element_results = self._execute_loop_iteration(element_to_run, element_to_run_parameters)
                 except Exception as e:
                     logger.exception(
                         f"Failed to run {element_to_run} in loop iteration",
@@ -487,10 +406,7 @@ class BasicOrchestrator(
             new_status = ElementRunStatus.error
             self.nx_graph.nodes[element_to_run]["error"] = str(ex)
             logger.exception(
-                (
-                    f"Failed to run element {element_to_run.name} "
-                    f"in graph {graph.name}"
-                ),
+                (f"Failed to run element {element_to_run.name} in graph {graph.name}"),
                 exc_info=ex,
             )
             run_error = RunError(
@@ -502,20 +418,14 @@ class BasicOrchestrator(
         else:
             new_status = ElementRunStatus.finished
         finally:
-            idx = (
-                element_to_run.snapshot_idx
-                if isinstance(element_to_run, QualibrationNode)
-                else None
-            )
+            idx = element_to_run.snapshot_idx if isinstance(element_to_run, QualibrationNode) else None
             data = ItemData(
                 parameters=element_to_run.parameters,
                 outcomes=element_to_run.outcomes,
                 error=run_error,
             )
             subitem_history = None
-            if isinstance(element_to_run, QualibrationGraph) and (
-                orch := element_to_run._orchestrator
-            ):
+            if isinstance(element_to_run, QualibrationGraph) and (orch := element_to_run._orchestrator):
                 subitem_history = orch.get_execution_history()
             item_history = ExecutionHistoryItem(
                 id=idx,
@@ -531,9 +441,7 @@ class BasicOrchestrator(
                 elements_history=subitem_history,
             )
             self._execution_history.append(item_history)
-        self.nx_graph.nodes[element_to_run][
-            QualibrationGraph.ELEMENT_STATUS_FIELD
-        ] = new_status
+        self.nx_graph.nodes[element_to_run][QualibrationGraph.ELEMENT_STATUS_FIELD] = new_status
 
     def traverse_graph(
         self,
@@ -704,29 +612,18 @@ class BasicOrchestrator(
 
         """
         successors = self.nx_graph.succ
-        elements_without_successors = list(
-            filter(lambda n: len(successors[n]) == 0, successors.keys())
-        )
-        final_targets = {
-            target
-            for element in elements_without_successors
-            for target in element.outcomes
-        }
+        elements_without_successors = list(filter(lambda n: len(successors[n]) == 0, successors.keys()))
+        final_targets = {target for element in elements_without_successors for target in element.outcomes}
         skipped_targets = set(self.initial_targets or []) - final_targets
         for target in final_targets:
-            outcomes = [
-                node.outcomes.get(target, Outcome.SUCCESSFUL)
-                for node in elements_without_successors
-            ]
+            outcomes = [node.outcomes.get(target, Outcome.SUCCESSFUL) for node in elements_without_successors]
             successful = all(
                 map(
                     lambda outcome: outcome == Outcome.SUCCESSFUL,
                     outcomes,
                 )
             )
-            self.final_outcomes[target] = (
-                Outcome.SUCCESSFUL if successful else Outcome.FAILED
-            )
+            self.final_outcomes[target] = Outcome.SUCCESSFUL if successful else Outcome.FAILED
         for skipped_target in skipped_targets:
             self.final_outcomes[skipped_target] = Outcome.FAILED
 
@@ -737,15 +634,9 @@ def _current_and_predecessors_statuses(
 ) -> bool:
     predecessors = graph.pred
     nodes = graph.nodes
-    return bool(
-        nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD]
-        == ElementRunStatus.pending
-    ) and (
+    return bool(nodes[node][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.pending) and (
         sum(
-            (
-                nodes[predecessor][QualibrationGraph.ELEMENT_STATUS_FIELD]
-                == ElementRunStatus.pending
-            )
+            (nodes[predecessor][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.pending)
             for predecessor in predecessors[node]
         )
         == 0

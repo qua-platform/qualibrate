@@ -22,11 +22,7 @@ class TestRecordStateUpdates:
             empty_dict_value: dict = field(default_factory=dict)
 
         machine = QuamTest(
-            channels={
-                "ch1": SingleChannel(
-                    opx_output=("con1", 1), intermediate_frequency=100e6
-                )
-            },
+            channels={"ch1": SingleChannel(opx_output=("con1", 1), intermediate_frequency=100e6)},
         )
         return machine
 

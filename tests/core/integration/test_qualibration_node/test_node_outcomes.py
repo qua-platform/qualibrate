@@ -12,17 +12,10 @@ def test_node_outcomes(qualibrate_config_and_path_mocked):
     try:
         QualibrationNode.modes.inspection = True
         with pytest.raises(StopInspection):
-            importlib.import_module(
-                "tests.core.integration.example_calibration_scripts."
-                "1_node_with_partial_outcomes"
-            )
+            importlib.import_module("tests.core.integration.example_calibration_scripts.1_node_with_partial_outcomes")
         nodes = {}
         QualibrationNode.scan_node_file(
-            Path(__file__)
-            .parents[1]
-            .joinpath(
-                "example_calibration_scripts", "1_node_with_partial_outcomes.py"
-            ),
+            Path(__file__).parents[1].joinpath("example_calibration_scripts", "1_node_with_partial_outcomes.py"),
             nodes,
         )
         node = nodes["node_part_outcome"]

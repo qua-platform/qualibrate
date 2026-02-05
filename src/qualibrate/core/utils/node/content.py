@@ -60,10 +60,7 @@ def read_raw_node_file(
             return dict(json.load(f))
     except json.JSONDecodeError as ex:
         logger.exception(
-            (
-                "Can't read node json by path "
-                f"{node_filepath.relative_to(base_path)}"
-            ),
+            (f"Can't read node json by path {node_filepath.relative_to(base_path)}"),
             exc_info=ex,
         )
         if raise_ex:
@@ -88,24 +85,16 @@ def read_minified_node_content(
         Minified content on node
     """
     node_id = node_info.get("id", f_node_id or -1)
-    parents = node_info.get(
-        "parents", [node_id - 1] if node_id and node_id > 0 else []
-    )
-    parents = list(
-        filter(lambda p_id: get_node_dir_path(p_id, base_path), parents)
-    )
+    parents = node_info.get("parents", [node_id - 1] if node_id and node_id > 0 else [])
+    parents = list(filter(lambda p_id: get_node_dir_path(p_id, base_path), parents))
     created_at_str = node_info.get("created_at")
     if created_at_str is not None:
         created_at = datetime.fromisoformat(created_at_str)
     else:
         if node_filepath.is_file():
-            created_at = datetime.fromtimestamp(
-                node_filepath.stat().st_mtime
-            ).astimezone()
+            created_at = datetime.fromtimestamp(node_filepath.stat().st_mtime).astimezone()
         else:
-            created_at = datetime.fromtimestamp(
-                node_filepath.parent.stat().st_mtime
-            ).astimezone()
+            created_at = datetime.fromtimestamp(node_filepath.parent.stat().st_mtime).astimezone()
     return {
         "id": node_id,
         "parents": parents,
@@ -137,9 +126,7 @@ def read_metadata_node_content(
     return node_metadata
 
 
-def read_data_node_content(
-    node_info: Mapping[str, Any], node_filepath: Path, node_dir: Path
-) -> dict[str, Any] | None:
+def read_data_node_content(node_info: Mapping[str, Any], node_filepath: Path, node_dir: Path) -> dict[str, Any] | None:
     """Read quam data based on node info.
 
     Args:
@@ -176,15 +163,9 @@ def read_node_content(
         logger.error(f"Node file with id {node_id} wasn't found in {base_path}")
         return None
     node_content = read_raw_node_file(node_filepath, base_path)
-    content = read_minified_node_content(
-        node_content, node_id, node_filepath, base_path
-    )
-    content["metadata"] = read_metadata_node_content(
-        node_content, node_dir, node_dir, data_path_key
-    )
-    content["data"] = read_data_node_content(
-        node_content, node_filepath, node_dir
-    )
+    content = read_minified_node_content(node_content, node_id, node_filepath, base_path)
+    content["metadata"] = read_metadata_node_content(node_content, node_dir, node_dir, data_path_key)
+    content["data"] = read_data_node_content(node_content, node_filepath, node_dir)
     return node_content
 
 
@@ -323,9 +304,7 @@ def read_reference(
                 f"Can't load reference ({reference}) by loader {loader}",
                 exc_info=ex,
             )
-    logger.warning(
-        f"Reference {reference} was not loaded. Kept reference value."
-    )
+    logger.warning(f"Reference {reference} was not loaded. Kept reference value.")
     return reference
 
 
@@ -388,16 +367,10 @@ def read_node_data(
     results = read_raw_node_file(data_filepath, node_dir)
     loaders = [*custom_loaders] if custom_loaders is not None else []
     loaders.extend(DEFAULT_LOADERS)
-    custom_supported_extensions = set(
-        chain.from_iterable(
-            loader.file_extensions for loader in DEFAULT_LOADERS
-        )
-    )
+    custom_supported_extensions = set(chain.from_iterable(loader.file_extensions for loader in DEFAULT_LOADERS))
     loaders_instances = [loader() for loader in loaders]
     supported_extensions = custom_supported_extensions | SUPPORTED_EXTENSIONS
-    _resolve_references(
-        results, loaders_instances, supported_extensions, node_dir
-    )
+    _resolve_references(results, loaders_instances, supported_extensions, node_dir)
     return results
 
 
@@ -446,9 +419,7 @@ def load_parameters(
         class_name=class_name,
         base_class="qualibrate.core.parameters.NodeParameters",
         additional_imports=["datetime.datetime", "pydantic.ConfigDict"],
-        dump_resolve_reference_action=(
-            DATA_MODEL_TYPES.dump_resolve_reference_action
-        ),
+        dump_resolve_reference_action=(DATA_MODEL_TYPES.dump_resolve_reference_action),
     )
     # PydanticDeprecatedSince20
     with warnings.catch_warnings():

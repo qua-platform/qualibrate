@@ -68,9 +68,7 @@ class NodeBase(DomainWithConfigBase, IDump, ABC):
 
     def _fill_storage(self) -> None:
         metadata = self._snapshot.metadata
-        if metadata is None or not isinstance(
-            metadata.get(METADATA_OUT_PATH), str
-        ):
+        if metadata is None or not isinstance(metadata.get(METADATA_OUT_PATH), str):
             self._storage = None
             self._load_type = NodeLoadType.Snapshot
             return
@@ -80,17 +78,13 @@ class NodeBase(DomainWithConfigBase, IDump, ABC):
             metadata[METADATA_OUT_PATH],
         )
         if not abs_output_path.is_dir():
-            raise QNotADirectoryException(
-                f"{rel_output_path} is not a directory"
-            )
+            raise QNotADirectoryException(f"{rel_output_path} is not a directory")
         self._storage = DataFileStorage(abs_output_path, self._settings)
         self._load_type = NodeLoadType.Full
 
     def dump(self) -> NodeModel:
         return NodeModel(
             id=self._node_id,
-            snapshot=SimplifiedSnapshotWithMetadata(
-                **self._snapshot.dump().model_dump()
-            ),
+            snapshot=SimplifiedSnapshotWithMetadata(**self._snapshot.dump().model_dump()),
             storage=(None if self._storage is None else self._storage.dump()),
         )

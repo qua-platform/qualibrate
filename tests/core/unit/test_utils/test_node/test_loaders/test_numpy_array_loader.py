@@ -31,9 +31,7 @@ def npz_file() -> Path:
 
 
 def test_load_npy_file(mocker, npy_file: Path):
-    mock_validate = mocker.patch.object(
-        NumpyArrayLoader, "validate_file_exists"
-    )
+    mock_validate = mocker.patch.object(NumpyArrayLoader, "validate_file_exists")
     loader = NumpyArrayLoader()
     result = loader.load(npy_file)
     mock_validate.assert_called_once_with(npy_file)
@@ -42,12 +40,8 @@ def test_load_npy_file(mocker, npy_file: Path):
 
 def test_load_npz_file_with_subref(npz_file: Path):
     loader = NumpyArrayLoader()
-    assert np.array_equal(
-        loader.load(npz_file, subref="array1"), np.array([1, 2, 3])
-    )
-    assert np.array_equal(
-        loader.load(npz_file, subref="array2"), np.array([4, 5, 6])
-    )
+    assert np.array_equal(loader.load(npz_file, subref="array1"), np.array([1, 2, 3]))
+    assert np.array_equal(loader.load(npz_file, subref="array2"), np.array([4, 5, 6]))
 
 
 def test_load_npz_file_with_invalid_subref(npz_file: Path):

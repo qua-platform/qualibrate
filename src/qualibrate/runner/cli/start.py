@@ -18,12 +18,8 @@ from qualibrate.runner.config import CONFIG_PATH_ENV_NAME
     ),
     default=QUALIBRATE_PATH / DEFAULT_CONFIG_FILENAME,
 )
-@click.option(
-    "--reload", is_flag=True, hidden=True
-)  # env QUALIBRATE_RUNNER_START_RELOAD
-@click.option(
-    "--port", type=int, default=8003
-)  # env QUALIBRATE_RUNNER_START_PORT
+@click.option("--reload", is_flag=True, hidden=True)  # env QUALIBRATE_RUNNER_START_RELOAD
+@click.option("--port", type=int, default=8003)  # env QUALIBRATE_RUNNER_START_PORT
 def start_command(config_path: Path, port: int, reload: bool) -> None:
     os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
 

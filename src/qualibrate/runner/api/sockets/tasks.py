@@ -15,9 +15,7 @@ __all__ = ["run_status", "execution_history"]
 
 
 def _on_exc(exc: Exception) -> None:
-    logging.exception(
-        "Exception occurred while running periodic task", exc_info=exc
-    )
+    logging.exception("Exception occurred while running periodic task", exc_info=exc)
 
 
 @repeat_every(seconds=1, on_exception=_on_exc)

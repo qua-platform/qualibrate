@@ -5,7 +5,8 @@ from .vars import (
     CONFIG_PATH_ENV_NAME,
     DEFAULT_QUALIBRATE_RUNNER_CONFIG_FILENAME,
 )
-#CONFIG KEY seems deprecated
+
+# CONFIG KEY seems deprecated
 __all__ = [
     "CONFIG_KEY",
     "DEFAULT_QUALIBRATE_RUNNER_CONFIG_FILENAME",

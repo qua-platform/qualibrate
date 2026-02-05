@@ -35,9 +35,7 @@ class MockQubit:
 class MockMachine:
     """Mock machine class for testing"""
 
-    def __init__(
-        self, qubits_dict: dict[str, Any], active_qubits_list: list[MockQubit]
-    ):
+    def __init__(self, qubits_dict: dict[str, Any], active_qubits_list: list[MockQubit]):
         self.qubits = qubits_dict
         self.active_qubits = active_qubits_list
 
@@ -73,10 +71,7 @@ class TestGraphSerialization:
     @pytest.fixture
     def mock_qubits(self):
         """Create mock qubits with various configurations"""
-        return {
-            name: MockQubit(name, fidelity)
-            for name, fidelity in MOCK_QUBITS_FIDELITIES.items()
-        }
+        return {name: MockQubit(name, fidelity) for name, fidelity in MOCK_QUBITS_FIDELITIES.items()}
 
     @pytest.fixture
     def mock_machine(self, mock_qubits):
@@ -123,9 +118,7 @@ class TestGraphSerialization:
 
         return graph
 
-    def test_serialize_graph_without_qubits_in_parameters(
-        self, mocker, node_with_machine, mock_library
-    ):
+    def test_serialize_graph_without_qubits_in_parameters(self, mocker, node_with_machine, mock_library):
         """Test graph serialization when parameters don't have qubits field"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
 
@@ -142,13 +135,9 @@ class TestGraphSerialization:
         assert isinstance(result, dict)
         # Should not have qubits metadata when parameters don't have qubits
         if "parameters" in result:
-            assert "qubits" not in result[
-                "parameters"
-            ] or "metadata" not in result["parameters"].get("qubits", {})
+            assert "qubits" not in result["parameters"] or "metadata" not in result["parameters"].get("qubits", {})
 
-    def test_serialize_graph_with_nodes_having_machines(
-        self, simple_graph_with_nodes, mock_qubits
-    ):
+    def test_serialize_graph_with_nodes_having_machines(self, simple_graph_with_nodes, mock_qubits):
         """Test graph serialization when all nodes have machines"""
         result = simple_graph_with_nodes.serialize()
 
@@ -197,9 +186,7 @@ class TestGraphSerialization:
         if "parameters" in result and "qubits" in result["parameters"]:
             assert result["parameters"]["qubits"]["metadata"]
 
-    def test_serialize_graph_with_different_machines(
-        self, mocker, mock_qubits, mock_library
-    ):
+    def test_serialize_graph_with_different_machines(self, mocker, mock_qubits, mock_library):
         """Test graph serialization when nodes have different machines"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
 
@@ -237,9 +224,7 @@ class TestGraphSerialization:
         if "parameters" in result and "qubits" in result["parameters"]:
             assert "metadata" not in result["parameters"]["qubits"]
 
-    def test_serialize_graph_with_single_node(
-        self, mocker, node_with_machine, mock_library
-    ):
+    def test_serialize_graph_with_single_node(self, mocker, node_with_machine, mock_library):
         """Test graph serialization with single node"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
 
@@ -284,9 +269,7 @@ class TestGraphSerialization:
             # active should be boolean
             assert isinstance(qubit_data["active"], bool)
             # fidelity should be float or None
-            assert qubit_data["fidelity"] is None or isinstance(
-                qubit_data["fidelity"], float
-            )
+            assert qubit_data["fidelity"] is None or isinstance(qubit_data["fidelity"], float)
 
     def test_serialize_graph_preserves_base_data(self, simple_graph_with_nodes):
         """Test that serialize preserves all base graph serialization data"""
@@ -299,9 +282,7 @@ class TestGraphSerialization:
         assert "nodes" in result
         assert "connectivity" in result
 
-    def test_serialize_graph_with_nodes_no_qubits_attribute(
-        self, mocker, mock_library
-    ):
+    def test_serialize_graph_with_nodes_no_qubits_attribute(self, mocker, mock_library):
         """Test graph serialization when node parameters don't have qubits"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
 
@@ -310,9 +291,7 @@ class TestGraphSerialization:
             parameters=NodeParameters(),  # No qubits field
         )
 
-        with QualibrationGraph.build(
-            "test_graph", parameters=GraphParametersWithQubits(qubits=["q1"])
-        ) as graph:
+        with QualibrationGraph.build("test_graph", parameters=GraphParametersWithQubits(qubits=["q1"])) as graph:
             graph.add_node(node1)
 
         result = graph.serialize()
@@ -412,20 +391,14 @@ class TestNestedGraphSerialization:
         metadata = result["parameters"]["qubits"]["metadata"]
         assert set(metadata.keys()) == set(mock_qubits.keys())
 
-    def test_serialize_graph_with_subgraph_no_metadata(
-        self, mocker, node_with_machine, mock_qubits, mock_library
-    ):
+    def test_serialize_graph_with_subgraph_no_metadata(self, mocker, node_with_machine, mock_qubits, mock_library):
         """Subgraph has nodes without machines; parent graph collects valid metadata from nodes that do"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
 
         # Create subgraph with node without machine
-        node_no_machine = QualibrationNode(
-            name="subnode1", parameters=NodeParametersWithQubits(qubits=["q1"])
-        )
+        node_no_machine = QualibrationNode(name="subnode1", parameters=NodeParametersWithQubits(qubits=["q1"]))
 
-        with QualibrationGraph.build(
-            "subgraph", parameters=GraphParametersWithQubits(qubits=["q1"])
-        ) as subgraph:
+        with QualibrationGraph.build("subgraph", parameters=GraphParametersWithQubits(qubits=["q1"])) as subgraph:
             subgraph.add_node(node_no_machine)
 
         node1 = node_with_machine.copy(name="node1")
@@ -468,9 +441,7 @@ class TestGraphSerializationEdgeCases:
         }
         return MockMachine(qubits, [qubits["q1"]])
 
-    def test_serialize_graph_with_many_identical_nodes(
-        self, mocker, mock_machine, mock_library
-    ):
+    def test_serialize_graph_with_many_identical_nodes(self, mocker, mock_machine, mock_library):
         """Test serialization with many nodes having identical machines"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
 
@@ -484,9 +455,7 @@ class TestGraphSerializationEdgeCases:
             )
             nodes.append(node)
 
-        with QualibrationGraph.build(
-            "test_graph", parameters=GraphParametersWithQubits(qubits=["q1"])
-        ) as graph:
+        with QualibrationGraph.build("test_graph", parameters=GraphParametersWithQubits(qubits=["q1"])) as graph:
             for node in nodes:
                 graph.add_node(node)
 
@@ -500,13 +469,9 @@ class TestGraphSerializationEdgeCases:
         assert "parameters" in result
         assert "qubits" in result["parameters"]
         assert "metadata" in result["parameters"]["qubits"]
-        assert (
-            result["parameters"]["qubits"]["metadata"]["q1"]["fidelity"] == 0.99
-        )
+        assert result["parameters"]["qubits"]["metadata"]["q1"]["fidelity"] == 0.99
 
-    def test_serialize_graph_with_machine_missing_attributes(
-        self, mocker, mock_library
-    ):
+    def test_serialize_graph_with_machine_missing_attributes(self, mocker, mock_library):
         """Test serialization when machine is missing some attributes"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
 
@@ -520,9 +485,7 @@ class TestGraphSerializationEdgeCases:
             machine=machine,
         )
 
-        with QualibrationGraph.build(
-            "test_graph", parameters=GraphParametersWithQubits(qubits=["q1"])
-        ) as graph:
+        with QualibrationGraph.build("test_graph", parameters=GraphParametersWithQubits(qubits=["q1"])) as graph:
             graph.add_node(node)
 
         result = graph.serialize()
@@ -532,9 +495,7 @@ class TestGraphSerializationEdgeCases:
         if "parameters" in result and "qubits" in result["parameters"]:
             assert "metadata" not in result["parameters"]["qubits"]
 
-    def test_serialize_graph_with_complex_connectivity(
-        self, mocker, mock_machine, mock_library
-    ):
+    def test_serialize_graph_with_complex_connectivity(self, mocker, mock_machine, mock_library):
         """Test serialization with complex graph connectivity"""
         mocker.patch.object(QualibrationNode, "_get_storage_manager")
 
@@ -547,9 +508,7 @@ class TestGraphSerializationEdgeCases:
             )
             nodes.append(node)
 
-        with QualibrationGraph.build(
-            "test_graph", parameters=GraphParametersWithQubits(qubits=["q1"])
-        ) as graph:
+        with QualibrationGraph.build("test_graph", parameters=GraphParametersWithQubits(qubits=["q1"])) as graph:
             for node in nodes:
                 graph.add_node(node)
 

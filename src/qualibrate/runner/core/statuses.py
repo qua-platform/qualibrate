@@ -1,6 +1,5 @@
 from qualibrate import QualibrationGraph, QualibrationNode
 from qualibrate.core.models.execution_history import ExecutionHistory
-
 from qualibrate.runner.config import State
 from qualibrate.runner.core.models.active_run import (
     RunStatus,
@@ -34,9 +33,7 @@ def get_node_status_enum(
     return RunStatusEnum.ERROR
 
 
-def get_node_run_status(
-    last_run: LastRun, node: QNodeType, graph: QGraphType | None
-) -> RunStatusNode:
+def get_node_run_status(last_run: LastRun, node: QNodeType, graph: QGraphType | None) -> RunStatusNode:
     return RunStatusNode(
         name=node.name,
         description=node.description,
@@ -47,11 +44,7 @@ def get_node_run_status(
         current_action=node.action_label,
         run_end=last_run.completed_at,
         percentage_complete=node.fraction_complete * 100,
-        run_results=(
-            RunResults.model_validate(node.run_summary.model_dump())
-            if node.run_summary
-            else None
-        ),
+        run_results=(RunResults.model_validate(node.run_summary.model_dump()) if node.run_summary else None),
     )
 
 
@@ -67,16 +60,10 @@ def get_graph_and_node_run_status(
         run_end=last_run.completed_at,
         finished_nodes=graph.completed_count(),
         total_nodes=len(graph._nodes),
-        run_results=(
-            RunResults.model_validate(graph.run_summary.model_dump())
-            if graph.run_summary
-            else None
-        ),
+        run_results=(RunResults.model_validate(graph.run_summary.model_dump()) if graph.run_summary else None),
     )
     orchestrator = graph._orchestrator
-    execution_history = (
-        orchestrator.get_execution_history().items if orchestrator else []
-    )
+    execution_history = orchestrator.get_execution_history().items if orchestrator else []
     if node is not None or orchestrator is None or len(execution_history) == 0:
         return graph_status, None
     node_hist = execution_history[-1]
@@ -112,9 +99,7 @@ def get_run_status(state: State) -> RunStatus:
     if node:
         node_status = get_node_run_status(last_run, node, graph)
     if graph:
-        graph_status, node_graph_status = get_graph_and_node_run_status(
-            last_run, graph, node
-        )
+        graph_status, node_graph_status = get_graph_and_node_run_status(last_run, graph, node)
         node_status = node_status or node_graph_status
     return RunStatus(
         is_running=state.is_running,
@@ -124,9 +109,7 @@ def get_run_status(state: State) -> RunStatus:
     )
 
 
-def get_graph_execution_history(
-    state: State, reverse: bool = False
-) -> ExecutionHistory | None:
+def get_graph_execution_history(state: State, reverse: bool = False) -> ExecutionHistory | None:
     if not isinstance(state.run_item, QualibrationGraph):
         return None
     graph: QGraphType = state.run_item

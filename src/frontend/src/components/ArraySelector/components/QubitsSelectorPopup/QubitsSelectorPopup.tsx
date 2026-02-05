@@ -8,7 +8,7 @@ import { getSearchStringIndex } from "../../utils";
 type IProps = {
   open: boolean;
   onClose: () => void;
-  value: string[];
+  value?: string[];
   metadata: QubitMetadataList;
   onChange: (value: string[]) => void;
 }
@@ -87,7 +87,7 @@ const QubitsSelectorPopup = ({
     onClose();
   };
   const handleCancel = () => {
-    setSelection(value);
+    setSelection(value || []);
     onClose();
   };
 
@@ -99,7 +99,7 @@ const QubitsSelectorPopup = ({
   }, [open]);
 
   useEffect(() => {
-    setSelection(value);
+    setSelection(value || []);
   }, [value]);
 
   return <Dialog

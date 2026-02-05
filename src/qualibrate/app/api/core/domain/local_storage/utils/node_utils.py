@@ -50,9 +50,7 @@ def _validate_date_range(
         return False
 
 
-def _validate_node_id(
-    node_path: NodePath, min_id: IdType, max_id: IdType
-) -> bool:
+def _validate_node_id(node_path: NodePath, min_id: IdType, max_id: IdType) -> bool:
     id_ = node_path.id
     return id_ is not None and (min_id <= id_ <= max_id)
 
@@ -102,32 +100,18 @@ def find_n_latest_nodes_ids(
         project_path=base_path,
     )
     min_node_path = get_node_path(id=node_id_min_val)
-    min_node_path_date = (
-        min_node_path.date if min_node_path is not None else None
-    )
+    min_node_path_date = min_node_path.date if min_node_path is not None else None
     min_node_date = max(
         min_node_path_date or date.min,
-        (
-            search_filter.min_date
-            if search_filter is not None and search_filter.min_date is not None
-            else date.min
-        ),
+        (search_filter.min_date if search_filter is not None and search_filter.min_date is not None else date.min),
     )
     max_node_path = get_node_path(id=node_id_max_val)
-    max_node_path_date = (
-        max_node_path.date if max_node_path is not None else None
-    )
+    max_node_path_date = max_node_path.date if max_node_path is not None else None
     max_node_date = min(
         max_node_path_date or date.max,
-        (
-            search_filter.max_date
-            if search_filter is not None and search_filter.max_date is not None
-            else date.max
-        ),
+        (search_filter.max_date if search_filter is not None and search_filter.max_date is not None else date.max),
     )
-    date_filters: list[
-        tuple[Callable[[NodesDatePath], bool], tuple[Any, ...]]
-    ] = [
+    date_filters: list[tuple[Callable[[NodesDatePath], bool], tuple[Any, ...]]] = [
         (Path.is_dir, tuple()),
         (_validate_date_range, (min_node_date, max_node_date)),
     ]
@@ -159,9 +143,7 @@ def find_n_latest_nodes_ids(
             lambda p: all(filter_(p, *args) for filter_, args in node_filters),
             map(NodePath, node_date.glob(name_pattern)),
         )
-        node_path_ids = {
-            int(path.stem[1:].split("_")[0]): path for path in node_paths
-        }
+        node_path_ids = {int(path.stem[1:].split("_")[0]): path for path in node_paths}
         for _, node in sorted(
             node_path_ids.items(),
             key=lambda x: x[0],

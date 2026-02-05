@@ -42,9 +42,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             current active machine state.
     """
 
-    def __init__(
-        self, root_data_folder: Path, active_machine_path: Path | None = None
-    ):
+    def __init__(self, root_data_folder: Path, active_machine_path: Path | None = None):
         self.root_data_folder = root_data_folder
         self.data_handler = DataHandler(root_data_folder=root_data_folder)
         self.active_machine_path = active_machine_path
@@ -95,18 +93,12 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         # Save results
         self.data_handler.name = node.name
         self._clean_data_handler()
-        outcomes = {
-            k: v.value if isinstance(v, Outcome) else v
-            for k, v in node.outcomes.items()
-        }
+        outcomes = {k: v.value if isinstance(v, Outcome) else v for k, v in node.outcomes.items()}
 
         # Determine relative machine path w.r.t the data folder
         if node.machine is None:
             relative_machine_path = None
-        elif (
-            self.active_machine_path is None
-            or self.active_machine_path.suffix == ".json"
-        ):
+        elif self.active_machine_path is None or self.active_machine_path.suffix == ".json":
             relative_machine_path = "./quam_state.json"
         else:
             relative_machine_path = "./quam_state"
@@ -121,7 +113,6 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         }
         if relative_machine_path is not None:
             self.data_handler.node_data["quam"] = relative_machine_path
-
         # Build metadata, including workflow_parent_id if this node is part of a workflow
         metadata = {
             "description": node.description,
@@ -141,6 +132,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             metadata["workflow_parent_id"] = self._workflow_parent_id
 
         node_contents = self.data_handler.generate_node_contents(metadata=metadata)
+
         self.data_handler.save_data(
             data=node.results,
             name=node.name,
@@ -152,9 +144,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             logger.info("Node has no QuAM, skipping node.machine.save()")
             return
 
-        self._save_machine(
-            node.machine, relative_data_path=relative_machine_path
-        )
+        self._save_machine(node.machine, relative_data_path=relative_machine_path)
 
     def _save_machine(
         self,
@@ -175,19 +165,11 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
         # Save machine to active path
         if self.active_machine_path is not None:
-            logger.info(
-                f"Saving machine to active path {self.active_machine_path}"
-            )
+            logger.info(f"Saving machine to active path {self.active_machine_path}")
             machine.save(self.active_machine_path)
 
-        if (
-            self.data_handler.path is None
-            or isinstance(self.data_handler.path, int)
-            or relative_data_path is None
-        ):
-            logger.warning(
-                "Could not determine data saving path, skipping machine.save"
-            )
+        if self.data_handler.path is None or isinstance(self.data_handler.path, int) or relative_data_path is None:
+            logger.warning("Could not determine data saving path, skipping machine.save")
             return
 
         # Save machine to data folder
@@ -196,25 +178,17 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine.save(machine_data_path)
 
     def _save_old_quam(self, machine: MachineProtocol) -> None:
-        if self.data_handler.path is None or isinstance(
-            self.data_handler.path, int
-        ):
-            logger.warning(
-                "Could not determine data saving path, skipping machine.save"
-            )
+        if self.data_handler.path is None or isinstance(self.data_handler.path, int):
+            logger.warning("Could not determine data saving path, skipping machine.save")
             return
 
         # Define which parts of machine to save to a separate file
         proposed_content_mapping = {"wiring.json": ["wiring", "network"]}
         # Ignore content_mapping if not all required attributes are present
         all_attrs_present = all(
-            hasattr(machine, elem)
-            for elem_group in proposed_content_mapping.values()
-            for elem in elem_group
+            hasattr(machine, elem) for elem_group in proposed_content_mapping.values() for elem in elem_group
         )
-        content_mapping = (
-            proposed_content_mapping if all_attrs_present else None
-        )
+        content_mapping = proposed_content_mapping if all_attrs_present else None
 
         # Save as single file in data folder
         machine.save(Path(self.data_handler.path) / "quam_state.json")

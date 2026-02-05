@@ -47,9 +47,7 @@ class ItemData(BaseModel):
     error: RunError | None = None
 
     @field_serializer("parameters")
-    def serialize_parameters(
-        self, parameters: NodeParameters
-    ) -> Mapping[str, Any]:
+    def serialize_parameters(self, parameters: NodeParameters) -> Mapping[str, Any]:
         return parameters.model_dump(serialize_as_any=True)
 
 

@@ -16,9 +16,7 @@ class InstanceOrClassMethod:
     def __init__(self, func: Callable[..., T]) -> None:
         self.func = func
 
-    def __get__(
-        self, obj: T, objtype: type[T] | None = None
-    ) -> Callable[..., Any]:
+    def __get__(self, obj: T, objtype: type[T] | None = None) -> Callable[..., Any]:
         """
         Returns a callable that binds the method to either the instance
         or the class, depending on how it is accessed.

@@ -16,8 +16,8 @@ import xarray as xr
 from pydantic import Field
 from qualang_tools.results import progress_counter
 from qualang_tools.units import unit
-from qualibrate.core import NodeParameters, QualibrationNode
 
+from qualibrate.core import NodeParameters, QualibrationNode
 from tests.runner.fixtures.test_helpers import XarrayDataFetcher
 
 
@@ -44,10 +44,7 @@ class Parameters(NodeParameters):
     )
     trigger_deep_error: bool = Field(
         default=False,
-        description=(
-            "Whether to run the action that raises an error inside "
-            "XarrayDataFetcher"
-        ),
+        description=("Whether to run the action that raises an error inside XarrayDataFetcher"),
     )
 
 
@@ -61,9 +58,7 @@ node: QualibrationNode[Parameters, Any] = QualibrationNode(
 @node.run_action
 def prepare_data(node: QualibrationNode[Parameters, Any]) -> dict[str, Any]:
     """Generate measurement data based on parameters."""
-    data = [
-        node.parameters.amplitude * i for i in range(node.parameters.num_points)
-    ]
+    data = [node.parameters.amplitude * i for i in range(node.parameters.num_points)]
     return {
         "data": data,
         "data_length": len(data),
@@ -101,17 +96,13 @@ def execute_qua_program(
     dfs = np.arange(-span // 2, +span // 2, step)
     sweep_axes = {
         "qubit": xr.DataArray(["q1", "q2"]),
-        "detuning": xr.DataArray(
-            dfs, attrs={"long_name": "readout frequency", "units": "Hz"}
-        ),
+        "detuning": xr.DataArray(dfs, attrs={"long_name": "readout frequency", "units": "Hz"}),
     }
 
     data_fetcher = XarrayDataFetcher(mock_job, sweep_axes)
     for _dataset in data_fetcher:
         progress_counter(
-            data_fetcher[
-                "nonexistent_key"
-            ],  # This will raise KeyError from inside XarrayDataFetcher
+            data_fetcher["nonexistent_key"],  # This will raise KeyError from inside XarrayDataFetcher
             node.parameters.num_shots,
             start_time=data_fetcher.t_start,
         )

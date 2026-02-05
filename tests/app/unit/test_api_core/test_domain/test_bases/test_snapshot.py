@@ -31,19 +31,13 @@ class SnapshotBaseCustom(SnapshotBase):
     def parents(self) -> list[IdType] | None:
         raise NotImplementedError()
 
-    def search(
-        self, search_path: Sequence[str | int], load: bool = False
-    ) -> DocumentSequenceType | None:
+    def search(self, search_path: Sequence[str | int], load: bool = False) -> DocumentSequenceType | None:
         raise NotImplementedError()
 
-    def get_latest_snapshots(
-        self, pages_filter: PageFilter, descending: bool = False
-    ) -> Sequence[SnapshotBase]:
+    def get_latest_snapshots(self, pages_filter: PageFilter, descending: bool = False) -> Sequence[SnapshotBase]:
         raise NotImplementedError()
 
-    def compare_by_id(
-        self, other_snapshot_int: int
-    ) -> Mapping[str, Mapping[str, Any]]:
+    def compare_by_id(self, other_snapshot_int: int) -> Mapping[str, Mapping[str, Any]]:
         raise NotImplementedError()
 
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
@@ -120,10 +114,7 @@ def test_init_no_content(settings):
         ({"id": 1, "data": {"quam": {}}}, SnapshotLoadTypeFlag.DataWithMachine),
         (
             {"id": 1, "data": {"parameters": {}}, "metadata": {"name": "name"}},
-            (
-                SnapshotLoadTypeFlag.Metadata
-                | SnapshotLoadTypeFlag.DataWithoutRefs
-            ),
+            (SnapshotLoadTypeFlag.Metadata | SnapshotLoadTypeFlag.DataWithoutRefs),
         ),
         (
             {
@@ -153,9 +144,7 @@ def test_items_not_specified(settings):
 
 
 def test_items_specified(settings):
-    s = SnapshotBaseCustom(
-        1, {"data": "data", "metadata": "meta"}, settings=settings
-    )
+    s = SnapshotBaseCustom(1, {"data": "data", "metadata": "meta"}, settings=settings)
     assert s.data == "data"
     assert s.metadata == "meta"
 
@@ -172,10 +161,7 @@ def test_search_recursive_data_filled(mocker, load, settings):
         return_value={"quam": {"a": "b"}},
     )
     search_pathed = mocker.patch(
-        (
-            "qualibrate.app.api.core.domain.bases.snapshot"
-            ".get_subpath_value_on_any_depth"
-        ),
+        ("qualibrate.app.api.core.domain.bases.snapshot.get_subpath_value_on_any_depth"),
         return_value=[{}],
     )
     assert s.search_recursive("target_key", load) == [{}]
@@ -205,8 +191,7 @@ def test_search_recursive_data_none(mocker, load, settings):
         return_value=None,
     )
     search_pathed = mocker.patch(
-        "qualibrate.app.api.core.domain.bases.snapshot"
-        ".get_subpath_value_on_any_depth",
+        "qualibrate.app.api.core.domain.bases.snapshot.get_subpath_value_on_any_depth",
     )
     assert s.search_recursive("target_key", load) is None
 

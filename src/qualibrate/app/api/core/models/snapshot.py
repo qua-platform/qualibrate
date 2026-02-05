@@ -94,9 +94,7 @@ class SnapshotData(BaseModel):
 
 
 class Snapshot(SimplifiedSnapshot):
-    metadata: Annotated[
-        SnapshotMetadata, Field(default_factory=SnapshotMetadata)
-    ]
+    metadata: Annotated[SnapshotMetadata, Field(default_factory=SnapshotMetadata)]
     data: SnapshotData | None = None
 
 

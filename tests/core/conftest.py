@@ -11,19 +11,13 @@ from qualibrate.core import NodeParameters, QualibrationNode
 
 
 @pytest.fixture
-def qualibrate_config(
-    mocker, tmp_path: Path
-) -> Generator[QualibrateConfig, None, None]:
+def qualibrate_config(mocker, tmp_path: Path) -> Generator[QualibrateConfig, None, None]:
     log_folder = tmp_path / "log_folder"
     log_folder.mkdir()
     storage_folder = tmp_path / "storage_folder"
     storage_folder.mkdir()
-    config = QualibrateConfig(
-        {"log_folder": log_folder, "storage": {"location": storage_folder}}
-    )
-    mocker.patch(
-        "qualibrate.core.utils.logger_m.get_qualibrate_config", return_value=config
-    )
+    config = QualibrateConfig({"log_folder": log_folder, "storage": {"location": storage_folder}})
+    mocker.patch("qualibrate.core.utils.logger_m.get_qualibrate_config", return_value=config)
     yield config
 
 
@@ -78,11 +72,7 @@ def machine():
     from quam.components import BasicQuam, SingleChannel
 
     machine = BasicQuam(
-        channels={
-            "ch1": SingleChannel(
-                opx_output=("con1", 1), intermediate_frequency=100e6
-            )
-        },
+        channels={"ch1": SingleChannel(opx_output=("con1", 1), intermediate_frequency=100e6)},
     )
     return machine
 
@@ -147,7 +137,7 @@ def action_that_raises():
 def non_interactive_mode(mocker):
     """Mock is_interactive to return False (non-interactive mode)."""
     mocker.patch(
-         "qualibrate.core.runnables.run_action.action.is_interactive",
+        "qualibrate.core.runnables.run_action.action.is_interactive",
         return_value=False,
     )
     yield
@@ -168,14 +158,10 @@ def action_manager(mocker):
     """Provide a real ActionManager instance with required patches."""
     from qualibrate.core.runnables.run_action.action_manager import ActionManager
 
-    mocker.patch( "qualibrate.core.runnables.run_action.action_manager.inspect.stack")
+    mocker.patch("qualibrate.core.runnables.run_action.action_manager.inspect.stack")
+    mocker.patch("qualibrate.core.runnables.run_action.action_manager.get_frame_for_keeping_names_from_manager")
     mocker.patch(
-         "qualibrate.core.runnables.run_action.action_manager"
-        ".get_frame_for_keeping_names_from_manager"
-    )
-    mocker.patch(
-         "qualibrate.core.runnables.run_action.action_manager"
-        ".get_defined_in_frame_names",
+        "qualibrate.core.runnables.run_action.action_manager.get_defined_in_frame_names",
         return_value=set(),
     )
     return ActionManager()

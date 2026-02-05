@@ -93,9 +93,7 @@ def _get_branch_instance(
     name: Annotated[
         str,
         Path(
-            description=(
-                "Branch name used to resolve which branch to operate on."
-            ),
+            description=("Branch name used to resolve which branch to operate on."),
         ),
     ],
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
@@ -268,13 +266,9 @@ def get_snapshot(
     *,
     snapshot_id: Annotated[
         IdType,
-        Query(
-            description="Identifier of the snapshot within the branch timeline."
-        ),
+        Query(description="Identifier of the snapshot within the branch timeline."),
     ],
-    load_type_flag: Annotated[
-        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
-    ],
+    load_type_flag: Annotated[SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> SnapshotModel:
     """
@@ -364,9 +358,7 @@ then plots random data.",
 @branch_router.get("/snapshot/latest", summary="Get latest snapshot")
 def get_latest_snapshot(
     *,
-    load_type_flag: Annotated[
-        SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)
-    ],
+    load_type_flag: Annotated[SnapshotLoadTypeFlag, Depends(get_snapshot_load_type_flag)],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> SnapshotModel:
     """Get latest snapshot.
@@ -428,11 +420,7 @@ def get_snapshot_filtered(
     search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
     descending: Annotated[
         bool,
-        Query(
-            description=(
-                "When true, prefer the newest match; otherwise the oldest."
-            )
-        ),
+        Query(description=("When true, prefer the newest match; otherwise the oldest.")),
     ] = True,
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
 ) -> SnapshotModel | None:
@@ -958,10 +946,7 @@ def get_snapshots_filtered(
         search_filter=SearchWithIdFilter(**search_filters.model_dump()),
         descending=descending,
     )
-    snapshots_dumped = [
-        SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
-        for snapshot in snapshots
-    ]
+    snapshots_dumped = [SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump()) for snapshot in snapshots]
     return PagedCollection[SimplifiedSnapshotWithMetadata](
         page=page_filter.page,
         per_page=page_filter.per_page,
@@ -1013,11 +998,7 @@ def search_snapshots_data(
     data_path: Annotated[Sequence[str | int], Depends(get_search_path)],
     filter_no_change: Annotated[
         bool,
-        Query(
-            description=(
-                "Exclude consecutive entries where the value did not change."
-            )
-        ),
+        Query(description=("Exclude consecutive entries where the value did not change.")),
     ] = True,
     page_filter: Annotated[PageFilter, Depends(get_page_filter)],
     descending: Annotated[
