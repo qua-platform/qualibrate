@@ -145,8 +145,13 @@ class BranchTimelineDb(BranchBase):
         pages_filter: PageFilter,
         search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
+        include_outcomes: bool = False,
     ) -> tuple[int, list[SnapshotBase]]:
-        """Retrieve last num_snapshots from this branch"""
+        """Retrieve last num_snapshots from this branch.
+
+        Note: include_outcomes is accepted for API compatibility but timeline_db
+        loads full snapshot content from the remote server.
+        """
         total, snapshots = self._get_remote_snapshots(
             True, pages_filter, descending
         )

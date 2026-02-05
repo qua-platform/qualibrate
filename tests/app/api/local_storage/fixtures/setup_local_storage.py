@@ -232,6 +232,21 @@ def snapshots_history() -> Generator[list[dict[str, Any]], None, None]:
     ]
 
 
+def add_tags_to_snapshots(
+    snapshots: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Add tags=None to snapshots for SimplifiedSnapshotWithMetadata response format."""
+    return [{**s, "tags": None} for s in snapshots]
+
+
+@pytest.fixture
+def snapshots_history_with_tags(
+    snapshots_history: list[dict[str, Any]],
+) -> Generator[list[dict[str, Any]], None, None]:
+    """Snapshots history with tags field for SimplifiedSnapshotWithMetadata responses."""
+    yield add_tags_to_snapshots(snapshots_history)
+
+
 @pytest.fixture
 def dfss_history() -> Generator[list[dict[str, Any]], None, None]:
     yield [

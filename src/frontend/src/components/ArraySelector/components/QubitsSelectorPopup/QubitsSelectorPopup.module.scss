@@ -55,7 +55,6 @@
       color: var(--font);
       outline: none;
       width: auto;
-      min-width: 100px;
       letter-spacing: 0.05em;
       min-width: 200px;
 
@@ -127,7 +126,6 @@
   }
 
   .popupList {
-    overflow-y: scroll;
     display: grid;
     margin-top: 20px;
     margin-right: -10px;
@@ -164,7 +162,7 @@
 
       &.selected {
         border-color: #1f6feb;
-        background: rgba(31, 111, 235, 0.1);
+        background: rgb(31 111 235 / 10%);
       }
 
       &.offline {
@@ -218,7 +216,7 @@
 
       &:not(.offline,.selected):hover {
         border-color: #58a6ff;
-        background-color: rgba(255, 255, 255, 0.04);
+        background-color: rgb(255 255 255 / 4%);
       }
     }
   }

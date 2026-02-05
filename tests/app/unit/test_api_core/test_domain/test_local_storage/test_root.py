@@ -116,6 +116,7 @@ class TestLocalStorageRoot:
                 pages_filter: PageFilter,
                 search_filter: SearchFilter | None = None,
                 descending: bool = True,
+                include_outcomes: bool = False,
             ):
                 assert pages_filter == PageFilter(page=1, per_page=2)
                 assert search_filter is search_filter_

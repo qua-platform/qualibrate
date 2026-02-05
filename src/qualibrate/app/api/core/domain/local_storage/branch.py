@@ -81,6 +81,20 @@ class BranchLocalStorage(BranchBase):
             id = self._get_latest_node_id("nodes")
         return NodeLocalStorage(id, settings=self._settings)
 
+    def _get_filtered_ids(
+        self,
+        storage_location: Path,
+        search_filter: SearchWithIdFilter | None = None,
+    ) -> set[IdType]:
+        """Get filtered IDs without pagination or sorting.
+
+        This is used to calculate the total count of filtered items.
+        """
+        storage = IdToLocalPath().get_project_manager(
+            self._settings.project, storage_location
+        )
+        return storage.get_ids(search_filter)
+
     def _get_latest_snapshots_ids(
         self,
         storage_location: Path,
@@ -101,8 +115,13 @@ class BranchLocalStorage(BranchBase):
         pages_filter: PageFilter,
         search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
+        include_outcomes: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         storage_location = self._settings.storage.location
+        # Get total count of filtered items (before pagination)
+        filtered_ids = self._get_filtered_ids(storage_location, search_filter)
+        total = len(filtered_ids)
+
         ids_paged = self._get_latest_snapshots_ids(
             storage_location,
             pages_filter=pages_filter,
@@ -113,13 +132,12 @@ class BranchLocalStorage(BranchBase):
             SnapshotLocalStorage(id, settings=self._settings)
             for id in ids_paged
         ]
+        # Load metadata, and optionally outcomes data for workflow aggregation
+        load_flag = SnapshotLoadTypeFlag.Metadata
+        if include_outcomes:
+            load_flag = load_flag | SnapshotLoadTypeFlag.DataWithoutRefs
         for snapshot in snapshots:
-            snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata)
-        total = len(
-            IdToLocalPath().get_project_manager(
-                self._settings.project, storage_location
-            )
-        )
+            snapshot.load_from_flag(load_flag)
         return total, snapshots
 
     def get_latest_nodes(
@@ -129,6 +147,10 @@ class BranchLocalStorage(BranchBase):
         descending: bool = False,
     ) -> tuple[int, Sequence[NodeBase]]:
         storage_location = self._settings.storage.location
+        # Get total count of filtered items (before pagination)
+        filtered_ids = self._get_filtered_ids(storage_location, search_filter)
+        total = len(filtered_ids)
+
         ids_paged = self._get_latest_snapshots_ids(
             storage_location,
             pages_filter=pages_filter,
@@ -140,11 +162,6 @@ class BranchLocalStorage(BranchBase):
         ]
         for node in nodes:
             node.load(NodeLoadType.Full)
-        total = len(
-            IdToLocalPath().get_project_manager(
-                self._settings.project, storage_location
-            )
-        )
         return total, nodes
 
     def dump(self) -> BranchModel:

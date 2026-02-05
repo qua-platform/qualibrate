@@ -123,6 +123,7 @@ export const JSONEditor = ({ title, jsonDataProp, height, showSearch = true, tog
 
   return (
     <div
+      data-testid="json-editor"
       style={{
         display: "flex",
         flexDirection: "column",

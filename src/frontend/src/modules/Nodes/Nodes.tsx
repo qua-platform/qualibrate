@@ -1,9 +1,9 @@
 import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
-import styles from "./NodesPage.module.scss";
+import styles from "../Nodes/NodesPage.module.scss";
 import { NodeElementList } from "./components/NodeElement/NodeElementList";
 import { RunningJob } from "./components/RunningJob/RunningJob";
-import { Results } from "../../components/Results/Results";
+import { Results } from "../../components";
 import { CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { getIsRescanningNodes, getResults } from "../../stores/NodesStore";

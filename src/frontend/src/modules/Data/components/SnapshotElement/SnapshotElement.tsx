@@ -1,6 +1,6 @@
 import React from "react";
-import { SnapshotDTO, getJsonData } from "../../../../stores/SnapshotsStore";
-import styles from "./SnapshotElement.module.scss";
+import { getJsonData, SnapshotDTO } from "../../../../stores/SnapshotsStore";
+import styles from "../SnapshotElement/SnapshotElement.module.scss";
 // eslint-disable-next-line css-modules/no-unused-class
 import additionalStyles from "../../../GraphStatus/components/MeasurementElement/MeasurementElement.module.scss";
 import { MeasurementElementOutcomes, MeasurementElementStatusInfoAndParameters } from "../../../../components";
@@ -10,8 +10,8 @@ import { useSelector } from "react-redux";
 
 // TODO: probably merge with src/modules/GraphStatus/components/MeasurementElement/MeasurementElement.tsx
 // and move to src/components
-export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; handleOnClick: () => void }> = ({
-  el,
+export const SnapshotElement: React.FC<{ snapshot: SnapshotDTO; isSelected: boolean; handleOnClick: () => void }> = ({
+  snapshot,
   isSelected,
   handleOnClick,
 }) => {
@@ -22,21 +22,21 @@ export const SnapshotElement: React.FC<{ el: SnapshotDTO; isSelected: boolean; h
         <div className={styles.titleWrapper}>
           <div className={additionalStyles.dot} />
         </div>
-        <div className={styles.idWrapper}>#{el.id}</div>
-        <div className={styles.nameWrapper}>{el.metadata?.name}</div>
+        <div className={styles.idWrapper}>#{snapshot.id}</div>
+        <div className={styles.nameWrapper}>{snapshot.metadata?.name}</div>
       </div>
       {isSelected && (
         <div className={additionalStyles.expandedContent}>
           <div className={additionalStyles.runInfoAndParameters}>
             <MeasurementElementStatusInfoAndParameters
               data={{
-                ...(el.status && { Status: el.status }),
-                ...(el.metadata?.run_duration && { "Run duration": `${el.metadata?.run_duration}s` }),
-                ...(el.metadata?.run_start && {
-                  "Run start": formatDateTime(el.metadata?.run_start),
+                ...(snapshot.status && { Status: snapshot.status }),
+                ...(snapshot.metadata?.run_duration && { "Run duration": `${snapshot.metadata?.run_duration}s` }),
+                ...(snapshot.metadata?.run_start && {
+                  "Run start": formatDateTime(snapshot.metadata?.run_start),
                 }),
-                ...((el.metadata?.run_end || el.created_at) && {
-                  "Run end": formatDateTime(el.metadata?.run_end ?? el.created_at),
+                ...((snapshot.metadata?.run_end || snapshot.created_at) && {
+                  "Run end": formatDateTime(snapshot.metadata?.run_end ?? snapshot.created_at),
                 }),
               }}
               isInfoSection={true}

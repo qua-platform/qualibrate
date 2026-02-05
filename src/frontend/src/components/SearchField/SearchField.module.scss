@@ -1,0 +1,19 @@
+.searchBoxInput {
+  background: #161b22;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+  font-size: 14px;
+  flex: 1;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.searchBoxInput:focus {
+  background: #0d1117;
+  border-color: #1f6feb;
+}
+
+input[type="search"]::-webkit-search-cancel-button:hover {
+  cursor: pointer;
+}

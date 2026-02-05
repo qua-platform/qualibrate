@@ -1,14 +1,19 @@
 export const HOME_URL = "/";
 export const LOGIN_URL = "/login";
-export const ALL_SNAPSHOTS = ({ branchName = "main", pageNumber = 1, pageLimit = 100, descending = true}) =>
-  "api/branch/" +
-  branchName +
-  "/snapshots_history?page=" +
-  pageNumber +
-  "&per_page=" +
-  pageLimit +
-  "&descending=" +
-  descending;
+export const ALL_SNAPSHOTS = (query: string = "", branchName: string = "main") => `api/branch/${branchName}/snapshots_history?${query}`;
+/***************************************** TAGS *****************************************/
+export const CREATE_NEW_TAG = () => "api/snapshot/tag/create";
+export const ALL_SNAPSHOT_TAGS = () => "api/snapshot/tags";
+export const DELETE_TAG = () => "api/snapshot/tag/remove";
+/********************************* SNAPSHOT TAGS *****************************************/
+export const ADD_TAGS_TO_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/tags`;
+export const REMOVE_TAG_FROM_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/tag/remove`;
+export const ALL_TAGS_FOR_ONE_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/tags`;
+/***************************************** COMMENTS *****************************************/
+export const ADD_COMMENT_TO_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/comment/create`;
+export const UPDATE_COMMENT_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/comment/update`;
+export const ALL_COMMENTS_FOR_ONE_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/comments`;
+export const REMOVE_COMMENT_FROM_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/comment/remove`;
 export const ONE_SNAPSHOT = (snapshotId: string) => `api/snapshot/${snapshotId}/`;
 export const SNAPSHOT_RESULT = (snapshotId: string) => `api/data_file/${snapshotId}/content`;
 export const SNAPSHOT_DIFF = (currentSnapshotId: string, newSnapshotId: string) =>

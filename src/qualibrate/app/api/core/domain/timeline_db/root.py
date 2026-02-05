@@ -82,7 +82,10 @@ class RootTimelineDb(RootBase):
         pages_filter: PageFilter,
         search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
+        include_outcomes: bool = False,
     ) -> tuple[int, Sequence[SnapshotTimelineDb]]:
+        # Note: include_outcomes is accepted for API compatibility but timeline_db
+        # loads full snapshot content from the remote server
         total, snapshots = self._get_latest_snapshots(
             pages_filter=pages_filter,
             search_filter=search_filter,

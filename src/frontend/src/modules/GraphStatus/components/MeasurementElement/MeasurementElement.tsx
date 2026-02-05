@@ -10,25 +10,27 @@
  */
 import React from "react";
 import styles from "./MeasurementElement.module.scss";
-import { classNames } from "../../../../utils/classnames";
-import { formatDateTime } from "../../../../utils/formatDateTime";
+import {classNames} from "../../../../utils/classnames";
+import {formatDateTime} from "../../../../utils/formatDateTime";
+import {InfoIcon, MeasurementElementOutcomes, MeasurementElementStatusInfoAndParameters} from "../../../../components";
+import {Tooltip} from "@mui/material";
 import {
-  MeasurementElementOutcomes,
-  MeasurementElementStatusInfoAndParameters,
-  InfoIcon
-} from "../../../../components";
-import { Tooltip } from "@mui/material";
-import { getGraphStatuSelectedNodeNameInWorkflow, getTrackLatest, setTrackLatest, setGraphStatusSelectedNodeNameInWorkflow } from "../../../../stores/GraphStores/GraphStatus";
-import { useSelector } from "react-redux";
-import { useRootDispatch } from "../../../../stores";
-import { Measurement } from "../../GraphStatus";
+  getGraphStatuSelectedNodeNameInWorkflow,
+  getTrackLatest,
+  setGraphStatusSelectedNodeNameInWorkflow,
+  setTrackLatest,
+} from "../../../../stores/GraphStores/GraphStatus";
+import {useSelector} from "react-redux";
+import {useRootDispatch} from "../../../../stores";
+import {Measurement} from "../../GraphStatus";
 import {
   fetchOneSnapshot,
   setClickedForSnapshotSelection,
   setDiffData,
   setResult,
-  setSelectedSnapshotId
-} from "../../../../stores/SnapshotsStore";
+  setSelectedSnapshot,
+  setSelectedSnapshotId,
+} from "../../../../stores/SnapshotsStore/actions";
 
 interface MeasurementElementProps {
   element: Measurement;
@@ -44,7 +46,8 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
 
   // Check if selected via list click or Cytoscape graph node click
   const measurementSelected =
-    selectedNodeNameInWorkflow && (selectedNodeNameInWorkflow === element.id?.toString() || selectedNodeNameInWorkflow === element.metadata?.name);
+    selectedNodeNameInWorkflow &&
+    (selectedNodeNameInWorkflow === element.id?.toString() || selectedNodeNameInWorkflow === element.metadata?.name);
   const cytoscapeNodeSelected =
     selectedNodeNameInWorkflow &&
     (selectedNodeNameInWorkflow === element.id?.toString() || selectedNodeNameInWorkflow === element.metadata?.name);
@@ -73,6 +76,7 @@ export const MeasurementElement: React.FC<MeasurementElementProps> = ({ element,
     dispatch(setGraphStatusSelectedNodeNameInWorkflow(element.metadata?.name));
     if (element.id) {
       dispatch(setSelectedSnapshotId(element.id));
+      dispatch(setSelectedSnapshot(element));
       dispatch(setClickedForSnapshotSelection(true));
       dispatch(fetchOneSnapshot(element.id));
     } else {

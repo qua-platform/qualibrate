@@ -8,13 +8,13 @@
  * @see GraphStatus - Parent component
  * @see WebSocketContext - Provides real-time runStatus updates
  */
-import React, { useCallback } from "react";
-import { useSelector } from "react-redux";
+import React, {useCallback} from "react";
+import {useSelector} from "react-redux";
 import styles from "./MeasurementElementGraph.module.scss";
-import { CircularProgress } from "@mui/material";
-import { SnapshotsApi } from "../../../../stores/SnapshotsStore";
-import { BlueButton } from "../../../../components";
-import { classNames } from "../../../../utils/classnames";
+import {CircularProgress} from "@mui/material";
+import {SnapshotsApi} from "../../../../stores/SnapshotsStore";
+import {BlueButton} from "../../../../components";
+import {classNames} from "../../../../utils/classnames";
 import {
   getRunStatusGraphFinishedNodes,
   getRunStatusGraphName,
@@ -22,14 +22,13 @@ import {
   getRunStatusGraphStatus,
   getRunStatusGraphTotalNodes,
 } from "../../../../stores/WebSocketStore";
-import { Graph } from "../../../Graph";
-import { SubgraphBreadcrumbs } from "../../../Graph";
-import { useRootDispatch } from "../../../../stores";
+import {Graph, SubgraphBreadcrumbs} from "../../../Graph";
+import {useRootDispatch} from "../../../../stores";
 import {
-  setGraphStasetSubgraphBack,
-  setGraphStatusSubgraphForward,
   getGraphStatuSelectedNodeNameInWorkflow,
   getGraphStatuSubgraphBreadcrumbs,
+  setGraphStasetSubgraphBack,
+  setGraphStatusSubgraphForward,
 } from "../../../../stores/GraphStores/GraphStatus";
 
 interface IProps {
@@ -100,7 +99,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ onNodeClick }) => {
               selectedNodeNameInWorkflow={selectedNodeNameInWorkflow}
               onNodeClick={onNodeClick}
               subgraphBreadcrumbs={subgraphBreadcrumbs}
-              onSetSubgraphBreadcrumbs={handleSetSubgraphBreadcrumbs}
+              onNodeSecondClick={handleSetSubgraphBreadcrumbs}
             />
           </div>
         </div>
