@@ -25,6 +25,7 @@ from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
     QubitOutcome,
     SimplifiedSnapshotWithMetadata,
+    SimplifiedSnapshotWithMetadataAndOutcomes,
     SnapshotHistoryItem,
     SnapshotSearchResult,
 )
@@ -744,11 +745,21 @@ def get_snapshots_history(
             pages_filter=all_pages_filter,
             search_filter=SearchWithIdFilter(**search_filters.model_dump()),
             descending=False,  # We'll handle sorting/pagination ourselves
+            include_outcomes=True,  # Load outcomes for accurate qubit counting
         )
-        all_dumped = [
-            SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
-            for snapshot in all_snapshots
-        ]
+        all_dumped = []
+        for snapshot in all_snapshots:
+            dumped = snapshot.dump()
+            # Extract outcomes from data if available for workflow aggregation
+            outcomes = None
+            if dumped.data and dumped.data.outcomes:
+                outcomes = dumped.data.outcomes
+            all_dumped.append(
+                SimplifiedSnapshotWithMetadataAndOutcomes(
+                    **dumped.model_dump(exclude={"data"}),
+                    outcomes=outcomes,
+                )
+            )
 
         # Apply tag filtering if specified
         if has_tag_filter:
