@@ -1,7 +1,24 @@
-import { RootDispatch, RootState } from "../index";
+import { RootDispatch, RootState } from "..";
 import { SnapshotsSlice } from "./SnapshotsStore";
-import { getAllSnapshots, getSecondId, getSelectedSnapshotId, getTrackLatestSidePanel, getTrackPreviousSnapshot } from "./selectors";
-import { fetchAllSnapshots, fetchSnapshotDiff, fetchSnapshotJsonData, fetchSnapshotResults } from "./utils";
+import {
+  getAllSnapshots,
+  getBreadCrumbs,
+  getJsonData,
+  getSecondId,
+  getSelectedSnapshot,
+  getSelectedSnapshotId,
+  getSelectedSnapshotNode,
+  getSelectedWorkflowForGraph,
+  getTrackLatestSidePanel,
+  getTrackPreviousSnapshot,
+} from "./selectors";
+import { fetchAllSnapshots, fetchAllTags, fetchSnapshotDiff, fetchSnapshotJsonData, fetchSnapshotResults } from "./utils";
+import { SnapshotData, SnapshotDTO } from "./api/SnapshotsApi";
+import { handleRunNode } from "../NodesStore";
+import { GraphLibraryApi, setErrorObject, setLastRunActive } from "../GraphStores/GraphLibrary";
+import { setActivePage } from "../NavigationStore";
+import { GRAPH_STATUS_KEY } from "../../modules/AppRoutes";
+import { setTrackLatest } from "../GraphStores/GraphStatus";
 
 export const {
   setTrackLatestSidePanel,
@@ -9,7 +26,15 @@ export const {
   setPageNumber,
   setTotalPages,
   setAllSnapshots,
+  setIsLoadingSnapshots,
+  setSnapshotsFilters,
+  setSelectedWorkflow,
+  setSelectedNodeInWorkflowId,
+  setSubgraphForward,
+  setSubgraphBack,
+  setAllTags,
   setSelectedSnapshotId,
+  setSelectedSnapshot,
   setLatestSnapshotId,
   setClickedForSnapshotSelection,
   setJsonData,
@@ -22,8 +47,9 @@ export const {
   setReset,
 } = SnapshotsSlice.actions;
 
-export const fetchOneSnapshot = (snapshotId: number, snapshotId2?: number, updateResult = true, fetchUpdate = false) =>
-  async (dispatch: RootDispatch) => {
+export const fetchOneSnapshot =
+  (snapshotId: number, snapshotId2?: number, updateResult = true, fetchUpdate = false) =>
+  async (dispatch: RootDispatch, getState: () => RootState) => {
     const id1 = (snapshotId ?? 0).toString();
     const id2 = snapshotId2 ? snapshotId2.toString() : snapshotId - 1 >= 0 ? (snapshotId - 1).toString() : "0";
     const resSnapshotJsonData = await fetchSnapshotJsonData(id1);
@@ -47,20 +73,23 @@ export const fetchOneSnapshot = (snapshotId: number, snapshotId2?: number, updat
     }
   };
 
-export const fetchGitgraphSnapshots = (firstTime: boolean, page: number) =>
+export const fetchGitgraphSnapshots = (firstTime: boolean, query: string) =>
   async (dispatch: RootDispatch, getState: () => RootState) => {
     const trackLatestSidePanel = getTrackLatestSidePanel(getState());
     const trackPreviousSnapshot = getTrackPreviousSnapshot(getState());
     const secondId = getSecondId(getState());
     const selectedSnapshotId = getSelectedSnapshotId(getState());
 
-    const resAllSnapshots = await fetchAllSnapshots(page);
+    dispatch(setIsLoadingSnapshots(true));
+    const resAllSnapshots = await fetchAllSnapshots(query);
+    dispatch(setIsLoadingSnapshots(false));
     dispatch(setAllSnapshots([]));
     if (resAllSnapshots && resAllSnapshots?.isOk) {
       const items = resAllSnapshots.result?.items;
       dispatch(setTotalPages(resAllSnapshots.result?.total_pages ?? 1));
       dispatch(setPageNumber(resAllSnapshots.result?.page ?? 1));
       dispatch(setAllSnapshots(resAllSnapshots.result?.items ?? []));
+      // Uncomment this line to use MOCKS for Execution History page
       let lastElId = 0;
       if (items) {
         lastElId = items.length > 0 ? items[0]?.id : 0;
@@ -74,6 +103,8 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, page: number) =>
       if (firstTime) {
         if (items) {
           dispatch(setSelectedSnapshotId(lastElId));
+          dispatch(setSelectedSnapshot(items.find((snapshot) => snapshot.id === lastElId)));
+          dispatch(setSelectedNodeInWorkflowId(lastElId));
           dispatch(fetchOneSnapshot(lastElId, lastElId - 1, true, true));
         } else {
           if (selectedSnapshotId) {
@@ -85,22 +116,161 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, page: number) =>
     }
   };
 
+export const fetchSnapshotTags = () => async (dispatch: RootDispatch, getState: () => RootState) => {
+  const resAllSnapshotTags = await fetchAllTags();
+  if (resAllSnapshotTags && resAllSnapshotTags?.isOk) {
+    dispatch(setAllTags(resAllSnapshotTags.result));
+  }
+  // TODO Uncomment this code to use mocked data
+  // dispatch(
+  //   setAllTags([
+  //     "resonance",
+  //     "characterization",
+  //     "calibration",
+  //     "rabi",
+  //     "relaxation",
+  //     "error",
+  //     "tomography",
+  //     "validation",
+  //     "benchmarking",
+  //     "multi-qubit",
+  //     "quick-check",
+  //   ])
+  // );
+};
+
 // -----------------------------------------------------------
 // PERIODICAL FETCH ALL SNAPSHOTS
-export const intervalFetch = (page: number) =>
-  async (dispatch: RootDispatch, getState: () => RootState) => {
-    const allSnapshots = getAllSnapshots(getState());
-    const resAllSnapshots = await fetchAllSnapshots(page);
-    if (resAllSnapshots) {
-      dispatch(setTotalPages(resAllSnapshots.result?.total_pages as number));
-      dispatch(setPageNumber(resAllSnapshots.result?.page as number));
-      const newMaxId = resAllSnapshots.result?.items[0]?.id;
-      const odlMaxId = allSnapshots ? allSnapshots[0]?.id : 0;
-      console.log(`Max snapshot ID - previous=${odlMaxId}, latest=${newMaxId}`);
-      if (newMaxId !== odlMaxId! && resAllSnapshots.result?.items?.length !== 0) {
-        dispatch(setReset(true));
-      } else {
-        dispatch(setReset(false));
-      }
+export const intervalFetch = (query: string) => async (dispatch: RootDispatch, getState: () => RootState) => {
+  const allSnapshots = getAllSnapshots(getState());
+  const resAllSnapshots = await fetchAllSnapshots(query);
+  if (resAllSnapshots) {
+    dispatch(setTotalPages(resAllSnapshots.result?.total_pages as number));
+    dispatch(setPageNumber(resAllSnapshots.result?.page as number));
+    const newMaxId = resAllSnapshots.result?.items[0]?.id;
+    const odlMaxId = allSnapshots ? allSnapshots[0]?.id : 0;
+    console.log(`Max snapshot ID - previous=${odlMaxId}, latest=${newMaxId}`);
+    if (newMaxId !== odlMaxId! && resAllSnapshots.result?.items?.length !== 0) {
+      dispatch(setReset(true));
+    } else {
+      dispatch(setReset(false));
     }
-  };
+  }
+};
+
+export const setSelectedSnapshotInSnapshotList = (snapshotName: string) => async (dispatch: RootDispatch, getState: () => RootState) => {
+  const state = getState();
+  if (state.snapshots.selectedWorkflow && state.snapshots.selectedWorkflow.items) {
+    const snapshot = state.snapshots.selectedWorkflow?.items?.find((s) => s.metadata?.name === snapshotName);
+    if (snapshot) {
+      dispatch(setSelectedSnapshot(snapshot));
+      dispatch(setSelectedSnapshotId(snapshot?.id));
+      dispatch(fetchOneSnapshot(snapshot?.id));
+    }
+  }
+};
+
+export const setSelectedWorkflowFromBreadcrumbs = () => (dispatch: RootDispatch, getState: () => RootState) => {
+  const state = getState();
+  const selectedWorkflow = getSelectedWorkflowForGraph(state);
+
+  if (!selectedWorkflow) {
+    return;
+  }
+  dispatch(setSelectedWorkflow(selectedWorkflow));
+  dispatch(setSelectedSnapshot(selectedWorkflow));
+};
+
+export const goBackOneLevel = () => (dispatch: RootDispatch, getState: () => RootState) => {
+  const stateBeforeGoingBack = getState();
+
+  const breadcrumbs = getBreadCrumbs(stateBeforeGoingBack);
+  dispatch(setSubgraphBack(breadcrumbs.length - 1));
+  const stateAfterBack = getState();
+  const selectedWorkflow = getSelectedWorkflowForGraph(stateAfterBack);
+  const allSnapshots = getAllSnapshots(stateAfterBack);
+  const breadcrumbsAfterGoingBack = getBreadCrumbs(stateAfterBack);
+
+  if (breadcrumbsAfterGoingBack.length === 0 && allSnapshots?.length > 0) {
+    dispatch(setSelectedWorkflow(undefined));
+    dispatch(setSelectedSnapshotId(allSnapshots[0].id));
+    dispatch(fetchOneSnapshot(allSnapshots[0].id));
+    dispatch(setSelectedSnapshot(allSnapshots[0]));
+    dispatch(setSelectedNodeInWorkflowId(allSnapshots[0].id));
+  } else {
+    dispatch(setSelectedWorkflow(selectedWorkflow)); // hack for top navigation to refresh the redux
+    dispatch(setSelectedSnapshotId(selectedWorkflow?.id));
+    dispatch(setSelectedSnapshot(selectedWorkflow));
+    dispatch(setSelectedNodeInWorkflowId(selectedWorkflow?.id));
+  }
+};
+
+const updateSnapshotsRecursive = (snapshots: SnapshotDTO[], targetName: string, selectedTags: string[]): SnapshotDTO[] => {
+  return snapshots.reduce<SnapshotDTO[]>((acc, snapshot) => {
+    if (snapshot.metadata?.name === targetName) {
+      acc.push({
+        ...snapshot,
+        tags: selectedTags,
+      });
+    } else {
+      acc.push({
+        ...snapshot,
+        items: snapshot.items ? updateSnapshotsRecursive(snapshot.items, targetName, selectedTags) : snapshot.items,
+      });
+    }
+
+    return acc;
+  }, []);
+};
+
+export const updateSnapshotTags = (selectedTags: string[]) => (dispatch: RootDispatch, getState: () => RootState) => {
+  const state = getState();
+  const allSnapshots = getAllSnapshots(state);
+  const breadcrumbs = getBreadCrumbs(state);
+  const selectedSnapshot = getSelectedSnapshot(state);
+
+  if (breadcrumbs.length === 0) {
+    const updatedSnapshots = allSnapshots.reduce<SnapshotDTO[]>((acc, snapshot) => {
+      if (snapshot.metadata?.name === selectedSnapshot?.metadata?.name) {
+        // update snapshots tags
+        acc.push({ ...snapshot, tags: selectedTags });
+      } else {
+        acc.push(snapshot);
+      }
+      return acc;
+    }, []);
+    dispatch(setAllSnapshots(updatedSnapshots));
+  } else if (selectedSnapshot) {
+    const updatedSnapshots = updateSnapshotsRecursive(allSnapshots, selectedSnapshot?.metadata?.name, selectedTags);
+    dispatch(setAllSnapshots(updatedSnapshots));
+  }
+};
+
+export const runNodeOfSelectedSnapshot = () => (dispatch: RootDispatch, getState: () => RootState) => {
+  const state = getState();
+  const selectedSnapshot = getSelectedSnapshot(state);
+  if (selectedSnapshot) {
+    const nodeOfSnapshot = getSelectedSnapshotNode(state);
+    if (nodeOfSnapshot) {
+      dispatch(handleRunNode(nodeOfSnapshot));
+    }
+  }
+};
+
+export const runWorkflowOfSelectedSnapshot = () => async (dispatch: RootDispatch, getState: () => RootState) => {
+  const state = getState();
+  const selectedSnapshot = getSelectedSnapshot(state);
+  const jsonData = getJsonData(state) as SnapshotData;
+  if (selectedSnapshot?.metadata.name && jsonData) {
+    dispatch(setLastRunActive());
+
+    const response = await GraphLibraryApi.submitWorkflow(selectedSnapshot.metadata.name, jsonData.parameters?.model);
+    if (response.isOk) {
+      dispatch(setErrorObject(undefined)); // This is a bugfix - previously it didn't clear errorObject on success
+      dispatch(setActivePage(GRAPH_STATUS_KEY));
+      dispatch(setTrackLatest(true));
+    } else {
+      dispatch(setErrorObject(response.error));
+    }
+  }
+};
