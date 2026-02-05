@@ -25,6 +25,7 @@ from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
     QubitOutcome,
     SimplifiedSnapshotWithMetadata,
+    SimplifiedSnapshotWithMetadataAndOutcomes,
     SnapshotHistoryItem,
     SnapshotSearchResult,
 )
@@ -55,6 +56,37 @@ from qualibrate.app.config import get_settings
 MAX_PAGE_SIZE_FOR_GROUPING = 100000
 
 branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
+
+
+def _filter_snapshots_by_tags(
+    snapshots: list[SimplifiedSnapshotWithMetadata],
+    required_tags: list[str],
+) -> list[SimplifiedSnapshotWithMetadata]:
+    """Filter snapshots to only those containing all required tags.
+
+    Args:
+        snapshots: List of snapshots to filter.
+        required_tags: List of tag names that must all be present.
+
+    Returns:
+        Filtered list of snapshots that have ALL required tags.
+    """
+    if not required_tags:
+        return snapshots
+
+    required_set = set(required_tags)
+    result = []
+    for snapshot in snapshots:
+        snapshot_tags = []
+        if snapshot.metadata:
+            # Get tags from metadata - handle both dict and object access
+            metadata_dict = snapshot.metadata.model_dump()
+            snapshot_tags = metadata_dict.get("tags", []) or []
+
+        if required_set.issubset(set(snapshot_tags)):
+            result.append(snapshot)
+
+    return result
 
 
 def _get_branch_instance(
@@ -702,17 +734,38 @@ def get_snapshots_history(
 
     # For grouped mode or sorting, we need to fetch all snapshots first
     # because sorting and tree-building require all items in memory.
-    if grouped or sort is not None:
+    # Check if we need to fetch all snapshots for post-filtering
+    # Tag filtering requires loading metadata, so we need to fetch all first
+    has_tag_filter = search_filters.tags is not None and len(search_filters.tags) > 0
+
+    # For grouped mode, sorting, or tag filtering, we need to fetch all snapshots
+    if grouped or sort is not None or has_tag_filter:
         all_pages_filter = PageFilter(page=1, per_page=MAX_PAGE_SIZE_FOR_GROUPING)
         _, all_snapshots = branch.get_latest_snapshots(
             pages_filter=all_pages_filter,
             search_filter=SearchWithIdFilter(**search_filters.model_dump()),
             descending=False,  # We'll handle sorting/pagination ourselves
+            include_outcomes=True,  # Load outcomes for accurate qubit counting
         )
-        all_dumped = [
-            SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump())
-            for snapshot in all_snapshots
-        ]
+        all_dumped = []
+        for snapshot in all_snapshots:
+            dumped = snapshot.dump()
+            # Extract outcomes from data if available for workflow aggregation
+            outcomes = None
+            if dumped.data and dumped.data.outcomes:
+                outcomes = dumped.data.outcomes
+            all_dumped.append(
+                SimplifiedSnapshotWithMetadataAndOutcomes(
+                    **dumped.model_dump(exclude={"data"}),
+                    outcomes=outcomes,
+                )
+            )
+
+        # Apply tag filtering if specified
+        if has_tag_filter:
+            all_dumped = _filter_snapshots_by_tags(
+                all_dumped, search_filters.tags or []
+            )
 
         if sort is not None:
             # Sort all snapshots by the requested field
