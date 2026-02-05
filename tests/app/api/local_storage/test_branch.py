@@ -507,18 +507,13 @@ def test_branch_nodes_history_default_args(client_custom_settings, snapshots_his
         "has_next_page": False,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-<<<<<<< HEAD
             for snapshot, dfs in zip(
                 snapshots_with_tags, dfss_history, strict=False
             )
-=======
-            for snapshot, dfs in zip(snapshots_history, dfss_history, strict=False)
->>>>>>> feat/monorepo-migration
         ],
     }
 
 
-<<<<<<< HEAD
 def test_branch_nodes_history_ascending(
     client_custom_settings, snapshots_history, dfss_history
 ):
@@ -526,10 +521,6 @@ def test_branch_nodes_history_ascending(
         "/api/branch/main/nodes_history", params={"descending": False}
     )
     snapshots_with_tags = _utils_test.add_tags_to_snapshots(snapshots_history[::-1])
-=======
-def test_branch_nodes_history_ascending(client_custom_settings, snapshots_history, dfss_history):
-    response = client_custom_settings.get("/api/branch/main/nodes_history", params={"descending": False})
->>>>>>> feat/monorepo-migration
     assert response.status_code == 200
     assert response.json() == {
         "page": 1,
@@ -539,13 +530,9 @@ def test_branch_nodes_history_ascending(client_custom_settings, snapshots_histor
         "has_next_page": False,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-<<<<<<< HEAD
             for snapshot, dfs in zip(
                 snapshots_with_tags, dfss_history[::-1], strict=False
             )
-=======
-            for snapshot, dfs in zip(snapshots_history[::-1], dfss_history[::-1], strict=False)
->>>>>>> feat/monorepo-migration
         ],
     }
 

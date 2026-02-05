@@ -521,13 +521,9 @@ def test_root_nodes_history_default_args(client_custom_settings, snapshots_histo
         "has_next_page": False,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-<<<<<<< HEAD
             for snapshot, dfs in zip(
                 snapshots_with_tags, dfss_history, strict=False
             )
-=======
-            for snapshot, dfs in zip(snapshots_history, dfss_history, strict=False)
->>>>>>> feat/monorepo-migration
         ],
     }
 
