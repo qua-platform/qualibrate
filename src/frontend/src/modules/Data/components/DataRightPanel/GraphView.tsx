@@ -64,13 +64,13 @@ const GraphView: React.FC = () => {
       <div className={styles.contentMain}>
         <div className={styles.graphVisualization}>
           <div className={styles.graphExecSummary}>
-            <div className={classNames(styles.summaryStat, nodesFailed && styles.error, nodesSuccess && styles.success)}>
+            {/* <div className={classNames(styles.summaryStat, nodesFailed && styles.error, nodesSuccess && styles.success)}>
               <div className={styles.statLabel}>Nodes Completed</div>
               <div className={styles.statValue}>
                 {selectedSnapshotWithWorkflowType?.nodes_completed ?? "unavailable"}/
                 {selectedSnapshotWithWorkflowType?.nodes_total ?? "unavailable"}
               </div>
-            </div>
+            </div> */}
 
             <div className={classNames(styles.summaryStat, qubitsFailed && styles.error, qubitsSuccess && styles.success)}>
               <div className={styles.statLabel}>Qubits Success</div>
