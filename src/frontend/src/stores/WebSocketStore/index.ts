@@ -4,6 +4,7 @@ export {
   setRunStatus,
   setHistory,
   setSnapshotInfo,
+  setSnapshotUpdateRequired,
   setShowConnectionErrorDialog,
   setConnectionLostAt,
   setConnectionLostSeconds,

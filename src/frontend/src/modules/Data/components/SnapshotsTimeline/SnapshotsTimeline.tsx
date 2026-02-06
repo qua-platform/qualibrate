@@ -7,7 +7,6 @@ import {
   getSelectedSnapshotId,
   getSelectedWorkflowForGraph,
   setClickedForSnapshotSelection,
-  setReset,
   setSelectedNodeInWorkflowId,
   setSelectedSnapshot,
   setSelectedSnapshotId,
@@ -16,6 +15,7 @@ import {
 import { useRootDispatch } from "../../../../stores";
 import ExecutionCard, { ManageTagsModal } from "../ExecutionCard";
 import { getAllSnapshots } from "../../../../stores/SnapshotsStore";
+import { setSnapshotUpdateRequired } from "../../../../stores/WebSocketStore";
 
 const SnapshotsTimeline: React.FC = () => {
   const dispatch = useRootDispatch();
@@ -39,7 +39,7 @@ const SnapshotsTimeline: React.FC = () => {
 
   const handleOnClose = () => {
     setShowTagsModal(false);
-    dispatch(setReset(true));
+    dispatch(setSnapshotUpdateRequired(true));
   };
 
   return (

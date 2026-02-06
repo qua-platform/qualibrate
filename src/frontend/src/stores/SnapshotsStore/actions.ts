@@ -9,6 +9,7 @@ import {
   getSelectedSnapshotId,
   getSelectedSnapshotNode,
   getSelectedWorkflowForGraph,
+  getSnapshotsSearchQuery,
   getTrackLatestSidePanel,
   getTrackPreviousSnapshot,
 } from "./selectors";
@@ -44,7 +45,6 @@ export const {
   setResult,
   setFirstId,
   setSecondId,
-  setReset,
 } = SnapshotsSlice.actions;
 
 export const fetchOneSnapshot =
@@ -73,17 +73,17 @@ export const fetchOneSnapshot =
     }
   };
 
-export const fetchGitgraphSnapshots = (firstTime: boolean, query: string) =>
+export const fetchGitgraphSnapshots = (firstTime: boolean) =>
   async (dispatch: RootDispatch, getState: () => RootState) => {
     const trackLatestSidePanel = getTrackLatestSidePanel(getState());
     const trackPreviousSnapshot = getTrackPreviousSnapshot(getState());
     const secondId = getSecondId(getState());
     const selectedSnapshotId = getSelectedSnapshotId(getState());
+    const query = getSnapshotsSearchQuery(getState());
 
     dispatch(setIsLoadingSnapshots(true));
     const resAllSnapshots = await fetchAllSnapshots(query);
     dispatch(setIsLoadingSnapshots(false));
-    dispatch(setAllSnapshots([]));
     if (resAllSnapshots && resAllSnapshots?.isOk) {
       const items = resAllSnapshots.result?.items;
       dispatch(setTotalPages(resAllSnapshots.result?.total_pages ?? 1));
@@ -94,24 +94,18 @@ export const fetchGitgraphSnapshots = (firstTime: boolean, query: string) =>
       if (items) {
         lastElId = items.length > 0 ? items[0]?.id : 0;
         dispatch(setLatestSnapshotId(lastElId));
+        dispatch(setSelectedSnapshot(items.find((snapshot) => snapshot.id === lastElId)));
+        dispatch(setSelectedNodeInWorkflowId(lastElId));
+        dispatch(setSelectedSnapshotId(lastElId));
+        dispatch(fetchOneSnapshot(lastElId, lastElId - 1, true, true));
         if (trackLatestSidePanel) {
           const snapshotId1 = lastElId;
           const snapshotId2 = trackPreviousSnapshot ? lastElId - 1 : Number(secondId);
           dispatch(fetchOneSnapshot(snapshotId1, snapshotId2, false, true));
         }
       }
-      if (firstTime) {
-        if (items) {
-          dispatch(setSelectedSnapshotId(lastElId));
-          dispatch(setSelectedSnapshot(items.find((snapshot) => snapshot.id === lastElId)));
-          dispatch(setSelectedNodeInWorkflowId(lastElId));
-          dispatch(fetchOneSnapshot(lastElId, lastElId - 1, true, true));
-        } else {
-          if (selectedSnapshotId) {
-            dispatch(fetchOneSnapshot(selectedSnapshotId));
-            dispatch(setReset(false));
-          }
-        }
+      if (firstTime && !items && selectedSnapshotId) {
+        dispatch(fetchOneSnapshot(selectedSnapshotId));
       }
     }
   };
@@ -137,25 +131,6 @@ export const fetchSnapshotTags = () => async (dispatch: RootDispatch, getState: 
   //     "quick-check",
   //   ])
   // );
-};
-
-// -----------------------------------------------------------
-// PERIODICAL FETCH ALL SNAPSHOTS
-export const intervalFetch = (query: string) => async (dispatch: RootDispatch, getState: () => RootState) => {
-  const allSnapshots = getAllSnapshots(getState());
-  const resAllSnapshots = await fetchAllSnapshots(query);
-  if (resAllSnapshots) {
-    dispatch(setTotalPages(resAllSnapshots.result?.total_pages as number));
-    dispatch(setPageNumber(resAllSnapshots.result?.page as number));
-    const newMaxId = resAllSnapshots.result?.items[0]?.id;
-    const odlMaxId = allSnapshots ? allSnapshots[0]?.id : 0;
-    console.log(`Max snapshot ID - previous=${odlMaxId}, latest=${newMaxId}`);
-    if (newMaxId !== odlMaxId! && resAllSnapshots.result?.items?.length !== 0) {
-      dispatch(setReset(true));
-    } else {
-      dispatch(setReset(false));
-    }
-  }
 };
 
 export const setSelectedSnapshotInSnapshotList = (snapshotName: string) => async (dispatch: RootDispatch, getState: () => RootState) => {

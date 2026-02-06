@@ -1,39 +1,27 @@
 import { useEffect } from "react";
 import { useRootDispatch } from "..";
-import { fetchGitgraphSnapshots, fetchSnapshotTags, intervalFetch, setAllSnapshots } from "./actions";
+import { fetchGitgraphSnapshots, fetchSnapshotTags } from "./actions";
 import { useSelector } from "react-redux";
-import { getAllSnapshots, getReset, getSnapshotsSearchQuery } from "./selectors";
+import { getSnapshotsSearchQuery } from "./selectors";
+import { getIsSnapshotUpdateRequired } from "../WebSocketStore";
 
 export const useInitSnapshots = () => {
   const dispatch = useRootDispatch();
-  const allSnapshots = useSelector(getAllSnapshots);
-  const reset = useSelector(getReset);
+  const isUpdateRequired = useSelector(getIsSnapshotUpdateRequired);
   const snapshotsSearchQuery = useSelector(getSnapshotsSearchQuery);
 
   useEffect(() => {
-    dispatch(setAllSnapshots([]));
-    dispatch(fetchGitgraphSnapshots(true, snapshotsSearchQuery));
+    dispatch(fetchGitgraphSnapshots(true));
     dispatch(fetchSnapshotTags());
   }, []);
-  // -----------------------------------------------------------
-  // -----------------------------------------------------------
-
-  // TODO Add lastSelectedId! in state
 
   useEffect(() => {
-    const checkInterval = setInterval(() => dispatch(intervalFetch(snapshotsSearchQuery)), 1000);
-    return () => clearInterval(checkInterval);
-  }, [allSnapshots, snapshotsSearchQuery]);
-  // -----------------------------------------------------------
-
-  // -----------------------------------------------------------
-  // PERIODICAL FETCH ALL SNAPSHOTS
-  useEffect(() => {
-    if (reset) {
-      // setAllSnapshots([]);
-      const updateFn = setTimeout(() => dispatch(fetchGitgraphSnapshots(false, snapshotsSearchQuery)), 2);
-      return () => clearTimeout(updateFn);
+    if (isUpdateRequired) {
+      dispatch(fetchGitgraphSnapshots(false));
     }
-  }, [reset, snapshotsSearchQuery]);
-  // -----------------------------------------------------------
+  }, [isUpdateRequired]);
+
+  useEffect(() => {
+    dispatch(fetchGitgraphSnapshots(false));
+  }, [snapshotsSearchQuery]);
 };

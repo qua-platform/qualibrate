@@ -35,7 +35,6 @@ export interface SnapshotsState {
     result: object | undefined;
     firstId: string;
     secondId: string;
-    reset: boolean;
 }
 
 const initialState: SnapshotsState = {
@@ -66,7 +65,6 @@ const initialState: SnapshotsState = {
     result: {},
     firstId: "0",
     secondId: "0",
-    reset: false,
 };
 
 export const SnapshotsSlice = createSlice({
@@ -144,7 +142,6 @@ export const SnapshotsSlice = createSlice({
             state.result = undefined;
             state.diffData = undefined;
             state.isLoadingSnapshots = false;
-            state.reset = true;
         },
         setResult: (state, action) => {
             state.result = action.payload;
@@ -156,7 +153,6 @@ export const SnapshotsSlice = createSlice({
             state.secondId = action.payload;
         },
         setReset: (state, action) => {
-            state.reset = action.payload;
             state.isLoadingSnapshots = action.payload;
         },
     },

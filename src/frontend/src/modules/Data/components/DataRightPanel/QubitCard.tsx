@@ -1,11 +1,11 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { getResult, getSelectedSnapshot } from "../../../../stores/SnapshotsStore";
+// import { useSelector } from "react-redux";
+// import { getResult, getSelectedSnapshot } from "../../../../stores/SnapshotsStore";
 import styles from "./QubitCard.module.scss";
 
 const QubitCard: React.FC = () => {
-  const result = useSelector(getResult);
-  const selectedSnapshot = useSelector(getSelectedSnapshot);
+  // const result = useSelector(getResult);
+  // const selectedSnapshot = useSelector(getSelectedSnapshot);
 
   return (
     <div className={styles.qubitCard}>

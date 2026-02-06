@@ -26,8 +26,8 @@ const GraphView: React.FC = () => {
   const breadCrumbs = useSelector(getBreadCrumbs);
   const jsonData = useSelector(getJsonData) as SnapshotData;
 
-  const nodesFailed = selectedSnapshotWithWorkflowType?.nodes_completed !== selectedSnapshotWithWorkflowType?.nodes_total;
-  const nodesSuccess = !nodesFailed && selectedSnapshotWithWorkflowType?.nodes_completed !== null;
+  // const nodesFailed = selectedSnapshotWithWorkflowType?.nodes_completed !== selectedSnapshotWithWorkflowType?.nodes_total;
+  // const nodesSuccess = !nodesFailed && selectedSnapshotWithWorkflowType?.nodes_completed !== null;
   const qubitsFailed = selectedSnapshotWithWorkflowType?.qubits_completed !== selectedSnapshotWithWorkflowType?.qubits_total;
   const qubitsSuccess = !qubitsFailed && selectedSnapshotWithWorkflowType?.qubits_completed !== null;
 

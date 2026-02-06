@@ -93,8 +93,6 @@ export const getFirstId = createSelector(getSnapshotsState, (state) => state.fir
 
 export const getSecondId = createSelector(getSnapshotsState, (state) => state.secondId);
 
-export const getReset = createSelector(getSnapshotsState, (state) => state.reset);
-
 export const getSelectedSnapshotNode = createSelector(getSnapshotsState, getNodesState, getJsonData,
     (snapshotState, nodesState, jsonData) => {
         const node = nodesState?.allNodes ? nodesState?.allNodes[snapshotState.selectedSnapshot?.metadata?.name ?? ""] : undefined;

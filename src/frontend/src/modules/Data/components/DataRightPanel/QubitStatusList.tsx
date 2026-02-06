@@ -21,7 +21,7 @@ const QubitStatusList: React.FC<Props> = ({ outcomes }) => {
               <span className={styles.qubitName}>{qubitName}</span>
 
               <div className={styles.status}>
-                <span className={`${styles.statusDot0} ${isFailure ? styles.failure : styles.success}`} />
+                <span className={`${styles.statusDot} ${isFailure ? styles.failure : styles.success}`} />
                 <span className={`${styles.statusText} ${isFailure ? styles.failure : styles.success}`}>{data.status?.toUpperCase()}</span>
               </div>
             </div>
