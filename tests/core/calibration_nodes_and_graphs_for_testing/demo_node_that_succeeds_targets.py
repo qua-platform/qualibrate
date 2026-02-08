@@ -17,4 +17,5 @@ def node_runs_indication(node: QualibrationNode):
     node.log("node is running")
     for target in node.parameters.targets:
         node.outcomes[target] = Outcome.SUCCESSFUL
+    node.save()
     return node.outcomes

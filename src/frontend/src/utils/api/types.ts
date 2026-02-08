@@ -12,12 +12,14 @@ export type FetchOptions = {
 };
 
 export type RequestEntry = [path: string, method: API_METHODS];
+
 export enum API_METHODS {
   GET = "GET",
-  POST = "POST"
-}export type Res<P = Record<string, never>> = {
+  POST = "POST",
+}
+
+export type Res<P = Record<string, never>> = {
   isOk: boolean;
-  error?: string | { detail: string; } | ErrorWithDetails | ErrorObject;
+  error?: string | { detail: string } | ErrorWithDetails | ErrorObject;
   result?: P;
 };
-

@@ -150,3 +150,17 @@ export const getRunStatusNodeTimeRemaining = createSelector(
   getRunStatusNode,
   (runStatusNodeState) => runStatusNodeState?.time_remaining
 );
+
+/**
+ * snapshotInfo selectors
+ */
+
+export const getSnapshotInfo = createSelector(
+  getWebSocketState,
+  (webSocketState) => webSocketState.snapshotInfo,
+);
+
+export const getIsSnapshotUpdateRequired = createSelector(
+  getWebSocketState,
+  (snapshotInfo) => snapshotInfo?.snapshotUpdateRequired
+);

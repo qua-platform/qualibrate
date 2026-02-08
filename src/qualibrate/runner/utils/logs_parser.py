@@ -5,11 +5,11 @@ from datetime import datetime
 from functools import partial
 from itertools import islice
 from pathlib import Path
-from typing import Any, TextIO, cast
+from typing import Any, TextIO
 
 from qualibrate_config.models import QualibrateConfig
 
-from qualibrate.core.utils.logger_m import LazyInitLogger, logger
+from qualibrate.core.utils.logger_m import logger
 from qualibrate.core.utils.logger_utils.filters import filter_log_date
 
 __all__ = [
@@ -92,4 +92,4 @@ def get_logs_from_qualibrate_in_memory_storage(
     *,
     config: QualibrateConfig,
 ) -> list[dict[str, Any]]:
-    return cast(LazyInitLogger, logger).in_memory_handler.get_logs(after, before, num_entries)
+    return logger.in_memory_handler.get_logs(after, before, num_entries)

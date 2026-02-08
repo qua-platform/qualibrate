@@ -1,31 +1,39 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./styles/LogsPanel.module.scss";
 import { formatDateTime } from "../../../utils/formatDateTime";
-import { LogsViewerResponseDTO, NodesApi } from "../../../stores/NodesStore";
+import { LogsViewerResponseDTO } from "../../../stores/NodesStore";
+import { WS_LOGS } from "../../../services/webSocketRoutes";
+import WebSocketService from "../../../services/WebSocketService";
+import { handleHideConnectionErrorDialog, handleShowConnectionErrorDialog } from "../../../stores/WebSocketStore";
+import { useRootDispatch } from "../../../stores";
 
 export const LogsPanel = () => {
   const [logs, setLogs] = useState<LogsViewerResponseDTO[]>([]);
-
-  const checkNewLogs = async () => {
-    const maxNumberOfLogs: number = 300;
-    const after = logs.length > 0 ? logs[logs.length - 1]?.asctime : null;
-    const response = await NodesApi.getLogs(after, null, maxNumberOfLogs.toString());
-
-    if (response.isOk && response.result) {
-      const newLogs = response.result;
-      if (newLogs.length === maxNumberOfLogs) {
-        setLogs(newLogs);
-      } else if (newLogs.length > 0) {
-        const updatedLogs = [...newLogs, ...logs].slice(0, maxNumberOfLogs);
-        setLogs(updatedLogs);
-      }
-    }
-  };
+  const logsWS = useRef<WebSocketService<LogsViewerResponseDTO> | null>(null);
+  const dispatch = useRootDispatch();
 
   useEffect(() => {
-    const checkInterval = setInterval(async () => checkNewLogs(), 1000);
-    return () => clearInterval(checkInterval);
-  }, [logs]);
+    const protocol = window.location.protocol === "http:" ? "ws" : "wss";
+    const host = process.env.WS_BASE_URL || location;
+    const logsUrl = `${protocol}://${host}${WS_LOGS}`;
+
+    logsWS.current = new WebSocketService<LogsViewerResponseDTO>(
+      logsUrl,
+      (logItem) => setLogs(prev => [logItem, ...prev]),
+      () => dispatch(handleHideConnectionErrorDialog()),
+      () => dispatch(handleShowConnectionErrorDialog())
+    );
+
+    if (logsWS.current && !logsWS.current.isConnected()) {
+      logsWS.current.connect();
+    }
+
+    return () => {
+      if (logsWS.current && logsWS.current.isConnected()) {
+        logsWS.current.disconnect();
+      }
+    };
+  }, []);
 
   return (
     <>

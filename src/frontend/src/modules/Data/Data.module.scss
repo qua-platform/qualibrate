@@ -1,36 +1,25 @@
 @use "../../styles/variables";
 @use "../../styles/base";
 
-.wrapper {
-  display: flex;
-  height: 100%;
-}
 
-.dataWrapper {
-  min-width: 350px;
-  width: 30%;
-  max-width: 800px;
+.titlebarWrapper {
+  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  margin-left: 3px;
 }
 
-.data {
-  overflow: scroll;
-  height: 100%;
-}
-
-.explorer {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  box-sizing: border-box;
-}
-
-.viewer {
+.rightsidePanelWrapper {
+  height: calc(100% - 90px);
   display: flex;
   flex-grow: 1;
-  border: 1px solid var(--border-color);
-  overflow: hidden;
+  position: relative;
+}
+
+.contentWrapper {
+  height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }

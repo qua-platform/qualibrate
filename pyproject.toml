@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate"
-version = "0.6.0"
+version = "1.0.0"
 description = "Qubit calibration software"
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate"
@@ -76,6 +76,7 @@ types-requests = "^2.32.4.20250913"  # From app - type stubs for requests
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.2"
 pytest-mock = "^3.15.1"
+pytest-asyncio = "^0.24.0"        # Required for async test support
 
 # Test-specific dependencies (from core)
 quam = { version = "^0.4.2", python = ">=3.10,<3.13" }  # Only needed for tests
@@ -109,11 +110,6 @@ xarray = "~2025.6.1"
 #[tool.poetry.group.qm-dev.dependencies]
 #qualibrate-config = {path = "../qualibrate-config", develop = true}
 #qua-dashboards = {path = "../qua-dashboards", develop = true}
-#
-# The following are no longer needed (now part of this monorepo):
-#qualibrate-app = {path = "../qualibrate-app/backend", develop = true}
-#qualibrate-runner = {path = "../qualibrate-runner", develop = true}
-#qualibrate-core = {path = "../qualibrate-core", develop = true}
 
 # ============================================================================
 # CLI SCRIPTS
@@ -198,6 +194,8 @@ testpaths = ["tests"]              # Where to look for tests
 python_files = ["test_*.py"]       # Test file pattern
 python_classes = ["Test*"]         # Test class pattern
 python_functions = ["test_*"]      # Test function pattern
+asyncio_mode = "auto"              # Automatically detect and run async tests
+asyncio_default_fixture_loop_scope = "function"  # Each async test gets its own event loop
 
 # ============================================================================
 # BUILD SYSTEM

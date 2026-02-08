@@ -155,3 +155,28 @@ class SnapshotTimelineDb(SnapshotBase):
         **kwargs: Mapping[str, Any],
     ) -> Mapping[str, Mapping[str, Any] | None]:
         return {}
+
+    # Tags and comments methods - not supported in timeline_db
+    def add_tag(self, tag: str) -> bool:
+        raise NotImplementedError("Tags are not supported in timeline_db storage")
+
+    def remove_tag(self, tag: str) -> bool:
+        raise NotImplementedError("Tags are not supported in timeline_db storage")
+
+    def get_tags(self) -> list[str]:
+        raise NotImplementedError("Tags are not supported in timeline_db storage")
+
+    def set_tags(self, tags: list[str]) -> bool:
+        raise NotImplementedError("Tags are not supported in timeline_db storage")
+
+    def create_comment(self, value: str) -> dict[str, Any] | None:
+        raise NotImplementedError("Comments are not supported in timeline_db storage")
+
+    def get_comments(self) -> list[dict[str, Any]]:
+        raise NotImplementedError("Comments are not supported in timeline_db storage")
+
+    def update_comment(self, comment_id: int, value: str) -> bool:
+        raise NotImplementedError("Comments are not supported in timeline_db storage")
+
+    def remove_comment(self, comment_id: int) -> bool:
+        raise NotImplementedError("Comments are not supported in timeline_db storage")

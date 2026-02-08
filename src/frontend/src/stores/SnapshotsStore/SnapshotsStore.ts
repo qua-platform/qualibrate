@@ -1,99 +1,161 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { SnapshotDTO } from "./api/SnapshotsApi";
+import {createSlice} from "@reduxjs/toolkit";
+import {SnapshotData, SnapshotDTO} from "./api/SnapshotsApi";
 
-interface SnapshotsState {
-  trackLatestSidePanel: boolean;
-  trackPreviousSnapshot: boolean;
-  totalPages: number;
-  pageNumber: number;
-  allSnapshots: SnapshotDTO[];
-  selectedSnapshotId: number | undefined;
-  latestSnapshotId: number | undefined;
-  clickedForSnapshotSelection: boolean;
-  jsonData: object | undefined;
-  jsonDataSidePanel: object | undefined;
-  diffData: object | undefined;
-  result: object | undefined;
-  firstId: string;
-  secondId: string;
-  reset: boolean;
+export enum SortType {
+    Name = "name",
+    Date = "date",
+    Status = "status",
+}
+
+export interface SnapshotsState {
+    trackLatestSidePanel: boolean;
+    trackPreviousSnapshot: boolean;
+    totalPages: number;
+    pageNumber: number;
+    allSnapshots: SnapshotDTO[];
+    isLoadingSnapshots: boolean;
+    snapshotsFilters: {
+        tags: string[],
+        sortType: SortType,
+        searchString: string,
+        minDate?: string,
+        maxDate?: string,
+    };
+    selectedSnapshot: SnapshotDTO | undefined;
+    selectedWorkflow: SnapshotDTO | undefined;
+    selectedNodeInWorkflowId: number | undefined;
+    breadCrumbs: string[];
+    allTags: string[];
+    selectedSnapshotId: number | undefined;
+    latestSnapshotId: number | undefined;
+    clickedForSnapshotSelection: boolean;
+    jsonData: SnapshotData | undefined | object;
+    jsonDataSidePanel: object | undefined;
+    diffData: object | undefined;
+    result: object | undefined;
+    firstId: string;
+    secondId: string;
 }
 
 const initialState: SnapshotsState = {
-  trackLatestSidePanel: true,
-  trackPreviousSnapshot: true,
-  totalPages: 0,
-  pageNumber: 0,
-  allSnapshots: [],
-  selectedSnapshotId: undefined,
-  latestSnapshotId: undefined,
-  clickedForSnapshotSelection: false,
-  jsonData: {},
-  jsonDataSidePanel: {},
-  diffData: undefined,
-  result: {},
-  firstId: "0",
-  secondId: "0",
-  reset: false,
+    trackLatestSidePanel: true,
+    trackPreviousSnapshot: true,
+    totalPages: 0,
+    pageNumber: 1,
+    allSnapshots: [],
+    isLoadingSnapshots: false,
+    snapshotsFilters: {
+        tags: [],
+        sortType: SortType.Date,
+        searchString: "",
+        minDate: "",
+        maxDate: "",
+    },
+    selectedSnapshot: undefined,
+    selectedWorkflow: undefined,
+    selectedNodeInWorkflowId: undefined,
+    breadCrumbs: [],
+    allTags: [],
+    selectedSnapshotId: undefined,
+    latestSnapshotId: undefined,
+    clickedForSnapshotSelection: false,
+    jsonData: {},
+    jsonDataSidePanel: {},
+    diffData: undefined,
+    result: {},
+    firstId: "0",
+    secondId: "0",
 };
 
 export const SnapshotsSlice = createSlice({
-  name: "snapshots",
-  initialState,
-  reducers: {
-    setTrackLatestSidePanel: (state, action) => {
-      state.trackLatestSidePanel = action.payload;
+    name: "snapshots",
+    initialState,
+    reducers: {
+        setTrackLatestSidePanel: (state, action) => {
+            state.trackLatestSidePanel = action.payload;
+        },
+        setTrackPreviousSnapshot: (state, action) => {
+            state.trackPreviousSnapshot = action.payload;
+        },
+        setPageNumber: (state, action) => {
+            if (state.pageNumber !== action.payload) {
+              state.pageNumber = action.payload;
+              state.isLoadingSnapshots = true;
+            }
+        },
+        setTotalPages: (state, action) => {
+            state.totalPages = action.payload;
+        },
+        setAllSnapshots: (state, action) => {
+            state.allSnapshots = action.payload;
+            state.isLoadingSnapshots = false;
+        },
+        setIsLoadingSnapshots: (state, action) => {
+          state.isLoadingSnapshots = action.payload;
+        },
+        setSnapshotsFilters: (state, action) => {
+          state.snapshotsFilters = action.payload;
+          state.isLoadingSnapshots = true;
+        },
+        setSelectedSnapshot: (state, action) => {
+            state.selectedSnapshot = action.payload;
+        },
+        setSelectedWorkflow: (state, action) => {
+            state.selectedWorkflow = action.payload;
+        },
+        setSelectedNodeInWorkflowId: (state, action) => {
+            state.selectedNodeInWorkflowId = action.payload;
+        },
+        setSubgraphForward: (state, action) => {
+            state.breadCrumbs = [...state.breadCrumbs, action.payload];
+        },
+        setSubgraphBack: (state, action) => {
+            state.breadCrumbs.splice(action.payload, state.breadCrumbs.length);
+        },
+        setAllTags: (state, action) => {
+            state.allTags = action.payload;
+        },
+        setSelectedSnapshotId: (state, action) => {
+            state.selectedSnapshotId = action.payload;
+        },
+        setLatestSnapshotId: (state, action) => {
+            state.latestSnapshotId = action.payload;
+        },
+        setClickedForSnapshotSelection: (state, action) => {
+            state.clickedForSnapshotSelection = action.payload;
+        },
+        setJsonData: (state, action) => {
+            state.jsonData = action.payload;
+        },
+        setJsonDataSidePanel: (state, action) => {
+            state.jsonDataSidePanel = action.payload;
+        },
+        setDiffData: (state, action) => {
+            state.diffData = action.payload;
+        },
+        clearData: (state) => {
+            state.selectedSnapshotId = undefined;
+            state.selectedSnapshot = undefined;
+            state.selectedWorkflow = undefined;
+            state.selectedNodeInWorkflowId = undefined;
+            state.jsonData = undefined;
+            state.result = undefined;
+            state.diffData = undefined;
+            state.isLoadingSnapshots = false;
+        },
+        setResult: (state, action) => {
+            state.result = action.payload;
+        },
+        setFirstId: (state, action) => {
+            state.firstId = action.payload;
+        },
+        setSecondId: (state, action) => {
+            state.secondId = action.payload;
+        },
+        setReset: (state, action) => {
+            state.isLoadingSnapshots = action.payload;
+        },
     },
-    setTrackPreviousSnapshot: (state, action) => {
-      state.trackPreviousSnapshot = action.payload;
-    },
-    setPageNumber: (state, action) => {
-      state.pageNumber = action.payload;
-    },
-    setTotalPages: (state, action) => {
-      state.totalPages = action.payload;
-    },
-    setAllSnapshots: (state, action) => {
-      state.allSnapshots = action.payload;
-    },
-    setSelectedSnapshotId: (state, action) => {
-      state.selectedSnapshotId = action.payload;
-    },
-    setLatestSnapshotId: (state, action) => {
-      state.latestSnapshotId = action.payload;
-    },
-    setClickedForSnapshotSelection: (state, action) => {
-      state.clickedForSnapshotSelection = action.payload;
-    },
-    setJsonData: (state, action) => {
-      state.jsonData = action.payload;
-    },
-    setJsonDataSidePanel: (state, action) => {
-      state.jsonDataSidePanel = action.payload;
-    },
-    setDiffData: (state, action) => {
-      state.diffData = action.payload;
-    },
-    clearData: (state) => {
-      state.selectedSnapshotId = undefined;
-      state.jsonData = undefined;
-      state.result = undefined;
-      state.diffData = undefined;
-      state.reset = true;
-    },
-    setResult: (state, action) => {
-      state.result = action.payload;
-    },
-    setFirstId: (state, action) => {
-      state.firstId = action.payload;
-    },
-    setSecondId: (state, action) => {
-      state.secondId = action.payload;
-    },
-    setReset: (state, action) => {
-      state.reset = action.payload;
-    },
-  }
 });
 
 export default SnapshotsSlice.reducer;

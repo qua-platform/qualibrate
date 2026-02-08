@@ -57,6 +57,31 @@ class SnapshotBaseCustom(SnapshotBase):
     ) -> Mapping[str, Mapping[str, Any] | None]:
         raise NotImplementedError()
 
+    # Tags/comments abstract methods from feat/tags-comments
+    def add_tag(self, tag: str) -> None:
+        raise NotImplementedError()
+
+    def remove_tag(self, tag: str) -> None:
+        raise NotImplementedError()
+
+    def get_tags(self) -> list[str]:
+        raise NotImplementedError()
+
+    def set_tags(self, tags: list[str]) -> None:
+        raise NotImplementedError()
+
+    def create_comment(self, content: str) -> Any:
+        raise NotImplementedError()
+
+    def get_comments(self) -> list[Any]:
+        raise NotImplementedError()
+
+    def update_comment(self, comment_id: str, content: str) -> None:
+        raise NotImplementedError()
+
+    def remove_comment(self, comment_id: str) -> None:
+        raise NotImplementedError()
+
 
 def test__items_keys():
     assert SnapshotBase._items_keys == ("data", "metadata")

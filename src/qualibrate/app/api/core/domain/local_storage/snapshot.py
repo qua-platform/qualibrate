@@ -1,7 +1,7 @@
 import json
 import logging
 from collections.abc import Mapping, MutableMapping, Sequence
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import (
     Any,
@@ -27,6 +27,9 @@ from qualibrate.app.api.core.domain.local_storage.utils.local_path_id import (
 )
 from qualibrate.app.api.core.domain.local_storage.utils.node_utils import (
     find_nodes_ids_by_filter,
+)
+from qualibrate.app.api.core.domain.local_storage.utils.snapshot_content import (
+    get_node_filepath,
 )
 from qualibrate.app.api.core.models.snapshot import MachineSearchResults
 from qualibrate.app.api.core.schemas.state_updates import StateUpdates
@@ -507,3 +510,352 @@ class SnapshotLocalStorage(SnapshotBase):
             raise QPathException("Unknown path to update") from ex
         except OSError:
             return False
+
+    # --- Tag Management Methods ---
+
+    def _load_node_json(self) -> dict[str, Any] | None:
+        """Load the raw node.json content.
+
+        Returns:
+            The parsed node.json content, or None if load fails.
+        """
+        try:
+            node_filepath = get_node_filepath(self.node_path)
+            if not node_filepath.is_file():
+                return None
+            with node_filepath.open("r") as f:
+                return dict(json.load(f))
+        except (json.JSONDecodeError, OSError) as ex:
+            logger.exception(f"Failed to load node.json for snapshot {self._id}", exc_info=ex)
+            return None
+
+    def _save_node_json(self, content: dict[str, Any]) -> bool:
+        """Save content to the node.json file.
+
+        Args:
+            content: The content to save.
+
+        Returns:
+            True if save succeeded, False otherwise.
+        """
+        try:
+            node_filepath = get_node_filepath(self.node_path)
+            with node_filepath.open("w") as f:
+                json.dump(content, f, indent=4, default=str)
+            return True
+        except OSError as ex:
+            logger.exception(f"Failed to save node.json for snapshot {self._id}", exc_info=ex)
+            return False
+
+    def get_tags(self) -> list[str]:
+        """Get the tags assigned to this snapshot.
+
+        Returns:
+            List of tag names, or empty list if no tags.
+        """
+        # First try from loaded metadata
+        if self.metadata is not None:
+            tags = self.metadata.get("tags", [])
+            if isinstance(tags, list):
+                return [t for t in tags if isinstance(t, str)]
+
+        # Fall back to reading from node.json
+        node_content = self._load_node_json()
+        if node_content is None:
+            return []
+
+        metadata = node_content.get("metadata", {})
+        tags = metadata.get("tags", [])
+        if isinstance(tags, list):
+            return [t for t in tags if isinstance(t, str)]
+        return []
+
+    def _write_tags(self, tags: list[str]) -> bool:
+        """Internal method to persist tags to node.json.
+
+        This is the core tag persistence logic used by set_tags, add_tag,
+        and remove_tag. Separating this allows the public set_tags method
+        to have its own validation without affecting internal operations.
+
+        Args:
+            tags: List of tag names to write (should already be cleaned).
+
+        Returns:
+            True if tags were written successfully, False otherwise.
+        """
+        node_content = self._load_node_json()
+        if node_content is None:
+            return False
+
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+
+        node_content["metadata"]["tags"] = tags
+
+        # Persist to disk and update in-memory cache
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["tags"] = tags
+            logger.info(f"Tags written for snapshot {self._id}: {tags}")
+            return True
+        return False
+
+    def set_tags(self, tags: list[str]) -> bool:
+        """Set the tags for this snapshot (replaces existing tags).
+
+        Args:
+            tags: List of tag names to set.
+
+        Returns:
+            True if tags were set successfully, False otherwise.
+        """
+        logger.debug(f"Setting tags for snapshot {self._id}: {tags}")
+
+        # Early failure check: verify node.json can be loaded before doing
+        # the work of cleaning tags (efficiency improvement per review feedback)
+        node_content = self._load_node_json()
+        if node_content is None:
+            logger.warning(f"Cannot set tags - failed to load node.json for snapshot {self._id}")
+            return False
+
+        # Filter out empty strings and duplicates
+        clean_tags = list(dict.fromkeys(t.strip() for t in tags if t and t.strip()))
+
+        # Now proceed with writing (pass pre-loaded content to avoid double load)
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+
+        node_content["metadata"]["tags"] = clean_tags
+
+        # Persist to disk and update in-memory cache
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["tags"] = clean_tags
+            logger.info(f"Tags set for snapshot {self._id}: {clean_tags}")
+            return True
+        return False
+
+    def add_tag(self, tag: str) -> bool:
+        """Add a tag to this snapshot.
+
+        Args:
+            tag: The tag name to add.
+
+        Returns:
+            True if tag was added (or already exists), False on error.
+        """
+        if not tag or not tag.strip():
+            logger.warning(f"Cannot add empty tag to snapshot {self._id}")
+            return False
+
+        tag = tag.strip()
+        current_tags = self.get_tags()
+
+        if tag in current_tags:
+            # Already has this tag
+            logger.debug(f"Tag '{tag}' already exists on snapshot {self._id}")
+            return True
+
+        current_tags.append(tag)
+        return self._write_tags(current_tags)
+
+    def remove_tag(self, tag: str) -> bool:
+        """Remove a tag from this snapshot.
+
+        Args:
+            tag: The tag name to remove.
+
+        Returns:
+            True if tag was removed (or didn't exist), False on error.
+        """
+        if not tag or not tag.strip():
+            logger.warning(f"Cannot remove empty tag from snapshot {self._id}")
+            return False
+
+        tag = tag.strip()
+        current_tags = self.get_tags()
+
+        if tag not in current_tags:
+            # Doesn't have this tag
+            logger.debug(f"Tag '{tag}' not found on snapshot {self._id}")
+            return True
+
+        current_tags.remove(tag)
+        return self._write_tags(current_tags)
+
+    # --- Comment Management Methods ---
+
+    def _get_comments_list(self, node_content: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+        """Get comments list from node content or load from file.
+
+        Args:
+            node_content: Pre-loaded node content, or None to load from file.
+
+        Returns:
+            List of comment dictionaries.
+        """
+        if node_content is None:
+            node_content = self._load_node_json()
+        if node_content is None:
+            return []
+
+        metadata = node_content.get("metadata", {})
+        comments = metadata.get("comments", [])
+        if isinstance(comments, list):
+            return [c for c in comments if isinstance(c, dict)]
+        return []
+
+    def _next_comment_id(self, comments: list[dict[str, Any]]) -> int | Any:
+        """Generate the next comment ID.
+
+        Args:
+            comments: Existing comments list.
+
+        Returns:
+            The next available ID.
+        """
+        if not comments:
+            return 1
+        return max(c.get("id", 0) for c in comments) + 1
+
+    def get_comments(self) -> list[dict[str, Any]]:
+        """Get all comments for this snapshot.
+
+        Returns:
+            List of comment dictionaries with id, value, and created_at fields.
+        """
+        # First try from loaded metadata
+        if self.metadata is not None:
+            comments = self.metadata.get("comments", [])
+            if isinstance(comments, list):
+                return [c for c in comments if isinstance(c, dict)]
+
+        # Fall back to reading from node.json
+        return self._get_comments_list()
+
+    def create_comment(self, value: str) -> dict[str, Any] | None:
+        """Create a new comment on this snapshot.
+
+        Args:
+            value: The comment text.
+
+        Returns:
+            The created comment dict with id, value, created_at, or None on error.
+        """
+        logger.debug(f"Creating comment for snapshot {self._id}")
+        if not value or not value.strip():
+            logger.warning(f"Cannot create empty comment on snapshot {self._id}")
+            return None
+
+        value = value.strip()
+        node_content = self._load_node_json()
+        if node_content is None:
+            return None
+
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+
+        comments = self._get_comments_list(node_content)
+        new_comment = {
+            "id": self._next_comment_id(comments),
+            "value": value,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        comments.append(new_comment)
+        node_content["metadata"]["comments"] = comments
+
+        # Persist to disk and update in-memory cache
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["comments"] = comments
+            logger.info(f"Created comment (id={new_comment['id']}) for snapshot {self._id}")
+            return new_comment
+        return None
+
+    def update_comment(self, comment_id: int, value: str) -> bool:
+        """Update an existing comment.
+
+        Args:
+            comment_id: The ID of the comment to update.
+            value: The new comment text.
+
+        Returns:
+            True if comment was updated, False if not found or on error.
+        """
+        logger.debug(f"Updating comment {comment_id} for snapshot {self._id}")
+        if not value or not value.strip():
+            logger.warning(f"Cannot update comment {comment_id} with empty value on snapshot {self._id}")
+            return False
+
+        value = value.strip()
+        node_content = self._load_node_json()
+        if node_content is None:
+            return False
+
+        comments = self._get_comments_list(node_content)
+
+        # Find the comment to update
+        comment_found = False
+        for comment in comments:
+            if comment.get("id") == comment_id:
+                comment["value"] = value
+                comment_found = True
+                break
+
+        if not comment_found:
+            logger.warning(f"Comment {comment_id} not found on snapshot {self._id}")
+            return False
+
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+        node_content["metadata"]["comments"] = comments
+
+        # Persist to disk and update in-memory cache
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["comments"] = comments
+            logger.info(f"Updated comment {comment_id} for snapshot {self._id}")
+            return True
+        return False
+
+    def remove_comment(self, comment_id: int) -> bool:
+        """Remove a comment from this snapshot.
+
+        Args:
+            comment_id: The ID of the comment to remove.
+
+        Returns:
+            True if comment was removed (or didn't exist), False on error.
+        """
+        logger.debug(f"Removing comment {comment_id} from snapshot {self._id}")
+        node_content = self._load_node_json()
+        if node_content is None:
+            return False
+
+        comments = self._get_comments_list(node_content)
+        original_count = len(comments)
+
+        # Filter out the comment with the given ID
+        comments = [c for c in comments if c.get("id") != comment_id]
+
+        # If nothing changed, the comment didn't exist - return True (idempotent)
+        if len(comments) == original_count:
+            logger.debug(f"Comment {comment_id} not found on snapshot {self._id}")
+            return True
+
+        if "metadata" not in node_content:
+            node_content["metadata"] = {}
+        node_content["metadata"]["comments"] = comments
+
+        # Persist to disk and update in-memory cache
+        if self._save_node_json(node_content):
+            # Update in-memory content if loaded
+            if self.content.get("metadata") is not None:
+                self.content["metadata"]["comments"] = comments
+            logger.info(f"Removed comment {comment_id} from snapshot {self._id}")
+            return True
+        return False

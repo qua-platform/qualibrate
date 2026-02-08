@@ -1,0 +1,62 @@
+.qubitCard {
+  padding: 12px 16px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.qubitCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.qubitName {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Courier New", monospace;
+  color: #c9d1d9;
+}
+
+.qubitStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.failure {
+  background: #f85149;
+  color: #f85149;
+}
+
+.statusText {
+  font-size: 12px;
+  width: 60px;
+}
+
+.failureDetails {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #30363d;
+}
+
+.failureLabel {
+  font-size: 10px;
+  color: #7d8590;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.failureValue {
+  font-size: 12px;
+  font-family: "Courier New", monospace;
+  font-weight: 600;
+}
