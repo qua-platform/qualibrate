@@ -88,9 +88,7 @@ class BranchLocalStorage(BranchBase):
 
         This is used to calculate the total count of filtered items.
         """
-        storage = IdToLocalPath().get_project_manager(
-            self._settings.project, storage_location
-        )
+        storage = IdToLocalPath().get_project_manager(self._settings.project, storage_location)
         return storage.get_ids(search_filter)
 
     def _get_latest_snapshots_ids(
@@ -126,10 +124,7 @@ class BranchLocalStorage(BranchBase):
             search_filter=search_filter,
             descending=descending,
         )
-        snapshots = [
-            SnapshotLocalStorage(id, settings=self._settings)
-            for id in ids_paged
-        ]
+        snapshots = [SnapshotLocalStorage(id, settings=self._settings) for id in ids_paged]
         # Load metadata, and optionally outcomes data for workflow aggregation
         load_flag = SnapshotLoadTypeFlag.Metadata
         if include_outcomes:

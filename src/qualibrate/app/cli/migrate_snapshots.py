@@ -117,9 +117,7 @@ def run_migration(
 
 def main() -> int:
     """Main entry point for the migration script."""
-    parser = argparse.ArgumentParser(
-        description="Migrate existing snapshots to add type_of_execution field."
-    )
+    parser = argparse.ArgumentParser(description="Migrate existing snapshots to add type_of_execution field.")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -130,9 +128,7 @@ def main() -> int:
         type=Path,
         help="Path to the data directory. If not provided, uses config.",
     )
-    parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Print details for each file."
-    )
+    parser.add_argument("--verbose", "-v", action="store_true", help="Print details for each file.")
     args = parser.parse_args()
 
     # Get data path from config if not provided
@@ -148,10 +144,7 @@ def main() -> int:
             qs = get_qualibrate_config(q_config_path)
 
             if qs.storage.type != StorageType.local_storage:
-                print(
-                    f"ERROR: Migration only supports local_storage, "
-                    f"got {qs.storage.type}"
-                )
+                print(f"ERROR: Migration only supports local_storage, got {qs.storage.type}")
                 return 1
 
             data_path = qs.storage.location
@@ -167,9 +160,7 @@ def main() -> int:
     print(f"Data path: {data_path}")
     print()
 
-    total, modified, errors = run_migration(
-        data_path, dry_run=args.dry_run, verbose=args.verbose
-    )
+    total, modified, errors = run_migration(data_path, dry_run=args.dry_run, verbose=args.verbose)
 
     print()
     print("=" * 50)

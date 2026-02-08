@@ -146,9 +146,7 @@ class BranchTimelineDb(BranchBase):
         Note: include_outcomes is accepted for API compatibility but timeline_db
         loads full snapshot content from the remote server.
         """
-        total, snapshots = self._get_remote_snapshots(
-            True, pages_filter, descending
-        )
+        total, snapshots = self._get_remote_snapshots(True, pages_filter, descending)
         return total, [
             SnapshotTimelineDb(id=snapshot["id"], content=snapshot, settings=self._settings) for snapshot in snapshots
         ]

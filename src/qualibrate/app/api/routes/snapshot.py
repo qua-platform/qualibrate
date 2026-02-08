@@ -18,10 +18,10 @@ from qualibrate.app.api.core.domain.local_storage.snapshot import (
     SnapshotLocalStorage,
     logger,
 )
+from qualibrate.app.api.core.domain.local_storage.tag_registry import TagRegistry
 from qualibrate.app.api.core.domain.timeline_db.snapshot import (
     SnapshotTimelineDb,
 )
-from qualibrate.app.api.core.domain.local_storage.tag_registry import TagRegistry
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
     MachineSearchResults,
@@ -29,14 +29,14 @@ from qualibrate.app.api.core.models.snapshot import (
     SimplifiedSnapshotWithMetadata,
 )
 from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
-from qualibrate.app.api.core.schemas.state_updates import (
-    StateUpdateRequestItems,
-)
 from qualibrate.app.api.core.schemas.comment import (
     Comment,
     CommentCreateRequest,
     CommentRemoveRequest,
     CommentUpdateRequest,
+)
+from qualibrate.app.api.core.schemas.state_updates import (
+    StateUpdateRequestItems,
 )
 from qualibrate.app.api.core.schemas.tag import TagNameRequest, TagsAssignRequest
 from qualibrate.app.api.core.types import (
@@ -108,9 +108,7 @@ def _compute_aggregated_outcomes_for_workflow(
         for snapshot_id in snapshot_ids:
             try:
                 child_snapshot = snapshot_class(id=snapshot_id, settings=settings)
-                child_snapshot.load_from_flag(
-                    SnapshotLoadTypeFlag.Metadata | SnapshotLoadTypeFlag.DataWithoutRefs
-                )
+                child_snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata | SnapshotLoadTypeFlag.DataWithoutRefs)
                 child_content = child_snapshot.content
                 child_metadata = child_content.get("metadata", {})
                 child_data = child_content.get("data", {})
@@ -131,46 +129,31 @@ def _compute_aggregated_outcomes_for_workflow(
                     # This is a leaf node - collect its outcomes
                     node_failed = node_status in ("error", "failed")
                     raw_outcomes = child_data.get("outcomes") if child_data else None
-                    
+
                     logger_local.info(
-                        f"  Leaf node {snapshot_id}: node_failed={node_failed}, "
-                        f"raw_outcomes={raw_outcomes}"
+                        f"  Leaf node {snapshot_id}: node_failed={node_failed}, raw_outcomes={raw_outcomes}"
                     )
-                    
+
                     if raw_outcomes and isinstance(raw_outcomes, dict):
                         for qubit, outcome_value in raw_outcomes.items():
                             outcome_str = str(outcome_value).lower()
-                            
+
                             # If node has error/failed status, mark all qubits as failed
                             if node_failed:
-                                if (
-                                    qubit not in aggregated_outcomes
-                                    or aggregated_outcomes[qubit].status != "failure"
-                                ):
-                                    aggregated_outcomes[qubit] = QubitOutcome(
-                                        status="failure", failed_on=node_name
-                                    )
+                                if qubit not in aggregated_outcomes or aggregated_outcomes[qubit].status != "failure":
+                                    aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
                                     logger_local.info(
-                                        f"  Marking {qubit} as FAILED (node status={node_status}) "
-                                        f"on {node_name}"
+                                        f"  Marking {qubit} as FAILED (node status={node_status}) on {node_name}"
                                     )
                             elif outcome_str in ("successful", "success"):
                                 if qubit not in aggregated_outcomes:
-                                    aggregated_outcomes[qubit] = QubitOutcome(
-                                        status="success"
-                                    )
+                                    aggregated_outcomes[qubit] = QubitOutcome(status="success")
                             elif outcome_str in ("failed", "failure", "error"):
                                 # Keep the first failure (the node that failed first)
-                                if (
-                                    qubit not in aggregated_outcomes
-                                    or aggregated_outcomes[qubit].status != "failure"
-                                ):
-                                    aggregated_outcomes[qubit] = QubitOutcome(
-                                        status="failure", failed_on=node_name
-                                    )
+                                if qubit not in aggregated_outcomes or aggregated_outcomes[qubit].status != "failure":
+                                    aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
                                     logger_local.info(
-                                        f"  Marking {qubit} as FAILED (outcome={outcome_str}) "
-                                        f"on {node_name}"
+                                        f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}"
                                     )
                     elif node_failed:
                         # Node has error status but no outcomes recorded
@@ -183,16 +166,10 @@ def _compute_aggregated_outcomes_for_workflow(
                         )
                         for qubit in list(aggregated_outcomes.keys()):
                             if aggregated_outcomes[qubit].status == "success":
-                                aggregated_outcomes[qubit] = QubitOutcome(
-                                    status="failure", failed_on=node_name
-                                )
-                                logger_local.info(
-                                    f"  Overriding {qubit} to FAILED on {node_name}"
-                                )
+                                aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
+                                logger_local.info(f"  Overriding {qubit} to FAILED on {node_name}")
             except Exception as e:
-                logger_local.warning(
-                    f"Failed to load child snapshot {snapshot_id}: {e}"
-                )
+                logger_local.warning(f"Failed to load child snapshot {snapshot_id}: {e}")
 
     _collect_outcomes_recursive(children_ids)
     return aggregated_outcomes if aggregated_outcomes else None
@@ -213,21 +190,15 @@ def get(
     metadata = snapshot.content.get("metadata", {})
     children = metadata.get("children")
     if children and isinstance(children, list) and len(children) > 0:
-        aggregated_outcomes = _compute_aggregated_outcomes_for_workflow(
-            settings, metadata
-        )
+        aggregated_outcomes = _compute_aggregated_outcomes_for_workflow(settings, metadata)
         if aggregated_outcomes:
             # Put aggregated outcomes in data.outcomes
             if result.data is None:
                 from qualibrate.app.api.core.models.snapshot import SnapshotData
+
                 result.data = SnapshotData()
-            result.data.outcomes = {
-                qubit: outcome.model_dump() for qubit, outcome in aggregated_outcomes.items()
-            }
-            logger_local.debug(
-                f"Computed outcomes with failed_on for workflow {snapshot.id}: "
-                f"{result.data.outcomes}"
-            )
+            result.data.outcomes = {qubit: outcome.model_dump() for qubit, outcome in aggregated_outcomes.items()}
+            logger_local.debug(f"Computed outcomes with failed_on for workflow {snapshot.id}: {result.data.outcomes}")
 
     return result
 
@@ -566,7 +537,7 @@ def create_comment(
     return Comment(
         id=comment["id"],
         value=comment["value"],
-        createdAt=comment["created_at"],
+        created_at=comment["created_at"],
     )
 
 
@@ -643,7 +614,7 @@ def get_comments(
         Comment(
             id=c["id"],
             value=c["value"],
-            createdAt=c["created_at"],
+            created_at=c["created_at"],
         )
         for c in comments
     ]

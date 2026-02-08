@@ -4,7 +4,7 @@ from collections.abc import Mapping
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from types import TracebackType
-from typing import Literal, get_args
+from typing import Literal, cast, get_args
 
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
@@ -38,6 +38,8 @@ __all__ = [
 
 
 class LazyInitLogger(logging.Logger):
+    in_memory_handler: InMemoryLogHandler
+
     def __init__(self, name: str, level: int | str = 0) -> None:
         super().__init__(name, level or logging.DEBUG)
         self.in_memory_handler = InMemoryLogHandler()
@@ -105,7 +107,8 @@ _manager = logging.Logger.manager
 _default_logger_class = _manager.loggerClass
 # Temporary replace default logger class with our lazy init
 _manager.setLoggerClass(LazyInitLogger)
-logger = logging.getLogger("qualibrate")
+# Cast to LazyInitLogger since that's what it actually is at runtime
+logger = cast(LazyInitLogger, logging.getLogger("qualibrate"))
 if _default_logger_class is not None:
     _manager.setLoggerClass(_default_logger_class)
 else:

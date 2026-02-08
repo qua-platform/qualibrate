@@ -181,9 +181,7 @@ class TestBuildSnapshotTree:
     def test_nested_workflows(self):
         """Test nested workflow structure."""
         snapshots = [
-            create_snapshot(
-                1, name="outer_workflow", type_of_execution="workflow", children=[2]
-            ),
+            create_snapshot(1, name="outer_workflow", type_of_execution="workflow", children=[2]),
             create_snapshot(
                 2,
                 name="inner_workflow",
@@ -220,7 +218,7 @@ class TestBuildSnapshotTree:
 
     def test_items_with_workflow_parent_id_filtered_from_top_level(self):
         """Test that items with workflow_parent_id don't appear at top level.
-        
+
         This handles the case where a child workflow is running but its parent
         workflow hasn't finished yet (so the parent isn't in the result set).
         """
@@ -241,8 +239,7 @@ class TestBuildSnapshotTree:
 
         # None of these should appear at top level because they all have
         # workflow_parent_id set (meaning they belong to a parent workflow)
-        assert len(result) == 0, \
-            "Items with workflow_parent_id should not appear at top level"
+        assert len(result) == 0, "Items with workflow_parent_id should not appear at top level"
 
     def test_standalone_items_appear_at_top_level(self):
         """Test that items without workflow_parent_id appear at top level."""
@@ -281,9 +278,7 @@ class TestComputeWorkflowAggregates:
     def test_workflow_with_successful_nodes(self):
         """Test workflow with all successful nodes."""
         snapshots = [
-            create_snapshot(
-                1, type_of_execution="workflow", children=[2, 3], status="finished"
-            ),
+            create_snapshot(1, type_of_execution="workflow", children=[2, 3], status="finished"),
             create_snapshot(2, status="finished"),
             create_snapshot(3, status="success"),
         ]
@@ -297,9 +292,7 @@ class TestComputeWorkflowAggregates:
     def test_workflow_with_failed_nodes(self):
         """Test workflow with failed nodes."""
         snapshots = [
-            create_snapshot(
-                1, type_of_execution="workflow", children=[2, 3], status="finished"
-            ),
+            create_snapshot(1, type_of_execution="workflow", children=[2, 3], status="finished"),
             create_snapshot(2, name="good_node", status="finished"),
             create_snapshot(3, name="bad_node", status="error"),
         ]
@@ -332,9 +325,7 @@ class TestCountNestedItems:
     def test_nested_items(self):
         """Test counting with nested items."""
         snapshots = [
-            create_snapshot(
-                1, type_of_execution="workflow", children=[2, 3], status="finished"
-            ),
+            create_snapshot(1, type_of_execution="workflow", children=[2, 3], status="finished"),
             create_snapshot(2),
             create_snapshot(3),
         ]
@@ -483,9 +474,7 @@ class TestFetchMissingChildrenCallback:
         """Test that callback is called to fetch missing children."""
         # Create workflow that references children not in initial list
         initial_snapshots = [
-            create_snapshot(
-                1, name="workflow", type_of_execution="workflow", children=[2, 3]
-            ),
+            create_snapshot(1, name="workflow", type_of_execution="workflow", children=[2, 3]),
         ]
 
         # Simulate callback that returns missing children
@@ -512,9 +501,7 @@ class TestFetchMissingChildrenCallback:
     def test_build_tree_without_callback(self):
         """Test that missing children are skipped without callback."""
         snapshots = [
-            create_snapshot(
-                1, name="workflow", type_of_execution="workflow", children=[2, 3, 99]
-            ),
+            create_snapshot(1, name="workflow", type_of_execution="workflow", children=[2, 3, 99]),
             create_snapshot(2, name="child1"),
             create_snapshot(3, name="child2"),
             # 99 is missing
@@ -529,9 +516,7 @@ class TestFetchMissingChildrenCallback:
     def test_recursive_fetch_for_nested_workflows(self):
         """Test that callback recursively fetches children of nested workflows."""
         initial = [
-            create_snapshot(
-                1, name="outer", type_of_execution="workflow", children=[2]
-            ),
+            create_snapshot(1, name="outer", type_of_execution="workflow", children=[2]),
         ]
 
         # First fetch returns inner workflow, second fetch returns its children
@@ -906,15 +891,14 @@ class TestNestedWorkflowScenario:
         assert len(outer_workflow.items) == 3
 
         nested_workflow = next(
-            item for item in outer_workflow.items
-            if item.metadata.name == "coherence_characterization"
+            item for item in outer_workflow.items if item.metadata.name == "coherence_characterization"
         )
         assert nested_workflow.type_of_execution == ExecutionType.workflow
         assert len(nested_workflow.items) == 2
 
     def test_correct_node_counts_with_nested_workflow(self):
         """Test that node counts are correct for nested workflows.
-        
+
         IMPORTANT: Subgraphs count as 1 node, NOT the sum of their internal nodes.
         """
         snapshots = [
@@ -947,11 +931,10 @@ class TestNestedWorkflowScenario:
         # Total = 3, NOT 5
         assert outer_workflow.nodes_total == 3
         assert outer_workflow.nodes_completed == 3  # All finished
-        
+
         # The nested workflow (coherence_characterization) has 2 direct children
         nested_workflow = next(
-            item for item in outer_workflow.items
-            if item.metadata.name == "coherence_characterization"
+            item for item in outer_workflow.items if item.metadata.name == "coherence_characterization"
         )
         assert nested_workflow.nodes_total == 2
         assert nested_workflow.nodes_completed == 2
@@ -1024,8 +1007,7 @@ class TestNestedWorkflowScenario:
 
         # Check nested workflow has its own outcomes
         nested_workflow = next(
-            item for item in outer_workflow.items
-            if item.metadata.name == "coherence_characterization"
+            item for item in outer_workflow.items if item.metadata.name == "coherence_characterization"
         )
         assert nested_workflow.outcomes is not None
 
@@ -1152,9 +1134,9 @@ class TestOnTheFlyWorkflowDetection:
 
     def test_children_override_incorrect_node_type(self):
         """Test that having children overrides incorrect 'node' type (the bug fix).
-        
+
         This tests the exact scenario from 10_basic_graph_composition where
-        coherence_characterization was saved with type_of_execution='node' 
+        coherence_characterization was saved with type_of_execution='node'
         but has children=[1304, 1305], so it should be treated as a workflow.
         """
         # Create metadata that incorrectly says "node" but has children
@@ -1162,7 +1144,7 @@ class TestOnTheFlyWorkflowDetection:
             "name": "coherence_characterization",
             "status": "finished",
             "type_of_execution": "node",  # Incorrectly set as node!
-            "children": [1304, 1305],      # But it HAS children!
+            "children": [1304, 1305],  # But it HAS children!
             "workflow_parent_id": 1301,
         }
         metadata = SnapshotMetadata(**metadata_dict)
@@ -1183,7 +1165,7 @@ class TestOnTheFlyWorkflowDetection:
 
     def test_tree_building_with_incorrectly_typed_nested_workflow(self):
         """Test full tree building with incorrectly typed nested workflow.
-        
+
         This simulates the exact 10_basic_graph_composition bug where:
         - coherence_characterization is saved as type_of_execution="node"
         - But it has children [1304, 1305]
@@ -1208,7 +1190,7 @@ class TestOnTheFlyWorkflowDetection:
                 1303,
                 name="coherence_characterization",
                 type_of_execution="node",  # BUG: incorrectly set as node
-                children=[1304, 1305],      # But it HAS children
+                children=[1304, 1305],  # But it HAS children
                 workflow_parent_id=1301,
                 status="finished",
             ),
@@ -1254,12 +1236,12 @@ class TestOnTheFlyWorkflowDetection:
         # The key assertion: despite being stored as "node", it should be
         # detected as workflow because it has children
         assert nested_workflow is not None
-        assert nested_workflow.type_of_execution == ExecutionType.workflow, \
+        assert nested_workflow.type_of_execution == ExecutionType.workflow, (
             "coherence_characterization should be detected as workflow because it has children"
-        
+        )
+
         # Its items should be populated with the children
-        assert nested_workflow.items is not None, \
-            "Nested workflow items should not be null"
+        assert nested_workflow.items is not None, "Nested workflow items should not be null"
         assert len(nested_workflow.items) == 2
         assert {item.id for item in nested_workflow.items} == {1304, 1305}
 
@@ -1271,7 +1253,7 @@ class TestOnTheFlyWorkflowDetection:
         # Total = 3, NOT 5 (subgraphs don't count their internal nodes)
         assert outer_workflow.nodes_total == 3
         assert outer_workflow.nodes_completed == 3
-        
+
         # Nested workflow has 2 direct children
         assert nested_workflow.nodes_total == 2
         assert nested_workflow.nodes_completed == 2

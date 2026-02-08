@@ -45,9 +45,7 @@ class SnapshotJsonHandler:
         pattern = f"*/#{snapshot_idx}_*"
         matches = list(self.root_data_folder.glob(pattern))
         if not matches:
-            logger.warning(
-                f"Snapshot {snapshot_idx} not found in {self.root_data_folder}"
-            )
+            logger.warning(f"Snapshot {snapshot_idx} not found in {self.root_data_folder}")
             return None
         return matches[0] / "node.json"
 
@@ -70,9 +68,7 @@ class SnapshotJsonHandler:
             logger.exception(f"Failed to parse {node_json_path}", exc_info=ex)
             return None
 
-    def write_node_json(
-        self, node_json_path: Path, content: dict[str, "Any"]
-    ) -> bool:
+    def write_node_json(self, node_json_path: Path, content: dict[str, "Any"]) -> bool:
         """Write content to a node.json file.
 
         Args:
@@ -106,9 +102,7 @@ class SnapshotJsonHandler:
             return None
         return self.read_node_json(path)
 
-    def write_snapshot(
-        self, snapshot_idx: int, content: dict[str, "Any"]
-    ) -> bool:
+    def write_snapshot(self, snapshot_idx: int, content: dict[str, "Any"]) -> bool:
         """Write content to a snapshot's node.json file by its ID.
 
         Convenience method that combines get_node_json_path and write_node_json.

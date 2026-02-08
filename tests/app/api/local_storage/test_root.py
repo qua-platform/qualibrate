@@ -353,12 +353,8 @@ def test_root_get_node_default(
     dfss_history,
 ):
     node_id = 3
-    response = client_custom_settings.get(
-        "/api/root/node", params={"id": node_id}
-    )
-    snapshot = _utils_test.add_tags_to_snapshot(
-        snapshots_history[len(dfss_history) - node_id]
-    )
+    response = client_custom_settings.get("/api/root/node", params={"id": node_id})
+    snapshot = _utils_test.add_tags_to_snapshot(snapshots_history[len(dfss_history) - node_id])
 
     dfs = dfss_history[len(dfss_history) - node_id]
     assert response.status_code == 200
@@ -383,9 +379,7 @@ def test_root_get_node_load_type(
         "/api/root/node",
         params={"id": node_id, "load_type": load_type},
     )
-    snapshot = _utils_test.add_tags_to_snapshot(
-        snapshots_history[len(snapshots_history) - node_id]
-    )
+    snapshot = _utils_test.add_tags_to_snapshot(snapshots_history[len(snapshots_history) - node_id])
     dfs_value = dfss_history[len(dfss_history) - node_id] if dfs else None
     assert response.status_code == 200
     assert response.json() == {
@@ -503,9 +497,7 @@ def test_root_snapshots_history_paged(
         "total_items": 9,
         "total_pages": total_pages,
         "has_next_page": has_next_page,
-        "items": _utils_test.add_tags_to_snapshots(
-            snapshots_history[expected_range[0] : expected_range[1]]
-        ),
+        "items": _utils_test.add_tags_to_snapshots(snapshots_history[expected_range[0] : expected_range[1]]),
     }
 
 
@@ -521,19 +513,13 @@ def test_root_nodes_history_default_args(client_custom_settings, snapshots_histo
         "has_next_page": False,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-            for snapshot, dfs in zip(
-                snapshots_with_tags, dfss_history, strict=False
-            )
+            for snapshot, dfs in zip(snapshots_with_tags, dfss_history, strict=False)
         ],
     }
 
 
-def test_root_nodes_history_ascending(
-    client_custom_settings, snapshots_history, dfss_history
-):
-    response = client_custom_settings.get(
-        "/api/root/nodes_history", params={"descending": False}
-    )
+def test_root_nodes_history_ascending(client_custom_settings, snapshots_history, dfss_history):
+    response = client_custom_settings.get("/api/root/nodes_history", params={"descending": False})
     snapshots_with_tags = _utils_test.add_tags_to_snapshots(snapshots_history[::-1])
     assert response.status_code == 200
     assert response.json() == {
@@ -544,9 +530,7 @@ def test_root_nodes_history_ascending(
         "has_next_page": False,
         "items": [
             {"id": snapshot["id"], "snapshot": snapshot, "storage": dfs}
-            for snapshot, dfs in zip(
-                snapshots_with_tags, dfss_history[::-1], strict=False
-            )
+            for snapshot, dfs in zip(snapshots_with_tags, dfss_history[::-1], strict=False)
         ],
     }
 

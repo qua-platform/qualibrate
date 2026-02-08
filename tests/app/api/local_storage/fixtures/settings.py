@@ -63,9 +63,7 @@ def client_custom_settings(
     settings_path_filled: Path,
 ) -> Generator[TestClient, None, None]:
     get_config_path.cache_clear()
-    project_path = get_project_path(
-        settings_path_filled.parent, settings.project
-    )
+    project_path = get_project_path(settings_path_filled.parent, settings.project)
     project_path.mkdir(parents=True, exist_ok=True)
 
     (project_path / "config.toml").touch()

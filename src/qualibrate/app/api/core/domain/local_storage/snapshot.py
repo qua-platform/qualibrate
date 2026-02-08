@@ -28,6 +28,9 @@ from qualibrate.app.api.core.domain.local_storage.utils.local_path_id import (
 from qualibrate.app.api.core.domain.local_storage.utils.node_utils import (
     find_nodes_ids_by_filter,
 )
+from qualibrate.app.api.core.domain.local_storage.utils.snapshot_content import (
+    get_node_filepath,
+)
 from qualibrate.app.api.core.models.snapshot import MachineSearchResults
 from qualibrate.app.api.core.schemas.state_updates import StateUpdates
 from qualibrate.app.api.core.types import (
@@ -41,9 +44,6 @@ from qualibrate.app.api.core.utils.path.node import NodePath
 from qualibrate.app.api.core.utils.slice import get_page_slice
 from qualibrate.app.api.core.utils.snapshots_compare import jsonpatch_to_mapping
 from qualibrate.app.api.core.utils.types_parsing import TYPE_TO_STR
-from qualibrate.app.api.core.domain.local_storage.utils.snapshot_content import (
-    get_node_filepath,
-)
 from qualibrate.app.api.exceptions.classes.storage import (
     QFileNotFoundException,
     QPathException,
@@ -687,9 +687,7 @@ class SnapshotLocalStorage(SnapshotBase):
 
     # --- Comment Management Methods ---
 
-    def _get_comments_list(
-        self, node_content: dict[str, Any] | None = None
-    ) -> list[dict[str, Any]]:
+    def _get_comments_list(self, node_content: dict[str, Any] | None = None) -> list[dict[str, Any]]:
         """Get comments list from node content or load from file.
 
         Args:
@@ -709,7 +707,7 @@ class SnapshotLocalStorage(SnapshotBase):
             return [c for c in comments if isinstance(c, dict)]
         return []
 
-    def _next_comment_id(self, comments: list[dict[str, Any]]) -> int:
+    def _next_comment_id(self, comments: list[dict[str, Any]]) -> int | Any:
         """Generate the next comment ID.
 
         Args:
@@ -773,9 +771,7 @@ class SnapshotLocalStorage(SnapshotBase):
             # Update in-memory content if loaded
             if self.content.get("metadata") is not None:
                 self.content["metadata"]["comments"] = comments
-            logger.info(
-                f"Created comment (id={new_comment['id']}) for snapshot {self._id}"
-            )
+            logger.info(f"Created comment (id={new_comment['id']}) for snapshot {self._id}")
             return new_comment
         return None
 
@@ -791,10 +787,7 @@ class SnapshotLocalStorage(SnapshotBase):
         """
         logger.debug(f"Updating comment {comment_id} for snapshot {self._id}")
         if not value or not value.strip():
-            logger.warning(
-                f"Cannot update comment {comment_id} with empty value "
-                f"on snapshot {self._id}"
-            )
+            logger.warning(f"Cannot update comment {comment_id} with empty value on snapshot {self._id}")
             return False
 
         value = value.strip()
@@ -813,9 +806,7 @@ class SnapshotLocalStorage(SnapshotBase):
                 break
 
         if not comment_found:
-            logger.warning(
-                f"Comment {comment_id} not found on snapshot {self._id}"
-            )
+            logger.warning(f"Comment {comment_id} not found on snapshot {self._id}")
             return False
 
         if "metadata" not in node_content:
@@ -853,9 +844,7 @@ class SnapshotLocalStorage(SnapshotBase):
 
         # If nothing changed, the comment didn't exist - return True (idempotent)
         if len(comments) == original_count:
-            logger.debug(
-                f"Comment {comment_id} not found on snapshot {self._id}"
-            )
+            logger.debug(f"Comment {comment_id} not found on snapshot {self._id}")
             return True
 
         if "metadata" not in node_content:

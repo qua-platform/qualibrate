@@ -176,9 +176,7 @@ def test_root_get_snapshot_load_type_flag(
 def test_snapshot_history_default(client_custom_settings, snapshots_history, snapshot_id):
     response = client_custom_settings.get(f"/api/snapshot/{snapshot_id}/history")
     assert response.status_code == 200
-    expected_items = _utils_test.add_tags_to_snapshots(
-        snapshots_history[len(snapshots_history) - snapshot_id :]
-    )
+    expected_items = _utils_test.add_tags_to_snapshots(snapshots_history[len(snapshots_history) - snapshot_id :])
     assert response.json() == {
         "page": 1,
         "per_page": 50,

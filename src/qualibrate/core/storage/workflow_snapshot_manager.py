@@ -64,11 +64,7 @@ class WorkflowSnapshotManager:
         # Prepare workflow node data
         self.data_handler.node_data = {
             "parameters": {
-                "model": (
-                    graph.full_parameters.model_dump(mode="json")
-                    if graph.full_parameters
-                    else {}
-                ),
+                "model": (graph.full_parameters.model_dump(mode="json") if graph.full_parameters else {}),
             },
             "outcomes": {},
         }
@@ -113,9 +109,7 @@ class WorkflowSnapshotManager:
         Returns:
             True if update succeeded, False otherwise.
         """
-        logger.info(
-            f"Finalizing workflow snapshot {workflow_snapshot_idx} for {graph.name}"
-        )
+        logger.info(f"Finalizing workflow snapshot {workflow_snapshot_idx} for {graph.name}")
 
         node_json_path = self.json_handler.get_node_json_path(workflow_snapshot_idx)
         if node_json_path is None:
@@ -137,15 +131,12 @@ class WorkflowSnapshotManager:
         # Update outcomes in data
         if "data" not in content:
             content["data"] = {}
-        content["data"]["outcomes"] = {
-            k: v.value if isinstance(v, Outcome) else v for k, v in outcomes.items()
-        }
+        content["data"]["outcomes"] = {k: v.value if isinstance(v, Outcome) else v for k, v in outcomes.items()}
 
         success = self.json_handler.write_node_json(node_json_path, content)
         if success:
             logger.info(
-                f"Finalized workflow snapshot {workflow_snapshot_idx} "
-                f"for graph {graph.name} with status {status}"
+                f"Finalized workflow snapshot {workflow_snapshot_idx} for graph {graph.name} with status {status}"
             )
         return success
 

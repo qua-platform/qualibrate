@@ -63,9 +63,7 @@ def _setup_local_storage_with_statuses(project_path: Path) -> Path:
         ).replace(tzinfo=timezone(timedelta(seconds=10800)))
 
         duration = node_id * 2
-        run_start = (created_at - timedelta(seconds=duration)).isoformat(
-            timespec="seconds"
-        )
+        run_start = (created_at - timedelta(seconds=duration)).isoformat(timespec="seconds")
         run_end = created_at.isoformat(timespec="seconds")
 
         metadata = {
@@ -90,9 +88,7 @@ def _setup_local_storage_with_statuses(project_path: Path) -> Path:
         )
 
         snapshot_file = node_dir / "state.json"
-        snapshot_file.write_text(
-            json.dumps({"quam": {"node": node_id}, "info": "snapshot"})
-        )
+        snapshot_file.write_text(json.dumps({"quam": {"node": node_id}, "info": "snapshot"}))
 
     return project_path
 
@@ -232,11 +228,8 @@ def snapshots_with_statuses() -> Generator[list[dict[str, Any]], None, None]:
 
 
 @pytest.fixture
-def settings_with_statuses(
-    tmp_path: Path, local_storage_with_statuses: Path
-) -> Generator[Any, None, None]:
+def settings_with_statuses(tmp_path: Path, local_storage_with_statuses: Path) -> Generator[Any, None, None]:
     """Settings configured for status-enabled local storage."""
-    from qualibrate_config.models import QualibrateConfig
     from qualibrate_config.models.qualibrate import QualibrateTopLevelConfig
     from qualibrate_config.models.storage_type import StorageType
 
@@ -305,9 +298,7 @@ def client_with_statuses(
     from qualibrate.app.config import get_config_path, get_settings
 
     get_config_path.cache_clear()
-    project_path = get_project_path(
-        settings_path_filled_with_statuses.parent, settings_with_statuses.project
-    )
+    project_path = get_project_path(settings_path_filled_with_statuses.parent, settings_with_statuses.project)
     project_path.mkdir(parents=True, exist_ok=True)
     (project_path / "config.toml").touch()
     mocker.patch(
@@ -319,9 +310,7 @@ def client_with_statuses(
 
     client = TestClient(app)
 
-    app.dependency_overrides[get_config_path] = (
-        lambda: settings_path_filled_with_statuses
-    )
+    app.dependency_overrides[get_config_path] = lambda: settings_path_filled_with_statuses
     app.dependency_overrides[get_settings] = lambda: settings_with_statuses
 
     yield client
@@ -332,9 +321,7 @@ def client_with_statuses(
 # =============================================================================
 
 
-def test_snapshots_history_exact_name_filter(
-    client_custom_settings, default_local_storage_project, snapshots_history
-):
+def test_snapshots_history_exact_name_filter(client_custom_settings, default_local_storage_project, snapshots_history):
     """Test filtering by exact name returns only matching snapshots."""
     response = client_custom_settings.get(
         "/api/root/snapshots_history",
@@ -348,9 +335,7 @@ def test_snapshots_history_exact_name_filter(
     assert data["items"][0]["id"] == 5
 
 
-def test_snapshots_history_exact_name_no_match(
-    client_custom_settings, default_local_storage_project
-):
+def test_snapshots_history_exact_name_no_match(client_custom_settings, default_local_storage_project):
     """Test exact name filter with no matches returns empty list."""
     response = client_custom_settings.get(
         "/api/root/snapshots_history",
@@ -381,9 +366,7 @@ def test_snapshots_history_name_part_still_works(
 # =============================================================================
 
 
-def test_snapshots_history_name_and_name_part_validation(
-    client_custom_settings, default_local_storage_project
-):
+def test_snapshots_history_name_and_name_part_validation(client_custom_settings, default_local_storage_project):
     """Test that using both name and name_part returns 400 error."""
     response = client_custom_settings.get(
         "/api/root/snapshots_history",
@@ -542,9 +525,7 @@ def test_snapshots_history_sort_by_status_descending(
             return len(expected_priority)
 
     priorities = [get_priority(s) for s in statuses]
-    assert priorities == sorted(priorities, reverse=True), (
-        f"Statuses not in reverse priority order: {statuses}"
-    )
+    assert priorities == sorted(priorities, reverse=True), f"Statuses not in reverse priority order: {statuses}"
 
 
 # =============================================================================
@@ -552,9 +533,7 @@ def test_snapshots_history_sort_by_status_descending(
 # =============================================================================
 
 
-def test_snapshots_history_sort_with_pagination_page1(
-    client_with_statuses, local_storage_with_statuses
-):
+def test_snapshots_history_sort_with_pagination_page1(client_with_statuses, local_storage_with_statuses):
     """Test that sorting is applied before pagination - page 1."""
     response = client_with_statuses.get(
         "/api/root/snapshots_history",
@@ -568,9 +547,7 @@ def test_snapshots_history_sort_with_pagination_page1(
     assert names == ["alpha_cal", "beta_cal", "delta_cal"]
 
 
-def test_snapshots_history_sort_with_pagination_page2(
-    client_with_statuses, local_storage_with_statuses
-):
+def test_snapshots_history_sort_with_pagination_page2(client_with_statuses, local_storage_with_statuses):
     """Test that sorting is applied before pagination - page 2."""
     response = client_with_statuses.get(
         "/api/root/snapshots_history",
@@ -584,9 +561,7 @@ def test_snapshots_history_sort_with_pagination_page2(
     assert names == ["epsilon_cal", "eta_cal", "gamma_cal"]
 
 
-def test_snapshots_history_sort_with_pagination_page3(
-    client_with_statuses, local_storage_with_statuses
-):
+def test_snapshots_history_sort_with_pagination_page3(client_with_statuses, local_storage_with_statuses):
     """Test that sorting is applied before pagination - page 3 (last)."""
     response = client_with_statuses.get(
         "/api/root/snapshots_history",
@@ -605,9 +580,7 @@ def test_snapshots_history_sort_with_pagination_page3(
 # =============================================================================
 
 
-def test_snapshots_history_sort_with_name_part_filter(
-    client_with_statuses, local_storage_with_statuses
-):
+def test_snapshots_history_sort_with_name_part_filter(client_with_statuses, local_storage_with_statuses):
     """Test sorting combined with name_part filtering."""
     # Filter for names containing "eta" (eta_cal, beta_cal, theta_cal, zeta_cal)
     response = client_with_statuses.get(
@@ -654,9 +627,7 @@ def test_snapshots_history_sort_with_date_filter(
 # =============================================================================
 
 
-def test_snapshots_history_default_no_sort(
-    client_custom_settings, default_local_storage_project, snapshots_history
-):
+def test_snapshots_history_default_no_sort(client_custom_settings, default_local_storage_project, snapshots_history):
     """Test that without sort parameter, default ordering is by ID descending."""
     response = client_custom_settings.get(
         "/api/root/snapshots_history",

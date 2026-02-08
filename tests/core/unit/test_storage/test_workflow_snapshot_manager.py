@@ -96,9 +96,7 @@ class TestWorkflowSnapshotManager:
         assert "parameters" in node_data
         assert "outcomes" in node_data
 
-    def test_start_workflow_snapshot_with_parent(
-        self, workflow_manager, mock_data_handler
-    ):
+    def test_start_workflow_snapshot_with_parent(self, workflow_manager, mock_data_handler):
         """Test creating a nested workflow snapshot with parent ID."""
         graph = DummyGraph()
 
@@ -161,11 +159,14 @@ class TestWorkflowSnapshotManager:
 
     def test_track_child_snapshot_no_duplicate(self, workflow_manager, create_snapshot):
         """Test tracking same child doesn't duplicate."""
-        create_snapshot(100, {
-            "id": 100,
-            "metadata": {"children": [101]},
-            "data": {},
-        })
+        create_snapshot(
+            100,
+            {
+                "id": 100,
+                "metadata": {"children": [101]},
+                "data": {},
+            },
+        )
 
         result = workflow_manager.track_child_snapshot(100, 101)
 
@@ -178,11 +179,14 @@ class TestWorkflowSnapshotManager:
 
     def test_set_snapshot_workflow_parent(self, workflow_manager, create_snapshot):
         """Test setting workflow parent on a child snapshot."""
-        node_json_path = create_snapshot(101, {
-            "id": 101,
-            "metadata": {"name": "child_node"},
-            "data": {},
-        })
+        node_json_path = create_snapshot(
+            101,
+            {
+                "id": 101,
+                "metadata": {"name": "child_node"},
+                "data": {},
+            },
+        )
 
         result = workflow_manager.set_snapshot_workflow_parent(101, 100)
 
@@ -197,23 +201,24 @@ class TestWorkflowSnapshotManager:
         result = workflow_manager.set_snapshot_workflow_parent(999, 100)
         assert result is False
 
-    def test_set_snapshot_workflow_parent_preserves_workflow_type(
-        self, workflow_manager, create_snapshot
-    ):
+    def test_set_snapshot_workflow_parent_preserves_workflow_type(self, workflow_manager, create_snapshot):
         """Test that setting parent preserves existing type_of_execution.
-        
+
         When a nested subgraph workflow is tracked as a child, its type_of_execution
         should remain 'workflow', not be overwritten to 'node'.
         """
-        node_json_path = create_snapshot(101, {
-            "id": 101,
-            "metadata": {
-                "name": "nested_subgraph",
-                "type_of_execution": ExecutionType.workflow.value,
-                "children": [102, 103],
+        node_json_path = create_snapshot(
+            101,
+            {
+                "id": 101,
+                "metadata": {
+                    "name": "nested_subgraph",
+                    "type_of_execution": ExecutionType.workflow.value,
+                    "children": [102, 103],
+                },
+                "data": {},
             },
-            "data": {},
-        })
+        )
 
         result = workflow_manager.set_snapshot_workflow_parent(101, 100)
 
@@ -228,9 +233,7 @@ class TestWorkflowSnapshotManager:
 class TestWorkflowSnapshotManagerIntegration:
     """Integration tests simulating workflow execution flow."""
 
-    def test_full_workflow_lifecycle(
-        self, workflow_manager, mock_data_handler, create_snapshot
-    ):
+    def test_full_workflow_lifecycle(self, workflow_manager, mock_data_handler, create_snapshot):
         """Test complete workflow: start -> track children -> finalize."""
         graph = DummyGraph(name="integration_graph")
         graph.full_parameters = DummyParameters()

@@ -53,7 +53,7 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
         """
         super().__init__(skip_failed=skip_failed)
         self._execution_queue: Queue[GraphElementTypeVar] = Queue()
-        self._workflow_storage_manager: "StorageManager[Any] | None" = None
+        self._workflow_storage_manager: StorageManager[Any] | None = None
         self._workflow_snapshot_idx: int | None = None
         self._workflow_parent_id: int | None = None
         self._children_ids: list[int] = []
@@ -305,20 +305,12 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
             if isinstance(element_to_run, QualibrationNode):
                 # For nodes, set the parent ID on the storage manager
                 element_to_run.set_workflow_parent_id(self._workflow_snapshot_idx)
-            elif (
-                isinstance(element_to_run, QualibrationGraph)
-                and element_to_run._orchestrator is not None
-            ):
+            elif isinstance(element_to_run, QualibrationGraph) and element_to_run._orchestrator is not None:
                 # For nested graphs, set on the orchestrator
-                nested_orch = cast(
-                    BasicOrchestrator[Any], element_to_run._orchestrator
-                )
+                nested_orch = cast(BasicOrchestrator[Any], element_to_run._orchestrator)
                 nested_orch.set_workflow_parent_id(self._workflow_snapshot_idx)
 
-        logger.debug(
-            f"Graph. Start running element {element_to_run} "
-            f"with parameters {element_parameters}"
-        )
+        logger.debug(f"Graph. Start running element {element_to_run} with parameters {element_parameters}")
 
         return element_to_run.run(interactive=False, **element_parameters)
 
@@ -476,14 +468,9 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
             self._workflow_snapshot_idx = storage_manager.save_workflow_snapshot_start(
                 graph, workflow_parent_id=self._workflow_parent_id
             )
-            logger.info(
-                f"Created workflow snapshot {self._workflow_snapshot_idx} "
-                f"for graph {graph.name}"
-            )
+            logger.info(f"Created workflow snapshot {self._workflow_snapshot_idx} for graph {graph.name}")
         except Exception as ex:
-            logger.warning(
-                f"Failed to create workflow snapshot for {graph.name}: {ex}"
-            )
+            logger.warning(f"Failed to create workflow snapshot for {graph.name}: {ex}")
             self._workflow_snapshot_idx = None
 
         nx_graph = self.nx_graph
@@ -505,9 +492,7 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
                 # Track child snapshot ID
                 self._track_child_snapshot(element_to_run)
 
-                status = nx_graph.nodes[element_to_run][
-                    QualibrationGraph.ELEMENT_STATUS_FIELD
-                ]
+                status = nx_graph.nodes[element_to_run][QualibrationGraph.ELEMENT_STATUS_FIELD]
                 if status == ElementRunStatus.error:
                     workflow_status = "error"
                 if status == ElementRunStatus.finished:
@@ -516,17 +501,13 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
                         # Example. Edges: 1 -> 2, 1 -> 3, 2 -> 4, 3 -> 4
                         # Start from 2. 4 skipped because 3 is skipped
                         if (
-                            nx_graph.nodes[successor][
-                                QualibrationGraph.ELEMENT_STATUS_FIELD
-                            ]
+                            nx_graph.nodes[successor][QualibrationGraph.ELEMENT_STATUS_FIELD]
                             == ElementRunStatus.skipped
                         ):
                             continue
                         # Skip successors if there are no targets to run, regardless
                         # of whether the edge represents success or failure.
-                        if not nx_graph.edges[element_to_run, successor].get(
-                            QualibrationGraph.EDGE_TARGETS_FIELD, []
-                        ):
+                        if not nx_graph.edges[element_to_run, successor].get(QualibrationGraph.EDGE_TARGETS_FIELD, []):
                             continue
                         self._execution_queue.put(successor)
         except Exception:
@@ -538,9 +519,7 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
             # Finalize workflow snapshot
             self._finalize_workflow_snapshot(graph, workflow_status)
 
-    def _track_child_snapshot(
-        self, element: GraphElementTypeVar
-    ) -> None:
+    def _track_child_snapshot(self, element: GraphElementTypeVar) -> None:
         """Track the child snapshot ID after an element completes."""
         if self._workflow_snapshot_idx is None:
             return
@@ -558,18 +537,11 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
             self._children_ids.append(child_id)
             try:
                 storage_manager = self._get_workflow_storage_manager()
-                storage_manager.update_snapshot_children(
-                    self._workflow_snapshot_idx, child_id
-                )
+                storage_manager.update_snapshot_children(self._workflow_snapshot_idx, child_id)
                 # Also set the workflow parent on the child
-                storage_manager.set_snapshot_workflow_parent(
-                    child_id, self._workflow_snapshot_idx
-                )
+                storage_manager.set_snapshot_workflow_parent(child_id, self._workflow_snapshot_idx)
             except Exception as ex:
-                logger.warning(
-                    f"Failed to update children for workflow "
-                    f"{self._workflow_snapshot_idx}: {ex}"
-                )
+                logger.warning(f"Failed to update children for workflow {self._workflow_snapshot_idx}: {ex}")
 
     def _finalize_workflow_snapshot(
         self,
@@ -590,14 +562,10 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
                 status=status,
             )
             logger.info(
-                f"Finalized workflow snapshot {self._workflow_snapshot_idx} "
-                f"for graph {graph.name} with status {status}"
+                f"Finalized workflow snapshot {self._workflow_snapshot_idx} for graph {graph.name} with status {status}"
             )
         except Exception as ex:
-            logger.warning(
-                f"Failed to finalize workflow snapshot "
-                f"{self._workflow_snapshot_idx}: {ex}"
-            )
+            logger.warning(f"Failed to finalize workflow snapshot {self._workflow_snapshot_idx}: {ex}")
 
     def _fill_final_outcomes(self) -> None:
         """Compute and fill final orchestration outcomes from nodes without

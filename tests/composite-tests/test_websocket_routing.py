@@ -20,6 +20,7 @@ class TestWebSocketRouting:
     def client(self):
         """Create test client for composite app."""
         from qualibrate.composite.app import app
+
         return TestClient(app)
 
     def test_ws_output_logs_accessible(self, client):

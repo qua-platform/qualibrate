@@ -114,15 +114,10 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         if relative_machine_path is not None:
             self.data_handler.node_data["quam"] = relative_machine_path
         # Build metadata, including workflow_parent_id if this node is part of a workflow
-        metadata = {
+        metadata: dict[str, Any] = {
             "description": node.description,
             "run_start": node.run_start.isoformat(timespec="milliseconds"),
-            "run_end": (
-                datetime.now()
-                .astimezone()
-                .astimezone()
-                .isoformat(timespec="milliseconds")
-            ),
+            "run_end": (datetime.now().astimezone().astimezone().isoformat(timespec="milliseconds")),
             "type_of_execution": ExecutionType.node.value,
             "status": "finished",
         }
@@ -238,9 +233,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         """
         return self._json_handler.read_node_json(node_json_path)
 
-    def _write_node_json(
-        self, node_json_path: Path, content: dict[str, "Any"]
-    ) -> bool:
+    def _write_node_json(self, node_json_path: Path, content: dict[str, "Any"]) -> bool:
         """Write content to a node.json file.
 
         Args:
@@ -276,11 +269,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         # Prepare workflow node data
         self.data_handler.node_data = {
             "parameters": {
-                "model": (
-                    graph.full_parameters.model_dump(mode="json")
-                    if graph.full_parameters
-                    else {}
-                ),
+                "model": (graph.full_parameters.model_dump(mode="json") if graph.full_parameters else {}),
             },
             "outcomes": {},
         }
@@ -325,9 +314,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         Returns:
             True if update succeeded, False otherwise.
         """
-        logger.info(
-            f"Updating workflow snapshot {workflow_snapshot_idx} for {graph.name}"
-        )
+        logger.info(f"Updating workflow snapshot {workflow_snapshot_idx} for {graph.name}")
 
         node_json_path = self._get_node_json_path(workflow_snapshot_idx)
         if node_json_path is None:
@@ -349,15 +336,11 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         # Update outcomes in data
         if "data" not in content:
             content["data"] = {}
-        content["data"]["outcomes"] = {
-            k: v.value if isinstance(v, Outcome) else v for k, v in outcomes.items()
-        }
+        content["data"]["outcomes"] = {k: v.value if isinstance(v, Outcome) else v for k, v in outcomes.items()}
 
         return self._write_node_json(node_json_path, content)
 
-    def update_snapshot_children(
-        self, workflow_snapshot_idx: int, child_id: int
-    ) -> bool:
+    def update_snapshot_children(self, workflow_snapshot_idx: int, child_id: int) -> bool:
         """Append a child snapshot ID to a workflow's children list.
 
         Args:
@@ -387,9 +370,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
 
         return self._write_node_json(node_json_path, content)
 
-    def set_snapshot_workflow_parent(
-        self, snapshot_idx: int, workflow_parent_id: int
-    ) -> bool:
+    def set_snapshot_workflow_parent(self, snapshot_idx: int, workflow_parent_id: int) -> bool:
         """Set the workflow_parent_id for a snapshot.
 
         Args:

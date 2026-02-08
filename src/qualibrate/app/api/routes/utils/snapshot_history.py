@@ -1,15 +1,15 @@
 import logging
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 from qualibrate.app.api.core.models.snapshot import (
-    ExecutionType,
     QubitOutcome,
     SimplifiedSnapshotWithMetadata,
     SnapshotHistoryItem,
     SnapshotHistoryMetadata,
 )
 from qualibrate.app.api.core.types import IdType
+from qualibrate.core.models.execution_type import ExecutionType
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,7 @@ __all__ = [
 ]
 
 # Type alias for the callback function that fetches missing snapshots by IDs
-FetchMissingChildrenCallback = Callable[
-    [set[IdType]], list[SimplifiedSnapshotWithMetadata]
-]
+FetchMissingChildrenCallback = Callable[[set[IdType]], list[SimplifiedSnapshotWithMetadata]]
 
 
 def convert_to_history_item(
@@ -56,7 +54,7 @@ def convert_to_history_item(
     has_children = children and isinstance(children, list) and len(children) > 0
     original_type = metadata_dict.get("type_of_execution")
     type_of_execution_str = original_type
-    
+
     if has_children:
         # If snapshot has children, it's ALWAYS a workflow regardless of metadata
         type_of_execution_str = "workflow"
@@ -86,9 +84,7 @@ def convert_to_history_item(
     # Remove fields that will be set explicitly to avoid duplicate kwargs
     # Also remove tags to avoid duplication (tags are at top level of SnapshotHistoryItem)
     fields_to_remove = {"type_of_execution", "children", "workflow_parent_id", "tags"}
-    clean_metadata_dict = {
-        k: v for k, v in metadata_dict.items() if k not in fields_to_remove
-    }
+    clean_metadata_dict = {k: v for k, v in metadata_dict.items() if k not in fields_to_remove}
 
     # Create extended metadata
     history_metadata = SnapshotHistoryMetadata(
@@ -146,13 +142,13 @@ def _get_raw_outcomes(snapshot: SimplifiedSnapshotWithMetadata) -> dict[str, Any
     Returns:
         Raw outcomes dict like {"q1": "successful", "q2": "failed"} or None.
     """
-    # Check if snapshot has outcomes attribute (SimplifiedSnapshotWithMetadataAndOutcomes)
+    # Check if snapshot has outcomes attribute (SimplifiedSnapshotWithMetadataAndOutcomes), outcomes is dict of any
     if hasattr(snapshot, "outcomes") and snapshot.outcomes is not None:
-        return snapshot.outcomes
+        return cast(dict[str, Any] | None, snapshot.outcomes)
 
     # Also check metadata for outcomes (may be stored there in some cases)
     metadata_dict = snapshot.metadata.model_dump()
-    return metadata_dict.get("outcomes")
+    return cast(dict[str, Any] | None, metadata_dict.get("outcomes"))
 
 
 def build_snapshot_tree(
@@ -177,9 +173,7 @@ def build_snapshot_tree(
     """
     # Build a mutable list that we can extend with fetched children
     all_snapshots = list(snapshots)
-    snapshots_by_id: dict[IdType, SimplifiedSnapshotWithMetadata] = {
-        s.id: s for s in all_snapshots
-    }
+    snapshots_by_id: dict[IdType, SimplifiedSnapshotWithMetadata] = {s.id: s for s in all_snapshots}
 
     # Recursively fetch missing children if callback is provided
     if fetch_missing_children:
@@ -233,13 +227,10 @@ def build_snapshot_tree(
                 f"found={len(children_items)}, "
                 f"missing={missing_children}"
             )
-    
+
     # Log workflow processing for troubleshooting
     if workflows_processed:
-        logger.info(
-            f"build_snapshot_tree: Processed {len(workflows_processed)} workflows: "
-            f"{workflows_processed}"
-        )
+        logger.info(f"build_snapshot_tree: Processed {len(workflows_processed)} workflows: {workflows_processed}")
 
     # Also mark items with workflow_parent_id as children (they belong to a parent
     # workflow and should not appear at top level, even if the parent isn't in
@@ -249,14 +240,10 @@ def build_snapshot_tree(
         workflow_parent_id = item.metadata.workflow_parent_id
         if workflow_parent_id is not None:
             child_ids.add(item.id)
-            items_with_parent.append(
-                f"{item.id}({item.metadata.name})->parent:{workflow_parent_id}"
-            )
+            items_with_parent.append(f"{item.id}({item.metadata.name})->parent:{workflow_parent_id}")
 
     # Return only top-level items (not children of other items in this result)
-    top_level_items = [
-        item for item_id, item in items_by_id.items() if item_id not in child_ids
-    ]
+    top_level_items = [item for item_id, item in items_by_id.items() if item_id not in child_ids]
 
     # Log summary for troubleshooting
     if items_with_parent:
@@ -321,9 +308,7 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
             # Store aggregated outcomes on the nested workflow
             if item_outcomes:
                 item.outcomes = item_outcomes.copy()
-                item.qubits_completed = sum(
-                    1 for o in item_outcomes.values() if o.status == "success"
-                )
+                item.qubits_completed = sum(1 for o in item_outcomes.values() if o.status == "success")
                 item.qubits_total = len(item_outcomes)
         else:
             # For nodes, extract actual qubit outcomes from raw_outcomes
@@ -335,9 +320,7 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                     if outcome_str in ("successful", "success"):
                         item_outcomes[qubit] = QubitOutcome(status="success")
                     elif outcome_str in ("failed", "failure", "error"):
-                        item_outcomes[qubit] = QubitOutcome(
-                            status="failure", failed_on=name
-                        )
+                        item_outcomes[qubit] = QubitOutcome(status="failure", failed_on=name)
 
         return item_outcomes
 
@@ -377,10 +360,10 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                     if child.items:
                         nested_direct = len(child.items)
                         nested_success = sum(
-                            1
+                            True
                             for c in child.items
-                            if (c.metadata.status if c.metadata else None)
-                            in ("finished", "success")
+                            if (status := c.metadata.status if c.metadata else None) is not None
+                            and status in ("finished", "success")
                         )
                         if nested_success > nested_direct / 2:
                             direct_successful += 1
@@ -428,9 +411,7 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
     workflow.outcomes = merged_outcomes if merged_outcomes else None
     workflow.nodes_completed = nodes_completed
     workflow.nodes_total = nodes_total
-    workflow.qubits_completed = sum(
-        1 for o in merged_outcomes.values() if o.status == "success"
-    )
+    workflow.qubits_completed = sum(1 for o in merged_outcomes.values() if o.status == "success")
     workflow.qubits_total = len(merged_outcomes)
 
 

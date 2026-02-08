@@ -39,9 +39,7 @@ class TestSocketConnectionManagerList:
         mock_websocket.accept.assert_awaited_once()
 
     @pytest.mark.asyncio
-    async def test_connect_adds_to_active_connections(
-        self, manager, mock_websocket
-    ):
+    async def test_connect_adds_to_active_connections(self, manager, mock_websocket):
         """Test that connect() adds websocket to active connections."""
         await manager.connect(mock_websocket)
 
@@ -168,9 +166,7 @@ class TestSocketConnectionManagerMapping:
         mock_websocket.accept.assert_awaited_once()
 
     @pytest.mark.asyncio
-    async def test_connect_adds_to_active_connections_by_key(
-        self, manager, mock_websocket
-    ):
+    async def test_connect_adds_to_active_connections_by_key(self, manager, mock_websocket):
         """Test that connect() adds websocket to the correct key."""
         await manager.connect("key1", mock_websocket)
 

@@ -26,8 +26,8 @@ OUTPUT_LOGS_ENDPOINT = "/execution/output_logs"
 
 def spawn_qualibrate_runner(app: FastAPI) -> None:
     try:
-        from qualibrate.runner.app import app as runner_app
         from qualibrate.runner.api.sockets import base_ws_router as runner_ws_router
+        from qualibrate.runner.app import app as runner_app
     except ImportError as ex:
         raise ImportError("Can't import qualibrate_runner instance. Check that you have installed it.") from ex
     logging.getLogger("uvicorn.access").addFilter(

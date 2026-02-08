@@ -59,9 +59,7 @@ def tag_registry(settings: QualibrateConfig) -> TagRegistry:
 class TestTagRegistryCreate:
     """Tests for creating tags."""
 
-    def test_create_tag_success(
-        self, tag_registry: TagRegistry, storage_location: Path
-    ) -> None:
+    def test_create_tag_success(self, tag_registry: TagRegistry, storage_location: Path) -> None:
         """Test creating a new tag."""
         result = tag_registry.create_tag("calibration")
 
@@ -94,9 +92,7 @@ class TestTagRegistryCreate:
 
         assert result is False
 
-    def test_create_tag_strips_whitespace(
-        self, tag_registry: TagRegistry
-    ) -> None:
+    def test_create_tag_strips_whitespace(self, tag_registry: TagRegistry) -> None:
         """Test that tag names are stripped of whitespace."""
         result = tag_registry.create_tag("  calibration  ")
 
@@ -148,9 +144,7 @@ class TestTagRegistryRemove:
 
         assert result is False
 
-    def test_remove_tag_strips_whitespace(
-        self, tag_registry: TagRegistry
-    ) -> None:
+    def test_remove_tag_strips_whitespace(self, tag_registry: TagRegistry) -> None:
         """Test that tag names are stripped when removing."""
         tag_registry.create_tag("calibration")
         result = tag_registry.remove_tag("  calibration  ")
@@ -182,9 +176,7 @@ class TestTagRegistryList:
 class TestTagRegistryEnsureTagsExist:
     """Tests for ensure_tags_exist method."""
 
-    def test_ensure_tags_exist_creates_missing(
-        self, tag_registry: TagRegistry
-    ) -> None:
+    def test_ensure_tags_exist_creates_missing(self, tag_registry: TagRegistry) -> None:
         """Test that missing tags are created."""
         result = tag_registry.ensure_tags_exist(["tag1", "tag2", "tag3"])
 
@@ -194,9 +186,7 @@ class TestTagRegistryEnsureTagsExist:
         assert "tag2" in tags
         assert "tag3" in tags
 
-    def test_ensure_tags_exist_skips_existing(
-        self, tag_registry: TagRegistry
-    ) -> None:
+    def test_ensure_tags_exist_skips_existing(self, tag_registry: TagRegistry) -> None:
         """Test that existing tags are not duplicated."""
         tag_registry.create_tag("existing")
         result = tag_registry.ensure_tags_exist(["existing", "new"])
@@ -206,17 +196,13 @@ class TestTagRegistryEnsureTagsExist:
         assert tags.count("existing") == 1
         assert "new" in tags
 
-    def test_ensure_tags_exist_empty_list(
-        self, tag_registry: TagRegistry
-    ) -> None:
+    def test_ensure_tags_exist_empty_list(self, tag_registry: TagRegistry) -> None:
         """Test with empty list returns True."""
         result = tag_registry.ensure_tags_exist([])
 
         assert result is True
 
-    def test_ensure_tags_exist_filters_empty_strings(
-        self, tag_registry: TagRegistry
-    ) -> None:
+    def test_ensure_tags_exist_filters_empty_strings(self, tag_registry: TagRegistry) -> None:
         """Test that empty strings are filtered out."""
         result = tag_registry.ensure_tags_exist(["valid", "", "  ", "also_valid"])
 
@@ -226,9 +212,7 @@ class TestTagRegistryEnsureTagsExist:
         assert "also_valid" in tags
         assert "" not in tags
 
-    def test_ensure_tags_exist_strips_whitespace(
-        self, tag_registry: TagRegistry
-    ) -> None:
+    def test_ensure_tags_exist_strips_whitespace(self, tag_registry: TagRegistry) -> None:
         """Test that tag names are stripped."""
         result = tag_registry.ensure_tags_exist(["  spaced  "])
 
@@ -237,9 +221,7 @@ class TestTagRegistryEnsureTagsExist:
         assert "spaced" in tags
         assert "  spaced  " not in tags
 
-    def test_ensure_tags_exist_no_new_tags(
-        self, tag_registry: TagRegistry
-    ) -> None:
+    def test_ensure_tags_exist_no_new_tags(self, tag_registry: TagRegistry) -> None:
         """Test when all tags already exist."""
         tag_registry.create_tag("tag1")
         tag_registry.create_tag("tag2")
@@ -251,9 +233,7 @@ class TestTagRegistryEnsureTagsExist:
 class TestTagRegistryFilePersistence:
     """Tests for file-based persistence."""
 
-    def test_tags_persist_across_instances(
-        self, settings: QualibrateConfig
-    ) -> None:
+    def test_tags_persist_across_instances(self, settings: QualibrateConfig) -> None:
         """Test that tags persist across TagRegistry instances."""
         registry1 = TagRegistry(settings=settings)
         registry1.create_tag("persistent")
@@ -263,9 +243,7 @@ class TestTagRegistryFilePersistence:
 
         assert "persistent" in tags
 
-    def test_handles_corrupted_file(
-        self, settings: QualibrateConfig, storage_location: Path
-    ) -> None:
+    def test_handles_corrupted_file(self, settings: QualibrateConfig, storage_location: Path) -> None:
         """Test handling of corrupted tags.json file."""
         tags_path = storage_location / TAGS_FILENAME
         tags_path.write_text("not valid json")
@@ -276,9 +254,7 @@ class TestTagRegistryFilePersistence:
         # Should return empty list on error
         assert tags == []
 
-    def test_handles_non_list_json(
-        self, settings: QualibrateConfig, storage_location: Path
-    ) -> None:
+    def test_handles_non_list_json(self, settings: QualibrateConfig, storage_location: Path) -> None:
         """Test handling when tags.json contains non-list JSON."""
         tags_path = storage_location / TAGS_FILENAME
         tags_path.write_text('{"not": "a list"}')
@@ -289,9 +265,7 @@ class TestTagRegistryFilePersistence:
         # Should return empty list
         assert tags == []
 
-    def test_filters_non_string_tags(
-        self, settings: QualibrateConfig, storage_location: Path
-    ) -> None:
+    def test_filters_non_string_tags(self, settings: QualibrateConfig, storage_location: Path) -> None:
         """Test that non-string values in tags list are filtered."""
         tags_path = storage_location / TAGS_FILENAME
         tags_path.write_text('["valid", 123, null, "also_valid"]')
@@ -301,9 +275,7 @@ class TestTagRegistryFilePersistence:
 
         assert tags == ["also_valid", "valid"]
 
-    def test_creates_parent_directories(
-        self, tmp_path: Path
-    ) -> None:
+    def test_creates_parent_directories(self, tmp_path: Path) -> None:
         """Test that parent directories are created if needed."""
         deep_path = tmp_path / "deep" / "nested" / "storage"
         top = QualibrateTopLevelConfig(
