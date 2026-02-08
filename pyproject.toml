@@ -110,11 +110,6 @@ xarray = "~2025.6.1"
 #[tool.poetry.group.qm-dev.dependencies]
 #qualibrate-config = {path = "../qualibrate-config", develop = true}
 #qua-dashboards = {path = "../qua-dashboards", develop = true}
-#
-# The following are no longer needed (now part of this monorepo):
-#qualibrate-app = {path = "../qualibrate-app/backend", develop = true}
-#qualibrate-runner = {path = "../qualibrate-runner", develop = true}
-#qualibrate-core = {path = "../qualibrate-core", develop = true}
 
 # ============================================================================
 # CLI SCRIPTS
