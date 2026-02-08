@@ -3,7 +3,7 @@ import weakref
 from collections.abc import Generator, Iterable, Sequence
 from datetime import datetime
 from queue import Queue
-from typing import Generic, cast
+from typing import TYPE_CHECKING, Any, Generic, cast
 
 import networkx as nx
 
@@ -23,8 +23,12 @@ from qualibrate.core.orchestration.qualibration_orchestrator import (
 from qualibrate.core.parameters import ExecutionParameters, NodeParameters
 from qualibrate.core.qualibration_graph import GraphElementTypeVar, QualibrationGraph
 from qualibrate.core.qualibration_node import QualibrationNode
+from qualibrate.core.storage.local_storage_manager import LocalStorageManager
 from qualibrate.core.utils.logger_m import logger
 from qualibrate.core.utils.type_protocols import TargetType
+
+if TYPE_CHECKING:
+    from qualibrate.core.storage.storage_manager import StorageManager
 
 __all__ = ["BasicOrchestrator"]
 
@@ -49,6 +53,38 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
         """
         super().__init__(skip_failed=skip_failed)
         self._execution_queue: Queue[GraphElementTypeVar] = Queue()
+        self._workflow_storage_manager: StorageManager[Any] | None = None
+        self._workflow_snapshot_idx: int | None = None
+        self._workflow_parent_id: int | None = None
+        self._children_ids: list[int] = []
+
+    def _get_workflow_storage_manager(
+        self,
+    ) -> LocalStorageManager[Any]:
+        """Get or create a storage manager for workflow snapshots."""
+        if self._workflow_storage_manager is not None:
+            return cast(LocalStorageManager[Any], self._workflow_storage_manager)
+
+        # Import here to avoid circular imports
+        from qualibrate_config.resolvers import (
+            get_qualibrate_config,
+            get_qualibrate_config_path,
+        )
+
+        from qualibrate.core.config.resolvers import get_quam_state_path
+
+        q_config_path = get_qualibrate_config_path()
+        qs = get_qualibrate_config(q_config_path)
+        state_path = get_quam_state_path(qs)
+        self._workflow_storage_manager = LocalStorageManager(
+            root_data_folder=qs.storage.location,
+            active_machine_path=state_path,
+        )
+        return self._workflow_storage_manager
+
+    def set_workflow_parent_id(self, parent_id: int | None) -> None:
+        """Set the parent workflow ID for nested workflows."""
+        self._workflow_parent_id = parent_id
 
     def _is_execution_finished(self) -> bool:
         """
@@ -73,10 +109,18 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
         Cleans up the orchestrator state.
 
         Clears the execution queue and calls the parent cleanup method.
+
+        Note: _workflow_parent_id is NOT reset here because it's set externally
+        by the parent orchestrator before this graph runs. Resetting it would
+        cause nested graphs/nodes to appear at the top level of history during
+        execution because their snapshots would be created without parent ID.
         """
         super().cleanup()
         with self._execution_queue.mutex:
             self._execution_queue.queue.clear()
+        # Reset workflow snapshot state (but preserve _workflow_parent_id)
+        self._workflow_snapshot_idx = None
+        self._children_ids = []
 
     @property
     def q_graph(self) -> QualibrationGraph[GraphElementTypeVar]:
@@ -252,9 +296,22 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
             parameters = cast(ExecutionParameters, parameters)
             element_parameters = parameters.parameters.model_dump()
             element_parameters["nodes"] = parameters.nodes.model_dump()
-
         element_to_run.cleanup()
+
+        # Set workflow_parent_id on the element BEFORE running it.
+        # This ensures the snapshot is created with the parent ID from the start,
+        # preventing nested items from appearing at the top level of history.
+        if self._workflow_snapshot_idx is not None:
+            if isinstance(element_to_run, QualibrationNode):
+                # For nodes, set the parent ID on the storage manager
+                element_to_run.set_workflow_parent_id(self._workflow_snapshot_idx)
+            elif isinstance(element_to_run, QualibrationGraph) and element_to_run._orchestrator is not None:
+                # For nested graphs, set on the orchestrator
+                nested_orch = cast(BasicOrchestrator[Any], element_to_run._orchestrator)
+                nested_orch.set_workflow_parent_id(self._workflow_snapshot_idx)
+
         logger.debug(f"Graph. Start running element {element_to_run} with parameters {element_parameters}")
+
         return element_to_run.run(interactive=False, **element_parameters)
 
     def _is_loop_iteration_needed(self, element_to_run: GraphElementTypeVar) -> Generator[bool]:
@@ -403,35 +460,111 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
             logger.exception("", exc_info=ex)
             raise ex
         self.initial_targets = list(targets[:]) if targets else []
+
+        # Create workflow snapshot at the start
+        self._children_ids = []
+        try:
+            storage_manager = self._get_workflow_storage_manager()
+            self._workflow_snapshot_idx = storage_manager.save_workflow_snapshot_start(
+                graph, workflow_parent_id=self._workflow_parent_id
+            )
+            logger.info(f"Created workflow snapshot {self._workflow_snapshot_idx} for graph {graph.name}")
+        except Exception as ex:
+            logger.warning(f"Failed to create workflow snapshot for {graph.name}: {ex}")
+            self._workflow_snapshot_idx = None
+
         nx_graph = self.nx_graph
         successors = nx_graph.succ
         for node in _start_nodes(nx_graph):
             self._execution_queue.put(node)
 
-        while not self._is_execution_finished() and not self._is_stopped:
-            element_to_run = self.get_next_element()
-            if element_to_run is None:
-                exc = RuntimeError("No next node. Execution not finished")
-                logger.exception("", exc_info=exc)
-                raise exc
-            logger.info(f"Graph. Element to run. {element_to_run}")
-            self._run_element_loop_if_defined(element_to_run)
+        workflow_status = "finished"
+        try:
+            while not self._is_execution_finished() and not self._is_stopped:
+                element_to_run = self.get_next_element()
+                if element_to_run is None:
+                    exc = RuntimeError("No next node. Execution not finished")
+                    logger.exception("", exc_info=exc)
+                    raise exc
+                logger.info(f"Graph. Element to run. {element_to_run}")
+                self._run_element_loop_if_defined(element_to_run)
 
-            status = nx_graph.nodes[element_to_run][QualibrationGraph.ELEMENT_STATUS_FIELD]
-            if status == ElementRunStatus.finished:
-                for successor in successors[element_to_run]:
-                    # skip diamond cases
-                    # Example. Edges: 1 -> 2, 1 -> 3, 2 -> 4, 3 -> 4
-                    # Start from 2. 4 skipped because 3 is skipped
-                    if nx_graph.nodes[successor][QualibrationGraph.ELEMENT_STATUS_FIELD] == ElementRunStatus.skipped:
-                        continue
-                    # Skip successors if there are no targets to run, regardless
-                    # of whether the edge represents success or failure.
-                    if not nx_graph.edges[element_to_run, successor].get(QualibrationGraph.EDGE_TARGETS_FIELD, []):
-                        continue
-                    self._execution_queue.put(successor)
-        self._active_element = None
-        self._fill_final_outcomes()
+                # Track child snapshot ID
+                self._track_child_snapshot(element_to_run)
+
+                status = nx_graph.nodes[element_to_run][QualibrationGraph.ELEMENT_STATUS_FIELD]
+                if status == ElementRunStatus.error:
+                    workflow_status = "error"
+                if status == ElementRunStatus.finished:
+                    for successor in successors[element_to_run]:
+                        # skip diamond cases
+                        # Example. Edges: 1 -> 2, 1 -> 3, 2 -> 4, 3 -> 4
+                        # Start from 2. 4 skipped because 3 is skipped
+                        if (
+                            nx_graph.nodes[successor][QualibrationGraph.ELEMENT_STATUS_FIELD]
+                            == ElementRunStatus.skipped
+                        ):
+                            continue
+                        # Skip successors if there are no targets to run, regardless
+                        # of whether the edge represents success or failure.
+                        if not nx_graph.edges[element_to_run, successor].get(QualibrationGraph.EDGE_TARGETS_FIELD, []):
+                            continue
+                        self._execution_queue.put(successor)
+        except Exception:
+            workflow_status = "error"
+            raise
+        finally:
+            self._active_element = None
+            self._fill_final_outcomes()
+            # Finalize workflow snapshot
+            self._finalize_workflow_snapshot(graph, workflow_status)
+
+    def _track_child_snapshot(self, element: GraphElementTypeVar) -> None:
+        """Track the child snapshot ID after an element completes."""
+        if self._workflow_snapshot_idx is None:
+            return
+
+        child_id: int | None = None
+        if isinstance(element, QualibrationNode):
+            child_id = element.snapshot_idx
+        elif isinstance(element, QualibrationGraph) and element._orchestrator is not None:
+            # For nested graphs, get the workflow snapshot ID from its orchestrator
+            orch = cast(BasicOrchestrator[Any], element._orchestrator)
+            child_id = orch._workflow_snapshot_idx
+
+        if child_id is not None:
+            self._children_ids.append(child_id)
+            try:
+                storage_manager = self._get_workflow_storage_manager()
+                storage_manager.update_snapshot_children(self._workflow_snapshot_idx, child_id)
+                # Also set the workflow parent on the child
+                storage_manager.set_snapshot_workflow_parent(child_id, self._workflow_snapshot_idx)
+            except Exception as ex:
+                logger.warning(f"Failed to update children for workflow {self._workflow_snapshot_idx}: {ex}")
+
+    def _finalize_workflow_snapshot(
+        self,
+        graph: QualibrationGraph[GraphElementTypeVar],
+        status: str,
+    ) -> None:
+        """Finalize the workflow snapshot with outcomes and status."""
+        if self._workflow_snapshot_idx is None:
+            return
+
+        try:
+            storage_manager = self._get_workflow_storage_manager()
+            storage_manager.save_workflow_snapshot_end(
+                graph,
+                self._workflow_snapshot_idx,
+                self._children_ids,
+                self.final_outcomes,
+                status=status,
+            )
+            logger.info(
+                f"Finalized workflow snapshot {self._workflow_snapshot_idx} for graph {graph.name} with status {status}"
+            )
+        except Exception as ex:
+            logger.warning(f"Failed to finalize workflow snapshot {self._workflow_snapshot_idx}: {ex}")
 
     def _fill_final_outcomes(self) -> None:
         """Compute and fill final orchestration outcomes from nodes without

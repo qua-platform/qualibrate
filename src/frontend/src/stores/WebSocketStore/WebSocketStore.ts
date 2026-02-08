@@ -126,6 +126,7 @@ interface WebSocketState {
   runStatus: RunStatusType | null;
   history: HistoryType | null;
   snapshotInfo: SnapshotType | null;
+  snapshotUpdateRequired: boolean;
   showConnectionErrorDialog: boolean;
   connectionLostAt: number | null;
   connectionLostSeconds: number;
@@ -135,6 +136,7 @@ const initialState: WebSocketState = {
   runStatus: null,
   history: null,
   snapshotInfo: null,
+  snapshotUpdateRequired: false,
   showConnectionErrorDialog: false,
   connectionLostAt: null,
   connectionLostSeconds: 0,
@@ -152,6 +154,10 @@ export const webSocketSlice = createSlice({
     },
     setSnapshotInfo: (state, action) => {
       state.snapshotInfo = action.payload;
+      state.snapshotUpdateRequired = action.payload.update_required;
+    },
+    setSnapshotUpdateRequired: (state, action) => {
+      state.snapshotUpdateRequired = action.payload;
     },
     setShowConnectionErrorDialog: (state, action) => {
       state.showConnectionErrorDialog = action.payload;

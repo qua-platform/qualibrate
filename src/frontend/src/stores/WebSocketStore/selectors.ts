@@ -161,6 +161,6 @@ export const getSnapshotInfo = createSelector(
 );
 
 export const getIsSnapshotUpdateRequired = createSelector(
-  getSnapshotInfo,
-  (snapshotInfo) => snapshotInfo?.update_required
+  getWebSocketState,
+  (snapshotInfo) => snapshotInfo?.snapshotUpdateRequired
 );

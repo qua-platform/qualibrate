@@ -4,11 +4,12 @@ import styles from "./Input.module.scss";
 import { classNames } from "../../utils/classnames";
 
 export enum IconType {
-  INNER = "INNER"
+  INNER = "INNER",
 }
 
 export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> & {
   onChange?: (val: string, e: ChangeEvent<HTMLInputElement>) => void;
+  dataTestId?: string;
   name?: string;
   inputClassName?: string;
   icon?: React.ReactElement;
@@ -22,6 +23,7 @@ export type InputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onCh
 
 const InputField = (props: InputProps) => {
   const {
+    dataTestId,
     name = "",
     value = "",
     onChange,
@@ -44,7 +46,7 @@ const InputField = (props: InputProps) => {
   const inputClassName = classNames(styles.input, error && styles.error, inputCN, disabled && styles.disabledInput);
 
   return (
-    <div className={classNames(styles.inputWrapper, icon && styles.withIcon, className)}>
+    <div data-testid={dataTestId} className={classNames(styles.inputWrapper, icon && styles.withIcon, className)}>
       {(label || icon) && (
         <div className={styles.labelWrapper}>
           {label && <label className={styles.label}>{label}</label>}

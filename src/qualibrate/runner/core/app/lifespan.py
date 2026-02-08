@@ -1,6 +1,6 @@
 import asyncio
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from typing import Any
 
@@ -15,7 +15,7 @@ __all__ = ["app_lifespan"]
 
 def _setup_log_broadcasting(loop: asyncio.AbstractEventLoop) -> None:
     """Wire up the logger to broadcast logs via WebSocket.
-    
+
     Args:
         loop: The event loop to use for scheduling broadcasts.
               Must be passed because node.run() executes synchronously
@@ -37,7 +37,7 @@ def _setup_log_broadcasting(loop: asyncio.AbstractEventLoop) -> None:
             if num_connections > 0:
                 # Use run_coroutine_threadsafe to schedule on the saved event loop
                 asyncio.run_coroutine_threadsafe(manager.broadcast(json_safe_entry), loop)
-        except Exception as e:
+        except Exception:
             # Log errors but don't crash the logging system
             pass
 
@@ -50,9 +50,7 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
     loop = asyncio.get_running_loop()
     _setup_log_broadcasting(loop)
     # Start periodic tasks and capture task references
-    run_status_task, execution_history_task = await asyncio.gather(
-        run_status(), execution_history()
-    )
+    run_status_task, execution_history_task = await asyncio.gather(run_status(), execution_history())
     try:
         yield
     finally:
@@ -62,7 +60,5 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
         run_status_task.cancel()
         execution_history_task.cancel()
         for task in (run_status_task, execution_history_task):
-            try:
+            with suppress(asyncio.CancelledError):
                 await task
-            except asyncio.CancelledError:
-                pass

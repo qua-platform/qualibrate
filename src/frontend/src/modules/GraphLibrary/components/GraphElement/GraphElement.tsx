@@ -9,29 +9,28 @@
  * @see CytoscapeGraph - Embedded graph visualization
  * @see GraphContext - Manages graph selection and execution state
  */
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
 import {classNames} from "../../../../utils/classnames";
-import {SubgraphBreadcrumbs} from "../../../Graph";
-import {Parameters, SingleParameter, ParameterList, ParameterSelector, BlueButton} from "../../../../components";
-import {Graph} from "../../../Graph";
+import {Graph, SubgraphBreadcrumbs} from "../../../Graph";
+import {BlueButton, ParameterList, Parameters, ParameterSelector, SingleParameter} from "../../../../components";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
 import {
+  getSelectedNodeNameInWorkflow,
   getSelectedWorkflow,
+  getSelectedWorkflowName,
+  getSubgraphBreadcrumbs,
+  setGraphNodeParameter,
   setSelectedNodeNameInWorkflow,
   setSelectedWorkflowName,
   setSubgraphBack,
   setSubgraphForward,
   submitWorkflow,
-  getSelectedNodeNameInWorkflow,
-  getSelectedWorkflowName,
-  getSubgraphBreadcrumbs,
-  setGraphNodeParameter,
 } from "../../../../stores/GraphStores/GraphLibrary";
 import {useRootDispatch} from "../../../../stores";
-import { ParamaterValue } from "../../../../components/Parameters/Parameters";
+import {ParamaterValue} from "../../../../components/Parameters/Parameters";
 
 interface ICalibrationGraphElementProps {
   calibrationGraphKey?: string;
@@ -58,10 +57,8 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   const handleSetError = (key: string, isValid: boolean) => {
     const newSet = new Set(errors);
 
-    if (isValid)
-      newSet.delete(key);
-    else
-      newSet.add(key);
+    if (isValid) newSet.delete(key);
+    else newSet.add(key);
 
     setErrors(newSet);
   };
@@ -71,15 +68,13 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
     dispatch(setGraphNodeParameter(parameterKey, newValue, nodeId));
   };
 
-  const renderInputElement = (key: string, parameter: SingleParameter) =>
-    <ParameterSelector parameterKey={key} parameter={parameter} onChange={onNodeParameterChange} />;
+  const renderInputElement = (key: string, parameter: SingleParameter) => (
+    <ParameterSelector parameterKey={key} parameter={parameter} onChange={onNodeParameterChange} />
+  );
 
   const show = selectedWorkflowName === calibrationGraphKey;
   return (
-    <div
-      className={classNames(styles.wrapper, show ? styles.calibrationGraphSelected : "")}
-      onClick={handleSelectWorkflow}
-    >
+    <div className={classNames(styles.wrapper, show ? styles.calibrationGraphSelected : "")} onClick={handleSelectWorkflow}>
       <div className={styles.upperContainer}>
         <div className={styles.leftContainer}>
           <div>{calibrationGraphKey}</div>
@@ -90,18 +85,18 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
           </div>
         </div>
         &nbsp; &nbsp; &nbsp; &nbsp;
-        {(show || selectedWorkflow?.description) &&
+        {(show || selectedWorkflow?.description) && (
           <div className={styles.rightContainer}>
-            {show && <SubgraphBreadcrumbs
-              selectedWorkflowName={selectedWorkflowName}
-              subgraphBreadcrumbs={subgraphBreadcrumbs}
-              onBreadcrumbClick={handleBreadcrumbClick}
-            />}
-            {selectedWorkflow?.description && (
-              <div>{selectedWorkflow?.description}</div>
+            {show && (
+              <SubgraphBreadcrumbs
+                selectedWorkflowName={selectedWorkflowName}
+                subgraphBreadcrumbs={subgraphBreadcrumbs}
+                onBreadcrumbClick={handleBreadcrumbClick}
+              />
             )}
+            {selectedWorkflow?.description && <div>{selectedWorkflow?.description}</div>}
           </div>
-        }
+        )}
       </div>
       <div className={styles.bottomContainer}>
         <div className={styles.parametersContainer}>
@@ -123,7 +118,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
               selectedNodeNameInWorkflow={selectedNodeNameInWorkflow}
               onNodeClick={handleSelectNode}
               subgraphBreadcrumbs={subgraphBreadcrumbs}
-              onSetSubgraphBreadcrumbs={handleSetSubgraphBreadcrumbs}
+              onNodeSecondClick={handleSetSubgraphBreadcrumbs}
             />
           </div>
         )}

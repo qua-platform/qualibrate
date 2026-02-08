@@ -1,7 +1,8 @@
+import logging
 from collections.abc import Sequence
-from typing import Annotated
+from typing import Annotated, Any, cast
 
-from fastapi import APIRouter, Depends, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate.app.api.core.domain.bases.branch import (
@@ -20,7 +21,10 @@ from qualibrate.app.api.core.models.branch import Branch as BranchModel
 from qualibrate.app.api.core.models.node import Node as NodeModel
 from qualibrate.app.api.core.models.paged import PagedCollection
 from qualibrate.app.api.core.models.snapshot import (
+    QubitOutcome,
     SimplifiedSnapshotWithMetadata,
+    SimplifiedSnapshotWithMetadataAndOutcomes,
+    SnapshotHistoryItem,
     SnapshotSearchResult,
 )
 from qualibrate.app.api.core.models.snapshot import Snapshot as SnapshotModel
@@ -29,16 +33,60 @@ from qualibrate.app.api.core.types import (
     PageFilter,
     SearchFilter,
     SearchWithIdFilter,
+    SortField,
 )
+from qualibrate.app.api.core.utils.slice import get_page_slice
 from qualibrate.app.api.dependencies.search import get_search_path
 from qualibrate.app.api.routes.utils.dependencies import (
     get_page_filter,
     get_search_filter,
     get_snapshot_load_type_flag,
 )
+from qualibrate.app.api.routes.utils.snapshot_history import (
+    build_snapshot_tree,
+    paginate_nested_items,
+)
+from qualibrate.app.api.routes.utils.sorting import get_sort_key
 from qualibrate.app.config import get_settings
 
+logger = logging.getLogger(__name__)
+
+# Maximum page size for fetching all items when sorting/grouping is required.
+# This is needed because sorting and grouping require all items in memory.
+MAX_PAGE_SIZE_FOR_GROUPING = 100000
+
 branch_router = APIRouter(prefix="/branch/{name}", tags=["branch"])
+
+
+def _filter_snapshots_by_tags(
+    snapshots: list[SimplifiedSnapshotWithMetadata],
+    required_tags: list[str],
+) -> list[SimplifiedSnapshotWithMetadata]:
+    """Filter snapshots to only those containing all required tags.
+
+    Args:
+        snapshots: List of snapshots to filter.
+        required_tags: List of tag names that must all be present.
+
+    Returns:
+        Filtered list of snapshots that have ALL required tags.
+    """
+    if not required_tags:
+        return snapshots
+
+    required_set = set(required_tags)
+    result = []
+    for snapshot in snapshots:
+        snapshot_tags: list[Any] = []
+        if snapshot.metadata:
+            # Get tags from metadata - handle both dict and object access
+            metadata_dict = snapshot.metadata.model_dump()
+            snapshot_tags = metadata_dict.get("tags", []) or []
+
+        if required_set.issubset(set(snapshot_tags)):
+            result.append(snapshot)
+
+    return result
 
 
 def _get_branch_instance(
@@ -55,6 +103,101 @@ def _get_branch_instance(
         StorageType.timeline_db: BranchTimelineDb,
     }
     return branch_types[settings.storage.type](name=name, settings=settings)
+
+
+def _compute_aggregated_outcomes_for_workflow(
+    branch: BranchBase,
+    metadata: dict[str, Any],
+) -> dict[str, QubitOutcome] | None:
+    """Compute aggregated outcomes for a workflow snapshot.
+
+    For workflow snapshots that have children, this function recursively loads
+    all child snapshots and aggregates their outcomes with failure tracking.
+
+    Args:
+        branch: The branch instance to load child snapshots.
+        metadata: The workflow snapshot's metadata containing 'children' list.
+
+    Returns:
+        Aggregated outcomes dict like {"q1": {"status": "success"},
+        "q2": {"status": "failure", "failed_on": "cal_node"}} or None
+        if no outcomes found.
+    """
+    children_ids = metadata.get("children")
+    if not children_ids or not isinstance(children_ids, list):
+        return None
+
+    aggregated_outcomes: dict[str, QubitOutcome] = {}
+
+    def _collect_outcomes_recursive(
+        snapshot_ids: list[IdType],
+    ) -> None:
+        """Recursively collect outcomes from snapshots and their children."""
+        for snapshot_id in snapshot_ids:
+            try:
+                child_snapshot = branch.get_snapshot(snapshot_id)
+                child_snapshot.load_from_flag(SnapshotLoadTypeFlag.Metadata | SnapshotLoadTypeFlag.DataWithoutRefs)
+                child_content = child_snapshot.content
+                child_metadata = child_content.get("metadata", {})
+                child_data = child_content.get("data", {})
+                node_name = child_metadata.get("name", f"node_{snapshot_id}")
+                node_status = child_metadata.get("status", "")
+
+                logger.info(
+                    f"Processing child {snapshot_id}: name={node_name}, "
+                    f"status={node_status}, has_children={bool(child_metadata.get('children'))}"
+                )
+
+                # Check if this child has its own children (nested workflow)
+                child_children = child_metadata.get("children")
+                if child_children and isinstance(child_children, list):
+                    # Recursively collect from nested workflow
+                    _collect_outcomes_recursive(child_children)
+                else:
+                    # This is a leaf node - collect its outcomes
+                    node_failed = node_status in ("error", "failed")
+                    raw_outcomes = child_data.get("outcomes") if child_data else None
+
+                    logger.info(f"  Leaf node {snapshot_id}: node_failed={node_failed}, raw_outcomes={raw_outcomes}")
+
+                    if raw_outcomes and isinstance(raw_outcomes, dict):
+                        for qubit, outcome_value in raw_outcomes.items():
+                            outcome_str = str(outcome_value).lower()
+
+                            # If node has error/failed status, mark all qubits as failed
+                            if node_failed:
+                                if qubit not in aggregated_outcomes or aggregated_outcomes[qubit].status != "failure":
+                                    aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
+                                    logger.info(
+                                        f"  Marking {qubit} as FAILED (node status={node_status}) on {node_name}"
+                                    )
+                            elif outcome_str in ("successful", "success"):
+                                if qubit not in aggregated_outcomes:
+                                    aggregated_outcomes[qubit] = QubitOutcome(status="success")
+                            elif outcome_str in ("failed", "failure", "error") and (
+                                qubit not in aggregated_outcomes or aggregated_outcomes[qubit].status != "failure"
+                            ):
+                                # Keep the first failure (the node that failed first)
+                                aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
+                                logger.info(f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}")
+                    elif node_failed:
+                        # Node has error status but no outcomes recorded
+                        # This happens when a node throws an exception before recording outcomes
+                        # Mark ALL qubits we've seen so far as potentially failed on this node
+                        # if they were previously successful
+                        logger.info(
+                            f"  Node {node_name} has error status but no outcomes - "
+                            f"marking existing successful qubits as failed"
+                        )
+                        for qubit in list(aggregated_outcomes.keys()):
+                            if aggregated_outcomes[qubit].status == "success":
+                                aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
+                                logger.info(f"  Overriding {qubit} to FAILED on {node_name}")
+            except Exception as e:
+                logger.warning(f"Failed to load child snapshot {snapshot_id}: {e}")
+
+    _collect_outcomes_recursive(children_ids)
+    return aggregated_outcomes if aggregated_outcomes else None
 
 
 @branch_router.get(
@@ -144,10 +287,40 @@ then plots random data.",
       "parents": [365]
     }
     ```
+
+    For workflow snapshots with children, `data.outcomes` will contain
+    outcomes aggregated from all child nodes with failure tracking:
+    ```json
+    {
+      "data": {
+        "outcomes": {
+          "q1": {"status": "success", "failed_on": null},
+          "q2": {"status": "failure", "failed_on": "resonator_spectroscopy"}
+        }
+      }
+    }
+    ```
     """
     snapshot = branch.get_snapshot(snapshot_id)
     snapshot.load_from_flag(load_type_flag)
-    return snapshot.dump()
+    result = snapshot.dump()
+
+    # For workflow snapshots (those with children), compute aggregated outcomes
+    # and put them in data.outcomes with failed_on tracking
+    metadata = snapshot.content.get("metadata", {})
+    children = metadata.get("children")
+    if children and isinstance(children, list) and len(children) > 0:
+        aggregated_outcomes = _compute_aggregated_outcomes_for_workflow(branch, metadata)
+        if aggregated_outcomes:
+            # Put aggregated outcomes in data.outcomes
+            if result.data is None:
+                from qualibrate.app.api.core.models.snapshot import SnapshotData
+
+                result.data = SnapshotData()
+            result.data.outcomes = {qubit: outcome.model_dump() for qubit, outcome in aggregated_outcomes.items()}
+            logger.debug(f"Computed outcomes with failed_on for workflow {snapshot_id}: {result.data.outcomes}")
+
+    return result
 
 
 @branch_router.get("/snapshot/latest", summary="Get latest snapshot")
@@ -187,7 +360,23 @@ def get_latest_snapshot(
     """
     snapshot = branch.get_snapshot()
     snapshot.load_from_flag(load_type_flag)
-    return snapshot.dump()
+    result = snapshot.dump()
+
+    # For workflow snapshots (those with children), compute aggregated outcomes
+    # and put them in data.outcomes with failed_on tracking
+    metadata = snapshot.content.get("metadata", {})
+    children = metadata.get("children")
+    if children and isinstance(children, list) and len(children) > 0:
+        aggregated_outcomes = _compute_aggregated_outcomes_for_workflow(branch, metadata)
+        if aggregated_outcomes:
+            # Put aggregated outcomes in data.outcomes
+            if result.data is None:
+                from qualibrate.app.api.core.models.snapshot import SnapshotData
+
+                result.data = SnapshotData()
+            result.data.outcomes = {qubit: outcome.model_dump() for qubit, outcome in aggregated_outcomes.items()}
+
+    return result
 
 
 @branch_router.get("/snapshot/filter", summary="Get first matching snapshot")
@@ -373,15 +562,49 @@ def get_snapshots_history(
             description="This field is ignored. Use `descending` instead.",
         ),
     ] = False,
+    sort: Annotated[
+        SortField | None,
+        Query(
+            description=(
+                "Field to sort by: 'name' (alphabetical), 'date' (creation "
+                "time), or 'status' (finished first, then skipped, pending, "
+                "running, error). Default sorts by date."
+            )
+        ),
+    ] = None,
+    grouped: Annotated[
+        bool,
+        Query(
+            description=(
+                "When true, returns a nested structure with workflows "
+                "containing their child nodes in an 'items' array. "
+                "Workflows include aggregated statistics (outcomes, "
+                "nodes_completed, etc.). When false (default), returns "
+                "a flat list for backward compatibility."
+            )
+        ),
+    ] = False,
+    search_filters: Annotated[SearchFilter, Depends(get_search_filter)],
     branch: Annotated[BranchBase, Depends(_get_branch_instance)],
-) -> PagedCollection[SimplifiedSnapshotWithMetadata]:
+) -> PagedCollection[SimplifiedSnapshotWithMetadata] | PagedCollection[SnapshotHistoryItem]:
     """List snapshots history.
 
     Returns a paginated list of snapshots for the branch. Order is controlled
-    by the `descending` flag.
+    by the `descending` flag. Optionally filter by date range, name, or node ID.
+    Use the `sort` parameter to sort by name, date, or status.
+
+    When `grouped=true`, returns a nested structure where workflows contain
+    their child nodes in an 'items' array, with aggregated statistics including:
+    - `type_of_execution`: "node" or "workflow"
+    - `items`: nested child snapshots (for workflows)
+    - `outcomes`: aggregated qubit outcomes with failure tracking
+    - `nodes_completed` / `nodes_total`: node success counts
+    - `qubits_completed` / `qubits_total`: qubit success counts
 
     ### Examples
-    **Request:** `branch/init_project/snapshots_history?page=1&per_page=3`
+
+    #### 1) Basic pagination (flat)
+    **Request:** `/branch/main/snapshots_history?page=1&per_page=3`
 
     **Response:**
 
@@ -429,18 +652,147 @@ def get_snapshots_history(
       "total_pages": 45
     }
     ```
+
+    #### 2) Filter by date range
+    **Request:**
+    `/branch/main/snapshots_history?page=1&per_page=100&min_date=2025-08-21&max_date=2025-08-22`
+
+    Returns snapshots created between 2025-08-21 and 2025-08-22 (inclusive).
+
+    #### 3) Filter by exact name
+    **Request:**
+    `/branch/main/snapshots_history?page=1&per_page=100&name=test_cal`
+
+    Returns only snapshots with name exactly matching "test_cal".
+
+    #### 4) Sort by name (A-Z)
+    **Request:**
+    `/branch/main/snapshots_history?page=1&per_page=100&sort=name&descending=false`
+
+    Returns snapshots sorted alphabetically by name (A to Z).
+
+    **Note:** Cannot use both `name` (exact match) and `name_part` (substring
+    match) in the same request - this will return a 400 Bad Request error.
     """
-    total, snapshots = branch.get_latest_snapshots(
-        pages_filter=page_filter,
-        descending=descending,
-    )
-    snapshots_dumped = [SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump()) for snapshot in snapshots]
-    return PagedCollection[SimplifiedSnapshotWithMetadata](
-        page=page_filter.page,
-        per_page=page_filter.per_page,
-        total_items=total,
-        items=snapshots_dumped,
-    )
+    if search_filters.name is not None and search_filters.name_part is not None:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Cannot use both 'name' (exact match) and 'name_part' "
+                "(substring match) parameters together. Use only one."
+            ),
+        )
+
+    # For grouped mode or sorting, we need to fetch all snapshots first
+    # because sorting and tree-building require all items in memory.
+    # Check if we need to fetch all snapshots for post-filtering
+    # Tag filtering requires loading metadata, so we need to fetch all first
+    has_tag_filter = search_filters.tags is not None and len(search_filters.tags) > 0
+
+    # For grouped mode, sorting, or tag filtering, we need to fetch all snapshots
+    if grouped or sort is not None or has_tag_filter:
+        all_pages_filter = PageFilter(page=1, per_page=MAX_PAGE_SIZE_FOR_GROUPING)
+        _, all_snapshots = branch.get_latest_snapshots(
+            pages_filter=all_pages_filter,
+            search_filter=SearchWithIdFilter(**search_filters.model_dump()),
+            descending=False,  # We'll handle sorting/pagination ourselves
+            include_outcomes=True,  # Load outcomes for accurate qubit counting
+        )
+        all_dumped = []
+        for snapshot in all_snapshots:
+            dumped = snapshot.dump()
+            # Extract outcomes from data if available for workflow aggregation
+            outcomes = None
+            if dumped.data and dumped.data.outcomes:
+                outcomes = dumped.data.outcomes
+            all_dumped.append(
+                SimplifiedSnapshotWithMetadataAndOutcomes(
+                    **dumped.model_dump(exclude={"data"}),
+                    outcomes=outcomes,
+                )
+            )
+
+        # Apply tag filtering if specified
+        if has_tag_filter:
+            all_dumped = cast(
+                list[SimplifiedSnapshotWithMetadataAndOutcomes],
+                _filter_snapshots_by_tags(
+                    cast(list[SimplifiedSnapshotWithMetadata], all_dumped),
+                    search_filters.tags or [],
+                ),
+            )
+
+        if sort is not None:
+            # Sort all snapshots by the requested field
+            all_dumped = sorted(
+                all_dumped,
+                key=lambda s: get_sort_key(s, sort, descending),
+                reverse=descending,
+            )
+        elif descending:
+            # Apply descending order if not sorting
+            all_dumped = list(reversed(all_dumped))
+
+        if grouped:
+            # Build nested tree structure
+            tree_items = build_snapshot_tree(cast(list[SimplifiedSnapshotWithMetadata], all_dumped))
+
+            # Sort tree items using the same sort logic as the request parameter.
+            # This fixes a bug where tree_items were always sorted by created_at
+            # regardless of the user's sort parameter.
+            if sort is not None:
+                tree_items.sort(
+                    key=lambda x: get_sort_key(
+                        SimplifiedSnapshotWithMetadata(
+                            id=x.id,
+                            created_at=x.created_at,
+                            parents=x.parents,
+                            metadata=x.metadata,
+                        ),
+                        sort,
+                        descending,
+                    ),
+                    reverse=descending,
+                )
+            else:
+                # Default: sort by created_at (date)
+                tree_items.sort(key=lambda x: x.created_at or x.id, reverse=descending)
+
+            # Paginate the nested items (counting all items including nested)
+            paginated_items, total = paginate_nested_items(tree_items, page_filter.page, page_filter.per_page)
+
+            return PagedCollection[SnapshotHistoryItem](
+                page=page_filter.page,
+                per_page=page_filter.per_page,
+                total_items=total,
+                items=paginated_items,
+            )
+        else:
+            # Flat mode with sorting - apply pagination
+            snapshots_dumped = list(get_page_slice(all_dumped, page_filter))
+            total = len(all_dumped)
+
+            return PagedCollection[SimplifiedSnapshotWithMetadata](
+                page=page_filter.page,
+                per_page=page_filter.per_page,
+                total_items=total,
+                items=snapshots_dumped,
+            )
+    else:
+        # Original flow without sorting or grouping
+        total, snapshots = branch.get_latest_snapshots(
+            pages_filter=page_filter,
+            search_filter=SearchWithIdFilter(**search_filters.model_dump()),
+            descending=descending,
+        )
+        simple_snapshots = [SimplifiedSnapshotWithMetadata(**snapshot.dump().model_dump()) for snapshot in snapshots]
+
+        return PagedCollection[SimplifiedSnapshotWithMetadata](
+            page=page_filter.page,
+            per_page=page_filter.per_page,
+            total_items=total,
+            items=simple_snapshots,
+        )
 
 
 @branch_router.get(

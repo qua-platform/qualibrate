@@ -1,6 +1,7 @@
 """Tests for the repeat_every periodic task decorator."""
 
 import asyncio
+from contextlib import suppress
 from unittest.mock import AsyncMock, Mock
 
 import pytest
@@ -94,10 +95,8 @@ class TestRepeatEvery:
         assert isinstance(task, asyncio.Task)
         # Clean up
         task.cancel()
-        try:
+        with suppress(asyncio.CancelledError):
             await task
-        except asyncio.CancelledError:
-            pass
 
     @pytest.mark.asyncio
     async def test_task_runs_periodically(self):
@@ -119,10 +118,8 @@ class TestRepeatEvery:
 
         # Clean up
         task.cancel()
-        try:
+        with suppress(asyncio.CancelledError):
             await task
-        except asyncio.CancelledError:
-            pass
 
     @pytest.mark.asyncio
     async def test_task_can_be_cancelled(self):
@@ -142,10 +139,8 @@ class TestRepeatEvery:
 
         # Cancel the task
         task.cancel()
-        try:
+        with suppress(asyncio.CancelledError):
             await task
-        except asyncio.CancelledError:
-            pass
 
         # Wait and verify no more executions
         await asyncio.sleep(0.1)
@@ -174,10 +169,8 @@ class TestRepeatEvery:
 
         # Clean up
         task.cancel()
-        try:
+        with suppress(asyncio.CancelledError):
             await task
-        except asyncio.CancelledError:
-            pass
 
     @pytest.mark.asyncio
     async def test_exception_does_not_stop_loop(self):
@@ -201,10 +194,8 @@ class TestRepeatEvery:
 
         # Clean up
         task.cancel()
-        try:
+        with suppress(asyncio.CancelledError):
             await task
-        except asyncio.CancelledError:
-            pass
 
     @pytest.mark.asyncio
     async def test_async_exception_handler(self):
@@ -228,10 +219,8 @@ class TestRepeatEvery:
 
         # Clean up
         task.cancel()
-        try:
+        with suppress(asyncio.CancelledError):
             await task
-        except asyncio.CancelledError:
-            pass
 
     @pytest.mark.asyncio
     async def test_sync_function_decorated(self, mocker):
@@ -261,10 +250,8 @@ class TestRepeatEvery:
 
         # Clean up
         task.cancel()
-        try:
+        with suppress(asyncio.CancelledError):
             await task
-        except asyncio.CancelledError:
-            pass
 
     @pytest.mark.asyncio
     async def test_preserves_function_metadata(self):

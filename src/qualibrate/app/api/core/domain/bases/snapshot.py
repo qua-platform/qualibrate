@@ -182,5 +182,100 @@ class SnapshotBase(DomainWithConfigBase, IDump, ABC):
     def update_entry(self, updates: Mapping[str, Any]) -> bool:
         pass
 
+    # --- Tag Management Methods ---
+
+    @abstractmethod
+    def get_tags(self) -> list[str]:
+        """Get the tags assigned to this snapshot.
+
+        Returns:
+            List of tag names, or empty list if no tags.
+        """
+        pass
+
+    @abstractmethod
+    def set_tags(self, tags: list[str]) -> bool:
+        """Set the tags for this snapshot (replaces existing tags).
+
+        Args:
+            tags: List of tag names to set.
+
+        Returns:
+            True if tags were set successfully, False otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def add_tag(self, tag: str) -> bool:
+        """Add a tag to this snapshot.
+
+        Args:
+            tag: The tag name to add.
+
+        Returns:
+            True if tag was added (or already exists), False on error.
+        """
+        pass
+
+    @abstractmethod
+    def remove_tag(self, tag: str) -> bool:
+        """Remove a tag from this snapshot.
+
+        Args:
+            tag: The tag name to remove.
+
+        Returns:
+            True if tag was removed (or didn't exist), False on error.
+        """
+        pass
+
+    # --- Comment Management Methods ---
+
+    @abstractmethod
+    def get_comments(self) -> list[dict[str, Any]]:
+        """Get all comments for this snapshot.
+
+        Returns:
+            List of comment dictionaries with id, value, and created_at fields.
+        """
+        pass
+
+    @abstractmethod
+    def create_comment(self, value: str) -> dict[str, Any] | None:
+        """Create a new comment on this snapshot.
+
+        Args:
+            value: The comment text.
+
+        Returns:
+            The created comment dict with id, value, created_at, or None on error.
+        """
+        pass
+
+    @abstractmethod
+    def update_comment(self, comment_id: int, value: str) -> bool:
+        """Update an existing comment.
+
+        Args:
+            comment_id: The ID of the comment to update.
+            value: The new comment text.
+
+        Returns:
+            True if comment was updated, False if not found or on error.
+        """
+        pass
+
+    @abstractmethod
+    def remove_comment(self, comment_id: int) -> bool:
+        """Remove a comment from this snapshot.
+
+        Args:
+            comment_id: The ID of the comment to remove.
+
+        Returns:
+            True if comment was removed (or didn't exist), False on error.
+        """
+        pass
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(id={self.id!r}, load_type={self.load_type_flag!r})"

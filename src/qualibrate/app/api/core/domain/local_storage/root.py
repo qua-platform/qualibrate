@@ -58,11 +58,13 @@ class RootLocalStorage(RootBase):
         pages_filter: PageFilter,
         search_filter: SearchWithIdFilter | None = None,
         descending: bool = False,
+        include_outcomes: bool = False,
     ) -> tuple[int, Sequence[SnapshotBase]]:
         return BranchLocalStorage("main", settings=self._settings).get_latest_snapshots(
             pages_filter=pages_filter,
             search_filter=search_filter,
             descending=descending,
+            include_outcomes=include_outcomes,
         )
 
     def get_latest_nodes(

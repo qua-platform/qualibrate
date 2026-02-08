@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from typing import Annotated
 
@@ -18,6 +19,8 @@ from qualibrate.app.api.routes.utils.snapshot_load_type import (
     parse_load_type_flag,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def get_page_filter(
     page: int = Query(
@@ -35,6 +38,13 @@ def get_page_filter(
 
 
 def get_search_filter(
+    snapshot_name: Annotated[
+        str | None,
+        Query(
+            alias="name",
+            description="Exact snapshot name to match.",
+        ),
+    ] = None,
     name_part: Annotated[
         str | None,
         Query(description="Substring to match within snapshot name."),
@@ -55,14 +65,31 @@ def get_search_filter(
         date | None,
         Query(description="Latest snapshot date (inclusive)."),
     ] = None,
+    tag_name: Annotated[
+        list[str] | None,
+        Query(
+            description=(
+                "Filter by tag names. Snapshots must have ALL specified tags "
+                "(AND logic). Can specify multiple: ?tag_name=t1&tag_name=t2"
+            )
+        ),
+    ] = None,
 ) -> SearchFilter:
-    return SearchFilter(
+    search_filter = SearchFilter(
+        name=snapshot_name,
+        name_part=name_part,
         min_node_id=min_node_id,
         max_node_id=max_node_id,
         min_date=min_date,
         max_date=max_date,
-        name_part=name_part,
+        tags=tag_name,
     )
+    logger.debug(
+        f"Created SearchFilter: name={snapshot_name!r}, name_part={name_part!r}, "
+        f"min_node_id={min_node_id}, max_node_id={max_node_id}, "
+        f"min_date={min_date}, max_date={max_date}, tags={tag_name}"
+    )
+    return search_filter
 
 
 def get_search_with_id_filter(

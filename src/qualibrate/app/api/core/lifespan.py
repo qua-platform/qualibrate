@@ -1,6 +1,6 @@
 import asyncio
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 
@@ -18,7 +18,5 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
     finally:
         # Cancel periodic tasks on shutdown
         snapshot_history_task.cancel()
-        try:
+        with suppress(asyncio.CancelledError):
             await snapshot_history_task
-        except asyncio.CancelledError:
-            pass

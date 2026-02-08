@@ -1,25 +1,27 @@
-import React from "react";
-import styles from "./Data.module.scss";
-import PaginationWrapper from "./components/Pagination/PaginationWrapper";
-import { JSONEditor } from "../../components";
-import { SnapshotsTimeline } from "./components/SnapshotsTimeline/SnapshotsTimeline";
+import React from "react"; // eslint-disable-next-line css-modules/no-unused-class
+import styles from "../Data/Data.module.scss";
+import { DataLeftPanel, DataRightPanel } from "./index";
+import { TitleBarMenu } from "../TopbarMenu";
+import { RightSidePanel } from "../RightSidebar";
 import { useSelector } from "react-redux";
-import { getResult } from "../../stores/SnapshotsStore";
+import { getSelectedSnapshot } from "../../stores/SnapshotsStore";
 
-export const Data = () => {
-  const result = useSelector(getResult);
+const Data = () => {
+  const selectedSnapshot = useSelector(getSelectedSnapshot);
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.explorer}>
-        <div className={styles.dataWrapper}>
-          <div className={styles.data}>
-            <SnapshotsTimeline />
+    <>
+      <DataLeftPanel />
+      <div className={styles.titlebarWrapper}>
+        <TitleBarMenu customTitle={`${selectedSnapshot?.id ?? ""} ${selectedSnapshot?.metadata?.name ?? ""}`} />
+        <div className={styles.rightsidePanelWrapper}>
+          <div className={styles.contentWrapper}>
+            <DataRightPanel />
           </div>
-          <PaginationWrapper />
+          <RightSidePanel />
         </div>
-        <div className={styles.viewer}>{result && <JSONEditor title={"RESULTS"} jsonDataProp={result} height={"100%"} />}</div>
       </div>
-    </div>
+    </>
   );
 };
+export default Data;

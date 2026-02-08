@@ -8,6 +8,7 @@ export const {
   setRunStatus,
   setHistory,
   setSnapshotInfo,
+  setSnapshotUpdateRequired,
   setShowConnectionErrorDialog,
   setConnectionLostAt,
   setConnectionLostSeconds,

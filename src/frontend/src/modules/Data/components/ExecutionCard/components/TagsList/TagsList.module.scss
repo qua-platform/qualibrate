@@ -1,0 +1,55 @@
+.executionTags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #1c2128;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #c9d1d9;
+  position: relative;
+}
+
+.tagDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #79c0ff;
+}
+
+.tagRemove {
+  cursor: pointer;
+  color: #7d8590;
+  font-size: 12px;
+  line-height: 1;
+  margin-left: 4px;
+  transition: color 0.2s;
+  display: none;
+}
+
+.tagRemove:hover {
+  color: #f85149;
+}
+
+.tag:hover .tagRemove {
+  display: inline;
+}
+
+.addTagButton {
+  padding: 4px 8px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  color: #c9d1d9;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}

@@ -42,14 +42,11 @@ class TestSnapshotHistoryBroadcaster:
         assert broadcaster._previous_snapshot_id is None
 
     @pytest.mark.asyncio
-    async def test_broadcast_skipped_when_no_subscribers(
-        self, broadcaster, mock_manager, mocker
-    ):
+    async def test_broadcast_skipped_when_no_subscribers(self, broadcaster, mock_manager, mocker):
         """Test that broadcast is skipped when there are no subscribers."""
         mock_manager.any_subscriber = False
         mocker.patch(
-            "qualibrate.app.api.sockets.tasks"
-            ".get_need_to_update_snapshots_history_socket_manager",
+            "qualibrate.app.api.sockets.tasks.get_need_to_update_snapshots_history_socket_manager",
             return_value=mock_manager,
         )
 
@@ -58,13 +55,10 @@ class TestSnapshotHistoryBroadcaster:
         mock_manager.broadcast.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_broadcast_called_when_subscribers_exist(
-        self, broadcaster, mock_manager, mock_settings, mocker
-    ):
+    async def test_broadcast_called_when_subscribers_exist(self, broadcaster, mock_manager, mock_settings, mocker):
         """Test that broadcast is called when subscribers exist."""
         mocker.patch(
-            "qualibrate.app.api.sockets.tasks"
-            ".get_need_to_update_snapshots_history_socket_manager",
+            "qualibrate.app.api.sockets.tasks.get_need_to_update_snapshots_history_socket_manager",
             return_value=mock_manager,
         )
         mocker.patch(
@@ -85,13 +79,10 @@ class TestSnapshotHistoryBroadcaster:
         mock_manager.broadcast.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_state_tracked_between_calls(
-        self, broadcaster, mock_manager, mock_settings, mocker
-    ):
+    async def test_state_tracked_between_calls(self, broadcaster, mock_manager, mock_settings, mocker):
         """Test that previous snapshot ID is tracked between calls."""
         mocker.patch(
-            "qualibrate.app.api.sockets.tasks"
-            ".get_need_to_update_snapshots_history_socket_manager",
+            "qualibrate.app.api.sockets.tasks.get_need_to_update_snapshots_history_socket_manager",
             return_value=mock_manager,
         )
         mocker.patch(
@@ -120,13 +111,10 @@ class TestSnapshotHistoryBroadcaster:
         assert broadcaster._previous_snapshot_id == 20
 
     @pytest.mark.asyncio
-    async def test_broadcast_message_format(
-        self, broadcaster, mock_manager, mock_settings, mocker
-    ):
+    async def test_broadcast_message_format(self, broadcaster, mock_manager, mock_settings, mocker):
         """Test that the broadcast message has correct format."""
         mocker.patch(
-            "qualibrate.app.api.sockets.tasks"
-            ".get_need_to_update_snapshots_history_socket_manager",
+            "qualibrate.app.api.sockets.tasks.get_need_to_update_snapshots_history_socket_manager",
             return_value=mock_manager,
         )
         mocker.patch(
@@ -156,13 +144,10 @@ class TestSnapshotHistoryBroadcaster:
         assert message["update_required"] is True
 
     @pytest.mark.asyncio
-    async def test_broadcast_update_not_required_when_same_id(
-        self, broadcaster, mock_manager, mock_settings, mocker
-    ):
+    async def test_broadcast_update_not_required_when_same_id(self, broadcaster, mock_manager, mock_settings, mocker):
         """Test update_required is False when IDs match."""
         mocker.patch(
-            "qualibrate.app.api.sockets.tasks"
-            ".get_need_to_update_snapshots_history_socket_manager",
+            "qualibrate.app.api.sockets.tasks.get_need_to_update_snapshots_history_socket_manager",
             return_value=mock_manager,
         )
         mocker.patch(
@@ -197,13 +182,10 @@ class TestSnapshotHistoryBroadcaster:
         assert message["update_required"] is False
 
     @pytest.mark.asyncio
-    async def test_handles_no_snapshots(
-        self, broadcaster, mock_manager, mock_settings, mocker
-    ):
+    async def test_handles_no_snapshots(self, broadcaster, mock_manager, mock_settings, mocker):
         """Test handling when no snapshots exist."""
         mocker.patch(
-            "qualibrate.app.api.sockets.tasks"
-            ".get_need_to_update_snapshots_history_socket_manager",
+            "qualibrate.app.api.sockets.tasks.get_need_to_update_snapshots_history_socket_manager",
             return_value=mock_manager,
         )
         mocker.patch(

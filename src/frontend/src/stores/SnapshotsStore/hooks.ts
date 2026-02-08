@@ -1,25 +1,27 @@
 import { useEffect } from "react";
-import { useRootDispatch } from "../index";
-import { fetchGitgraphSnapshots } from "./actions";
+import { useRootDispatch } from "..";
+import { fetchGitgraphSnapshots, fetchSnapshotTags } from "./actions";
 import { useSelector } from "react-redux";
-import { getPageNumber } from "./selectors";
+import { getSnapshotsSearchQuery } from "./selectors";
 import { getIsSnapshotUpdateRequired } from "../WebSocketStore";
 
 export const useInitSnapshots = () => {
   const dispatch = useRootDispatch();
-  const pageNumber = useSelector(getPageNumber);
   const isUpdateRequired = useSelector(getIsSnapshotUpdateRequired);
+  const snapshotsSearchQuery = useSelector(getSnapshotsSearchQuery);
 
   useEffect(() => {
     dispatch(fetchGitgraphSnapshots(true));
-  }, [pageNumber]);
-
-  // TODO Add lastSelectedId! in state
+    dispatch(fetchSnapshotTags());
+  }, []);
 
   useEffect(() => {
     if (isUpdateRequired) {
       dispatch(fetchGitgraphSnapshots(false));
     }
-  }, [isUpdateRequired, pageNumber]);
-  // -----------------------------------------------------------
+  }, [isUpdateRequired]);
+
+  useEffect(() => {
+    dispatch(fetchGitgraphSnapshots(false));
+  }, [snapshotsSearchQuery]);
 };

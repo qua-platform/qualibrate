@@ -1,9 +1,8 @@
 import { MarkerType } from "@xyflow/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getLayoutedElements } from "./utils";
-import { FetchGraphResponse, GraphLibraryApi, EdgeWithData, NodeWithData } from "../../stores/GraphStores/GraphLibrary";
+import { EdgeWithData, FetchGraphResponse, GraphLibraryApi, NodeWithData } from "../../stores/GraphStores/GraphLibrary";
 import { LOOPING_EDGE_TYPE } from "./components";
-// import {MOCK_WORKFLOW_ELEMENTS} from "../../../tests/unit/utils/mocks/workflow"
 
 const DEFAULT_COLOR = "#40464d";
 const LIGHT_GREAY = "#70767d";
@@ -40,8 +39,7 @@ const useGraphData = (selectedWorkflowName?: string, subgraphBreadcrumbs?: strin
       }
     };
 
-    if (selectedWorkflowName)
-      fetchWorkflowGraph(selectedWorkflowName);
+    if (selectedWorkflowName) fetchWorkflowGraph(selectedWorkflowName);
   }, [selectedWorkflowName]);
 
   const resetWorkflowGraphElements = () => {
@@ -54,33 +52,35 @@ const useGraphData = (selectedWorkflowName?: string, subgraphBreadcrumbs?: strin
     getLayoutedElements(data).then((res) => {
       if (res) {
         setNodes(res.nodes as NodeWithData[]);
-        setEdges(res.edges.map((edge) => {
-          let color = DEFAULT_COLOR;
+        setEdges(
+          res.edges.map((edge) => {
+            let color = DEFAULT_COLOR;
 
-          if (edge.type === LOOPING_EDGE_TYPE) {
+            if (edge.type === LOOPING_EDGE_TYPE) {
               color = LIGHT_GREAY;
-          } else {
+            } else {
               if (edge.data?.connect_on === true) {
-                  color = GREEN;
+                color = GREEN;
               } else if (edge.data?.connect_on === false) {
-                  color = RED;
+                color = RED;
               }
-          }
+            }
 
-          return {
+            return {
               ...edge,
               style: {
-                  strokeWidth: 2,
-                  stroke: color,
+                strokeWidth: 2,
+                stroke: color,
               },
               markerEnd: {
-                  type: MarkerType.ArrowClosed,
-                  width: 60,
-                  height: 8,
-                  color,
+                type: MarkerType.ArrowClosed,
+                width: 60,
+                height: 8,
+                color,
               },
-          };
-        }));
+            };
+          })
+        );
         setShouldResetView(true);
       }
     });
@@ -104,12 +104,17 @@ const useGraphData = (selectedWorkflowName?: string, subgraphBreadcrumbs?: strin
     layoutAndSetNodesAndEdges(graph);
   }, [unformattedWorkflowElements, subgraphBreadcrumbs]);
 
-  const selectNode = useCallback((selectedNode?: string) => {
-    setNodes(nodes.map(node => ({
-      ...node,
-      selected: selectedNode === node.data.label
-    })));
-  }, [nodes]);
+  const selectNode = useCallback(
+    (selectedNode?: string) => {
+      setNodes(
+        nodes.map((node) => ({
+          ...node,
+          selected: selectedNode === node.data.label,
+        }))
+      );
+    },
+    [nodes]
+  );
 
   return {
     nodes,

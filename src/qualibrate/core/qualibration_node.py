@@ -420,6 +420,20 @@ class QualibrationNode(
             return None
         return self.storage_manager.snapshot_idx
 
+    def set_workflow_parent_id(self, parent_id: int | None) -> None:
+        """Set the parent workflow ID for this node's snapshot.
+
+        When running within a workflow, this ensures the node's snapshot is
+        created with workflow_parent_id in its metadata from the start,
+        preventing it from appearing at the top level of history.
+
+        Args:
+            parent_id: The snapshot ID of the parent workflow, or None.
+        """
+        storage_manager = self._get_storage_manager()
+        if hasattr(storage_manager, "set_workflow_parent_id"):
+            storage_manager.set_workflow_parent_id(parent_id)
+
     def run_action(
         self,
         func: ActionCallableType | None = None,

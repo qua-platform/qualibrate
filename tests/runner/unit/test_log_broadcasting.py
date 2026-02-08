@@ -44,9 +44,7 @@ class TestDatetimeSerialization:
         }
 
         # Make send_json raise TypeError like real JSON serialization would
-        mock_websocket.send_json.side_effect = TypeError(
-            "Object of type datetime is not JSON serializable"
-        )
+        mock_websocket.send_json.side_effect = TypeError("Object of type datetime is not JSON serializable")
 
         # Broadcast should handle the error gracefully and disconnect the "failed" client
         await manager.broadcast(log_entry_with_datetime)
@@ -93,8 +91,8 @@ class TestBroadcastLogFunction:
         await manager.connect(mock_ws)
 
         # Import and set up the broadcast callback
-        from qualibrate.runner.core.app.lifespan import _setup_log_broadcasting
         from qualibrate.core.utils.logger_m import logger
+        from qualibrate.runner.core.app.lifespan import _setup_log_broadcasting
 
         # Get the running event loop and pass it to setup
         loop = asyncio.get_running_loop()
@@ -145,8 +143,8 @@ class TestBroadcastLogFunction:
         mock_ws.send_json = AsyncMock()
         await manager.connect(mock_ws)
 
-        from qualibrate.runner.core.app.lifespan import _setup_log_broadcasting
         from qualibrate.core.utils.logger_m import logger
+        from qualibrate.runner.core.app.lifespan import _setup_log_broadcasting
 
         loop = asyncio.get_running_loop()
         _setup_log_broadcasting(loop)
@@ -184,8 +182,8 @@ class TestBroadcastLogFunction:
         mock_ws.send_json = AsyncMock()
         await manager.connect(mock_ws)
 
-        from qualibrate.runner.core.app.lifespan import _setup_log_broadcasting
         from qualibrate.core.utils.logger_m import logger
+        from qualibrate.runner.core.app.lifespan import _setup_log_broadcasting
 
         loop = asyncio.get_running_loop()
         _setup_log_broadcasting(loop)
