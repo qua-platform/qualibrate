@@ -300,10 +300,9 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                     for qubit, outcome in child_outcomes.items():
                         if qubit not in item_outcomes:
                             item_outcomes[qubit] = outcome
-                        elif outcome.status == "failure":
+                        elif outcome.status == "failure" and item_outcomes[qubit].status != "failure":
                             # Keep the first failure
-                            if item_outcomes[qubit].status != "failure":
-                                item_outcomes[qubit] = outcome
+                            item_outcomes[qubit] = outcome
 
             # Store aggregated outcomes on the nested workflow
             if item_outcomes:
@@ -354,19 +353,18 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
                 child_status = child.metadata.status if child.metadata else None
                 if child_status in ("finished", "success"):
                     direct_successful += 1
-                elif child.type_of_execution == ExecutionType.workflow:
+                elif child.type_of_execution == ExecutionType.workflow and child.items:
                     # For nested subgraphs, check their computed success
                     # Use the >50% rule recursively
-                    if child.items:
-                        nested_direct = len(child.items)
-                        nested_success = sum(
-                            True
-                            for c in child.items
-                            if (status := c.metadata.status if c.metadata else None) is not None
-                            and status in ("finished", "success")
-                        )
-                        if nested_success > nested_direct / 2:
-                            direct_successful += 1
+                    nested_direct = len(child.items)
+                    nested_success = sum(
+                        True
+                        for c in child.items
+                        if (status := c.metadata.status if c.metadata else None) is not None
+                        and status in ("finished", "success")
+                    )
+                    if nested_success > nested_direct / 2:
+                        direct_successful += 1
 
             # Subgraph counts as completed if >50% of direct children are successful
             subgraph_completed = 1 if direct_successful > direct_children_count / 2 else 0
@@ -402,10 +400,9 @@ def compute_workflow_aggregates(workflow: SnapshotHistoryItem) -> None:
         for qubit, outcome in child_outcomes.items():
             if qubit not in merged_outcomes:
                 merged_outcomes[qubit] = outcome
-            elif outcome.status == "failure":
+            elif outcome.status == "failure" and merged_outcomes[qubit].status != "failure":
                 # Keep the first failure
-                if merged_outcomes[qubit].status != "failure":
-                    merged_outcomes[qubit] = outcome
+                merged_outcomes[qubit] = outcome
 
     # Set computed fields
     workflow.outcomes = merged_outcomes if merged_outcomes else None

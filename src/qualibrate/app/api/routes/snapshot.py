@@ -8,8 +8,6 @@ import requests
 from fastapi import APIRouter, Body, Cookie, Depends, HTTPException, Path, Query
 from qualibrate_config.models import QualibrateConfig, StorageType
 
-logger_local = logging.getLogger(__name__)
-
 from qualibrate.app.api.core.domain.bases.snapshot import (
     SnapshotBase,
     SnapshotLoadTypeFlag,
@@ -53,6 +51,8 @@ from qualibrate.app.api.routes.utils.dependencies import (
 from qualibrate.app.config import (
     get_settings,
 )
+
+logger_local = logging.getLogger(__name__)
 
 snapshot_router = APIRouter(prefix="/snapshot/{id}", tags=["snapshot"])
 
@@ -148,13 +148,12 @@ def _compute_aggregated_outcomes_for_workflow(
                             elif outcome_str in ("successful", "success"):
                                 if qubit not in aggregated_outcomes:
                                     aggregated_outcomes[qubit] = QubitOutcome(status="success")
-                            elif outcome_str in ("failed", "failure", "error"):
+                            elif outcome_str in ("failed", "failure", "error") and (
+                                qubit not in aggregated_outcomes or aggregated_outcomes[qubit].status != "failure"
+                            ):
                                 # Keep the first failure (the node that failed first)
-                                if qubit not in aggregated_outcomes or aggregated_outcomes[qubit].status != "failure":
-                                    aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
-                                    logger_local.info(
-                                        f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}"
-                                    )
+                                aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
+                                logger_local.info(f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}")
                     elif node_failed:
                         # Node has error status but no outcomes recorded
                         # This happens when a node throws an exception before recording outcomes

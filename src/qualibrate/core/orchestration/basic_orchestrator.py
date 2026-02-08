@@ -527,11 +527,10 @@ class BasicOrchestrator(QualibrationOrchestrator[GraphElementTypeVar], Generic[G
         child_id: int | None = None
         if isinstance(element, QualibrationNode):
             child_id = element.snapshot_idx
-        elif isinstance(element, QualibrationGraph):
+        elif isinstance(element, QualibrationGraph) and element._orchestrator is not None:
             # For nested graphs, get the workflow snapshot ID from its orchestrator
-            if element._orchestrator is not None:
-                orch = cast(BasicOrchestrator[Any], element._orchestrator)
-                child_id = orch._workflow_snapshot_idx
+            orch = cast(BasicOrchestrator[Any], element._orchestrator)
+            child_id = orch._workflow_snapshot_idx
 
         if child_id is not None:
             self._children_ids.append(child_id)

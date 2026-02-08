@@ -242,7 +242,7 @@ class TestSnapshotCommentsAPI:
             "/api/snapshot/3/comment/create",
             json={"value": "Comment 1"},
         )
-        resp2 = client_custom_settings.post(
+        client_custom_settings.post(
             "/api/snapshot/3/comment/create",
             json={"value": "Comment 2"},
         )

@@ -1,6 +1,6 @@
 import asyncio
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from typing import Any
 
@@ -60,7 +60,5 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
         run_status_task.cancel()
         execution_history_task.cancel()
         for task in (run_status_task, execution_history_task):
-            try:
+            with suppress(asyncio.CancelledError):
                 await task
-            except asyncio.CancelledError:
-                pass
