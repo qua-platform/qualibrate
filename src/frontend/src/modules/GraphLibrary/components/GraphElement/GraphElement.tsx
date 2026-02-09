@@ -51,7 +51,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
   const handleSubmit = () => dispatch(submitWorkflow());
   const handleSelectWorkflow = () => dispatch(setSelectedWorkflowName(calibrationGraphKey));
   const handleSelectNode = (nodeName?: string) => dispatch(setSelectedNodeNameInWorkflow(nodeName));
-  const handleSetSubgraphBreadcrumbs = (key: string) => dispatch(setSubgraphForward(key));
+  const handleSetSubgraphBreadcrumbs = (key: string, isWorkflow?: boolean) => isWorkflow && dispatch(setSubgraphForward(key));
   const handleBreadcrumbClick = (index: number) => dispatch(setSubgraphBack(index));
 
   const handleSetError = (key: string, isValid: boolean) => {
