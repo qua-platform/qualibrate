@@ -45,7 +45,7 @@ export const MeasurementElementGraph: React.FC<IProps> = ({ onNodeClick }) => {
   const subgraphBreadcrumbs = useSelector(getGraphStatuSubgraphBreadcrumbs);
   const selectedNodeNameInWorkflow = useSelector(getGraphStatuSelectedNodeNameInWorkflow);
 
-  const handleSetSubgraphBreadcrumbs = (key: string) => dispatch(setGraphStatusSubgraphForward(key));
+  const handleSetSubgraphBreadcrumbs = (key: string, isWorkflow?: boolean) => isWorkflow && dispatch(setGraphStatusSubgraphForward(key));
   const handleBreadcrumbClick = (index: number) => dispatch(setGraphStasetSubgraphBack(index));
 
   const isRunning = runStatusGraphStatus === "running";
