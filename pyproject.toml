@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate"
-version = "1.0.2a1"
+version = "1.0.2a2"
 description = "Qubit calibration software"
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate"
@@ -11,6 +11,9 @@ packages = [
     { include = "qualibrate", from = "src" },  # Main package
     { include = "qualibrate_examples", from = "src" }        # Examples
 ]
+  include = [
+      { path = "src/qualibrate/app/qualibrate_static/**/*", format = ["sdist", "wheel"] }
+  ]
 
 # NOTE: qualibrate_static/ will be inside src/qualibrate/app/ after flattening
 # No need for explicit include - it's packaged automatically as part of qualibrate
