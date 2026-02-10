@@ -36,17 +36,10 @@ jobs:
           # Workaround for Generate build number cant handle + in version string
           echo "buildNumberString=$(echo ${{ github.event.inputs.versionString }} | sed 's/+/_/g')" >> $GITHUB_OUTPUT
 
-      - name: Generate build number
-        id: buildnumber
-        uses: qm-labs/sw_release/.github/actions/build-tag-number@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          prefix: ${{ steps.init.outputs.buildNumberString }}
-
       - name: Set version
         run: |
           set -xe
-          VERSION=${{ github.event.inputs.versionString }}${{ env.BUILD_NUMBER}}
+          VERSION=${{ github.event.inputs.versionString }}
           if [[ "$VERSION" =~ ^([0-9]+\.[0-9]+\.[0-9]+)([a-zA-Z0-9.-]*)$ ]]; then
             echo "BASE_VERSION=${BASH_REMATCH[1]}" >> $GITHUB_ENV
             echo "VERSION_SUFFIX=${BASH_REMATCH[2]}" >> $GITHUB_ENV
@@ -65,7 +58,7 @@ jobs:
           pip install poetry-dynamic-versioning
 
       - name: Configure internal PyPI
-        uses: qm-labs/actions-python/configure-internal-pypi@v1
+        uses: ./.github/actions/configure-internal-pypi
         with:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
@@ -90,21 +83,6 @@ jobs:
           mkdir -p src/qualibrate/app/qualibrate_static
           cp -r src/frontend/dist/* src/qualibrate/app/qualibrate_static/
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.CI_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.CI_AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Fetch CodeArtifact metadata
-        id: code-artifact-metadata
-        shell: bash
-        run: |
-          set -xe
-          echo "code-artifact-token=$(aws codeartifact get-authorization-token --domain quantum-machines --domain-owner 439440158105 --query authorizationToken --output text)" >> $GITHUB_OUTPUT
-          echo "code-artifact-repo-url=$(aws codeartifact get-repository-endpoint --domain quantum-machines --domain-owner 439440158105 --repository qm-pypi --format pypi --query repositoryEndpoint --output text)" >> $GITHUB_OUTPUT
-
       - name: Update package version
         run: |
           set -xe
@@ -115,10 +93,8 @@ jobs:
       - name: Build and publish to private PyPI
         run: |
           set -xe
-          poetry config repositories.qm-repo ${{ steps.code-artifact-metadata.outputs.code-artifact-repo-url }}
-          poetry config http-basic.qm-repo "aws" ${{ steps.code-artifact-metadata.outputs.code-artifact-token }}
           poetry build
-          poetry publish -r qm-repo
+          poetry publish -r qm-pypi
 
       - name: Create and push tag
         env:

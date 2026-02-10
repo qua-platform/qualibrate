@@ -1,0 +1,35 @@
+name: setup-internal-pypi
+
+description: >
+  Composite action to configure AWS credentials and connect to internal PyPI repository (with Poetry support).
+
+inputs:
+  AWS_ACCOUNT_ID:
+    description: 'AWS Account ID for role assumption'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT_ID }}:role/sw_gh_actions
+        aws-region: us-east-1
+
+    - name: Connect to internal PyPI repository
+      shell: bash
+      run: |
+        echo "Configuring internal PyPI repository"
+        export CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token --domain quantum-machines --domain-owner 439440158105 --region us-east-1 --query authorizationToken --output text)
+
+        # Configure pip
+        pip config set global.extra-index-url https://aws:$CODEARTIFACT_AUTH_TOKEN@quantum-machines-439440158105.d.codeartifact.us-east-1.amazonaws.com/pypi/qm-pypi/simple/
+        pip config set global.index-url https://pypi.org/simple
+
+        # Configure poetry
+        poetry config repositories.qm-pypi https://quantum-machines-439440158105.d.codeartifact.us-east-1.amazonaws.com/pypi/qm-pypi/simple/
+        poetry config http-basic.qm-pypi aws ${CODEARTIFACT_AUTH_TOKEN}
+
+        echo "Poetry configuration:"
+        poetry config --list
