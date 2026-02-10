@@ -128,11 +128,3 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git tag -a "iv${{ env.FULL_VERSION }}" -m "Internal release ${{ env.FULL_VERSION }}"
           git push origin "iv${{ env.FULL_VERSION }}"
-
-      - name: Send slack message
-        uses: qm-labs/actions-send-slack-message@v1
-        if: success()
-        with:
-          channelId: "C05HJSFPWBC"
-          message: "New internal version of qualibrate has been published to private PyPI. Version: ${{ env.FULL_VERSION }}"
-          token: "${{ secrets.SLACK_BOT_TOKEN }}"
