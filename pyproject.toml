@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate"
-version = "1.0.1"
+version = "1.0.2a1"
 description = "Qubit calibration software"
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate"
