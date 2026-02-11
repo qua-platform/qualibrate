@@ -40,9 +40,7 @@ def should_repeat_ramsey(node: QualibrationNode, target: str) -> bool:
     t2_us = t2_star / 1e-6
     target_us = graph.parameters.target_t2_star_us
     if t2_us < target_us:
-        node.log(
-            f"{target}: T2* = {t2_us:.2f} μs < target {target_us:.2f} μs; retrying."
-        )
+        node.log(f"{target}: T2* = {t2_us:.2f} μs < target {target_us:.2f} μs; retrying.")
         return True
 
     node.log(f"{target}: T2* = {t2_us:.2f} μs meets target; stopping loop.")
