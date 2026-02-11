@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate"
-version = "1.0.2a3"
+version = "1.0.2"
 description = "Qubit calibration software"
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate"
@@ -51,8 +51,7 @@ tomli-w = "^1.0.0"
 requests = "^2.32.4"              # From app
 websockets = "^15.0.1"            # From runner
 a2wsgi = "^1.10.8"                # From composite (for WSGI middleware)
-#qualibrate-config = "^0.1.9,<0.2.0"  # Using version range
-qualibrate-config = "0.1.9a1"
+qualibrate-config = "^0.1.9,<0.2.0"  # Using version range
 # TODO: Uncomment after publishing json-timeline-database
 # json-timeline-database = { version = "^X.X.X", optional = true }
 
