@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qualibrate"
-version = "1.0.2a2"
+version = "1.0.2a3"
 description = "Qubit calibration software"
 authors = ["Quantum Machines <info@quantum-machines.co>"]
 repository = "https://github.com/qua-platform/qualibrate"
@@ -11,12 +11,12 @@ packages = [
     { include = "qualibrate", from = "src" },  # Main package
     { include = "qualibrate_examples", from = "src" }        # Examples
 ]
-  include = [
-      { path = "src/qualibrate/app/qualibrate_static/**/*", format = ["sdist", "wheel"] }
-  ]
 
-# NOTE: qualibrate_static/ will be inside src/qualibrate/app/ after flattening
-# No need for explicit include - it's packaged automatically as part of qualibrate
+# INCLUDE: Non-Python files that need to be packaged
+# Static files (HTML, CSS, JS) from frontend build must be explicitly included
+include = [
+    { path = "src/qualibrate/app/qualibrate_static/**/*", format = ["sdist", "wheel"] }
+]
 
 # ============================================================================
 # RUNTIME DEPENDENCIES
@@ -51,8 +51,8 @@ tomli-w = "^1.0.0"
 requests = "^2.32.4"              # From app
 websockets = "^15.0.1"            # From runner
 a2wsgi = "^1.10.8"                # From composite (for WSGI middleware)
-qualibrate-config = "^0.1.8,<0.2.0"  # Using version range (was pinned to 0.1.8 in composite)
-
+#qualibrate-config = "^0.1.9,<0.2.0"  # Using version range
+qualibrate-config = "0.1.9a1"
 # TODO: Uncomment after publishing json-timeline-database
 # json-timeline-database = { version = "^X.X.X", optional = true }
 
