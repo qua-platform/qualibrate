@@ -1,0 +1,1308 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="QM. Technologies Ltd.">
+      
+      
+      
+        <link rel="prev" href="../calibration_graphs/">
+      
+      
+        <link rel="next" href="../web_app/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Advanced Calibration Graphs - QUAlibrate Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="qualibrate-bright" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#advanced-calibration-graphs" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="QUAlibrate Documentation" class="md-header__button md-logo" aria-label="QUAlibrate Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            QUAlibrate Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Advanced Calibration Graphs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="qualibrate-bright" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to high contrast mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to high contrast mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="qualibrate-high-contrast" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18V6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="qualibrate-dark" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-2.69L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="QUAlibrate Documentation" class="md-nav__button md-logo" aria-label="QUAlibrate Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    QUAlibrate Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../calibration_nodes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calibration Nodes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../calibration_library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calibration Library
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../calibration_graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calibration Graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Calibration Graphs
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Calibration Graphs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-context-manager-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Context Manager API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Context Manager API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#graph-composition-and-nested-subgraphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph Composition and Nested Subgraphs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Graph Composition and Nested Subgraphs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-nested-subgraphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Nested Subgraphs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benefits-of-nested-subgraphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Benefits of Nested Subgraphs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#looping-and-adaptive-calibration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Looping and Adaptive Calibration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Looping and Adaptive Calibration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-retry-loops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simple Retry Loops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-loops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional Loops
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#condition-function-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Condition Function Signature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combining-conditions-and-max-iterations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combining Conditions and Max Iterations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure Handling
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Failure Handling">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-failure-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Failure Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-failure-handling-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Failure Handling Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combining-loops-and-failure-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combining Loops and Failure Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-example-full-qubit-characterization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Example: Full Qubit Characterization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-from-legacy-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration from Legacy API
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration from Legacy API">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-legacy-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before (Legacy API)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#after-context-manager-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        After (Context Manager API)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Web App
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration File
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Additional features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Additional features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../node_actions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node Actions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release_notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="advanced-calibration-graphs">Advanced Calibration Graphs</h1>
+<h2 id="introduction">Introduction</h2>
+<p>QUAlibrate's advanced calibration graph features enable sophisticated calibration workflows through a modern context manager API, adaptive looping, failure handling, and hierarchical graph composition. These features build upon the basic <a href="../calibration_graphs/">calibration graphs</a> functionality and provide powerful tools for creating robust, complex calibration routines.</p>
+<p>This guide assumes you have access to the demo calibration nodes (01-07) that are automatically installed with QUAlibrate as part of the demo project.</p>
+<h2 id="the-context-manager-api">The Context Manager API</h2>
+<p>The recommended way to create calibration graphs is using the <code>QualibrationGraph.build()</code> context manager. This API provides a clean, intuitive syntax for graph construction and ensures proper graph finalization.</p>
+<h3 id="basic-usage">Basic Usage</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">qualibrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">QualibrationGraph</span><span class="p">,</span> <span class="n">QualibrationLibrary</span><span class="p">,</span> <span class="n">GraphParameters</span>
+
+<span class="n">library</span> <span class="o">=</span> <span class="n">QualibrationLibrary</span><span class="o">.</span><span class="n">get_active_library</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TuneupParameters</span><span class="p">(</span><span class="n">GraphParameters</span><span class="p">):</span>
+    <span class="n">qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;q1&quot;</span><span class="p">]</span>
+
+<span class="c1"># Build the graph using the context manager</span>
+<span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s2">&quot;my_tuneup_graph&quot;</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">TuneupParameters</span><span class="p">())</span> <span class="k">as</span> <span class="n">graph</span><span class="p">:</span>
+    <span class="c1"># Get nodes from the library (automatically copied)</span>
+    <span class="n">rabi_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;02_demo_rabi&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">)</span>
+
+    <span class="n">ramsey_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;05_demo_ramsey&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">ramsey_node</span><span class="p">)</span>
+
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">,</span> <span class="n">ramsey_node</span><span class="p">)</span>
+
+<span class="c1"># Graph is now finalized and ready to run</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">qubits</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;q1&quot;</span><span class="p">,</span> <span class="s2">&quot;q2&quot;</span><span class="p">])</span>
+</code></pre></div>
+<h3 id="how-it-works">How It Works</h3>
+<p>The context manager handles the graph lifecycle automatically:</p>
+<ol>
+<li><strong>Building Phase</strong>: When you enter the <code>with</code> block, the graph is in building mode. You can add nodes, create connections, and configure loops.</li>
+<li><strong>Finalization</strong>: When exiting the <code>with</code> block, the graph is automatically finalized. This validates the graph structure, ensures all nodes are properly copied from the library, and builds the internal execution graph.</li>
+<li><strong>Execution</strong>: After the context manager exits, the graph is ready to run.</li>
+</ol>
+<h2 id="graph-composition-and-nested-subgraphs">Graph Composition and Nested Subgraphs</h2>
+<p>Complex calibration workflows can be organized hierarchically by nesting graphs within graphs. A <code>QualibrationGraph</code> can be added as a node in another graph, creating a parent-child relationship.</p>
+<h3 id="creating-nested-subgraphs">Creating Nested Subgraphs</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">qualibrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">QualibrationGraph</span><span class="p">,</span> <span class="n">QualibrationLibrary</span><span class="p">,</span> <span class="n">GraphParameters</span>
+
+<span class="n">library</span> <span class="o">=</span> <span class="n">QualibrationLibrary</span><span class="o">.</span><span class="n">get_active_library</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TuneupParameters</span><span class="p">(</span><span class="n">GraphParameters</span><span class="p">):</span>
+    <span class="n">qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;q1&quot;</span><span class="p">]</span>
+
+<span class="c1"># Build the main graph</span>
+<span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s2">&quot;full_calibration&quot;</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">TuneupParameters</span><span class="p">())</span> <span class="k">as</span> <span class="n">graph</span><span class="p">:</span>
+    <span class="c1"># Add an initial node</span>
+    <span class="n">rabi_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;02_demo_rabi&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">)</span>
+
+    <span class="c1"># Create a nested subgraph for coherence measurements</span>
+    <span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s2">&quot;coherence_characterization&quot;</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">TuneupParameters</span><span class="p">())</span> <span class="k">as</span> <span class="n">subgraph</span><span class="p">:</span>
+        <span class="c1"># Add nodes to the subgraph</span>
+        <span class="n">ramsey_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;05_demo_ramsey&quot;</span><span class="p">]</span>
+        <span class="n">subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">ramsey_node</span><span class="p">)</span>
+
+        <span class="n">t1_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;06_demo_t1&quot;</span><span class="p">]</span>
+        <span class="n">subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">t1_node</span><span class="p">)</span>
+
+        <span class="c1"># Connect nodes within the subgraph</span>
+        <span class="n">subgraph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">ramsey_node</span><span class="p">,</span> <span class="n">t1_node</span><span class="p">)</span>
+
+    <span class="c1"># Add the subgraph as a node in the main graph</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">subgraph</span><span class="p">)</span>
+
+    <span class="c1"># Connect the initial node to the subgraph</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">,</span> <span class="n">subgraph</span><span class="p">)</span>
+
+    <span class="c1"># Add a final node</span>
+    <span class="n">rb_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;07_demo_randomized_benchmarking&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">rb_node</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">subgraph</span><span class="p">,</span> <span class="n">rb_node</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="benefits-of-nested-subgraphs">Benefits of Nested Subgraphs</h3>
+<ul>
+<li><strong>Logical organization</strong>: Group related calibration steps together</li>
+<li><strong>Reusability</strong>: Create subgraphs that can be used in multiple parent graphs</li>
+<li><strong>Clarity</strong>: Break complex workflows into manageable, understandable pieces</li>
+<li><strong>Atomic execution</strong>: The subgraph executes as a single unit from the parent graph's perspective</li>
+</ul>
+<h2 id="looping-and-adaptive-calibration">Looping and Adaptive Calibration</h2>
+<p>Looping allows a calibration node to be executed multiple times, enabling retry logic and adaptive calibration strategies. QUAlibrate supports both simple iteration limits and sophisticated conditional loops.</p>
+<h3 id="simple-retry-loops">Simple Retry Loops</h3>
+<p>Use <code>max_iterations</code> to retry a node a fixed number of times:</p>
+<div class="highlight"><pre><span></span><code><span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+    <span class="s2">&quot;tuneup_with_retries&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">TuneupParameters</span><span class="p">(),</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">graph</span><span class="p">:</span>
+    <span class="n">rabi_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;02_demo_rabi&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">)</span>
+
+    <span class="c1"># Retry the node up to 3 times</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">loop</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="c1"># Continue with the rest of the graph</span>
+    <span class="n">ramsey_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;05_demo_ramsey&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">ramsey_node</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">,</span> <span class="n">ramsey_node</span><span class="p">)</span>
+</code></pre></div>
+<p>The node will execute exactly <code>max_iterations</code> times, regardless of success or failure outcomes</p>
+<h3 id="conditional-loops">Conditional Loops</h3>
+<p>For adaptive calibration, you can provide a condition function that determines whether to continue iterating based on the calibration results:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">qualibrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">QualibrationNode</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">should_repeat_ramsey</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">QualibrationNode</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retry until T2* crosses the target threshold.&quot;&quot;&quot;</span>
+    <span class="n">fit</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fit_results&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">t2_star</span> <span class="o">=</span> <span class="n">fit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;t2_star&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Retry if fit failed or T2* is below target</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">t2_star</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="n">t2_us</span> <span class="o">=</span> <span class="n">t2_star</span> <span class="o">/</span> <span class="mf">1e-6</span>
+    <span class="n">target_us</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">target_t2_star_us</span>
+    <span class="k">if</span> <span class="n">t2_us</span> <span class="o">&lt;</span> <span class="n">target_us</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Target met, stop looping</span>
+
+<span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+    <span class="s2">&quot;adaptive_ramsey&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">AdaptiveRamseyParameters</span><span class="p">(),</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">graph</span><span class="p">:</span>
+    <span class="n">ramsey_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;05_demo_ramsey&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">ramsey_node</span><span class="p">)</span>
+
+    <span class="c1"># Set up adaptive loop with condition function</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">loop</span><span class="p">(</span>
+        <span class="n">ramsey_node</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="n">should_repeat_ramsey</span><span class="p">,</span>
+        <span class="n">max_iterations</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h3 id="condition-function-signature">Condition Function Signature</h3>
+<p>Condition functions must accept two parameters:</p>
+<ul>
+<li><code>node: QualibrationNode</code> - The node instance, allowing access to <code>node.results</code></li>
+<li><code>target: str</code> - The specific target (e.g., qubit) being evaluated</li>
+</ul>
+<p>The function should return:</p>
+<ul>
+<li><code>True</code> if the target should be calibrated again in another iteration</li>
+<li><code>False</code> if calibration for this target is complete</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Per-Target Looping</p>
+<p>Condition functions are called separately for each target. This enables per-target adaptive logic where some qubits may continue iterating while others are finished.</p>
+</div>
+<h3 id="combining-conditions-and-max-iterations">Combining Conditions and Max Iterations</h3>
+<p>When both a condition function and <code>max_iterations</code> are specified, the loop continues while:</p>
+<ul>
+<li>The condition function returns <code>True</code> for any target, AND</li>
+<li>The iteration count has not reached <code>max_iterations</code></li>
+</ul>
+<p>This provides a safety bound on adaptive algorithms while still allowing sophisticated logic.</p>
+<h2 id="failure-handling">Failure Handling</h2>
+<p>Real-world calibration workflows must account for failures. QUAlibrate provides <code>connect_on_failure()</code> to define explicit failure paths in your calibration graph.</p>
+<h3 id="basic-failure-handling">Basic Failure Handling</h3>
+<div class="highlight"><pre><span></span><code><span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+    <span class="s2">&quot;tuneup_with_failure_handling&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">TuneupParameters</span><span class="p">(),</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">graph</span><span class="p">:</span>
+    <span class="c1"># Primary calibration path</span>
+    <span class="n">rabi_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;02_demo_rabi&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">loop</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="c1"># Success path: continue with refined Rabi</span>
+    <span class="n">refined_rabi_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;04_demo_rabi_refined&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">refined_rabi_node</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">,</span> <span class="n">refined_rabi_node</span><span class="p">)</span>
+
+    <span class="c1"># Failure path: run diagnostic node</span>
+    <span class="n">failure_handler_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;06_demo_t1&quot;</span><span class="p">]</span>
+    <span class="n">failure_handler_node</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;failure_diagnostics&quot;</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">failure_handler_node</span><span class="p">)</span>
+
+    <span class="c1"># If rabi_node fails after all retries, go to failure handler</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect_on_failure</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">,</span> <span class="n">failure_handler_node</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="how-failure-handling-works">How Failure Handling Works</h3>
+<p>When a node completes execution:</p>
+<ul>
+<li><strong>Success outcome</strong>: Targets that succeeded follow edges created with <code>connect()</code></li>
+<li><strong>Failure outcome</strong>: Targets that failed follow edges created with <code>connect_on_failure()</code></li>
+</ul>
+<p>This allows you to:</p>
+<ul>
+<li>Define recovery procedures for failed calibrations</li>
+<li>Route failed targets to diagnostic nodes</li>
+<li>Implement fallback calibration strategies</li>
+<li>Ensure the graph continues executing even when some calibrations fail</li>
+</ul>
+<h3 id="combining-loops-and-failure-handling">Combining Loops and Failure Handling</h3>
+<p>Failure edges are only followed after a node completes all its loop iterations:</p>
+<div class="highlight"><pre><span></span><code><span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s2">&quot;robust_calibration&quot;</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">graph</span><span class="p">:</span>
+    <span class="n">risky_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;01_demo_qubit_spectroscopy&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">risky_node</span><span class="p">)</span>
+
+    <span class="c1"># Try up to 3 times</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">loop</span><span class="p">(</span><span class="n">risky_node</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="c1"># Success path</span>
+    <span class="n">next_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;02_demo_rabi&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">next_node</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">risky_node</span><span class="p">,</span> <span class="n">next_node</span><span class="p">)</span>
+
+    <span class="c1"># Failure path (only after exhausting retries)</span>
+    <span class="n">recovery_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;06_demo_t1&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">recovery_node</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect_on_failure</span><span class="p">(</span><span class="n">risky_node</span><span class="p">,</span> <span class="n">recovery_node</span><span class="p">)</span>
+</code></pre></div>
+<p>In this example, <code>risky_node</code> will retry up to 3 times. Only if it fails after all retries will targets be routed to <code>recovery_node</code>.</p>
+<h2 id="complete-example-full-qubit-characterization">Complete Example: Full Qubit Characterization</h2>
+<p>Here's a comprehensive example that combines all advanced features:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">qualibrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphParameters</span><span class="p">,</span> <span class="n">QualibrationGraph</span><span class="p">,</span> <span class="n">QualibrationLibrary</span>
+
+<span class="n">library</span> <span class="o">=</span> <span class="n">QualibrationLibrary</span><span class="o">.</span><span class="n">get_active_library</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FullCharacterizationParameters</span><span class="p">(</span><span class="n">GraphParameters</span><span class="p">):</span>
+    <span class="n">qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;q1&quot;</span><span class="p">]</span>
+
+<span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+    <span class="s2">&quot;full_qubit_characterization&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">FullCharacterizationParameters</span><span class="p">(),</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">graph</span><span class="p">:</span>
+    <span class="c1"># 1. Initial spectroscopy</span>
+    <span class="n">spectroscopy_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;01_demo_qubit_spectroscopy&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">spectroscopy_node</span><span class="p">)</span>
+
+    <span class="c1"># 2. Gate optimization subgraph with retries</span>
+    <span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+        <span class="s2">&quot;gate_optimization&quot;</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="o">=</span><span class="n">FullCharacterizationParameters</span><span class="p">(),</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">gate_subgraph</span><span class="p">:</span>
+        <span class="n">rabi_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;02_demo_rabi&quot;</span><span class="p">]</span>
+        <span class="n">gate_subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">)</span>
+        <span class="n">gate_subgraph</span><span class="o">.</span><span class="n">loop</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">refined_rabi_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;04_demo_rabi_refined&quot;</span><span class="p">]</span>
+        <span class="n">gate_subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">refined_rabi_node</span><span class="p">)</span>
+        <span class="n">gate_subgraph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">rabi_node</span><span class="p">,</span> <span class="n">refined_rabi_node</span><span class="p">)</span>
+
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">gate_subgraph</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">spectroscopy_node</span><span class="p">,</span> <span class="n">gate_subgraph</span><span class="p">)</span>
+
+    <span class="c1"># 3. Coherence characterization subgraph (parallel T1 and Ramsey)</span>
+    <span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+        <span class="s2">&quot;coherence_characterization&quot;</span><span class="p">,</span>
+        <span class="n">parameters</span><span class="o">=</span><span class="n">FullCharacterizationParameters</span><span class="p">(),</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">coherence_subgraph</span><span class="p">:</span>
+        <span class="n">t1_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;06_demo_t1&quot;</span><span class="p">]</span>
+        <span class="n">ramsey_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;05_demo_ramsey&quot;</span><span class="p">]</span>
+        <span class="n">coherence_subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">t1_node</span><span class="p">)</span>
+        <span class="n">coherence_subgraph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">ramsey_node</span><span class="p">)</span>
+        <span class="c1"># No connection: run in parallel</span>
+
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">coherence_subgraph</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">gate_subgraph</span><span class="p">,</span> <span class="n">coherence_subgraph</span><span class="p">)</span>
+
+    <span class="c1"># 4. Final gate fidelity assessment</span>
+    <span class="n">rb_node</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;07_demo_randomized_benchmarking&quot;</span><span class="p">]</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">rb_node</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">coherence_subgraph</span><span class="p">,</span> <span class="n">rb_node</span><span class="p">)</span>
+
+    <span class="c1"># 5. Failure handling for gate optimization</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect_on_failure</span><span class="p">(</span><span class="n">gate_subgraph</span><span class="p">,</span> <span class="n">rb_node</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Characterization complete: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>This example demonstrates:</p>
+<ul>
+<li><strong>Context manager usage</strong> for clean graph construction</li>
+<li><strong>Nested subgraphs</strong> for logical organization (gate optimization, coherence characterization)</li>
+<li><strong>Looping</strong> with retries on the Rabi node</li>
+<li><strong>Failure handling</strong> that routes gate optimization failures directly to final assessment</li>
+<li><strong>Parallel execution</strong> of T1 and Ramsey (no connection between them)</li>
+</ul>
+<h2 id="migration-from-legacy-api">Migration from Legacy API</h2>
+<p>If you have existing graphs created without the context manager, migrating is straightforward:</p>
+<h3 id="before-legacy-api">Before (Legacy API)</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">qualibrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">QualibrationLibrary</span><span class="p">,</span> <span class="n">QualibrationGraph</span><span class="p">,</span> <span class="n">GraphParameters</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qualibrate.orchestration.basic_orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasicOrchestrator</span>
+
+<span class="n">library</span> <span class="o">=</span> <span class="n">QualibrationLibrary</span><span class="o">.</span><span class="n">get_active_library</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Parameters</span><span class="p">(</span><span class="n">GraphParameters</span><span class="p">):</span>
+    <span class="n">qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">graph</span> <span class="o">=</span> <span class="n">QualibrationGraph</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;workflow1&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">Parameters</span><span class="p">(),</span>
+    <span class="n">nodes</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;qubit_spec&quot;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;qubit_spec&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;rabi&quot;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;rabi&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;ramsey&quot;</span><span class="p">:</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;ramsey&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="n">connectivity</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;qubit_spec&quot;</span><span class="p">,</span> <span class="s2">&quot;rabi&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;rabi&quot;</span><span class="p">,</span> <span class="s2">&quot;ramsey&quot;</span><span class="p">)],</span>
+    <span class="n">orchestrator</span><span class="o">=</span><span class="n">BasicOrchestrator</span><span class="p">(</span><span class="n">skip_failed</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="after-context-manager-api">After (Context Manager API)</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">qualibrate</span><span class="w"> </span><span class="kn">import</span> <span class="n">QualibrationLibrary</span><span class="p">,</span> <span class="n">QualibrationGraph</span><span class="p">,</span> <span class="n">GraphParameters</span>
+
+<span class="n">library</span> <span class="o">=</span> <span class="n">QualibrationLibrary</span><span class="o">.</span><span class="n">get_active_library</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Parameters</span><span class="p">(</span><span class="n">GraphParameters</span><span class="p">):</span>
+    <span class="n">qubits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">with</span> <span class="n">QualibrationGraph</span><span class="o">.</span><span class="n">build</span><span class="p">(</span>
+    <span class="s2">&quot;workflow1&quot;</span><span class="p">,</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="n">Parameters</span><span class="p">(),</span>
+<span class="p">)</span> <span class="k">as</span> <span class="n">graph</span><span class="p">:</span>
+    <span class="n">qubit_spec</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;qubit_spec&quot;</span><span class="p">]</span>
+    <span class="n">rabi</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;rabi&quot;</span><span class="p">]</span>
+    <span class="n">ramsey</span> <span class="o">=</span> <span class="n">library</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;ramsey&quot;</span><span class="p">]</span>
+
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">qubit_spec</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">rabi</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">ramsey</span><span class="p">)</span>
+
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">qubit_spec</span><span class="p">,</span> <span class="n">rabi</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">rabi</span><span class="p">,</span> <span class="n">ramsey</span><span class="p">)</span>
+</code></pre></div>
+<p>The context manager API is more explicit, easier to read, and provides better error messages when graph construction fails.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024 Q.M Technologies Ltd.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.top", "toc.integrate", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotations", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
