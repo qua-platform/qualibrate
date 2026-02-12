@@ -34,7 +34,7 @@ const DataRightPanel: React.FC = () => {
       <>
         <GraphView />
         {showRunButton && (
-          <button disabled={isNodeRunning} className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
+          <button disabled={isNodeRunning} title={isNodeRunning ? "Node is already running" : ""} className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
             ▶ Rerun
           </button>
         )}
@@ -52,7 +52,7 @@ const DataRightPanel: React.FC = () => {
       />
       {result && <JSONEditor title="RESULTS" jsonDataProp={result} height="100%" />}
       {showRunButton && (
-        <button disabled={isNodeRunning} className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
+        <button disabled={isNodeRunning} title={isNodeRunning ? "Node is already running" : ""} className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
           ▶ Rerun
         </button>
       )}
