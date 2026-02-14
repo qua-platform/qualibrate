@@ -10,7 +10,7 @@ import { useRootDispatch } from "../../../../stores";
 import { runNodeOfSelectedSnapshot, runWorkflowOfSelectedSnapshot } from "../../../../stores/SnapshotsStore/actions";
 import { getRunStatusIsRunning } from "../../../../stores/WebSocketStore";
 
-const DataRightPanel: React.FC = () => {
+const DataRightPanel = () => {
   const dispatch = useRootDispatch();
   const result = useSelector(getResult);
   const selectedSnapshot = useSelector(getSelectedSnapshot);

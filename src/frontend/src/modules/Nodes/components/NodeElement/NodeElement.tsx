@@ -40,10 +40,17 @@
 import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
-import {CircularProgress} from "@mui/material";
 
-import {InputParameter, Parameters, SingleParameter, ErrorResponseWrapper, BlueButton, RunIcon, InfoIcon, ParameterSelector} from "../../../../components";
-import Tooltip from "@mui/material/Tooltip";
+import {
+  InputParameter,
+  SingleParameter,
+  ErrorResponseWrapper,
+  BlueButton,
+  RunIcon,
+  ParameterSelector,
+  ListCard,
+  Parameters,
+} from "../../../../components";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
 import {
@@ -55,10 +62,9 @@ import {
   getNode,
 } from "../../../../stores/NodesStore";
 import { getRunStatusIsRunning, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
-import {StatusVisuals} from "./NodeElementStatusVisuals";
-import {getNodeRowClass} from "./helpers";
-import {GraphWorkflow} from "../../../GraphLibrary";
+import { GraphWorkflow } from "../../../GraphLibrary";
 import { getIsLastRunNode } from "../../../../stores/WebSocketStore/selectors";
+import { classNames } from "../../../../utils/classnames";
 
 /**
  * Calibration node definition from backend node library scan.
@@ -119,26 +125,22 @@ export interface NodeMap {
  * SnapshotsContext, WebSocketContext), creating tight coupling and making testing difficult.
  *
  * @see NodesContext for execution state and parameter management
- * @see getNodeRowClass for dynamic styling based on execution status (helpers.ts)
- * @see StatusVisuals for status indicator rendering (NodeElementStatusVisuals.tsx)
  */
 export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
   const dispatch = useRootDispatch();
-  const node = useSelector(state => getNode(state, nodeKey));
-  const isNodeSelected = useSelector(state => getIsNodeSelected(state, nodeKey));
+  const node = useSelector((state) => getNode(state, nodeKey));
+  const isNodeSelected = useSelector((state) => getIsNodeSelected(state, nodeKey));
   const submitNodeResponseError = useSelector(getSubmitNodeResponseError);
   const runStatusIsRunning = useSelector(getRunStatusIsRunning);
-  const isLastRunNode = useSelector(state => getIsLastRunNode(state, nodeKey));
+  const isLastRunNode = useSelector((state) => getIsLastRunNode(state, nodeKey));
   const runStatusNodeStatus = useSelector(getRunStatusNodeStatus);
   const [errors, setErrors] = useState(new Set());
 
   const handleSetError = (key: string, isValid: boolean) => {
     const newSet = new Set(errors);
 
-    if (isValid)
-      newSet.delete(key);
-    else
-      newSet.add(key);
+    if (isValid) newSet.delete(key);
+    else newSet.add(key);
 
     setErrors(newSet);
   };
@@ -154,8 +156,24 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
     dispatch(setNodeParameter({ nodeKey, paramKey, newValue }));
   };
 
-  const renderInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) =>
-    <ParameterSelector parameterKey={key} parameter={parameter} node={node} onChange={updateParameter} />;
+  const renderInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => (
+    <ParameterSelector parameterKey={key} parameter={parameter} node={node} onChange={updateParameter} />
+  );
+
+  //  TODO: use in https://quantum-machines.atlassian.net/browse/QUAL-1743
+  //  Show parameters section if node has any parameters defined
+  const renderParameters = () =>
+    Object.keys(node?.parameters ?? {}).length > 0 && (
+      <Parameters
+        parametersExpanded={true}
+        showTitle={true}
+        key={node.name}
+        show={isNodeSelected}
+        currentItem={node}
+        getInputElement={renderInputElement}
+        data-testid={`parameters-${nodeKey}`}
+      />
+    );
 
   const handleClick = async () => dispatch(handleRunNode(node));
 
@@ -168,73 +186,25 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
   const insertSpaces = (str: string, interval = 40) => str.replace(new RegExp(`(.{${interval}})`, "g"), "$1 ").trim();
 
   return (
-    <div
-      // Dynamic styling based on selection state and execution status
-      // See helpers.ts:getNodeRowClass for styling logic
-      className={getNodeRowClass({
-        isSelected: isNodeSelected,
-        isLastRun: isLastRunNode,
-        runStatus: runStatusNodeStatus,
-      })}
-      data-testid={`node-element-${nodeKey}`}
-      onClick={() => {
-        dispatch(setSelectedNode(node.name));
-      }}
-    >
-      <div className={styles.row}>
-        <div className={styles.titleOrNameWrapper}>
-          <div className={styles.titleOrName} data-testid={`title-or-name-${nodeKey}`}>
-            {/* Use title if available, fallback to name. insertSpaces prevents overflow */}
-            {insertSpaces(node.title ?? node.name)}
-          </div>
-        </div>
-        <div className={styles.descriptionWrapper}>
-          {node.description && (
-            <Tooltip title={<div className={styles.descriptionTooltip}>{node.description} </div>} placement="left-start" arrow>
-              <span>
-                <InfoIcon />
-              </span>
-            </Tooltip>
-          )}
-        </div>
-        <div className={styles.dotWrapper} data-testid={`dot-wrapper-${nodeKey}`}>
-          {/*
-            Show status indicator if:
-            1. This node is currently running (isLastRunNode), OR
-            2. This node is NOT selected AND there's a non-pending status to show
-
-            FRAGILE: Complex conditional logic - difficult to reason about all cases.
-            Consider extracting to shouldShowStatus() helper function.
-          */}
-          {(isLastRunNode || (isNodeSelected && runStatusNodeStatus !== "pending")) && (
-            <StatusVisuals status={isLastRunNode ? runStatusNodeStatus : "pending"} />
-          )}
-        </div>
-        {/* Show Run button only when: node is selected AND nothing is currently running AND parameter inputs have no errors */}
-        {!runStatusIsRunning && isNodeSelected && errors.size === 0 && (
-          <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
-            <RunIcon className={styles.runButtonIcon} />
-            <span className={styles.runButtonText}>Run</span>
-          </BlueButton>
-        )}
-        {/* Show spinner when: node is selected AND something is running */}
-        {runStatusIsRunning && isNodeSelected && <CircularProgress size={32} />}
-      </div>
-      {/* Show validation errors only for the selected node that failed submission */}
-      {isNodeSelected && node.name === submitNodeResponseError?.nodeName && (
-        <ErrorResponseWrapper error={submitNodeResponseError} />
-      )}
-      {/* Show parameters section if node has any parameters defined */}
-      {Object.keys(node?.parameters ?? {}).length > 0 && (
-        <Parameters
-          parametersExpanded={true}
-          showTitle={true}
-          key={node.name}
-          show={isNodeSelected}
-          currentItem={node}
-          getInputElement={renderInputElement}
-          data-testid={`parameters-${nodeKey}`}
-        />
+    <div style={{ position: "relative" }}>
+      <ListCard
+        isHighlighted={isNodeSelected}
+        onClick={() => dispatch(setSelectedNode(node.name))}
+        title={insertSpaces(node.title ?? node.name)}
+        executionStatus={isLastRunNode ? runStatusNodeStatus : undefined}
+        description={
+          <>
+            {isNodeSelected && node.name === submitNodeResponseError?.nodeName && <ErrorResponseWrapper error={submitNodeResponseError} />}
+            <div className={classNames(styles.description, isNodeSelected && styles.descriptionFull)}>{node.description}</div>
+          </>
+        }
+      />
+      {/* TODO: remove after https://quantum-machines.atlassian.net/browse/QUAL-1743 */}
+      {!runStatusIsRunning && isNodeSelected && errors.size === 0 && (
+        <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
+          <RunIcon className={styles.runButtonIcon} />
+          <span className={styles.runButtonText}>Run</span>
+        </BlueButton>
       )}
     </div>
   );
