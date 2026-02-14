@@ -3,8 +3,7 @@ import { useSelector } from "react-redux";
 import MainLayout from "../MainLayout/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../../../../utils/api/apiRoutes";
-import { GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY, PROJECT_KEY } from "../../ModulesRegistry";
-import { Nodes } from "../../../Nodes";
+import { DATA_KEY, GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY, PROJECT_KEY } from "../../ModulesRegistry";
 import { GraphLibrary } from "../../../GraphLibrary";
 import { GraphStatus } from "../../../GraphStatus";
 import { Project } from "../../../Project";
@@ -15,6 +14,9 @@ import { getIsAuthorized } from "../../../../stores/AuthStore";
 import { getActiveProject, getShouldGoToProjectPage } from "../../../../stores/ProjectStore";
 import { getActivePage, getOpenedOncePages, setActivePage } from "../../../../stores/NavigationStore";
 import { useRootDispatch } from "../../../../stores";
+import { DataLeftPanel, DataRightPanel } from "../../../Data";
+import { getSelectedSnapshot } from "../../../../stores/SnapshotsStore";
+import { NodesLeftPanel, NodesRightPanel } from "../../../Nodes";
 
 const PageWrapper = ({ nodeKey, children }: { nodeKey: ModuleKey; children: React.ReactNode }) => {
   const activePage = useSelector(getActivePage);
@@ -27,13 +29,54 @@ const PageWrapper = ({ nodeKey, children }: { nodeKey: ModuleKey; children: Reac
   );
 };
 
+const Content = () => {
+  const openedOncePages = useSelector(getOpenedOncePages);
+
+  return (
+    <>
+      <PageWrapper nodeKey={NODES_KEY}>
+        <NodesRightPanel />
+      </PageWrapper>
+      <PageWrapper nodeKey={GRAPH_LIBRARY_KEY}>
+        <GraphLibrary />
+      </PageWrapper>
+      <PageWrapper nodeKey={GRAPH_STATUS_KEY}>
+        <GraphStatus />
+      </PageWrapper>
+      <PageWrapper nodeKey={PROJECT_KEY}>
+        <Project />
+      </PageWrapper>
+      <PageWrapper nodeKey={DATA_KEY}>
+        <DataRightPanel />
+      </PageWrapper>
+      {openedOncePages.length === 0 && (
+        <div className={styles.emptyPlaceholder}>
+          <QUAlibrateLogoIcon height={200} width={400} />
+        </div>
+      )}
+    </>
+  );
+};
+
+const LeftPanel = () => (
+  <>
+    <PageWrapper nodeKey={NODES_KEY}>
+      <NodesLeftPanel />
+    </PageWrapper>
+    <PageWrapper nodeKey={DATA_KEY}>
+      <DataLeftPanel />
+    </PageWrapper>
+  </>
+);
+
 const MainPage = () => {
   const isAuthorized = useSelector(getIsAuthorized);
   const dispatch = useRootDispatch();
-  const openedOncePages = useSelector(getOpenedOncePages);
   const activeProject = useSelector(getActiveProject);
   const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
   const navigate = useNavigate();
+  const activePage = useSelector(getActivePage);
+  const selectedSnapshot = useSelector(getSelectedSnapshot);
 
   useEffect(() => {
     const checkVersion = async () => {
@@ -75,27 +118,20 @@ const MainPage = () => {
     }
   }, [isAuthorized, activeProject, shouldGoToProjectPage]);
 
-  return (
-    <MainLayout>
-      <PageWrapper nodeKey={NODES_KEY}>
-        <Nodes />
-      </PageWrapper>
-      <PageWrapper nodeKey={GRAPH_LIBRARY_KEY}>
-        <GraphLibrary />
-      </PageWrapper>
-      <PageWrapper nodeKey={GRAPH_STATUS_KEY}>
-        <GraphStatus />
-      </PageWrapper>
-      <PageWrapper nodeKey={PROJECT_KEY}>
-        <Project />
-      </PageWrapper>
-      {openedOncePages.length === 0 && (
-        <div className={styles.emptyPlaceholder}>
-          <QUAlibrateLogoIcon height={200} width={400} />
-        </div>
-      )}
-    </MainLayout>
-  );
+  const customTitle = () => {
+    switch (activePage) {
+      case DATA_KEY:
+        return `${selectedSnapshot?.id ?? ""} ${selectedSnapshot?.metadata?.name ?? ""}`;
+      default:
+        return undefined;
+    }
+  };
+
+  return <MainLayout
+    content={<Content />}
+    leftPanel={<LeftPanel />}
+    customTitle={customTitle()}
+  />;
 };
 
 export default MainPage;

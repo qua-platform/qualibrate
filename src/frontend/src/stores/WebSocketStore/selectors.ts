@@ -123,7 +123,7 @@ export const getIsLastRunNode = createSelector(
 
 export const getRunStatusNodeStatus = createSelector(
   getRunStatusNode,
-  (runStatusNodeState) => runStatusNodeState?.status
+  (runStatusNodeState) => runStatusNodeState?.status === "finished" ? "success" : runStatusNodeState?.status
 );
 
 export const getRunStatusNodeRunDuration = createSelector(

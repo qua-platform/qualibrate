@@ -1,0 +1,118 @@
+.listCard {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.listCard:hover {
+  border-color: #58a6ff;
+  background: #1c2128;
+}
+
+.listCard.selected {
+  border-color: #1f6feb;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  color: #c9d1d9;
+  text-overflow: ellipsis;
+  margin-right: 10px;
+}
+
+.status {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.statusRunning {
+  color: #f0883e;
+
+  .statusDot {
+    animation: blink-animation 1s infinite alternate;
+    background: #f0883e;
+  }
+}
+
+@keyframes blink-animation {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.2;
+  }
+}
+
+.statusPending {
+  color: #3ebbf0;
+
+  .statusDot {
+    background: #3ebbf0;
+  }
+}
+
+.statusSuccess {
+  color: #3fb950;
+
+  .statusDot {
+    background: #3fb950;
+  }
+}
+
+.statusError {
+  color: #f85149;
+
+  .statusDot {
+    background: #f85149;
+  }
+}
+
+.statusFailure {
+  color: #f85149;
+
+  .statusDot {
+    background: #f85149;
+  }
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.description {
+  display: flex;
+  gap: 16px;
+  color: #7d8590;
+  font-size: 12px;
+}

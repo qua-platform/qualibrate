@@ -1,73 +1,7 @@
-.rowWrapper {
-  justify-content: space-between;
-  font-style: normal;
-  font-weight: 500;
-  border: 2px solid var(--border-color);
-  border-radius: 4px;
-  margin-top: 6px;
-  margin-bottom: 9px;
-  position: relative;
-  background-color: var(--popup-background);
-  border-left-color: rgb(165 172 182 / 40%);
-  padding: 10px 17px;
-  min-height: 19px;
-}
-
-.nodeSelectedFinished {
-  border-left: 2px solid var(--status-color-finished);
-}
-
-.nodeSelectedRunning {
-  border: 2px solid rgb(60 222 248 / 10%);
-  border-left: 2px solid var(--status-color-running);
-}
-
-.nodeSelectedError {
-  border-left: 2px solid var(--status-color-error);
-}
-
-.nodeSelectedPending {
-  border-left: 2px solid #fff;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row;
-  max-width: 100%;
-}
-
-.highlightRunningRow {
-  background: linear-gradient(0deg, rgb(44 203 229 / 6%) 0%, rgb(44 203 229 / 6%) 100%), #323339;
-}
-
-.dot {
-  min-height: 7px;
-  min-width: 7px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-top: 11px;
-}
-
-.greenDot {
-  @extend .dot;
-
-  background-color: var(--status-color-finished);
-}
-
-.redDot {
-  @extend .dot;
-
-  background-color: var(--status-color-error);
-}
-
-.greyDot {
-  @extend .dot;
-
-  background-color: var(--status-color-pending);
-}
-
 .runButton {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
   cursor: pointer;
   padding: 5px 9px;
   background: #009380;
@@ -85,50 +19,18 @@
   color: white;
 }
 
-.dotWrapper {
-  padding-right: 10px;
-  padding-left: 10px;
-  max-width: 80%;
-}
-
-.titleOrNameWrapper {
-  align-items: center;
-  max-width: 80%;
-  width: 20%;
-  display: flex;
-  flex: 1;
-  font-size: 16px;
-  font-weight: bolder;
-}
-
-.titleOrName {
-  display: block;
-  max-width: 100%;
-}
-
-.descriptionTooltip {
-  overflow: scroll;
-  max-height: 500px;
-  white-space: pre-line;
-  //background-color: #42424C;
-  border-radius: 6px;
-}
-
-.descriptionWrapper {
-  padding-left: 10px;
-  align-content: center;
-  text-align: right;
-  margin-top: 5px;
+.updateAllButton {
+  width: 80px;
 }
 
 .description {
-  max-width: 100%;
-}
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 
-.descriptionText {
-  font-size: 13px;
-}
-
-.updateAllButton {
-  width: 80px;
+  &.descriptionFull {
+    display: flex;
+  }
 }

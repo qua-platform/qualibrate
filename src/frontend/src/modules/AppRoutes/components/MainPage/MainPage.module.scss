@@ -3,7 +3,8 @@
   height: 100%;
 
   &.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
   }
 }
 
