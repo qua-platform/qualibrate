@@ -307,7 +307,7 @@ def load_snapshot_data_without_refs_from_node_content(
     if outcomes and isinstance(outcomes, dict) and len(outcomes) > 0:
         snapshot_id = node_info.get("id", "unknown")
         name = node_info.get("metadata", {}).get("name", "unknown")
-        logger.info(f"Loading data with outcomes: id={snapshot_id}, name={name}, outcomes={outcomes}")
+        logger.debug(f"Loading data with outcomes: id={snapshot_id}, name={name}, outcomes={outcomes}")
 
     data.pop("quam", None)
     data.pop("machine", None)

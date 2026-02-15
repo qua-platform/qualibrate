@@ -1,3 +1,5 @@
+import logging
+
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -48,12 +50,16 @@ if composite.runner.spawn and composite.app.spawn:
 
 
 def main(port: int, host: str, reload: bool, root_path: str = "") -> None:
+    # Set the qualibrate logger to INFO level to prevent DEBUG spam
+    logging.getLogger("qualibrate").setLevel(logging.INFO)
+
     uvicorn.run(
         "qualibrate.composite.app:app",
         port=port,
         host=host,
         reload=reload,
         root_path=root_path,
+        log_level="info",
     )
 
 

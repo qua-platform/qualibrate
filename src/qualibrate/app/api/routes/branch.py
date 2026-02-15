@@ -158,7 +158,7 @@ def _compute_aggregated_outcomes_for_workflow(
                     node_failed = node_status in ("error", "failed")
                     raw_outcomes = child_data.get("outcomes") if child_data else None
 
-                    logger.info(f"  Leaf node {snapshot_id}: node_failed={node_failed}, raw_outcomes={raw_outcomes}")
+                    logger.debug(f"  Leaf node {snapshot_id}: node_failed={node_failed}, raw_outcomes={raw_outcomes}")
 
                     if raw_outcomes and isinstance(raw_outcomes, dict):
                         for qubit, outcome_value in raw_outcomes.items():
@@ -168,7 +168,7 @@ def _compute_aggregated_outcomes_for_workflow(
                             if node_failed:
                                 if qubit not in aggregated_outcomes or aggregated_outcomes[qubit].status != "failure":
                                     aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
-                                    logger.info(
+                                    logger.debug(
                                         f"  Marking {qubit} as FAILED (node status={node_status}) on {node_name}"
                                     )
                             elif outcome_str in ("successful", "success"):
@@ -179,7 +179,7 @@ def _compute_aggregated_outcomes_for_workflow(
                             ):
                                 # Keep the first failure (the node that failed first)
                                 aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
-                                logger.info(f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}")
+                                logger.debug(f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}")
                     elif node_failed:
                         # Node has error status but no outcomes recorded
                         # This happens when a node throws an exception before recording outcomes
