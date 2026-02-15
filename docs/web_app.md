@@ -44,9 +44,10 @@ Here you can see the progress of the graph execution, including the results of e
 
 ![Graph Status Page](assets/web_app/graph_status_page.png){ max-width="700px" }
 
-## Data Page
+## History Page
 
-The `Data` page shows the results of all nodes that have been executed.
-This includes the node results, but also the QUAM state, and any updates to QUAM that occured while executing this node.
+The `History` page displays the results of every executed node.
+It lets you search past executions, filter them, and mark favorite runs.
+Each record includes the node’s results, the QUAM state, and any changes made to QUAM during that execution.
 
-![Node Page](assets/web_app/data_page.png){ max-width="700px" }
+![History Page](assets/web_app/history_page.png){ max-width="700px" }
