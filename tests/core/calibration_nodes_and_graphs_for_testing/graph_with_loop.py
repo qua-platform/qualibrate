@@ -1,6 +1,6 @@
-from qualibrate import GraphParameters
-from qualibrate.core import  QualibrationLibrary
-from qualibrate import QualibrationGraph
+from qualibrate import GraphParameters, QualibrationGraph
+from qualibrate.core import QualibrationLibrary
+
 library = QualibrationLibrary.get_active_library()
 USED_NODE = "test_node"
 

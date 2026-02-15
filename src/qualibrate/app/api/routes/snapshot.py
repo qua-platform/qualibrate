@@ -153,7 +153,9 @@ def _compute_aggregated_outcomes_for_workflow(
                             ):
                                 # Keep the first failure (the node that failed first)
                                 aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
-                                logger_local.debug(f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}")
+                                logger_local.debug(
+                                    f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}"
+                                )
                     elif node_failed:
                         # Node has error status but no outcomes recorded
                         # This happens when a node throws an exception before recording outcomes
