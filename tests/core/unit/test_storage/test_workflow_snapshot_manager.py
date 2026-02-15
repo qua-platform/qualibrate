@@ -1,5 +1,4 @@
 import json
-import os
 from unittest.mock import MagicMock
 
 import pytest
@@ -35,7 +34,7 @@ def temp_data_folder(tmp_path):
 def mock_data_handler(mocker, temp_data_folder):
     """Create a mock DataHandler."""
     handler = MagicMock()
-    handler.path = temp_data_folder / "2024-01-20" / "#100_test_100000"
+    handler.path = temp_data_folder / "2024-01-20" / "#100_test_10000000"
     handler.path.mkdir(parents=True, exist_ok=True)
     handler.generate_node_contents.return_value = {"id": 100}
     return handler
@@ -68,23 +67,6 @@ def create_snapshot(temp_data_folder):
         }
         with path.open("w") as f:
             json.dump(content or default_content, f)
-            f.flush()
-            os.fsync(f.fileno())
-
-        # Sync parent directories to ensure directory entries are visible
-        # This is critical on Linux CI systems where directory metadata may be cached
-        try:
-            dir_fd = os.open(str(folder), os.O_RDONLY)
-            os.fsync(dir_fd)
-            os.close(dir_fd)
-
-            date_dir_fd = os.open(str(date_folder), os.O_RDONLY)
-            os.fsync(date_dir_fd)
-            os.close(date_dir_fd)
-        except (OSError, AttributeError):
-            # Some systems don't support directory fsync, which is OK
-            pass
-
         # Ensure file exists before returning
         assert path.exists(), f"Failed to create {path}"
         return path
