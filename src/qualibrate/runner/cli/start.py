@@ -20,9 +20,16 @@ from qualibrate.runner.config import CONFIG_PATH_ENV_NAME
 )
 @click.option("--reload", is_flag=True, hidden=True)  # env QUALIBRATE_RUNNER_START_RELOAD
 @click.option("--port", type=int, default=8003)  # env QUALIBRATE_RUNNER_START_PORT
-def start_command(config_path: Path, port: int, reload: bool) -> None:
+@click.option(
+    "--log-level",
+    type=str,
+    default="info",
+    show_default=True,
+    help="Log level for console output (debug, info, warning, error, critical)",
+)
+def start_command(config_path: Path, port: int, reload: bool, log_level: str) -> None:
     os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
 
     from qualibrate.runner.app import main as app_main
 
-    app_main(port=port, reload=reload)
+    app_main(port=port, reload=reload, log_level=log_level)

@@ -31,9 +31,16 @@ from qualibrate.app.config import CONFIG_PATH_ENV_NAME
     show_default=True,
     help="Application will be started on the given port",
 )  # env QUALIBRATE_START_PORT
-def start_command(config_path: Path, port: int, reload: bool) -> None:
+@click.option(
+    "--log-level",
+    type=str,
+    default="info",
+    show_default=True,
+    help="Log level for console output (debug, info, warning, error, critical)",
+)
+def start_command(config_path: Path, port: int, reload: bool, log_level: str) -> None:
     os.environ[CONFIG_PATH_ENV_NAME] = str(config_path)
 
     from qualibrate.app.app import main as app_main
 
-    app_main(port=port, reload=reload)
+    app_main(port=port, reload=reload, log_level=log_level)

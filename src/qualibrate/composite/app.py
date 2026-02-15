@@ -49,7 +49,7 @@ if composite.runner.spawn and composite.app.spawn:
     validate_runner_version_for_app()
 
 
-def main(port: int, host: str, reload: bool, root_path: str = "") -> None:
+def main(port: int, host: str, reload: bool, root_path: str = "", log_level: str = "info") -> None:
     # Set the qualibrate logger to INFO level to prevent DEBUG spam
     logging.getLogger("qualibrate").setLevel(logging.INFO)
 
@@ -59,7 +59,7 @@ def main(port: int, host: str, reload: bool, root_path: str = "") -> None:
         host=host,
         reload=reload,
         root_path=root_path,
-        log_level="info",
+        log_level=log_level,
     )
 
 
