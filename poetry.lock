@@ -2738,14 +2738,14 @@ two-qubit-rb = ["cirq (==1.2.0) ; python_version >= \"3.10\"", "tqdm (>=4.67.1,<
 
 [[package]]
 name = "qualibrate-config"
-version = "0.1.9a1"
+version = "0.1.9"
 description = "Configuration for Qualibrate"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main", "fe_test", "test"]
 files = [
-    {file = "qualibrate_config-0.1.9a1-py3-none-any.whl", hash = "sha256:d0837b2157c826074e9a8bc08a946b418f33a3b8d819b32e5b85f9fb925c6da7"},
-    {file = "qualibrate_config-0.1.9a1.tar.gz", hash = "sha256:b3ca94e423898b8fbe575ec4e40d688074a184c241a8a1963e0b7a22f51b35ef"},
+    {file = "qualibrate_config-0.1.9-py3-none-any.whl", hash = "sha256:12cff2856aca653ca770f629f566e8668cfa67a0efbd1b8c3b2d1f65343993a9"},
+    {file = "qualibrate_config-0.1.9.tar.gz", hash = "sha256:c96db4ccbc93b4ece69e031d7aed671b6f514be4254fd055a441a5355208b36d"},
 ]
 
 [package.dependencies]
@@ -3493,4 +3493,4 @@ json-timeline-db = []
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.13"
-content-hash = "879096e513544db2491580d9f3936528ad28ca00af0dcc65220a381953d251dc"
+content-hash = "d530b22520e981c64e5a9525a7b2c54194a5e36d11734bdc267cf780eb5539ad"

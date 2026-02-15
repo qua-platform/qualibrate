@@ -59,7 +59,7 @@ def convert_to_history_item(
         # If snapshot has children, it's ALWAYS a workflow regardless of metadata
         type_of_execution_str = "workflow"
         if original_type != "workflow":
-            logger.info(
+            logger.debug(
                 f"convert_to_history_item: Overriding type for id={snapshot.id}, "
                 f"name={metadata_dict.get('name')}, "
                 f"original_type={original_type} -> workflow, "
@@ -230,7 +230,7 @@ def build_snapshot_tree(
 
     # Log workflow processing for troubleshooting
     if workflows_processed:
-        logger.info(f"build_snapshot_tree: Processed {len(workflows_processed)} workflows: {workflows_processed}")
+        logger.debug(f"build_snapshot_tree: Processed {len(workflows_processed)} workflows: {workflows_processed}")
 
     # Also mark items with workflow_parent_id as children (they belong to a parent
     # workflow and should not appear at top level, even if the parent isn't in
@@ -247,7 +247,7 @@ def build_snapshot_tree(
 
     # Log summary for troubleshooting
     if items_with_parent:
-        logger.info(
+        logger.debug(
             f"build_snapshot_tree: {len(items_by_id)} items, "
             f"{len(child_ids)} filtered as children, "
             f"{len(top_level_items)} top-level. "

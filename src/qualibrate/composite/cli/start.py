@@ -129,6 +129,13 @@ state_path = "{demo_state_dest}"
     default="",
     help=("Optional root path for the application if run as a sub-application."),
 )
+@click.option(
+    "--log-level",
+    type=str,
+    default="info",
+    show_default=True,
+    help="Log level for console output (debug, info, warning, error, critical)",
+)
 def start_command(
     config_path: Path,
     port: int,
@@ -136,6 +143,7 @@ def start_command(
     reload: bool,
     cors_origin: list[str],
     root_path: str,
+    log_level: str,
 ) -> None:
     is_first_run = not config_path.exists() and config_path == config_vars.DEFAULT_CONFIG_FILEPATH
 
@@ -189,4 +197,4 @@ def start_command(
 
     from qualibrate.composite.app import main as app_main
 
-    app_main(port=port, host=host, reload=reload, root_path=root_path)
+    app_main(port=port, host=host, reload=reload, root_path=root_path, log_level=log_level)

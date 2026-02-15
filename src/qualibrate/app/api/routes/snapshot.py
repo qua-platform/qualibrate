@@ -115,7 +115,7 @@ def _compute_aggregated_outcomes_for_workflow(
                 node_name = child_metadata.get("name", f"node_{snapshot_id}")
                 node_status = child_metadata.get("status", "")
 
-                logger_local.info(
+                logger_local.debug(
                     f"Processing child {snapshot_id}: name={node_name}, "
                     f"status={node_status}, has_children={bool(child_metadata.get('children'))}"
                 )
@@ -130,7 +130,7 @@ def _compute_aggregated_outcomes_for_workflow(
                     node_failed = node_status in ("error", "failed")
                     raw_outcomes = child_data.get("outcomes") if child_data else None
 
-                    logger_local.info(
+                    logger_local.debug(
                         f"  Leaf node {snapshot_id}: node_failed={node_failed}, raw_outcomes={raw_outcomes}"
                     )
 
@@ -142,7 +142,7 @@ def _compute_aggregated_outcomes_for_workflow(
                             if node_failed:
                                 if qubit not in aggregated_outcomes or aggregated_outcomes[qubit].status != "failure":
                                     aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
-                                    logger_local.info(
+                                    logger_local.debug(
                                         f"  Marking {qubit} as FAILED (node status={node_status}) on {node_name}"
                                     )
                             elif outcome_str in ("successful", "success"):
@@ -153,20 +153,22 @@ def _compute_aggregated_outcomes_for_workflow(
                             ):
                                 # Keep the first failure (the node that failed first)
                                 aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
-                                logger_local.info(f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}")
+                                logger_local.debug(
+                                    f"  Marking {qubit} as FAILED (outcome={outcome_str}) on {node_name}"
+                                )
                     elif node_failed:
                         # Node has error status but no outcomes recorded
                         # This happens when a node throws an exception before recording outcomes
                         # Mark ALL qubits we've seen so far as potentially failed on this node
                         # if they were previously successful
-                        logger_local.info(
+                        logger_local.debug(
                             f"  Node {node_name} has error status but no outcomes - "
                             f"marking existing successful qubits as failed"
                         )
                         for qubit in list(aggregated_outcomes.keys()):
                             if aggregated_outcomes[qubit].status == "success":
                                 aggregated_outcomes[qubit] = QubitOutcome(status="failure", failed_on=node_name)
-                                logger_local.info(f"  Overriding {qubit} to FAILED on {node_name}")
+                                logger_local.debug(f"  Overriding {qubit} to FAILED on {node_name}")
             except Exception as e:
                 logger_local.warning(f"Failed to load child snapshot {snapshot_id}: {e}")
 

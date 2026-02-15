@@ -12,8 +12,8 @@ app.include_router(base_router)
 app.include_router(base_ws_router)
 
 
-def main(port: int, reload: bool) -> None:
-    uvicorn.run("qualibrate.runner.app:app", port=port, reload=reload)
+def main(port: int, reload: bool, log_level: str = "info") -> None:
+    uvicorn.run("qualibrate.runner.app:app", port=port, reload=reload, log_level=log_level)
 
 
 if __name__ == "__main__":

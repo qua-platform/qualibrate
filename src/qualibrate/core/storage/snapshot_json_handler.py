@@ -42,7 +42,8 @@ class SnapshotJsonHandler:
             Path to the node.json file, or None if not found.
         """
         # Search for the snapshot directory using the ID pattern
-        pattern = f"*/#{snapshot_idx}_*"
+        # Use [#] to escape the hash character in glob patterns for cross-platform compatibility
+        pattern = f"*/[#]{snapshot_idx}_*"
         matches = list(self.root_data_folder.glob(pattern))
         if not matches:
             logger.warning(f"Snapshot {snapshot_idx} not found in {self.root_data_folder}")
