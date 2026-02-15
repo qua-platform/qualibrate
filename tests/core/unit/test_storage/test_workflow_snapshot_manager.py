@@ -1,4 +1,5 @@
 import json
+import os
 from unittest.mock import MagicMock
 
 import pytest
@@ -68,6 +69,7 @@ def create_snapshot(temp_data_folder):
         with path.open("w") as f:
             json.dump(content or default_content, f)
             f.flush()
+            os.fsync(f.fileno())
         # Ensure file exists before returning
         assert path.exists(), f"Failed to create {path}"
         return path
