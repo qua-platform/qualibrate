@@ -50,8 +50,8 @@ if composite.runner.spawn and composite.app.spawn:
 
 
 def main(port: int, host: str, reload: bool, root_path: str = "", log_level: str = "info") -> None:
-    # Set the qualibrate logger to INFO level to prevent DEBUG spam
-    logging.getLogger("qualibrate").setLevel(logging.INFO)
+    # Set the qualibrate logger to the specified log level
+    logging.getLogger("qualibrate").setLevel(log_level.upper())
 
     uvicorn.run(
         "qualibrate.composite.app:app",
