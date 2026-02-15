@@ -1,4 +1,4 @@
-from qualibrate import GraphParameters
+from qualibrate.core import GraphParameters
 from qualibrate.core import QualibrationGraph, QualibrationLibrary
 
 library = QualibrationLibrary.get_active_library()
