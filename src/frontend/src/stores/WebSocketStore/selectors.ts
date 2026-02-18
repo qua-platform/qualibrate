@@ -131,6 +131,11 @@ export const getRunStatusNodeRunDuration = createSelector(
   (runStatusNodeState) => runStatusNodeState?.run_duration
 );
 
+export const getRunStatusNodeRunStart = createSelector(
+  getRunStatusNode,
+  (runStatusNodeState) => runStatusNodeState?.run_start
+);
+
 export const getRunStatusNodePercentage = createSelector(
   getRunStatusNode,
   (runStatusNodeState) => runStatusNodeState?.percentage_complete
