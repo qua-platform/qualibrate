@@ -8,6 +8,11 @@ export const getSubmitNodeResponseError = createSelector(
   (state) => state.submitNodeResponseError
 );
 
+export const getSelectedNodeId = createSelector(
+  getNodesState,
+  (state) => state.selectedNode
+);
+
 export const getIsNodeSelected = createSelector(
   getNodesState,
   (state, nodeKey: string) => nodeKey,
@@ -27,6 +32,12 @@ export const getRunningNodeInfo = createSelector(
 export const getAllNodes = createSelector(
   getNodesState,
   (state) => state.allNodes
+);
+
+export const getSelectedNode = createSelector(
+  getAllNodes,
+  getSelectedNodeId,
+  (nodes = {}, selectedNodeId = "") => nodes[selectedNodeId]
 );
 
 export const getNode = createSelector(

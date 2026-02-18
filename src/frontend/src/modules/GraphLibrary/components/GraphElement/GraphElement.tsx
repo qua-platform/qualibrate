@@ -105,7 +105,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
             key={calibrationGraphKey}
             show={show}
             showTitle={true}
-            currentItem={selectedWorkflow}
+            params={selectedWorkflow?.parameters}
             getInputElement={renderInputElement}
             parametersExpanded={true}
           />

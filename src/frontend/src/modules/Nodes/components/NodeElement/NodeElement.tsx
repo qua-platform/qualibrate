@@ -37,31 +37,15 @@
  * @see WebSocketContext for real-time status updates (WebSocketContext.tsx:265-269)
  * @see Parameters for the collapsible parameter editing UI
  */
-import React, { useState } from "react";
+import React from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 
-import {
-  InputParameter,
-  SingleParameter,
-  ErrorResponseWrapper,
-  BlueButton,
-  RunIcon,
-  ParameterSelector,
-  ListCard,
-  Parameters,
-} from "../../../../components";
+import { InputParameter, ErrorResponseWrapper, ListCard } from "../../../../components";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
-import {
-  getSubmitNodeResponseError,
-  setSelectedNode,
-  handleRunNode,
-  setNodeParameter,
-  getIsNodeSelected,
-  getNode,
-} from "../../../../stores/NodesStore";
-import { getRunStatusIsRunning, getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
+import { getSubmitNodeResponseError, setSelectedNode, getIsNodeSelected, getNode } from "../../../../stores/NodesStore";
+import { getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
 import { GraphWorkflow } from "../../../GraphLibrary";
 import { getIsLastRunNode } from "../../../../stores/WebSocketStore/selectors";
 import { classNames } from "../../../../utils/classnames";
@@ -131,51 +115,8 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
   const node = useSelector((state) => getNode(state, nodeKey));
   const isNodeSelected = useSelector((state) => getIsNodeSelected(state, nodeKey));
   const submitNodeResponseError = useSelector(getSubmitNodeResponseError);
-  const runStatusIsRunning = useSelector(getRunStatusIsRunning);
   const isLastRunNode = useSelector((state) => getIsLastRunNode(state, nodeKey));
   const runStatusNodeStatus = useSelector(getRunStatusNodeStatus);
-  const [errors, setErrors] = useState(new Set());
-
-  const handleSetError = (key: string, isValid: boolean) => {
-    const newSet = new Set(errors);
-
-    if (isValid) newSet.delete(key);
-    else newSet.add(key);
-
-    setErrors(newSet);
-  };
-  /**
-   * Update a single parameter value in the node's parameter map.
-   *
-   * Modifies the parameter's default value while preserving other metadata
-   * (title, type, description). Triggers a full NodesContext state update,
-   * causing re-render of all consumers.
-   */
-  const updateParameter = (paramKey: string, newValue: boolean | number | string | string[] | undefined, isValid: boolean) => {
-    handleSetError(paramKey, isValid);
-    dispatch(setNodeParameter({ nodeKey, paramKey, newValue }));
-  };
-
-  const renderInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => (
-    <ParameterSelector parameterKey={key} parameter={parameter} node={node} onChange={updateParameter} />
-  );
-
-  //  TODO: use in https://quantum-machines.atlassian.net/browse/QUAL-1743
-  //  Show parameters section if node has any parameters defined
-  const renderParameters = () =>
-    Object.keys(node?.parameters ?? {}).length > 0 && (
-      <Parameters
-        parametersExpanded={true}
-        showTitle={true}
-        key={node.name}
-        show={isNodeSelected}
-        currentItem={node}
-        getInputElement={renderInputElement}
-        data-testid={`parameters-${nodeKey}`}
-      />
-    );
-
-  const handleClick = async () => dispatch(handleRunNode(node));
 
   /**
    * Insert spaces into long strings to enable line wrapping at fixed intervals.
@@ -199,13 +140,6 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
           </>
         }
       />
-      {/* TODO: remove after https://quantum-machines.atlassian.net/browse/QUAL-1743 */}
-      {!runStatusIsRunning && isNodeSelected && errors.size === 0 && (
-        <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
-          <RunIcon className={styles.runButtonIcon} />
-          <span className={styles.runButtonText}>Run</span>
-        </BlueButton>
-      )}
     </div>
   );
 };

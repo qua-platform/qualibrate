@@ -6,17 +6,19 @@ const MAX_SHOWN_VALUES = 2;
 
 const ArraySelectorTrigger = ({
   value,
+  className,
   disabled,
   onClick,
   icon,
 }: {
   value?: string[] | string;
+  className?: string;
   disabled: boolean
   onClick: () => void
   icon?: React.ReactNode
 }) => (
   <div
-    className={classNames(styles.wrapper, disabled && styles.disabled)}
+    className={classNames(styles.wrapper, disabled && styles.disabled, className)}
     onClick={() => !disabled && onClick()}
   >
     <span className={styles.list}>

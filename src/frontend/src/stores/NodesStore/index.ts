@@ -31,5 +31,7 @@ export {
   getIsRescanningNodes,
   getIsNodeSelected,
   getNode,
+  getSelectedNodeId,
+  getSelectedNode,
 } from "./selectors";
 export { useInitNodes } from "./hooks";

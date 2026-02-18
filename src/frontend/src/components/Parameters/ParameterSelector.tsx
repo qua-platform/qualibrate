@@ -4,22 +4,20 @@ import { ParamaterValue, SingleParameter } from "./Parameters";
 import { getParameterType, validate } from "./utils";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Parameters.module.scss";
-import { NodeDTO } from "../../modules/Nodes";
-import { GraphWorkflow } from "../../modules/GraphLibrary";
 import InputField from "../Input/InputField";
 import { classNames } from "../../utils/classnames";
 import { EnumSelector, QubitsSelector } from "../ArraySelector";
 
 const ParameterSelector = ({
   parameterKey,
+  className,
   parameter,
-  node,
   onChange,
 }: {
-  parameterKey: string
-  parameter: SingleParameter
-  node?: NodeDTO | GraphWorkflow
-  onChange: (paramKey: string, newValue: ParamaterValue, isValid: boolean, nodeId?: string | undefined) => void
+  parameterKey: string;
+  className?: string;
+  parameter: SingleParameter;
+  onChange: (paramKey: string, newValue: ParamaterValue, isValid: boolean) => void;
 }) => {
   const [error, setError] = useState<undefined | string>(undefined);
   const [inputValue, setInputValue] = useState<ParamaterValue | undefined>(parameter.value);
@@ -27,7 +25,7 @@ const ParameterSelector = ({
   const handleBlur = useCallback((value?: ParamaterValue) => {
     const { isValid, error } = validate(parameter, value);
 
-    onChange(parameterKey, value as string, isValid, node?.name);
+    onChange(parameterKey, value as string, isValid);
     setError(error);
   }, [inputValue]);
 
@@ -58,15 +56,17 @@ const ParameterSelector = ({
           onClick={handleChangeBoolean}
           inputProps={{ "aria-label": "controlled" }}
           data-testid={`input-field-${parameterKey}`}
+          className={className}
         />
       );
 
     if (parameter.enum)
       return (
         <EnumSelector
+          className={className}
           key={parameterKey}
           disabled={false}
-          value={Array.isArray(inputValue) ? inputValue : (inputValue as string || "").split(",")}
+          value={Array.isArray(inputValue) ? inputValue : ((inputValue as string) || "").split(",")}
           onChange={(value) => {
             setInputValue(value);
             handleBlur(value);
@@ -78,6 +78,7 @@ const ParameterSelector = ({
     if (parameterKey === "qubits" && parameter.metadata)
       return (
         <QubitsSelector
+          className={className}
           key={parameterKey}
           disabled={false}
           value={inputValue as string[]}
@@ -92,9 +93,10 @@ const ParameterSelector = ({
     return (
       <InputField
         placeholder={parameterKey}
-        value={inputValue as string || undefined}
+        value={(inputValue as string) || undefined}
         onChange={(value) => setInputValue(value || undefined)}
         onBlur={() => handleBlur(inputValue)}
+        inputClassName={className}
         className={styles.input}
         type={["number", "integer"].includes(type) ? "number" : "string"}
         data-testid={`input-field-${parameterKey}`}
@@ -102,11 +104,12 @@ const ParameterSelector = ({
     );
   }, [inputValue, parameter.default]);
 
-
-  return <div className={classNames(styles.parameterValueSelector, error && styles.error)}>
-    {renderInput()}
-    {error && <span className={styles.error}>{error}</span>}
-  </div>;
+  return (
+    <div className={classNames(styles.parameterValueSelector, error && styles.error)}>
+      {renderInput()}
+      {error && <span className={styles.error}>{error}</span>}
+    </div>
+  );
 };
 
 export default ParameterSelector;

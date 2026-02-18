@@ -10,6 +10,7 @@ type IProps = {
   disabled: boolean
   value: string | string[]
   options: string[]
+  className?: string
   onChange: (value: string | string[]) => void
 }
 
@@ -17,6 +18,7 @@ const EnumSelector = ({
   disabled,
   value,
   options,
+  className,
   onChange,
 }: IProps) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -26,6 +28,7 @@ const EnumSelector = ({
 
   return <>
     <ArraySelectorTrigger
+      className={className}
       onClick={handleTogglePopup}
       value={value}
       disabled={disabled}
