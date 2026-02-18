@@ -7,6 +7,7 @@ interface IListCard {
   onClick: () => void;
   title: string;
   executionStatus?: string;
+  statusTooltip?: string;
   description: React.ReactNode;
   footer?: React.ReactNode;
 }
@@ -20,7 +21,7 @@ const statusClassMap: Record<string, string> = {
   error: styles.statusError,
 };
 
-const ListCard = ({ isHighlighted, onClick, title, executionStatus = "", description, footer }: IListCard) => (
+const ListCard = ({ isHighlighted, onClick, title, executionStatus = "", statusTooltip, description, footer }: IListCard) => (
   <div className={classNames(styles.listCard, isHighlighted && styles.selected)} onClick={onClick}>
     <div className={styles.header}>
       <div className={styles.headerLeft}>
@@ -28,7 +29,7 @@ const ListCard = ({ isHighlighted, onClick, title, executionStatus = "", descrip
           {title}
         </span>
       </div>
-      <div className={classNames(styles.status, statusClassMap[executionStatus])}>
+      <div className={classNames(styles.status, statusClassMap[executionStatus])} title={statusTooltip}>
         <div className={styles.statusDot} />
         {executionStatus}
       </div>

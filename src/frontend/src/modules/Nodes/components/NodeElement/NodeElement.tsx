@@ -37,7 +37,7 @@
  * @see WebSocketContext for real-time status updates (WebSocketContext.tsx:265-269)
  * @see Parameters for the collapsible parameter editing UI
  */
-import React from "react";
+import React, { useEffect, useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 
@@ -45,10 +45,10 @@ import { InputParameter, ErrorResponseWrapper, ListCard } from "../../../../comp
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
 import { getSubmitNodeResponseError, setSelectedNode, getIsNodeSelected, getNode } from "../../../../stores/NodesStore";
-import { getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
+import { getRunStatusNodeStatus, getIsLastRunNode, getRunStatusNodeRunStart} from "../../../../stores/WebSocketStore";
 import { GraphWorkflow } from "../../../GraphLibrary";
-import { getIsLastRunNode } from "../../../../stores/WebSocketStore/selectors";
 import { classNames } from "../../../../utils/classnames";
+import { formatTimeAgo } from "./utils";
 
 /**
  * Calibration node definition from backend node library scan.
@@ -81,7 +81,6 @@ export interface NodeDTO {
 export interface NodeMap {
   [key: string]: NodeDTO | GraphWorkflow;
 }
-
 /**
  * Interactive calibration node component with real-time execution tracking.
  *
@@ -117,6 +116,19 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
   const submitNodeResponseError = useSelector(getSubmitNodeResponseError);
   const isLastRunNode = useSelector((state) => getIsLastRunNode(state, nodeKey));
   const runStatusNodeStatus = useSelector(getRunStatusNodeStatus);
+  const runStatusNodeRunStart = useSelector(getRunStatusNodeRunStart);
+  const [statusTooltip, setStatusTooltip] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (isLastRunNode && runStatusNodeRunStart) {
+      setStatusTooltip(formatTimeAgo(runStatusNodeRunStart));
+      const interval = setInterval(() => setStatusTooltip(formatTimeAgo(runStatusNodeRunStart)), 60000);
+
+      return () => clearInterval(interval);
+    } else {
+      setStatusTooltip(undefined);
+    }
+  }, [isLastRunNode, runStatusNodeRunStart]);
 
   /**
    * Insert spaces into long strings to enable line wrapping at fixed intervals.
@@ -133,6 +145,7 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
         onClick={() => dispatch(setSelectedNode(node.name))}
         title={insertSpaces(node.title ?? node.name)}
         executionStatus={isLastRunNode ? runStatusNodeStatus : undefined}
+        statusTooltip={statusTooltip}
         description={
           <>
             {isNodeSelected && node.name === submitNodeResponseError?.nodeName && <ErrorResponseWrapper error={submitNodeResponseError} />}
