@@ -56,6 +56,7 @@ qualibrate-config = "0.1.9,<0.2.0"  # Using version range
 # json-timeline-database = { version = "^X.X.X", optional = true }
 
 # EXTRAS: Optional feature sets
+sqlalchemy = "^2.0.46"
 [tool.poetry.extras]
 json-timeline-db = ["json-timeline-database"]  # From app - optional timeline DB support
 
