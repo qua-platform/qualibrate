@@ -7,16 +7,20 @@ import { classNames } from "../../utils/classnames";
 import styles from "./styles/SidebarMenu.module.scss";
 import cyKeys from "../../utils/cyKeys";
 import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/GlobalThemeContext";
-import { QUAlibrateLogoIcon, QualibrateLogoSmallIcon, ExpandSideMenuIcon, CollapseSideMenuIcon, ProjectFolderIcon } from "../../components";
-import { extractInitials, getColorIndex, colorPalette } from "../Project";
+import { CollapseSideMenuIcon, ExpandSideMenuIcon, ProjectFolderIcon, QUAlibrateLogoIcon, QualibrateLogoSmallIcon } from "../../components";
+import { colorPalette, extractInitials, getColorIndex } from "../Project";
 import { useSelector } from "react-redux";
 import { getActiveProject, getShouldGoToProjectPage } from "../../stores/ProjectStore";
 import { getActivePage, setActivePage } from "../../stores/NavigationStore";
 import { useRootDispatch } from "../../stores";
+import { API_METHODS } from "../../utils/api/types";
+import { GET_APP_VERSION } from "../../utils/api/apiRoutes";
+import Api, { BASIC_HEADERS } from "../../utils/api";
 
 const SidebarMenu: React.FunctionComponent = () => {
   const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const [minify, setMinify] = useState(false);
+  const [appVersion, setAppVersion] = useState<string | undefined>(undefined);
   const dispatch = useRootDispatch();
   const activePage = useSelector(getActivePage);
   const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
@@ -34,6 +38,24 @@ const SidebarMenu: React.FunctionComponent = () => {
   useEffect(() => {
     setMinify(!pinSideMenu);
   }, [pinSideMenu]);
+
+  useEffect(() => {
+    const fetchAppVersion = async () => {
+      try {
+        const response = await Api._fetch<{ version: string | undefined }>(Api.api(GET_APP_VERSION()), API_METHODS.GET, {
+          headers: BASIC_HEADERS,
+        });
+
+        if (response?.isOk) {
+          setAppVersion(response.result?.version);
+        }
+      } catch (error) {
+        console.error("Failed to fetch app version:", error);
+      }
+    };
+
+    fetchAppVersion();
+  }, []);
 
   return (
     <>
@@ -67,6 +89,7 @@ const SidebarMenu: React.FunctionComponent = () => {
               if (item.keyId === TOGGLE_SIDEBAR_KEY) {
                 handleOnClick = () => setMinify(!minify);
                 menuItem.icon = minify ? ExpandSideMenuIcon : CollapseSideMenuIcon;
+                menuItem.title = appVersion ? `v${appVersion}` : undefined;
               } else if (item.keyId === HELP_KEY) {
                 handleOnClick = handleHelpClick;
               } else if (item.keyId === PROJECT_KEY) {

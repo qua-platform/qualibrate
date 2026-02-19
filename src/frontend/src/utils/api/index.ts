@@ -1,6 +1,4 @@
-import { API_METHODS } from "./types";
-import { Res } from "./types";
-import { FetchOptions, GETOptions, RequestEntry } from "./types";
+import { API_METHODS, FetchOptions, GETOptions, RequestEntry, Res } from "./types";
 
 const AUTH_HEADER = {
   Authorization: "Basic bWVhc3VyZW1lbnQ6ZW50YW5nbGU=",
@@ -13,7 +11,7 @@ export const BASIC_HEADERS = {
   ...AUTH_HEADER,
 };
 
-const API_ADDRESS = "api/v0/";
+const API_ADDRESS = "";
 
 type ErrorObject = {
   error: string;
