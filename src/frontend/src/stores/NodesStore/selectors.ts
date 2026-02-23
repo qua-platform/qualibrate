@@ -29,6 +29,11 @@ export const getRunningNodeInfo = createSelector(
   (state) => state.runningNodeInfo
 );
 
+export const getLastRunNodeName = createSelector(
+  getRunningNodeInfo,
+  (runningNode) => runningNode?.lastRunNodeName
+);
+
 export const getAllNodes = createSelector(
   getNodesState,
   (state) => state.allNodes

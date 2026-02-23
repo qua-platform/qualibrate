@@ -33,5 +33,6 @@ export {
   getNode,
   getSelectedNodeId,
   getSelectedNode,
+  getLastRunNodeName,
 } from "./selectors";
 export { useInitNodes } from "./hooks";

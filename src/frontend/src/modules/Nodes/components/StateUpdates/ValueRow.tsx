@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
-import styles from "../RunningJob/RunningJob.module.scss";
+import styles from "./StateUpdates.module.scss";
 import { UndoIcon, RightArrowIcon } from "../../../../components";
-import { ValueComponent } from "./ValueComponent"; // export const ValueRow = ({
+import { ValueComponent } from "./ValueComponent";
 
 export const ValueRow = ({
   oldValue,

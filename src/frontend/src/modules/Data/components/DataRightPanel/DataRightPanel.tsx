@@ -2,13 +2,22 @@ import React from "react";
 import styles from "./DataRightPanel.module.scss";
 import { useSelector } from "react-redux";
 import { getBreadCrumbs, getJsonData, getResult, getSelectedSnapshot } from "../../../../stores/SnapshotsStore";
-import { JSONEditor, VerticalResizableComponent } from "../../../../components";
-import { snapshotMetadataToParameters } from "../../../../components/VerticalResizableComponent/helpers";
+import { JSONEditor, ResizableTabSidebar } from "../../../../components";
+import { snapshotMetadataToParameters } from "./helpers";
 import GraphView from "./GraphView";
 import { SnapshotData } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
 import { useRootDispatch } from "../../../../stores";
 import { runNodeOfSelectedSnapshot, runWorkflowOfSelectedSnapshot } from "../../../../stores/SnapshotsStore/actions";
 import { getRunStatusIsRunning } from "../../../../stores/WebSocketStore";
+import { formatDateTime } from "../../../../utils/formatDateTime";
+import SnapshotComments from "../SnapshotComments";
+import { ParametersViewer } from "../../../../components";
+
+export const formatParamValue = (key: string, value: string | number | string[] | null | boolean | undefined) => {
+  if (["run_end", "run_start"].includes(key)) return formatDateTime(value as string);
+
+  return value === null || value === undefined ? "—" : typeof value === "object" ? JSON.stringify(value, null, 2) : value;
+};
 
 const DataRightPanel = () => {
   const dispatch = useRootDispatch();
@@ -42,14 +51,29 @@ const DataRightPanel = () => {
     );
   }
 
+  const tabs = [
+    {
+      title: "Metadata",
+      render: (
+        <div className={styles.tabContainer}>
+          <ParametersViewer data={snapshotMetadataToParameters(selectedSnapshot?.metadata)} />
+          <SnapshotComments />
+        </div>
+      ),
+    },
+    {
+      title: "Parameters",
+      render: (
+        <div className={styles.tabContainer}>
+          <ParametersViewer data={jsonData?.parameters?.model ?? {}} />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className={styles.viewer}>
-      <VerticalResizableComponent
-        tabData={{
-          metadata: snapshotMetadataToParameters(selectedSnapshot?.metadata),
-          parameters: jsonData?.parameters?.model ?? {},
-        }}
-      />
+      <ResizableTabSidebar tabs={tabs} />
       {result && <JSONEditor title="RESULTS" jsonDataProp={result} height="100%" />}
       {showRunButton && (
         <button disabled={isNodeRunning} title={isNodeRunning ? "Node is already running" : ""} className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>

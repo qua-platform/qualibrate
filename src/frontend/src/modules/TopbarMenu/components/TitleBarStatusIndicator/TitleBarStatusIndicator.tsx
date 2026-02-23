@@ -3,7 +3,7 @@ import {CircularLoaderPercentage, CheckmarkIcon, ErrorIcon, NoGraphRunningIcon, 
 
 type SizeMap = {
   Running?: { width: number; height: number };
-  Finished?: { width: number; height: number };
+  Success?: { width: number; height: number };
   Error?: { width: number; height: number };
   Pending?: { width: number; height: number };
 };
@@ -19,8 +19,8 @@ export const StatusIndicator = (
     return <CircularLoaderPercentage percentage={percentage ?? 0} width={width} height={height} />;
   }
 
-  if (status === "Finished") {
-    const { width = 48, height = 48 } = sizes?.Finished || {};
+  if (status === "Success") {
+    const { width = 48, height = 48 } = sizes?.Success || {};
     return <CheckmarkIcon width={width} height={height} />;
   }
 

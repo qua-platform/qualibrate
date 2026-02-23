@@ -44,7 +44,7 @@ const TitleBarNodeCard: React.FC = () => {
               runStatusNodePercentage ?? 0,
               {
                 Running: { width: 30, height: 30 },
-                Finished: { width: 38, height: 38 },
+                Success: { width: 38, height: 38 },
                 Error: { width: 20, height: 20 },
                 Pending: { width: 26, height: 26 },
               },

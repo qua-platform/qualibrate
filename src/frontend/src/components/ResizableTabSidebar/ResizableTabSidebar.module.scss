@@ -12,18 +12,22 @@
 
 .contentSidebar.collapsed {
   overflow: hidden;
-  width: 32px;
-  min-width: 32px;
+  width: 32px !important;
+  min-width: 32px !important;
 }
 
 .contentSidebar.collapsed .displayCard {
   display: none;
 }
 
+.contentSidebar.resizing {
+  transition: none;
+}
+
 .sidebarToggleArrow {
   position: absolute;
-  left: -1;
-  top: 10px;
+  left: 1px;
+  top: 1px;
   background: #161b22;
   border: 1px solid #30363d;
   border-left: none;
@@ -109,38 +113,33 @@
   overflow: hidden;
 }
 
-.displayCardPanel {
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
+.resizeHandler {
+  width: 5px;
+  height: 100%;
+  background: #30363d;
+  cursor: col-resize;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.2s;
+  z-index: 10;
 }
 
-.displayCardPanel.active {
-  display: flex;
+.resizeHandler::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: 0;
+  bottom: 0;
+  cursor: col-resize;
 }
 
-.displayCardPanelBody {
-  padding: 20px;
-  overflow-y: auto;
-  flex: 1;
+.resizeHandler:hover {
+  background: #58a6ff;
+  width: 5px;
 }
 
-.displayParam {
-  margin-bottom: 12px;
-}
-
-.displayParamLabel {
-  font-size: 11px;
-  font-weight: 600;
-  color: #7d8590;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
-}
-
-.displayParamValue {
-  font-size: 14px;
-  color: #c9d1d9;
-  font-family: 'Courier New', monospace;
-  line-height: 1.5;
+.resizeHandler:active {
+  background: #1f6feb;
+  width: 5px;
 }
