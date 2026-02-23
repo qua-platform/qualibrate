@@ -6,7 +6,7 @@ import { fetchOneSnapshot, getFirstId, getSecondId, getTrackLatestSidePanel, Sna
 import { getRunningNode, getRunningNodeInfo } from "./selectors";
 import { formatDateTime } from "../../utils/formatDateTime";
 import { InputParameter } from "../../components";
-import { mockStateUpdates } from "../../../tests/unit/utils/mocks/api/snapshotStateUpdates";
+// import { mockStateUpdates } from "../../../tests/unit/utils/mocks/api/snapshotStateUpdates";
 
 export const {
   setSelectedNode,
@@ -64,9 +64,9 @@ export const fetchNodeResults = () => async (dispatch: RootDispatch, getState: (
           const runningNodeInfo = getRunningNodeInfo(state);
           const runningNode = getRunningNode(state);
 
-          // const state_updates: StateUpdate = {};
+          const state_updates: StateUpdate = {};
           // Uncomment to use mocks
-          const state_updates: StateUpdate = mockStateUpdates;
+          // const state_updates: StateUpdate = mockStateUpdates;
           if (lastRunResponseResult.state_updates) {
             Object.entries(lastRunResponseResult.state_updates).forEach(([key, graph]) => {
               state_updates[key] = { ...graph, stateUpdated: false };
