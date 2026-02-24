@@ -71,7 +71,7 @@ from qualibrate.core.utils.node.path_solver import (
 from qualibrate.core.utils.node.record_state_update import update_node_machine
 from qualibrate.core.utils.read_files import get_module_name, import_from_path
 from qualibrate.core.utils.type_protocols import MachineProtocol, TargetType
-
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 __all__ = [
     "QualibrationNode",
     "NodeCreateParametersType",
@@ -481,7 +481,19 @@ class QualibrationNode(
             ImportError: Raised if required configurations are not accessible.
         """
         self._get_storage_manager().save(node=self)
+        self._save_to_db()
         self.last_saved_at = datetime.now().astimezone()
+
+    def _save_to_db(self):
+        if node.machine is None:
+            return
+        if DBRegistry.get() is None:
+            return
+        db = DBRegistry.get()
+        #finish it tomorrow, pay attention to async flows
+        db.save_node(self)
+
+        pass
 
     def _load_from_id(
         self,

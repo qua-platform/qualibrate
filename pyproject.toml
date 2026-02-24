@@ -110,8 +110,8 @@ xarray = "~2025.6.1"
 # Uncomment these when developing qualibrate alongside related QM packages
 # This allows you to work on multiple repos simultaneously with local changes
 # ============================================================================
-#[tool.poetry.group.qm-dev.dependencies]
-#qualibrate-config = {path = "../qualibrate-config", develop = true}
+[tool.poetry.group.qm-dev.dependencies]
+qualibrate-config = {path = "/Users/eladz-mac-laptop/PycharmProjects/qualibrate-config", develop = true}
 #qua-dashboards = {path = "../qua-dashboards", develop = true}
 
 # ============================================================================

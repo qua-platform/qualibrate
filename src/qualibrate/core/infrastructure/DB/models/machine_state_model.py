@@ -5,8 +5,8 @@ from sqlalchemy.orm import declarative_base
 
 
 Base = declarative_base()
-class QuamState(Base):
-    __tablename__ = 'quam_state'
+class MachineState(Base):
+    __tablename__ = 'machine_state'
 
 
     id = Column(Integer, primary_key=True)

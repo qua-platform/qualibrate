@@ -16,6 +16,12 @@ from qualibrate.core.storage.snapshot_json_handler import SnapshotJsonHandler
 from qualibrate.core.storage.storage_manager import StorageManager
 from qualibrate.core.utils.logger_m import logger
 from qualibrate.core.utils.type_protocols import MachineProtocol
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
+from qualibrate.core.infrastructure.DB.repositories.machine_state_repository import MachineStateRepository
+from qualibrate_config.resolvers import (
+    get_qualibrate_config,
+    get_qualibrate_config_path,
+)
 
 if TYPE_CHECKING:
     from typing import Any
@@ -146,6 +152,9 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine: MachineProtocol,
         relative_data_path: str | None = "./quam_state.json",
     ) -> None:
+        #save to db here
+        self._save_quam_state_to_db()
+
         quam = importlib.import_module("quam")
         if quam is not None:
             quam_version = getattr(quam, "__version__", "0.3.10")
@@ -171,6 +180,17 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine_data_path = Path(self.data_handler.path) / relative_data_path
         logger.info(f"Saving machine to data folder {machine_data_path}")
         machine.save(machine_data_path)
+        self._save_quam_state_to_db()
+
+    def _save_quam_state_to_db(self, machine_state):
+        """temporary untill we add storage manager for db"""
+    try:
+        db_manager = DBRegistry.get()
+        machine_state_repository = MachineStateRepository(db_manager)
+        logger.info("Saving machine state to db")
+        machine_state_repository.save({"content": machine_state})
+    except RuntimeError as e:
+        logger.warning(f"Could not save machine state to db: {e}")
 
     def _save_old_quam(self, machine: MachineProtocol) -> None:
         if self.data_handler.path is None or isinstance(self.data_handler.path, int):
