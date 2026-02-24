@@ -24,10 +24,13 @@ const sortOptions = [
     label: "Last Run",
     value: NodesListSortType.LastRun,
   },
-  {
-    label: "Status",
-    value: NodesListSortType.Status,
-  },
+  // TODO: we don't save status and time of executions for every node, only the last one.
+  // Because of that "Last Run" and "Status" are the same.
+  // Uncomment when more nodes have execution status
+  // {
+  //   label: "Status",
+  //   value: NodesListSortType.Status,
+  // },
 ];
 
 /**
