@@ -4,6 +4,9 @@ from contextlib import AsyncExitStack, asynccontextmanager
 from importlib import metadata
 from importlib.util import find_spec
 
+from qualibrate.core.infrastructure.DB.postgres_management import PostgresManagement
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
+
 from fastapi import FastAPI
 from fastapi.routing import Mount
 from packaging.requirements import Requirement
@@ -123,6 +126,7 @@ def spawn_qua_dashboards(app: FastAPI) -> None:
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    DBRegistry.configure(PostgresManagement())
     async with AsyncExitStack() as stack:
         for route in filter(
             lambda r: isinstance(r, Mount) and isinstance(r.app, FastAPI),
@@ -131,4 +135,7 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
             await stack.enter_async_context(
                 route.app.router.lifespan_context(app)  # type: ignore[attr-defined]
             )
-        yield
+        try:
+            yield
+        finally:
+            DBRegistry.get().disconnect_all()

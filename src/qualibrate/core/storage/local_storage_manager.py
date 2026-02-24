@@ -153,7 +153,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         relative_data_path: str | None = "./quam_state.json",
     ) -> None:
         #save to db here
-        self._save_quam_state_to_db()
+        self._save_quam_state_to_db(machine_state=machine)
 
         quam = importlib.import_module("quam")
         if quam is not None:
@@ -180,17 +180,17 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine_data_path = Path(self.data_handler.path) / relative_data_path
         logger.info(f"Saving machine to data folder {machine_data_path}")
         machine.save(machine_data_path)
-        self._save_quam_state_to_db()
+        self._save_quam_state_to_db(machine_state=machine)
 
     def _save_quam_state_to_db(self, machine_state):
         """temporary untill we add storage manager for db"""
-    try:
-        db_manager = DBRegistry.get()
-        machine_state_repository = MachineStateRepository(db_manager)
-        logger.info("Saving machine state to db")
-        machine_state_repository.save({"content": machine_state})
-    except RuntimeError as e:
-        logger.warning(f"Could not save machine state to db: {e}")
+        try:
+            db_manager = DBRegistry.get()
+            machine_state_repository = MachineStateRepository(db_manager)
+            logger.info("Saving machine state to db")
+            machine_state_repository.save({"content": machine_state})
+        except RuntimeError as e:
+            logger.warning(f"Could not save machine state to db: {e}")
 
     def _save_old_quam(self, machine: MachineProtocol) -> None:
         if self.data_handler.path is None or isinstance(self.data_handler.path, int):

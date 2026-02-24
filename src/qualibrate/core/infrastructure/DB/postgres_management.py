@@ -6,6 +6,7 @@ from qualibrate_config.resolvers import (
     get_qualibrate_config,
     get_qualibrate_config_path,
 )
+from qualibrate_config.models import DBConfig
 from qualibrate.core.utils.logger_m import logger
 
 
@@ -22,8 +23,9 @@ class PostgresManagement(DBManagement):
     # ---------------------------------------------------
     # CONNECT
     # ---------------------------------------------------
-    def connect(self, key: str, config: dict) -> None:
-        if key in self._engines:
+    #    def db_connect(self, project_name: str, config: DBConfig) -> None:
+    def db_connect(self, project_name: str) -> None:
+        if project_name in self._engines:
             return  # already connected
         config_path = get_qualibrate_config_path()
         config = get_qualibrate_config(config_path).database
@@ -31,8 +33,8 @@ class PostgresManagement(DBManagement):
             logger.warning("No database configuration found, skipping database connection")
 
         engine = create_engine(
-            f"postgresql+psycopg2://{config['username']}:{config['password']}@"
-            f"{config['host']}:{config.get('port', 5432)}/{config['database']}",
+            f"postgresql+psycopg2://{config.username}:{config.password}@"
+            f"{config.host}:{config.port}/{config.database}",
             pool_size=5,
             pool_pre_ping=True
         )
@@ -41,19 +43,19 @@ class PostgresManagement(DBManagement):
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
 
-        self._engines[key] = engine
-        self._session_factories[key] = sessionmaker(bind=engine)
+        self._engines[project_name] = engine
+        self._session_factories[project_name] = sessionmaker(bind=engine)
 
     # ---------------------------------------------------
     # DISCONNECT SINGLE
     # ---------------------------------------------------
-    def disconnect(self, key: str) -> None:
-        engine = self._engines.get(key)
+    def disconnect(self, project_name: str) -> None:
+        engine = self._engines.get(project_name)
         if engine:
             engine.dispose()
 
-        self._engines.pop(key, None)
-        self._session_factories.pop(key, None)
+        self._engines.pop(project_name, None)
+        self._session_factories.pop(project_name, None)
 
     # ---------------------------------------------------
     # DISCONNECT ALL
@@ -68,18 +70,18 @@ class PostgresManagement(DBManagement):
     # ---------------------------------------------------
     # STATUS
     # ---------------------------------------------------
-    def is_connected(self, key: str) -> bool:
-        return key in self._session_factories
+    def is_connected(self, project_name: str) -> bool:
+        return project_name in self._session_factories
 
     # ---------------------------------------------------
     # SESSION
     # ---------------------------------------------------
     @contextmanager
-    def session(self, key: str):
-        if key not in self._session_factories:
-            raise RuntimeError(f"No database connection configured for key '{key}'")
+    def session(self, project_name: str):
+        if project_name not in self._session_factories:
+            raise RuntimeError(f"No database connection configured for project '{project_name}'")
 
-        session = self._session_factories[key]()
+        session = self._session_factories[project_name]()
 
         try:
             yield session

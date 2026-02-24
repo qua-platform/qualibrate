@@ -21,6 +21,8 @@ from qualibrate.app.config import (
     get_config_path,
     get_settings,
 )
+from qualibrate.core.infrastructure.DB.postgres_management import PostgresManagement
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 
 project_router = APIRouter(prefix="/project", tags=["project"])
 projects_router = APIRouter(prefix="/projects", tags=["project"])
@@ -270,3 +272,41 @@ def get_projects_list(
 ) -> Sequence[Project]:
     """List all projects available in the configured storage backend."""
     return projects_manager.list()
+
+@project_router.post("/db/connect")
+def connect_db(projects_manager: Annotated[
+        ProjectsManagerBase,
+        Depends(_get_projects_manager),
+    ]):
+    # get project and config from qualibrate
+    # config_path = get_qualibrate_config_path()
+    # config = get_qualibrate_config(config_path)
+    project_name = projects_manager.project
+    if project_name is None:
+        raise HTTPException(status_code=400, detail="No active project configured")
+    try:
+        # manager = DBRegistry.get()
+        manager = PostgresManagement()
+        # manager.db_connect(project_name, projects_manager._settings.database)
+        manager.db_connect(project_name)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not connect: {e}")
+
+    return {"status": "connected", "project": project_name}
+
+@project_router.post("/db/disconnect")
+def disconnect_db(projects_manager: Annotated[
+    ProjectsManagerBase,
+    Depends(_get_projects_manager),
+]):
+    # manager = DBRegistry.get()
+    project_name = projects_manager.project
+    if project_name is None:
+        raise HTTPException(status_code=400, detail="No active project configured")
+    try:
+        manager = PostgresManagement()
+        manager.disconnect(project_name)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not disconnect: {e}")
+
+    return {"status": "disconnected", "project": project_name}

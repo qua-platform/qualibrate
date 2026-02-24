@@ -11,6 +11,9 @@ __all__ = ["app_lifespan"]
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    # Init DB registry
+    DBRegistry.configure(PostgresManagement())
+
     # Start periodic tasks and capture task references
     snapshot_history_task = await update_snapshot_history_required()
     try:
@@ -20,3 +23,5 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
         snapshot_history_task.cancel()
         with suppress(asyncio.CancelledError):
             await snapshot_history_task
+        DBRegistry.get().disconnect_all()
+

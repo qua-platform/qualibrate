@@ -481,19 +481,7 @@ class QualibrationNode(
             ImportError: Raised if required configurations are not accessible.
         """
         self._get_storage_manager().save(node=self)
-        self._save_to_db()
         self.last_saved_at = datetime.now().astimezone()
-
-    def _save_to_db(self):
-        if node.machine is None:
-            return
-        if DBRegistry.get() is None:
-            return
-        db = DBRegistry.get()
-        #finish it tomorrow, pay attention to async flows
-        db.save_node(self)
-
-        pass
 
     def _load_from_id(
         self,

@@ -8,7 +8,7 @@ from qualibrate_config.resolvers import (
 from qualibrate.core.utils.logger_m import logger
 from qualibrate.core.utils.db_utils.project_handling import  handle_missing_project
 
-class PostgresBaseRepository(ABC, DBOperations):
+class PostgresBaseRepository(DBOperations):
     model = None  # subclasses MUST define
 
     def __init__(self, db_management):

@@ -7,6 +7,7 @@ from typing import Any
 from fastapi import FastAPI
 
 from qualibrate.core.utils.logger_m import logger
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 from qualibrate.runner.api.sockets.tasks import execution_history, run_status
 from qualibrate.runner.core.app.ws_managers import get_output_logs_socket_manager
 
@@ -46,6 +47,9 @@ def _setup_log_broadcasting(loop: asyncio.AbstractEventLoop) -> None:
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    # Init DB registry
+    DBRegistry.configure(PostgresManagement())
+
     # Get the running event loop to pass to sync broadcast callback
     loop = asyncio.get_running_loop()
     _setup_log_broadcasting(loop)
@@ -62,3 +66,4 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
         for task in (run_status_task, execution_history_task):
             with suppress(asyncio.CancelledError):
                 await task
+        DBRegistry.get().disconnect_all()
