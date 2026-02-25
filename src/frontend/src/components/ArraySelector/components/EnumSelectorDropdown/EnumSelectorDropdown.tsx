@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useMemo, ChangeEvent, useEffect } from "react";
 import { classNames } from "../../../../utils/classnames";
 import styles from "./EnumSelectorDropdown.module.scss";
-import { getSearchStringIndex } from "../../utils";
+import { getSearchStringIndex } from "../../../../utils/getHighlightedText";
 import useClickOutside from "../../../../utils/hooks/useClickOutside";
 
 type EnumSelectorDropdownProps = {

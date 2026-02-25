@@ -1,11 +1,12 @@
 import React from "react";
 import styles from "./ListCard.module.scss";
 import { classNames } from "../../utils/classnames";
+import { Tooltip } from "@mui/material";
 
 interface IListCard {
   isHighlighted: boolean;
   onClick: () => void;
-  title: string;
+  title: React.ReactNode;
   executionStatus?: string;
   statusTooltip?: string;
   description: React.ReactNode;
@@ -25,14 +26,16 @@ const ListCard = ({ isHighlighted, onClick, title, executionStatus = "", statusT
   <div className={classNames(styles.listCard, isHighlighted && styles.selected)} onClick={onClick}>
     <div className={styles.header}>
       <div className={styles.headerLeft}>
-        <span className={styles.title} title={title}>
-          {title}
-        </span>
+        <Tooltip title={title} placement="right-end" arrow>
+          <span className={styles.title}>{title}</span>
+        </Tooltip>
       </div>
-      <div className={classNames(styles.status, statusClassMap[executionStatus])} title={statusTooltip}>
-        <div className={styles.statusDot} />
-        {executionStatus}
-      </div>
+      <Tooltip title={statusTooltip} placement="right-end" arrow>
+        <div className={classNames(styles.status, statusClassMap[executionStatus])}>
+          <div className={styles.statusDot} />
+          {executionStatus}
+        </div>
+      </Tooltip>
     </div>
     <div className={styles.description}>{description}</div>
     {footer && footer}

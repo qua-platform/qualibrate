@@ -20,6 +20,7 @@ export {
 } from "./MeasurementElementInfoSection/MeasurementElementInfoSection";
 export { ParameterList } from "./Parameters/ParameterList";
 export { Parameters } from "./Parameters/Parameters";
+export { ParametersViewer } from "./ParametersViewer/ParametersViewer";
 export type { InputParameter, SingleParameter } from "./Parameters/Parameters";
 export { default as ParameterSelector } from "./Parameters/ParameterSelector";
 export { Results, ResultsError } from "./Results/Results";
@@ -30,5 +31,5 @@ export { default as SearchField } from "./SearchField";
 export { default as DateFilter } from "./DateFilter";
 export { default as SortButton } from "./SortButton";
 export { default as AppliedFilterLabel } from "./AppliedFilterLabel";
-export { default as VerticalResizableComponent } from "./VerticalResizableComponent";
+export { default as ResizableTabSidebar } from "./ResizableTabSidebar";
 export { default as TagFilter } from "./TagFilter";

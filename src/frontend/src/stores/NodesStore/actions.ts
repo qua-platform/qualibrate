@@ -6,9 +6,12 @@ import { fetchOneSnapshot, getFirstId, getSecondId, getTrackLatestSidePanel, Sna
 import { getRunningNode, getRunningNodeInfo } from "./selectors";
 import { formatDateTime } from "../../utils/formatDateTime";
 import { InputParameter } from "../../components";
+// import { mockStateUpdates } from "../../../tests/unit/utils/mocks/api/snapshotStateUpdates";
 
 export const {
   setSelectedNode,
+  setNodeListSearch,
+  setNodeListSortType,
   setSubmitNodeResponseError,
   runNode,
   setRunningNode,
@@ -62,6 +65,8 @@ export const fetchNodeResults = () => async (dispatch: RootDispatch, getState: (
           const runningNode = getRunningNode(state);
 
           const state_updates: StateUpdate = {};
+          // Uncomment to use mocks
+          // const state_updates: StateUpdate = mockStateUpdates;
           if (lastRunResponseResult.state_updates) {
             Object.entries(lastRunResponseResult.state_updates).forEach(([key, graph]) => {
               state_updates[key] = { ...graph, stateUpdated: false };
@@ -229,7 +234,11 @@ export const handleRunNode = (node: NodeDTO) => async (dispatch: RootDispatch, g
 
     const result = await NodesApi.submitNodeParameters(node.name, transformInputParameters(node.parameters as InputParameter));
     if (result.isOk) {
-      dispatch(setRunningNodeInfo({ timestampOfRun: formatDate(new Date()), status: "running" }));
+      dispatch(setRunningNodeInfo({
+        lastRunNodeName: node.name,
+        timestampOfRun: formatDate(new Date()),
+        status: "running",
+      }));
     } else {
       const errorWithDetails = result.error as ErrorWithDetails;
       dispatch(setSubmitNodeResponseError({
@@ -238,6 +247,7 @@ export const handleRunNode = (node: NodeDTO) => async (dispatch: RootDispatch, g
         msg: errorWithDetails.detail[0].msg,
       }));
       dispatch(setRunningNodeInfo({
+        lastRunNodeName: node.name,
         timestampOfRun: formatDate(new Date()),
         status: "error",
       }));

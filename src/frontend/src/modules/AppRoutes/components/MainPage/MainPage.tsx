@@ -17,6 +17,7 @@ import { useRootDispatch } from "../../../../stores";
 import { DataLeftPanel, DataRightPanel } from "../../../Data";
 import { getSelectedSnapshot } from "../../../../stores/SnapshotsStore";
 import { NodesLeftPanel, NodesRightPanel } from "../../../Nodes";
+import { getLastRunNodeName } from "../../../../stores/NodesStore";
 
 const PageWrapper = ({ nodeKey, children }: { nodeKey: ModuleKey; children: React.ReactNode }) => {
   const activePage = useSelector(getActivePage);
@@ -77,6 +78,7 @@ const MainPage = () => {
   const navigate = useNavigate();
   const activePage = useSelector(getActivePage);
   const selectedSnapshot = useSelector(getSelectedSnapshot);
+  const lastRunNodeName = useSelector(getLastRunNodeName);
 
   useEffect(() => {
     const checkVersion = async () => {
@@ -122,6 +124,8 @@ const MainPage = () => {
     switch (activePage) {
       case DATA_KEY:
         return `${selectedSnapshot?.id ?? ""} ${selectedSnapshot?.metadata?.name ?? ""}`;
+      case NODES_KEY:
+        return lastRunNodeName || "";
       default:
         return undefined;
     }
