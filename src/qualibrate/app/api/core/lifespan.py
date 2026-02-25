@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 
+from qualibrate.core.utils.db_utils.db_startup import init_db_at_startup
 from qualibrate.app.api.sockets.tasks import update_snapshot_history_required
 
 __all__ = ["app_lifespan"]
@@ -11,8 +12,7 @@ __all__ = ["app_lifespan"]
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
-    # Init DB registry
-    DBRegistry.configure(PostgresManagement())
+    init_db_at_startup()
 
     # Start periodic tasks and capture task references
     snapshot_history_task = await update_snapshot_history_required()

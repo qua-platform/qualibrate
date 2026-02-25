@@ -285,8 +285,8 @@ def connect_db(projects_manager: Annotated[
     if project_name is None:
         raise HTTPException(status_code=400, detail="No active project configured")
     try:
-        # manager = DBRegistry.get()
-        manager = PostgresManagement()
+        manager = DBRegistry.get()
+        # manager = PostgresManagement()
         # manager.db_connect(project_name, projects_manager._settings.database)
         manager.db_connect(project_name)
     except Exception as e:
@@ -304,7 +304,8 @@ def disconnect_db(projects_manager: Annotated[
     if project_name is None:
         raise HTTPException(status_code=400, detail="No active project configured")
     try:
-        manager = PostgresManagement()
+        manager = DBRegistry.get()
+        # manager = PostgresManagement()
         manager.disconnect(project_name)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not disconnect: {e}")
