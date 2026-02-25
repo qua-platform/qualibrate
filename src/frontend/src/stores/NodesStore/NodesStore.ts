@@ -57,8 +57,16 @@ export interface StatusResponseType {
   };
 }
 
+export enum NodesListSortType {
+  Name = "Name",
+  LastRun = "LastRun",
+  Status = "Status",
+}
+
 interface NodesState {
-  selectedNode?: string
+  selectedNode?: string;
+  listSearchString: string;
+  listSortType?: NodesListSortType;
   submitNodeResponseError?: ResponseStatusError;
   runningNode?: NodeDTO;
   runningNodeInfo?: RunningNodeInfo;
@@ -72,6 +80,8 @@ interface NodesState {
 
 const initialState: NodesState = {
   selectedNode: undefined,
+  listSearchString: "",
+  listSortType: undefined,
   submitNodeResponseError: undefined,
   runningNode: undefined,
   runningNodeInfo: undefined,
@@ -89,6 +99,12 @@ export const nodesSlice = createSlice({
   reducers: {
     setSelectedNode: (state, action) => {
       state.selectedNode = action.payload;
+    },
+    setNodeListSearch: (state, action) => {
+      state.listSearchString = action.payload;
+    },
+    setNodeListSortType: (state, action) => {
+      state.listSortType = action.payload;
     },
     setSubmitNodeResponseError: (state, action) => {
       state.submitNodeResponseError = action.payload;

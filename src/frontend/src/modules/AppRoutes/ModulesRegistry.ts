@@ -56,7 +56,7 @@ const ModulesRegistry: Array<Module> = [
     Component: NodesRightPanel,
     menuItem: {
       sideBarTitle: "Node Library",
-      title: "Run calibration node",
+      title: "",
       icon: NodeLibraryIcon,
       dataCy: cyKeys.NODES_TAB,
     },

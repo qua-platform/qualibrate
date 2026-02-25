@@ -2,9 +2,7 @@ import React, { useEffect } from "react";
 import { classNames } from "../../utils/classnames";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Parameters.module.scss";
-import { NodeDTO } from "../../modules/Nodes";
 import { ArrowIcon } from "../Icons/ArrowIcon";
-import { GraphWorkflow } from "../../modules/GraphLibrary";
 import Tooltip from "@mui/material/Tooltip";
 import { InfoIcon } from "../Icons/InfoIcon";
 import { useSelector } from "react-redux";
@@ -15,8 +13,8 @@ interface IProps {
   show: boolean;
   showTitle: boolean;
   title?: string;
-  currentItem?: NodeDTO | GraphWorkflow;
-  getInputElement: (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => React.JSX.Element;
+  params?: InputParameter;
+  getInputElement: (key: string, parameter: SingleParameter) => React.JSX.Element;
 }
 
 export type ParameterTypes = "boolean" | "number" | "integer" | "array" | "string" | "null";
@@ -57,7 +55,7 @@ export const Parameters: React.FC<IProps> = ({
   show = false,
   showTitle = true,
   title,
-  currentItem,
+  params = {},
   getInputElement,
 }) => {
   const selectedNodeNameInWorkflow = useSelector(getSelectedNodeNameInWorkflow);
@@ -73,7 +71,7 @@ export const Parameters: React.FC<IProps> = ({
 
   return (
     <div className={classNames(styles.parametersWrapper, !show && styles.nodeNotSelected)} data-testid="node-parameters-wrapper">
-      {showTitle && Object.entries(currentItem?.parameters ?? {}).length > 0 && (
+      {showTitle && Object.entries(params).length > 0 && (
         <div className={styles.parameterTitle}>
           <div
             className={styles.arrowIconWrapper}
@@ -87,13 +85,13 @@ export const Parameters: React.FC<IProps> = ({
         </div>
       )}
       {expanded &&
-        Object.entries(currentItem?.parameters ?? {}).map(([key, parameter]) => {
+        Object.entries(params).map(([key, parameter]) => {
           if (parameter.title.toLowerCase() !== "targets name") {
             return (
               <div key={key} className={styles.parameterValues} data-testid={`parameter-values-${key}`}>
                 <div className={styles.parameterLabel}>{parameter.title}:</div>
                 <div className={styles.parameterValue} data-testid="parameter-value">
-                  {getInputElement(key, parameter, currentItem)}
+                  {getInputElement(key, parameter)}
                 </div>
                 <div className={styles.descriptionWrapper}>
                   {parameter.description && (

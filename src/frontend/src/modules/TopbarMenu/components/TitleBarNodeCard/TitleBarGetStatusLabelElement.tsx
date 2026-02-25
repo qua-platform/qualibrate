@@ -13,8 +13,8 @@ export const getStatusLabelElement = (status: string | undefined, currentAction?
       </div>
     );
   }
-  if (normalizedStatus === "finished") {
-    return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>;
+  if (normalizedStatus === "success") {
+    return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Success</div>;
   }
   if (normalizedStatus === "error") {
     return <div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>;

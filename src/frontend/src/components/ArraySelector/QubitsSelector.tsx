@@ -6,6 +6,7 @@ import { QubitMetadataList } from "../Parameters/Parameters";
 type IProps = {
   disabled: boolean
   value: string[]
+  className?: string
   metadata: QubitMetadataList
   onChange: (value: string[]) => void
 }
@@ -13,6 +14,7 @@ type IProps = {
 const QubitsSelector = ({
   disabled,
   value,
+  className,
   metadata,
   onChange,
 }: IProps) => {
@@ -22,7 +24,7 @@ const QubitsSelector = ({
   const handleClosePopup = () => setIsPopupOpen(false);
 
   return <>
-    <ArraySelectorTrigger onClick={handleTogglePopup} value={value} disabled={disabled} />
+    <ArraySelectorTrigger className={className} onClick={handleTogglePopup} value={value} disabled={disabled} />
     <QubitsSelectorPopup
       open={isPopupOpen}
       onClose={handleClosePopup}

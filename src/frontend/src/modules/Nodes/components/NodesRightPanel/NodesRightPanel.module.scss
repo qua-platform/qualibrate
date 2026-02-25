@@ -3,14 +3,44 @@
 
 .wrapper {
   display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
   height: 100%;
   width: 100%;
-  background: var(--background-color);
-  border-radius: var(--border-radius);
+  background: #0d1117;
+  justify-content: center;
+  padding: 24px;
+}
+
+.resultsWrapper {
+  display: flex;
+  min-height: 0;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #7d8590;
+
+  .emptyStateIcon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin-top: 8px;
+  }
 }
 
 .nodesAndRunningJobInfoWrapper {
   display: flex;
+  flex: 1;
   width: 100%;
   overflow-y: hidden;
 }
@@ -54,4 +84,48 @@
   background-color: #bbb;
   border-radius: 50%;
   display: inline-block;
+}
+
+// .stateUpdateContainer {
+//   padding: 12px;
+// }
+
+.tabContainer {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.floatingButton {
+  display: flex;
+  position: fixed;
+  bottom: 32px;
+  right: 52px;
+  padding: 14px 28px;
+  background: #238636;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
+  z-index: 1000;
+
+  &:hover {
+    background: #257c37;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+  }
+
+  &.stop {
+    background: #da3633;
+
+    &:hover {
+      background: #f85149;
+    }
+  }
 }

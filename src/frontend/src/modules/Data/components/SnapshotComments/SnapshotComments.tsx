@@ -1,16 +1,16 @@
 import React, {useCallback, useEffect, useState} from "react";
 import styles from "./SnapshotComments.module.scss";
 import {useSelector} from "react-redux";
-import {getSelectedSnapshot, getSelectedSnapshotId} from "../../../stores/SnapshotsStore";
-import {SnapshotComment} from "../../../stores/SnapshotsStore/api/SnapshotsApi";
 import CommentModal from "../CommentModal";
+import { getSelectedSnapshot, getSelectedSnapshotId } from "../../../../stores/SnapshotsStore";
+import { SnapshotComment } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
 import {
     addCommentToSnapshot,
     fetchAllCommentsForSnapshot,
     removeCommentFromSnapshot,
     updateSnapshotComment,
-} from "../../../stores/SnapshotsStore/utils";
-import {formatDateTime} from "../../../utils/formatDateTime";
+} from "../../../../stores/SnapshotsStore/utils";
+import {formatDateTime} from "../../../../utils/formatDateTime";
 
 export type OnSaveHandlerProps = {
     mode: "add" | "edit" | "delete";

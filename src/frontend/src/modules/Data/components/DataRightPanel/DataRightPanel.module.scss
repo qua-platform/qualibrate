@@ -25,6 +25,13 @@
   box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
   z-index: 1000;
 }
+
 .floatingRerunButton:hover {
   background: #257c37;
+}
+
+.tabContainer {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
 }

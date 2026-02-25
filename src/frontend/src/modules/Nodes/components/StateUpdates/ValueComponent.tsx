@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 
 // eslint-disable-next-line css-modules/no-unused-class
-import styles from "../RunningJob/RunningJob.module.scss";
+import styles from "./StateUpdates.module.scss";
 import { Tooltip } from "@mui/material";
 
 export const ValueComponent = ({

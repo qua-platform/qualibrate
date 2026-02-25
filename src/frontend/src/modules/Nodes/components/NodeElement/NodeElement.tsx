@@ -37,39 +37,19 @@
  * @see WebSocketContext for real-time status updates (WebSocketContext.tsx:265-269)
  * @see Parameters for the collapsible parameter editing UI
  */
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodeElement.module.scss";
 
-import {
-  InputParameter,
-  SingleParameter,
-  ErrorResponseWrapper,
-  BlueButton,
-  RunIcon,
-  ParameterSelector,
-  ListCard,
-  Parameters,
-} from "../../../../components";
+import { InputParameter, ErrorResponseWrapper, ListCard } from "../../../../components";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
-import {
-  getSubmitNodeResponseError,
-  setSelectedNode,
-  handleRunNode,
-  setNodeParameter,
-  getIsNodeSelected,
-  getNode,
-} from "../../../../stores/NodesStore";
-import {
-  getRunStatusIsRunning,
-  getRunStatusNodeStatus,
-  getIsLastRunNode,
-  getRunStatusNodeRunStart,
-} from "../../../../stores/WebSocketStore";
+import { getSubmitNodeResponseError, setSelectedNode, getIsNodeSelected, getNode, getNodeListSearchValue } from "../../../../stores/NodesStore";
+import { getRunStatusNodeStatus, getIsLastRunNode } from "../../../../stores/WebSocketStore";
 import { GraphWorkflow } from "../../../GraphLibrary";
 import { classNames } from "../../../../utils/classnames";
-import { formatTimeAgo } from "./utils";
+import { useLastRunTimeAgo } from "../utils";
+import { getHighlightedText } from "../../../../utils/getHighlightedText";
 
 /**
  * Calibration node definition from backend node library scan.
@@ -135,64 +115,10 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
   const node = useSelector((state) => getNode(state, nodeKey));
   const isNodeSelected = useSelector((state) => getIsNodeSelected(state, nodeKey));
   const submitNodeResponseError = useSelector(getSubmitNodeResponseError);
-  const runStatusIsRunning = useSelector(getRunStatusIsRunning);
   const isLastRunNode = useSelector((state) => getIsLastRunNode(state, nodeKey));
   const runStatusNodeStatus = useSelector(getRunStatusNodeStatus);
-  const [errors, setErrors] = useState(new Set());
-  const runStatusNodeRunStart = useSelector(getRunStatusNodeRunStart);
-  const [statusTooltip, setStatusTooltip] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (isLastRunNode && runStatusNodeRunStart) {
-      setStatusTooltip(formatTimeAgo(runStatusNodeRunStart));
-      const interval = setInterval(() => setStatusTooltip(formatTimeAgo(runStatusNodeRunStart)), 60000);
-
-      return () => clearInterval(interval);
-    } else {
-      setStatusTooltip(undefined);
-    }
-  }, [isLastRunNode, runStatusNodeRunStart]);
-
-  const handleSetError = (key: string, isValid: boolean) => {
-    const newSet = new Set(errors);
-
-    if (isValid) newSet.delete(key);
-    else newSet.add(key);
-
-    setErrors(newSet);
-  };
-  /**
-   * Update a single parameter value in the node's parameter map.
-   *
-   * Modifies the parameter's default value while preserving other metadata
-   * (title, type, description). Triggers a full NodesContext state update,
-   * causing re-render of all consumers.
-   */
-  const updateParameter = (paramKey: string, newValue: boolean | number | string | string[] | undefined, isValid: boolean) => {
-    handleSetError(paramKey, isValid);
-    dispatch(setNodeParameter({ nodeKey, paramKey, newValue }));
-  };
-
-  const renderInputElement = (key: string, parameter: SingleParameter, node?: NodeDTO | GraphWorkflow) => (
-    <ParameterSelector parameterKey={key} parameter={parameter} node={node} onChange={updateParameter} />
-  );
-
-  //  TODO: use in https://quantum-machines.atlassian.net/browse/QUAL-1743
-  //  Show parameters section if node has any parameters defined
-  const renderParameters = () =>
-    Object.keys(node?.parameters ?? {}).length > 0 && (
-      <Parameters
-        parametersExpanded={true}
-        showTitle={true}
-        key={node.name}
-        show={isNodeSelected}
-        currentItem={node}
-        getInputElement={renderInputElement}
-        data-testid={`parameters-${nodeKey}`}
-      />
-    );
-
-  const handleClick = async () => dispatch(handleRunNode(node));
+  const statusTooltip = useLastRunTimeAgo();
+  const searchValue = useSelector(getNodeListSearchValue);
 
   /**
    * Insert spaces into long strings to enable line wrapping at fixed intervals.
@@ -202,14 +128,16 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
    */
   const insertSpaces = (str: string, interval = 40) => str.replace(new RegExp(`(.{${interval}})`, "g"), "$1 ").trim();
 
+  const title = useMemo(() => getHighlightedText(insertSpaces(node.title ?? node.name), searchValue), [node.title, node.name, searchValue]);
+
   return (
     <div style={{ position: "relative" }}>
       <ListCard
         isHighlighted={isNodeSelected}
         onClick={() => dispatch(setSelectedNode(node.name))}
-        title={insertSpaces(node.title ?? node.name)}
+        title={title}
         executionStatus={isLastRunNode ? runStatusNodeStatus : undefined}
-        statusTooltip={statusTooltip}
+        statusTooltip={isLastRunNode ? statusTooltip : undefined}
         description={
           <>
             {isNodeSelected && node.name === submitNodeResponseError?.nodeName && <ErrorResponseWrapper error={submitNodeResponseError} />}
@@ -217,13 +145,6 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
           </>
         }
       />
-      {/* TODO: remove after https://quantum-machines.atlassian.net/browse/QUAL-1743 */}
-      {!runStatusIsRunning && isNodeSelected && errors.size === 0 && (
-        <BlueButton className={styles.runButton} data-testid="run-button" onClick={handleClick}>
-          <RunIcon className={styles.runButtonIcon} />
-          <span className={styles.runButtonText}>Run</span>
-        </BlueButton>
-      )}
     </div>
   );
 };

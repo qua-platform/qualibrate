@@ -1,4 +1,4 @@
-import { ParameterStructure, SnapshotMetadata } from "../../stores/SnapshotsStore/api/SnapshotsApi";
+import { ParameterStructure, SnapshotMetadata } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
 
 export const snapshotMetadataToParameters = (metadata?: SnapshotMetadata): ParameterStructure => {
   if (!metadata) return {};

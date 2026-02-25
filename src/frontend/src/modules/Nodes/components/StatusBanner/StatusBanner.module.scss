@@ -1,0 +1,43 @@
+.wrapper {
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  box-sizing: border-box;
+  background: rgba(125, 133, 144, 0.08);
+  border: 1px solid rgba(125, 133, 144, 0.2);
+  color: #8b949e;
+  transition: all 0.2s;
+
+  &.statusRunning {
+    background: rgba(240, 136, 62, 0.1);
+    border: 1px solid rgba(240, 136, 62, 0.3);
+    color: #f0883e;
+  }
+
+  &.statusSuccess {
+    background: rgba(63, 185, 80, 0.1);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+    color: #3fb950;
+  }
+
+  &.statusError {
+    background: rgba(248, 81, 73, 0.1);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+    color: #f85149;
+  }
+}
+
+.firstLine {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.secondLine {
+  font-size: 12px;
+  font-weight: 400;
+}
