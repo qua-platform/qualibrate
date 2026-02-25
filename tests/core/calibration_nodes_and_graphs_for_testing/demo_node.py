@@ -1,5 +1,5 @@
 from enum import Enum
-from quam import QuamRoot
+
 from qualibrate.core import NodeParameters, QualibrationNode
 from qualibrate.core.models.outcome import Outcome
 
@@ -23,7 +23,7 @@ node = QualibrationNode("test_node", parameters=Parameters())
 
 @node.run_action()
 def node_runs_indication(node: QualibrationNode):
-    node.machine = QuamRoot.load()
+    # node.machine = QuamRoot.load()
     node.log("node is running")
     node.outcomes["q1"] = Outcome.SUCCESSFUL
     node.outcomes["q2"] = Outcome.FAILED

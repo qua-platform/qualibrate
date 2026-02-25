@@ -4,8 +4,8 @@ from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI
 
-from qualibrate.core.utils.db_utils.db_startup import init_db_at_startup
 from qualibrate.app.api.sockets.tasks import update_snapshot_history_required
+from qualibrate.core.utils.db_utils.db_startup import init_db_at_startup
 
 __all__ = ["app_lifespan"]
 
@@ -24,4 +24,3 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
         with suppress(asyncio.CancelledError):
             await snapshot_history_task
         DBRegistry.get().disconnect_all()
-

@@ -1,11 +1,13 @@
 # db_registry.py
 
+
 class DBRegistry:
     """
     Holds a reference to the "default" DB manager instance.
     Domain objects (like Node) can access the DB without knowing
     about the concrete manager.
     """
+
     _db_manager = None
 
     @classmethod

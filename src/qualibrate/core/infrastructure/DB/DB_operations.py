@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 
 class DBOperations(ABC):
-
     @abstractmethod
     def save(self, data) -> None: ...
 

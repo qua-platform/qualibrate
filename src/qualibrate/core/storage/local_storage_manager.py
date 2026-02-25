@@ -9,20 +9,20 @@ from typing import (
 
 from packaging.version import Version
 from qualang_tools.results import DataHandler
-from qualibrate.core.infrastructure.DB.postgres_management import PostgresManagement
+from qualibrate_config.resolvers import (
+    get_qualibrate_config,
+    get_qualibrate_config_path,
+)
 
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
+from qualibrate.core.infrastructure.DB.postgres_management import PostgresManagement
+from qualibrate.core.infrastructure.DB.repositories.machine_state_repository import MachineStateRepository
 from qualibrate.core.models.execution_type import ExecutionType
 from qualibrate.core.models.outcome import Outcome
 from qualibrate.core.storage.snapshot_json_handler import SnapshotJsonHandler
 from qualibrate.core.storage.storage_manager import StorageManager
 from qualibrate.core.utils.logger_m import logger
 from qualibrate.core.utils.type_protocols import MachineProtocol
-from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
-from qualibrate.core.infrastructure.DB.repositories.machine_state_repository import MachineStateRepository
-from qualibrate_config.resolvers import (
-    get_qualibrate_config,
-    get_qualibrate_config_path,
-)
 
 if TYPE_CHECKING:
     from typing import Any
@@ -159,7 +159,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine: MachineProtocol,
         relative_data_path: str | None = "./quam_state.json",
     ) -> None:
-        #save to db here
+        # save to db here
         self._save_quam_state_to_db(machine_state=machine)
 
         quam = importlib.import_module("quam")

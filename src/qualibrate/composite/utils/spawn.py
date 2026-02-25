@@ -3,6 +3,7 @@ from collections.abc import AsyncIterator
 from contextlib import AsyncExitStack, asynccontextmanager
 from importlib import metadata
 from importlib.util import find_spec
+
 from fastapi import FastAPI
 from fastapi.routing import Mount
 from packaging.requirements import Requirement

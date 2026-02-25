@@ -1,11 +1,14 @@
-from .DB_operations import DBOperations
-from .postgres_management import PostgresManagement
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
     get_qualibrate_config_path,
 )
-from qualibrate.core.utils.logger_m import logger
-from qualibrate.core.utils.db_utils.project_handling import  handle_missing_project
+
+from qualibrate.core.utils.db_utils.project_handling import handle_missing_project
+
+from .DB_operations import DBOperations
+from .postgres_management import PostgresManagement
+
+
 class PostgresBaseRepository(DBOperations):
     model = None
 

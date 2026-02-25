@@ -21,7 +21,6 @@ from qualibrate.app.config import (
     get_config_path,
     get_settings,
 )
-from qualibrate.core.infrastructure.DB.postgres_management import PostgresManagement
 from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 
 project_router = APIRouter(prefix="/project", tags=["project"])
@@ -233,7 +232,7 @@ def set_active_project(
     if settings.runner and new_settings.runner and new_settings.runner != settings.runner:
         notify_runner(new_settings)
     db_manager = DBRegistry.get()
-    db_manager.disconnect(old_project)
+    db_manager.db_disconnect(old_project)
     try:
         db_manager.db_connect(active_project)
     except RuntimeError as e:
@@ -280,11 +279,14 @@ def get_projects_list(
     """List all projects available in the configured storage backend."""
     return projects_manager.list()
 
+
 @project_router.post("/db/connect")
-def connect_db(projects_manager: Annotated[
+def connect_db(
+    projects_manager: Annotated[
         ProjectsManagerBase,
         Depends(_get_projects_manager),
-    ]):
+    ],
+):
     # get project and config from qualibrate
     # config_path = get_qualibrate_config_path()
     # config = get_qualibrate_config(config_path)
@@ -301,11 +303,14 @@ def connect_db(projects_manager: Annotated[
 
     return {"status": "connected", "project": project_name}
 
+
 @project_router.post("/db/disconnect")
-def disconnect_db(projects_manager: Annotated[
-    ProjectsManagerBase,
-    Depends(_get_projects_manager),
-]):
+def disconnect_db(
+    projects_manager: Annotated[
+        ProjectsManagerBase,
+        Depends(_get_projects_manager),
+    ],
+):
     # manager = DBRegistry.get()
     project_name = projects_manager.project
     if project_name is None:

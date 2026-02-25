@@ -6,5 +6,5 @@ from qualibrate.core.infrastructure.DB.postgres_management import PostgresManage
 class MachineStateRepository(PostgresBaseRepository):
     model = MachineState
 
-    def __init__(self, db_management :PostgresManagement):
+    def __init__(self, db_management: PostgresManagement):
         super().__init__(db_management)

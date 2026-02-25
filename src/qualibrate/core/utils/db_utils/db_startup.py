@@ -1,7 +1,9 @@
+from qualibrate_config.resolvers import get_qualibrate_config
+
 from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 from qualibrate.core.infrastructure.DB.postgres_management import PostgresManagement
-from qualibrate_config.resolvers import get_qualibrate_config
 from qualibrate.core.utils.logger_m import logger
+
 
 def init_db_at_startup():
     # Init DB registry

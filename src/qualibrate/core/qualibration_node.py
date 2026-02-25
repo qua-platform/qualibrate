@@ -71,7 +71,7 @@ from qualibrate.core.utils.node.path_solver import (
 from qualibrate.core.utils.node.record_state_update import update_node_machine
 from qualibrate.core.utils.read_files import get_module_name, import_from_path
 from qualibrate.core.utils.type_protocols import MachineProtocol, TargetType
-from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
+
 __all__ = [
     "QualibrationNode",
     "NodeCreateParametersType",

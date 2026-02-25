@@ -1,14 +1,17 @@
 from contextlib import contextmanager
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-from .DB_management import DBManagement
+
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
     get_qualibrate_config_path,
 )
-from qualibrate.core.utils.logger_m import logger
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
-import atexit
+from sqlalchemy.orm import sessionmaker
+
+from qualibrate.core.utils.logger_m import logger
+
+from .DB_management import DBManagement
+
 
 class PostgresManagement(DBManagement):
     _instance = None
@@ -18,7 +21,7 @@ class PostgresManagement(DBManagement):
             cls._instance = super().__new__(cls)
             cls._instance._engines = {}
             cls._instance._session_factories = {}
-            atexit.register(cls._instance.disconnect_all)  # ← register once on creation
+            # atexit.register(cls._instance.disconnect_all)  # ← register once on creation
         return cls._instance
 
     #    def db_connect(self, project_name: str, config: DBConfig) -> None:
@@ -36,7 +39,7 @@ class PostgresManagement(DBManagement):
                 f"postgresql+psycopg2://{config.username}:{config.password}@"
                 f"{config.host}:{config.port}/{config.database}",
                 pool_size=5,
-                pool_pre_ping=True
+                pool_pre_ping=True,
             )
             with engine.connect() as conn:
                 conn.execute(text("SELECT 1"))
@@ -47,7 +50,6 @@ class PostgresManagement(DBManagement):
 
         self._engines[project_name] = engine
         self._session_factories[project_name] = sessionmaker(bind=engine)
-
 
     def db_disconnect(self, project_name: str) -> None:
         engine = self._engines.get(project_name)
