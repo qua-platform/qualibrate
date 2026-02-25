@@ -9,6 +9,7 @@ from typing import (
 
 from packaging.version import Version
 from qualang_tools.results import DataHandler
+from qualibrate.core.infrastructure.DB.postgres_management import PostgresManagement
 
 from qualibrate.core.models.execution_type import ExecutionType
 from qualibrate.core.models.outcome import Outcome
@@ -55,6 +56,12 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         self.snapshot_idx = None
         self._json_handler = SnapshotJsonHandler(root_data_folder)
         self._workflow_parent_id: int | None = None
+        DBRegistry.configure(PostgresManagement())
+        project_name = get_qualibrate_config(get_qualibrate_config_path()).project
+        try:
+            DBRegistry.get().db_connect(project_name)
+        except RuntimeError as e:
+            logger.warning(f"Could not connect to DB on startup: {e}")
 
     def set_workflow_parent_id(self, parent_id: int | None) -> None:
         """Set the parent workflow ID for this node's snapshot.
@@ -180,7 +187,6 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine_data_path = Path(self.data_handler.path) / relative_data_path
         logger.info(f"Saving machine to data folder {machine_data_path}")
         machine.save(machine_data_path)
-        self._save_quam_state_to_db(machine_state=machine)
 
     def _save_quam_state_to_db(self, machine_state):
         """temporary untill we add storage manager for db"""
@@ -188,7 +194,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
             db_manager = DBRegistry.get()
             machine_state_repository = MachineStateRepository(db_manager)
             logger.info("Saving machine state to db")
-            machine_state_repository.save({"content": machine_state})
+            machine_state_repository.save({"content": machine_state.to_dict()})
         except RuntimeError as e:
             logger.warning(f"Could not save machine state to db: {e}")
 

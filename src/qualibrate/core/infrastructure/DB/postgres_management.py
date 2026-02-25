@@ -8,7 +8,7 @@ from qualibrate_config.resolvers import (
 )
 from qualibrate.core.utils.logger_m import logger
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
-
+import atexit
 
 class PostgresManagement(DBManagement):
     _instance = None
@@ -18,6 +18,7 @@ class PostgresManagement(DBManagement):
             cls._instance = super().__new__(cls)
             cls._instance._engines = {}
             cls._instance._session_factories = {}
+            atexit.register(cls._instance.disconnect_all)  # ← register once on creation
         return cls._instance
 
     #    def db_connect(self, project_name: str, config: DBConfig) -> None:
@@ -48,7 +49,7 @@ class PostgresManagement(DBManagement):
         self._session_factories[project_name] = sessionmaker(bind=engine)
 
 
-    def disconnect(self, project_name: str) -> None:
+    def db_disconnect(self, project_name: str) -> None:
         engine = self._engines.get(project_name)
         if engine:
             try:

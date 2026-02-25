@@ -23,5 +23,6 @@ class DBRegistry:
         Raises an error if no DB is configured.
         """
         if cls._db_manager is None:
+            cls.configure()
             raise RuntimeError("DB not configured! Call DBRegistry.configure(db_instance) first.")
         return cls._db_manager

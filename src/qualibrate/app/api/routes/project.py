@@ -213,6 +213,7 @@ def set_active_project(
         If `settings.runner` is defined, the function will POST to
         `{runner.address_with_root}/refresh_settings`. Failures are logged.
     """
+    old_project = projects_manager.project
     projects_manager.project = active_project
     routes_vars.ACTIVE_PROJECT_NOT_SET = False
 
@@ -231,6 +232,12 @@ def set_active_project(
     new_settings = get_settings(config_path)
     if settings.runner and new_settings.runner and new_settings.runner != settings.runner:
         notify_runner(new_settings)
+    db_manager = DBRegistry.get()
+    db_manager.disconnect(old_project)
+    try:
+        db_manager.db_connect(active_project)
+    except RuntimeError as e:
+        logging.error(f"Could not switch DB connection to project {active_project}: {e}")
     return active_project
 
 
@@ -306,7 +313,7 @@ def disconnect_db(projects_manager: Annotated[
     try:
         manager = DBRegistry.get()
         # manager = PostgresManagement()
-        manager.disconnect(project_name)
+        manager.db_disconnect(project_name)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not disconnect: {e}")
 
