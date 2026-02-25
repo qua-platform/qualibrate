@@ -4,6 +4,8 @@ export { NodesApi } from "./api/NodesAPI";
 export type { LogsViewerResponseDTO } from "./api/NodesAPI";
 export {
   setSelectedNode,
+  setNodeListSearch,
+  setNodeListSortType,
   setSubmitNodeResponseError,
   setRunningNode,
   setRunningNodeInfo,
@@ -23,6 +25,8 @@ export {
   getSubmitNodeResponseError,
   getRunningNode,
   getRunningNodeInfo,
+  getNodeListSearchValue,
+  getNodeListSortType,
   getAllNodes,
   getIsNodeRunning,
   getResults,
