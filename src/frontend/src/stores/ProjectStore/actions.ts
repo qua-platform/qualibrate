@@ -1,21 +1,12 @@
-import { ProjectViewApi } from "./api/ProjectViewAPI";
-import { ProjectDTO } from "./api/ProjectViewAPI";
+import { ProjectDTO, ProjectViewApi } from "./api/ProjectViewAPI";
 import { RootDispatch } from "../index";
 import { projectsSlice } from "./ProjectStore";
 
-export const {
-  setAllProjects,
-  addProject,
-  setActiveProject,
-  setShouldGoToProjectPage,
-  setScanningProjects,
-} = projectsSlice.actions;
+export const { setAllProjects, addProject, updateProject, setActiveProject, setShouldGoToProjectPage, setScanningProjects } =
+  projectsSlice.actions;
 
 export const fetchProjectsAndActive = () => async (dispatch: RootDispatch) => {
-  const [projectsRes, activeNameRes] = await Promise.all([
-    ProjectViewApi.fetchAllProjects(),
-    ProjectViewApi.fetchActiveProjectName()
-  ]);
+  const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
 
   dispatch(setScanningProjects(true));
   if (projectsRes.isOk && projectsRes.result) {

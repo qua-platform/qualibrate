@@ -6,6 +6,8 @@ export interface GlobalThemeContextState {
   toggleTheme: () => void;
   pinSideMenu: boolean;
   setPinSideMenu: (value: boolean) => void;
+  minifySideMenu: boolean;
+  setMinifySideMenu: (value: boolean) => void;
 }
 
 interface GlobalThemeContextProviderProps {
@@ -19,6 +21,7 @@ export function GlobalThemeContextProvider(props: GlobalThemeContextProviderProp
 
   const [theme, _setTheme] = useState<Theme>(getColorTheme());
   const [pinSideMenu, setPinSideMenu] = useState<boolean>(true);
+  const [minifySideMenu, setMinifySideMenu] = useState<boolean>(false);
 
   const toggleTheme = useCallback(() => {
     _setTheme(toggleColorTheme());
@@ -30,6 +33,8 @@ export function GlobalThemeContextProvider(props: GlobalThemeContextProviderProp
         toggleTheme,
         pinSideMenu,
         setPinSideMenu,
+        minifySideMenu,
+        setMinifySideMenu,
       }}
     >
       {children}

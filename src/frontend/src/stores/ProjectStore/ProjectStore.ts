@@ -1,11 +1,11 @@
 import { ProjectDTO } from "./api/ProjectViewAPI";
-import { buildCreateSlice, asyncThunkCreator, PayloadAction } from "@reduxjs/toolkit";
+import { asyncThunkCreator, buildCreateSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface ProjectsState {
-  allProjects: ProjectDTO[],
-  activeProject: ProjectDTO | null | undefined,
-  shouldGoToProjectPage: boolean,
-  isScanningProjects: boolean,
+  allProjects: ProjectDTO[];
+  activeProject: ProjectDTO | null | undefined;
+  shouldGoToProjectPage: boolean;
+  isScanningProjects: boolean;
 }
 
 const initialState: ProjectsState = {
@@ -29,10 +29,13 @@ export const projectsSlice = createSlice({
     addProject: (state, action: PayloadAction<ProjectDTO>) => {
       state.allProjects = [action.payload, ...state.allProjects];
     },
-    setActiveProject: (state, action: PayloadAction<ProjectDTO | undefined>) => {
-      state.activeProject = action.payload;
+    updateProject: (state, action: PayloadAction<ProjectDTO>) => {
+      state.allProjects = state.allProjects.map((project) => (project.name === action.payload.name ? action.payload : project));
     },
-    handleSelectActiveProject: (state, action: PayloadAction<ProjectDTO>) => {
+    removeProject: (state, action: PayloadAction<ProjectDTO>) => {
+      state.allProjects = state.allProjects.filter((project) => project.name !== action.payload.name);
+    },
+    setActiveProject: (state, action: PayloadAction<ProjectDTO | undefined>) => {
       state.activeProject = action.payload;
     },
     setShouldGoToProjectPage: (state, action: PayloadAction<boolean>) => {
@@ -40,8 +43,8 @@ export const projectsSlice = createSlice({
     },
     setScanningProjects: (state, action: PayloadAction<boolean>) => {
       state.isScanningProjects = action.payload;
-    }
-  }
+    },
+  },
 });
 
 export default projectsSlice.reducer;

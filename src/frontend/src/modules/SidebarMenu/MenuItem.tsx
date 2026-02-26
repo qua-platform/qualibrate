@@ -1,11 +1,12 @@
 import React from "react";
 import Tooltip from "@mui/material/Tooltip";
-import { Module } from "../AppRoutes";
+import { Module, PROJECT_KEY } from "../AppRoutes";
 import styles from "./styles/MenuItem.module.scss";
 import { MENU_TEXT_COLOR } from "../../utils/colors";
 import { classNames } from "../../utils/classnames";
 import { setActivePage } from "../../stores/NavigationStore";
 import { useRootDispatch } from "../../stores";
+import ProjectMenuItem from "./ProjectMenuItem";
 
 const MenuItem: React.FC<
   Module & {
@@ -29,6 +30,19 @@ const MenuItem: React.FC<
     }
     onClick?.();
   };
+  if (keyId === PROJECT_KEY) {
+    return (
+      // <div
+      //   // disabled={isDisabled}
+      //   // onClick={handleClick}
+      //   className={classNames(styles.itemWrapper, isSelected && styles.selected)}
+      //   data-cy={dataCy}
+      //   data-testid={`menu-item-${keyId}`}
+      // >
+      <ProjectMenuItem />
+      // </div>
+    );
+  }
 
   const button = (
     <button
@@ -42,7 +56,6 @@ const MenuItem: React.FC<
       {!hideText && displayTitle && <div data-testid={`menu-item-title-${keyId}`}> {displayTitle} </div>}
     </button>
   );
-
   return isDisabled ? (
     <Tooltip title="Please select a project before accessing these pages" placement="right">
       <span>{button}</span>

@@ -18,12 +18,11 @@ import { GET_APP_VERSION } from "../../utils/api/apiRoutes";
 import Api, { BASIC_HEADERS } from "../../utils/api";
 
 const SidebarMenu: React.FunctionComponent = () => {
-  const { pinSideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
-  const [minify, setMinify] = useState(false);
+  const { pinSideMenu, minifySideMenu, setMinifySideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const [appVersion, setAppVersion] = useState<string | undefined>(undefined);
   const dispatch = useRootDispatch();
   const activePage = useSelector(getActivePage);
-  const containerClassName = classNames(styles.sidebarMenu, minify ? styles.collapsed : styles.expanded);
+  const containerClassName = classNames(styles.sidebarMenu, minifySideMenu ? styles.collapsed : styles.expanded);
   const activeProject = useSelector(getActiveProject);
   const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
 
@@ -36,7 +35,7 @@ const SidebarMenu: React.FunctionComponent = () => {
   }, []);
 
   useEffect(() => {
-    setMinify(!pinSideMenu);
+    setMinifySideMenu(!pinSideMenu);
   }, [pinSideMenu]);
 
   useEffect(() => {
@@ -61,7 +60,7 @@ const SidebarMenu: React.FunctionComponent = () => {
     <>
       <div className={containerClassName}>
         <button className={styles.qualibrateLogo} data-cy={cyKeys.HOME_PAGE}>
-          {minify ? <QualibrateLogoSmallIcon /> : <QUAlibrateLogoIcon />}
+          {minifySideMenu ? <QualibrateLogoSmallIcon /> : <QUAlibrateLogoIcon />}
         </button>
 
         <div className={styles.menuContent}>
@@ -71,7 +70,7 @@ const SidebarMenu: React.FunctionComponent = () => {
                 <MenuItem
                   {...item}
                   key={item.keyId}
-                  hideText={minify}
+                  hideText={minifySideMenu}
                   onClick={() => dispatch(setActivePage(item.keyId))}
                   isSelected={activePage === item.keyId}
                   isDisabled={!activeProject || shouldGoToProjectPage}
@@ -87,8 +86,8 @@ const SidebarMenu: React.FunctionComponent = () => {
               let handleOnClick = () => {};
 
               if (item.keyId === TOGGLE_SIDEBAR_KEY) {
-                handleOnClick = () => setMinify(!minify);
-                menuItem.icon = minify ? ExpandSideMenuIcon : CollapseSideMenuIcon;
+                handleOnClick = () => setMinifySideMenu(!minifySideMenu);
+                menuItem.icon = minifySideMenu ? ExpandSideMenuIcon : CollapseSideMenuIcon;
                 menuItem.title = appVersion ? `v${appVersion}` : undefined;
               } else if (item.keyId === HELP_KEY) {
                 handleOnClick = handleHelpClick;
@@ -113,7 +112,7 @@ const SidebarMenu: React.FunctionComponent = () => {
                   {...item}
                   menuItem={menuItem}
                   key={item.keyId}
-                  hideText={minify}
+                  hideText={minifySideMenu}
                   isSelected={item.keyId === PROJECT_KEY && activePage === PROJECT_KEY}
                   onClick={handleOnClick}
                 />

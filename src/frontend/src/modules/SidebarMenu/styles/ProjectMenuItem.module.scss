@@ -1,0 +1,143 @@
+.currentProject {
+  padding: 10px 10px;
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  &:hover {
+    background-color: #1c2128;
+    border-color: #58a6ff;
+  }
+}
+.currentProject .projectNameText {
+  overflow: hidden;
+}
+
+.currentProject .currentProjectName {
+  overflow: hidden;
+}
+
+.currentProjectName {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #c9d1d9;
+  gap: 8px;
+}
+
+.projectNameText {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.projectInitial {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  background-color: #388bfd;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.menuIcon {
+  cursor: pointer;
+  font-size: 16px;
+  color: #7d8590;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.projectMenu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+}
+
+.projectMenuSection {
+  padding: 8px 0;
+  border-bottom: 1px solid #30363d;
+}
+
+.projectListItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #c9d1d9;
+  transition: background-color 0.2s;
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &:hover{
+    background-color: #1c2128;
+  }
+}
+
+.projectListItem .projectInitial {
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+}
+
+.selected {
+  background-color: #1f6feb;
+  color: #fff;
+}
+
+.projectMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #c9d1d9;
+  transition: background-color 0.2s;
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+  &:hover:not(.disabled) {
+    background-color: #1c2128;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.danger {
+  color: red;
+}
+
