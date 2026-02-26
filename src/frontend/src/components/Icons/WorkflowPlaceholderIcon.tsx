@@ -1,5 +1,5 @@
 import React from "react";
-import { BACKGROUND_COLOR, MAIN_TEXT_COLOR } from "../../utils/colors";
+import { BACKGROUND_COLOR, MAIN_TEXT_COLOR } from "../../utils";
 import { IconProps } from "./IconProps";
 
 export const WorkflowPlaceHolderIcon: React.FunctionComponent<IconProps> = ({ width = 373, height = 155, color = MAIN_TEXT_COLOR }) => (

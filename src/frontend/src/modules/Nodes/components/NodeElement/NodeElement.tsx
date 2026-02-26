@@ -47,9 +47,8 @@ import { useSelector } from "react-redux";
 import { getSubmitNodeResponseError, setSelectedNode, getIsNodeSelected, getNode, getNodeListSearchValue } from "../../../../stores/NodesStore";
 import { getRunStatusNodeStatus, getIsLastRunNode } from "../../../../stores/WebSocketStore";
 import { GraphWorkflow } from "../../../GraphLibrary";
-import { classNames } from "../../../../utils/classnames";
+import { classNames, getHighlightedText } from "../../../../utils";
 import { useLastRunTimeAgo } from "../utils";
-import { getHighlightedText } from "../../../../utils/getHighlightedText";
 
 /**
  * Calibration node definition from backend node library scan.

@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarNodeCard.module.scss";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 import Tooltip from "@mui/material/Tooltip";
 import { TitleBarTooltipContent } from "./TitleBarNodeTooltipContent";
 import { StatusIndicator } from "../TitleBarStatusIndicator/TitleBarStatusIndicator";

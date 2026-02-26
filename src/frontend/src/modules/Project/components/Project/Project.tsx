@@ -1,9 +1,8 @@
 import React, { useCallback, useMemo } from "react";
 import ProjectInfo from "./ProjectInfo";
-import { classNames } from "../../../../utils/classnames";
+import { classNames, cyKeys } from "../../../../utils";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Project.module.scss";
-import cyKeys from "../../../../utils/cyKeys";
 import { getColorIndex } from "../../helpers";
 import { colorPalette } from "../../constants";
 import { ProjectDTO, getActiveProject } from "../../../../stores/ProjectStore";

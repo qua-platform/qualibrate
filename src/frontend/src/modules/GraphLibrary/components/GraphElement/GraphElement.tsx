@@ -13,7 +13,7 @@ import React, {useState} from "react";
 import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
-import {classNames} from "../../../../utils/classnames";
+import {classNames} from "../../../../utils";
 import {Graph, SubgraphBreadcrumbs} from "../../../Graph";
 import {BlueButton, ParameterList, Parameters, ParameterSelector, SingleParameter} from "../../../../components";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";

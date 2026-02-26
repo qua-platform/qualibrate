@@ -1,6 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../index";
-import { getSearchStringIndex } from "../../utils/getHighlightedText";
+import { getSearchStringIndex } from "../../utils";
 import { NodeMap } from "../../modules/Nodes";
 import { NodesListSortType } from "./NodesStore";
 

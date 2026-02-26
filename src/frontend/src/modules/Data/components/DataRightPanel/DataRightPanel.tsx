@@ -2,16 +2,15 @@ import React from "react";
 import styles from "./DataRightPanel.module.scss";
 import { useSelector } from "react-redux";
 import { getBreadCrumbs, getJsonData, getResult, getSelectedSnapshot } from "../../../../stores/SnapshotsStore";
-import { JSONEditor, ResizableTabSidebar } from "../../../../components";
+import { JSONEditor, ResizableTabSidebar, ParametersViewer } from "../../../../components";
 import { snapshotMetadataToParameters } from "./helpers";
 import GraphView from "./GraphView";
 import { SnapshotData } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
 import { useRootDispatch } from "../../../../stores";
 import { runNodeOfSelectedSnapshot, runWorkflowOfSelectedSnapshot } from "../../../../stores/SnapshotsStore/actions";
 import { getRunStatusIsRunning } from "../../../../stores/WebSocketStore";
-import { formatDateTime } from "../../../../utils/formatDateTime";
+import { formatDateTime } from "../../../../utils";
 import SnapshotComments from "../SnapshotComments";
-import { ParametersViewer } from "../../../../components";
 
 export const formatParamValue = (key: string, value: string | number | string[] | null | boolean | undefined) => {
   if (["run_end", "run_start"].includes(key)) return formatDateTime(value as string);

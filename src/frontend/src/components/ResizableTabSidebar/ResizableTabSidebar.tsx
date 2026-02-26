@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import styles from "./ResizableTabSidebar.module.scss";
-import { classNames } from "../../utils/classnames";
+import { classNames } from "../../utils";
 
 type Props = {
   tabs: Array<{

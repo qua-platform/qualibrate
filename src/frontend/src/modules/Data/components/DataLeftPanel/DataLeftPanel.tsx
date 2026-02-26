@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./DataLeftPanel.module.scss";
-import { AppliedFilterLabel, DateFilter, SearchField, SortButton, TagFilter } from "../../../../components";
+import { AppliedFilterLabel, DateFilter, SearchField, SortButton, TagFilter, DateOption } from "../../../../components";
 import SnapshotsTimeline from "../SnapshotsTimeline";
 import { useSelector } from "react-redux";
 import {
@@ -14,10 +14,8 @@ import {
 } from "../../../../stores/SnapshotsStore";
 import { useRootDispatch } from "../../../../stores";
 import { SortType } from "../../../../stores/SnapshotsStore/SnapshotsStore";
-import { stringToHexColor } from "../ExecutionCard/components/TagsList/helpers";
-import { DateOption } from "../../../../components/DateFilter";
+import { stringToHexColor, classNames } from "../../../../utils";
 import PaginationWrapper from "../Pagination";
-import { classNames } from "../../../../utils/classnames";
 
 const defaultOptions = [
   {

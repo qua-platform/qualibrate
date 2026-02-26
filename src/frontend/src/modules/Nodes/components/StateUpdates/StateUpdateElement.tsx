@@ -2,12 +2,18 @@ import React, { useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./StateUpdates.module.scss";
 import { CircularProgress } from "@mui/material";
-import { SnapshotsApi, getLatestSnapshotId, getSecondId, getTrackLatestSidePanel, fetchOneSnapshot } from "../../../../stores/SnapshotsStore";
+import {
+  SnapshotsApi,
+  getLatestSnapshotId,
+  getSecondId,
+  getTrackLatestSidePanel,
+  fetchOneSnapshot,
+} from "../../../../stores/SnapshotsStore";
 import { ValueRow } from "./ValueRow";
 import { useRootDispatch } from "../../../../stores";
 import { setRunningNodeInfo, RunningNodeInfo, StateUpdateObject } from "../../../../stores/NodesStore";
 import { useSelector } from "react-redux";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 
 interface StateUpdateProps {
   stateKey: string;
@@ -19,12 +25,17 @@ interface StateUpdateProps {
   onApprove: (isApproved: boolean) => void;
 }
 
+const getValueForStateUpdate = (isClearing: boolean = false, stateUpdateObject: StateUpdateObject, customValue: string | number | null) =>
+  isClearing ? stateUpdateObject.old : customValue ? customValue : (stateUpdateObject.val ?? stateUpdateObject.new!);
+
 export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
   const dispatch = useRootDispatch();
   const { stateKey, title, index, stateUpdateObject, runningNodeInfo, updateAllButtonPressed, onApprove } = props;
   const [runningUpdate, setRunningUpdate] = React.useState<boolean>(false);
   const [parameterUpdated, setParameterUpdated] = useState<boolean>(false);
-  const [customValue, setCustomValue] = useState<string | number | null>(JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? ""));
+  const [customValue, setCustomValue] = useState<string | number | null>(
+    JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? "")
+  );
   const previousValue = JSON.stringify(stateUpdateObject.val ?? stateUpdateObject.new ?? "");
   const secondId = useSelector(getSecondId);
   const trackLatestSidePanel = useSelector(getTrackLatestSidePanel);
@@ -34,29 +45,26 @@ export const StateUpdateElement: React.FC<StateUpdateProps> = (props) => {
     if (runningNodeInfo && runningNodeInfo.idx && stateUpdateObject && ("val" in stateUpdateObject || "new" in stateUpdateObject)) {
       setRunningUpdate(true);
 
-      const stateUpdateValue = isClearing
-        ? stateUpdateObject.old
-        : customValue
-          ? customValue
-          : (stateUpdateObject.val ?? stateUpdateObject.new!);
+      const stateUpdateValue = getValueForStateUpdate(isClearing, stateUpdateObject, customValue);
       const response = await SnapshotsApi.updateState(runningNodeInfo?.idx, stateKey, stateUpdateValue);
 
       const stateUpdate = { ...stateUpdateObject, stateUpdated: response.result! };
       if (response.isOk && response.result && trackLatestSidePanel) {
         dispatch(fetchOneSnapshot(Number(latestSnapshotId), Number(secondId), false, true));
       }
-      dispatch(setRunningNodeInfo({
-        ...runningNodeInfo,
-        state_updates: { ...runningNodeInfo.state_updates, [stateKey]: stateUpdate },
-      }));
+      dispatch(
+        setRunningNodeInfo({
+          ...runningNodeInfo,
+          state_updates: { ...runningNodeInfo.state_updates, [stateKey]: stateUpdate },
+        })
+      );
       setParameterUpdated(response.result!);
       onApprove(!isClearing);
       setRunningUpdate(false);
     }
   };
 
-  if (parameterUpdated || updateAllButtonPressed)
-    return;
+  if (parameterUpdated || updateAllButtonPressed) return;
 
   return (
     <div key={`${stateKey}-wrapper`} className={styles.stateUpdateWrapper} data-testid={`state-update-wrapper-${stateKey}`}>

@@ -2,8 +2,7 @@ import React from "react";
 import Tooltip from "@mui/material/Tooltip";
 import { Module } from "../AppRoutes";
 import styles from "./styles/MenuItem.module.scss";
-import { MENU_TEXT_COLOR } from "../../utils/colors";
-import { classNames } from "../../utils/classnames";
+import { MENU_TEXT_COLOR, classNames } from "../../utils";
 import { setActivePage } from "../../stores/NavigationStore";
 import { useRootDispatch } from "../../stores";
 

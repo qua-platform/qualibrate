@@ -10,7 +10,7 @@ import {
     removeCommentFromSnapshot,
     updateSnapshotComment,
 } from "../../../../stores/SnapshotsStore/utils";
-import {formatDateTime} from "../../../../utils/formatDateTime";
+import {formatDateTime} from "../../../../utils";
 
 export type OnSaveHandlerProps = {
     mode: "add" | "edit" | "delete";

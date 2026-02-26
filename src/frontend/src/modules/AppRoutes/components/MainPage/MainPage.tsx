@@ -7,7 +7,7 @@ import { DATA_KEY, GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY, PR
 import { GraphLibrary } from "../../../GraphLibrary";
 import { GraphStatus } from "../../../GraphStatus";
 import { Project } from "../../../Project";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 import styles from "./MainPage.module.scss";
 import { QUAlibrateLogoIcon } from "../../../../components";
 import { getIsAuthorized } from "../../../../stores/AuthStore";

@@ -32,14 +32,14 @@ export const capitalize = (text: string): string => {
 
 export const getWrapperClass = (status: string, styles: { [key: string]: string }): string => {
   if (status === "running") return styles.running;
-  if (status === "success") return styles.finished;
+  if (status === "success") return styles.success;
   if (status === "error") return styles.error;
   return styles.pending;
 };
 
 export const getStatusClass = (status: string, styles: { [key: string]: string }): string => {
   if (status === "running") return styles.statusRunning;
-  if (status === "success") return styles.statusFinished;
+  if (status === "success") return styles.statusSuccess;
   if (status === "error") return styles.statusError;
   return styles.statusPending;
 };

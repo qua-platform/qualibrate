@@ -1,7 +1,7 @@
 import React, { ChangeEvent, ChangeEventHandler } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Input.module.scss";
-import { classNames } from "../../utils/classnames";
+import { classNames } from "../../utils";
 
 export enum IconType {
   INNER = "INNER",

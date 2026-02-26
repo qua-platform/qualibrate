@@ -4,7 +4,7 @@ import { render } from "@testing-library/react";
 import { StatusVisuals } from "../../../../src/modules/Nodes/components/NodeElement/NodeElementStatusVisuals";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "../../../../src/modules/Nodes/components/NodeElement/NodeElement.module.scss";
-import { createTestProviders } from "../../utils/providers";
+import { createTestProviders } from "../../utils";
 
 describe("StatusVisuals", () => {
   it("should show progress spinner for running status", () => {

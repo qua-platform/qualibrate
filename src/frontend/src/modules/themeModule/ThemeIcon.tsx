@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { GREY_FONT } from "../../utils/colors";
+import { GREY_FONT } from "../../utils";
 import { IconProps } from "../../components";
 
 function ThemeIcon({

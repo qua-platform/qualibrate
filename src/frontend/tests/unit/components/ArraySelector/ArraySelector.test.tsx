@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { createTestProviders } from "../../utils/providers";
+import { createTestProviders } from "../../utils";
 import { QubitsSelector, EnumSelector } from "../../../../src/components";
 import userEvent from '@testing-library/user-event';
 import selectorStyles from "../../../../src/components/ArraySelector/components/ArraySelectorTrigger/ArraySelectorTrigger.module.scss";

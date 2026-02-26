@@ -1,6 +1,6 @@
 import { DataIcon, GraphLibraryIcon, GraphStatusIcon, HelpIcon, IconProps, NodeLibraryIcon, ProjectIcon } from "../../components";
 import React from "react";
-import cyKeys from "../../utils/cyKeys";
+import { cyKeys } from "../../utils";
 import { Project } from "../Project";
 import { NodesRightPanel } from "../Nodes";
 import { GraphLibrary } from "../GraphLibrary";

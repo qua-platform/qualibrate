@@ -20,10 +20,10 @@ vi.mock("../../../../src/stores", () => ({
 }));
 
 // Mock utils
-vi.mock("../../../../utils/formatDateTime", () => ({
+vi.mock("../../../../utils", () => ({
     formatDate: vi.fn(() => "2024-11-16 14:30"),
 }));
-vi.mock("../../../../utils/formatTimeDuration", () => ({
+vi.mock("../../../../utils", () => ({
     formatTimeDuration: vi.fn(() => "2m 15s"),
 }));
 

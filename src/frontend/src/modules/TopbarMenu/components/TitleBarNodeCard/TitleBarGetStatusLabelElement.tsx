@@ -1,7 +1,7 @@
 import React from "react";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarNodeCard.module.scss";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 
 export const getStatusLabelElement = (status: string | undefined, currentAction?: string): React.ReactNode => {
   const normalizedStatus = status?.toLowerCase();

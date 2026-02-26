@@ -13,8 +13,7 @@ import { Button } from "@mui/material";
 import { getRunningNodeInfo, getUpdateAllButtonPressed, setUpdateAllButtonPressed } from "../../../../stores/NodesStore";
 import { useSelector } from "react-redux";
 import { useRootDispatch } from "../../../../stores";
-import { getHighlightedText, getSearchStringIndex } from "../../../../utils/getHighlightedText";
-import { classNames } from "../../../../utils/classnames";
+import { getHighlightedText, getSearchStringIndex, classNames } from "../../../../utils";
 import { InputField } from "../../../../components";
 
 export const StateUpdates: React.FC = () => {

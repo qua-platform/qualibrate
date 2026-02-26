@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { getIsRescanningNodes, getResults, getRunningNode, handleRunNode, setNodeParameter } from "../../../../stores/NodesStore";
 import { getRunResultNodeError, getRunStatusIsRunning } from "../../../../stores/WebSocketStore";
 import { ParameterStructure, SnapshotsApi } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 import { NodeDTO } from "../NodeElement/NodeElement";
 import { useRootDispatch } from "../../../../stores";
 import { getRunningNodeInfo, getSelectedNode } from "../../../../stores/NodesStore/selectors";

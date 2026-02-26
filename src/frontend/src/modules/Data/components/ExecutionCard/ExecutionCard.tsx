@@ -10,8 +10,7 @@ import {
   SnapshotDTO,
 } from "../../../../stores/SnapshotsStore";
 import styles from "./ExecutionCard.module.scss";
-import { formatDate } from "../../../../utils/formatDateTime";
-import { formatTimeDuration } from "../../../../utils/formatTimeDuration";
+import { formatDate, formatTimeDuration } from "../../../../utils";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
 import { TagsList } from "./components";

@@ -5,7 +5,7 @@ import { getParameterType, validate } from "./utils";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Parameters.module.scss";
 import InputField from "../Input/InputField";
-import { classNames } from "../../utils/classnames";
+import { classNames } from "../../utils";
 import { EnumSelector, QubitsSelector } from "../ArraySelector";
 
 const ParameterSelector = ({

@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./ListCard.module.scss";
-import { classNames } from "../../utils/classnames";
+import { classNames } from "../../utils";
 import { Tooltip } from "@mui/material";
 
 interface IListCard {

@@ -3,7 +3,7 @@ import React, { useCallback } from "react";
 import styles from "./Project.module.scss";
 import { ProjectDTO, selectActiveProject } from "../../../../stores/ProjectStore";
 import { BlueButton, ProjectCheckIcon } from "../../../../components";
-import cyKeys from "../../../../utils/cyKeys";
+import { cyKeys } from "../../../../utils";
 import { NODES_KEY } from "../../../AppRoutes";
 import { useRootDispatch } from "../../../../stores";
 import { setActivePage } from "../../../../stores/NavigationStore";

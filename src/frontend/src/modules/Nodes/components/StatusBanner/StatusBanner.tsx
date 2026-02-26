@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./StatusBanner.module.scss";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 import { useSelector } from "react-redux";
 import { getRunStatusNodeStatus } from "../../../../stores/WebSocketStore";
 import { getResults, getRunningNodeInfo, getSelectedNode } from "../../../../stores/NodesStore";

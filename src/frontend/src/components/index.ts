@@ -28,7 +28,7 @@ export { default as Toast } from "./Toast/Toast";
 export { ToggleSwitch } from "./ToggleSwitch/ToggleSwitch";
 export { default as WebSocketConnectionErrorDialog } from "./WebSocketConnectionErrorDialog/WebSocketConnectionErrorDialog";
 export { default as SearchField } from "./SearchField";
-export { default as DateFilter } from "./DateFilter";
+export { default as DateFilter, DateOption } from "./DateFilter";
 export { default as SortButton } from "./SortButton";
 export { default as AppliedFilterLabel } from "./AppliedFilterLabel";
 export { default as ResizableTabSidebar } from "./ResizableTabSidebar";

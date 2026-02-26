@@ -1,9 +1,8 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./QubitsSelectorPopup.module.scss";
 import { Dialog, Button } from "@mui/material";
-import { classNames } from "../../../../utils/classnames";
+import { classNames, getHighlightedText, getSearchStringIndex } from "../../../../utils";
 import { QubitMetadata, QubitMetadataList } from "../../../Parameters/Parameters";
-import { getHighlightedText, getSearchStringIndex } from "../../../../utils/getHighlightedText";
 
 type IProps = {
   open: boolean;

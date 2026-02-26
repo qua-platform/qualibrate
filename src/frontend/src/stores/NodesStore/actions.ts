@@ -4,7 +4,7 @@ import { ErrorWithDetails, nodesSlice, StateUpdate, StatusResponseType } from ".
 import { NodeDTO, NodeMap } from "../../modules/Nodes";
 import { fetchOneSnapshot, getFirstId, getSecondId, getTrackLatestSidePanel, SnapshotsApi } from "../SnapshotsStore";
 import { getRunningNode, getRunningNodeInfo } from "./selectors";
-import { formatDateTime } from "../../utils/formatDateTime";
+import { formatDateTime } from "../../utils";
 import { InputParameter } from "../../components";
 // import { mockStateUpdates } from "../../../tests/unit/utils/mocks/api/snapshotStateUpdates";
 
