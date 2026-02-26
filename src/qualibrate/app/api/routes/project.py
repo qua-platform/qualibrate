@@ -23,6 +23,8 @@ from qualibrate.app.config import (
 )
 from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 from qualibrate.app.base_models.DBConfigRequest import DBConfigRequest
+from qualibrate.app.api.exceptions.classes.values import QValueException
+from fastapi import Path as FastAPIPath
 
 project_router = APIRouter(prefix="/project", tags=["project"])
 projects_router = APIRouter(prefix="/projects", tags=["project"])
@@ -119,8 +121,8 @@ def create_project(
 ) -> Project:
     """
     Create a project in the configured storage backend. You can optionally set
-    a custom storage location, a calibration library folder, and a path to a
-    QUAM state.
+    a custom storage location, a calibration library folder, a path to a
+    QUAM state and a database to save quam state.
 
     Returns created project name.
 
@@ -132,6 +134,8 @@ def create_project(
     library folder to associate with this project.
     - quam_state_path (Path | None): Path to an initial QUAM state file
     that will be set on project creation.
+    - database (DBConfigRequest | None): Optional database configuration for
+     saving quam state
     """
     if database is not None:
         database = database.to_db_config()
@@ -150,6 +154,156 @@ def create_project(
         )
     return project
 
+
+@project_router.delete(
+    "/delete/{project_name}",
+responses={
+    200: {"description": "Project deleted successfully"},
+    400: {"description": "Cannot delete active project or project does not exist"},
+    403: {"description": "Cannot delete demo project"},
+},
+    summary="Delete a project by name",
+)
+def delete_project_endpoint(
+        project_name: Annotated[
+            str,
+            FastAPIPath(..., description="Name of the project to delete")
+        ],    projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
+    config_path: Annotated[Path, Depends(get_config_path)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
+) -> dict[str, bool]:
+    if project_name == "demo_project":
+        raise HTTPException(status_code=403, detail="Cannot delete demo project.")
+
+    if projects_manager.project == project_name:
+
+        # Make sure demo exists
+        existing = [p.name for p in projects_manager.list()]
+        if "demo_project" not in existing:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot delete active project because 'demo_project' does not exist.",
+            )
+
+        old_project = projects_manager.project
+
+        # Switch active project
+        projects_manager.project = "demo_project"
+        routes_vars.ACTIVE_PROJECT_NOT_SET = False
+
+        # Notify runner (reuse your logic)
+        def notify_runner(q_settings: QualibrateConfig) -> None:
+            if not q_settings.runner:
+                return
+            settings_update_url = urljoin(
+                q_settings.runner.address_with_root,
+                "refresh_settings",
+            )
+            try:
+                requests.post(settings_update_url, timeout=5)
+            except requests.exceptions.RequestException:
+                logging.error(
+                    f"Failed to send refresh settings request to {settings_update_url}",
+                )
+
+        notify_runner(settings)
+
+        # Switch DB connection
+        db_manager = DBRegistry.get()
+        db_manager.db_disconnect(old_project)
+        try:
+            db_manager.db_connect("demo_project")
+        except RuntimeError as e:
+            logging.error(
+                f"Could not switch DB connection to demo_project: {e}"
+            )
+    try:
+        projects_manager.delete(project_name)
+    except QValueException as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"status":True}
+
+
+@project_router.put(
+    "/update",
+    status_code=200,
+    response_model=Project,
+    summary="Update a project",
+    description="Update an existing project's configuration. Only provided fields are updated.",
+    responses={
+        status.HTTP_200_OK: {"description": "Project updated"},
+        status.HTTP_404_NOT_FOUND: {"description": "Project not found"},
+    },)
+def update_project_endpoint(
+    project_name: Annotated[str, Query(..., min_length=1)],
+        storage_location: Annotated[
+            Path | None,
+            Body(...,
+                description=(
+                        "Optional root folder for project data, used only when the "
+                        "storage backend supports a filesystem location."
+                ),
+                examples=["/data/qualibrate/projects/my_project"],
+            ),
+        ] = None,
+        calibration_library_folder: Annotated[
+            Path | None,
+            Body(...,
+
+                description="Optional folder containing the calibration library.",
+                examples=["/repos/calibration-lib"],
+            ),
+        ] = None,
+        quam_state_path: Annotated[
+            Path | None,
+            Body(...,
+
+                description=("Optional path to an initial QUAM state JSON to seed the project."),
+                examples=["/data/qualibrate/quam_state"],
+            ),
+        ] = None,
+    database: Annotated[DBConfigRequest | None, Body(...)] = None,
+    *,
+    projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
+) -> Project:
+    """
+    Update an existing project by name.
+
+    Only the provided fields will be updated. Fields that are omitted
+    will remain unchanged.
+
+    Returns the updated Project object.
+
+    ### Args
+    - project_name (str): Name of the project to update.
+    - storage_location (Path | None): Optional filesystem location for the
+      project data if the backend supports it.
+    - calibration_library_folder (Path | None): Path to the calibration
+      library folder to associate with this project.
+    - quam_state_path (Path | None): Path to an initial QUAM state file
+      that will be set on project update.
+    - database (DBConfigRequest | None): Optional database configuration
+      for saving QUAM state.
+
+    ### Returns
+    - Project: The updated project.
+    """
+    if database is not None:
+        database = database.to_db_config()
+    try:
+        projects_manager.update(
+            project_name,
+            storage_location=storage_location,
+            calibration_library_folder=calibration_library_folder,
+            quam_state_path=quam_state_path,
+            database=database,
+        )
+    except QValueException as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    project = next(filter(lambda p: p.name == project_name, projects_manager.list()), None)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found after update")
+    return project
 
 @project_router.get(
     "/active",
@@ -292,7 +446,16 @@ def get_projects_list(
     return projects_manager.list()
 
 
-@project_router.post("/db/connect")
+@project_router.post(
+    "/db/connect",
+    status_code=204,
+    summary="Connect to project database",
+    responses={
+        status.HTTP_204_NO_CONTENT: {"description": "Connected to database"},
+        status.HTTP_400_BAD_REQUEST: {"description": "No active project configured"},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Could not connect"},
+    },
+)
 def connect_db(
     projects_manager: Annotated[
         ProjectsManagerBase,
@@ -316,7 +479,15 @@ def connect_db(
     return {"status": "connected", "project": project_name}
 
 
-@project_router.post("/db/disconnect")
+@project_router.post(
+    "/db/disconnect",
+    status_code=204,
+    summary="Disconnect from project database",
+    responses={
+        status.HTTP_204_NO_CONTENT: {"description": "Disconnected from database"},
+        status.HTTP_400_BAD_REQUEST: {"description": "No active project configured"},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Could not disconnect"},
+    },)
 def disconnect_db(
     projects_manager: Annotated[
         ProjectsManagerBase,
@@ -337,8 +508,29 @@ def disconnect_db(
     return {"status": "disconnected", "project": project_name}
 
 @project_router.get(
-    "/current_project",
+    "/",
     summary="Get current project settings",
+    description="Returns the current project's name, storage location, calibration library, and database config.",
+    responses={
+        status.HTTP_200_OK: {
+            "description": "Current project settings",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "example": {
+                            "summary": "Project settings",
+                            "value": {
+                                "project_name": "my_project",
+                                "storage_location": {"type": "local_storage", "location": "/data/projects"},
+                                "calibration_library_folder": {"folder": "/repos/calibrations", "resolver": "qualibrate.QualibrationLibrary"},
+                                "database": {"host": "localhost", "port": 5432, "database": "qualibrate", "username": "postgres"}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 )
 def get_project(
     settings: Annotated[QualibrateConfig, Depends(get_settings)]) :

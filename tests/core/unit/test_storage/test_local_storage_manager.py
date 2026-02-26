@@ -99,7 +99,7 @@ def test_save_node_with_machine_object_no_act_m_path(
 ):
     machine = MagicMock()
     node = DummyNode(machine=machine)
-
+    local_manager_root._save_quam_state_to_db = MagicMock()
     local_manager_root.save(node)
 
     assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
@@ -143,6 +143,7 @@ def test_save_active_machine_path(mocker, mock_generate, mock_data_handler):
     active_path = Path("/tmp/active_machine")
     manager = LocalStorageManager(root_folder, active_path)
     mocker.patch.object(manager, "_clean_data_handler")
+    mocker.patch.object(manager, "_save_quam_state_to_db")
 
     machine = MagicMock()
     node = DummyNode(machine=machine)

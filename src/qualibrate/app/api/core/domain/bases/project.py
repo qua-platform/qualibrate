@@ -3,6 +3,8 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from qualibrate_config.core.project.create import create_project
+from qualibrate_config.core.project.update import update_project
+from qualibrate_config.core.project.delete import delete_project
 from qualibrate_config.models import QualibrateConfig
 
 from qualibrate.app.api.core.domain.bases.base_with_settings import (
@@ -32,6 +34,33 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
     @abstractmethod
     def _active_project_setter(self, value: str) -> None:
         pass
+
+    def delete(self, project_name: str) -> None:
+        try:
+            delete_project(self._config_path, project_name)
+        except RuntimeError as e:
+            raise QValueException(f"Failed to delete project '{project_name}'") from e
+
+
+    def update(self,
+            project_name: str,
+            storage_location: Path | None = None,
+            calibration_library_folder: Path | None = None,
+            quam_state_path: Path | None = None,
+            database: DBConfig | None = None,
+    ) -> str:
+        try:
+            update_project(
+                self._config_path,
+                project_name,
+                storage_location,
+                calibration_library_folder,
+                quam_state_path,
+                database,
+            )
+        except ValueError as e:
+            raise QValueException(f"Failed to update project '{project_name}'") from e
+        return project_name
 
     def create(
         self,
