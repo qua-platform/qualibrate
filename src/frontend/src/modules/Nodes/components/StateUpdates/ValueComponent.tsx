@@ -2,7 +2,6 @@ import React, { useCallback, useEffect } from "react";
 
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./StateUpdates.module.scss";
-import { Tooltip } from "@mui/material";
 
 export const ValueComponent = ({
   inputRef,
@@ -43,19 +42,15 @@ export const ValueComponent = ({
   }
 
   return (
-    <>
-      <Tooltip title="Edit">
-        <input
-          ref={inputRef}
-          className={disabled ? styles.valueContainerDisabled : styles.valueContainerEditable}
-          data-testid="value-input"
-          disabled={disabled}
-          onBlur={(e) => {
-            onChange && onChange(e);
-          }}
-          defaultValue={defaultValue}
-        />
-      </Tooltip>
-    </>
+    <input
+      ref={inputRef}
+      className={disabled ? styles.valueContainerDisabled : styles.valueContainerEditable}
+      data-testid="value-input"
+      disabled={disabled}
+      onBlur={(e) => {
+        onChange && onChange(e);
+      }}
+      defaultValue={defaultValue}
+    />
   );
 };

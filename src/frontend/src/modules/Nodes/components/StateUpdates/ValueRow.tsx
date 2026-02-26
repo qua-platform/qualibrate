@@ -3,6 +3,8 @@ import React, { useRef } from "react";
 import styles from "./StateUpdates.module.scss";
 import { UndoIcon, RightArrowIcon } from "../../../../components";
 import { ValueComponent } from "./ValueComponent";
+import { EditIcon } from "../../../../components/Icons/EditIcon";
+import { Tooltip } from "@mui/material";
 
 export const ValueRow = ({
   oldValue,
@@ -23,6 +25,18 @@ export const ValueRow = ({
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCustomValue(event.target.value);
   };
+
+  const handleClickEdit = () => {
+    inputRef.current?.focus();
+  };
+
+  const handleClickUndo = () => {
+    if (inputRef.current) {
+      inputRef.current.value = previousValue.toString();
+    }
+    setCustomValue(previousValue);
+  };
+
   return (
     <>
       <div className={styles.stateUpdateValueOld}>
@@ -33,25 +47,23 @@ export const ValueRow = ({
       </div>
       {!parameterUpdated && (
         <div className={styles.stateUpdateValueNew}>
-          <ValueComponent
-            inputRef={inputRef}
-            defaultValue={customValue}
-            onClick={() => {
-              setParameterUpdated(true);
-            }}
-            onChange={handleChange}
-          />
+          <Tooltip title="Edit">
+            <div className={styles.stateUpdateValueInputWrapper}>
+              <ValueComponent
+                inputRef={inputRef}
+                defaultValue={customValue}
+                onClick={() => {
+                  setParameterUpdated(true);
+                }}
+                onChange={handleChange}
+              />
+              <div className={styles.stateUpdateEditIcon} onClick={handleClickEdit}>
+                <EditIcon width={12} height={12} />
+              </div>
+            </div>
+          </Tooltip>
           {customValue !== previousValue && (
-            <div
-              className={styles.stateUpdateUndoIconWrapper}
-              data-testid="undo-icon-wrapper"
-              onClick={() => {
-                if (inputRef.current) {
-                  inputRef.current.value = previousValue.toString();
-                }
-                setCustomValue(previousValue);
-              }}
-            >
+            <div className={styles.stateUpdateUndoIconWrapper} data-testid="undo-icon-wrapper" onClick={handleClickUndo}>
               <UndoIcon />
             </div>
           )}

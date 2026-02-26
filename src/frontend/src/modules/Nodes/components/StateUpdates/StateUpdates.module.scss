@@ -146,6 +146,22 @@
   align-content: center;
 }
 
+.stateUpdateValueInputWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.stateUpdateEditIcon {
+  opacity: 0.5;
+  margin-left: 5px;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.stateUpdateValueInputWrapper:hover .stateUpdateEditIcon {
+  opacity: 1;
+}
+
 .stateUpdateUndoIconWrapper {
   margin-left: 12px;
   padding: 0;
