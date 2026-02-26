@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 
 import requests
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
-from qualibrate_config.models import QualibrateConfig, StorageType
+from qualibrate_config.models import QualibrateConfig, StorageType, DBConfig
 
 from qualibrate.app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate.app.api.core.domain.local_storage.project import (
@@ -22,6 +22,7 @@ from qualibrate.app.config import (
     get_settings,
 )
 from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
+from qualibrate.app.base_models.DBConfigRequest import DBConfigRequest
 
 project_router = APIRouter(prefix="/project", tags=["project"])
 projects_router = APIRouter(prefix="/projects", tags=["project"])
@@ -107,6 +108,14 @@ def create_project(
         ProjectsManagerBase,
         Depends(_get_projects_manager),
     ],
+    database: Annotated[
+        DBConfigRequest | None,
+        Body(
+            description="Optional database configuration for this project.",
+            examples=[{"host": "localhost", "port": 5432, "database": "my_project_db", "username": "postgres",
+                       "password": "postgres"}],
+        ),
+    ] = None
 ) -> Project:
     """
     Create a project in the configured storage backend. You can optionally set
@@ -124,11 +133,14 @@ def create_project(
     - quam_state_path (Path | None): Path to an initial QUAM state file
     that will be set on project creation.
     """
+    if database is not None:
+        database = database.to_db_config()
     projects_manager.create(
         project_name,
         storage_location=storage_location,
         calibration_library_folder=calibration_library_folder,
         quam_state_path=quam_state_path,
+        database= database
     )
     project = next(filter(lambda p: p.name == project_name, projects_manager.list()), None)
     if project is None:
@@ -323,3 +335,17 @@ def disconnect_db(
         raise HTTPException(status_code=500, detail=f"Could not disconnect: {e}")
 
     return {"status": "disconnected", "project": project_name}
+
+@project_router.get(
+    "/current_project",
+    summary="Get current project settings",
+)
+def get_project(
+    settings: Annotated[QualibrateConfig, Depends(get_settings)]) :
+    serialized_settings = settings.serialize()
+    project_details_to_return = {"project_name":serialized_settings.get("project"),
+                                 "storage_location":serialized_settings.get("storage"),
+                                 "calibration_library_folder":serialized_settings.get("calibration_library"),
+                                 "database":serialized_settings.get("database")}
+
+    return project_details_to_return

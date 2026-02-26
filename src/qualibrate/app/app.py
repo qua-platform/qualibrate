@@ -4,7 +4,6 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.types import Receive, Scope, Send
-
 from qualibrate.app.api.__main__ import api_router
 from qualibrate.app.api.core.lifespan import app_lifespan
 from qualibrate.app.api.exceptions.classes.base import QualibrateException

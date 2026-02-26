@@ -10,6 +10,7 @@ from qualibrate.app.api.core.domain.bases.base_with_settings import (
 )
 from qualibrate.app.api.core.models.project import Project
 from qualibrate.app.api.exceptions.classes.values import QValueException
+from qualibrate_config.models import DBConfig
 
 
 class ProjectsManagerBase(DomainWithConfigBase, ABC):
@@ -38,6 +39,7 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
         storage_location: Path | None = None,
         calibration_library_folder: Path | None = None,
         quam_state_path: Path | None = None,
+        database: DBConfig | None = None,
     ) -> str:
         try:
             create_project(
@@ -46,6 +48,7 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
                 storage_location,
                 calibration_library_folder,
                 quam_state_path,
+                database
             )
         except ValueError as e:
             raise QValueException(f"Failed to create project '{project_name}'") from e
