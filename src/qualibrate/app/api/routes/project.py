@@ -26,6 +26,8 @@ from qualibrate.app.base_models.DBConfigRequest import DBConfigRequest
 from qualibrate.app.api.exceptions.classes.values import QValueException
 from fastapi import Path as FastAPIPath
 
+from qualibrate.core.utils.db_utils.test_db_connection import test_db_connection_config
+
 project_router = APIRouter(prefix="/project", tags=["project"])
 projects_router = APIRouter(prefix="/projects", tags=["project"])
 
@@ -541,3 +543,61 @@ def get_project(
                                  "database":serialized_settings.get("database")}
 
     return project_details_to_return
+
+@project_router.get(
+    "/db/test-connection",
+    summary="Test connection to project database",
+    description="Check if the active project's database is reachable and credentials are valid.",
+    response_model=dict,
+    responses={
+        200: {
+            "description": "Connection test successful",
+            "content": {
+                "application/json": {
+                    "examples": {
+                        "already_connected": {
+                            "summary": "Project is already connected",
+                            "value": {"project": "my_project", "already_connected": True},
+                        },
+                        "connection_success": {
+                            "summary": "Temporary connection succeeded",
+                            "value": {"project": "my_project", "already_connected": False},
+                        },
+                    }
+                }
+            },
+        },
+        400: {"description": "No active project configured"},
+        500: {"description": "Database connection failed or no database configured"},
+    },
+)
+def test_db_connection(
+    projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
+    settings: Annotated[QualibrateConfig, Depends(get_settings)]
+):
+    project_name = projects_manager.project
+    if project_name is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No active project configured"
+        )
+
+    db_config = settings.database
+    if db_config is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No database configuration found"
+        )
+
+    manager = DBRegistry.get()
+    if manager.is_connected(project_name):
+        return {"project": project_name, "already_connected": True}
+
+    try:
+        test_db_connection_config(db_config)
+        return {"project": project_name, "already_connected": False}
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )

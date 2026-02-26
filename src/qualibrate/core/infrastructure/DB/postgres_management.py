@@ -88,3 +88,31 @@ class PostgresManagement(DBManagement):
             raise
         finally:
             session.close()
+
+
+    def test_db_connection(self, config: dict) -> tuple[bool, str | None]:
+        """
+        Test DB credentials without persisting the connection.
+
+        Returns:
+            success (bool), error_message (str | None)
+        """
+        engine = None
+        try:
+            engine = create_engine(
+                f"postgresql+psycopg2://{config['username']}:{config['password']}"
+                f"@{config['host']}:{config.get('port', 5432)}/{config['database']}"
+            )
+
+            # test query
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+
+            return True, None
+
+        except SQLAlchemyError as e:
+            return False, str(e)
+
+        finally:
+            if engine:
+                engine.dispose()
