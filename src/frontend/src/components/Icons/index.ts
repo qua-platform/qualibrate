@@ -34,3 +34,5 @@ export { default as DeleteProjectIcon } from "./DeleteProjectIcon";
 export { default as NewProjectIcon } from "./NewProjectIcon";
 export { default as EditProjectIcon } from "./EditProjectIcon";
 export { default as ProjectIcon } from "./ProjectIcon";
+export { default as NotificationErrorIcon } from "./NotificationErrorIcon";
+export { default as NotificationSuccessIcon } from "./NotificationSuccessIcon";
