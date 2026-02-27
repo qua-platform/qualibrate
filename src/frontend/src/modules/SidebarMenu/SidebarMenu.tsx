@@ -7,10 +7,9 @@ import { classNames } from "../../utils/classnames";
 import styles from "./styles/SidebarMenu.module.scss";
 import cyKeys from "../../utils/cyKeys";
 import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/GlobalThemeContext";
-import { CollapseSideMenuIcon, ExpandSideMenuIcon, ProjectFolderIcon, QUAlibrateLogoIcon, QualibrateLogoSmallIcon } from "../../components";
-import { colorPalette, extractInitials, getColorIndex } from "../Project";
+import { CollapseSideMenuIcon, ExpandSideMenuIcon, QUAlibrateLogoIcon, QualibrateLogoSmallIcon } from "../../components";
 import { useSelector } from "react-redux";
-import { getActiveProject, getShouldGoToProjectPage } from "../../stores/ProjectStore";
+import { getActiveProject } from "../../stores/ProjectStore";
 import { getActivePage, setActivePage } from "../../stores/NavigationStore";
 import { useRootDispatch } from "../../stores";
 import { API_METHODS } from "../../utils/api/types";
@@ -24,11 +23,6 @@ const SidebarMenu: React.FunctionComponent = () => {
   const activePage = useSelector(getActivePage);
   const containerClassName = classNames(styles.sidebarMenu, minifySideMenu ? styles.collapsed : styles.expanded);
   const activeProject = useSelector(getActiveProject);
-  const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
-
-  const handleProjectClick = useCallback(() => {
-    dispatch(setActivePage(PROJECT_KEY));
-  }, [setActivePage]);
 
   const handleHelpClick = useCallback(() => {
     window.open("https://qua-platform.github.io/qualibrate/", "_blank", "noopener,noreferrer,width=800,height=600");
@@ -73,7 +67,7 @@ const SidebarMenu: React.FunctionComponent = () => {
                   hideText={minifySideMenu}
                   onClick={() => dispatch(setActivePage(item.keyId))}
                   isSelected={activePage === item.keyId}
-                  isDisabled={!activeProject || shouldGoToProjectPage}
+                  isDisabled={!activeProject}
                   data-testid={`menu-item-${item.keyId}`}
                 />
               );
@@ -91,20 +85,6 @@ const SidebarMenu: React.FunctionComponent = () => {
                 menuItem.title = appVersion ? `v${appVersion}` : undefined;
               } else if (item.keyId === HELP_KEY) {
                 handleOnClick = handleHelpClick;
-              } else if (item.keyId === PROJECT_KEY) {
-                handleOnClick = handleProjectClick;
-                if (activeProject) {
-                  menuItem.sideBarTitle = activeProject.name;
-                  menuItem.icon = () => (
-                    <ProjectFolderIcon
-                      initials={extractInitials(activeProject.name)}
-                      fillColor={colorPalette[getColorIndex(activeProject.name)]}
-                      width={28}
-                      height={28}
-                      fontSize={13}
-                    />
-                  );
-                }
               }
 
               return (

@@ -4,14 +4,12 @@ import { asyncThunkCreator, buildCreateSlice, PayloadAction } from "@reduxjs/too
 export interface ProjectsState {
   allProjects: ProjectDTO[];
   activeProject: ProjectDTO | null | undefined;
-  shouldGoToProjectPage: boolean;
   isScanningProjects: boolean;
 }
 
 const initialState: ProjectsState = {
   allProjects: [],
   activeProject: undefined,
-  shouldGoToProjectPage: true,
   isScanningProjects: false,
 };
 
@@ -37,9 +35,6 @@ export const projectsSlice = createSlice({
     },
     setActiveProject: (state, action: PayloadAction<ProjectDTO | undefined>) => {
       state.activeProject = action.payload;
-    },
-    setShouldGoToProjectPage: (state, action: PayloadAction<boolean>) => {
-      state.shouldGoToProjectPage = action.payload;
     },
     setScanningProjects: (state, action: PayloadAction<boolean>) => {
       state.isScanningProjects = action.payload;

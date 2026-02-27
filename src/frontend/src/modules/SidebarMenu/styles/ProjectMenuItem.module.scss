@@ -83,36 +83,6 @@
   border-bottom: 1px solid #30363d;
 }
 
-.projectListItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 8px 12px;
-  font-size: 13px;
-  color: #c9d1d9;
-  transition: background-color 0.2s;
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  &:hover{
-    background-color: #1c2128;
-  }
-}
-
-.projectListItem .projectInitial {
-  width: 18px;
-  height: 18px;
-  font-size: 11px;
-}
-
-.selected {
-  background-color: #1f6feb;
-  color: #fff;
-}
-
 .projectMenuItem {
   display: flex;
   align-items: center;

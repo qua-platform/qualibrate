@@ -1,16 +1,23 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styles from "./AddEditProjectModal.module.scss";
 import { Dialog } from "@mui/material";
-import { classNames } from "../../../utils/classnames";
-import { addProject, ProjectDTO, selectActiveProject } from "../../../stores/ProjectStore";
-import { CreateEditProjectDTO, DatabaseDTO } from "../../../stores/ProjectStore/api/ProjectViewAPI";
-import { createProject, editProject } from "../../../stores/ProjectStore/utils";
+import { classNames } from "../../../utils";
+import {
+  addProject,
+  CreateEditProjectDTO,
+  createProject,
+  DatabaseDTO,
+  editProject,
+  ProjectDTO,
+  selectActiveProject,
+  testDatabase,
+  updateProject,
+} from "../../../stores/ProjectStore";
 import { useRootDispatch } from "../../../stores";
-import { updateProject } from "../../../stores/ProjectStore/actions";
 import { clearData, fetchGitgraphSnapshots } from "../../../stores/SnapshotsStore";
 import { setActivePage } from "../../../stores/NavigationStore";
 import { NODES_KEY } from "../../AppRoutes";
-import TestConnectionModal from "./components/TestConnectionModal/TestConnectionModal";
+import { FormInputFieldWithLabel, TestConnectionModal } from "./components";
 
 interface Props {
   mode: "add" | "edit" | "delete";
@@ -24,7 +31,7 @@ const emptyDatabase: DatabaseDTO = {
   isConnected: false,
   host: "",
   port: 5432,
-  name: "",
+  database: "",
   username: "",
   password: "",
 };
@@ -45,8 +52,13 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
   const [showDbSettings, setShowDbSettings] = useState(false);
   const [formData, setFormData] = useState<CreateEditProjectDTO>(emptyForm);
 
-  const areDbFieldsPopulated = formData.database?.name!== "" && formData.database?.host !== "" && formData.database?.port && formData.database?.username !== "" && formData.database?.password !== "" ;
-  const disableCreateAndSave = formData.projectName === "" || showDbSettings && !areDbFieldsPopulated;
+  const areDbFieldsPopulated =
+    formData.database?.database !== "" &&
+    formData.database?.host !== "" &&
+    formData.database?.port &&
+    formData.database?.username !== "" &&
+    formData.database?.password !== "";
+  const disableCreateAndSave = formData.projectName === "" || (showDbSettings && !areDbFieldsPopulated);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -57,9 +69,9 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
         dataPath: project.updates?.qualibrate?.storage?.location ?? "",
         quamPath: project.updates?.quam?.state_path ?? "",
         calibrationPath: project.updates?.qualibrate?.calibration_library?.folder ?? "",
-        database: project.database ?? undefined,
+        database: project.updates?.qualibrate?.database ?? undefined,
       });
-      setShowDbSettings(!!project.database);
+      setShowDbSettings(!!project.updates?.qualibrate?.database);
     }
 
     if (mode === "add") {
@@ -95,7 +107,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
   const handleSubmit = async () => {
     try {
       const isEdit = mode === "edit" && project;
-      const response = isEdit ? await editProject(project?.name, formData) : await createProject(formData);
+      const response = isEdit ? await editProject(formData) : await createProject(formData);
 
       if (!response?.isOk || !response.result) {
         return;
@@ -127,7 +139,12 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
   };
 
   const handleOnCloseTestDbModal = () => setShowDbTestModal(false);
-  const handleOnTestDbClicked = () => setShowDbTestModal(true);
+  const handleOnTestDbClicked = () => {
+    if (formData.database) {
+      testDatabase(formData.database);
+      setShowDbTestModal(true);
+    }
+  };
 
   const title = mode === "add" ? "Create New Project" : `Project Settings: ${project?.name}`;
 
@@ -145,57 +162,52 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
 
           <div className={styles.modalBody}>
             <form>
-              <div className={classNames(styles.formGroup, mode === "edit" && styles.disabled)}>
-                <label>
-                  Project name
-                  <span className={styles.required}>*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.projectName}
-                  disabled={mode === "edit"}
-                  onChange={(e) => handleChange("projectName", e.target.value)}
-                  placeholder="Enter project name"
-                  required
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Data path</label>
-                <input
-                  type="text"
-                  value={formData.dataPath ?? ""}
-                  onChange={(e) => handleChange("dataPath", e.target.value)}
-                  placeholder="C:\Projects\my_project\data"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>
-                  QUAM state path <span className={styles.quamLabel}>(Quantum Abstract Machine)</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.quamPath ?? ""}
-                  onChange={(e) => handleChange("quamPath", e.target.value)}
-                  placeholder="C:\Projects\my_project\quam"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Calibration library path</label>
-                <input
-                  type="text"
-                  value={formData.calibrationPath ?? ""}
-                  onChange={(e) => handleChange("calibrationPath", e.target.value)}
-                  placeholder="C:\Projects\my_project\calibration"
-                />
-              </div>
+              <FormInputFieldWithLabel
+                classNames={classNames(styles.formGroup, mode === "edit" && styles.disabled)}
+                labelText={"Project name"}
+                placeholder={"Enter project name"}
+                inputType={"text"}
+                value={formData.projectName}
+                isDisabled={mode === "edit"}
+                isRequired={true}
+                handleChange={(e) => handleChange("projectName", e.target.value)}
+              />
+              <FormInputFieldWithLabel
+                classNames={styles.formGroup}
+                labelText={"Data path"}
+                placeholder={"C:\\Projects\\my_project\\data"}
+                inputType={"text"}
+                value={formData.dataPath ?? ""}
+                isDisabled={false}
+                isRequired={false}
+                handleChange={(e) => handleChange("dataPath", e.target.value)}
+              />
+              <FormInputFieldWithLabel
+                classNames={styles.formGroup}
+                labelText={"QUAM state path"}
+                subLabelText={"(Quantum Abstract Machine)"}
+                tooltipText={"store quantum machines state"}
+                placeholder={"C:\\Projects\\my_project\\quam"}
+                inputType={"text"}
+                value={formData.quamPath ?? ""}
+                isDisabled={false}
+                isRequired={false}
+                handleChange={(e) => handleChange("quamPath", e.target.value)}
+              />
+              <FormInputFieldWithLabel
+                classNames={styles.formGroup}
+                labelText={"Calibration library path"}
+                placeholder={"C:\\Projects\\my_project\\calibration"}
+                inputType={"text"}
+                value={formData.calibrationPath ?? ""}
+                isDisabled={false}
+                isRequired={false}
+                handleChange={(e) => handleChange("calibrationPath", e.target.value)}
+              />
 
               <div className={styles.formSection}>
                 <div className={styles.formSectionHeader}>
                   <div className={styles.formSectionTitle}>Database Export</div>
-
                   <label className={styles.toggleSwitch}>
                     <input checked={showDbSettings} type="checkbox" onChange={toggleDatabase} />
                     <span className={styles.toggleSlider} />
@@ -203,61 +215,90 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
                 </div>
 
                 {showDbSettings && (
-                    <div>
-                        <div className={styles.formGroup}>
-                            <label> Host (IP address/hostname)
-                                <span className={styles.required}>*</span>
-                            </label>
-                            <input type="text" id="dbHost" placeholder="localhost or 192.168.1.100"
-                                   onChange={(e) => handleDatabaseChange("host", e.target.value)}/>
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label> Port<span className={styles.required}>*</span>
-                            </label>
-                            <input type="number" id="dbPort" placeholder="5432" defaultValue="5432"
-                                   onChange={(e) => handleDatabaseChange("port", e.target.value)}/>
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label> Name<span className={styles.required}>*</span>
-                            </label>
-                            <input type="text" id="dbName" placeholder="qualibrate_db"
-                                   onChange={(e) => handleDatabaseChange("name", e.target.value)}/>
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label> Username<span className={styles.required}>*</span>
-                            </label>
-                            <input type="text" id="dbUsername" placeholder="postgres"
-                                   onChange={(e) => handleDatabaseChange("username", e.target.value)}/>
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label> Password<span className={styles.required}>*</span> </label>
-                            <input type="password" id="dbPassword" placeholder="••••••••"
-                                   onChange={(e) => handleDatabaseChange("password", e.target.value)}/>
-                        </div>
-                    </div>
+                  <div>
+                    <FormInputFieldWithLabel
+                      classNames={styles.formGroup}
+                      labelText={"Host (IP address/hostname)"}
+                      placeholder={"localhost or 192.168.1.100"}
+                      inputType={"text"}
+                      value={formData.database?.host ?? ""}
+                      isDisabled={false}
+                      isRequired={true}
+                      handleChange={(e) => handleDatabaseChange("host", e.target.value)}
+                    />
+                    <FormInputFieldWithLabel
+                      classNames={styles.formGroup}
+                      labelText={"Port"}
+                      placeholder={"5432"}
+                      inputType={"number"}
+                      value={formData.database?.port ?? "5432"}
+                      isDisabled={false}
+                      isRequired={true}
+                      handleChange={(e) => handleDatabaseChange("port", e.target.value)}
+                    />
+                    <FormInputFieldWithLabel
+                      classNames={styles.formGroup}
+                      labelText={"Name"}
+                      placeholder={"qualibrate_db"}
+                      inputType={"text"}
+                      value={formData.database?.database ?? ""}
+                      isDisabled={false}
+                      isRequired={true}
+                      handleChange={(e) => handleDatabaseChange("database", e.target.value)}
+                    />
+                    <FormInputFieldWithLabel
+                      classNames={styles.formGroup}
+                      labelText={"Username"}
+                      placeholder={"postgres"}
+                      inputType={"text"}
+                      value={formData.database?.username ?? ""}
+                      isDisabled={false}
+                      isRequired={true}
+                      handleChange={(e) => handleDatabaseChange("username", e.target.value)}
+                    />
+                    <FormInputFieldWithLabel
+                      classNames={styles.formGroup}
+                      labelText={"Password"}
+                      placeholder={"••••••••"}
+                      inputType={"password"}
+                      value={formData.database?.password ?? ""}
+                      isDisabled={false}
+                      isRequired={true}
+                      handleChange={(e) => handleDatabaseChange("password", e.target.value)}
+                    />
+                  </div>
                 )}
               </div>
             </form>
-              {showDbSettings &&
-              <button type="button" disabled={!areDbFieldsPopulated} className={classNames(styles.btnLink, !areDbFieldsPopulated && styles.disabled)} id="testConnectionBtn" onClick={handleOnTestDbClicked}>
-                  Test Connection
+            {showDbSettings && (
+              <button
+                type="button"
+                disabled={!areDbFieldsPopulated}
+                className={classNames(styles.btnLink, !areDbFieldsPopulated && styles.disabled)}
+                id="testConnectionBtn"
+                onClick={handleOnTestDbClicked}
+              >
+                Test Connection
               </button>
-              }
+            )}
           </div>
-            <div className={styles.modalFooter}>
-                <button className={classNames(styles.btn, styles.btnSecondary)} onClick={handleOnClose}>
-                    Cancel
-                </button>
+          <div className={styles.modalFooter}>
+            <button className={classNames(styles.btn, styles.btnSecondary)} onClick={handleOnClose}>
+              Cancel
+            </button>
 
-                <button disabled={disableCreateAndSave} className={classNames(styles.btn, styles.btnPrimary, disableCreateAndSave && styles.disabled)} onClick={handleSubmit}>
-                    {mode === "edit" ? "Save Changes" : "Create"}
-                </button>
-            </div>
+            <button
+              disabled={disableCreateAndSave}
+              className={classNames(styles.btn, styles.btnPrimary, disableCreateAndSave && styles.disabled)}
+              onClick={handleSubmit}
+            >
+              {mode === "edit" ? "Save Changes" : "Create"}
+            </button>
+          </div>
         </div>
       </Dialog>
     </>
   );
 };
 
-export default AddEditProjectModal
+export default AddEditProjectModal;

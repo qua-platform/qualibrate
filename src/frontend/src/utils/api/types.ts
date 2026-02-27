@@ -16,6 +16,8 @@ export type RequestEntry = [path: string, method: API_METHODS];
 export enum API_METHODS {
   GET = "GET",
   POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE",
 }
 
 export type Res<P = Record<string, never>> = {

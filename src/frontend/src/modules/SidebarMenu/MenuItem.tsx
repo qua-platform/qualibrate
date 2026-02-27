@@ -2,8 +2,7 @@ import React from "react";
 import Tooltip from "@mui/material/Tooltip";
 import { Module, PROJECT_KEY } from "../AppRoutes";
 import styles from "./styles/MenuItem.module.scss";
-import { MENU_TEXT_COLOR } from "../../utils/colors";
-import { classNames } from "../../utils/classnames";
+import { classNames, MENU_TEXT_COLOR } from "../../utils";
 import { setActivePage } from "../../stores/NavigationStore";
 import { useRootDispatch } from "../../stores";
 import ProjectMenuItem from "./ProjectMenuItem";
@@ -31,17 +30,7 @@ const MenuItem: React.FC<
     onClick?.();
   };
   if (keyId === PROJECT_KEY) {
-    return (
-      // <div
-      //   // disabled={isDisabled}
-      //   // onClick={handleClick}
-      //   className={classNames(styles.itemWrapper, isSelected && styles.selected)}
-      //   data-cy={dataCy}
-      //   data-testid={`menu-item-${keyId}`}
-      // >
-      <ProjectMenuItem />
-      // </div>
-    );
+    return <ProjectMenuItem />;
   }
 
   const button = (

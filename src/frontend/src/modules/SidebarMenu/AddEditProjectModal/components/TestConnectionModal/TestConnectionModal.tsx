@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./TestConnectionModal.module.scss";
 import { Dialog } from "@mui/material";
-import { classNames } from "../../../../../utils/classnames";
+import { classNames } from "../../../../../utils";
 
 interface Props {
   isVisible: boolean;

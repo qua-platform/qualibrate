@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "./DeleteProjectModal.module.scss";
 import { Dialog } from "@mui/material";
+import { classNames } from "../../../utils";
 
 interface Props {
   isVisible: boolean;
@@ -28,11 +29,10 @@ const DeleteProjectModal = ({ isVisible, projectName, handleOnClose, handleOnCon
         </p>
 
         <div className={styles.confirmDialogActions}>
-          <button className={`${styles.btn} ${styles.btnSecondary}`} onClick={handleOnClose}>
+          <button className={classNames(styles.btn, styles.btnSecondary)} onClick={handleOnClose}>
             Cancel
           </button>
-
-          <button className={`${styles.btn} ${styles.btnDanger}`} onClick={handleOnConfirm}>
+          <button className={classNames(styles.btn, styles.btnDanger)} onClick={handleOnConfirm}>
             Delete
           </button>
         </div>

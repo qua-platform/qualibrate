@@ -7,7 +7,6 @@ import {
   CREATE_PROJECT,
   DELETE_PROJECT,
   DISCONNECT_DB,
-  SHOULD_REDIRECT_USER_TO_SPECIFIC_PAGE,
   TEST_DB_CONNECTION,
   UPDATE_PROJECT,
 } from "../../../utils/api/apiRoutes";
@@ -16,7 +15,7 @@ export interface DatabaseDTO {
   isConnected?: boolean;
   host: string;
   port: number;
-  name: string;
+  database: string;
   username: string;
   password: string;
 }
@@ -36,10 +35,6 @@ export interface NewProjectFormData {
   calibrationPath?: string;
 }
 
-interface ProjectApiDTO {
-  page: string | null;
-}
-
 export interface ProjectDTO {
   name: string;
   nodes_number?: number;
@@ -48,7 +43,6 @@ export interface ProjectDTO {
   dataPath: string;
   quamPath: string;
   calibrationPath: string;
-  database?: DatabaseDTO;
   updates?: {
     qualibrate: {
       calibration_library: {
@@ -57,6 +51,7 @@ export interface ProjectDTO {
       storage: {
         location: string;
       };
+      database?: DatabaseDTO;
     };
     quam: {
       state_path: string;
@@ -81,12 +76,6 @@ export class ProjectViewApi extends Api {
 
   static fetchActiveProjectName(): Promise<Res<string>> {
     return this._fetch(this.api(ACTIVE_PROJECT()), API_METHODS.GET, {
-      headers: BASIC_HEADERS,
-    });
-  }
-
-  static fetchShouldRedirectUserToProjectPage(): Promise<Res<ProjectApiDTO>> {
-    return this._fetch(this.api(SHOULD_REDIRECT_USER_TO_SPECIFIC_PAGE()), API_METHODS.GET, {
       headers: BASIC_HEADERS,
     });
   }
@@ -134,30 +123,28 @@ export class ProjectViewApi extends Api {
     return this._fetch(this.api(CREATE_PROJECT()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       body: JSON.stringify(body),
-      queryParams: {project_name: projectInfo.projectName},
+      queryParams: { project_name: projectInfo.projectName },
     });
   }
 
-  static updateProject(_oldProjectName: string, projectInfo: CreateEditProjectDTO): Promise<Res<ProjectDTO>> {
+  static updateProject(projectInfo: CreateEditProjectDTO): Promise<Res<ProjectDTO>> {
     const body = {
-      // ...(projectInfo.projectName && { project_name: projectInfo.projectName }),
-      ...(projectInfo.dataPath && {storage_location: projectInfo.dataPath}),
-      ...(projectInfo.calibrationPath && {calibration_library_folder: projectInfo.calibrationPath}),
-      ...(projectInfo.quamPath && {quam_state_path: projectInfo.quamPath}),
-      ...(projectInfo.database && {database: projectInfo.database}),
+      ...(projectInfo.dataPath && { storage_location: projectInfo.dataPath }),
+      ...(projectInfo.calibrationPath && { calibration_library_folder: projectInfo.calibrationPath }),
+      ...(projectInfo.quamPath && { quam_state_path: projectInfo.quamPath }),
+      ...(projectInfo.database && { database: projectInfo.database }),
     };
 
-    return this._fetch(this.api(UPDATE_PROJECT()), API_METHODS.POST, {
+    return this._fetch(this.api(UPDATE_PROJECT()), API_METHODS.PUT, {
       headers: BASIC_HEADERS,
       body: JSON.stringify(body),
-      // queryParams: { project_name: oldProjectName },
+      queryParams: { project_name: projectInfo.projectName },
     });
   }
 
   static deleteProject(projectName: string): Promise<Res<{ status: boolean }>> {
-    return this._fetch(this.api(DELETE_PROJECT()), API_METHODS.POST, {
+    return this._fetch(this.api(DELETE_PROJECT(projectName)), API_METHODS.DELETE, {
       headers: BASIC_HEADERS,
-      queryParams: {project_name: projectName},
     });
   }
 }

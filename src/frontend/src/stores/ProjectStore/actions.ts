@@ -2,8 +2,7 @@ import { ProjectDTO, ProjectViewApi } from "./api/ProjectViewAPI";
 import { RootDispatch } from "../index";
 import { projectsSlice } from "./ProjectStore";
 
-export const { setAllProjects, addProject, updateProject, setActiveProject, setShouldGoToProjectPage, setScanningProjects } =
-  projectsSlice.actions;
+export const { setAllProjects, addProject, updateProject, setActiveProject, setScanningProjects } = projectsSlice.actions;
 
 export const fetchProjectsAndActive = () => async (dispatch: RootDispatch) => {
   const [projectsRes, activeNameRes] = await Promise.all([ProjectViewApi.fetchAllProjects(), ProjectViewApi.fetchActiveProjectName()]);
@@ -29,25 +28,12 @@ export const fetchProjectsAndActive = () => async (dispatch: RootDispatch) => {
   dispatch(setScanningProjects(false));
 };
 
-export const fetchShouldRedirectUserToProjectPage = () => async (dispatch: RootDispatch) => {
-  const response = await ProjectViewApi.fetchShouldRedirectUserToProjectPage();
-
-  if (response.isOk && response.result) {
-    localStorage.setItem("backandWorking", "true");
-
-    dispatch(setShouldGoToProjectPage(response.result.page === "project"));
-  } else if (!response.isOk && response.error) {
-    console.error("Error fetching should user be redirected to project page:", response.error);
-  }
-};
-
 export const selectActiveProject = (project: ProjectDTO) => async (dispatch: RootDispatch) => {
   try {
     const { isOk, result } = await ProjectViewApi.selectActiveProject(project.name);
 
     if (isOk && result === project.name) {
       dispatch(setActiveProject(project));
-      dispatch(setShouldGoToProjectPage(false));
     }
   } catch (err) {
     console.error("Failed to activate project:", err);

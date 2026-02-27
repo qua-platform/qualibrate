@@ -3,16 +3,15 @@ import { useSelector } from "react-redux";
 import MainLayout from "../MainLayout/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../../../../utils/api/apiRoutes";
-import { GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY, PROJECT_KEY } from "../../ModulesRegistry";
+import { GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY } from "../../ModulesRegistry";
 import { Nodes } from "../../../Nodes";
 import { GraphLibrary } from "../../../GraphLibrary";
 import { GraphStatus } from "../../../GraphStatus";
-import { Project } from "../../../Project";
 import { classNames } from "../../../../utils/classnames";
 import styles from "./MainPage.module.scss";
 import { QUAlibrateLogoIcon } from "../../../../components";
 import { getIsAuthorized } from "../../../../stores/AuthStore";
-import { getActiveProject, getShouldGoToProjectPage } from "../../../../stores/ProjectStore";
+import { getActiveProject } from "../../../../stores/ProjectStore";
 import { getActivePage, getOpenedOncePages, setActivePage } from "../../../../stores/NavigationStore";
 import { useRootDispatch } from "../../../../stores";
 
@@ -32,7 +31,6 @@ const MainPage = () => {
   const dispatch = useRootDispatch();
   const openedOncePages = useSelector(getOpenedOncePages);
   const activeProject = useSelector(getActiveProject);
-  const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -68,12 +66,10 @@ const MainPage = () => {
   useEffect(() => {
     if (!isAuthorized) {
       navigate(LOGIN_URL);
-    } else if (!activeProject || shouldGoToProjectPage) {
-      dispatch(setActivePage(PROJECT_KEY));
     } else {
       dispatch(setActivePage(NODES_KEY));
     }
-  }, [isAuthorized, activeProject, shouldGoToProjectPage]);
+  }, [isAuthorized, activeProject]);
 
   return (
     <MainLayout>
@@ -85,9 +81,6 @@ const MainPage = () => {
       </PageWrapper>
       <PageWrapper nodeKey={GRAPH_STATUS_KEY}>
         <GraphStatus />
-      </PageWrapper>
-      <PageWrapper nodeKey={PROJECT_KEY}>
-        <Project />
       </PageWrapper>
       {openedOncePages.length === 0 && (
         <div className={styles.emptyPlaceholder}>

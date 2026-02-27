@@ -18,21 +18,12 @@ export const fetchActiveProjectName = () => {
   }
 };
 
-// export const fetchShouldRedirectUserToProjectPage = () => {
-//   try {
-//     return ProjectViewApi.fetchShouldRedirectUserToProjectPage();
-//   } catch (e) {
-//     console.error("Failed to get the info if should redirection be done to project page", e);
-//     return null;
-//   }
-// };
-
 export const testDatabase = (dbInfo: DatabaseDTO) => {
   try {
     return ProjectViewApi.testDatabase(dbInfo);
   } catch (e) {
     console.error(
-      `Testing database connection failed for database name=${dbInfo.name} on the host=${dbInfo.host}, requested parameters=${JSON.stringify(dbInfo)}`,
+      `Testing database connection failed for database name=${dbInfo.database} on the host=${dbInfo.host}, requested parameters=${JSON.stringify(dbInfo)}`,
       e
     );
     return null;
@@ -44,7 +35,7 @@ export const connectToProjectDB = (dbInfo: DatabaseDTO) => {
     return ProjectViewApi.connectToProjectDB(dbInfo);
   } catch (e) {
     console.error(
-      `Failed to connect to database name=${dbInfo.name}, on host=${dbInfo.host}, requested parameters=${JSON.stringify(dbInfo)}`,
+      `Failed to connect to database name=${dbInfo.database}, on host=${dbInfo.host}, requested parameters=${JSON.stringify(dbInfo)}`,
       e
     );
     return null;
@@ -56,7 +47,7 @@ export const disconnectToProjectDB = (dbInfo: DatabaseDTO) => {
     return ProjectViewApi.disconnectToProjectDB(dbInfo);
   } catch (e) {
     console.error(
-      `Failed to disconnect to database name=${dbInfo.name} on host=${dbInfo.host}, requested parameters=${JSON.stringify(dbInfo)}`,
+      `Failed to disconnect to database name=${dbInfo.database} on host=${dbInfo.host}, requested parameters=${JSON.stringify(dbInfo)}`,
       e
     );
     return undefined;
@@ -72,11 +63,11 @@ export const createProject = (projectInfo: CreateEditProjectDTO) => {
   }
 };
 
-export const editProject = (oldProjectName: string, projectInfo: CreateEditProjectDTO) => {
+export const editProject = (projectInfo: CreateEditProjectDTO) => {
   try {
-    return ProjectViewApi.updateProject(oldProjectName, projectInfo);
+    return ProjectViewApi.updateProject(projectInfo);
   } catch (e) {
-    console.error(`Failed to update project with name=${oldProjectName}`, e);
+    console.error(`Failed to update project with name=${projectInfo.projectName}`, e);
     return null;
   }
 };
