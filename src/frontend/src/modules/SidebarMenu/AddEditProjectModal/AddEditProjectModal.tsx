@@ -115,9 +115,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
 
       dispatch(isEdit ? updateProject(response.result) : addProject(response.result));
 
-      if (!isEdit) {
-        handleSetActiveProject(response.result);
-      }
+      handleSetActiveProject(response.result);
 
       handleOnConfirm();
     } catch (err) {

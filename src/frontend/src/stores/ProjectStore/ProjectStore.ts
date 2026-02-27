@@ -28,7 +28,7 @@ export const projectsSlice = createSlice({
       state.allProjects = [action.payload, ...state.allProjects];
     },
     updateProject: (state, action: PayloadAction<ProjectDTO>) => {
-      state.allProjects = state.allProjects.map((project) => (project.name === action.payload.name ? action.payload : project));
+      state.allProjects = state.allProjects.map((project) => (project.name === action.payload.name ? { ...action.payload } : project));
     },
     removeProject: (state, action: PayloadAction<ProjectDTO>) => {
       state.allProjects = state.allProjects.filter((project) => project.name !== action.payload.name);

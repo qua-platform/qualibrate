@@ -1,8 +1,8 @@
 import styles from "./styles/ProjectMenuItem.module.scss";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { classNames } from "../../utils";
 import { useSelector } from "react-redux";
-import { deleteProject, getActiveProject } from "../../stores/ProjectStore";
+import { deleteProject, getActiveProject, getAllProjects, ProjectDTO, selectActiveProject } from "../../stores/ProjectStore";
 import { useRootDispatch } from "../../stores";
 import { fetchAllNodes } from "../../stores/NodesStore";
 import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary";
@@ -14,10 +14,15 @@ import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/Glob
 import { DeleteProjectIcon, EditProjectIcon, NewProjectIcon } from "../../components/";
 import ProjectList from "./ProjectList";
 import ProjectMenuItemWrapper from "./ProjectMenuItemWrapper";
+import { removeProject } from "../../stores/ProjectStore/actions";
+import { clearData, fetchGitgraphSnapshots } from "../../stores/SnapshotsStore";
+import { setActivePage } from "../../stores/NavigationStore";
+import { NODES_KEY } from "../AppRoutes";
 
 const ProjectMenuItem = () => {
   const { setMinifySideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const dispatch = useRootDispatch();
+  const allProjects = useSelector(getAllProjects);
   const activeProject = useSelector(getActiveProject);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isAddEditModalVisible, setIsAddEditModalVisible] = useState(false);
@@ -32,6 +37,13 @@ const ProjectMenuItem = () => {
       dispatch(fetchAllCalibrationGraphs());
     }
   }, [activeProject]);
+
+  const handleSetActiveProject = useCallback((selectedProject: ProjectDTO) => {
+    dispatch(selectActiveProject(selectedProject));
+    dispatch(clearData());
+    dispatch(fetchGitgraphSnapshots(true));
+    dispatch(setActivePage(NODES_KEY));
+  }, []);
 
   const toggleProjectMenu = () => {
     setMinifySideMenu(false);
@@ -56,9 +68,17 @@ const ProjectMenuItem = () => {
   const handleOnConfirmDeleteModal = async () => {
     if (activeProject?.name) {
       const response = await deleteProject(activeProject?.name);
+
       if (response?.isOk && response?.result?.status) {
-        setIsDeleteModalVisible(false);
+        dispatch(removeProject(activeProject));
+
+        const demoProject = allProjects.find((p) => p.name === "demo_project");
+
+        if (demoProject) {
+          handleSetActiveProject(demoProject);
+        }
       }
+      setIsDeleteModalVisible(false);
     }
   };
 
@@ -85,18 +105,21 @@ const ProjectMenuItem = () => {
             <div className={styles.projectMenuSection}>
               <ProjectMenuItemWrapper
                 title={"New"}
+                isDisabled={false}
                 classNames={styles.projectMenuItem}
                 icon={<NewProjectIcon />}
                 onClickHandler={openCreateModal}
               />
               <ProjectMenuItemWrapper
                 title={"Edit"}
+                isDisabled={actionDisabled}
                 classNames={classNames(styles.projectMenuItem, actionDisabled && styles.disabled)}
                 icon={<EditProjectIcon />}
                 onClickHandler={editCurrentProject}
               />
               <ProjectMenuItemWrapper
                 title={"Delete"}
+                isDisabled={actionDisabled}
                 classNames={classNames(styles.projectMenuItem, styles.danger, actionDisabled && styles.disabled)}
                 icon={<DeleteProjectIcon />}
                 onClickHandler={openDeleteProjectModal}
@@ -105,19 +128,23 @@ const ProjectMenuItem = () => {
           </div>
         )}
       </div>
-      <AddEditProjectModal
-        isVisible={isAddEditModalVisible}
-        project={activeProject}
-        mode={modalMode}
-        handleOnClose={handleOnCloseAddEditModal}
-        handleOnConfirm={handleOnConfirmAddEditModal}
-      />
-      <DeleteProjectModal
-        isVisible={isDeleteModalVisible}
-        projectName={activeProject?.name}
-        handleOnClose={handleOnCloseDeleteModal}
-        handleOnConfirm={handleOnConfirmDeleteModal}
-      />
+      {isAddEditModalVisible && (
+        <AddEditProjectModal
+          isVisible={isAddEditModalVisible}
+          project={activeProject}
+          mode={modalMode}
+          handleOnClose={handleOnCloseAddEditModal}
+          handleOnConfirm={handleOnConfirmAddEditModal}
+        />
+      )}
+      {isDeleteModalVisible && (
+        <DeleteProjectModal
+          isVisible={isDeleteModalVisible}
+          projectName={activeProject?.name}
+          handleOnClose={handleOnCloseDeleteModal}
+          handleOnConfirm={handleOnConfirmDeleteModal}
+        />
+      )}
     </>
   );
 };
