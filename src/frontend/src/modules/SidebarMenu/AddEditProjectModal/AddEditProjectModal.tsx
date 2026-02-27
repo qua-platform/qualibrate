@@ -19,8 +19,18 @@ import { setActivePage } from "../../../stores/NavigationStore";
 import { NODES_KEY } from "../../AppRoutes";
 import { FormInputFieldWithLabel, TestConnectionModal } from "./components";
 
+export enum AddEditDialogMode {
+  ADD = "add",
+  EDIT = "edit",
+}
+
+enum TestDBConnectionStatusDialog {
+  SUCCESS = "success",
+  ERROR = "error",
+}
+
 interface Props {
-  mode: "add" | "edit" | "delete";
+  mode: AddEditDialogMode;
   isVisible: boolean;
   project?: ProjectDTO | null;
   handleOnClose: () => void;
@@ -47,8 +57,10 @@ const emptyForm: CreateEditProjectDTO = {
 const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOnConfirm }: Props) => {
   const dispatch = useRootDispatch();
 
-  const [dbTestSuccessful, setDbTestSuccessful] = useState(true);
-  const [showDbTestModal, setShowDbTestModal] = useState(false);
+  const [dbTestModalState, setDbTestModalState] = useState<{ open: boolean; type: TestDBConnectionStatusDialog }>({
+    open: false,
+    type: TestDBConnectionStatusDialog.SUCCESS,
+  });
   const [showDbSettings, setShowDbSettings] = useState(false);
   const [formData, setFormData] = useState<CreateEditProjectDTO>(emptyForm);
 
@@ -136,11 +148,17 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
     });
   };
 
-  const handleOnCloseTestDbModal = () => setShowDbTestModal(false);
-  const handleOnTestDbClicked = () => {
+  const handleOnCloseTestDbModal = () => setDbTestModalState({ open: false, type: TestDBConnectionStatusDialog.SUCCESS });
+  const handleOnTestDbClicked = async () => {
+    console.log("formData.database", formData.database);
     if (formData.database) {
-      testDatabase(formData.database);
-      setShowDbTestModal(true);
+      const response = await testDatabase(formData.database);
+      console.log("response", response);
+      if (response?.isOk && response?.result) {
+        setDbTestModalState({ open: true, type: TestDBConnectionStatusDialog.SUCCESS });
+      } else {
+        setDbTestModalState({ open: true, type: TestDBConnectionStatusDialog.ERROR });
+      }
     }
   };
 
@@ -148,7 +166,13 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
 
   return (
     <>
-      <TestConnectionModal isVisible={showDbTestModal} isSuccessful={dbTestSuccessful} handleOnClose={handleOnCloseTestDbModal} />
+      {dbTestModalState.open && (
+        <TestConnectionModal
+          isVisible={dbTestModalState.open}
+          isSuccessful={dbTestModalState.type === TestDBConnectionStatusDialog.SUCCESS}
+          handleOnClose={handleOnCloseTestDbModal}
+        />
+      )}
       <Dialog classes={{ paper: styles.modalWrapper }} open={isVisible} onClose={handleOnClose}>
         <div className={styles.modal}>
           <div className={styles.modalHeader}>

@@ -35,6 +35,11 @@ export interface NewProjectFormData {
   calibrationPath?: string;
 }
 
+export interface TestDBDTO {
+  project: string;
+  already_connected: boolean;
+}
+
 export interface ProjectDTO {
   name: string;
   nodes_number?: number;
@@ -87,11 +92,10 @@ export class ProjectViewApi extends Api {
     });
   }
 
-  static testDatabase(dbInfo: DatabaseDTO): Promise<Res<ProjectDTO>> {
+  static testDatabase(dbInfo: DatabaseDTO): Promise<Res<TestDBDTO>> {
     return this._fetch(this.api(TEST_DB_CONNECTION()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       body: JSON.stringify(dbInfo),
-      // queryParams: { project_name: formData.projectName },
     });
   }
 
@@ -113,7 +117,6 @@ export class ProjectViewApi extends Api {
 
   static createProject(projectInfo: CreateEditProjectDTO): Promise<Res<ProjectDTO>> {
     const body = {
-      // ...(projectInfo.projectName && { project_name: projectInfo.projectName }),
       ...(projectInfo.dataPath && { storage_location: projectInfo.dataPath }),
       ...(projectInfo.calibrationPath && { calibration_library_folder: projectInfo.calibrationPath }),
       ...(projectInfo.quamPath && { quam_state_path: projectInfo.quamPath }),

@@ -7,7 +7,7 @@ import { useRootDispatch } from "../../stores";
 import { fetchAllNodes } from "../../stores/NodesStore";
 import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary";
 import { stringToHexColor } from "../Data/components/ExecutionCard/components/TagsList/helpers";
-import AddEditProjectModal from "./AddEditProjectModal/AddEditProjectModal";
+import AddEditProjectModal, { AddEditDialogMode } from "./AddEditProjectModal/AddEditProjectModal";
 import useClickOutside from "../../utils/hooks/useClickOutside";
 import DeleteProjectModal from "./DeleteProjectModal";
 import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/GlobalThemeContext";
@@ -27,7 +27,7 @@ const ProjectMenuItem = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isAddEditModalVisible, setIsAddEditModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [modalMode, setModalMode] = useState<"add" | "edit" | "delete">("add");
+  const [modalMode, setModalMode] = useState<AddEditDialogMode>(AddEditDialogMode.ADD);
   const ref = useClickOutside(() => setShowDropdown(false));
   const actionDisabled = activeProject?.name === "demo_project";
 
@@ -50,11 +50,11 @@ const ProjectMenuItem = () => {
     setShowDropdown(!showDropdown);
   };
   const openCreateModal = () => {
-    setModalMode("add");
+    setModalMode(AddEditDialogMode.ADD);
     setIsAddEditModalVisible(true);
   };
   const editCurrentProject = () => {
-    setModalMode("edit");
+    setModalMode(AddEditDialogMode.EDIT);
     setIsAddEditModalVisible(true);
   };
   const openDeleteProjectModal = () => {
