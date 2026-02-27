@@ -4,8 +4,7 @@ import styles from "../SnapshotElement/SnapshotElement.module.scss";
 // eslint-disable-next-line css-modules/no-unused-class
 import additionalStyles from "../../../GraphStatus/components/MeasurementElement/MeasurementElement.module.scss";
 import { MeasurementElementOutcomes, MeasurementElementStatusInfoAndParameters } from "../../../../components";
-import { classNames } from "../../../../utils/classnames";
-import { formatDateTime } from "../../../../utils/formatDateTime";
+import { classNames, formatDateTime } from "../../../../utils";
 import { useSelector } from "react-redux";
 
 // TODO: probably merge with src/modules/GraphStatus/components/MeasurementElement/MeasurementElement.tsx

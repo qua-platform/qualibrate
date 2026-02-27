@@ -1,5 +1,5 @@
 import { IconProps } from "./IconProps";
-import { MAIN_TEXT_COLOR } from "../../utils/colors";
+import { MAIN_TEXT_COLOR } from "../../utils";
 import React from "react";
 import { getSvgOptions } from "./utils";
 

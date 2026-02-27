@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { SortIcon } from "../Icons";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./SortButton.module.scss";
-import { classNames } from "../../utils/classnames";
-import useClickOutside from "../../utils/hooks/useClickOutside";
+import { classNames, useClickOutside } from "../../utils";
 
 type IOption<T> = {
   label: string

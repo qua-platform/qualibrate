@@ -4,8 +4,7 @@ import InputField from "../../../../../../components/Input";
 import { Dialog } from "@mui/material";
 import { useSelector } from "react-redux";
 import { getAllTags, getSelectedSnapshot, setAllTags, updateSnapshotTags } from "../../../../../../stores/SnapshotsStore";
-import { stringToHexColor } from "../TagsList/helpers";
-import { classNames } from "../../../../../../utils/classnames";
+import { stringToHexColor, classNames } from "../../../../../../utils";
 import { useRootDispatch } from "../../../../../../stores";
 import { addTagsToSnapshot } from "../../../../../../stores/SnapshotsStore/utils";
 

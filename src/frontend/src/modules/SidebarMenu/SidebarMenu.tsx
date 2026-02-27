@@ -3,9 +3,8 @@ import { bottomMenuItems, HELP_KEY, menuItems, PROJECT_KEY, TOGGLE_SIDEBAR_KEY }
 import MenuItem from "./MenuItem";
 // import { THEME_TOGGLE_VISIBLE } from "../../dev.config";
 // import ThemeToggle from "../themeModule/ThemeToggle";
-import { classNames } from "../../utils/classnames";
+import { classNames, cyKeys } from "../../utils";
 import styles from "./styles/SidebarMenu.module.scss";
-import cyKeys from "../../utils/cyKeys";
 import GlobalThemeContext, { GlobalThemeContextState } from "../themeModule/GlobalThemeContext";
 import { CollapseSideMenuIcon, ExpandSideMenuIcon, ProjectFolderIcon, QUAlibrateLogoIcon, QualibrateLogoSmallIcon } from "../../components";
 import { colorPalette, extractInitials, getColorIndex } from "../Project";

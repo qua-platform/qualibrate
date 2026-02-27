@@ -1,7 +1,6 @@
 import React, {useState} from "react";
-import useClickOutside from "../../utils/hooks/useClickOutside";
+import { useClickOutside, classNames } from "../../utils";
 import styles from "./TagFilter.module.scss";
-import {classNames} from "../../utils/classnames";
 import {useSelector} from "react-redux";
 import {getAllTags} from "../../stores/SnapshotsStore";
 import {TagFilterIcon} from "../Icons";

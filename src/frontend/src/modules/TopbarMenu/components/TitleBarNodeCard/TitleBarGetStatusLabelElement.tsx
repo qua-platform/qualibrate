@@ -1,7 +1,7 @@
 import React from "react";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarNodeCard.module.scss";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 
 export const getStatusLabelElement = (status: string | undefined, currentAction?: string): React.ReactNode => {
   const normalizedStatus = status?.toLowerCase();
@@ -13,8 +13,8 @@ export const getStatusLabelElement = (status: string | undefined, currentAction?
       </div>
     );
   }
-  if (normalizedStatus === "finished") {
-    return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Finished</div>;
+  if (normalizedStatus === "success") {
+    return <div className={classNames(styles.statusContainer, styles.statusFinished)}>Success</div>;
   }
   if (normalizedStatus === "error") {
     return <div className={classNames(styles.statusContainer, styles.statusError)}>Error</div>;

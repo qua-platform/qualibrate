@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./styles/LogsPanel.module.scss";
-import { formatDateTime } from "../../../utils/formatDateTime";
+import { formatDateTime } from "../../../utils";
 import { LogsViewerResponseDTO } from "../../../stores/NodesStore";
 import { WS_LOGS } from "../../../services/webSocketRoutes";
 import WebSocketService from "../../../services/WebSocketService";

@@ -4,7 +4,7 @@ import { SnapshotDTO } from "../../../../../../stores/SnapshotsStore";
 import { setSelectedSnapshot, updateSnapshotTags } from "../../../../../../stores/SnapshotsStore/actions";
 import { addTagsToSnapshot } from "../../../../../../stores/SnapshotsStore/utils";
 import { useRootDispatch } from "../../../../../../stores";
-import { stringToHexColor } from "./helpers";
+import { stringToHexColor } from "../../../../../../utils/stringToHexColor";
 
 type Props = {
   snapshot?: SnapshotDTO;

@@ -13,7 +13,7 @@ import React, {useState} from "react";
 import {useSelector} from "react-redux";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./GraphElement.module.scss";
-import {classNames} from "../../../../utils/classnames";
+import {classNames} from "../../../../utils";
 import {Graph, SubgraphBreadcrumbs} from "../../../Graph";
 import {BlueButton, ParameterList, Parameters, ParameterSelector, SingleParameter} from "../../../../components";
 import {GraphElementErrorWrapper} from "../GraphElementErrorWrapper/GraphElementErrorWrapper";
@@ -105,7 +105,7 @@ export const GraphElement: React.FC<ICalibrationGraphElementProps> = ({ calibrat
             key={calibrationGraphKey}
             show={show}
             showTitle={true}
-            currentItem={selectedWorkflow}
+            params={selectedWorkflow?.parameters}
             getInputElement={renderInputElement}
             parametersExpanded={true}
           />

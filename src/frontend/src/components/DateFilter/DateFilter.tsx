@@ -2,8 +2,7 @@ import React from "react";
 import {DateFilterIcon} from "../Icons";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./DateFilter.module.scss";
-import {classNames} from "../../utils/classnames";
-import useClickOutside from "../../utils/hooks/useClickOutside";
+import { classNames, useClickOutside } from "../../utils";
 
 export enum DateOption {
     Today = "Today",

@@ -1,9 +1,8 @@
 import React, { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./QubitsSelectorPopup.module.scss";
 import { Dialog, Button } from "@mui/material";
-import { classNames } from "../../../../utils/classnames";
+import { classNames, getHighlightedText, getSearchStringIndex } from "../../../../utils";
 import { QubitMetadata, QubitMetadataList } from "../../../Parameters/Parameters";
-import { getSearchStringIndex } from "../../utils";
 
 type IProps = {
   open: boolean;
@@ -28,14 +27,8 @@ const Qubit = ({
   selection: string[];
   searchValue: string;
 }) => {
-  const searchStringIndex = getSearchStringIndex(option, searchValue);
   const isActive = metadata.active;
   const isSelected = selection.includes(option);
-  const parts = [
-    option.slice(0, searchStringIndex),
-    option.slice(searchStringIndex, searchStringIndex + searchValue.trim().length),
-    option.slice(searchStringIndex + searchValue.trim().length),
-  ];
 
   const handleClick = () => {
     if (!isActive) return;
@@ -51,8 +44,8 @@ const Qubit = ({
     data-testid={`option_${option}`}
     className={classNames(styles.popupOption, !isActive && styles.offline, isSelected && styles.selected)}
   >
-    <span className={styles.popupOptionLabel} title={parts.join("")}>
-      {parts.map((part, index) => index === 1 ? <strong key={part}>{part}</strong> : part)}
+    <span className={styles.popupOptionLabel} title={option}>
+      {getHighlightedText(option, searchValue)}
     </span>
     <div className={styles.popupOptionStatus}>{isActive ? "active" : "inactive"}</div>
     <span className={styles.popupOptionFooter}>{metadata.fidelity}%</span>

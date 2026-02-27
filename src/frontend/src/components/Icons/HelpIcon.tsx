@@ -1,5 +1,5 @@
 import React from "react";
-import { ACCENT_COLOR_LIGHT } from "../../utils/colors";
+import { ACCENT_COLOR_LIGHT } from "../../utils";
 import { IconProps } from "./IconProps";
 
 export const HelpIcon: React.FunctionComponent<IconProps> = ({ width = 24, height = 24, color = ACCENT_COLOR_LIGHT }) => (

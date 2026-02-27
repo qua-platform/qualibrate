@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react";
 import { NodeMap } from "../../../../src/modules/Nodes";
 import { useRootDispatch } from "../../../../src/stores";
 import { setAllNodes } from "../../../../src/stores/NodesStore";
-import { createTestProviders } from "../../utils/providers";
+import { createTestProviders } from "../../utils";
 import { NodeElementList } from "../../../../src/modules/Nodes/components/NodeElement/NodeElementList";
 import { ParameterTypes } from "../../../../src/components/Parameters/Parameters";
 

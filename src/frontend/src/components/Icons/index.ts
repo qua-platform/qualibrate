@@ -4,6 +4,7 @@ export { CheckMarkBeforeIcon } from "./CheckMarkBeforeIcon";
 export { default as CheckmarkIcon } from "./CheckmarkIcon";
 export { default as CircularLoaderPercentage } from "./CircularLoaderPercentage";
 export { default as CircularLoaderProgress } from "./CircularLoaderProgress";
+export { default as ClockIcon } from "./ClockIcon";
 export { default as CollapseSideMenuIcon } from "./CollapseSideMenuIcon";
 export { default as DataIcon } from "./DataIcon";
 export { default as ErrorIcon } from "./ErrorIcon";
