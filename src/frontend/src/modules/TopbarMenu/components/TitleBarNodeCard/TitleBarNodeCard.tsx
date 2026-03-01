@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 /* eslint-disable css-modules/no-unused-class */
 import styles from "./styles/TitleBarNodeCard.module.scss";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 import Tooltip from "@mui/material/Tooltip";
 import { TitleBarTooltipContent } from "./TitleBarNodeTooltipContent";
 import { StatusIndicator } from "../TitleBarStatusIndicator/TitleBarStatusIndicator";
@@ -44,7 +44,7 @@ const TitleBarNodeCard: React.FC = () => {
               runStatusNodePercentage ?? 0,
               {
                 Running: { width: 30, height: 30 },
-                Finished: { width: 38, height: 38 },
+                Success: { width: 38, height: 38 },
                 Error: { width: 20, height: 20 },
                 Pending: { width: 26, height: 26 },
               },

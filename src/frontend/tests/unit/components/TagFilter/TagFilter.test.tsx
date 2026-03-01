@@ -22,7 +22,7 @@ vi.mock("../../stores/SnapshotsStore", () => ({
 }));
 
 // 🔹 Mock useClickOutside hook
-vi.mock("../../utils/hooks/useClickOutside", () => ({
+vi.mock("../../utils", () => ({
     default: (_: () => void) => ({current: null}),
 }));
 

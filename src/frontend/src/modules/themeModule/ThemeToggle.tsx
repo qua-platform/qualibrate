@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import styles from "./ThemeToggle.module.scss";
 import { LIGHT } from "./themeHelper";
 import ThemeIcon from "./ThemeIcon";
-import { MENU_TEXT_COLOR } from "../../utils/colors";
+import { MENU_TEXT_COLOR } from "../../utils";
 import GlobalThemeContext, { GlobalThemeContextState } from "./GlobalThemeContext";
 
 const ThemeToggle: React.FC<{ showText: boolean }> = (props) => {

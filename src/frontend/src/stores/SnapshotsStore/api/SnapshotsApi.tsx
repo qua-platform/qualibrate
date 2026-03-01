@@ -53,7 +53,7 @@ export interface SnapshotMetadata {
 }
 
 export interface ParameterStructure {
-  [key: string]: string | number | null | undefined | string[];
+  [key: string]: string | number | null | undefined | string[] | boolean;
 }
 
 export interface SnapshotData {

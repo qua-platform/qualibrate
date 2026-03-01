@@ -10,8 +10,7 @@
  */
 import React from "react";
 import styles from "./MeasurementElement.module.scss";
-import {classNames} from "../../../../utils/classnames";
-import {formatDateTime} from "../../../../utils/formatDateTime";
+import { classNames, formatDateTime } from "../../../../utils";
 import {InfoIcon, MeasurementElementOutcomes, MeasurementElementStatusInfoAndParameters} from "../../../../components";
 import {Tooltip} from "@mui/material";
 import {

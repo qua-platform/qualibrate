@@ -1,8 +1,7 @@
 import React, { useCallback } from "react";
 import { getActiveProject, getAllProjects, ProjectDTO, selectActiveProject } from "../../../stores/ProjectStore";
 import styles from "./ProjectList.module.scss";
-import { classNames } from "../../../utils/classnames";
-import { stringToHexColor } from "../../Data/components/ExecutionCard/components/TagsList/helpers";
+import { classNames, stringToHexColor } from "../../../utils";
 import { useSelector } from "react-redux";
 import { useRootDispatch } from "../../../stores";
 import { clearData, fetchGitgraphSnapshots } from "../../../stores/SnapshotsStore";

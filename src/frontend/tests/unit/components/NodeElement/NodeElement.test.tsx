@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { NodeElement } from "../../../../src/modules/Nodes/components/NodeElement/NodeElement";
-import { createTestProviders } from "../../utils/providers";
+import { createTestProviders } from "../../utils";
 import * as NodesAPI from "../../../../src/stores/NodesStore/api/NodesAPI";
 import { setSelectedNode } from "../../../../src/stores/NodesStore/actions";
 import { NodeExecution } from "../../../../src/stores/WebSocketStore/WebSocketStore";

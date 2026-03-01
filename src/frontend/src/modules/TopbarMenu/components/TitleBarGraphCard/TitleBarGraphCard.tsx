@@ -77,7 +77,7 @@ const TitleBarGraphCard: React.FC = () => {
                 percentageComplete ?? 0,
                 {
                   Running: { width: 48, height: 48 },
-                  Finished: { width: 48, height: 48 },
+                  Success: { width: 48, height: 48 },
                   Error: { width: 48, height: 48 },
                   Pending: { width: 32, height: 32 },
                 },
@@ -112,7 +112,7 @@ const TitleBarGraphCard: React.FC = () => {
         </Tooltip>
         <TitleBarNodeCard />
         {runStatusGraphStatus === "running" && <RunningNode handleStopClick={handleStopClick} />}
-        {["finished", "error"].includes(runStatusGraphStatus ?? "pending") &&
+        {["success", "error"].includes(runStatusGraphStatus ?? "pending") &&
           runDuration &&
           runDuration > 0 &&
           renderElapsedTime(runDuration)}
@@ -122,7 +122,7 @@ const TitleBarGraphCard: React.FC = () => {
           </div>
         )}
         {runStatusGraphStatus === "pending" &&
-          ["finished", "error"].includes(runStatusNodeStatus ?? "pending") &&
+          ["success", "error"].includes(runStatusNodeStatus ?? "pending") &&
           runStatusNodeRunDuration &&
           runStatusNodeRunDuration > 0 &&
           renderElapsedTime(runStatusNodeRunDuration)}

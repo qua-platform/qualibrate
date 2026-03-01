@@ -1,12 +1,11 @@
 import styles from "./styles/ProjectMenuItem.module.scss";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { classNames } from "../../utils";
+import { classNames, stringToHexColor } from "../../utils";
 import { useSelector } from "react-redux";
 import { deleteProject, getActiveProject, getAllProjects, ProjectDTO, selectActiveProject } from "../../stores/ProjectStore";
 import { useRootDispatch } from "../../stores";
 import { fetchAllNodes } from "../../stores/NodesStore";
 import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary";
-import { stringToHexColor } from "../Data/components/ExecutionCard/components/TagsList/helpers";
 import AddEditProjectModal, { AddEditDialogMode } from "./AddEditProjectModal/AddEditProjectModal";
 import useClickOutside from "../../utils/hooks/useClickOutside";
 import DeleteProjectModal from "./DeleteProjectModal";

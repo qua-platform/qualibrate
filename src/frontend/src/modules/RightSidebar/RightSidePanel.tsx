@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styles from "./styles/RightSidePanel.module.scss";
-import { classNames } from "../../utils/classnames";
+import { classNames } from "../../utils";
 import { LogsPanel } from "./Logs/LogsPanel";
 import { QuamPanel } from "./QuamPanel/QuamPanel";
 

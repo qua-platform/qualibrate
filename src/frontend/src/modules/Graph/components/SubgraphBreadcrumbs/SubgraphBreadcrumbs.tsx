@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./SubgraphBreadcrumbs.module.scss";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 
 const SubgraphBreadcrumbs = ({
   className,

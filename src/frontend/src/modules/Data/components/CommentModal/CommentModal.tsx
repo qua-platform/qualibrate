@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styles from "./CommentModal.module.scss";
 import { useSelector } from "react-redux";
-import { getSelectedSnapshot } from "../../../stores/SnapshotsStore";
-import { SnapshotComment } from "../../../stores/SnapshotsStore/api/SnapshotsApi";
-import { classNames } from "../../../utils/classnames";
+import { getSelectedSnapshot } from "../../../../stores/SnapshotsStore";
+import { SnapshotComment } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
+import { classNames } from "../../../../utils";
 import { Dialog } from "@mui/material";
 import { OnSaveHandlerProps } from "../SnapshotComments/SnapshotComments";
 

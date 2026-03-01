@@ -1,141 +1,278 @@
 @use "../../../../styles/variables";
 @use "../../../../styles/base";
 
-.wrapper {
+.noUpdates {
+  color: #7d8590;
+  font-size: 12px;
+  padding: 16px;
+}
+
+.stateWrapper {
   display: flex;
   flex-direction: column;
-  max-height: 32%;
-  padding: 10px;
-  margin-top: 10px;
-  border: 1px solid var(--border-color);
-  background-color: var(--popup-background);
+  font-size: 14px;
+  font-weight: bold;
+  padding: 14px 16px;
+  background: #0d1117;
 }
 
-.title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  vertical-align: middle;
-}
-
-.dot {
-  margin-right: 10px;
-  height: 12px;
-  width: 12px;
-  background-color: limegreen;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.stopButtonWrapper {
-  display: flex;
+.stateUpdatesSearch {
   flex: 1;
+  padding: 8px 12px;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #c9d1d9;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+  height: 34px;
+  margin-bottom: 12px;
+
+  &:focus {
+    border-color: #1f6feb;
+    background: #0d1117;
+  }
+
+  &::placeholder {
+    font-size: 13px;
+  }
+  &::-webkit-search-cancel-button:hover {
+    cursor: pointer;
+  }
+}
+
+.stateUpdateBulkButtons {
+  display: flex;
   justify-content: flex-end;
-  align-items: center;
-  padding-right: 10px;
-}
 
-.stopButton {
-  background-color: #e02525;
-}
+  .statetUpdateBulkButton {
+    padding: 5px 10px;
+    border-radius: 4px;
+    height: 26px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    text-transform: none;
 
-.infoWrapper {
-  overflow: scroll;
-  display: flex;
-}
+    &.reject {
+      background: #21262d;
+      color: #c9d1d9;
+      border: 1px solid #30363d;
 
-.runInfo {
-  padding-left: 30px;
-  padding-top: 20px;
-  width: 50%;
-}
+      &:hover {
+        background: #30363d;
+        border-color: #484f58;
+      }
+    }
 
-.runInfoRow {
-  padding-top: 7px;
-}
+    &.approve {
+      background: #238636;
+      color: white;
+      margin-left: 4px;
 
-.parameterInfo {
-  width: 50%;
-  padding-top: 20px;
-}
-
-.parameterTitleWrapper {
-  display: flex;
-}
-
-.parameterValues {
-  display: flex;
-  padding-left: 30px;
-}
-
-.parameterLabel {
-  padding-right: 10px;
-  padding-top: 5px;
-}
-
-.parameterValue {
-  padding-top: 5px;
-}
-
-.stateTitle {
-  display: flex;
-  padding-top: 20px;
-  padding-left: 40px;
-}
-
-.updateAll {
-  padding-left: 140px;
-}
-
-.updateAllButton {
-  height: 20px;
-  text-wrap: nowrap;
+      &:hover {
+        background: #2ea043;
+      }
+    }
+  }
 }
 
 .stateUpdatesTopWrapper {
-  overflow: scroll;
+  overflow-y: auto;
+  padding: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #A5ACB6 transparent;
+}
+
+.stateUpdatesTopWrapper::-webkit-scrollbar {
+  width: 2px;
+}
+
+.stateUpdatesTopWrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.stateUpdatesTopWrapper::-webkit-scrollbar-thumb {
+  border-radius: 2px;
 }
 
 .stateUpdateWrapper {
   display: flex;
-  padding-left: 50px;
-  padding-top: 5px;
-}
-
-.stateUpdateIconWrapper {
-  width: 32px;
-  vertical-align: middle;
-}
-
-.stateUpdateComponentTextWrapper {
-  padding-left: 10px;
-}
-
-.stateUpdateKeyText {
-  font-weight: bold;
-}
-
-.stateUpdateValueText {
-  font-size: 12px;
-}
-
-.stateUpdateValueTextWrapper {
-  padding-top: 5px;
   align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #21262d;
+}
+
+.stateUpdateOrderNumberAndTitleWrapper {
+  font-family: Roboto, serif;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stateUpdateOrderKey {
+  font-size: 11px;
+  line-height: 1.4;
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  word-break: break-all;
+  color: white;
+  margin-bottom: 5px;
+}
+
+.stateUpdateValueWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stateUpdateValueOld {
+  display: flex;
+  align-items: center;
+  color: #f85149;
+}
+
+.stateUpdateRightArrowIconWrapper {
+  padding-left: 5px;
+  padding-right: 5px;
+  align-content: center;
+}
+
+.stateUpdateValueInputWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.stateUpdateEditIcon {
+  opacity: 0.5;
+  margin-left: 5px;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.stateUpdateValueInputWrapper:hover .stateUpdateEditIcon {
+  opacity: 1;
+}
+
+.stateUpdateUndoIconWrapper {
+  margin-left: 12px;
+  padding: 0;
+  height: 17px;
+
+  svg {
+    cursor: pointer;
+  }
+}
+
+.stateUpdateValueNew {
+  display: flex;
+  align-items: center;
+  color: #3fb950;
+}
+
+.valueContainer {
+  display: inline-block;
+  font-size: 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: fit-content;
+  max-width: 100%;
+  height: fit-content;
+  align-items: center;
+  outline: none !important;
+}
+
+.valueContainerEditable {
+  display: inline-block;
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: #3fb950;
+  font-size: 11px;
+}
+
+.valueContainerDisabled {
+  display: inline-block;
+}
+
+input:focus {
+  outline: none !important;
+}
+
+.stateUpdateButtonContainer {
+  margin-left: 12px;
   display: flex;
 }
 
-.editIconWrapper {
-  padding-left: 5px;
+.stateUpdateButton {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #30363d;
+  background: #161b22;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #c9d1d9;
+  margin-left: 4px;
+
+  &.approve:hover {
+    background: rgba(46, 160, 67, 0.15);
+    border-color: #238636;
+    color: #3fb950;
+  }
+  &.reject:hover {
+    background: rgba(248, 81, 73, 0.15);
+    border-color: #da3633;
+    color: #f85149;
+  }
 }
 
-.newValueOfState {
-  padding-left: 5px;
+.stateUpdatesFooter {
+  margin-top: auto;
+  display: flex;
+  padding: 10px 16px;
+  background: #0d1117;
+  border-top: 1px solid #21262d;
+  flex-shrink: 0;
 
-  input {
-    font-size: 12px;
-    padding: 0 !important;
-    height: 20px !important;
+  .stateUpdatesFooterValue {
+    font-size: 11px;
+    margin-right: 16px;
+    color: #7d8590;
+    margin-right: 6px;
+
+    span {
+      font-weight: 600;
+    }
+
+    &.total span {
+      color: #c9d1d9;
+    }
+
+    &.pending span {
+      color: #58a6ff;
+    }
+
+    &.approved span {
+      color: #3fb950;
+    }
   }
+}
+
+.stateUpdateIconWrapper {
+  display: flex;
+  align-items: center;
 }

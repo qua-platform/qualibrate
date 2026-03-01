@@ -1,10 +1,10 @@
 import { DataIcon, GraphLibraryIcon, GraphStatusIcon, HelpIcon, IconProps, NodeLibraryIcon, ProjectIcon } from "../../components";
 import React from "react";
+import { NodesRightPanel } from "../Nodes";
 import cyKeys from "../../utils/cyKeys";
-import { Nodes } from "../Nodes";
 import { GraphLibrary } from "../GraphLibrary";
 import { GraphStatus } from "../GraphStatus";
-import Data from "../Data";
+import { DataRightPanel } from "../Data";
 import { ProjectMenuItem } from "../SidebarMenu";
 
 export const DATA_KEY: ModuleKey = "execution-history";
@@ -53,10 +53,10 @@ const ModulesRegistry: Array<Module> = [
   {
     keyId: NODES_KEY,
     path: "nodes",
-    Component: Nodes,
+    Component: NodesRightPanel,
     menuItem: {
       sideBarTitle: "Node Library",
-      title: "Run calibration node",
+      title: "",
       icon: NodeLibraryIcon,
       dataCy: cyKeys.NODES_TAB,
     },
@@ -86,7 +86,7 @@ const ModulesRegistry: Array<Module> = [
   {
     keyId: DATA_KEY,
     path: "execution-history",
-    Component: Data,
+    Component: DataRightPanel,
     menuItem: {
       sideBarTitle: "History",
       title: "",
@@ -109,7 +109,7 @@ const ModulesRegistry: Array<Module> = [
   {
     keyId: HELP_KEY,
     path: "help",
-    Component: Data,
+    Component: DataRightPanel,
     menuItem: {
       sideBarTitle: "Help",
       icon: HelpIcon,
@@ -121,7 +121,7 @@ const ModulesRegistry: Array<Module> = [
   {
     keyId: TOGGLE_SIDEBAR_KEY,
     path: "toggle",
-    Component: Data,
+    Component: DataRightPanel,
     menuItem: {
       dataCy: cyKeys.TOGGLE_SIDEBAR,
       atBottom: true,

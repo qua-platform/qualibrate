@@ -16,7 +16,7 @@ import {
 import { useRootDispatch } from "../../../../stores";
 import QubitStatusList from "./QubitStatusList";
 import { SnapshotData } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 
 const GraphView: React.FC = () => {
   const dispatch = useRootDispatch();

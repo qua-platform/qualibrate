@@ -14,7 +14,7 @@ import styles from "./MeasurementElementGraph.module.scss";
 import {CircularProgress} from "@mui/material";
 import {SnapshotsApi} from "../../../../stores/SnapshotsStore";
 import {BlueButton} from "../../../../components";
-import {classNames} from "../../../../utils/classnames";
+import {classNames} from "../../../../utils";
 import {
   getRunStatusGraphFinishedNodes,
   getRunStatusGraphName,

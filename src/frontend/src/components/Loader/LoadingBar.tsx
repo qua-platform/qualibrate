@@ -1,6 +1,6 @@
 import React from "react";
 import { WorkflowPlaceHolderIcon } from "../Icons/WorkflowPlaceholderIcon";
-import { classNames } from "../../utils/classnames";
+import { classNames } from "../../utils";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./LoaderPage.module.scss";
 

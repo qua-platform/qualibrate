@@ -1,6 +1,6 @@
 import React from "react";
 import { Handle, NodeProps, Position } from "@xyflow/react";
-import { classNames } from "../../../../utils/classnames";
+import { classNames } from "../../../../utils";
 import styles from "./DefaultNode.module.scss";
 import { NodeWithData } from "../../../../stores/GraphStores/GraphLibrary";
 

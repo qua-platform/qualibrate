@@ -9,7 +9,7 @@ vi.mock("../../../../src/components/Icons", () => ({
 }));
 
 // ================= MOCK HOOK =================
-vi.mock("../../../../src/utils/hooks/useClickOutside", () => ({
+vi.mock("../../../../src/utils", () => ({
     default: (_: () => void) => ({current: null}),
 }));
 

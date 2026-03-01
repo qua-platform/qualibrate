@@ -1,23 +1,23 @@
 import Pagination from "@mui/material/Pagination";
 import styles from "./PaginationWrapper.module.scss";
 import React from "react";
-import { useRootDispatch } from "../../../../stores";
-import { setPageNumber, getTotalPages, getIsLoadingSnapshots } from "../../../../stores/SnapshotsStore";
-import { useSelector } from "react-redux";
 
 type PaginationWrapperProps = {
   defaultPage?: number;
   siblingCount?: number;
   boundaryCount?: number;
+  numberOfPages?: number;
+  isLoading?: boolean;
+  setPageNumber?: (page: number) => void;
 };
 const PaginationWrapper = ({
   defaultPage = 1,
   siblingCount = 0,
   boundaryCount = 2,
+  numberOfPages = 1,
+  isLoading = false,
+  setPageNumber = () => {},
 }: PaginationWrapperProps) => {
-  const dispatch = useRootDispatch();
-  const numberOfPages = useSelector(getTotalPages);
-  const isLoading = useSelector(getIsLoadingSnapshots);
   return (
     <div className={styles.wrapper}>
       <Pagination
@@ -34,7 +34,7 @@ const PaginationWrapper = ({
         boundaryCount={boundaryCount}
         disabled={isLoading}
         onChange={(event: React.ChangeEvent<unknown>, page: number) => {
-          dispatch(setPageNumber(page));
+          setPageNumber(page);
         }}
       />
     </div>

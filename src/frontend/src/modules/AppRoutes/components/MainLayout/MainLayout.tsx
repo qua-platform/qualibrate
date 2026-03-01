@@ -4,34 +4,25 @@ import styles from "./Layout.module.scss";
 import { Toast, WebSocketConnectionErrorDialog } from "../../../../components";
 import { TitleBarMenu } from "../../../TopbarMenu";
 import { RightSidePanel } from "../../../RightSidebar";
-import { useSelector } from "react-redux";
-import { getActivePage } from "../../../../stores/NavigationStore";
-import { DATA_KEY } from "../../ModulesRegistry";
-import Data from "../../../Data";
 
 interface Props {
-  children?: React.ReactNode;
+  content?: React.ReactNode;
+  leftPanel?: React.ReactNode;
+  customTitle?: string;
 }
 
-const MainLayout = ({ children }: Props) => {
-  const activePage = useSelector(getActivePage);
-
-  const isDataPage = activePage === DATA_KEY;
-
+const MainLayout = ({ content: children, leftPanel, customTitle }: Props) => {
   return (
     <div className={styles.sidebarWrapper}>
       <SidebarMenu />
-      {isDataPage ? (
-        <Data />
-      ) : (
-        <div className={styles.titlebarWrapper}>
-          <TitleBarMenu />
-          <div className={styles.rightsidePanelWrapper}>
-            <div className={styles.contentWrapper}>{children}</div>
-            <RightSidePanel />
-          </div>
+      {leftPanel}
+      <div className={styles.titlebarWrapper}>
+        <TitleBarMenu customTitle={customTitle} />
+        <div className={styles.rightsidePanelWrapper}>
+          <div className={styles.contentWrapper}>{children}</div>
+          <RightSidePanel />
         </div>
-      )}
+      </div>
       <Toast />
       <WebSocketConnectionErrorDialog />
     </div>
