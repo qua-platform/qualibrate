@@ -5,7 +5,7 @@ from qualibrate.core.infrastructure.DB.postgres_management import PostgresManage
 from qualibrate.core.utils.logger_m import logger
 
 
-def init_db_at_startup():
+def init_db_at_startup() -> None:
     # Init DB registry
     DBRegistry.configure(PostgresManagement())
     try:

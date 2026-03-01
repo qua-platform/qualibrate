@@ -14,6 +14,7 @@ from qualibrate.composite.api.auth_middleware import (
     RunnerAuthMiddleware,
 )
 from qualibrate.composite.utils.logging_filter import EndpointFilter
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 from qualibrate.core.utils.db_utils.db_startup import init_db_at_startup
 
 # Frequently polled endpoints that should be filtered from logs

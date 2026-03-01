@@ -46,6 +46,9 @@ pydantic-settings = "^2.11.0"     # From composite (runner had ^2.10.1)
 click = "^8.1.7,<8.2.0"
 tomli = { version = "^2.0.1", python = "<3.11" }  # Only needed for Python < 3.11
 tomli-w = "^1.0.0"
+# SQL ORM
+sqlalchemy = "^2.0.46"
+psycopg2-binary = "^2.9.10"
 
 # Additional dependencies
 requests = "^2.32.4"              # From app
@@ -56,7 +59,6 @@ qualibrate-config = "0.1.9,<0.2.0"  # Using version range
 # json-timeline-database = { version = "^X.X.X", optional = true }
 
 # EXTRAS: Optional feature sets
-sqlalchemy = "^2.0.46"
 [tool.poetry.extras]
 json-timeline-db = ["json-timeline-database"]  # From app - optional timeline DB support
 

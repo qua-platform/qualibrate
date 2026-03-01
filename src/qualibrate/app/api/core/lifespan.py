@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager, suppress
 from fastapi import FastAPI
 
 from qualibrate.app.api.sockets.tasks import update_snapshot_history_required
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 from qualibrate.core.utils.db_utils.db_startup import init_db_at_startup
 
 __all__ = ["app_lifespan"]

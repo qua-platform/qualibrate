@@ -6,6 +6,7 @@ from typing import Any
 
 from fastapi import FastAPI
 
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 from qualibrate.core.utils.db_utils.db_startup import init_db_at_startup
 from qualibrate.core.utils.logger_m import logger
 from qualibrate.runner.api.sockets.tasks import execution_history, run_status

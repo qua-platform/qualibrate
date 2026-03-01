@@ -1,4 +1,5 @@
 # db_registry.py
+from qualibrate.core.infrastructure.DB.DB_management import DBManagement
 
 
 class DBRegistry:
@@ -11,7 +12,7 @@ class DBRegistry:
     _db_manager = None
 
     @classmethod
-    def configure(cls, db_manager):
+    def configure(cls, db_manager: DBManagement) -> None:
         """
         Set the DB manager instance for the application.
         Usually called once at startup.
@@ -19,12 +20,11 @@ class DBRegistry:
         cls._db_manager = db_manager
 
     @classmethod
-    def get(cls):
+    def get(cls) -> DBManagement:
         """
         Return the configured DB manager.
         Raises an error if no DB is configured.
         """
         if cls._db_manager is None:
-            cls.configure()
             raise RuntimeError("DB not configured! Call DBRegistry.configure(db_instance) first.")
         return cls._db_manager

@@ -4,13 +4,13 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
+from qualibrate_config.models import DBConfig
 
 from qualibrate.app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate.app.api.core.models.project import Project
 from qualibrate.app.api.core.utils.request_utils import request_with_db
 from qualibrate.app.api.exceptions.classes.timeline_db import QJsonDbException
 from qualibrate.app.api.exceptions.classes.values import QValueException
-from qualibrate_config.models import DBConfig
 
 
 class ProjectsManagerTimelineDb(ProjectsManagerBase):
@@ -34,7 +34,7 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         storage_location: Path | None = None,
         calibration_library_folder: Path | None = None,
         quam_state_path: Path | None = None,
-        #to avoid breaking interface
+        # to avoid breaking interface
         database: DBConfig | None = None,
     ) -> str:
         if any(project.name == project_name for project in self.list()):

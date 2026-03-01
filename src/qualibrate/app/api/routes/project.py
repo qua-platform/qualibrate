@@ -1,12 +1,13 @@
 import logging
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 from urllib.parse import urljoin
 
 import requests
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
-from qualibrate_config.models import QualibrateConfig, StorageType, DBConfig
+from fastapi import Path as FastAPIPath
+from qualibrate_config.models import QualibrateConfig, StorageType
 
 from qualibrate.app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate.app.api.core.domain.local_storage.project import (
@@ -16,16 +17,14 @@ from qualibrate.app.api.core.domain.timeline_db.project import (
     ProjectsManagerTimelineDb,
 )
 from qualibrate.app.api.core.models.project import Project
+from qualibrate.app.api.exceptions.classes.values import QValueException
 from qualibrate.app.api.routes.utils import vars as routes_vars
+from qualibrate.app.base_models.DBConfigRequest import DBConfigRequest
 from qualibrate.app.config import (
     get_config_path,
     get_settings,
 )
 from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
-from qualibrate.app.base_models.DBConfigRequest import DBConfigRequest
-from qualibrate.app.api.exceptions.classes.values import QValueException
-from fastapi import Path as FastAPIPath
-
 from qualibrate.core.utils.db_utils.test_db_connection import test_db_connection_config
 
 project_router = APIRouter(prefix="/project", tags=["project"])
@@ -116,10 +115,17 @@ def create_project(
         DBConfigRequest | None,
         Body(
             description="Optional database configuration for this project.",
-            examples=[{"host": "localhost", "port": 5432, "database": "my_project_db", "username": "postgres",
-                       "password": "postgres"}],
+            examples=[
+                {
+                    "host": "localhost",
+                    "port": 5432,
+                    "database": "my_project_db",
+                    "username": "postgres",
+                    "password": "postgres",
+                }
+            ],
         ),
-    ] = None
+    ] = None,
 ) -> Project:
     """
     Create a project in the configured storage backend. You can optionally set
@@ -139,14 +145,13 @@ def create_project(
     - database (DBConfigRequest | None): Optional database configuration for
      saving quam state
     """
-    if database is not None:
-        database = database.to_db_config()
+    db_config = database.to_db_config() if database is not None else None
     projects_manager.create(
         project_name,
         storage_location=storage_location,
         calibration_library_folder=calibration_library_folder,
         quam_state_path=quam_state_path,
-        database= database
+        database=db_config,
     )
     project = next(filter(lambda p: p.name == project_name, projects_manager.list()), None)
     if project is None:
@@ -159,18 +164,16 @@ def create_project(
 
 @project_router.delete(
     "/delete/{project_name}",
-responses={
-    200: {"description": "Project deleted successfully"},
-    400: {"description": "Cannot delete active project or project does not exist"},
-    403: {"description": "Cannot delete demo project"},
-},
+    responses={
+        200: {"description": "Project deleted successfully"},
+        400: {"description": "Cannot delete active project or project does not exist"},
+        403: {"description": "Cannot delete demo project"},
+    },
     summary="Delete a project by name",
 )
 def delete_project_endpoint(
-        project_name: Annotated[
-            str,
-            FastAPIPath(..., description="Name of the project to delete")
-        ],    projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
+    project_name: Annotated[str, FastAPIPath(..., description="Name of the project to delete")],
+    projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
     config_path: Annotated[Path, Depends(get_config_path)],
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> dict[str, bool]:
@@ -178,7 +181,6 @@ def delete_project_endpoint(
         raise HTTPException(status_code=403, detail="Cannot delete demo project.")
 
     if projects_manager.project == project_name:
-
         # Make sure demo exists
         existing = [p.name for p in projects_manager.list()]
         if "demo_project" not in existing:
@@ -216,14 +218,12 @@ def delete_project_endpoint(
         try:
             db_manager.db_connect("demo_project")
         except RuntimeError as e:
-            logging.error(
-                f"Could not switch DB connection to demo_project: {e}"
-            )
+            logging.error(f"Could not switch DB connection to demo_project: {e}")
     try:
         projects_manager.delete(project_name)
     except QValueException as e:
         raise HTTPException(status_code=400, detail=str(e))
-    return {"status":True}
+    return {"status": True}
 
 
 @project_router.put(
@@ -235,35 +235,37 @@ def delete_project_endpoint(
     responses={
         status.HTTP_200_OK: {"description": "Project updated"},
         status.HTTP_404_NOT_FOUND: {"description": "Project not found"},
-    },)
+    },
+)
 def update_project_endpoint(
     project_name: Annotated[str, Query(..., min_length=1)],
-        storage_location: Annotated[
-            Path | None,
-            Body(...,
-                description=(
-                        "Optional root folder for project data, used only when the "
-                        "storage backend supports a filesystem location."
-                ),
-                examples=["/data/qualibrate/projects/my_project"],
+    storage_location: Annotated[
+        Path | None,
+        Body(
+            ...,
+            description=(
+                "Optional root folder for project data, used only when the "
+                "storage backend supports a filesystem location."
             ),
-        ] = None,
-        calibration_library_folder: Annotated[
-            Path | None,
-            Body(...,
-
-                description="Optional folder containing the calibration library.",
-                examples=["/repos/calibration-lib"],
-            ),
-        ] = None,
-        quam_state_path: Annotated[
-            Path | None,
-            Body(...,
-
-                description=("Optional path to an initial QUAM state JSON to seed the project."),
-                examples=["/data/qualibrate/quam_state"],
-            ),
-        ] = None,
+            examples=["/data/qualibrate/projects/my_project"],
+        ),
+    ] = None,
+    calibration_library_folder: Annotated[
+        Path | None,
+        Body(
+            ...,
+            description="Optional folder containing the calibration library.",
+            examples=["/repos/calibration-lib"],
+        ),
+    ] = None,
+    quam_state_path: Annotated[
+        Path | None,
+        Body(
+            ...,
+            description=("Optional path to an initial QUAM state JSON to seed the project."),
+            examples=["/data/qualibrate/quam_state"],
+        ),
+    ] = None,
     database: Annotated[DBConfigRequest | None, Body(...)] = None,
     *,
     projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
@@ -290,15 +292,14 @@ def update_project_endpoint(
     ### Returns
     - Project: The updated project.
     """
-    if database is not None:
-        database = database.to_db_config()
+    db_config = database.to_db_config() if database is not None else None
     try:
         projects_manager.update(
             project_name,
             storage_location=storage_location,
             calibration_library_folder=calibration_library_folder,
             quam_state_path=quam_state_path,
-            database=database,
+            database=db_config,
         )
     except QValueException as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -306,6 +307,7 @@ def update_project_endpoint(
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found after update")
     return project
+
 
 @project_router.get(
     "/active",
@@ -400,7 +402,8 @@ def set_active_project(
     if settings.runner and new_settings.runner and new_settings.runner != settings.runner:
         notify_runner(new_settings)
     db_manager = DBRegistry.get()
-    db_manager.db_disconnect(old_project)
+    if old_project:
+        db_manager.db_disconnect(old_project)
     try:
         db_manager.db_connect(active_project)
     except RuntimeError as e:
@@ -450,10 +453,10 @@ def get_projects_list(
 
 @project_router.post(
     "/db/connect",
-    status_code=204,
+    status_code=200,
     summary="Connect to project database",
     responses={
-        status.HTTP_204_NO_CONTENT: {"description": "Connected to database"},
+        status.HTTP_200_OK: {"description": "Connected to database"},
         status.HTTP_400_BAD_REQUEST: {"description": "No active project configured"},
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Could not connect"},
     },
@@ -463,7 +466,7 @@ def connect_db(
         ProjectsManagerBase,
         Depends(_get_projects_manager),
     ],
-):
+) -> dict[str, str]:
     # get project and config from qualibrate
     # config_path = get_qualibrate_config_path()
     # config = get_qualibrate_config(config_path)
@@ -483,19 +486,20 @@ def connect_db(
 
 @project_router.post(
     "/db/disconnect",
-    status_code=204,
+    status_code=200,
     summary="Disconnect from project database",
     responses={
-        status.HTTP_204_NO_CONTENT: {"description": "Disconnected from database"},
+        status.HTTP_200_OK: {"description": "Disconnected from database"},
         status.HTTP_400_BAD_REQUEST: {"description": "No active project configured"},
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Could not disconnect"},
-    },)
+    },
+)
 def disconnect_db(
     projects_manager: Annotated[
         ProjectsManagerBase,
         Depends(_get_projects_manager),
     ],
-):
+) -> dict[str, str]:
     # manager = DBRegistry.get()
     project_name = projects_manager.project
     if project_name is None:
@@ -508,6 +512,7 @@ def disconnect_db(
         raise HTTPException(status_code=500, detail=f"Could not disconnect: {e}")
 
     return {"status": "disconnected", "project": project_name}
+
 
 @project_router.get(
     "/",
@@ -524,25 +529,35 @@ def disconnect_db(
                             "value": {
                                 "project_name": "my_project",
                                 "storage_location": {"type": "local_storage", "location": "/data/projects"},
-                                "calibration_library_folder": {"folder": "/repos/calibrations", "resolver": "qualibrate.QualibrationLibrary"},
-                                "database": {"host": "localhost", "port": 5432, "database": "qualibrate", "username": "postgres"}
-                            }
+                                "calibration_library_folder": {
+                                    "folder": "/repos/calibrations",
+                                    "resolver": "qualibrate.QualibrationLibrary",
+                                },
+                                "database": {
+                                    "host": "localhost",
+                                    "port": 5432,
+                                    "database": "qualibrate",
+                                    "username": "postgres",
+                                },
+                            },
                         }
                     }
                 }
-            }
+            },
         }
-    }
+    },
 )
-def get_project(
-    settings: Annotated[QualibrateConfig, Depends(get_settings)]) :
+def get_project(settings: Annotated[QualibrateConfig, Depends(get_settings)]) -> dict[str, Any]:
     serialized_settings = settings.serialize()
-    project_details_to_return = {"project_name":serialized_settings.get("project"),
-                                 "storage_location":serialized_settings.get("storage"),
-                                 "calibration_library_folder":serialized_settings.get("calibration_library"),
-                                 "database":serialized_settings.get("database")}
+    project_details_to_return = {
+        "project_name": serialized_settings.get("project"),
+        "storage_location": serialized_settings.get("storage"),
+        "calibration_library_folder": serialized_settings.get("calibration_library"),
+        "database": serialized_settings.get("database"),
+    }
 
     return project_details_to_return
+
 
 @project_router.get(
     "/db/test-connection",
@@ -573,21 +588,15 @@ def get_project(
 )
 def test_db_connection(
     projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
-    settings: Annotated[QualibrateConfig, Depends(get_settings)]
-):
+    settings: Annotated[QualibrateConfig, Depends(get_settings)],
+) -> dict[str, Any]:
     project_name = projects_manager.project
     if project_name is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No active project configured"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No active project configured")
 
     db_config = settings.database
     if db_config is None:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="No database configuration found"
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No database configuration found")
 
     manager = DBRegistry.get()
     if manager.is_connected(project_name):
@@ -597,7 +606,4 @@ def test_db_connection(
         test_db_connection_config(db_config)
         return {"project": project_name, "already_connected": False}
     except RuntimeError as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

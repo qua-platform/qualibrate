@@ -1,12 +1,14 @@
+from collections.abc import Generator
 from contextlib import contextmanager
-
+from typing import Any
+import atexit
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
     get_qualibrate_config_path,
 )
-from sqlalchemy import create_engine, text
+from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from qualibrate.core.utils.logger_m import logger
 
@@ -15,16 +17,17 @@ from .DB_management import DBManagement
 
 class PostgresManagement(DBManagement):
     _instance = None
+    _engines: dict[str, Engine] = {}
+    _session_factories: dict[str, sessionmaker[Session]] = {}
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, *args: Any, **kwargs: Any) -> "PostgresManagement":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._engines = {}
             cls._instance._session_factories = {}
-            # atexit.register(cls._instance.disconnect_all)  # ← register once on creation
+            atexit.register(cls._instance.disconnect_all)  # ← register once on creation
         return cls._instance
 
-    #    def db_connect(self, project_name: str, config: DBConfig) -> None:
     def db_connect(self, project_name: str) -> None:
         if project_name in self._engines:
             return
@@ -74,7 +77,7 @@ class PostgresManagement(DBManagement):
         return project_name in self._session_factories
 
     @contextmanager
-    def session(self, project_name: str):
+    def session(self, project_name: str) -> Generator[Session, None, None]:
         if project_name not in self._session_factories:
             raise RuntimeError(f"No database connection configured for project '{project_name}'")
 
@@ -89,8 +92,7 @@ class PostgresManagement(DBManagement):
         finally:
             session.close()
 
-
-    def test_db_connection(self, config: dict) -> tuple[bool, str | None]:
+    def test_db_connection(self, config: dict[str, Any]) -> tuple[bool, str | None]:
         """
         Test DB credentials without persisting the connection.
 

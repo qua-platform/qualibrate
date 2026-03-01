@@ -1,7 +1,8 @@
 # qualibrate/core/infrastructure/DB/utils.py
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from qualibrate_config.models import DBConfig
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
+
 
 def test_db_connection_config(db_config: DBConfig) -> None:
     """
