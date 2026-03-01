@@ -174,7 +174,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
         />
       )}
       <Dialog classes={{ paper: styles.modalWrapper }} open={isVisible} onClose={handleOnClose}>
-        <div className={styles.modal}>
+        <div data-testid="add-edit-project-modal" className={styles.modal}>
           <div className={styles.modalHeader}>
             <h2 className={styles.modalTitle}>{title}</h2>
             <button className={styles.closeBtn} onClick={handleOnClose}>
@@ -183,117 +183,125 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
           </div>
 
           <div className={styles.modalBody}>
-            <form>
-              <FormInputFieldWithLabel
-                classNames={classNames(styles.formGroup, mode === "edit" && styles.disabled)}
-                labelText={"Project name"}
-                placeholder={"Enter project name"}
-                inputType={"text"}
-                value={formData.projectName}
-                isDisabled={mode === "edit"}
-                isRequired={true}
-                handleChange={(e) => handleChange("projectName", e.target.value)}
-              />
-              <FormInputFieldWithLabel
-                classNames={styles.formGroup}
-                labelText={"Data path"}
-                placeholder={"C:\\Projects\\my_project\\data"}
-                inputType={"text"}
-                value={formData.dataPath ?? ""}
-                isDisabled={false}
-                isRequired={false}
-                handleChange={(e) => handleChange("dataPath", e.target.value)}
-              />
-              <FormInputFieldWithLabel
-                classNames={styles.formGroup}
-                labelText={"QUAM state path"}
-                subLabelText={"(Quantum Abstract Machine)"}
-                tooltipText={"store quantum machines state"}
-                placeholder={"C:\\Projects\\my_project\\quam"}
-                inputType={"text"}
-                value={formData.quamPath ?? ""}
-                isDisabled={false}
-                isRequired={false}
-                handleChange={(e) => handleChange("quamPath", e.target.value)}
-              />
-              <FormInputFieldWithLabel
-                classNames={styles.formGroup}
-                labelText={"Calibration library path"}
-                placeholder={"C:\\Projects\\my_project\\calibration"}
-                inputType={"text"}
-                value={formData.calibrationPath ?? ""}
-                isDisabled={false}
-                isRequired={false}
-                handleChange={(e) => handleChange("calibrationPath", e.target.value)}
-              />
+            <FormInputFieldWithLabel
+              dataTestId="add-edit-project-modal-project-name"
+              classNames={classNames(styles.formGroup, mode === "edit" && styles.disabled)}
+              labelText={"Project name"}
+              placeholder={"Enter project name"}
+              inputType={"text"}
+              value={formData.projectName}
+              isDisabled={mode === "edit"}
+              isRequired={true}
+              handleChange={(e) => handleChange("projectName", e.target.value)}
+            />
+            <FormInputFieldWithLabel
+              dataTestId="add-edit-project-modal-data-path"
+              classNames={styles.formGroup}
+              labelText={"Data path"}
+              placeholder={"C:\\Projects\\my_project\\data"}
+              inputType={"text"}
+              value={formData.dataPath ?? ""}
+              isDisabled={false}
+              isRequired={false}
+              handleChange={(e) => handleChange("dataPath", e.target.value)}
+            />
+            <FormInputFieldWithLabel
+              dataTestId="add-edit-project-modal-quam-path"
+              classNames={styles.formGroup}
+              labelText={"QUAM state path"}
+              subLabelText={"(Quantum Abstract Machine)"}
+              tooltipText={"store quantum machines state"}
+              placeholder={"C:\\Projects\\my_project\\quam"}
+              inputType={"text"}
+              value={formData.quamPath ?? ""}
+              isDisabled={false}
+              isRequired={false}
+              handleChange={(e) => handleChange("quamPath", e.target.value)}
+            />
+            <FormInputFieldWithLabel
+              dataTestId="add-edit-project-modal-calibration-path"
+              classNames={styles.formGroup}
+              labelText={"Calibration library path"}
+              placeholder={"C:\\Projects\\my_project\\calibration"}
+              inputType={"text"}
+              value={formData.calibrationPath ?? ""}
+              isDisabled={false}
+              isRequired={false}
+              handleChange={(e) => handleChange("calibrationPath", e.target.value)}
+            />
 
-              <div className={styles.formSection}>
-                <div className={styles.formSectionHeader}>
-                  <div className={styles.formSectionTitle}>Database Export</div>
-                  <label className={styles.toggleSwitch}>
-                    <input checked={showDbSettings} type="checkbox" onChange={toggleDatabase} />
-                    <span className={styles.toggleSlider} />
-                  </label>
-                </div>
-
-                {showDbSettings && (
-                  <div>
-                    <FormInputFieldWithLabel
-                      classNames={styles.formGroup}
-                      labelText={"Host (IP address/hostname)"}
-                      placeholder={"localhost or 192.168.1.100"}
-                      inputType={"text"}
-                      value={formData.database?.host ?? ""}
-                      isDisabled={false}
-                      isRequired={true}
-                      handleChange={(e) => handleDatabaseChange("host", e.target.value)}
-                    />
-                    <FormInputFieldWithLabel
-                      classNames={styles.formGroup}
-                      labelText={"Port"}
-                      placeholder={"5432"}
-                      inputType={"number"}
-                      value={formData.database?.port ?? "5432"}
-                      isDisabled={false}
-                      isRequired={true}
-                      handleChange={(e) => handleDatabaseChange("port", e.target.value)}
-                    />
-                    <FormInputFieldWithLabel
-                      classNames={styles.formGroup}
-                      labelText={"Name"}
-                      placeholder={"qualibrate_db"}
-                      inputType={"text"}
-                      value={formData.database?.database ?? ""}
-                      isDisabled={false}
-                      isRequired={true}
-                      handleChange={(e) => handleDatabaseChange("database", e.target.value)}
-                    />
-                    <FormInputFieldWithLabel
-                      classNames={styles.formGroup}
-                      labelText={"Username"}
-                      placeholder={"postgres"}
-                      inputType={"text"}
-                      value={formData.database?.username ?? ""}
-                      isDisabled={false}
-                      isRequired={true}
-                      handleChange={(e) => handleDatabaseChange("username", e.target.value)}
-                    />
-                    <FormInputFieldWithLabel
-                      classNames={styles.formGroup}
-                      labelText={"Password"}
-                      placeholder={"••••••••"}
-                      inputType={"password"}
-                      value={formData.database?.password ?? ""}
-                      isDisabled={false}
-                      isRequired={true}
-                      handleChange={(e) => handleDatabaseChange("password", e.target.value)}
-                    />
-                  </div>
-                )}
+            <div className={styles.formSection}>
+              <div className={styles.formSectionHeader}>
+                <div className={styles.formSectionTitle}>Database Export</div>
+                <label className={styles.toggleSwitch}>
+                  <input checked={showDbSettings} type="checkbox" onChange={toggleDatabase} />
+                  <span className={styles.toggleSlider} />
+                </label>
               </div>
-            </form>
+
+              {showDbSettings && (
+                <div>
+                  <FormInputFieldWithLabel
+                    dataTestId="add-edit-project-modal-database-host"
+                    classNames={styles.formGroup}
+                    labelText={"Host (IP address/hostname)"}
+                    placeholder={"localhost or 192.168.1.100"}
+                    inputType={"text"}
+                    value={formData.database?.host ?? ""}
+                    isDisabled={false}
+                    isRequired={true}
+                    handleChange={(e) => handleDatabaseChange("host", e.target.value)}
+                  />
+                  <FormInputFieldWithLabel
+                    dataTestId="add-edit-project-modal-database-port"
+                    classNames={styles.formGroup}
+                    labelText={"Port"}
+                    placeholder={"5432"}
+                    inputType={"number"}
+                    value={formData.database?.port ?? "5432"}
+                    isDisabled={false}
+                    isRequired={true}
+                    handleChange={(e) => handleDatabaseChange("port", e.target.value)}
+                  />
+                  <FormInputFieldWithLabel
+                    dataTestId="add-edit-project-modal-database-name"
+                    classNames={styles.formGroup}
+                    labelText={"Name"}
+                    placeholder={"qualibrate_db"}
+                    inputType={"text"}
+                    value={formData.database?.database ?? ""}
+                    isDisabled={false}
+                    isRequired={true}
+                    handleChange={(e) => handleDatabaseChange("database", e.target.value)}
+                  />
+                  <FormInputFieldWithLabel
+                    dataTestId="add-edit-project-modal-database-username"
+                    classNames={styles.formGroup}
+                    labelText={"Username"}
+                    placeholder={"postgres"}
+                    inputType={"text"}
+                    value={formData.database?.username ?? ""}
+                    isDisabled={false}
+                    isRequired={true}
+                    handleChange={(e) => handleDatabaseChange("username", e.target.value)}
+                  />
+                  <FormInputFieldWithLabel
+                    dataTestId="add-edit-project-modal-database-password"
+                    classNames={styles.formGroup}
+                    labelText={"Password"}
+                    placeholder={"••••••••"}
+                    inputType={"password"}
+                    value={formData.database?.password ?? ""}
+                    isDisabled={false}
+                    isRequired={true}
+                    handleChange={(e) => handleDatabaseChange("password", e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
             {showDbSettings && (
               <button
+                data-testid="add-edit-project-modal-test-connection-button"
                 type="button"
                 disabled={!areDbFieldsPopulated}
                 className={classNames(styles.btnLink, !areDbFieldsPopulated && styles.disabled)}
@@ -305,11 +313,15 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
             )}
           </div>
           <div className={styles.modalFooter}>
-            <button className={classNames(styles.btn, styles.btnSecondary)} onClick={handleOnClose}>
+            <button
+              data-testid="add-edit-project-modal-cancel-button"
+              className={classNames(styles.btn, styles.btnSecondary)}
+              onClick={handleOnClose}
+            >
               Cancel
             </button>
-
             <button
+              data-testid="add-edit-project-modal-confirm-button"
               disabled={disableCreateAndSave}
               className={classNames(styles.btn, styles.btnPrimary, disableCreateAndSave && styles.disabled)}
               onClick={handleSubmit}

@@ -84,7 +84,7 @@ const ProjectMenuItem = () => {
 
   return (
     <>
-      <div className={styles.currentProject} onClick={toggleProjectMenu}>
+      <div data-testid="project-menu-item" className={styles.currentProject} onClick={toggleProjectMenu}>
         <div className={styles.currentProjectName}>
           <div className={styles.projectNameText}>
             <span className={styles.projectInitial} style={{ backgroundColor: stringToHexColor(activeProject?.name ?? "") }}>
@@ -104,6 +104,7 @@ const ProjectMenuItem = () => {
             {/* Actions */}
             <div className={styles.projectMenuSection}>
               <ProjectMenuItemWrapper
+                dataTestId="new-project-button"
                 title={"New"}
                 isDisabled={false}
                 classNames={styles.projectMenuItem}
@@ -111,6 +112,7 @@ const ProjectMenuItem = () => {
                 onClickHandler={openCreateModal}
               />
               <ProjectMenuItemWrapper
+                dataTestId="edit-project-button"
                 title={"Edit"}
                 isDisabled={actionDisabled}
                 classNames={classNames(styles.projectMenuItem, actionDisabled && styles.disabled)}
@@ -118,6 +120,7 @@ const ProjectMenuItem = () => {
                 onClickHandler={editCurrentProject}
               />
               <ProjectMenuItemWrapper
+                dataTestId="delete-project-button"
                 title={"Delete"}
                 isDisabled={actionDisabled}
                 classNames={classNames(styles.projectMenuItem, styles.danger, actionDisabled && styles.disabled)}

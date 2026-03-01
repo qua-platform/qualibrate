@@ -3,6 +3,7 @@ import styles from "./FormInputFieldWithLabel.module.scss";
 import { InfoIcon } from "../../../../../components";
 
 interface Props {
+  dataTestId?: string;
   classNames?: string;
   labelText: string;
   subLabelText?: string;
@@ -16,6 +17,7 @@ interface Props {
 }
 
 const FormInputFieldWithLabel = ({
+  dataTestId,
   classNames,
   labelText,
   subLabelText,
@@ -28,7 +30,7 @@ const FormInputFieldWithLabel = ({
   handleChange,
 }: Props) => {
   return (
-    <div className={classNames ?? ""}>
+    <div data-testid={dataTestId} className={classNames ?? ""}>
       <label>
         {labelText}
         {tooltipText ? (
@@ -40,10 +42,10 @@ const FormInputFieldWithLabel = ({
         {isRequired && <span className={styles.required}>*</span>}
       </label>
       <input
+        data-testid={`${dataTestId}-input`}
         type={inputType}
         value={value}
         disabled={isDisabled}
-        // onChange={(e) => handleChange(fieldName, e.target.value)}
         onChange={handleChange}
         placeholder={placeholder}
         required={isRequired}

@@ -24,7 +24,7 @@ const TestConnectionModal = ({ isVisible, database, handleOnClose, isSuccessful 
     : "Unable to connect to database. Please check your credentials and ensure the database server is running.";
 
   return (
-    <Dialog classes={{ paper: styles.modalWrapper }} open={isVisible} onClose={handleOnClose}>
+    <Dialog data-testid="test-connection-modal" classes={{ paper: styles.modalWrapper }} open={isVisible} onClose={handleOnClose}>
       <div className={styles.notificationDialog}>
         <div className={classNames(styles.notificationIcon, !isSuccessful && styles.error)}>
           {isSuccessful ? <NotificationSuccessIcon /> : <NotificationErrorIcon />}
