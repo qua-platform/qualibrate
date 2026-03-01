@@ -1,12 +1,15 @@
+import atexit
 from collections.abc import Generator
 from contextlib import contextmanager
 from typing import Any
-import atexit
+
+from qualibrate_config.models import DBConfig
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
     get_qualibrate_config_path,
 )
 from sqlalchemy import Engine, create_engine, text
+from sqlalchemy.engine import URL
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -25,8 +28,41 @@ class PostgresManagement(DBManagement):
             cls._instance = super().__new__(cls)
             cls._instance._engines = {}
             cls._instance._session_factories = {}
-            atexit.register(cls._instance.disconnect_all)  # ← register once on creation
+            atexit.register(cls._instance.disconnect_all)
         return cls._instance
+
+    def test_connection(self, database_config: DBConfig) -> None:
+        engine = self._connect_to_db(database_config)
+        try:
+            engine.dispose()
+        except Exception as e:
+            raise Exception(f"Error disposing engine: {e}") from e
+
+    # def _disconnect_db(self, engine):
+    #     try:
+    #         engine.dispose()
+    #     except Exception as e:
+    #         raise Exception(f"Error disposing engine: {e}")
+
+    def _connect_to_db(self, database_config: DBConfig) -> Engine:
+        try:
+            url = URL.create(
+                "postgresql+psycopg2",
+                username=database_config.username,
+                password=database_config.password,
+                host=database_config.host,
+                port=database_config.port,
+                database=database_config.database,
+            )
+            engine = create_engine(url, pool_size=5, pool_pre_ping=True)
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+        except OperationalError as e:
+            raise RuntimeError(f"Could not connect to database, check your credentials and host: {e}") from e
+        except SQLAlchemyError as e:
+            raise RuntimeError(f"Database error during connect: {e}") from e
+
+        return engine
 
     def db_connect(self, project_name: str) -> None:
         if project_name in self._engines:
@@ -37,20 +73,7 @@ class PostgresManagement(DBManagement):
             logger.warning("No database configuration found, skipping database connection")
             return
 
-        try:
-            engine = create_engine(
-                f"postgresql+psycopg2://{config.username}:{config.password}@"
-                f"{config.host}:{config.port}/{config.database}",
-                pool_size=5,
-                pool_pre_ping=True,
-            )
-            with engine.connect() as conn:
-                conn.execute(text("SELECT 1"))
-        except OperationalError as e:
-            raise RuntimeError(f"Could not connect to database, check your credentials and host: {e}") from e
-        except SQLAlchemyError as e:
-            raise RuntimeError(f"Database error during connect: {e}") from e
-
+        engine = self._connect_to_db(config)
         self._engines[project_name] = engine
         self._session_factories[project_name] = sessionmaker(bind=engine)
 
@@ -59,6 +82,7 @@ class PostgresManagement(DBManagement):
         if engine:
             try:
                 engine.dispose()
+                # self._disconnect_db(engine)
             except Exception as e:
                 logger.warning(f"Error disposing engine for project '{project_name}': {e}")
         self._engines.pop(project_name, None)
@@ -68,6 +92,7 @@ class PostgresManagement(DBManagement):
         for project_name, engine in self._engines.items():
             try:
                 engine.dispose()
+                # self._disconnect_db(engine)
             except Exception as e:
                 logger.warning(f"Error disposing engine for project '{project_name}': {e}")
         self._engines.clear()
@@ -91,30 +116,3 @@ class PostgresManagement(DBManagement):
             raise
         finally:
             session.close()
-
-    def test_db_connection(self, config: dict[str, Any]) -> tuple[bool, str | None]:
-        """
-        Test DB credentials without persisting the connection.
-
-        Returns:
-            success (bool), error_message (str | None)
-        """
-        engine = None
-        try:
-            engine = create_engine(
-                f"postgresql+psycopg2://{config['username']}:{config['password']}"
-                f"@{config['host']}:{config.get('port', 5432)}/{config['database']}"
-            )
-
-            # test query
-            with engine.connect() as conn:
-                conn.execute(text("SELECT 1"))
-
-            return True, None
-
-        except SQLAlchemyError as e:
-            return False, str(e)
-
-        finally:
-            if engine:
-                engine.dispose()

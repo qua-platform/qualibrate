@@ -9,6 +9,8 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from fastapi import Path as FastAPIPath
 from qualibrate_config.models import QualibrateConfig, StorageType
 
+from qualibrate.app.api.core.base_models.DBConfigRequest import DBConfigRequest
+from qualibrate.app.api.core.base_models.TestConnectionRequest import TestConnectionRequest
 from qualibrate.app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate.app.api.core.domain.local_storage.project import (
     ProjectsManagerLocalStorage,
@@ -19,13 +21,11 @@ from qualibrate.app.api.core.domain.timeline_db.project import (
 from qualibrate.app.api.core.models.project import Project
 from qualibrate.app.api.exceptions.classes.values import QValueException
 from qualibrate.app.api.routes.utils import vars as routes_vars
-from qualibrate.app.base_models.DBConfigRequest import DBConfigRequest
 from qualibrate.app.config import (
     get_config_path,
     get_settings,
 )
 from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
-from qualibrate.core.utils.db_utils.test_db_connection import test_db_connection_config
 
 project_router = APIRouter(prefix="/project", tags=["project"])
 projects_router = APIRouter(prefix="/projects", tags=["project"])
@@ -222,7 +222,7 @@ def delete_project_endpoint(
     try:
         projects_manager.delete(project_name)
     except QValueException as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     return {"status": True}
 
 
@@ -302,7 +302,7 @@ def update_project_endpoint(
             database=db_config,
         )
     except QValueException as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
     project = next(filter(lambda p: p.name == project_name, projects_manager.list()), None)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found after update")
@@ -479,7 +479,7 @@ def connect_db(
         # manager.db_connect(project_name, projects_manager._settings.database)
         manager.db_connect(project_name)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not connect: {e}")
+        raise HTTPException(status_code=500, detail=f"Could not connect: {e}") from e
 
     return {"status": "connected", "project": project_name}
 
@@ -509,7 +509,7 @@ def disconnect_db(
         # manager = PostgresManagement()
         manager.db_disconnect(project_name)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not disconnect: {e}")
+        raise HTTPException(status_code=500, detail=f"Could not disconnect: {e}") from e
 
     return {"status": "disconnected", "project": project_name}
 
@@ -559,7 +559,7 @@ def get_project(settings: Annotated[QualibrateConfig, Depends(get_settings)]) ->
     return project_details_to_return
 
 
-@project_router.get(
+@project_router.post(
     "/db/test-connection",
     summary="Test connection to project database",
     description="Check if the active project's database is reachable and credentials are valid.",
@@ -587,23 +587,31 @@ def get_project(settings: Annotated[QualibrateConfig, Depends(get_settings)]) ->
     },
 )
 def test_db_connection(
-    projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
-    settings: Annotated[QualibrateConfig, Depends(get_settings)],
+    # projects_manager: Annotated[ProjectsManagerBase, Depends(_get_projects_manager)],
+    database: Annotated[
+        TestConnectionRequest,
+        Body(
+            description="Optional database configuration for this project.",
+            examples=[
+                {
+                    "project_name": "my_project",
+                    "host": "localhost",
+                    "port": 5432,
+                    "database": "my_project_db",
+                    "username": "postgres",
+                    "password": "postgres",
+                }
+            ],
+        ),
+    ],
 ) -> dict[str, Any]:
-    project_name = projects_manager.project
-    if project_name is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No active project configured")
-
-    db_config = settings.database
-    if db_config is None:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="No database configuration found")
-
+    project_name = database.project_name
     manager = DBRegistry.get()
     if manager.is_connected(project_name):
         return {"project": project_name, "already_connected": True}
-
+    db_config = database.to_db_config()
     try:
-        test_db_connection_config(db_config)
+        manager.test_connection(db_config)
         return {"project": project_name, "already_connected": False}
     except RuntimeError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
