@@ -5,9 +5,9 @@ import styles from "./SortButton.module.scss";
 import { classNames, useClickOutside } from "../../utils";
 
 type IOption<T> = {
-  label: string
-  value: T
-}
+  label: string;
+  value: T;
+};
 
 type Props<T> = {
   options: IOption<T>[];
@@ -33,7 +33,12 @@ const SortButton = <T,>({ options, onSelect }: Props<T>) => {
       <div className={styles.filterButton} id="dateFilterBtn" onClick={onClickHandler}>
         <SortIcon width={16} height={16} />
       </div>
-      <div className={classNames(styles.sortDropdown, showOptions && styles.active)} id="dateFilterDropdown" ref={ref}>
+      <div
+        className={classNames(styles.sortDropdown, showOptions && styles.active)}
+        id="dateFilterDropdown"
+        data-testid="sortDropdown"
+        ref={ref}
+      >
         {options.map((option) => (
           <div
             key={option.value as string}

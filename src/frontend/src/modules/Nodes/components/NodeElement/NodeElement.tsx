@@ -44,7 +44,13 @@ import styles from "./NodeElement.module.scss";
 import { InputParameter, ErrorResponseWrapper, ListCard } from "../../../../components";
 import { useRootDispatch } from "../../../../stores";
 import { useSelector } from "react-redux";
-import { getSubmitNodeResponseError, setSelectedNode, getIsNodeSelected, getNode, getNodeListSearchValue } from "../../../../stores/NodesStore";
+import {
+  getSubmitNodeResponseError,
+  setSelectedNode,
+  getIsNodeSelected,
+  getNode,
+  getNodeListSearchValue,
+} from "../../../../stores/NodesStore";
 import { getRunStatusNodeStatus, getIsLastRunNode } from "../../../../stores/WebSocketStore";
 import { GraphWorkflow } from "../../../GraphLibrary";
 import { classNames, getHighlightedText } from "../../../../utils";
@@ -130,17 +136,23 @@ export const NodeElement: React.FC<{ nodeKey: string }> = ({ nodeKey }) => {
   const title = useMemo(() => getHighlightedText(insertSpaces(node.title ?? node.name), searchValue), [node.title, node.name, searchValue]);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative" }} data-testid={`node-element-${nodeKey}`}>
       <ListCard
+        listKey={nodeKey}
         isHighlighted={isNodeSelected}
         onClick={() => dispatch(setSelectedNode(node.name))}
-        title={title}
+        title={<span data-testid={`title-or-name-${nodeKey}`}>{title}</span>}
         executionStatus={isLastRunNode ? runStatusNodeStatus : undefined}
         statusTooltip={isLastRunNode ? statusTooltip : undefined}
         description={
           <>
             {isNodeSelected && node.name === submitNodeResponseError?.nodeName && <ErrorResponseWrapper error={submitNodeResponseError} />}
-            <div className={classNames(styles.description, isNodeSelected && styles.descriptionFull)}>{node.description}</div>
+            <div
+              data-testid={`node-description-${nodeKey}`}
+              className={classNames(styles.description, isNodeSelected && styles.descriptionFull)}
+            >
+              {node.description}
+            </div>
           </>
         }
       />

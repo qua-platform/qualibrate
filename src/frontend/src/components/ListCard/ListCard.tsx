@@ -4,6 +4,7 @@ import { classNames } from "../../utils";
 import { Tooltip } from "@mui/material";
 
 interface IListCard {
+  listKey?: string
   isHighlighted: boolean;
   onClick: () => void;
   title: React.ReactNode;
@@ -22,7 +23,7 @@ const statusClassMap: Record<string, string> = {
   error: styles.statusError,
 };
 
-const ListCard = ({ isHighlighted, onClick, title, executionStatus = "", statusTooltip, description, footer }: IListCard) => (
+const ListCard = ({ listKey, isHighlighted, onClick, title, executionStatus = "", statusTooltip, description, footer }: IListCard) => (
   <div className={classNames(styles.listCard, isHighlighted && styles.selected)} onClick={onClick}>
     <div className={styles.header}>
       <div className={styles.headerLeft}>
@@ -31,7 +32,7 @@ const ListCard = ({ isHighlighted, onClick, title, executionStatus = "", statusT
         </Tooltip>
       </div>
       <Tooltip title={statusTooltip} placement="right-end" arrow>
-        <div className={classNames(styles.status, statusClassMap[executionStatus])}>
+        <div className={classNames(styles.status, statusClassMap[executionStatus])} data-testid={`dot-wrapper-${listKey}`}>
           <div className={styles.statusDot} />
           {executionStatus}
         </div>

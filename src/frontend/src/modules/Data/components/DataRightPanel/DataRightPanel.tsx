@@ -13,7 +13,7 @@ import { formatDateTime } from "../../../../utils";
 import SnapshotComments from "../SnapshotComments";
 
 export const formatParamValue = (key: string, value: string | number | string[] | null | boolean | undefined) => {
-  if (["run_end", "run_start"].includes(key)) return formatDateTime(value as string);
+  if (["run_end", "run_start"].includes(key) && !!value) return formatDateTime(value as string);
 
   return value === null || value === undefined ? "—" : typeof value === "object" ? JSON.stringify(value, null, 2) : value;
 };

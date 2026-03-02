@@ -1,12 +1,12 @@
 import "@testing-library/jest-dom"
 import { describe, it, expect } from "vitest";
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { NodeMap } from "../../../../src/modules/Nodes";
 import { useRootDispatch } from "../../../../src/stores";
-import { setAllNodes } from "../../../../src/stores/NodesStore";
-import { createTestProviders } from "../../utils";
-import { NodeElementList } from "../../../../src/modules/Nodes/components/NodeElement/NodeElementList";
+import { setAllNodes, setNodeListSearch } from "../../../../src/stores/NodesStore";
+import { createTestProviders } from "../../utils/providers";
+import { NodesLeftPanel } from "../../../../src/modules/Nodes/components/NodesLeftPanel/NodesLeftPanel";
 import { ParameterTypes } from "../../../../src/components/Parameters/Parameters";
 
 // Helper component to set nodes in context
@@ -16,6 +16,7 @@ const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
   // Set nodes immediately
   React.useEffect(() => {
     dispatch(setAllNodes(nodes));
+    dispatch(setNodeListSearch(''))
   }, [nodes, setAllNodes]);
 
   return null;
@@ -32,7 +33,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode; nodes?: NodeMap }> = ({
 };
 
 describe("NodeElementList", () => {
-  it("should render list of nodes when allNodes is populated", () => {
+  it("should render list of nodes when allNodes is populated", async () => {
     const mockNodes = {
       test_cal: {
         name: "test_cal",
@@ -50,7 +51,7 @@ describe("NodeElementList", () => {
 
     render(
       <TestWrapper nodes={mockNodes}>
-        <NodeElementList />
+        <NodesLeftPanel />
       </TestWrapper>
     );
 
@@ -58,15 +59,17 @@ describe("NodeElementList", () => {
     expect(screen.getByTestId("node-list-wrapper")).toBeInTheDocument();
 
     // Verify both nodes are rendered
-    expect(screen.getByTestId("node-element-test_cal")).toBeInTheDocument();
-    expect(screen.getByTestId("node-element-qubit_spec")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("node-element-test_cal")).toBeInTheDocument();
+      expect(screen.getByTestId("node-element-qubit_spec")).toBeInTheDocument();
+    })
   });
 
   it("should render empty list when nodes object is empty", () => {
     const { Providers } = createTestProviders({ allNodes: {} });
     const { container } = render(
       <Providers>
-        <NodeElementList />
+        <NodesLeftPanel />
       </Providers>
     );
 
@@ -78,7 +81,7 @@ describe("NodeElementList", () => {
     expect(nodeElements.length).toBe(0);
   });
 
-  it("should render single node correctly", () => {
+  it("should render single node correctly", async () => {
     const mockNodes = {
       single_node: {
         name: "single_node",
@@ -97,10 +100,12 @@ describe("NodeElementList", () => {
 
     render(
       <TestWrapper nodes={mockNodes}>
-        <NodeElementList />
+        <NodesLeftPanel />
       </TestWrapper>
     );
 
-    expect(screen.getByTestId("node-element-single_node")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("node-element-single_node")).toBeInTheDocument();
+    });
   });
 });
