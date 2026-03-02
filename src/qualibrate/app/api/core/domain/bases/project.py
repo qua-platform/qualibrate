@@ -5,7 +5,7 @@ from pathlib import Path
 from qualibrate_config.core.project.create import create_project
 from qualibrate_config.core.project.delete import delete_project
 from qualibrate_config.core.project.update import update_project
-from qualibrate_config.models import DBConfig, QualibrateConfig
+from qualibrate_config.models import DatabaseStateConfig, DBConfig, QualibrateConfig
 
 from qualibrate.app.api.core.domain.bases.base_with_settings import (
     DomainWithConfigBase,
@@ -47,6 +47,7 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
         calibration_library_folder: Path | None = None,
         quam_state_path: Path | None = None,
         database: DBConfig | None = None,
+        database_state: DatabaseStateConfig | None = None,
     ) -> str:
         try:
             update_project(
@@ -56,6 +57,7 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
                 calibration_library_folder,
                 quam_state_path,
                 database,
+                database_state,
             )
         except ValueError as e:
             raise QValueException(f"Failed to update project '{project_name}'") from e
@@ -68,10 +70,17 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
         calibration_library_folder: Path | None = None,
         quam_state_path: Path | None = None,
         database: DBConfig | None = None,
+        db_state: DatabaseStateConfig | None = None,
     ) -> str:
         try:
             create_project(
-                self._config_path, project_name, storage_location, calibration_library_folder, quam_state_path, database
+                self._config_path,
+                project_name,
+                storage_location,
+                calibration_library_folder,
+                quam_state_path,
+                database,
+                db_state,
             )
         except ValueError as e:
             raise QValueException(f"Failed to create project '{project_name}'") from e

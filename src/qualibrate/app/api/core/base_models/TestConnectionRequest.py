@@ -3,7 +3,6 @@ from qualibrate_config.models import DBConfig
 
 
 class TestConnectionRequest(BaseModel):
-    project_name: str
     host: str
     port: int
     database: str

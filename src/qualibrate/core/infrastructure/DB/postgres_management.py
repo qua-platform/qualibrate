@@ -84,7 +84,9 @@ class PostgresManagement(DBManagement):
                 engine.dispose()
                 # self._disconnect_db(engine)
             except Exception as e:
-                logger.warning(f"Error disposing engine for project '{project_name}': {e}")
+                raise Exception(f"Error disposing engine for project '{project_name}': {e}") from e
+        else:
+            logger.warning(f"No database connection found for project '{project_name}'")
         self._engines.pop(project_name, None)
         self._session_factories.pop(project_name, None)
 
