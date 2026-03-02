@@ -61,7 +61,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
     open: false,
     type: TestDBConnectionStatusDialog.SUCCESS,
   });
-  const [showDbSettings, setShowDbSettings] = useState(false);
+  const [showDbSettings, setShowDbSettings] = useState(project?.updates?.qualibrate?.database?.isConnected ?? false);
   const [formData, setFormData] = useState<CreateEditProjectDTO>(emptyForm);
 
   const areDbFieldsPopulated =
@@ -136,16 +136,25 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
   };
 
   const toggleDatabase = () => {
-    setShowDbSettings((prev) => {
-      const newValue = !prev;
+    const newValue = !showDbSettings;
 
-      setFormData((form) => ({
-        ...form,
-        database: newValue ? emptyDatabase : undefined,
-      }));
+    setShowDbSettings(newValue);
 
-      return newValue;
-    });
+    setFormData((form) => ({
+      ...form,
+      database: newValue
+        ? {
+            ...(form.database ?? {
+              host: "",
+              port: 0,
+              database: "",
+              username: "",
+              password: "",
+            }),
+            isConnected: true,
+          }
+        : undefined,
+    }));
   };
 
   const handleOnCloseTestDbModal = () => setDbTestModalState({ open: false, type: TestDBConnectionStatusDialog.SUCCESS });

@@ -117,6 +117,7 @@ describe("AddEditProjectModal", () => {
 
   it("tests database connection - success", async () => {
     const mockDatabaseInputData: DatabaseDTO = {
+      isConnected: false,
       host: "localhost",
       port: 5432,
       database: "db",
@@ -126,10 +127,7 @@ describe("AddEditProjectModal", () => {
 
     const spy = vi.spyOn(ProjectViewApi, "testDatabase").mockResolvedValue({
       isOk: true,
-      result: {
-        project: "project_name",
-        already_connected: true,
-      },
+      result: true,
     });
 
     render(<AddEditProjectModal mode={AddEditDialogMode.ADD} isVisible={true} handleOnClose={vi.fn()} handleOnConfirm={vi.fn()} />);
@@ -161,8 +159,9 @@ describe("AddEditProjectModal", () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
+          isConnected: true,
           host: "localhost",
-          port: 5432,
+          port: "5432",
           database: "db",
           username: "user",
           password: "pass",

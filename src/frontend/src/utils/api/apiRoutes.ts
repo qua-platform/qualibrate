@@ -26,8 +26,6 @@ export const CREATE_PROJECT = () => "api/project/create";
 export const UPDATE_PROJECT = () => "api/project/update";
 export const DELETE_PROJECT = (projectName: string) => `api/project/delete/${projectName}`;
 export const TEST_DB_CONNECTION = () => "api/project/db/test-connection";
-export const CONNECT_DB = () => "api/project/db/connect";
-export const DISCONNECT_DB = () => "api/project/db/disconnect";
 export const STOP_RUNNING = () => "execution/stop";
 export const ALL_NODES = () => "execution/get_nodes";
 export const ALL_GRAPHS = () => "execution/get_graphs";

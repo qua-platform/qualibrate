@@ -3,10 +3,8 @@ import { API_METHODS, Res } from "../../../utils/api/types";
 import {
   ACTIVE_PROJECT,
   ALL_PROJECTS,
-  CONNECT_DB,
   CREATE_PROJECT,
   DELETE_PROJECT,
-  DISCONNECT_DB,
   TEST_DB_CONNECTION,
   UPDATE_PROJECT,
 } from "../../../utils/api/apiRoutes";
@@ -33,11 +31,6 @@ export interface NewProjectFormData {
   dataPath?: string;
   quamPath?: string;
   calibrationPath?: string;
-}
-
-export interface TestDBDTO {
-  project: string;
-  already_connected: boolean;
 }
 
 export interface ProjectDTO {
@@ -92,26 +85,10 @@ export class ProjectViewApi extends Api {
     });
   }
 
-  static testDatabase(dbInfo: DatabaseDTO): Promise<Res<TestDBDTO>> {
+  static testDatabase(dbInfo: DatabaseDTO): Promise<Res<true>> {
     return this._fetch(this.api(TEST_DB_CONNECTION()), API_METHODS.POST, {
       headers: BASIC_HEADERS,
       body: JSON.stringify(dbInfo),
-    });
-  }
-
-  static connectToProjectDB(dbInfo: DatabaseDTO): Promise<Res<ProjectDTO>> {
-    return this._fetch(this.api(CONNECT_DB()), API_METHODS.POST, {
-      headers: BASIC_HEADERS,
-      body: JSON.stringify(dbInfo),
-      // queryParams: { project_name: formData.projectName },
-    });
-  }
-
-  static disconnectToProjectDB(dbInfo: DatabaseDTO): Promise<Res<ProjectDTO>> {
-    return this._fetch(this.api(DISCONNECT_DB()), API_METHODS.POST, {
-      headers: BASIC_HEADERS,
-      body: JSON.stringify(dbInfo),
-      // queryParams: { project_name: formData.projectName },
     });
   }
 

@@ -30,30 +30,6 @@ export const testDatabase = (dbInfo: DatabaseDTO) => {
   }
 };
 
-export const connectToProjectDB = (dbInfo: DatabaseDTO) => {
-  try {
-    return ProjectViewApi.connectToProjectDB(dbInfo);
-  } catch (e) {
-    console.error(
-      `Failed to connect to database name=${dbInfo.database}, on host=${dbInfo.host}, requested parameters=${JSON.stringify(dbInfo)}`,
-      e
-    );
-    return null;
-  }
-};
-
-export const disconnectToProjectDB = (dbInfo: DatabaseDTO) => {
-  try {
-    return ProjectViewApi.disconnectToProjectDB(dbInfo);
-  } catch (e) {
-    console.error(
-      `Failed to disconnect to database name=${dbInfo.database} on host=${dbInfo.host}, requested parameters=${JSON.stringify(dbInfo)}`,
-      e
-    );
-    return undefined;
-  }
-};
-
 export const createProject = (projectInfo: CreateEditProjectDTO) => {
   try {
     return ProjectViewApi.createProject(projectInfo);

@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NodeElement } from "../../../../src/modules/Nodes/components/NodeElement/NodeElement";
-import { createTestProviders } from "../../utils";
+import { createTestProviders } from "../../utils/providers";
 import * as NodesAPI from "../../../../src/stores/NodesStore/api/NodesAPI";
 import { setSelectedNode } from "../../../../src/stores/NodesStore/actions";
 import { NodeExecution } from "../../../../src/stores/WebSocketStore/WebSocketStore";
@@ -42,21 +42,21 @@ describe("NodeElement - Parameter Management", () => {
         default: "q1.resonator",
         title: "Resonator",
         type: "string" as ParameterTypes,
-        is_targets: false
+        is_targets: false,
       },
       sampling_points: {
         default: 100,
         title: "Sampling Points",
         type: "number" as ParameterTypes,
-        is_targets: false
+        is_targets: false,
       },
       enable_fitting: {
         default: true,
         title: "Enable Fitting",
         type: "boolean" as ParameterTypes,
-        is_targets: false
-      }
-    }
+        is_targets: false,
+      },
+    },
   };
 
   beforeEach(() => {
@@ -97,7 +97,7 @@ describe("NodeElement - Parameter Management", () => {
     const longNameNode = {
       ...mockNode,
       name: "very_long_node_name_that_exceeds_forty_characters_definitely",
-      title: "VeryVeryLongNodeNameThatExceedsFortyCharactersDefinitely"
+      title: "VeryVeryLongNodeNameThatExceedsFortyCharactersDefinitely",
     };
 
     const { Providers } = createTestProviders({ allNodes: { long_node: longNameNode } });
@@ -125,9 +125,9 @@ describe("NodeElement - Execution", () => {
         value: "q1.resonator",
         title: "Resonator",
         type: "string" as ParameterTypes,
-        is_targets: false
-      }
-    }
+        is_targets: false,
+      },
+    },
   };
 
   beforeEach(() => {
@@ -141,10 +141,10 @@ describe("NodeElement - Execution", () => {
           is_running: false,
           runnable_type: "node",
           node: null,
-          graph: null
-        }
+          graph: null,
+        },
       },
-      allNodes: { test_cal: mockNode }
+      allNodes: { test_cal: mockNode },
     });
 
     render(
@@ -167,14 +167,14 @@ describe("NodeElement - Execution", () => {
       detail: [
         {
           type: "value_error",
-          msg: "Invalid resonator format"
-        }
-      ]
+          msg: "Invalid resonator format",
+        },
+      ],
     };
 
     vi.spyOn(NodesAPI.NodesApi, "submitNodeParameters").mockResolvedValue({
       isOk: false,
-      error: mockError
+      error: mockError,
     });
 
     const { Providers } = createTestProviders({
@@ -183,10 +183,10 @@ describe("NodeElement - Execution", () => {
           is_running: false,
           runnable_type: "node",
           node: null,
-          graph: null
-        }
+          graph: null,
+        },
       },
-      allNodes: { test_cal: mockNode }
+      allNodes: { test_cal: mockNode },
     });
 
     render(
@@ -220,10 +220,10 @@ describe("NodeElement - Execution", () => {
           is_running: false,
           runnable_type: "node",
           node: null,
-          graph: null
-        }
+          graph: null,
+        },
       },
-      allNodes: { test_cal: mockNode }
+      allNodes: { test_cal: mockNode },
     });
 
     render(
@@ -245,7 +245,7 @@ describe("NodeElement - Execution", () => {
     // Verify API was called with correct parameters
     await waitFor(() => {
       expect(mockSubmit).toHaveBeenCalledWith("test_cal", {
-        resonator: "q1.resonator"
+        resonator: "q1.resonator",
       });
     });
   });
@@ -254,12 +254,14 @@ describe("NodeElement - Execution", () => {
     const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
     // Pre-select the node
     mockStore.dispatch(setSelectedNode("test_cal"));
-    mockStore.dispatch(setRunStatus({
-      is_running: true,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 50 }),
-      graph: null
-    }));
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: true,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 50 }),
+        graph: null,
+      })
+    );
 
     render(
       <Providers>
@@ -283,7 +285,7 @@ describe("NodeElement - WebSocket Status Integration", () => {
     name: "test_cal",
     title: "Test Calibration",
     description: "Test description",
-    parameters: {}
+    parameters: {},
   };
 
   beforeEach(() => {
@@ -292,12 +294,14 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
   it("should show status indicator for running node", () => {
     const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
-    mockStore.dispatch(setRunStatus({
-      is_running: true,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 75 }),
-      graph: null
-    }));
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: true,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 75 }),
+        graph: null,
+      })
+    );
 
     render(
       <Providers>
@@ -318,12 +322,14 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
   it("should show green dot when node finished", () => {
     const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
-    mockStore.dispatch(setRunStatus({
-      is_running: false,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "test_cal", status: "finished", percentage_complete: 100 }),
-      graph: null
-    }));
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: false,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "finished", percentage_complete: 100 }),
+        graph: null,
+      })
+    );
 
     const { container } = render(
       <Providers>
@@ -346,12 +352,14 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
   it("should show red dot when node errored", () => {
     const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
-    mockStore.dispatch(setRunStatus({
-      is_running: false,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "test_cal", status: "error", percentage_complete: 0 }),
-      graph: null
-    }));
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: false,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "error", percentage_complete: 0 }),
+        graph: null,
+      })
+    );
 
     const { container } = render(
       <Providers>
@@ -370,12 +378,14 @@ describe("NodeElement - WebSocket Status Integration", () => {
   it("should not show status for different running node", () => {
     // Catches complex conditional logic in status display
     const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
-    mockStore.dispatch(setRunStatus({
-      is_running: true,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "other_node", status: "running", percentage_complete: 50 }),
-      graph: null
-    }));
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: true,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "other_node", status: "running", percentage_complete: 50 }),
+        graph: null,
+      })
+    );
 
     render(
       <Providers>
@@ -401,7 +411,7 @@ describe("NodeElement - UI Interactions", () => {
       name: "test_calibration_with_extremely_long_name_that_exceeds_forty_characters_and_needs_wrapping",
       title: "Test Calibration With Extremely Long Name That Exceeds Forty Characters And Needs Wrapping",
       description: "Test description",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { long_node: longNameNode } });
@@ -427,7 +437,7 @@ describe("NodeElement - UI Interactions", () => {
       name: "test_cal",
       title: "Test Calibration",
       description: "This is a detailed description of the calibration node that explains what it does",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
@@ -457,7 +467,7 @@ describe("NodeElement - UI Interactions", () => {
       name: "test_cal",
       title: "Test Calibration",
       description: "",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
@@ -485,7 +495,7 @@ describe("NodeElement - UI Interactions", () => {
       name: "resonator_spectroscopy",
       title: "Resonator Spectroscopy",
       description: "Test",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { resonator_spectroscopy: nodeWithTitle } });
@@ -506,7 +516,7 @@ describe("NodeElement - UI Interactions", () => {
     const nodeWithoutTitle = {
       name: "resonator_spectroscopy",
       description: "Test",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { resonator_spectroscopy: nodeWithoutTitle } });
@@ -527,7 +537,7 @@ describe("NodeElement - UI Interactions", () => {
       name: "test_cal",
       title: "Test Calibration",
       description: "Test",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });

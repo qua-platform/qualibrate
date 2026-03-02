@@ -143,51 +143,58 @@ const SnapshotComments: React.FC = () => {
     }
 
     return (
-        <div className={styles.commentSection}>
-            <div className={styles.commentHeader}>
-                <div className={styles.commentLabel}>Comments</div>
-                <button data-testid="add-comment-btn" className={styles.addCommentBtn} onClick={() => handleOpenDialogOnClick("add")}
-                        title="Add comment">
-                    +
-                </button>
-            </div>
-            {comments?.length === 0 && <div className={styles.noComment}>No comments yet</div>}
-            {comments?.length > 0 && (
-                <div className={styles.commentsList}>
-                    {comments.map((comment, index) => (
-                        <div key={`${comment.id}-${index}`} className={styles.commentItem}>
-                            <div className={styles.commentItemHeader}>
-                                <div className={styles.commentTimestamp}>{formatDateTime(comment.createdAt)}</div>
-                                <div className={styles.commentItemAction}>
-                                    <button data-testid={`edit-comment-btn${index}`} className={styles.editCommentBtn}
-                                            onClick={() => handleOpenDialogOnClick("edit", comment)}
-                                            title="Edit comment">
-                                        ✎
-                                    </button>
-                                    <button
-                                        data-testid={`delete-comment-btn${index}`}
-                                        className={styles.deleteCommentBtn}
-                                        onClick={() => handleOpenDialogOnClick("delete", comment)}
-                                        title="Delete comment"
-                                    >
-                                        🗑
-                                    </button>
-                                </div>
-                            </div>
-                            <div className={styles.commentItemText}>{comment.value}</div>
-                        </div>
-                    ))}
-                </div>
-            )}
-            {showCommentModal && (
-                <CommentModal
-                    mode={modalDialogMode}
-                    comment={commentForModal}
-                    handleOnSave={handleOnDialogSave}
-                    handleOnClose={handleOnDialogClose}
-                />
-            )}
+      <div className={styles.commentSection}>
+        <div className={styles.commentHeader}>
+          <div className={styles.commentLabel}>Comments</div>
+          <button
+            data-testid="add-comment-btn"
+            className={styles.addCommentBtn}
+            onClick={() => handleOpenDialogOnClick("add")}
+            title="Add comment"
+          >
+            +
+          </button>
         </div>
+        {comments?.length === 0 && <div className={styles.noComment}>No comments yet</div>}
+        {comments?.length > 0 && (
+          <div className={styles.commentsList}>
+            {comments.map((comment, index) => (
+              <div key={`${comment.id}-${index}`} className={styles.commentItem}>
+                <div className={styles.commentItemHeader}>
+                  <div className={styles.commentTimestamp}>{formatDateTime(comment.createdAt ?? "")}</div>
+                  <div className={styles.commentItemAction}>
+                    <button
+                      data-testid={`edit-comment-btn${index}`}
+                      className={styles.editCommentBtn}
+                      onClick={() => handleOpenDialogOnClick("edit", comment)}
+                      title="Edit comment"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      data-testid={`delete-comment-btn${index}`}
+                      className={styles.deleteCommentBtn}
+                      onClick={() => handleOpenDialogOnClick("delete", comment)}
+                      title="Delete comment"
+                    >
+                      🗑
+                    </button>
+                  </div>
+                </div>
+                <div className={styles.commentItemText}>{comment.value}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        {showCommentModal && (
+          <CommentModal
+            mode={modalDialogMode}
+            comment={commentForModal}
+            handleOnSave={handleOnDialogSave}
+            handleOnClose={handleOnDialogClose}
+          />
+        )}
+      </div>
     );
 };
 
