@@ -137,4 +137,5 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
         try:
             yield
         finally:
+            # make sure we disconnect all connections when api is closed
             DBRegistry.get().disconnect_all()

@@ -24,4 +24,5 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
         snapshot_history_task.cancel()
         with suppress(asyncio.CancelledError):
             await snapshot_history_task
+        # make sure we disconnect all connections when api is closed
         DBRegistry.get().disconnect_all()

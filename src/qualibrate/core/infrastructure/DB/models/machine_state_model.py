@@ -12,6 +12,3 @@ class MachineState(Base):
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, default=datetime.now)
     content = Column(JSONB)
-
-    def __repr__(self) -> str:
-        return f"<QuamState(id={self.id}, created_at={self.created_at})>"

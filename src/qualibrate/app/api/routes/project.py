@@ -25,6 +25,7 @@ from qualibrate.app.config import (
     get_config_path,
     get_settings,
 )
+from qualibrate.constants import DEMO_PROJECT_NAME
 from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
 
 project_router = APIRouter(prefix="/project", tags=["project"])
@@ -183,22 +184,22 @@ def delete_project_endpoint(
     config_path: Annotated[Path, Depends(get_config_path)],
     settings: Annotated[QualibrateConfig, Depends(get_settings)],
 ) -> dict[str, bool]:
-    if project_name == "demo_project":
+    if project_name == DEMO_PROJECT_NAME:
         raise HTTPException(status_code=403, detail="Cannot delete demo project.")
 
     if projects_manager.project == project_name:
         # Make sure demo exists
         existing = [p.name for p in projects_manager.list()]
-        if "demo_project" not in existing:
+        if DEMO_PROJECT_NAME not in existing:
             raise HTTPException(
                 status_code=400,
-                detail="Cannot delete active project because 'demo_project' does not exist.",
+                detail=f"Cannot delete active project because '{DEMO_PROJECT_NAME}' does not exist.",
             )
 
         old_project = projects_manager.project
 
         # Switch active project
-        projects_manager.project = "demo_project"
+        projects_manager.project = DEMO_PROJECT_NAME
         routes_vars.ACTIVE_PROJECT_NOT_SET = False
 
         # Notify runner (reuse your logic)
@@ -225,9 +226,9 @@ def delete_project_endpoint(
         except Exception as e:
             logging.error(f"Could not disconnect from project {old_project}: {e}")
         try:
-            db_manager.db_connect("demo_project")
+            db_manager.db_connect(DEMO_PROJECT_NAME)
         except RuntimeError as e:
-            logging.error(f"Could not switch DB connection to demo_project: {e}")
+            logging.error(f"Could not switch DB connection to {DEMO_PROJECT_NAME}: {e}")
     try:
         projects_manager.delete(project_name)
     except QValueException as e:
@@ -320,7 +321,7 @@ def update_project_endpoint(
             calibration_library_folder=calibration_library_folder,
             quam_state_path=quam_state_path,
             database=db_config,
-            database_state=db_state
+            database_state=db_state,
         )
     except QValueException as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
@@ -328,21 +329,6 @@ def update_project_endpoint(
     project = next(filter(lambda p: p.name == project_name, projects_manager.list()), None)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found after update")
-    db_manager = DBRegistry.get()
-    if db_state.is_connected:
-        if not db_manager.is_connected(project_name):
-            try:
-                db_manager.db_connect(project_name)
-                logging.info(f"Connected to database for project {project_name}")
-            except RuntimeError as e:
-                logging.error(f"Could not connect to database for project {project_name}: {e}")
-    else:
-        if db_manager.is_connected(project_name):
-            try:
-                db_manager.db_disconnect(project_name)
-                logging.info(f"Disconnected from database for project {project_name}")
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Could not disconnect project {project_name}: {e}") from e
 
     return project
 
@@ -439,6 +425,7 @@ def set_active_project(
     new_settings = get_settings(config_path)
     if settings.runner and new_settings.runner and new_settings.runner != settings.runner:
         notify_runner(new_settings)
+    # TODO find a way to move logic to somewhere
     db_manager = DBRegistry.get()
     if old_project and db_manager.is_connected(old_project):
         try:

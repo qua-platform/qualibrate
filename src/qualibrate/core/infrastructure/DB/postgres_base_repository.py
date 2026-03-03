@@ -34,23 +34,30 @@ class PostgresBaseRepository(DBOperations):
         with self._db.session(self.project) as session:
             obj = self.model(**data)  # type: ignore[misc]
             session.add(obj)
-            return obj
+            session.expunge(obj)
+        return obj
 
     @handle_missing_project(default=None)
     def load(self, id: Any) -> Any:
         assert self.model is not None  # Validated in __init__
+        obj = None
         with self._db.session(self.project) as session:
-            return session.get(self.model, id)
+            obj = session.get(self.model, id)
+            if obj:
+                session.expunge(obj)
+        return obj
 
     @handle_missing_project(default=None)
     def update(self, id: Any, data: Any) -> Any:
         assert self.model is not None  # Validated in __init__
+        obj = None
         with self._db.session(self.project) as session:
             obj = session.get(self.model, id)
             if obj:
                 for key, value in data.items():
                     setattr(obj, key, value)
-                return obj
+                session.expunge(obj)
+        return obj
 
     @handle_missing_project(default=None)
     def delete(self, id: Any) -> None:
