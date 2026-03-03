@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import MainLayout from "../MainLayout/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../../../../utils/api/apiRoutes";
-import { DATA_KEY, GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY, PROJECT_KEY } from "../../ModulesRegistry";
+import { DATA_KEY, GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY } from "../../ModulesRegistry";
 import { GraphLibrary } from "../../../GraphLibrary";
 import { GraphStatus } from "../../../GraphStatus";
 import { classNames } from "../../../../utils";

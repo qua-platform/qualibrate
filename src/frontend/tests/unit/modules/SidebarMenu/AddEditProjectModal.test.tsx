@@ -161,7 +161,7 @@ describe("AddEditProjectModal", () => {
         expect.objectContaining({
           is_connected: true,
           host: "localhost",
-          port: "5432",
+          port: 5432,
           database: "db",
           username: "user",
           password: "pass",
