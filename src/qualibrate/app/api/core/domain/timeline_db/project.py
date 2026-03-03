@@ -4,6 +4,7 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
+from qualibrate_config.models import DatabaseStateConfig, DBConfig
 
 from qualibrate.app.api.core.domain.bases.project import ProjectsManagerBase
 from qualibrate.app.api.core.models.project import Project
@@ -33,6 +34,9 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
         storage_location: Path | None = None,
         calibration_library_folder: Path | None = None,
         quam_state_path: Path | None = None,
+        # to avoid breaking interface
+        database: DBConfig | None = None,
+        database_state: DatabaseStateConfig | None = None,
     ) -> str:
         if any(project.name == project_name for project in self.list()):
             raise QValueException(f"Project {project_name} already exists.")
@@ -51,6 +55,8 @@ class ProjectsManagerTimelineDb(ProjectsManagerBase):
             storage_location,
             calibration_library_folder,
             quam_state_path,
+            database,
+            database_state,
         )
 
     def list(self) -> Sequence[Project]:

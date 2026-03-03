@@ -14,6 +14,8 @@ from qualibrate.composite.api.auth_middleware import (
     RunnerAuthMiddleware,
 )
 from qualibrate.composite.utils.logging_filter import EndpointFilter
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
+from qualibrate.core.utils.db_utils.db_startup import init_db_at_startup
 
 # Frequently polled endpoints that should be filtered from logs
 EXECUTION_STATUS_ENDPOINT = "/execution/is_running"
@@ -123,6 +125,7 @@ def spawn_qua_dashboards(app: FastAPI) -> None:
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    init_db_at_startup()
     async with AsyncExitStack() as stack:
         for route in filter(
             lambda r: isinstance(r, Mount) and isinstance(r.app, FastAPI),
@@ -131,4 +134,8 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
             await stack.enter_async_context(
                 route.app.router.lifespan_context(app)  # type: ignore[attr-defined]
             )
-        yield
+        try:
+            yield
+        finally:
+            # make sure we disconnect all connections when api is closed
+            DBRegistry.get().disconnect_all()

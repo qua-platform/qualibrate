@@ -1,15 +1,18 @@
 import importlib
 from datetime import datetime
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 from packaging.version import Version
 from qualang_tools.results import DataHandler
+from qualibrate_config.resolvers import (
+    get_qualibrate_config,
+    get_qualibrate_config_path,
+)
 
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
+from qualibrate.core.infrastructure.DB.postgres_management import PostgresManagement
+from qualibrate.core.infrastructure.DB.repositories.machine_state_repository import MachineStateRepository
 from qualibrate.core.models.execution_type import ExecutionType
 from qualibrate.core.models.outcome import Outcome
 from qualibrate.core.storage.snapshot_json_handler import SnapshotJsonHandler
@@ -49,6 +52,12 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         self.snapshot_idx = None
         self._json_handler = SnapshotJsonHandler(root_data_folder)
         self._workflow_parent_id: int | None = None
+        DBRegistry.configure(PostgresManagement())
+        project_name = get_qualibrate_config(get_qualibrate_config_path()).project
+        try:
+            DBRegistry.get().db_connect(project_name)
+        except RuntimeError as e:
+            logger.warning(f"Could not connect to DB on startup: {e}")
 
     def set_workflow_parent_id(self, parent_id: int | None) -> None:
         """Set the parent workflow ID for this node's snapshot.
@@ -146,6 +155,9 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine: MachineProtocol,
         relative_data_path: str | None = "./quam_state.json",
     ) -> None:
+        # save to db here
+        self._save_quam_state_to_db(machine_state=machine)
+
         quam = importlib.import_module("quam")
         if quam is not None:
             quam_version = getattr(quam, "__version__", "0.3.10")
@@ -171,6 +183,16 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         machine_data_path = Path(self.data_handler.path) / relative_data_path
         logger.info(f"Saving machine to data folder {machine_data_path}")
         machine.save(machine_data_path)
+
+    def _save_quam_state_to_db(self, machine_state: MachineProtocol) -> None:
+        """temporary untill we add storage manager for db"""
+        try:
+            db_manager = cast(PostgresManagement, DBRegistry.get())
+            machine_state_repository = MachineStateRepository(db_manager)
+            logger.info("Saving machine state to db")
+            machine_state_repository.save({"content": machine_state.to_dict()})
+        except RuntimeError as e:
+            logger.warning(f"Could not save machine state to db: {e}")
 
     def _save_old_quam(self, machine: MachineProtocol) -> None:
         if self.data_handler.path is None or isinstance(self.data_handler.path, int):

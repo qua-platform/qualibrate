@@ -6,6 +6,8 @@ from typing import Any
 
 from fastapi import FastAPI
 
+from qualibrate.core.infrastructure.DB.DBRegistry import DBRegistry
+from qualibrate.core.utils.db_utils.db_startup import init_db_at_startup
 from qualibrate.core.utils.logger_m import logger
 from qualibrate.runner.api.sockets.tasks import execution_history, run_status
 from qualibrate.runner.core.app.ws_managers import get_output_logs_socket_manager
@@ -46,6 +48,8 @@ def _setup_log_broadcasting(loop: asyncio.AbstractEventLoop) -> None:
 
 @asynccontextmanager
 async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    init_db_at_startup()
+
     # Get the running event loop to pass to sync broadcast callback
     loop = asyncio.get_running_loop()
     _setup_log_broadcasting(loop)
@@ -62,3 +66,4 @@ async def app_lifespan(app: FastAPI) -> AsyncIterator[None]:
         for task in (run_status_task, execution_history_task):
             with suppress(asyncio.CancelledError):
                 await task
+        DBRegistry.get().disconnect_all()
