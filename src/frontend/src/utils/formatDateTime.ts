@@ -3,9 +3,12 @@
  */
 export const formatDateTime = (dateTimeString: string) => {
   const [date, time] = dateTimeString.split("T");
-  const timeWithoutZone = time.split("+")[0].split("Z")[0];
-  const timeWithoutMilliseconds = timeWithoutZone.split(".")[0];
-  return `${date} ${timeWithoutMilliseconds}`;
+  if (date && time) {
+    const timeWithoutZone = time.split("+")[0].split("Z")[0];
+    const timeWithoutMilliseconds = timeWithoutZone.split(".")[0];
+    return `${date} ${timeWithoutMilliseconds}`;
+  }
+  return dateTimeString;
 };
 
 /**
@@ -13,5 +16,5 @@ export const formatDateTime = (dateTimeString: string) => {
  */
 export const formatDate = (dateTimeString: string) => {
   const dateAndTime = dateTimeString.split("T");
-  return `${dateAndTime[0]} `;
+  return `${dateAndTime && dateAndTime.length > 0 ? dateAndTime[0] : dateTimeString} `;
 };

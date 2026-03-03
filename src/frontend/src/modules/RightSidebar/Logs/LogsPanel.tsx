@@ -19,7 +19,7 @@ export const LogsPanel = () => {
 
     logsWS.current = new WebSocketService<LogsViewerResponseDTO>(
       logsUrl,
-      (logItem) => setLogs(prev => [logItem, ...prev]),
+      (logItem) => setLogs((prev) => [logItem, ...prev]),
       () => dispatch(handleHideConnectionErrorDialog()),
       () => dispatch(handleShowConnectionErrorDialog())
     );
@@ -44,7 +44,7 @@ export const LogsPanel = () => {
         {logs.map((log, index) => {
           return (
             <div key={`${log.name}_${index}`}>
-              <div className={styles.logsTimestamp}>{`${formatDateTime(log.asctime)} - ${log.name} - ${log.levelname}`}</div>
+              <div className={styles.logsTimestamp}>{`${formatDateTime(log.asctime ?? "")} - ${log.name} - ${log.levelname}`}</div>
               <div className={styles.logsMessage}>
                 {/*{` ${log.message}`}*/}
                 {log.message?.split("\\n").map((item, idx) => {

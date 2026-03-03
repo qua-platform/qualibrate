@@ -1,11 +1,11 @@
 import { DataIcon, GraphLibraryIcon, GraphStatusIcon, HelpIcon, IconProps, NodeLibraryIcon, ProjectIcon } from "../../components";
 import React from "react";
-import { cyKeys } from "../../utils";
-import { Project } from "../Project";
 import { NodesRightPanel } from "../Nodes";
+import cyKeys from "../../utils/cyKeys";
 import { GraphLibrary } from "../GraphLibrary";
 import { GraphStatus } from "../GraphStatus";
 import { DataRightPanel } from "../Data";
+import { ProjectMenuItem } from "../SidebarMenu";
 
 export const DATA_KEY: ModuleKey = "execution-history";
 export const NODES_KEY: ModuleKey = "nodes";
@@ -97,7 +97,7 @@ const ModulesRegistry: Array<Module> = [
   {
     keyId: PROJECT_KEY,
     path: "projects",
-    Component: Project,
+    Component: ProjectMenuItem,
     menuItem: {
       sideBarTitle: "Projects",
       title: "Projects",

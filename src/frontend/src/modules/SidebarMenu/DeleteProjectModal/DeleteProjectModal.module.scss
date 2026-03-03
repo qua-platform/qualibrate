@@ -1,0 +1,93 @@
+.modalWrapper {
+  background: #161b22 !important;
+  border-radius: 12px !important;
+  border: 1px solid #30363d;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 70%) !important;
+  align-items: center;
+  justify-content: center;
+}
+.confirmDialog {
+  padding: 24px;
+  text-align: center;
+  background-color: #161b22 !important;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  width: 430px;
+  max-width: 480px;
+}
+
+.confirmDialogIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: rgba(248, 81, 73, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    color: #f85149;
+  }
+}
+
+.confirmDialogTitle {
+  font-weight: 600;
+  font-size: 18px;
+  color: #c9d1d9;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.confirmDialogMessage {
+  font-size: 14px;
+  color: #7d8590;
+  text-align: center;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.confirmDialogProject {
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+.confirmDialogActions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btnSecondary {
+  background-color: #21262d;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+
+  &:hover {
+    background: #30363d;
+  }
+}
+
+.btnDanger {
+  background: #da3633;
+  color: #fff;
+
+  &:hover {
+    background: #f85149;
+  }
+}

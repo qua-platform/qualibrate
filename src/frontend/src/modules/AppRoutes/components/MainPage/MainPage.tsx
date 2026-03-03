@@ -3,15 +3,14 @@ import { useSelector } from "react-redux";
 import MainLayout from "../MainLayout/MainLayout";
 import { useNavigate } from "react-router-dom";
 import { LOGIN_URL } from "../../../../utils/api/apiRoutes";
-import { DATA_KEY, GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY, PROJECT_KEY } from "../../ModulesRegistry";
+import { DATA_KEY, GRAPH_LIBRARY_KEY, GRAPH_STATUS_KEY, ModuleKey, NODES_KEY } from "../../ModulesRegistry";
 import { GraphLibrary } from "../../../GraphLibrary";
 import { GraphStatus } from "../../../GraphStatus";
-import { Project } from "../../../Project";
 import { classNames } from "../../../../utils";
 import styles from "./MainPage.module.scss";
 import { QUAlibrateLogoIcon } from "../../../../components";
 import { getIsAuthorized } from "../../../../stores/AuthStore";
-import { getActiveProject, getShouldGoToProjectPage } from "../../../../stores/ProjectStore";
+import { getActiveProject } from "../../../../stores/ProjectStore";
 import { getActivePage, getOpenedOncePages, setActivePage } from "../../../../stores/NavigationStore";
 import { useRootDispatch } from "../../../../stores";
 import { DataLeftPanel, DataRightPanel } from "../../../Data";
@@ -44,9 +43,6 @@ const Content = () => {
       <PageWrapper nodeKey={GRAPH_STATUS_KEY}>
         <GraphStatus />
       </PageWrapper>
-      <PageWrapper nodeKey={PROJECT_KEY}>
-        <Project />
-      </PageWrapper>
       <PageWrapper nodeKey={DATA_KEY}>
         <DataRightPanel />
       </PageWrapper>
@@ -74,7 +70,6 @@ const MainPage = () => {
   const isAuthorized = useSelector(getIsAuthorized);
   const dispatch = useRootDispatch();
   const activeProject = useSelector(getActiveProject);
-  const shouldGoToProjectPage = useSelector(getShouldGoToProjectPage);
   const navigate = useNavigate();
   const activePage = useSelector(getActivePage);
   const selectedSnapshot = useSelector(getSelectedSnapshot);
@@ -113,12 +108,10 @@ const MainPage = () => {
   useEffect(() => {
     if (!isAuthorized) {
       navigate(LOGIN_URL);
-    } else if (!activeProject || shouldGoToProjectPage) {
-      dispatch(setActivePage(PROJECT_KEY));
     } else {
       dispatch(setActivePage(NODES_KEY));
     }
-  }, [isAuthorized, activeProject, shouldGoToProjectPage]);
+  }, [isAuthorized, activeProject]);
 
   const customTitle = () => {
     switch (activePage) {

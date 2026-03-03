@@ -32,10 +32,10 @@ export const SnapshotElement: React.FC<{ snapshot: SnapshotDTO; isSelected: bool
                 ...(snapshot.status && { Status: snapshot.status }),
                 ...(snapshot.metadata?.run_duration && { "Run duration": `${snapshot.metadata?.run_duration}s` }),
                 ...(snapshot.metadata?.run_start && {
-                  "Run start": formatDateTime(snapshot.metadata?.run_start),
+                  "Run start": formatDateTime(snapshot.metadata?.run_start ?? ""),
                 }),
                 ...((snapshot.metadata?.run_end || snapshot.created_at) && {
-                  "Run end": formatDateTime(snapshot.metadata?.run_end ?? snapshot.created_at),
+                  "Run end": formatDateTime(snapshot.metadata?.run_end ?? snapshot.created_at ?? ""),
                 }),
               }}
               isInfoSection={true}

@@ -1,10 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { NodeElement } from "../../../../src/modules/Nodes/components/NodeElement/NodeElement";
 import ListItemStyles from "../../../../src/components/ListCard/ListCard.module.scss";
 import { createTestProviders } from "../../utils/providers";
-import { setSelectedNode } from "../../../../src/stores/NodesStore/actions";
 import { NodeExecution } from "../../../../src/stores/WebSocketStore/WebSocketStore";
 import { setRunStatus } from "../../../../src/stores/WebSocketStore/actions";
 import { ParameterTypes } from "../../../../src/modules/common/Parameters/Parameters";

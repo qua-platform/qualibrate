@@ -1,6 +1,5 @@
 import { RootDispatch, RootState } from "../index";
-import { setLastRunInfo, getLastRunInfo } from "../GraphStores/GraphLibrary";
-import { fetchShouldRedirectUserToProjectPage } from "../ProjectStore";
+import { getLastRunInfo, setLastRunInfo } from "../GraphStores/GraphLibrary";
 import { getConnectionLostAt, getShowConnectionErrorDialog } from "./selectors";
 import { RunStatusType, webSocketSlice } from "./WebSocketStore";
 
@@ -38,16 +37,15 @@ export const handleHideConnectionErrorDialog = () => (dispatch: RootDispatch, ge
   localStorage.setItem("backandWorking", "true");
   dispatch(setConnectionLostAt(null));
   dispatch(setConnectionLostSeconds(0));
-  dispatch(fetchShouldRedirectUserToProjectPage());
   dispatch(setShowConnectionErrorDialog(false));
 };
 
-export const handleSetRunStatus = (runStatus: RunStatusType) =>
-  (dispatch: RootDispatch, getState: () => RootState) => {
-    const lastRunInfo = getLastRunInfo(getState());
+export const handleSetRunStatus = (runStatus: RunStatusType) => (dispatch: RootDispatch, getState: () => RootState) => {
+  const lastRunInfo = getLastRunInfo(getState());
 
-    dispatch(setRunStatus(runStatus));
-    dispatch(setLastRunInfo({
+  dispatch(setRunStatus(runStatus));
+  dispatch(
+    setLastRunInfo({
       ...lastRunInfo,
       active: runStatus.is_running,
       workflowName: runStatus.graph?.name,
@@ -56,5 +54,6 @@ export const handleSetRunStatus = (runStatus: RunStatusType) =>
       nodesTotal: runStatus.graph?.total_nodes,
       runDuration: runStatus.graph?.run_duration,
       error: runStatus.graph?.run_results?.error || undefined,
-    }));
-  };
+    })
+  );
+};

@@ -1,12 +1,11 @@
-import "@testing-library/jest-dom"
-import { describe, it, expect } from "vitest";
+import "@testing-library/jest-dom";
+import { describe, expect, it } from "vitest";
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
-import { NodeMap } from "../../../../src/modules/Nodes";
+import { NodeMap, NodesLeftPanel } from "../../../../src/modules/Nodes";
 import { useRootDispatch } from "../../../../src/stores";
 import { setAllNodes, setNodeListSearch } from "../../../../src/stores/NodesStore";
 import { createTestProviders } from "../../utils/providers";
-import { NodesLeftPanel } from "../../../../src/modules/Nodes/components/NodesLeftPanel/NodesLeftPanel";
 import { ParameterTypes } from "../../../../src/components/Parameters/Parameters";
 
 // Helper component to set nodes in context
@@ -16,7 +15,7 @@ const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
   // Set nodes immediately
   React.useEffect(() => {
     dispatch(setAllNodes(nodes));
-    dispatch(setNodeListSearch(''))
+    dispatch(setNodeListSearch(""));
   }, [nodes, setAllNodes]);
 
   return null;
@@ -26,10 +25,12 @@ const NodesSetter: React.FC<{ nodes: NodeMap }> = ({ nodes }) => {
 const TestWrapper: React.FC<{ children: React.ReactNode; nodes?: NodeMap }> = ({ children, nodes }) => {
   const { Providers } = createTestProviders();
 
-  return <Providers>
-    {nodes && <NodesSetter nodes={nodes} />}
-    {children}
-  </Providers>;
+  return (
+    <Providers>
+      {nodes && <NodesSetter nodes={nodes} />}
+      {children}
+    </Providers>
+  );
 };
 
 describe("NodeElementList", () => {
@@ -39,14 +40,14 @@ describe("NodeElementList", () => {
         name: "test_cal",
         title: "Test Calibration",
         description: "Test node",
-        parameters: {}
+        parameters: {},
       },
       qubit_spec: {
         name: "qubit_spec",
         title: "Qubit Spectroscopy",
         description: "Qubit node",
-        parameters: {}
-      }
+        parameters: {},
+      },
     };
 
     render(
@@ -62,7 +63,7 @@ describe("NodeElementList", () => {
     await waitFor(() => {
       expect(screen.getByTestId("node-element-test_cal")).toBeInTheDocument();
       expect(screen.getByTestId("node-element-qubit_spec")).toBeInTheDocument();
-    })
+    });
   });
 
   it("should render empty list when nodes object is empty", () => {
@@ -92,10 +93,10 @@ describe("NodeElementList", () => {
             default: "value1",
             title: "Parameter 1",
             type: "string" as ParameterTypes,
-            is_targets: false
-          }
-        }
-      }
+            is_targets: false,
+          },
+        },
+      },
     };
 
     render(

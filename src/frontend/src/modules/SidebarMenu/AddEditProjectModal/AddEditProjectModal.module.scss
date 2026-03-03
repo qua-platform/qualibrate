@@ -1,0 +1,197 @@
+.modalWrapper {
+  background: #161b22 !important;
+  border-radius: 12px !important;
+  border: 1px solid #30363d;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 70%) !important;
+}
+.modal {
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  width: 600px;
+  min-width: 350px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid #30363d;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+.closeBtn {
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: none;
+  border: none;
+  color: #7d8590;
+
+  &:hover {
+    background-color: #30363d;
+    color: #c9d1d9;
+  }
+}
+
+.modalBody {
+  padding: 24px;
+}
+
+.formGroup {
+  padding-bottom: 20px;
+}
+
+.formSection {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #30363d;
+}
+
+.formSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.formSectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #c9d1d9;
+  margin-bottom: 16px;
+}
+
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+.toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #30363d;
+  transition: 0.3s;
+  border-radius: 22px;
+  border: 1px solid #30363d;
+}
+
+.toggleSlider::before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #7d8590;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+.toggleSwitch input:checked:hover + .toggleSlider {
+  background-color: #2ea043;
+}
+.toggleSwitch input:checked + .toggleSlider {
+  background-color: #238636;
+  border-color: #238636;
+}
+.toggleSwitch input:checked + .toggleSlider:before {
+  transform: translateX(18px);
+  background-color: #fff;
+}
+
+.btnLink {
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #58a6ff;
+  font-size: 13px;
+  padding: 4px 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px 24px;
+  border-top: 1px solid #30363d;
+}
+
+.btn {
+  padding: 8px 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btnSecondary {
+  background-color: #21262d;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
+}
+
+.btnPrimary {
+  background-color: #238636;
+  color: #fff;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.formGroup input, .formGroup select{
+  width: 95%;
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #c9d1d9;
+  font-size: 14px;
+  outline: none;
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.formGroup label {
+  display: block;
+  font-size: 14px;
+  color: #c9d1d9;
+  margin-bottom: 8px;
+}
