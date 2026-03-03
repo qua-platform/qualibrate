@@ -43,7 +43,7 @@ const ParametersModal = ({ show, onClose, onApply, onParamChange, params = {} }:
   };
 
   return (
-    <Dialog classes={{ paper: styles.wrapper }} data-test-id open={show} onClose={handleClose}>
+    <Dialog classes={{ paper: styles.wrapper }} data-testid={"parameters-modal"} open={show} onClose={handleClose}>
       <DialogTitle className={styles.header}>Configure Parameters</DialogTitle>
       <DialogContent className={styles.body}>
         <button className={styles.close} onClick={handleClose}>
@@ -61,7 +61,12 @@ const ParametersModal = ({ show, onClose, onApply, onParamChange, params = {} }:
         <button className={classNames(styles.button, styles.secondary)} onClick={handleClose}>
           Close
         </button>
-        <button className={classNames(styles.button, styles.primary)} onClick={handleApply} disabled={errors.size > 0}>
+        <button
+          className={classNames(styles.button, styles.primary)}
+          data-testid={"run-button"}
+          onClick={handleApply}
+          disabled={errors.size > 0}
+        >
           Run
         </button>
       </DialogActions>

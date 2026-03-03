@@ -1,7 +1,7 @@
 export const getSearchStringIndex = (sourceString: string, searchValue: string) =>
   sourceString.trim().toLowerCase().indexOf(searchValue.trim().toLowerCase());
 
-export const getHighlightedText = (option: string, searchValue: string) => {
+export const getHighlightedText = (option: string = "", searchValue: string = "") => {
   const searchStringIndex = getSearchStringIndex(option, searchValue);
   const parts = [
     option.slice(0, searchStringIndex),

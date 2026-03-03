@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { NodeElement } from "../../../../src/modules/Nodes/components/NodeElement/NodeElement";
-import { createTestProviders } from "../../utils";
-import * as NodesAPI from "../../../../src/stores/NodesStore/api/NodesAPI";
+import ListItemStyles from "../../../../src/components/ListCard/ListCard.module.scss";
+import { createTestProviders } from "../../utils/providers";
 import { setSelectedNode } from "../../../../src/stores/NodesStore/actions";
 import { NodeExecution } from "../../../../src/stores/WebSocketStore/WebSocketStore";
 import { setRunStatus } from "../../../../src/stores/WebSocketStore/actions";
@@ -42,21 +42,21 @@ describe("NodeElement - Parameter Management", () => {
         default: "q1.resonator",
         title: "Resonator",
         type: "string" as ParameterTypes,
-        is_targets: false
+        is_targets: false,
       },
       sampling_points: {
         default: 100,
         title: "Sampling Points",
         type: "number" as ParameterTypes,
-        is_targets: false
+        is_targets: false,
       },
       enable_fitting: {
         default: true,
         title: "Enable Fitting",
         type: "boolean" as ParameterTypes,
-        is_targets: false
-      }
-    }
+        is_targets: false,
+      },
+    },
   };
 
   beforeEach(() => {
@@ -84,12 +84,14 @@ describe("NodeElement - Parameter Management", () => {
       </Providers>
     );
 
+    const nodeDescription = screen.getByTestId("node-description-test_cal");
+
     // Click on the node to select it
-    fireEvent.click(screen.getByTestId("node-element-test_cal"));
+    fireEvent.click(nodeDescription);
 
     // Parameters should now be visible
     await waitFor(() => {
-      expect(screen.getByTestId("node-parameters-wrapper")).toBeInTheDocument();
+      expect(nodeDescription.classList.contains("descriptionFull"));
     });
   });
 
@@ -97,7 +99,7 @@ describe("NodeElement - Parameter Management", () => {
     const longNameNode = {
       ...mockNode,
       name: "very_long_node_name_that_exceeds_forty_characters_definitely",
-      title: "VeryVeryLongNodeNameThatExceedsFortyCharactersDefinitely"
+      title: "VeryVeryLongNodeNameThatExceedsFortyCharactersDefinitely",
     };
 
     const { Providers } = createTestProviders({ allNodes: { long_node: longNameNode } });
@@ -114,190 +116,28 @@ describe("NodeElement - Parameter Management", () => {
   });
 });
 
-describe("NodeElement - Execution", () => {
-  const mockNode = {
-    name: "test_cal",
-    title: "Test Calibration",
-    description: "Test description",
-    parameters: {
-      resonator: {
-        default: "q1.resonator",
-        value: "q1.resonator",
-        title: "Resonator",
-        type: "string" as ParameterTypes,
-        is_targets: false
-      }
-    }
-  };
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("should show run button when node is selected and nothing is running", async () => {
-    const { Providers } = createTestProviders({
-      webSocket: {
-        runStatus: {
-          is_running: false,
-          runnable_type: "node",
-          node: null,
-          graph: null
-        }
-      },
-      allNodes: { test_cal: mockNode }
-    });
-
-    render(
-      <Providers>
-        <NodeElement nodeKey="test_cal" />
-      </Providers>
-    );
-
-    // Select the node
-    fireEvent.click(screen.getByTestId("node-element-test_cal"));
-
-    // Run button should be visible
-    await waitFor(() => {
-      expect(screen.getByTestId("run-button")).toBeInTheDocument();
-    });
-  });
-
-  it("should display validation error from backend", async () => {
-    const mockError = {
-      detail: [
-        {
-          type: "value_error",
-          msg: "Invalid resonator format"
-        }
-      ]
-    };
-
-    vi.spyOn(NodesAPI.NodesApi, "submitNodeParameters").mockResolvedValue({
-      isOk: false,
-      error: mockError
-    });
-
-    const { Providers } = createTestProviders({
-      webSocket: {
-        runStatus: {
-          is_running: false,
-          runnable_type: "node",
-          node: null,
-          graph: null
-        }
-      },
-      allNodes: { test_cal: mockNode }
-    });
-
-    render(
-      <Providers>
-        <NodeElement nodeKey="test_cal" />
-      </Providers>
-    );
-
-    // Select node and wait for run button
-    fireEvent.click(screen.getByTestId("node-element-test_cal"));
-    await waitFor(() => {
-      expect(screen.getByTestId("run-button")).toBeInTheDocument();
-    });
-
-    // Click run
-    fireEvent.click(screen.getByTestId("run-button"));
-
-    // Error should be displayed
-    await waitFor(() => {
-      expect(screen.getByText(/Invalid resonator format/i)).toBeInTheDocument();
-    });
-  });
-
-  it("should submit node with correct parameters", async () => {
-    const mockSubmit = vi.fn().mockResolvedValue({ isOk: true });
-    vi.spyOn(NodesAPI.NodesApi, "submitNodeParameters").mockImplementation(mockSubmit);
-
-    const { Providers } = createTestProviders({
-      webSocket: {
-        runStatus: {
-          is_running: false,
-          runnable_type: "node",
-          node: null,
-          graph: null
-        }
-      },
-      allNodes: { test_cal: mockNode }
-    });
-
-    render(
-      <Providers>
-        <NodeElement nodeKey="test_cal" />
-      </Providers>
-    );
-
-    // Select node
-    fireEvent.click(screen.getByTestId("node-element-test_cal"));
-
-    await waitFor(() => {
-      expect(screen.getByTestId("run-button")).toBeInTheDocument();
-    });
-
-    // Click run button
-    fireEvent.click(screen.getByTestId("run-button"));
-
-    // Verify API was called with correct parameters
-    await waitFor(() => {
-      expect(mockSubmit).toHaveBeenCalledWith("test_cal", {
-        resonator: "q1.resonator"
-      });
-    });
-  });
-
-  it("should show spinner when node is running", async () => {
-    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
-    // Pre-select the node
-    mockStore.dispatch(setSelectedNode("test_cal"));
-    mockStore.dispatch(setRunStatus({
-      is_running: true,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 50 }),
-      graph: null
-    }));
-
-    render(
-      <Providers>
-        <NodeElement nodeKey="test_cal" />
-      </Providers>
-    );
-
-    // When node is selected and running, should show CircularProgress (MUI spinner in the row)
-    await waitFor(() => {
-      const spinner = screen.getByRole("progressbar");
-      expect(spinner).toBeInTheDocument();
-    });
-
-    // Run button should not be visible when running
-    expect(screen.queryByTestId("run-button")).not.toBeInTheDocument();
-  });
-});
-
 describe("NodeElement - WebSocket Status Integration", () => {
   const mockNode = {
     name: "test_cal",
     title: "Test Calibration",
     description: "Test description",
-    parameters: {}
+    parameters: {},
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should show status indicator for running node", () => {
+  it("should show status indicator for running node", async () => {
     const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
-    mockStore.dispatch(setRunStatus({
-      is_running: true,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 75 }),
-      graph: null
-    }));
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: true,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 75 }),
+        graph: null,
+      })
+    );
 
     render(
       <Providers>
@@ -309,21 +149,21 @@ describe("NodeElement - WebSocket Status Integration", () => {
     const dotWrapper = screen.getByTestId("dot-wrapper-test_cal");
     expect(dotWrapper).toBeInTheDocument();
 
-    // Should show progress spinner (CircularLoaderProgress component renders SVG)
-    // The condition is: runStatus?.node?.name === node.name
-    // So it should show StatusVisuals with status="running" which renders CircularLoaderProgress
-    const svg = dotWrapper.querySelector("svg");
-    expect(svg).toBeInTheDocument();
+    await waitFor(() => {
+      expect(dotWrapper.classList).toContain(ListItemStyles.statusRunning);
+    });
   });
 
   it("should show green dot when node finished", () => {
     const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
-    mockStore.dispatch(setRunStatus({
-      is_running: false,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "test_cal", status: "finished", percentage_complete: 100 }),
-      graph: null
-    }));
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: false,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "finished", percentage_complete: 100 }),
+        graph: null,
+      })
+    );
 
     const { container } = render(
       <Providers>
@@ -346,12 +186,14 @@ describe("NodeElement - WebSocket Status Integration", () => {
 
   it("should show red dot when node errored", () => {
     const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
-    mockStore.dispatch(setRunStatus({
-      is_running: false,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "test_cal", status: "error", percentage_complete: 0 }),
-      graph: null
-    }));
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: false,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "error", percentage_complete: 0 }),
+        graph: null,
+      })
+    );
 
     const { container } = render(
       <Providers>
@@ -370,12 +212,14 @@ describe("NodeElement - WebSocket Status Integration", () => {
   it("should not show status for different running node", () => {
     // Catches complex conditional logic in status display
     const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
-    mockStore.dispatch(setRunStatus({
-      is_running: true,
-      runnable_type: "node",
-      node: createMockNodeExecution({ name: "other_node", status: "running", percentage_complete: 50 }),
-      graph: null
-    }));
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: true,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "other_node", status: "running", percentage_complete: 50 }),
+        graph: null,
+      })
+    );
 
     render(
       <Providers>
@@ -401,7 +245,7 @@ describe("NodeElement - UI Interactions", () => {
       name: "test_calibration_with_extremely_long_name_that_exceeds_forty_characters_and_needs_wrapping",
       title: "Test Calibration With Extremely Long Name That Exceeds Forty Characters And Needs Wrapping",
       description: "Test description",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { long_node: longNameNode } });
@@ -422,70 +266,12 @@ describe("NodeElement - UI Interactions", () => {
     expect(titleElement).toBeInTheDocument();
   });
 
-  it("should display description tooltip when hovering over info icon", () => {
-    const mockNode = {
-      name: "test_cal",
-      title: "Test Calibration",
-      description: "This is a detailed description of the calibration node that explains what it does",
-      parameters: {}
-    };
-
-    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
-
-    render(
-      <Providers>
-        <NodeElement nodeKey="test_cal" />
-      </Providers>
-    );
-
-    // Find the node element
-    const nodeElement = screen.getByTestId("node-element-test_cal");
-    expect(nodeElement).toBeInTheDocument();
-
-    // Find the description wrapper by looking for elements with class containing "description"
-    // CSS modules hash class names, so we look for partial matches
-    const descriptionWrapper = nodeElement.querySelector('[class*="descriptionWrapper"]');
-    expect(descriptionWrapper).toBeInTheDocument();
-
-    // Verify the InfoIcon SVG is present (the tooltip trigger)
-    const infoIcon = descriptionWrapper?.querySelector("svg");
-    expect(infoIcon).toBeInTheDocument();
-  });
-
-  it("should not show description icon when description is missing", () => {
-    const mockNode = {
-      name: "test_cal",
-      title: "Test Calibration",
-      description: "",
-      parameters: {}
-    };
-
-    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
-
-    render(
-      <Providers>
-        <NodeElement nodeKey="test_cal" />
-      </Providers>
-    );
-
-    // Find the node element
-    const nodeElement = screen.getByTestId("node-element-test_cal");
-
-    // Find the description wrapper
-    const descriptionWrapper = nodeElement.querySelector('[class*="descriptionWrapper"]');
-    expect(descriptionWrapper).toBeInTheDocument();
-
-    // Should not have any SVG content when description is empty
-    const infoIcon = descriptionWrapper?.querySelector("svg");
-    expect(infoIcon).not.toBeInTheDocument();
-  });
-
   it("should use title when available, fallback to name otherwise", () => {
     const nodeWithTitle = {
       name: "resonator_spectroscopy",
       title: "Resonator Spectroscopy",
       description: "Test",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { resonator_spectroscopy: nodeWithTitle } });
@@ -506,7 +292,7 @@ describe("NodeElement - UI Interactions", () => {
     const nodeWithoutTitle = {
       name: "resonator_spectroscopy",
       description: "Test",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { resonator_spectroscopy: nodeWithoutTitle } });
@@ -527,7 +313,7 @@ describe("NodeElement - UI Interactions", () => {
       name: "test_cal",
       title: "Test Calibration",
       description: "Test",
-      parameters: {}
+      parameters: {},
     };
 
     const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });

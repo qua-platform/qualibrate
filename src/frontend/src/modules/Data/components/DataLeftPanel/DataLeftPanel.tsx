@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styles from "./DataLeftPanel.module.scss";
-import { AppliedFilterLabel, DateFilter, SearchField, SortButton, TagFilter, DateOption } from "../../../../components";
+import { AppliedFilterLabel, DateFilter, SearchField, SortButton, TagFilter } from "../../../../components";
+// TODO: vitest is allergic to reexported enums, needs to find a better workaround
+import { DateOption } from "../../../../components/DateFilter/DateFilter";
 import SnapshotsTimeline from "../SnapshotsTimeline";
 import { useSelector } from "react-redux";
 import {
