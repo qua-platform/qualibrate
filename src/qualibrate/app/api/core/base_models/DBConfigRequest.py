@@ -33,6 +33,7 @@ class DBConfigRequest(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
+                    "is_connected": True,
                     "host": "localhost",
                     "port": 5432,
                     "database": "my_project_db",

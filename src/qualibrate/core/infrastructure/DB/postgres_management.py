@@ -38,12 +38,6 @@ class PostgresManagement(DBManagement):
         except Exception as e:
             raise Exception(f"Error disposing engine: {e}") from e
 
-    # def _disconnect_db(self, engine):
-    #     try:
-    #         engine.dispose()
-    #     except Exception as e:
-    #         raise Exception(f"Error disposing engine: {e}")
-
     def _connect_to_db(self, database_config: DBConfig) -> Engine:
         try:
             url = URL.create(

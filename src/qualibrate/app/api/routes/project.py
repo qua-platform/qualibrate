@@ -493,114 +493,6 @@ def get_projects_list(
     return projects_manager.list()
 
 
-# @project_router.post(
-#     "/db/connect",
-#     status_code=200,
-#     summary="Connect to project database",
-#     responses={
-#         status.HTTP_200_OK: {"description": "Connected to database"},
-#         status.HTTP_400_BAD_REQUEST: {"description": "No active project configured"},
-#         status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Could not connect"},
-#     },
-# )
-# def connect_db(
-#     projects_manager: Annotated[
-#         ProjectsManagerBase,
-#         Depends(_get_projects_manager),
-#     ],
-# ) -> dict[str, str]:
-#     # get project and config from qualibrate
-#     # config_path = get_qualibrate_config_path()
-#     # config = get_qualibrate_config(config_path)
-#     project_name = projects_manager.project
-#     if project_name is None:
-#         raise HTTPException(status_code=400, detail="No active project configured")
-#     try:
-#         manager = DBRegistry.get()
-#         # manager = PostgresManagement()
-#         # manager.db_connect(project_name, projects_manager._settings.database)
-#         manager.db_connect(project_name)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Could not connect: {e}") from e
-#
-#     return {"status": "connected", "project": project_name}
-
-
-# @project_router.post(
-#     "/db/disconnect",
-#     status_code=200,
-#     summary="Disconnect from project database",
-#     responses={
-#         status.HTTP_200_OK: {"description": "Disconnected from database"},
-#         status.HTTP_400_BAD_REQUEST: {"description": "No active project configured"},
-#         status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Could not disconnect"},
-#     },
-# )
-# def disconnect_db(
-#     projects_manager: Annotated[
-#         ProjectsManagerBase,
-#         Depends(_get_projects_manager),
-#     ],
-# ) -> dict[str, str]:
-#     # manager = DBRegistry.get()
-#     project_name = projects_manager.project
-#     if project_name is None:
-#         raise HTTPException(status_code=400, detail="No active project configured")
-#     try:
-#         manager = DBRegistry.get()
-#         # manager = PostgresManagement()
-#         manager.db_disconnect(project_name)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Could not disconnect: {e}") from e
-#
-#     return {"status": "disconnected", "project": project_name}
-
-
-# @project_router.get(
-#     "/",
-#     summary="Get current project settings",
-#     description="Returns the current project's name, storage location, calibration library, and database config.",
-#     responses={
-#         status.HTTP_200_OK: {
-#             "description": "Current project settings",
-#             "content": {
-#                 "application/json": {
-#                     "examples": {
-#                         "example": {
-#                             "summary": "Project settings",
-#                             "value": {
-#                                 "project_name": "my_project",
-#                                 "storage_location": {"type": "local_storage", "location": "/data/projects"},
-#                                 "calibration_library_folder": {
-#                                     "folder": "/repos/calibrations",
-#                                     "resolver": "qualibrate.QualibrationLibrary",
-#                                 },
-#                                 "database": {
-#                                     "host": "localhost",
-#                                     "port": 5432,
-#                                     "database": "qualibrate",
-#                                     "username": "postgres",
-#                                 },
-#                             },
-#                         }
-#                     }
-#                 }
-#             },
-#         }
-#     },
-# )
-# def get_project(settings: Annotated[QualibrateConfig, Depends(get_settings)]) -> dict[str, Any]:
-#     serialized_settings = settings.serialize()
-#     project_details_to_return = {
-#         "project_name": serialized_settings.get("project"),
-#         "storage_location": serialized_settings.get("storage"),
-#         "calibration_library_folder": serialized_settings.get("calibration_library"),
-#         "database": serialized_settings.get("database"),
-#     }
-#
-#     return project_details_to_return
-
-
 @project_router.post(
     "/db/test-connection",
     summary="Test connection to project database",
@@ -630,9 +522,9 @@ def test_db_connection(
 ) -> bool:
     manager = DBRegistry.get()
     db_config = database.to_db_config()
-
     try:
         manager.test_connection(db_config)
         return True
-    except RuntimeError:
+    except RuntimeError as e:
+        logging.warning(f"Failed to connect to database: {e}")
         return False

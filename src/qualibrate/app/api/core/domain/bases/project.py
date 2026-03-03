@@ -60,7 +60,7 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
                 database_state,
             )
         except ValueError as e:
-            raise QValueException(f"Failed to update project '{project_name}'") from e
+            raise QValueException(f"Failed to update project '{project_name}': {e}") from e
         return project_name
 
     def create(
@@ -83,7 +83,7 @@ class ProjectsManagerBase(DomainWithConfigBase, ABC):
                 db_state,
             )
         except ValueError as e:
-            raise QValueException(f"Failed to create project '{project_name}'") from e
+            raise QValueException(f"Failed to create project '{project_name}': {e}") from e
         return project_name
 
     @abstractmethod
