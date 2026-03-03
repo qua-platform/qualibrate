@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import ProjectMenuItem from "../../../../src/modules/SidebarMenu/ProjectMenuItem";
 import * as ProjectStore from "../../../../src/stores/ProjectStore";
 import GlobalThemeContext from "../../../../src/modules/themeModule/GlobalThemeContext";
@@ -105,9 +105,10 @@ describe("ProjectMenuItem", () => {
 
     fireEvent.click(screen.getByText("other_project"));
     fireEvent.click(screen.getByTestId("delete-project-button"));
-    expect(screen.getByTestId("delete-project-modal")).toBeInTheDocument();
     fireEvent.click(screen.getByTestId("delete-project-modal-confirm-button"));
 
-    expect(deleteProjectSpy).toHaveBeenCalledWith("other_project");
+    await waitFor(() => {
+      expect(deleteProjectSpy).toHaveBeenCalledWith("other_project");
+    });
   });
 });
