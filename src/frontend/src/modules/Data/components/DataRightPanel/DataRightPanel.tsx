@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./DataRightPanel.module.scss";
 import { useSelector } from "react-redux";
 import { getBreadCrumbs, getJsonData, getResult, getSelectedSnapshot } from "../../../../stores/SnapshotsStore";
-import { JSONEditor, ParametersViewer, ResizableTabSidebar } from "../../../../components";
+import { JSONEditor, ResizableTabSidebar, ParametersViewer } from "../../../../components";
 import { snapshotMetadataToParameters } from "./helpers";
 import GraphView from "./GraphView";
 import { SnapshotData } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
@@ -13,7 +13,7 @@ import { formatDateTime } from "../../../../utils";
 import SnapshotComments from "../SnapshotComments";
 
 export const formatParamValue = (key: string, value: string | number | string[] | null | boolean | undefined) => {
-  if (["run_end", "run_start"].includes(key)) return formatDateTime(value ? (value as string) : "");
+  if (["run_end", "run_start"].includes(key) && !!value) return formatDateTime(value as string);
 
   return value === null || value === undefined ? "—" : typeof value === "object" ? JSON.stringify(value, null, 2) : value;
 };
@@ -42,13 +42,7 @@ const DataRightPanel = () => {
       <>
         <GraphView />
         {showRunButton && (
-          <button
-            disabled={isNodeRunning}
-            title={isNodeRunning ? "Node is already running" : ""}
-            className={styles.floatingRerunButton}
-            id="floatingRerunBtn"
-            onClick={handleOnClickRunButton}
-          >
+          <button disabled={isNodeRunning} title={isNodeRunning ? "Node is already running" : ""} className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
             ▶ Rerun
           </button>
         )}
@@ -81,13 +75,7 @@ const DataRightPanel = () => {
       <ResizableTabSidebar tabs={tabs} />
       {result && <JSONEditor title="RESULTS" jsonDataProp={result} height="100%" />}
       {showRunButton && (
-        <button
-          disabled={isNodeRunning}
-          title={isNodeRunning ? "Node is already running" : ""}
-          className={styles.floatingRerunButton}
-          id="floatingRerunBtn"
-          onClick={handleOnClickRunButton}
-        >
+        <button disabled={isNodeRunning} title={isNodeRunning ? "Node is already running" : ""} className={styles.floatingRerunButton} id="floatingRerunBtn" onClick={handleOnClickRunButton}>
           ▶ Rerun
         </button>
       )}

@@ -12,15 +12,16 @@ import { configureStore } from "@reduxjs/toolkit";
 const mockBreadCrumbs: string[] = [];
 const mockSelectedWorkflow = undefined;
 const mockTags: string[] = ["raby", "some random tag"];
+const mockTotalPages: number = 1;
 
 vi.mock("../../../../src/stores/SnapshotsStore", () => ({
   getBreadCrumbs: () => mockBreadCrumbs,
   getSelectedWorkflow: () => mockSelectedWorkflow,
   goBackOneLevel: vi.fn(),
   getAllTags: () => mockTags,
-  getTotalPages: () => 0,
-  getIsLoadingSnapshots: () => false,
   setSnapshotsFilters: vi.fn(),
+  getTotalPages: () => mockTotalPages,
+  getIsLoadingSnapshots: vi.fn(),
 }));
 
 // ================= MOCK useRootDispatch =================

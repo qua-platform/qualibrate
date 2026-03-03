@@ -2,9 +2,8 @@ import React, { useEffect } from "react";
 import { classNames } from "../../utils";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./Parameters.module.scss";
-import { ArrowIcon } from "../Icons/ArrowIcon";
+import { ArrowIcon, InfoIcon } from "../Icons";
 import Tooltip from "@mui/material/Tooltip";
-import { InfoIcon } from "../Icons/InfoIcon";
 import { useSelector } from "react-redux";
 import { getSelectedNodeNameInWorkflow } from "../../stores/GraphStores/GraphLibrary";
 
@@ -19,8 +18,8 @@ interface IProps {
 
 export type ParameterTypes = "boolean" | "number" | "integer" | "array" | "string" | "null";
 export type ParamaterValue = string | boolean | number | string[] | undefined;
-export type QubitMetadata = { active: boolean; fidelity: number; }
-export type QubitMetadataList = Record<string, QubitMetadata>
+export type QubitMetadata = { active: boolean; fidelity: number };
+export type QubitMetadataList = Record<string, QubitMetadata>;
 export interface SingleParameter {
   id?: string;
   name?: string;
@@ -28,7 +27,7 @@ export interface SingleParameter {
   default?: ParamaterValue;
   value?: ParamaterValue;
   items?: { type: string };
-  enum?: string[]
+  enum?: string[];
   metadata?: QubitMetadataList | null;
   options?: {
     id: string;
@@ -40,8 +39,8 @@ export interface SingleParameter {
   title: string;
   type: ParameterTypes;
   anyOf?: Array<{
-    type: ParameterTypes
-  }>
+    type: ParameterTypes;
+  }>;
   is_targets: boolean;
   description?: string | null;
 }
@@ -95,11 +94,7 @@ export const Parameters: React.FC<IProps> = ({
                 </div>
                 <div className={styles.descriptionWrapper}>
                   {parameter.description && (
-                    <Tooltip
-                      title={<div className={styles.descriptionTooltip}>{parameter.description} </div>}
-                      placement="left-start"
-                      arrow
-                    >
+                    <Tooltip title={<div className={styles.descriptionTooltip}>{parameter.description} </div>} placement="left-start" arrow>
                       <span>
                         <InfoIcon />
                       </span>

@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import React from "react";
 
-import SnapshotComments from "../../../../../src/modules/Data/components/SnapshotComments";
+import SnapshotComments from "../../../../../src/modules/Data/components/SnapshotComments/SnapshotComments.tsx";
 import * as SnapshotUtils from "../../../../../src/stores/SnapshotsStore/utils";
 
 // 👇 Redux
@@ -32,7 +32,7 @@ vi.mock("../../../../../src/stores/SnapshotsStore/utils", () => ({
 // =====================
 // MOCK MODAL
 // =====================
-vi.mock("../../../../../src/components/VerticalResizableComponent/CommentModal", () => ({
+vi.mock("../../../../../src/modules/Data/components/CommentModal", () => ({
   default: ({ handleOnSave }: any) => (
     <button
       data-testid="mock-save-btn"

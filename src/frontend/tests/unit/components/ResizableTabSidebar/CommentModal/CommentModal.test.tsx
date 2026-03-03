@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import React from "react";
 
-import CommentModal from "../../../../../src/modules/Data/components/CommentModal";
+import CommentModal from "../../../../../src/modules/Data/components/CommentModal/CommentModal";
 
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";

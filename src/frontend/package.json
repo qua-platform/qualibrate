@@ -11,7 +11,7 @@
     "build": "webpack --config webpack.prod.js",
     "build:dev": "webpack --config webpack.dev.js",
     "start": "webpack serve --config webpack.dev.js --open",
-    "start:local:dev": "env-cmd -f .env webpack serve --config webpack.dev.js --open",
+    "start:local:dev": "env-cmd -f .env.development webpack serve --config webpack.dev.js --open",
     "start:dev": "cross-env API_URL=https://dev.qualibrate-lab.io/ webpack serve --config webpack.dev.js --open",
     "clean": "rimraf ./dist",
     "start:testServer": "node scripts/testServer.js",

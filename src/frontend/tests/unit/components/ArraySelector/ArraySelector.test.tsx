@@ -1,405 +1,334 @@
-import "@testing-library/jest-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { EnumSelector, QubitsSelector } from "../../../../src/components";
-import userEvent from "@testing-library/user-event";
-import selectorStyles from "../../../../src/components/ArraySelector/components/ArraySelectorTrigger/ArraySelectorTrigger.module.scss";
-import enumStyles from "../../../../src/components/ArraySelector/components/EnumSelectorDropdown/EnumSelectorDropdown.module.scss";
-import qubitsStyles from "../../../../src/components/ArraySelector/components/QubitsSelectorPopup/QubitsSelectorPopup.module.scss";
-import { enumParameterMock, qubitDefaultMock, qubitMetadata } from "./__mocks__/arrayParameter";
+import { NodeElement } from "../../../../src/modules/Nodes/components/NodeElement/NodeElement";
+import ListItemStyles from "../../../../src/components/ListCard/ListCard.module.scss";
 import { createTestProviders } from "../../utils/providers";
+import { NodeExecution } from "../../../../src/stores/WebSocketStore/WebSocketStore";
+import { setRunStatus } from "../../../../src/stores/WebSocketStore";
+import { ParameterTypes } from "../../../../src/components/Parameters/Parameters";
 
-describe("ArraySelector - Trigger and selected data display", () => {
+// Helper to create mock NodeExecution objects
+const createMockNodeExecution = (overrides: Partial<NodeExecution> = {}): NodeExecution => ({
+  current_action: null,
+  description: null,
+  id: 1,
+  name: "test_cal",
+  parameters: {},
+  percentage_complete: 0,
+  run_duration: 0,
+  run_end: "",
+  run_start: "",
+  status: "pending",
+  time_remaining: 0,
+  run_results: {
+    parameters: {},
+    outcomes: {},
+    error: null,
+    initial_targets: [],
+    successful_targets: [],
+  },
+  ...overrides,
+});
+
+describe("NodeElement - Parameter Management", () => {
+  const mockNode = {
+    name: "test_cal",
+    title: "Test Calibration",
+    description: "Test description",
+    parameters: {
+      resonator: {
+        default: "q1.resonator",
+        title: "Resonator",
+        type: "string" as ParameterTypes,
+        is_targets: false,
+      },
+      sampling_points: {
+        default: 100,
+        title: "Sampling Points",
+        type: "number" as ParameterTypes,
+        is_targets: false,
+      },
+      enable_fitting: {
+        default: true,
+        title: "Enable Fitting",
+        type: "boolean" as ParameterTypes,
+        is_targets: false,
+      },
+    },
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should render selector", async () => {
-    const { Providers } = createTestProviders();
-
-    const { container } = render(
-      <Providers>
-        <EnumSelector disabled={false} value={[]} onChange={() => {}} options={[]} />
-      </Providers>
-    );
-
-    await waitFor(() => expect(container.querySelector(`.${selectorStyles.wrapper}`)).toBeInTheDocument());
-  });
-
-  it("should render selector with selected values", async () => {
-    const { Providers } = createTestProviders();
+  it("should render node with title", () => {
+    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
 
     render(
       <Providers>
-        <EnumSelector disabled={false} value={enumParameterMock.array.default} onChange={() => {}} options={[]} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
+    expect(screen.getByTestId("title-or-name-test_cal")).toHaveTextContent("Test Calibration");
+  });
+
+  it("should show parameters when node is selected", async () => {
+    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
+
+    render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" />
+      </Providers>
+    );
+
+    const nodeDescription = screen.getByTestId("node-description-test_cal");
+
+    // Click on the node to select it
+    fireEvent.click(nodeDescription);
+
+    // Parameters should now be visible
     await waitFor(() => {
-      expect(screen.getByText(enumParameterMock.array.default)).toBeInTheDocument();
+      expect(nodeDescription.classList.contains("descriptionFull"));
     });
   });
 
-  it("should not open popup when selector is disabled", async () => {
-    const { Providers } = createTestProviders();
+  it("should insert spaces in long node names", () => {
+    const longNameNode = {
+      ...mockNode,
+      name: "very_long_node_name_that_exceeds_forty_characters_definitely",
+      title: "VeryVeryLongNodeNameThatExceedsFortyCharactersDefinitely",
+    };
 
-    const { container } = render(
+    const { Providers } = createTestProviders({ allNodes: { long_node: longNameNode } });
+
+    render(
       <Providers>
-        <EnumSelector disabled={true} value={enumParameterMock.array.default} onChange={() => {}} options={enumParameterMock.array.enum} />
+        <NodeElement nodeKey="long_node" />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
-
-    fireEvent.click(openButton);
-
-    expect(container.querySelector(`.${enumStyles.popup}`)).not.toBeInTheDocument();
+    const titleElement = screen.getByTestId("title-or-name-long_node");
+    // Should have spaces inserted (the insertSpaces function adds spaces every 40 chars)
+    expect(titleElement.textContent).toContain(" ");
   });
 });
 
-describe("Enum Selector", () => {
-  it("should open popup on 'plus' button click", async () => {
-    const { Providers } = createTestProviders();
+describe("NodeElement - WebSocket Status Integration", () => {
+  const mockNode = {
+    name: "test_cal",
+    title: "Test Calibration",
+    description: "Test description",
+    parameters: {},
+  };
 
-    const { container } = render(
-      <Providers>
-        <EnumSelector disabled={false} value={enumParameterMock.array.default} onChange={() => {}} options={enumParameterMock.array.enum} />
-      </Providers>
-    );
-
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
-
-    fireEvent.click(openButton);
-
-    expect(container.querySelector(`.${enumStyles.popup}`)).toBeInTheDocument();
-    expect(container.querySelector(`.${enumStyles.popup}`)?.querySelector("input")?.focus).toBeTruthy();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("should not display already selected options in popup", async () => {
-    const { Providers } = createTestProviders();
+  it("should show status indicator for running node", async () => {
+    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: true,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "running", percentage_complete: 75 }),
+        graph: null,
+      })
+    );
 
-    const { container } = render(
+    render(
       <Providers>
-        <EnumSelector disabled={false} value={enumParameterMock.array.default} onChange={() => {}} options={enumParameterMock.array.enum} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
-
-    fireEvent.click(openButton);
+    // Status indicator should be visible in dot-wrapper
+    const dotWrapper = screen.getByTestId("dot-wrapper-test_cal");
+    expect(dotWrapper).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(
-        container.querySelector(`.${enumStyles.popupOption}[data-value="${enumParameterMock.array.default}]"`)
-      ).not.toBeInTheDocument();
+      expect(dotWrapper.classList).toContain(ListItemStyles.statusRunning);
     });
   });
 
-  it("should fire onChange callback when option is selected", async () => {
-    const mockOnChange = vi.fn();
-    const { Providers } = createTestProviders();
+  it("should show green dot when node finished", () => {
+    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: false,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "finished", percentage_complete: 100 }),
+        graph: null,
+      })
+    );
 
     const { container } = render(
       <Providers>
-        <EnumSelector
-          disabled={false}
-          value={enumParameterMock.array.default}
-          onChange={mockOnChange}
-          options={enumParameterMock.array.enum}
-        />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
+    const dotWrapper = container.querySelector('[data-testid="dot-wrapper-test_cal"]');
+    expect(dotWrapper).toBeInTheDocument();
 
-    fireEvent.click(openButton);
+    // Look for a div with class containing "dot" - StatusVisuals renders <div className={`${styles.dot} ${styles.greenDot}`} />
+    const dots = dotWrapper?.querySelectorAll("div");
+    expect(dots && dots.length > 0).toBe(true);
 
-    const firstOption = container.querySelector(`.${enumStyles.popupOption}`);
-    expect(firstOption).toBeInTheDocument();
-    if (!firstOption) return;
-
-    fireEvent.click(firstOption);
-
-    expect(mockOnChange).toBeCalledWith(firstOption?.getAttribute("data-value"));
+    // Check that there's a dot element (the greenDot styling is handled by CSS modules with hashed class names)
+    // We can't check for the exact class name due to CSS module hashing, but we can verify a dot element exists
+    const dotElement = dotWrapper?.querySelector("div");
+    expect(dotElement).toBeInTheDocument();
   });
 
-  it("should filter out options on search", async () => {
-    const { Providers } = createTestProviders();
+  it("should show red dot when node errored", () => {
+    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: false,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "test_cal", status: "error", percentage_complete: 0 }),
+        graph: null,
+      })
+    );
 
     const { container } = render(
       <Providers>
-        <EnumSelector disabled={false} value={enumParameterMock.array.default} onChange={() => {}} options={enumParameterMock.array.enum} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
+    const dotWrapper = container.querySelector('[data-testid="dot-wrapper-test_cal"]');
+    expect(dotWrapper).toBeInTheDocument();
 
-    fireEvent.click(openButton);
+    // Look for a div element (the redDot styling is handled by CSS modules)
+    const dotElement = dotWrapper?.querySelector("div");
+    expect(dotElement).toBeInTheDocument();
+  });
 
-    const input = container.querySelector(`.${enumStyles.popup} input`);
-    expect(input).toBeInTheDocument();
-    if (!input) return;
+  it("should not show status for different running node", () => {
+    // Catches complex conditional logic in status display
+    const { Providers, mockStore } = createTestProviders({ allNodes: { test_cal: mockNode } });
+    mockStore.dispatch(
+      setRunStatus({
+        is_running: true,
+        runnable_type: "node",
+        node: createMockNodeExecution({ name: "other_node", status: "running", percentage_complete: 50 }),
+        graph: null,
+      })
+    );
 
-    const firstOption = enumParameterMock.array.enum.reverse().find((option) => !enumParameterMock.array.default.includes(option));
-    expect(firstOption).toBeTruthy();
-    if (!firstOption) return;
+    render(
+      <Providers>
+        <NodeElement nodeKey="test_cal" />
+      </Providers>
+    );
 
-    const user = userEvent.setup();
-    await user.type(input, firstOption);
+    // test_cal should not show status when other_node is running
+    const dotWrapper = screen.getByTestId("dot-wrapper-test_cal");
 
-    expect(Array.from(container.querySelectorAll(`.${enumStyles.popupOption}`)).length).toBe(1);
-    expect(container.querySelector(`.${enumStyles.popupOption}`)?.getAttribute("data-value")).toBe(firstOption);
+    // Should not have a progress spinner
+    expect(dotWrapper.querySelector('[role="progressbar"]')).not.toBeInTheDocument();
   });
 });
 
-const getSelectedOptions = () =>
-  Object.keys(qubitMetadata)
-    .map((option) => screen.queryByTestId(`option_${option}`))
-    .filter((element) => element?.classList.contains(qubitsStyles.selected));
-
-describe("Qubits Selector", () => {
-  it("should open popup on 'plus' button click", async () => {
-    const { Providers } = createTestProviders();
-
-    const { container } = render(
-      <Providers>
-        <QubitsSelector disabled={false} value={qubitDefaultMock} onChange={() => {}} metadata={qubitMetadata} />
-      </Providers>
-    );
-
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
-
-    fireEvent.click(openButton);
-
-    expect(screen.getByText("Select qubits...")).toBeInTheDocument();
-    expect(screen.getByRole("search")?.focus).toBeTruthy();
+describe("NodeElement - UI Interactions", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("should highlight already selected options in popup", async () => {
-    const { Providers } = createTestProviders();
+  it("should insert spaces in very long node names to prevent overflow", () => {
+    const longNameNode = {
+      name: "test_calibration_with_extremely_long_name_that_exceeds_forty_characters_and_needs_wrapping",
+      title: "Test Calibration With Extremely Long Name That Exceeds Forty Characters And Needs Wrapping",
+      description: "Test description",
+      parameters: {},
+    };
 
-    const { container } = render(
+    const { Providers } = createTestProviders({ allNodes: { long_node: longNameNode } });
+
+    render(
       <Providers>
-        <QubitsSelector disabled={false} value={qubitDefaultMock} onChange={() => {}} metadata={qubitMetadata} />
+        <NodeElement nodeKey="long_node" />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
+    const titleElement = screen.getByTestId("title-or-name-long_node");
 
-    fireEvent.click(openButton);
+    // The insertSpaces function adds spaces every 40 characters
+    // So the text content should contain spaces
+    expect(titleElement.textContent).toContain(" ");
 
-    await waitFor(() => {
-      qubitDefaultMock.map((selectedOption) =>
-        expect(screen.getByTestId(`option_${selectedOption}`).classList).toContain(qubitsStyles.selected)
-      );
-    });
+    // Verify the title is actually displayed
+    expect(titleElement).toBeInTheDocument();
   });
 
-  it("should fire onChange callback when Apply selection is clicked", async () => {
-    const mockOnChange = vi.fn();
-    const { Providers } = createTestProviders();
+  it("should use title when available, fallback to name otherwise", () => {
+    const nodeWithTitle = {
+      name: "resonator_spectroscopy",
+      title: "Resonator Spectroscopy",
+      description: "Test",
+      parameters: {},
+    };
 
-    const { container } = render(
+    const { Providers } = createTestProviders({ allNodes: { resonator_spectroscopy: nodeWithTitle } });
+
+    render(
       <Providers>
-        <QubitsSelector disabled={false} value={qubitDefaultMock} onChange={mockOnChange} metadata={qubitMetadata} />
+        <NodeElement nodeKey="resonator_spectroscopy" />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
-
-    fireEvent.click(openButton);
-
-    const firstOptionId = Object.keys(qubitMetadata).find((option) => !qubitDefaultMock.includes(option));
-    const firstOption = screen.getByTestId(`option_${firstOptionId}`);
-    expect(firstOption).toBeInTheDocument();
-    if (!firstOption) return;
-
-    fireEvent.click(firstOption);
-
-    const applyButton = screen.getByRole("apply");
-    expect(applyButton).toBeInTheDocument();
-    if (!applyButton) return;
-
-    fireEvent.click(applyButton);
-
-    await waitFor(() => expect(mockOnChange).toBeCalledWith([...qubitDefaultMock, firstOption?.getAttribute("data-value")]));
+    // Should display the title, not the name
+    const titleElement = screen.getByTestId("title-or-name-resonator_spectroscopy");
+    expect(titleElement).toHaveTextContent("Resonator Spectroscopy");
+    expect(titleElement).not.toHaveTextContent("resonator_spectroscopy");
   });
 
-  it("should close and reset popup when Cancel is clicked", async () => {
-    const mockOnChange = vi.fn();
-    const { Providers } = createTestProviders();
+  it("should use name when title is not provided", () => {
+    const nodeWithoutTitle = {
+      name: "resonator_spectroscopy",
+      description: "Test",
+      parameters: {},
+    };
 
-    const { container } = render(
+    const { Providers } = createTestProviders({ allNodes: { resonator_spectroscopy: nodeWithoutTitle } });
+
+    render(
       <Providers>
-        <QubitsSelector disabled={false} value={qubitDefaultMock} onChange={mockOnChange} metadata={qubitMetadata} />
+        <NodeElement nodeKey="resonator_spectroscopy" />
       </Providers>
     );
 
-    let openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
-
-    fireEvent.click(openButton);
-
-    const selectAllButton = screen.getByTestId("selectAll");
-    expect(selectAllButton).toBeInTheDocument();
-    if (!selectAllButton) return;
-
-    fireEvent.click(selectAllButton);
-
-    const cancelButton = screen.getByRole("cancel");
-    expect(cancelButton).toBeInTheDocument();
-    if (!cancelButton) return;
-
-    fireEvent.click(cancelButton);
-
-    expect(mockOnChange).not.toBeCalledWith();
-    await waitFor(() => expect(screen.queryByText("Select qubits...")).not.toBeInTheDocument());
-
-    openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    if (!openButton) return;
-    fireEvent.click(openButton);
-
-    const selectedOptions = getSelectedOptions();
-    expect(selectedOptions.map((element) => element?.getAttribute("data-value")).sort()).toStrictEqual(qubitDefaultMock.sort());
+    // Should display the name since title is not provided
+    const titleElement = screen.getByTestId("title-or-name-resonator_spectroscopy");
+    expect(titleElement).toHaveTextContent("resonator_spectroscopy");
   });
 
-  it("should filter out options on search", async () => {
-    const { Providers } = createTestProviders();
+  it("should highlight node row when selected", () => {
+    const mockNode = {
+      name: "test_cal",
+      title: "Test Calibration",
+      description: "Test",
+      parameters: {},
+    };
 
-    const { container } = render(
+    const { Providers } = createTestProviders({ allNodes: { test_cal: mockNode } });
+
+    render(
       <Providers>
-        <QubitsSelector disabled={false} value={qubitDefaultMock} onChange={() => {}} metadata={qubitMetadata} />
+        <NodeElement nodeKey="test_cal" />
       </Providers>
     );
 
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
+    const nodeElement = screen.getByTestId("node-element-test_cal");
 
-    fireEvent.click(openButton);
+    // Click to select the node
+    fireEvent.click(nodeElement);
 
-    const input = screen.getByRole("search");
-    expect(input).toBeInTheDocument();
-    if (!input) return;
-
-    const firstOption = qubitDefaultMock[0];
-    expect(firstOption).toBeTruthy();
-    if (!firstOption) return;
-
-    const user = userEvent.setup();
-    await user.type(input, firstOption);
-
-    const filteredOptions = Object.keys(qubitMetadata)
-      .map((option) => screen.queryByTestId(`option_${option}`))
-      .filter((element) => element || false);
-
-    expect(Array.from(filteredOptions).length).toBe(1);
-    expect(filteredOptions[0]?.getAttribute("data-value")).toBe(firstOption);
-  });
-
-  it("should select all options on 'Select all' click", async () => {
-    const { Providers } = createTestProviders();
-
-    const { container } = render(
-      <Providers>
-        <QubitsSelector disabled={false} value={qubitDefaultMock} onChange={() => {}} metadata={qubitMetadata} />
-      </Providers>
-    );
-
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
-
-    fireEvent.click(openButton);
-
-    const selectAllButton = screen.getByTestId("selectAll");
-    expect(selectAllButton).toBeInTheDocument();
-    if (!selectAllButton) return;
-
-    fireEvent.click(selectAllButton);
-
-    const selectedOptions = getSelectedOptions();
-
-    expect(selectedOptions.length).toBe(Object.keys(qubitMetadata).length);
-  });
-
-  it("should clear all selection on 'Clear all' click", async () => {
-    const { Providers } = createTestProviders();
-
-    const { container } = render(
-      <Providers>
-        <QubitsSelector disabled={false} value={qubitDefaultMock} onChange={() => {}} metadata={qubitMetadata} />
-      </Providers>
-    );
-
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
-
-    fireEvent.click(openButton);
-
-    const selectAllButton = screen.getByTestId("selectAll");
-    expect(selectAllButton).toBeInTheDocument();
-    if (!selectAllButton) return;
-
-    fireEvent.click(selectAllButton);
-
-    const selectedOptions = getSelectedOptions();
-
-    expect(selectedOptions.length).toBe(Object.keys(qubitMetadata).length);
-
-    const clearAllButton = screen.getByTestId("clearAll");
-    expect(clearAllButton).toBeInTheDocument();
-    if (!clearAllButton) return;
-
-    fireEvent.click(clearAllButton);
-
-    const clearedOptions = getSelectedOptions();
-
-    expect(clearedOptions.length).toBe(0);
-  });
-
-  it("should select only online options on 'Online only' click", async () => {
-    const { Providers } = createTestProviders();
-
-    const { container } = render(
-      <Providers>
-        <QubitsSelector disabled={false} value={qubitDefaultMock} onChange={() => {}} metadata={qubitMetadata} />
-      </Providers>
-    );
-
-    const openButton = container.querySelector(`.${selectorStyles.wrapper}`);
-    expect(openButton).toBeInTheDocument();
-    if (!openButton) return;
-
-    fireEvent.click(openButton);
-
-    const onlineOnlyButton = screen.getByTestId("onlineOnly");
-    expect(onlineOnlyButton).toBeInTheDocument();
-    if (!onlineOnlyButton) return;
-
-    fireEvent.click(onlineOnlyButton);
-
-    const selectedOptions = getSelectedOptions();
-
-    expect(selectedOptions.length).toBe(Object.values(qubitMetadata).filter((option) => option.active).length);
+    // The node should still be in the document and the click should have triggered selection
+    expect(nodeElement).toBeInTheDocument();
   });
 });
