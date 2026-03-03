@@ -7,7 +7,7 @@ describe("TestConnectionModal", () => {
   const mockHandleOnClose = vi.fn();
 
   const mockDatabase = {
-    isConnected: false,
+    is_connected: false,
     host: "localhost",
     port: 5432,
     name: "db",

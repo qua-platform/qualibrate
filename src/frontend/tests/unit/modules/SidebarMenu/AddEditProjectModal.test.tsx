@@ -117,7 +117,7 @@ describe("AddEditProjectModal", () => {
 
   it("tests database connection - success", async () => {
     const mockDatabaseInputData: DatabaseDTO = {
-      isConnected: false,
+      is_connected: false,
       host: "localhost",
       port: 5432,
       database: "db",
@@ -159,7 +159,7 @@ describe("AddEditProjectModal", () => {
     await waitFor(() => {
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
-          isConnected: true,
+          is_connected: true,
           host: "localhost",
           port: "5432",
           database: "db",

@@ -38,7 +38,7 @@ interface Props {
 }
 
 const emptyDatabase: DatabaseDTO = {
-  isConnected: false,
+  is_connected: false,
   host: "",
   port: 5432,
   database: "",
@@ -61,7 +61,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
     open: false,
     type: TestDBConnectionStatusDialog.SUCCESS,
   });
-  const [showDbSettings, setShowDbSettings] = useState(project?.updates?.qualibrate?.database?.isConnected ?? false);
+  const [showDbSettings, setShowDbSettings] = useState(false);
   const [formData, setFormData] = useState<CreateEditProjectDTO>(emptyForm);
 
   const areDbFieldsPopulated =
@@ -83,7 +83,8 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
         calibrationPath: project.updates?.qualibrate?.calibration_library?.folder ?? "",
         database: project.updates?.qualibrate?.database ?? undefined,
       });
-      setShowDbSettings(!!project.updates?.qualibrate?.database);
+      console.log(project.updates?.qualibrate?.database);
+      setShowDbSettings(!!project.updates?.qualibrate?.database_state?.is_connected);
     }
 
     if (mode === "add") {
@@ -99,7 +100,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
     }));
   };
 
-  const handleDatabaseChange = (field: keyof DatabaseDTO, value: string | boolean) => {
+  const handleDatabaseChange = (field: keyof DatabaseDTO, value: string | boolean | object) => {
     setFormData((prev) => ({
       ...prev,
       database: {
@@ -140,15 +141,13 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
 
     setShowDbSettings(newValue);
 
-    handleDatabaseChange("isConnected", newValue);
+    handleDatabaseChange("is_connected", newValue);
   };
 
   const handleOnCloseTestDbModal = () => setDbTestModalState({ open: false, type: TestDBConnectionStatusDialog.SUCCESS });
   const handleOnTestDbClicked = async () => {
-    console.log("formData.database", formData.database);
     if (formData.database) {
       const response = await testDatabase(formData.database);
-      console.log("response", response);
       if (response?.isOk && response?.result) {
         setDbTestModalState({ open: true, type: TestDBConnectionStatusDialog.SUCCESS });
       } else {

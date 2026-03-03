@@ -9,13 +9,19 @@ import {
   UPDATE_PROJECT,
 } from "../../../utils/api/apiRoutes";
 
+export interface DatabaseStateDTO {
+  is_connected?: boolean;
+}
 export interface DatabaseDTO {
-  isConnected?: boolean;
+  is_connected?: boolean;
   host: string;
   port: number;
   database: string;
   username: string;
   password: string;
+  database_state?: {
+    is_connected?: boolean;
+  };
 }
 
 export interface CreateEditProjectDTO {
@@ -24,6 +30,7 @@ export interface CreateEditProjectDTO {
   quamPath?: string;
   calibrationPath?: string;
   database?: DatabaseDTO;
+  database_state?: DatabaseStateDTO;
 }
 
 export interface NewProjectFormData {
@@ -50,6 +57,7 @@ export interface ProjectDTO {
         location: string;
       };
       database?: DatabaseDTO;
+      database_state?: DatabaseDTO;
     };
     quam: {
       state_path: string;
@@ -118,7 +126,7 @@ export class ProjectViewApi extends Api {
     return this._fetch(this.api(UPDATE_PROJECT()), API_METHODS.PUT, {
       headers: BASIC_HEADERS,
       body: JSON.stringify(body),
-      queryParams: { project_name: projectInfo.projectName },
+      // queryParams: { project_name: projectInfo.projectName },
     });
   }
 
