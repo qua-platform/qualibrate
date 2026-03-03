@@ -247,7 +247,6 @@ def delete_project_endpoint(
     },
 )
 def update_project_endpoint(
-    # project_name: Annotated[str, Query(..., min_length=1)],
     storage_location: Annotated[
         Path | None,
         Body(
@@ -321,11 +320,11 @@ def update_project_endpoint(
             calibration_library_folder=calibration_library_folder,
             quam_state_path=quam_state_path,
             database=db_config,
+            database_state=db_state
         )
     except QValueException as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
 
-    # need to check if returning currnet project is valid
     project = next(filter(lambda p: p.name == project_name, projects_manager.list()), None)
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found after update")

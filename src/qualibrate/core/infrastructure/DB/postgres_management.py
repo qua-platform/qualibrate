@@ -76,7 +76,6 @@ class PostgresManagement(DBManagement):
         if engine:
             try:
                 engine.dispose()
-                # self._disconnect_db(engine)
             except Exception as e:
                 raise Exception(f"Error disposing engine for project '{project_name}': {e}") from e
         else:
@@ -88,7 +87,6 @@ class PostgresManagement(DBManagement):
         for project_name, engine in self._engines.items():
             try:
                 engine.dispose()
-                # self._disconnect_db(engine)
             except Exception as e:
                 logger.warning(f"Error disposing engine for project '{project_name}': {e}")
         self._engines.clear()

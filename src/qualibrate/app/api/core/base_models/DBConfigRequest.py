@@ -13,7 +13,6 @@ class DBConfigRequest(BaseModel):
     def to_db_config(self) -> DBConfig:
         return DBConfig(
             {
-                # "is_connected": self.is_connected,
                 "host": self.host,
                 "port": self.port,
                 "database": self.database,
