@@ -99,7 +99,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
     }));
   };
 
-  const handleDatabaseChange = (field: keyof DatabaseDTO, value: string) => {
+  const handleDatabaseChange = (field: keyof DatabaseDTO, value: string | boolean) => {
     setFormData((prev) => ({
       ...prev,
       database: {
@@ -140,21 +140,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
 
     setShowDbSettings(newValue);
 
-    setFormData((form) => ({
-      ...form,
-      database: newValue
-        ? {
-            ...(form.database ?? {
-              host: "",
-              port: 0,
-              database: "",
-              username: "",
-              password: "",
-            }),
-            isConnected: true,
-          }
-        : undefined,
-    }));
+    handleDatabaseChange("isConnected", newValue);
   };
 
   const handleOnCloseTestDbModal = () => setDbTestModalState({ open: false, type: TestDBConnectionStatusDialog.SUCCESS });
