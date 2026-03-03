@@ -113,7 +113,7 @@ xarray = "~2025.6.1"
 # This allows you to work on multiple repos simultaneously with local changes
 # ============================================================================
 [tool.poetry.group.qm-dev.dependencies]
-qualibrate-config = {path = "/Users/eladz-mac-laptop/PycharmProjects/qualibrate-config", develop = true}
+qualibrate-config = {path = "../qualibrate-config", develop = true}
 #qua-dashboards = {path = "../qua-dashboards", develop = true}
 
 # ============================================================================
