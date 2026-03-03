@@ -14,8 +14,6 @@ export { getProjectsState, getIsScanningProjects, getAllProjects, getActiveProje
 export { useInitProjects } from "./hooks";
 export {
   fetchAllProjects,
-  connectToProjectDB,
-  disconnectToProjectDB,
   createProject,
   deleteProject,
   editProject,
