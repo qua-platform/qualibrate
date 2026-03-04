@@ -1,3 +1,5 @@
+from typing import Any
+
 from qualibrate_config.resolvers import (
     get_qualibrate_config,
     get_qualibrate_config_path,
@@ -10,12 +12,12 @@ from .postgres_management import PostgresManagement
 
 
 class PostgresBaseRepository(DBOperations):
-    model = None
+    model: type[Any] | None = None
 
-    def __init__(self, db_management: PostgresManagement):
+    def __init__(self, db_management: PostgresManagement) -> None:
         if self.model is None:
             raise NotImplementedError("Subclasses must define a model")
-        self._db = db_management
+        self._db: PostgresManagement = db_management
         self._project: str | None = None
 
     @property
@@ -28,28 +30,38 @@ class PostgresBaseRepository(DBOperations):
         return self._project
 
     @handle_missing_project(default=None)
-    def save(self, data):
+    def save(self, data: Any) -> Any:
         with self._db.session(self.project) as session:
-            obj = self.model(**data)
+            obj = self.model(**data)  # type: ignore[misc]
             session.add(obj)
-            return obj
+            session.expunge(obj)
+        return obj
 
     @handle_missing_project(default=None)
-    def load(self, id):
+    def load(self, id: Any) -> Any:
+        assert self.model is not None  # Validated in __init__
+        obj = None
         with self._db.session(self.project) as session:
-            return session.get(self.model, id)
+            obj = session.get(self.model, id)
+            if obj:
+                session.expunge(obj)
+        return obj
 
     @handle_missing_project(default=None)
-    def update(self, id, data):
+    def update(self, id: Any, data: Any) -> Any:
+        assert self.model is not None  # Validated in __init__
+        obj = None
         with self._db.session(self.project) as session:
             obj = session.get(self.model, id)
             if obj:
                 for key, value in data.items():
                     setattr(obj, key, value)
-                return obj
+                session.expunge(obj)
+        return obj
 
     @handle_missing_project(default=None)
-    def delete(self, id):
+    def delete(self, id: Any) -> None:
+        assert self.model is not None  # Validated in __init__
         with self._db.session(self.project) as session:
             obj = session.get(self.model, id)
             if obj:

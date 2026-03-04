@@ -1,11 +1,7 @@
 import importlib
 from datetime import datetime
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, Generic, TypeVar, cast
 
 from packaging.version import Version
 from qualang_tools.results import DataHandler
@@ -61,7 +57,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         try:
             DBRegistry.get().db_connect(project_name)
         except RuntimeError as e:
-            logger.warning(f"Could not connect to DB on startup: {e}")
+            logger.debug(f"Could not connect to DB: {e}")
 
     def set_workflow_parent_id(self, parent_id: int | None) -> None:
         """Set the parent workflow ID for this node's snapshot.
@@ -188,10 +184,10 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         logger.info(f"Saving machine to data folder {machine_data_path}")
         machine.save(machine_data_path)
 
-    def _save_quam_state_to_db(self, machine_state):
+    def _save_quam_state_to_db(self, machine_state: MachineProtocol) -> None:
         """temporary untill we add storage manager for db"""
         try:
-            db_manager = DBRegistry.get()
+            db_manager = cast(PostgresManagement, DBRegistry.get())
             machine_state_repository = MachineStateRepository(db_manager)
             logger.info("Saving machine state to db")
             machine_state_repository.save({"content": machine_state.to_dict()})

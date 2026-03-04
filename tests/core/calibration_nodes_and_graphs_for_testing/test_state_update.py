@@ -1,3 +1,8 @@
+import time
+from random import randint
+
+from quam.components import BasicQuam, SingleChannel
+
 from qualibrate import QualibrationNode
 from qualibrate.core.parameters import NodeParameters
 
@@ -12,11 +17,6 @@ class Parameters(NodeParameters):
 
 
 node = QualibrationNode("test_state", parameters=Parameters(req_value=1, int_value=5))
-
-
-from random import randint
-
-from quam.components import BasicQuam, SingleChannel
 
 node.machine = machine = BasicQuam(
     channels={
@@ -35,7 +35,6 @@ with node.record_state_updates(interactive_only=False):
 node.machine = machine
 
 print("run node")
-import time
 
 time.sleep(2)
 
