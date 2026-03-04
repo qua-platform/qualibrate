@@ -67,8 +67,8 @@ class PostgresManagement(DBManagement):
         database_config = config.database
         database_state = config.database_state
         # Assure that if isconnected flag is none in config we dont connect the db
-        if database_state is not None and not database_state.is_connected:
-            logger.warning("Database state is not connected, skipping database connection")
+        if database_state is None or not database_state.is_connected:
+            logger.debug("Database state is not connected, skipping database connection")
             return
         if database_config is None:
             logger.warning("No database configuration found, skipping database connection")
