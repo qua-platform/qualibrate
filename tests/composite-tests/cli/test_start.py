@@ -74,11 +74,11 @@ class TestSetupDemoOnFirstRun:
         ):
             _setup_demo_on_first_run(temp_config_path)
 
-        # Check that demo_calibrations directory was created
-        demo_calibrations_dest = temp_config_path.parent / "demo_calibrations"
-        assert demo_calibrations_dest.exists()
-        assert (demo_calibrations_dest / "01_demo_qubit_spectroscopy.py").exists()
-        assert (demo_calibrations_dest / "02_demo_rabi.py").exists()
+        # Check that calibrations directory was created
+        calibrations_dest = temp_config_path.parent / "calibrations"
+        assert calibrations_dest.exists()
+        assert (calibrations_dest / "01_demo_qubit_spectroscopy.py").exists()
+        assert (calibrations_dest / "02_demo_rabi.py").exists()
 
     def test_demo_state_is_copied(self, temp_config_path, mock_qualibrate_examples):
         """Test that demo state files are copied to the correct location."""
@@ -119,7 +119,7 @@ class TestSetupDemoOnFirstRun:
         # Verify config content
         config_content = demo_project_config.read_text()
         assert "calibration_library" in config_content
-        assert "demo_calibrations" in config_content
+        assert "calibrations" in config_content
 
     def test_setup_is_idempotent(self, temp_config_path, mock_qualibrate_examples):
         """Test that running setup twice doesn't cause errors."""
@@ -135,8 +135,8 @@ class TestSetupDemoOnFirstRun:
             _setup_demo_on_first_run(temp_config_path)
 
         # Verify everything still exists and is correct
-        demo_calibrations_dest = temp_config_path.parent / "demo_calibrations"
-        assert demo_calibrations_dest.exists()
+        calibrations_dest = temp_config_path.parent / "calibrations"
+        assert calibrations_dest.exists()
 
         demo_project_config = temp_config_path.parent / "projects" / "demo_project" / "config.toml"
         assert demo_project_config.exists()
@@ -249,6 +249,7 @@ class TestFirstRunDetection:
             with (
                 patch("qualibrate.composite.cli.start._setup_demo_on_first_run") as mock_demo_setup,
                 patch("qualibrate.composite.cli.start._projects_folder_exist", return_value=True),
+                patch("qualibrate.composite.cli.start._calibrations_folder_exist", return_value=True),
                 patch.dict(
                     "sys.modules",
                     {"qualibrate.composite.app": MagicMock()},

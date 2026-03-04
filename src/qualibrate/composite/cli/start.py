@@ -17,6 +17,13 @@ def _projects_folder_exist() -> bool:
     return projects_path.exists() and any(projects_path.iterdir())
 
 
+def _calibrations_folder_exist() -> bool:
+    """Check if there are any existing calibrations."""
+    qualibrate_path = config_vars.QUALIBRATE_PATH
+    calibrations_path = qualibrate_path / "calibrations"
+    return calibrations_path.exists() and any(calibrations_path.iterdir())
+
+
 def _setup_demo_on_first_run(config_path: Path) -> None:
     """Set up demo calibrations and demo project on first-time startup.
 
@@ -31,13 +38,17 @@ def _setup_demo_on_first_run(config_path: Path) -> None:
     qualibrate_path = config_path.parent
     projects_path = qualibrate_path / "projects"
 
+    project_exists = projects_path.exists() and any(projects_path.iterdir())
+
+    demo_calibrations_dest = qualibrate_path / "calibrations"
+    demo_project_config_path = projects_path / "demo_project" / "config.toml"
+
+    demo_calibrations_exists = demo_calibrations_dest.exists() and any(demo_calibrations_dest.iterdir())
+
     # Check if there are any existing projects
-    if projects_path.exists() and any(projects_path.iterdir()):
+    if project_exists and demo_calibrations_exists:
         click.echo("Existing projects found. Skipping demo project setup.")
         return
-
-    demo_calibrations_dest = qualibrate_path / "demo_calibrations"
-    demo_project_config_path = projects_path / "demo_project" / "config.toml"
 
     try:
         # Import qualibrate_examples to locate demo files
@@ -47,15 +58,16 @@ def _setup_demo_on_first_run(config_path: Path) -> None:
         calibrations_src = examples_path / "calibrations"
 
         # Copy demo calibrations if they don't already exist
-        if not demo_calibrations_dest.exists():
+        if not demo_calibrations_exists:
             if calibrations_src.exists():
-                shutil.copytree(calibrations_src, demo_calibrations_dest)
+                shutil.copytree(calibrations_src, demo_calibrations_dest, dirs_exist_ok=True)
                 click.echo(f"Copied demo calibrations to {demo_calibrations_dest}")
             else:
                 click.echo(f"Warning: Demo calibrations not found at {calibrations_src}")
 
         # Create or update demo_project config with calibration_library override
-        demo_project_config_path.parent.mkdir(parents=True, exist_ok=True)
+        if not project_exists:
+            demo_project_config_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Write the demo_project config with overrides
         demo_config_content = f"""[qualibrate.calibration_library]
@@ -81,8 +93,9 @@ state_path = "{demo_state_dest}"
         except ImportError:
             click.echo("Warning: quam package not found. Skipping demo quam state setup.")
 
-        demo_project_config_path.write_text(demo_config_content)
-        click.echo(f"Created demo project config at {demo_project_config_path}")
+        if not project_exists:
+            demo_project_config_path.write_text(demo_config_content)
+            click.echo(f"Created demo project config at {demo_project_config_path}")
 
     except ImportError:
         click.echo("Warning: qualibrate_examples package not found. Skipping demo setup.")
@@ -154,7 +167,7 @@ def start_command(
             standalone_mode=False,
         )
 
-    if not _projects_folder_exist():
+    if not _projects_folder_exist() or not _calibrations_folder_exist():
         click.echo("No projects found. Creating demo project and calibrations.")
         _setup_demo_on_first_run(config_path)
 
