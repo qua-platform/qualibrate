@@ -63,6 +63,28 @@
   flex-direction: column;
   height: auto;
 
+  .checkboxWrapper {
+    width: auto;
+    padding: 0 10px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    .checkbox {
+      padding: 0;
+      background: none;
+
+      &:hover {
+        background: none;
+      }
+    }
+
+    input {
+      display: none;
+    }
+  }
+
   // Remove default browser arrows control
   .input input {
     &::-webkit-outer-spin-button,

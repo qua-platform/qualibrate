@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Checkbox } from "@mui/material";
+import { Checkbox, FormControlLabel } from "@mui/material";
 import { ParamaterValue, SingleParameter } from "./Parameters";
 import { getParameterType, validate } from "./utils";
 // eslint-disable-next-line css-modules/no-unused-class
@@ -7,6 +7,12 @@ import styles from "./Parameters.module.scss";
 import InputField from "../Input/InputField";
 import { classNames } from "../../utils";
 import { EnumSelector, QubitsSelector } from "../ArraySelector";
+
+const EmptyCheckboxIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="#15181d" stroke="#30363d" stroke-width="1">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+  </svg>
+);
 
 const ParameterSelector = ({
   parameterKey,
@@ -51,12 +57,21 @@ const ParameterSelector = ({
 
     if (type === "boolean")
       return (
-        <Checkbox
-          checked={inputValue as boolean}
-          onClick={handleChangeBoolean}
-          inputProps={{ "aria-label": "controlled" }}
-          data-testid={`input-field-${parameterKey}`}
-          className={className}
+        <FormControlLabel
+          label={""}
+          htmlFor={parameterKey}
+          className={classNames(styles.checkboxWrapper, className)}
+          control={
+            <Checkbox
+              id={parameterKey}
+              checked={inputValue as boolean}
+              onClick={handleChangeBoolean}
+              inputProps={{ "aria-label": "controlled" }}
+              data-testid={`input-field-${parameterKey}`}
+              className={styles.checkbox}
+              icon={<EmptyCheckboxIcon />}
+            />
+          }
         />
       );
 
