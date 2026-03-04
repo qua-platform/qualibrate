@@ -14,6 +14,7 @@ export const LogsPanel = () => {
 
   useEffect(() => {
     const protocol = window.location.protocol === "http:" ? "ws" : "wss";
+    const location = process.env.WS_BASE_URL || `${window.location.host}${window.location.pathname}`;
     const host = process.env.WS_BASE_URL || location;
     const logsUrl = `${protocol}://${host}${WS_LOGS}`;
 
@@ -46,7 +47,6 @@ export const LogsPanel = () => {
             <div key={`${log.name}_${index}`}>
               <div className={styles.logsTimestamp}>{`${formatDateTime(log.asctime ?? "")} - ${log.name} - ${log.levelname}`}</div>
               <div className={styles.logsMessage}>
-                {/*{` ${log.message}`}*/}
                 {log.message?.split("\\n").map((item, idx) => {
                   return (
                     <span key={idx}>
