@@ -3,24 +3,19 @@ import styles from "./TestConnectionModal.module.scss";
 import { Dialog } from "@mui/material";
 import { classNames } from "../../../../../utils";
 import { NotificationErrorIcon, NotificationSuccessIcon } from "../../../../../components";
+import { DatabaseDTO } from "../../../../../stores/ProjectStore";
 
 interface Props {
   isVisible: boolean;
   isSuccessful: boolean;
   handleOnClose: () => void;
-  database?: {
-    host: string;
-    port: string;
-    name: string;
-    username: string;
-    password: string;
-  };
+  database?: DatabaseDTO;
 }
 
 const TestConnectionModal = ({ isVisible, database, handleOnClose, isSuccessful }: Props) => {
   const title = isSuccessful ? "Connection Successful" : "Connection Failed";
   const message = isSuccessful
-    ? `Successfully connected to database "${database?.name}" at ${database?.host}:${database?.port}`
+    ? `Successfully connected to database "${database?.database}" at ${database?.host}:${database?.port}`
     : "Unable to connect to database. Please check your credentials and ensure the database server is running.";
 
   return (

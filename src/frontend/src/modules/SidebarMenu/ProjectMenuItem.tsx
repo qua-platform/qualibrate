@@ -1,11 +1,9 @@
 import styles from "./styles/ProjectMenuItem.module.scss";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { classNames, stringToHexColor } from "../../utils";
 import { useSelector } from "react-redux";
 import { deleteProject, getActiveProject, getAllProjects, ProjectDTO, selectActiveProject } from "../../stores/ProjectStore";
 import { useRootDispatch } from "../../stores";
-import { fetchAllNodes } from "../../stores/NodesStore";
-import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary";
 import AddEditProjectModal, { AddEditDialogMode } from "./AddEditProjectModal/AddEditProjectModal";
 import useClickOutside from "../../utils/hooks/useClickOutside";
 import DeleteProjectModal from "./DeleteProjectModal";
@@ -17,9 +15,11 @@ import { removeProject } from "../../stores/ProjectStore/actions";
 import { clearData, fetchGitgraphSnapshots } from "../../stores/SnapshotsStore";
 import { setActivePage } from "../../stores/NavigationStore";
 import { NODES_KEY } from "../AppRoutes";
+import { fetchAllCalibrationGraphs } from "../../stores/GraphStores/GraphLibrary";
+import { fetchAllNodes } from "../../stores/NodesStore";
 
 const ProjectMenuItem = () => {
-  const { setMinifySideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
+  const { minifySideMenu, setMinifySideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const dispatch = useRootDispatch();
   const allProjects = useSelector(getAllProjects);
   const activeProject = useSelector(getActiveProject);
@@ -30,18 +30,13 @@ const ProjectMenuItem = () => {
   const ref = useClickOutside(() => setShowDropdown(false));
   const actionDisabled = activeProject?.name === "demo_project";
 
-  useEffect(() => {
-    if (activeProject) {
-      dispatch(fetchAllNodes());
-      dispatch(fetchAllCalibrationGraphs());
-    }
-  }, [activeProject]);
-
   const handleSetActiveProject = useCallback((selectedProject: ProjectDTO) => {
     dispatch(selectActiveProject(selectedProject));
     dispatch(clearData());
     dispatch(fetchGitgraphSnapshots(true));
     dispatch(setActivePage(NODES_KEY));
+    dispatch(fetchAllNodes());
+    dispatch(fetchAllCalibrationGraphs());
   }, []);
 
   const toggleProjectMenu = () => {
@@ -91,7 +86,7 @@ const ProjectMenuItem = () => {
             </span>
             <span>{activeProject?.name}</span>
           </div>
-          <span className={styles.menuIcon}>⋯</span>
+          {!minifySideMenu && <span className={styles.menuIcon}>⋯</span>}
         </div>
 
         {/* Project Dropdown Menu */}

@@ -4,24 +4,26 @@
 .itemWrapper {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 8px;
   height: 45px;
   width: calc(100% - 20px);
   margin: 5px 10px;
   padding: 0 12px;
-  border-radius: 10px;
+  border-radius: 6px;
   box-sizing: border-box;
   white-space: pre;
-  font-size: 18px;
+  font-size: 13px;
   color: var(--menu-text-color);
   transition: background-color 0.2s;
+  border: 1px solid var(--menuitem-border-color);
 
   &.selected {
     background-color: var(--menuitem-selected);
+    border: 1px solid var(--menuitem-selected-border-color);
   }
 
   &:hover {
-    background-color: var(--menuitem-hover);
+    border: 1px solid var(--menuitem-selected-border-color);
   }
 
   &:disabled {
