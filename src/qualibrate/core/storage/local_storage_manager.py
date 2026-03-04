@@ -57,7 +57,7 @@ class LocalStorageManager(StorageManager[NodeTypeVar], Generic[NodeTypeVar]):
         try:
             DBRegistry.get().db_connect(project_name)
         except RuntimeError as e:
-            logger.warning(f"Could not connect to DB: {e}")
+            logger.debug(f"Could not connect to DB: {e}")
 
     def set_workflow_parent_id(self, parent_id: int | None) -> None:
         """Set the parent workflow ID for this node's snapshot.
