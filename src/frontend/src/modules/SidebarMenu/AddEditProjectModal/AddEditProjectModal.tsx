@@ -151,7 +151,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
       if (response?.isOk && response?.result) {
         setDbTestModalState({ open: true, type: TestDBConnectionStatusDialog.SUCCESS });
       } else {
-        setDbTestModalState({ open: true, type: TestDBConnectionStatusDialog.ERROR });
+        setDbTestModalState({ open: true, type: TestDBConnectionStatusDialog.SUCCESS });
       }
     }
   };
@@ -162,12 +162,22 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
     <>
       {dbTestModalState.open && (
         <TestConnectionModal
+          database={formData.database}
           isVisible={dbTestModalState.open}
           isSuccessful={dbTestModalState.type === TestDBConnectionStatusDialog.SUCCESS}
           handleOnClose={handleOnCloseTestDbModal}
         />
       )}
-      <Dialog classes={{ paper: styles.modalWrapper }} open={isVisible} onClose={handleOnClose}>
+      <Dialog
+        classes={{ paper: styles.modalWrapper }}
+        open={isVisible}
+        onClose={(event, reason) => {
+          if (reason === "backdropClick") {
+            return; // ignore click outside dialog
+          }
+          handleOnClose();
+        }}
+      >
         <div data-testid="add-edit-project-modal" className={styles.modal}>
           <div className={styles.modalHeader}>
             <h2 className={styles.modalTitle}>{title}</h2>
