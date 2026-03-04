@@ -94,6 +94,6 @@ describe("ProjectList", () => {
 
     fireEvent.click(screen.getByText("project2"));
 
-    expect(mockDispatch).toHaveBeenCalledTimes(4);
+    expect(mockDispatch).toHaveBeenCalledTimes(6);
   });
 });
