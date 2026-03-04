@@ -16,6 +16,7 @@ def _projects_folder_exist() -> bool:
     projects_path = qualibrate_path / "projects"
     return projects_path.exists() and any(projects_path.iterdir())
 
+
 def _calibrations_folder_exist() -> bool:
     """Check if there are any existing calibrations."""
     qualibrate_path = config_vars.QUALIBRATE_PATH
