@@ -18,6 +18,8 @@ import { clearData, fetchGitgraphSnapshots } from "../../../stores/SnapshotsStor
 import { setActivePage } from "../../../stores/NavigationStore";
 import { NODES_KEY } from "../../AppRoutes";
 import { FormInputFieldWithLabel, TestConnectionModal } from "./components";
+import { fetchAllNodes } from "../../../stores/NodesStore";
+import { fetchAllCalibrationGraphs } from "../../../stores/GraphStores/GraphLibrary";
 
 export enum AddEditDialogMode {
   ADD = "add",
@@ -130,6 +132,15 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
 
       handleSetActiveProject(response.result);
 
+      if (
+        !isEdit ||
+        (!(project.updates?.qualibrate?.calibration_library?.folder === undefined && formData.calibrationPath === "") &&
+          project.updates?.qualibrate?.calibration_library?.folder !== formData.calibrationPath)
+      ) {
+        dispatch(fetchAllNodes());
+        dispatch(fetchAllCalibrationGraphs());
+      }
+
       handleOnConfirm();
     } catch (err) {
       console.error("Project save failed:", err);
@@ -162,12 +173,22 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
     <>
       {dbTestModalState.open && (
         <TestConnectionModal
+          database={formData.database}
           isVisible={dbTestModalState.open}
           isSuccessful={dbTestModalState.type === TestDBConnectionStatusDialog.SUCCESS}
           handleOnClose={handleOnCloseTestDbModal}
         />
       )}
-      <Dialog classes={{ paper: styles.modalWrapper }} open={isVisible} onClose={handleOnClose}>
+      <Dialog
+        classes={{ paper: styles.modalWrapper }}
+        open={isVisible}
+        onClose={(event, reason) => {
+          if (reason === "backdropClick") {
+            return; // ignore click outside dialog
+          }
+          handleOnClose();
+        }}
+      >
         <div data-testid="add-edit-project-modal" className={styles.modal}>
           <div className={styles.modalHeader}>
             <h2 className={styles.modalTitle}>{title}</h2>

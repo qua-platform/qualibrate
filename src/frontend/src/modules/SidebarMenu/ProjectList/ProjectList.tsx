@@ -7,6 +7,8 @@ import { useRootDispatch } from "../../../stores";
 import { clearData, fetchGitgraphSnapshots } from "../../../stores/SnapshotsStore";
 import { setActivePage } from "../../../stores/NavigationStore";
 import { NODES_KEY } from "../../AppRoutes";
+import { fetchAllCalibrationGraphs } from "../../../stores/GraphStores/GraphLibrary";
+import { fetchAllNodes } from "../../../stores/NodesStore";
 
 const ProjectList = () => {
   const dispatch = useRootDispatch();
@@ -17,6 +19,8 @@ const ProjectList = () => {
     dispatch(selectActiveProject(selectedProject));
     dispatch(clearData());
     dispatch(fetchGitgraphSnapshots(true));
+    dispatch(fetchAllNodes());
+    dispatch(fetchAllCalibrationGraphs());
     dispatch(setActivePage(NODES_KEY));
   }, []);
 

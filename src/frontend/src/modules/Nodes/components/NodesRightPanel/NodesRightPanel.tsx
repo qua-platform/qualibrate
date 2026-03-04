@@ -1,15 +1,22 @@
 import React, { useCallback, useState } from "react";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodesRightPanel.module.scss";
-import { ParametersViewer, Results, ResizableTabSidebar } from "../../../../components";
+import { ParametersViewer, ResizableTabSidebar, Results } from "../../../../components";
 import { useSelector } from "react-redux";
-import { getIsRescanningNodes, getResults, getRunningNode, handleRunNode, setNodeParameter } from "../../../../stores/NodesStore";
+import {
+  getIsRescanningNodes,
+  getResults,
+  getRunningNode,
+  getRunningNodeInfo,
+  getSelectedNode,
+  handleRunNode,
+  setNodeParameter,
+} from "../../../../stores/NodesStore";
 import { getRunResultNodeError, getRunStatusIsRunning } from "../../../../stores/WebSocketStore";
 import { ParameterStructure, SnapshotsApi } from "../../../../stores/SnapshotsStore/api/SnapshotsApi";
 import { classNames } from "../../../../utils";
 import { NodeDTO } from "../NodeElement/NodeElement";
 import { useRootDispatch } from "../../../../stores";
-import { getRunningNodeInfo, getSelectedNode } from "../../../../stores/NodesStore/selectors";
 import ParametersModal from "../../../../components/ParametersModal/ParametersModal";
 import { StateUpdates } from "../StateUpdates/StateUpdates";
 import StatusBanner from "../StatusBanner/StatusBanner";
@@ -34,7 +41,15 @@ export const NodesRightPanel = () => {
   const runningNode = useSelector(getRunningNode);
   const runningNodeInfo = useSelector(getRunningNodeInfo);
 
-  const handleOnClickRunButton = () => setShowPopup(true);
+  const handleOnClickRunButton = async () => {
+    const isSelectedNodeParametersEmpty = !selectedNode.parameters || Object.keys(selectedNode.parameters).length === 0;
+
+    if (!isSelectedNodeParametersEmpty) {
+      setShowPopup(true);
+    } else {
+      await handleApply();
+    }
+  };
   const handleStopClick = async () => SnapshotsApi.stopNodeRunning();
   const handleClose = () => setShowPopup(false);
   const handleApply = useCallback(async () => selectedNode && dispatch(handleRunNode(selectedNode as NodeDTO)), [selectedNode]);

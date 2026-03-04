@@ -10,7 +10,7 @@ describe("TestConnectionModal", () => {
     is_connected: false,
     host: "localhost",
     port: 5432,
-    name: "db",
+    database: "db",
     username: "user",
     password: "pass",
   };
@@ -24,7 +24,7 @@ describe("TestConnectionModal", () => {
     expect(screen.getByText("Connection Successful")).toBeInTheDocument();
 
     expect(
-      screen.getByText(`Successfully connected to database "${mockDatabase.name}" at ${mockDatabase.host}:${mockDatabase.port}`)
+      screen.getByText(`Successfully connected to database "${mockDatabase.database}" at ${mockDatabase.host}:${mockDatabase.port}`)
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByText("OK"));
