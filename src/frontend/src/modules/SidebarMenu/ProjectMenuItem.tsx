@@ -19,7 +19,7 @@ import { setActivePage } from "../../stores/NavigationStore";
 import { NODES_KEY } from "../AppRoutes";
 
 const ProjectMenuItem = () => {
-  const { setMinifySideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
+  const { minifySideMenu, setMinifySideMenu } = useContext(GlobalThemeContext) as GlobalThemeContextState;
   const dispatch = useRootDispatch();
   const allProjects = useSelector(getAllProjects);
   const activeProject = useSelector(getActiveProject);
@@ -91,7 +91,7 @@ const ProjectMenuItem = () => {
             </span>
             <span>{activeProject?.name}</span>
           </div>
-          <span className={styles.menuIcon}>⋯</span>
+          {!minifySideMenu && <span className={styles.menuIcon}>⋯</span>}
         </div>
 
         {/* Project Dropdown Menu */}

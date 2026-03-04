@@ -5,15 +5,15 @@
  * Shows a loading spinner during node library rescanning.
  */
 import React from "react";
-import { NodeElement } from "../NodeElement/NodeElement";
-import { SearchField, SortButton } from "../../../../components";
-import { useSelector } from "react-redux";
-import { getAllNodes, getIsRescanningNodes, getNodeListSearchValue, setNodeListSearch, setNodeListSortType } from "../../../../stores/NodesStore";
+import {NodeElement} from "../NodeElement/NodeElement";
+import {SearchField, SortButton} from "../../../../components";
+import {useSelector} from "react-redux";
+import {getAllNodes, getIsRescanningNodes, getNodeListSearchValue, setNodeListSearch, setNodeListSortType} from "../../../../stores/NodesStore";
 // eslint-disable-next-line css-modules/no-unused-class
 import styles from "./NodesLeftPanel.module.scss";
-import { CircularProgress } from "@mui/material";
-import { useRootDispatch } from "../../../../stores";
-import { NodesListSortType } from "../../../../stores/NodesStore/NodesStore";
+import {CircularProgress} from "@mui/material";
+import {useRootDispatch} from "../../../../stores";
+import {NodesListSortType} from "../../../../stores/NodesStore/NodesStore";
 
 const sortOptions = [
   {
@@ -63,23 +63,25 @@ export const NodesLeftPanel: React.FC = () => {
       <div className={styles.headerPanel}>
         <h2>Node Library</h2>
         <div className={styles.searchFilterContainer}>
-          <SearchField placeholder="Search executions..." value={searchValue} onChange={handleSetSearchValue} debounceMs={500} />
+          <SearchField placeholder="Search nodes..." value={searchValue} onChange={handleSetSearchValue} debounceMs={500} />
           <SortButton key={"sortFilter"} options={sortOptions} onSelect={handleOnSortSelect} />
         </div>
       </div>
       <div className={styles.listWrapper} data-testid="node-list-wrapper">
-        {isRescanningNodes
-          ? <div className={styles.progress}>
-              <CircularProgress size={32} />
-              Node library scan in progress
-              <div>
-                See <span className={styles.logsText}>LOGS</span> for details (bottomright){" "}
-              </div>
+        {isRescanningNodes ? (
+          <div className={styles.progress}>
+            <CircularProgress size={32} />
+            Node library scan in progress
+            <div>
+              See <span className={styles.logsText}>LOGS</span> for details (bottomright){" "}
             </div>
-          : allNodes && Object.keys(allNodes).map((key) => {
-              return <NodeElement key={key} nodeKey={key} data-testid={`node-element-${key}`} />;
-            })
-        }
+          </div>
+        ) : (
+          allNodes &&
+          Object.keys(allNodes).map((key) => {
+            return <NodeElement key={key} nodeKey={key} data-testid={`node-element-${key}`} />;
+          })
+        )}
       </div>
     </div>
   );
