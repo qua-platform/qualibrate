@@ -151,7 +151,7 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
       if (response?.isOk && response?.result) {
         setDbTestModalState({ open: true, type: TestDBConnectionStatusDialog.SUCCESS });
       } else {
-        setDbTestModalState({ open: true, type: TestDBConnectionStatusDialog.SUCCESS });
+        setDbTestModalState({ open: true, type: TestDBConnectionStatusDialog.ERROR });
       }
     }
   };
