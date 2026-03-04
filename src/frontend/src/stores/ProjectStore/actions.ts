@@ -1,6 +1,8 @@
 import { ProjectDTO, ProjectViewApi } from "./api/ProjectViewAPI";
 import { RootDispatch } from "../index";
 import { projectsSlice } from "./ProjectStore";
+import { fetchAllNodes } from "../NodesStore";
+import { fetchAllCalibrationGraphs } from "../GraphStores/GraphLibrary";
 
 export const { setAllProjects, addProject, updateProject, removeProject, setActiveProject, setScanningProjects } = projectsSlice.actions;
 
@@ -16,6 +18,8 @@ export const fetchProjectsAndActive = () => async (dispatch: RootDispatch) => {
       const fetchedActiveProject = fetchedProjects.find((p) => p.name === activeNameRes.result);
 
       dispatch(setActiveProject(fetchedActiveProject));
+      dispatch(fetchAllNodes());
+      dispatch(fetchAllCalibrationGraphs());
     } else if (!activeNameRes.isOk && activeNameRes.error) {
       console.error("Error fetching projects or active project:", activeNameRes.error);
     }

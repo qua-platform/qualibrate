@@ -18,6 +18,8 @@ import { clearData, fetchGitgraphSnapshots } from "../../../stores/SnapshotsStor
 import { setActivePage } from "../../../stores/NavigationStore";
 import { NODES_KEY } from "../../AppRoutes";
 import { FormInputFieldWithLabel, TestConnectionModal } from "./components";
+import { fetchAllNodes } from "../../../stores/NodesStore";
+import { fetchAllCalibrationGraphs } from "../../../stores/GraphStores/GraphLibrary";
 
 export enum AddEditDialogMode {
   ADD = "add",
@@ -129,6 +131,15 @@ const AddEditProjectModal = ({ isVisible, mode, project, handleOnClose, handleOn
       dispatch(isEdit ? updateProject(response.result) : addProject(response.result));
 
       handleSetActiveProject(response.result);
+
+      if (
+        !isEdit ||
+        (!(project.updates?.qualibrate?.calibration_library?.folder === undefined && formData.calibrationPath === "") &&
+          project.updates?.qualibrate?.calibration_library?.folder !== formData.calibrationPath)
+      ) {
+        dispatch(fetchAllNodes());
+        dispatch(fetchAllCalibrationGraphs());
+      }
 
       handleOnConfirm();
     } catch (err) {
