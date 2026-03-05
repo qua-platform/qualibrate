@@ -14,9 +14,12 @@ Qualibrate Projects package these overrides into named profiles that you can sel
 
 The Projects page is the quickest way to review existing projects, switch the active one, or create a new profile. Selecting a project immediately updates the active context for the entire app.
 
-![Projects Page placeholder](assets/projects/projects-page.png)
+![Projects Page placeholder](assets/projects/project-menu.png)
 
 Creating a project in the web interface prompts you for the storage location, calibration library folder, and QUAM state path. Leave any field blank to keep the value inherited from the global configuration. Once saved, the project appears in the list so you can switch back to it whenever needed.
+It is also possible to configure optional external database (Postgres) endpoint to export QUAM state changes.
+
+![Projects settings placeholder](assets/projects/project-edit.png)
 
 ## Manage Projects from the CLI
 
