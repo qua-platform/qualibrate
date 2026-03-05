@@ -13,7 +13,7 @@ A message should appear in the terminal specifying the URL to access the Web App
 
 When accessing the URL on a web browser, you should be greeted by the `Node Execution` page:
 
-![Node Page Before Execution](assets/web_app/node_page_before_execution.png){ max-width="700px" }
+![Node Page Before Execution](assets/web_app/node-page-v1-1-2.png){ max-width="700px" }
 
 This webpage contains a list of all nodes registered in the  `qualibrate_runner.calibration_library_folder` path in the [configuration file](configuration.md).
 If you don't see any nodes in here, it may be because no nodes have yet been added to this folder.
@@ -22,7 +22,7 @@ When selecting a node, the `NodeParameters` defined in the `QualibrationNode` fi
 These default values can be overwritten, and the node can then be executed by pressing the `Run` button.
 
 After the node execution has finished, the results are shown on the right-hand side.
-![Node Page After Execution](assets/web_app/node_page_after_execution.png){ max-width="700px" }
+![Node Page After Execution](assets/web_app/node-page-v1-1-2-post.png){ max-width="700px" }
 Additionally, `State updates` may be shown if QUAM entries have been updated using `with node.record_state_updates():` (see [calibration nodes](calibration_nodes.md) for details).
 
 
@@ -50,4 +50,4 @@ The `History` page displays the results of every executed node.
 It lets you search past executions, filter them, and mark favorite runs.
 Each record includes the node’s results, the QUAM state, and any changes made to QUAM during that execution.
 
-![History Page](assets/web_app/history_page.png){ max-width="700px" }
+![History Page](assets/web_app/history-page-1-1-2.png){ max-width="700px" }
