@@ -61,11 +61,11 @@ const ParameterSelector = ({
           label={""}
           htmlFor={parameterKey}
           className={classNames(styles.checkboxWrapper, className)}
+          onChange={handleChangeBoolean}
           control={
             <Checkbox
               id={parameterKey}
               checked={inputValue as boolean}
-              onClick={handleChangeBoolean}
               inputProps={{ "aria-label": "controlled" }}
               data-testid={`input-field-${parameterKey}`}
               className={styles.checkbox}
