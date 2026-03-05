@@ -5,6 +5,32 @@
 QUAlibrate is updated regularly to provide new features, performance improvements and bug fixes.
 These release notes provide more information about those changes.
 
+## March 5, 2026
+### v1.1.2
+
+* **Redesign Node library page** 
+    * Node parameters can now be reviewed and edited in a modal before execution, reducing accidental runs with wrong settings.
+    * Quickly search and sort the library nodes
+    * Reviewing and managing pending QUAM state changes is now easier
+    * Collapsible right panel allows freeing up space when focusing on configuration.
+
+
+* **QUAM Export** 
+ * The QUAM state can now be exported to an external database, enabling persistent storage and cross-session access to machine state.
+
+
+* **Project Management** 
+     * Project Switcher: A new project menu in the sidebar lets you switch between projects at any time without leaving the current view.
+     * Create & Edit Projects: Projects can now be created and edited through a dedicated dialog, with configurable paths for data, QUAM state, and calibration library.
+     * External database can be optionally configured for QUAM state export.
+
+* **General** 
+    * Application version label is now displayed in the UI.
+    * Various bug fixes
+
+
+
+
 ## Feb 15, 2026
 ### v1.0.2
 

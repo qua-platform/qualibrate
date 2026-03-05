@@ -6,8 +6,8 @@ Tuning up a qubit or multiple qubits in a quantum processing unit (QPU) involves
 
 In QUAlibrate, a `QualibrationGraph` is used to represent these calibration routines. The nodes in the DAG are `QualibrationNode` instances, and the edges between nodes determine the execution order: a destination node can only be executed once its origin node has successfully completed.
 
-!!! tip "Advanced Features"
-This guide covers the basics of creating and running calibration graphs. For advanced features including looping, failure handling, and nested subgraphs, see [Advanced Calibration Graphs](advanced_calibration_graphs.md).
+??? info "Advanced Features"
+    This guide covers the basics of creating and running calibration graphs. For advanced features including looping, failure handling, and nested subgraphs, see [Advanced Calibration Graphs](advanced_calibration_graphs.md).
 
 ## Graph Execution Using Targets and an Orchestrator
 
@@ -38,8 +38,8 @@ class Parameters(NodeParameters):
 
 This setup indicates that the `QualibrationNode` can receive a list of qubits as targets for calibration.
 
-/// details | Using `targets` other than `qubits`
-By default, the `targets` parameter is set to `qubits`, as this is the most common use case for calibrations. However, the `targets` can be modified to accommodate different types by changing the class variable `Parameters.targets_name`. For example, if the node performs calibration on qubit pairs rather than individual qubits, it can be specified as follows:
+??? info "Using `targets` other than `qubits`"
+    By default, the `targets` parameter is set to `qubits`, as this is the most common use case for calibrations. However, the `targets` can be modified to accommodate different types by changing the class variable `Parameters.targets_name`. For example, if the node performs calibration on qubit pairs rather than individual qubits, it can be specified as follows:
 
 ```python
 from typing import ClassVar, Optional, List
@@ -50,10 +50,8 @@ class Parameters(NodeParameters):
     # Include other parameters here
 ```
 
-///
-
-!!! Note "Targets Type"
-Currently, each target is expected to be of type `str`. Therefore, the `targets` parameter type should be `Optional[List[str]]` with a default value of `None`. In the future, support for additional types will be added.
+??? note "Targets Type"
+    Currently, each target is expected to be of type `str`. Therefore, the `targets` parameter type should be `Optional[List[str]]` with a default value of `None`. In the future, support for additional types will be added.
 
 #### Adding Node Outcome per Target
 
@@ -76,8 +74,8 @@ Similar to a `QualibrationNode`, a `QualibrationGraph` should be defined in a de
 
 In this example, we will create a graph composed of three `QualibrationNode`s: qubit spectroscopy → Rabi → Ramsey. The arrow indicates that each subsequent node can only be executed if the previous node had a successful outcome for that target.
 
-!!! note "Demo Calibration Nodes"
-This example uses demo calibration nodes that are automatically installed with QUAlibrate in the project `"demo_project"`. These nodes (`01_demo_qubit_spectroscopy`, `02_demo_rabi`, `05_demo_ramsey`) are available in the calibration library and can be used for testing and learning purposes.
+??? note "Demo Calibration Nodes"
+    This example uses demo calibration nodes that are automatically installed with QUAlibrate in the project `"demo_project"`. These nodes (`01_demo_qubit_spectroscopy`, `02_demo_rabi`, `05_demo_ramsey`) are available in the calibration library and can be used for testing and learning purposes.
 
 ### Importing `qualibrate`
 
