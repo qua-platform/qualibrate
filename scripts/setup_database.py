@@ -3,6 +3,8 @@
 Run this to initialize your production database schema.
 """
 
+from typing import Any
+
 from sqlalchemy import create_engine, text
 
 # Production database configuration
@@ -15,11 +17,10 @@ PROD_CONFIG = {
 }
 
 
-def create_machine_state_table(config: dict):
+def create_machine_state_table(config: dict[str, Any]) -> None:
     """Create the machine_state table in the specified database."""
     connection_url = (
-        f"postgresql://{config['username']}:{config['password']}"
-        f"@{config['host']}:{config['port']}/{config['database']}"
+        f"postgresql://{config['username']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}"
     )
 
     engine = create_engine(connection_url)
@@ -41,7 +42,7 @@ def create_machine_state_table(config: dict):
     engine.dispose()
 
 
-def main():
+def main() -> None:
     """Setup production database."""
     print("Setting up production database...")
     create_machine_state_table(PROD_CONFIG)

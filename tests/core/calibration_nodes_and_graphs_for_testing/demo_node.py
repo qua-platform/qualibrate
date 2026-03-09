@@ -1,8 +1,10 @@
 from enum import Enum
 
+from quam import QuamRoot
+
 from qualibrate.core import NodeParameters, QualibrationNode
 from qualibrate.core.models.outcome import Outcome
-from quam import QuamRoot
+
 
 class Color(Enum):
     RED = "red"

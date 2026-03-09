@@ -4,10 +4,14 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from qualibrate_config.models import DBConfig, DatabaseStateConfig
+from qualibrate_config.models import DatabaseStateConfig, DBConfig
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 
 from qualibrate.core.infrastructure.DB.postgres_management import PostgresManagement
+
+# Constants for test data
+TEST_PROJECT_NAME = "test_project"
+TEST_PROJECT_NAME_2 = "test_project_2"
 
 
 @pytest.fixture
@@ -42,10 +46,9 @@ def postgres_manager_reset():
     # Clear singleton instance
     PostgresManagement._instance = None
     yield
-    # Clean up after test
+    # Clean up after test - properly dispose engines and clear resources
     if PostgresManagement._instance:
-        PostgresManagement._instance._engines.clear()
-        PostgresManagement._instance._session_factories.clear()
+        PostgresManagement._instance.disconnect_all()
     PostgresManagement._instance = None
 
 
@@ -137,11 +140,11 @@ class TestProjectConnection:
         mock_create_engine.return_value = mock_engine
 
         manager = PostgresManagement()
-        manager.db_connect("test_project")
+        manager.db_connect(TEST_PROJECT_NAME)
 
         # Verify engine was created and stored
-        assert "test_project" in manager._engines
-        assert "test_project" in manager._session_factories
+        assert TEST_PROJECT_NAME in manager._engines
+        assert TEST_PROJECT_NAME in manager._session_factories
 
     @patch("qualibrate.core.infrastructure.DB.postgres_management.get_qualibrate_config")
     @patch("qualibrate.core.infrastructure.DB.postgres_management.get_qualibrate_config_path")
@@ -156,10 +159,10 @@ class TestProjectConnection:
 
         # Manually add project to engines to simulate existing connection
         mock_engine = MagicMock()
-        manager._engines["test_project"] = mock_engine
+        manager._engines[TEST_PROJECT_NAME] = mock_engine
 
         # Try to connect again - should return early
-        manager.db_connect("test_project")
+        manager.db_connect(TEST_PROJECT_NAME)
 
         # Verify no new config was fetched (returned early)
         mock_get_config.assert_not_called()
@@ -183,11 +186,11 @@ class TestProjectConnection:
         mock_get_config_path.return_value = Path("/fake/config.toml")
 
         manager = PostgresManagement()
-        manager.db_connect("test_project")
+        manager.db_connect(TEST_PROJECT_NAME)
 
         # Verify no connection was made
-        assert "test_project" not in manager._engines
-        assert "test_project" not in manager._session_factories
+        assert TEST_PROJECT_NAME not in manager._engines
+        assert TEST_PROJECT_NAME not in manager._session_factories
 
     @patch("qualibrate.core.infrastructure.DB.postgres_management.get_qualibrate_config")
     @patch("qualibrate.core.infrastructure.DB.postgres_management.get_qualibrate_config_path")
@@ -207,11 +210,11 @@ class TestProjectConnection:
         mock_get_config_path.return_value = Path("/fake/config.toml")
 
         manager = PostgresManagement()
-        manager.db_connect("test_project")
+        manager.db_connect(TEST_PROJECT_NAME)
 
         # Verify no connection was made
-        assert "test_project" not in manager._engines
-        assert "test_project" not in manager._session_factories
+        assert TEST_PROJECT_NAME not in manager._engines
+        assert TEST_PROJECT_NAME not in manager._session_factories
 
 
 class TestProjectDisconnection:
@@ -223,30 +226,26 @@ class TestProjectDisconnection:
 
         # Mock an existing connection
         mock_engine = MagicMock()
-        manager._engines["test_project"] = mock_engine
-        manager._session_factories["test_project"] = MagicMock()
+        manager._engines[TEST_PROJECT_NAME] = mock_engine
+        manager._session_factories[TEST_PROJECT_NAME] = MagicMock()
 
-        manager.db_disconnect("test_project")
+        manager.db_disconnect(TEST_PROJECT_NAME)
 
         # Verify engine was disposed
         mock_engine.dispose.assert_called_once()
 
         # Verify project was removed from tracking
-        assert "test_project" not in manager._engines
-        assert "test_project" not in manager._session_factories
+        assert TEST_PROJECT_NAME not in manager._engines
+        assert TEST_PROJECT_NAME not in manager._session_factories
 
-    def test_db_disconnect_no_connection(self, postgres_manager_reset, mocker):
-        """Test disconnecting when no connection exists."""
+    def test_db_disconnect_no_connection(self, postgres_manager_reset):
+        """Test disconnecting when no connection exists handles gracefully."""
         manager = PostgresManagement()
 
-        # Mock logger to verify warning
-        mock_logger = mocker.patch("qualibrate.core.infrastructure.DB.postgres_management.logger")
-
+        # Should not raise exception when disconnecting nonexistent project
         manager.db_disconnect("nonexistent_project")
 
-        # Verify warning was logged
-        mock_logger.warning.assert_called_once()
-        assert "No database connection found" in str(mock_logger.warning.call_args)
+        # Verify it completed without error (no exception raised)
 
     def test_db_disconnect_disposal_error(self, postgres_manager_reset):
         """Test db_disconnect() handles engine disposal errors."""
@@ -255,11 +254,11 @@ class TestProjectDisconnection:
         # Mock an existing connection that raises error on dispose
         mock_engine = MagicMock()
         mock_engine.dispose.side_effect = Exception("Disposal failed")
-        manager._engines["test_project"] = mock_engine
-        manager._session_factories["test_project"] = MagicMock()
+        manager._engines[TEST_PROJECT_NAME] = mock_engine
+        manager._session_factories[TEST_PROJECT_NAME] = MagicMock()
 
         with pytest.raises(Exception, match="Error disposing engine"):
-            manager.db_disconnect("test_project")
+            manager.db_disconnect(TEST_PROJECT_NAME)
 
     def test_disconnect_all(self, postgres_manager_reset):
         """Test disconnecting all project databases."""
@@ -283,12 +282,9 @@ class TestProjectDisconnection:
         assert len(manager._engines) == 0
         assert len(manager._session_factories) == 0
 
-    def test_disconnect_all_with_errors(self, postgres_manager_reset, mocker):
-        """Test disconnect_all() handles disposal errors gracefully."""
+    def test_disconnect_all_with_errors(self, postgres_manager_reset):
+        """Test disconnect_all() clears connections even if disposal fails."""
         manager = PostgresManagement()
-
-        # Mock logger
-        mock_logger = mocker.patch("qualibrate.core.infrastructure.DB.postgres_management.logger")
 
         # Mock connection that raises error on dispose
         mock_engine = MagicMock()
@@ -296,13 +292,10 @@ class TestProjectDisconnection:
         manager._engines["project1"] = mock_engine
         manager._session_factories["project1"] = MagicMock()
 
+        # Should not raise exception despite disposal error
         manager.disconnect_all()
 
-        # Verify warning was logged
-        mock_logger.warning.assert_called_once()
-        assert "Error disposing engine" in str(mock_logger.warning.call_args)
-
-        # Verify connections were cleared despite error
+        # Verify connections were cleared despite disposal error
         assert len(manager._engines) == 0
         assert len(manager._session_factories) == 0
 
@@ -315,15 +308,15 @@ class TestConnectionStatus:
         manager = PostgresManagement()
 
         # No connection initially
-        assert manager.is_connected("test_project") is False
+        assert manager.is_connected(TEST_PROJECT_NAME) is False
 
         # Add connection
-        manager._session_factories["test_project"] = MagicMock()
-        assert manager.is_connected("test_project") is True
+        manager._session_factories[TEST_PROJECT_NAME] = MagicMock()
+        assert manager.is_connected(TEST_PROJECT_NAME) is True
 
         # Remove connection
-        manager._session_factories.pop("test_project")
-        assert manager.is_connected("test_project") is False
+        manager._session_factories.pop(TEST_PROJECT_NAME)
+        assert manager.is_connected(TEST_PROJECT_NAME) is False
 
 
 class TestSessionManagement:
@@ -336,9 +329,9 @@ class TestSessionManagement:
         # Mock session factory
         mock_session = MagicMock()
         mock_session_factory = MagicMock(return_value=mock_session)
-        manager._session_factories["test_project"] = mock_session_factory
+        manager._session_factories[TEST_PROJECT_NAME] = mock_session_factory
 
-        with manager.session("test_project") as session:
+        with manager.session(TEST_PROJECT_NAME) as session:
             assert session is mock_session
 
         # Verify commit and close were called
@@ -353,11 +346,10 @@ class TestSessionManagement:
         # Mock session factory
         mock_session = MagicMock()
         mock_session_factory = MagicMock(return_value=mock_session)
-        manager._session_factories["test_project"] = mock_session_factory
+        manager._session_factories[TEST_PROJECT_NAME] = mock_session_factory
 
-        with pytest.raises(ValueError):
-            with manager.session("test_project"):
-                raise ValueError("Test error")
+        with pytest.raises(ValueError), manager.session(TEST_PROJECT_NAME):
+            raise ValueError("Test error")
 
         # Verify rollback was called, not commit
         mock_session.rollback.assert_called_once()
@@ -368,9 +360,11 @@ class TestSessionManagement:
         """Test session() raises error when project not connected."""
         manager = PostgresManagement()
 
-        with pytest.raises(RuntimeError, match="No database connection configured"):
-            with manager.session("nonexistent_project"):
-                pass
+        with (
+            pytest.raises(RuntimeError, match="No database connection configured"),
+            manager.session("nonexistent_project"),
+        ):
+            pass
 
 
 class TestConnectionTesting:

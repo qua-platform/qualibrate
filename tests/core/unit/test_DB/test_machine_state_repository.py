@@ -28,6 +28,24 @@ def mock_session():
 
 
 @pytest.fixture
+def mock_config(mocker):
+    """Mock qualibrate config and patches."""
+    mock_cfg = MagicMock()
+    mock_cfg.project = "test_project"
+
+    mocker.patch(
+        "qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config_path",
+        return_value=Path("/fake/config.toml"),
+    )
+    mocker.patch(
+        "qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config",
+        return_value=mock_cfg,
+    )
+
+    return mock_cfg
+
+
+@pytest.fixture
 def repository(mock_db_management):
     """Create MachineStateRepository instance."""
     return MachineStateRepository(mock_db_management)
@@ -83,23 +101,14 @@ def test_repository_project_property(
 class TestRepositorySave:
     """Tests for save() method."""
 
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config")
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config_path")
     def test_repository_save_success(
         self,
-        mock_get_config_path,
-        mock_get_config,
         repository,
         mock_db_management,
         mock_session,
+        mock_config,
     ):
         """Test saving machine state to database."""
-        # Setup mocks
-        mock_config = MagicMock()
-        mock_config.project = "test_project"
-        mock_get_config.return_value = mock_config
-        mock_get_config_path.return_value = Path("/fake/config.toml")
-
         mock_db_management.session.return_value = mock_session
 
         # Test data
@@ -122,23 +131,14 @@ class TestRepositorySave:
         # Verify result is MachineState instance
         assert isinstance(result, MachineState)
 
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config")
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config_path")
     def test_repository_save_with_missing_project(
         self,
-        mock_get_config_path,
-        mock_get_config,
         repository,
         mock_db_management,
+        mock_config,
         mocker,
     ):
         """Test save handles missing project gracefully."""
-        # Setup mocks
-        mock_config = MagicMock()
-        mock_config.project = "test_project"
-        mock_get_config.return_value = mock_config
-        mock_get_config_path.return_value = Path("/fake/config.toml")
-
         # Mock session to raise RuntimeError (project not in DB)
         mock_db_management.session.side_effect = RuntimeError("No database connection configured for project")
 
@@ -156,23 +156,14 @@ class TestRepositorySave:
 class TestRepositoryLoad:
     """Tests for load() method."""
 
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config")
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config_path")
     def test_repository_load_success(
         self,
-        mock_get_config_path,
-        mock_get_config,
         repository,
         mock_db_management,
         mock_session,
+        mock_config,
     ):
         """Test loading machine state from database."""
-        # Setup mocks
-        mock_config = MagicMock()
-        mock_config.project = "test_project"
-        mock_get_config.return_value = mock_config
-        mock_get_config_path.return_value = Path("/fake/config.toml")
-
         mock_db_management.session.return_value = mock_session
 
         # Mock loaded object
@@ -191,23 +182,14 @@ class TestRepositoryLoad:
 
         assert result is mock_machine_state
 
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config")
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config_path")
     def test_repository_load_not_found(
         self,
-        mock_get_config_path,
-        mock_get_config,
         repository,
         mock_db_management,
         mock_session,
+        mock_config,
     ):
         """Test loading nonexistent machine state returns None."""
-        # Setup mocks
-        mock_config = MagicMock()
-        mock_config.project = "test_project"
-        mock_get_config.return_value = mock_config
-        mock_get_config_path.return_value = Path("/fake/config.toml")
-
         mock_db_management.session.return_value = mock_session
         mock_session.get.return_value = None  # Object not found
 
@@ -220,23 +202,14 @@ class TestRepositoryLoad:
 class TestRepositoryUpdate:
     """Tests for update() method."""
 
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config")
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config_path")
     def test_repository_update_success(
         self,
-        mock_get_config_path,
-        mock_get_config,
         repository,
         mock_db_management,
         mock_session,
+        mock_config,
     ):
         """Test updating machine state in database."""
-        # Setup mocks
-        mock_config = MagicMock()
-        mock_config.project = "test_project"
-        mock_get_config.return_value = mock_config
-        mock_get_config_path.return_value = Path("/fake/config.toml")
-
         mock_db_management.session.return_value = mock_session
 
         # Mock existing object
@@ -261,23 +234,14 @@ class TestRepositoryUpdate:
 
         assert result is mock_machine_state
 
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config")
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config_path")
     def test_repository_update_not_found(
         self,
-        mock_get_config_path,
-        mock_get_config,
         repository,
         mock_db_management,
         mock_session,
+        mock_config,
     ):
         """Test updating nonexistent machine state returns None."""
-        # Setup mocks
-        mock_config = MagicMock()
-        mock_config.project = "test_project"
-        mock_get_config.return_value = mock_config
-        mock_get_config_path.return_value = Path("/fake/config.toml")
-
         mock_db_management.session.return_value = mock_session
         mock_session.get.return_value = None  # Object not found
 
@@ -290,23 +254,14 @@ class TestRepositoryUpdate:
 class TestRepositoryDelete:
     """Tests for delete() method."""
 
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config")
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config_path")
     def test_repository_delete_success(
         self,
-        mock_get_config_path,
-        mock_get_config,
         repository,
         mock_db_management,
         mock_session,
+        mock_config,
     ):
         """Test deleting machine state from database."""
-        # Setup mocks
-        mock_config = MagicMock()
-        mock_config.project = "test_project"
-        mock_get_config.return_value = mock_config
-        mock_get_config_path.return_value = Path("/fake/config.toml")
-
         mock_db_management.session.return_value = mock_session
 
         # Mock existing object
@@ -322,23 +277,14 @@ class TestRepositoryDelete:
         # Verify delete was called
         mock_session.delete.assert_called_once_with(mock_machine_state)
 
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config")
-    @patch("qualibrate.core.infrastructure.DB.postgres_base_repository.get_qualibrate_config_path")
     def test_repository_delete_not_found(
         self,
-        mock_get_config_path,
-        mock_get_config,
         repository,
         mock_db_management,
         mock_session,
+        mock_config,
     ):
         """Test deleting nonexistent machine state does nothing."""
-        # Setup mocks
-        mock_config = MagicMock()
-        mock_config.project = "test_project"
-        mock_get_config.return_value = mock_config
-        mock_get_config_path.return_value = Path("/fake/config.toml")
-
         mock_db_management.session.return_value = mock_session
         mock_session.get.return_value = None  # Object not found
 

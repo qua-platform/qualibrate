@@ -15,7 +15,7 @@ ADMIN_CONFIG = {
 }
 
 
-def create_test_database():
+def create_test_database() -> None:
     """Create qualibrate_test database if it doesn't exist."""
     connection_url = (
         f"postgresql://{ADMIN_CONFIG['username']}:{ADMIN_CONFIG['password']}"
@@ -26,9 +26,7 @@ def create_test_database():
 
     with engine.connect() as conn:
         # Check if database exists
-        result = conn.execute(
-            text("SELECT 1 FROM pg_database WHERE datname = 'qualibrate_test'")
-        )
+        result = conn.execute(text("SELECT 1 FROM pg_database WHERE datname = 'qualibrate_test'"))
         exists = result.fetchone() is not None
 
         if exists:
@@ -41,7 +39,7 @@ def create_test_database():
     engine.dispose()
 
 
-def main():
+def main() -> None:
     """Setup test database."""
     print("Setting up test database...")
     create_test_database()
