@@ -34,6 +34,7 @@ class PostgresBaseRepository(DBOperations):
         with self._db.session(self.project) as session:
             obj = self.model(**data)  # type: ignore[misc]
             session.add(obj)
+            session.flush()  # Execute INSERT to populate obj.id before detaching
             session.expunge(obj)
         return obj
 
@@ -56,6 +57,7 @@ class PostgresBaseRepository(DBOperations):
             if obj:
                 for key, value in data.items():
                     setattr(obj, key, value)
+                session.flush()  # Execute UPDATE before detaching
                 session.expunge(obj)
         return obj
 

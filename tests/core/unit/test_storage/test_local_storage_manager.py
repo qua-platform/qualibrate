@@ -158,3 +158,142 @@ def test_save_active_machine_path(mocker, mock_generate, mock_data_handler):
         ]
     )
     assert manager.snapshot_idx == mock_generate.return_value["id"]
+
+
+# ==============================================================================
+# DATABASE INTEGRATION TESTS (Mocked)
+# ==============================================================================
+
+
+def test_initialization_db_connection_failure(mocker):
+    """Test that LocalStorageManager initialization handles DB connection failure gracefully."""
+    # Mock DBRegistry to raise RuntimeError on connection
+    mock_db_registry = mocker.patch("qualibrate.core.storage.local_storage_manager.DBRegistry")
+    mock_db_manager = MagicMock()
+    mock_db_manager.db_connect.side_effect = RuntimeError("DB not available")
+    mock_db_registry.get.return_value = mock_db_manager
+    mock_db_registry.configure = MagicMock()
+
+    # Mock config
+    mocker.patch(
+        "qualibrate.core.storage.local_storage_manager.get_qualibrate_config_path",
+        return_value=Path("/fake/config.toml"),
+    )
+    mock_config = MagicMock()
+    mock_config.project = "test_project"
+    mocker.patch(
+        "qualibrate.core.storage.local_storage_manager.get_qualibrate_config",
+        return_value=mock_config,
+    )
+
+    mock_logger = mocker.patch.object(logger, "debug")
+
+    # Should not raise exception
+    root_folder = Path("/tmp/test_folder")
+    manager = LocalStorageManager(root_folder)
+
+    # Verify initialization succeeded despite DB failure
+    assert manager.root_data_folder == root_folder
+    mock_logger.assert_called_once_with("Could not connect to DB: DB not available")
+
+
+def test_save_quam_state_to_db_success(mocker, mock_generate, mock_data_handler, local_manager_root):
+    """Test that _save_quam_state_to_db is called with correct arguments when machine exists."""
+    # Mock DBRegistry and repository
+    mock_db_manager = MagicMock()
+    mock_db_registry = mocker.patch("qualibrate.core.storage.local_storage_manager.DBRegistry")
+    mock_db_registry.get.return_value = mock_db_manager
+
+    mock_repository = MagicMock()
+    mocker.patch(
+        "qualibrate.core.storage.local_storage_manager.MachineStateRepository",
+        return_value=mock_repository,
+    )
+
+    # Create machine with to_dict method
+    machine = MagicMock()
+    machine.to_dict.return_value = {"state": "test_state", "channels": [1, 2, 3]}
+
+    node = DummyNode(machine=machine)
+    local_manager_root.save(node)
+
+    # Verify repository.save was called with correct data
+    mock_repository.save.assert_called_once_with({"content": {"state": "test_state", "channels": [1, 2, 3]}})
+
+
+def test_save_quam_state_to_db_failure_does_not_break_workflow(
+    mocker, mock_generate, mock_data_handler, local_manager_root
+):
+    """Test that DB save failure doesn't prevent filesystem save."""
+    # Mock DBRegistry to raise error
+    mock_db_registry = mocker.patch("qualibrate.core.storage.local_storage_manager.DBRegistry")
+    mock_db_registry.get.side_effect = RuntimeError("DB connection lost")
+
+    mock_logger = mocker.patch.object(logger, "warning")
+
+    # Create machine
+    machine = MagicMock()
+    machine.to_dict.return_value = {"state": "test_state"}
+
+    node = DummyNode(machine=machine)
+    local_manager_root.save(node)
+
+    # Verify warning was logged
+    mock_logger.assert_any_call("Could not save machine state to db: DB connection lost")
+
+    # Verify filesystem save still succeeded
+    assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
+    machine.save.assert_called()
+
+
+def test_save_node_without_db_connection(mocker, mock_data_handler, mock_generate, local_manager_root):
+    """Test that node save works when DB is not connected."""
+    # Mock DBRegistry to raise RuntimeError (simulating no connection)
+    mock_db_registry = mocker.patch("qualibrate.core.storage.local_storage_manager.DBRegistry")
+    mock_db_registry.get.side_effect = RuntimeError("No DB connection")
+
+    mock_logger = mocker.patch.object(logger, "warning")
+
+    machine = MagicMock()
+    machine.to_dict.return_value = {"state": "test"}
+    node = DummyNode(machine=machine)
+
+    # Should complete successfully
+    local_manager_root.save(node)
+
+    # Verify warning was logged
+    mock_logger.assert_any_call("Could not save machine state to db: No DB connection")
+
+    # Verify filesystem operations succeeded
+    assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
+    mock_data_handler.return_value.save_data.assert_called_once()
+
+
+def test_save_node_db_repository_failure(mocker, mock_generate, mock_data_handler, local_manager_root):
+    """Test that repository save failure is handled gracefully."""
+    # Mock DBRegistry and repository
+    mock_db_manager = MagicMock()
+    mock_db_registry = mocker.patch("qualibrate.core.storage.local_storage_manager.DBRegistry")
+    mock_db_registry.get.return_value = mock_db_manager
+
+    mock_repository = MagicMock()
+    # Use RuntimeError since that's what the code catches
+    mock_repository.save.side_effect = RuntimeError("Database write error")
+    mocker.patch(
+        "qualibrate.core.storage.local_storage_manager.MachineStateRepository",
+        return_value=mock_repository,
+    )
+
+    mock_logger = mocker.patch.object(logger, "warning")
+
+    machine = MagicMock()
+    machine.to_dict.return_value = {"state": "test"}
+
+    node = DummyNode(machine=machine)
+    local_manager_root.save(node)
+
+    # Verify warning was logged
+    mock_logger.assert_any_call("Could not save machine state to db: Database write error")
+
+    # Verify filesystem save still succeeded
+    assert local_manager_root.snapshot_idx == mock_generate.return_value["id"]
