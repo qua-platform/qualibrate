@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="0; url=https://qualibrate-docs.quantum-machines.co/">
+    <script>
+        var base = 'https://qualibrate-docs.quantum-machines.co';
+        var path = window.location.pathname.replace(/^\/qualibrate/, '');
+        if (window.location.hostname === 'qua-platform.github.io' && path && path !== '/') {
+            window.location.replace(base + path + window.location.search + window.location.hash);
+        } else {
+            window.location.replace(base + '/');
+        }
+    </script>
+</head>
+</html>
